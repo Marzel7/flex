@@ -1,0 +1,1086 @@
+"""
+FLEX Token Price Service
+
+Fetches, caches, and normalizes token prices from multiple sources.
+
+Architecture:
+1. Dexscreener (primary - DEX pair prices)
+2. Jupiter (secondary - implied prices from quotes)
+3. Local cache (fallback - stale prices)
+4. Mark as unavailable if all fail
+
+Caching:
+- Hot tokens: 5-15 seconds
+- Organization page: 15-30 seconds
+- Historical: 1-5 minutes
+"""
+
+import sqlite3
+import logging
+import time
+import asyncio
+import aiohttp
+import requests
+import threading
+from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass, asdict
+from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
+import json
+from src.utils.db_locking import db_connect
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class TokenPrice:
+    """Normalized token price response."""
+    mint: str
+    price_usd: float
+    price_sol: float
+    liquidity_usd: float
+    volume_24h: float
+    market_cap: float
+    source: str  # 'dexscreener', 'jupiter', 'cached', 'unavailable'
+    pair_address: Optional[str] = None
+    timestamp: int = None
+    is_stale: bool = False
+    peak_market_cap: float = 0  # NEW: Historical maximum market cap
+    peak_market_cap_at: Optional[int] = None  # NEW: Timestamp when peak reached
+    
+    def __post_init__(self):
+        if self.timestamp is None:
+            self.timestamp = int(time.time())
+
+
+class PriceCache:
+    """In-memory price cache with TTL support."""
+    
+    def __init__(self):
+        self.cache: Dict[str, Tuple[TokenPrice, float]] = {}
+        self.ttl_config = {
+            'hot': 10,        # 10 seconds for dashboard
+            'org': 30,        # 30 seconds for org pages
+            'history': 300,   # 5 minutes for historical
+            'snapshot': 30,   # 30 seconds snapshot buffer for dashboard reads
+        }
+    
+    def get(self, mint: str, cache_type: str = 'hot') -> Optional[TokenPrice]:
+        """Get price from cache if not expired."""
+        if mint not in self.cache:
+            return None
+        
+        price, cached_time = self.cache[mint]
+        ttl = self.ttl_config.get(cache_type, 10)
+        
+        if time.time() - cached_time > ttl:
+            del self.cache[mint]
+            return None
+        
+        return price
+    
+    def set(self, mint: str, price: TokenPrice, cache_type: str = 'hot') -> None:
+        """Store price in cache (cache_type parameter for future multi-tier support)."""
+        self.cache[mint] = (price, time.time())
+    
+    def clear(self, mint: Optional[str] = None) -> None:
+        """Clear cache."""
+        if mint:
+            self.cache.pop(mint, None)
+        else:
+            self.cache.clear()
+
+
+class DexscreenerClient:
+    """Fetches prices from Dexscreener API."""
+    
+    BASE_URL = "https://api.dexscreener.com/latest/dex"
+    
+    @staticmethod
+    async def get_price(mint: str) -> Optional[TokenPrice]:
+        """Fetch token price from Dexscreener."""
+        try:
+            url = f"{DexscreenerClient.BASE_URL}/tokens/{mint}"
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=1.5)) as resp:
+                    if resp.status != 200:
+                        logger.warning(f"Dexscreener {resp.status} for {mint}")
+                        return None
+                    
+                    data = await resp.json()
+                    
+                    if not data.get('pairs') or len(data['pairs']) == 0:
+                        logger.debug(f"No pairs found for {mint} on Dexscreener")
+                        return None
+                    
+                    # Use first (best liquidity) pair
+                    pair = data['pairs'][0]
+                    
+                    try:
+                        price_usd = float(pair.get('priceUsd', 0) or 0)
+                        if price_usd == 0:
+                            return None
+                        
+                        # Estimate SOL price (assume 1 SOL = $180 for calculation)
+                        sol_price = 180  # Could be fetched separately
+                        price_sol = price_usd / sol_price if sol_price > 0 else 0
+                        
+                        return TokenPrice(
+                            mint=mint,
+                            price_usd=price_usd,
+                            price_sol=price_sol,
+                            liquidity_usd=float(pair.get('liquidity', {}).get('usd', 0) or 0),
+                            volume_24h=float(pair.get('volume', {}).get('h24', 0) or 0),
+                            market_cap=float(pair.get('marketCap', 0) or 0),
+                            source='dexscreener',
+                            pair_address=pair.get('pairAddress'),
+                            timestamp=int(time.time()),
+                            is_stale=False
+                        )
+                    except (ValueError, KeyError) as e:
+                        logger.error(f"Error parsing Dexscreener response for {mint}: {e}")
+                        return None
+                        
+        except asyncio.TimeoutError:
+            logger.warning(f"Dexscreener timeout for {mint}")
+            return None
+        except Exception as e:
+            logger.error(f"Dexscreener error for {mint}: {e}")
+            return None
+    
+    @staticmethod
+    async def get_prices(mints: List[str]) -> Dict[str, Optional[TokenPrice]]:
+        """Fetch multiple prices in parallel."""
+        tasks = [DexscreenerClient.get_price(mint) for mint in mints]
+        results = await asyncio.gather(*tasks)
+        return {mint: price for mint, price in zip(mints, results)}
+
+
+class JupiterClient:
+    """Fetches prices from Jupiter API (fallback)."""
+    
+    BASE_URL = "https://quote-api.jup.ag/v6"
+    
+    @staticmethod
+    async def get_price(mint: str, sol_mint: str = "So11111111111111111111111111111111111111112") -> Optional[TokenPrice]:
+        """Fetch price by getting quote from 1 token to SOL."""
+        try:
+            # Quote: 1 unit of token to SOL
+            url = f"{JupiterClient.BASE_URL}/quote"
+            params = {
+                'inputMint': mint,
+                'outputMint': sol_mint,
+                'amount': 1_000_000_000,  # 1 unit (9 decimals)
+                'slippageBps': 50
+            }
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=1.2)) as resp:
+                    if resp.status != 200:
+                        logger.debug(f"Jupiter {resp.status} for {mint}")
+                        return None
+                    
+                    data = await resp.json()
+                    
+                    # Extract out amount (how much SOL for 1 token)
+                    out_amount = float(data.get('outAmount', 0) or 0)
+                    if out_amount == 0:
+                        return None
+                    
+                    price_sol = out_amount / 1_000_000_000  # Convert from lamports
+                    price_usd = price_sol * 180  # Estimate USD (1 SOL = $180)
+                    
+                    return TokenPrice(
+                        mint=mint,
+                        price_usd=price_usd,
+                        price_sol=price_sol,
+                        liquidity_usd=0,  # Jupiter doesn't provide this
+                        volume_24h=0,     # Jupiter doesn't provide this
+                        market_cap=0,     # Jupiter doesn't provide this
+                        source='jupiter',
+                        timestamp=int(time.time()),
+                        is_stale=False
+                    )
+                    
+        except asyncio.TimeoutError:
+            logger.debug(f"Jupiter timeout for {mint}")
+            return None
+        except Exception as e:
+            logger.debug(f"Jupiter error for {mint}: {e}")
+            return None
+
+
+class BirdeyeClient:
+    """Fetches prices from Birdeye API (final fallback)."""
+
+    BASE_URL = "https://public-api.birdeye.so/defi"
+
+    @staticmethod
+    async def get_price(mint: str) -> Optional[TokenPrice]:
+        """Fetch token price from Birdeye API."""
+        try:
+            url = f"{BirdeyeClient.BASE_URL}/token_price"
+            params = {'address': mint}
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=1.0)) as resp:
+                    if resp.status == 404:
+                        logger.debug(f"Birdeye 404 for {mint}")
+                        return None
+                    if resp.status == 429:
+                        logger.debug(f"Birdeye rate limited for {mint}")
+                        return None
+                    if resp.status != 200:
+                        logger.debug(f"Birdeye {resp.status} for {mint}")
+                        return None
+
+                    data = await resp.json()
+                    price_data = data.get('data', {})
+
+                    if not price_data or not price_data.get('price'):
+                        logger.debug(f"Birdeye no price for {mint}")
+                        return None
+
+                    price_usd = float(price_data.get('price', 0))
+                    if price_usd == 0:
+                        return None
+
+                    return TokenPrice(
+                        mint=mint,
+                        price_usd=price_usd,
+                        price_sol=float(price_data.get('priceInSOL', 0)),
+                        liquidity_usd=0,
+                        volume_24h=0,
+                        market_cap=0,
+                        source='birdeye',
+                        timestamp=int(time.time()),
+                        is_stale=False
+                    )
+
+        except asyncio.TimeoutError:
+            logger.debug(f"Birdeye timeout for {mint}")
+            return None
+        except Exception as e:
+            logger.debug(f"Birdeye error for {mint}: {e}")
+            return None
+
+
+class TokenPriceService:
+    """Main token price service with fallback logic."""
+    
+    def __init__(self, db_path: str = 'database/flex_complete_database.db'):
+        self.db_path = db_path
+        self.cache = PriceCache()
+        self.stats = {
+            'dexscreener_attempted': 0,
+            'dexscreener_success': 0,
+            'dexscreener_fail': 0,
+            'jupiter_attempted': 0,
+            'jupiter_success': 0,
+            'jupiter_fail': 0,
+            'birdeye_attempted': 0,
+            'birdeye_success': 0,
+            'birdeye_fail': 0,
+            'pool_attempted': 0,
+            'pool_success': 0,
+            'pool_fail': 0,
+            'stale_fallback': 0,
+            'unavailable': 0,
+        }
+        # Shared Birdeye client: requests.Session per thread (thread-safe)
+        self._birdeye_local = threading.local()
+        self._executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix='birdeye-')
+
+        # Pool price cache: synchronous dict read, populated by worker each cycle
+        self.pool_price_cache: Dict[str, 'TokenPrice'] = {}
+
+        # Circuit breaker: track disabled sources and cooldown with exponential backoff
+        self.circuit_breaker = {
+            'dexscreener': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+            'jupiter': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+            'birdeye': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+            'pool': {'disabled': False, 'disabled_at': 0, 'break_count': 0},
+        }
+
+        # EWMA latency per source (for adaptive ordering)
+        self.source_latency_ewma = {
+            'dexscreener': 0.0,
+            'jupiter': 0.0,
+            'birdeye': 0.0,
+            'pool': 0.0,
+        }
+
+        # Source attempt history for rolling failure rate (last 50 attempts per source)
+        self.source_attempts = {
+            'dexscreener': [],
+            'jupiter': [],
+            'birdeye': [],
+            'pool': [],
+        }
+
+        # Provider timeout budgets (seconds) — per-source limits
+        self.provider_timeouts = {
+            'dexscreener': 1.2,  # Reduce from 1.5 to 1.2
+            'jupiter': 0.8,      # Reduce from 1.2 to 0.8
+            'birdeye': 1.0,      # Keep at 1.0
+            'pool': 0,           # Pool is synchronous dict read, no HTTP timeout
+        }
+
+        self._ensure_tables()
+
+        # NEW: Load persisted circuit breaker state from database
+        self._load_circuit_breaker_state()
+
+        logger.info("TokenPriceService initialized")
+    
+    def _get_conn(self) -> sqlite3.Connection:
+        """Get database connection."""
+        conn = db_connect(self.db_path, timeout=15)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA busy_timeout=15000")
+        return conn
+    
+    def _ensure_tables(self) -> None:
+        """Create price tables without leaking a failed startup write lease."""
+        conn = self._get_conn()
+        try:
+            self._ensure_tables_with_connection(conn)
+        finally:
+            # X78.13: schema setup is called from lazy gunicorn worker
+            # construction.  Previously close() existed only at the bottom of
+            # the success path.  Any failed CREATE/ALTER/commit abandoned a
+            # TrackedConnection and its cross-process write lease on that
+            # executor thread, repeatedly blocking the whole platform until
+            # the worker was recycled.
+            conn.close()
+
+    def _ensure_tables_with_connection(self, conn: sqlite3.Connection) -> None:
+        """Implementation split out so _ensure_tables owns cleanup."""
+        cursor = conn.cursor()
+
+        # NEW: Circuit breaker persistence table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS circuit_breaker_state (
+                source TEXT PRIMARY KEY,
+                disabled INTEGER DEFAULT 0,
+                disabled_at INTEGER DEFAULT 0,
+                break_count INTEGER DEFAULT 0,
+                last_break_at INTEGER DEFAULT 0,
+                created_at INTEGER DEFAULT 0,
+                updated_at INTEGER DEFAULT 0
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_cb_disabled
+            ON circuit_breaker_state(disabled, disabled_at)
+        """)
+
+        # Pool accounts registration table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS token_pool_accounts (
+                mint              TEXT NOT NULL,
+                base_account      TEXT NOT NULL,
+                quote_account     TEXT NOT NULL,
+                pool_program      TEXT NOT NULL DEFAULT 'raydium_amm',
+                base_token        TEXT NOT NULL,
+                quote_token       TEXT NOT NULL DEFAULT 'So11111111111111111111111111111111111111112',
+                base_decimals     INTEGER NOT NULL DEFAULT 6,
+                quote_decimals    INTEGER NOT NULL DEFAULT 9,
+                last_reserve_fetch INTEGER DEFAULT 0,
+                vault_validation_status TEXT NOT NULL DEFAULT 'pending' CHECK(vault_validation_status IN ('pending', 'validated', 'rejected')),
+                vault_validation_error TEXT,
+                vault_validation_attempts INTEGER DEFAULT 0,
+                last_vault_validation_at INTEGER DEFAULT 0,
+                discovery_method  TEXT DEFAULT 'unknown',
+                is_active         BOOLEAN DEFAULT 1,
+                created_at        INTEGER NOT NULL,
+                updated_at        INTEGER NOT NULL,
+                PRIMARY KEY (mint, base_account)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tpa_mint_active
+            ON token_pool_accounts(mint, is_active)
+        """)
+
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tpa_vault_status
+            ON token_pool_accounts(vault_validation_status, last_vault_validation_at)
+        """)
+
+        # Migration: Add discovery_method column if missing
+        try:
+            cursor.execute("PRAGMA table_info(token_pool_accounts)")
+            columns = {row[1] for row in cursor.fetchall()}
+            if 'discovery_method' not in columns:
+                cursor.execute("""
+                    ALTER TABLE token_pool_accounts
+                    ADD COLUMN discovery_method TEXT DEFAULT 'unknown'
+                """)
+                logger.info("Migrated: Added discovery_method column to token_pool_accounts")
+        except Exception as e:
+            logger.debug(f"Migration check for discovery_method: {e}")
+
+        # Migration: Add liquidity_removed columns if missing
+        try:
+            cursor.execute("PRAGMA table_info(token_pool_accounts)")
+            columns = {row[1] for row in cursor.fetchall()}
+            if 'liquidity_removed' not in columns:
+                cursor.execute("""
+                    ALTER TABLE token_pool_accounts
+                    ADD COLUMN liquidity_removed BOOLEAN DEFAULT 0
+                """)
+                logger.info("Migrated: Added liquidity_removed to token_pool_accounts")
+            if 'liquidity_removed_at' not in columns:
+                cursor.execute("""
+                    ALTER TABLE token_pool_accounts
+                    ADD COLUMN liquidity_removed_at INTEGER
+                """)
+                logger.info("Migrated: Added liquidity_removed_at to token_pool_accounts")
+        except Exception as e:
+            logger.debug(f"Migration check for liquidity_removed: {e}")
+
+        conn.commit()
+        logger.info("Database tables ensured (compact valuation + circuit breaker + pool accounts)")
+    
+    def _get_cached_price(self, mint: str) -> Optional[TokenPrice]:
+        """Return only the process-local, short-lived price cache.
+
+        Stage 3 deliberately removed the generic SQLite price-history cache.
+        A cache miss therefore means a momentary source lookup, never a dense
+        historical-table read.
+        """
+        return self.cache.get(mint)
+    
+    def _store_snapshot(self, price: TokenPrice) -> None:
+        """Store price snapshot in database.
+
+        Persist compact current valuation facts only: a write-once first
+        observation and a monotonic market-cap peak.
+        """
+        try:
+            conn = self._get_conn()
+            cursor = conn.cursor()
+            observed_at = int(time.time())
+            captured_at = int(price.timestamp) if price.timestamp else observed_at
+            # If a stale/cached path hands us an old source timestamp, preserve freshness
+            # of the local snapshot stream by recording when we observed it now.
+            if price.is_stale or price.source == 'cached':
+                captured_at = observed_at
+
+            # Archive the first truthful observation before retention can ever prune it.
+            # This is intentionally write-once: historical analytics must never be rebuilt
+            # from current MC or later snapshots.
+            if price.price_usd and price.market_cap and price.price_usd > 0 and 0 < price.market_cap <= 100_000_000:
+                ta_cols = {row[1] for row in cursor.execute("PRAGMA table_info(token_analysis)").fetchall()}
+                for col, typ in (
+                    ('first_observed_mc', 'REAL'),
+                    ('first_observed_price', 'REAL'),
+                    ('first_observed_at', 'INTEGER'),
+                    ('first_observed_source', 'TEXT'),
+                    ('first_observed_confidence', 'REAL'),
+                ):
+                    if col not in ta_cols:
+                        cursor.execute(f"ALTER TABLE token_analysis ADD COLUMN {col} {typ}")
+                first_source = 'pool_snapshot' if price.source == 'pool' else f"price_snapshot:{price.source}"
+                confidence = 1.0 if price.source == 'pool' else 0.8
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET first_observed_mc = ?,
+                        first_observed_price = ?,
+                        first_observed_at = ?,
+                        first_observed_source = ?,
+                        first_observed_confidence = ?
+                    WHERE mint = ?
+                      AND first_observed_mc IS NULL
+                """, (
+                    price.market_cap,
+                    price.price_usd,
+                    captured_at,
+                    first_source,
+                    confidence,
+                    price.mint,
+                ))
+
+            # Stage 3: generic dense price/liquidity histories and snapshot
+            # counters are retired.  OWNED positions will use their dedicated
+            # bounded state seam when a real position authority exists; this
+            # generic service persists only compact valuation facts.
+
+            # Peak write — backend owns peak monotonicity. Every higher current MC advances peak.
+            if price.market_cap and price.market_cap > 0:
+                now_ts = captured_at
+                cursor.execute("""
+                    INSERT INTO token_market_cap_peaks (
+                        mint, peak_market_cap, peak_market_cap_at,
+                        raw_peak_mc, effective_peak_mc, candidate_peak_mc, candidate_peak_count, raw_peak_mc_at
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        peak_market_cap    = MAX(COALESCE(peak_market_cap, 0), excluded.peak_market_cap),
+                        peak_market_cap_at = CASE
+                            WHEN excluded.peak_market_cap > COALESCE(peak_market_cap, 0) THEN excluded.peak_market_cap_at
+                            WHEN peak_market_cap_at IS NULL OR peak_market_cap_at = 0 THEN excluded.peak_market_cap_at
+                            ELSE peak_market_cap_at
+                        END,
+                        raw_peak_mc        = MAX(COALESCE(raw_peak_mc, 0), excluded.raw_peak_mc),
+                        raw_peak_mc_at     = CASE
+                            WHEN excluded.raw_peak_mc > COALESCE(raw_peak_mc, 0) THEN excluded.raw_peak_mc_at
+                            WHEN raw_peak_mc_at IS NULL OR raw_peak_mc_at = 0 THEN excluded.raw_peak_mc_at
+                            ELSE raw_peak_mc_at
+                        END,
+                        effective_peak_mc    = MAX(COALESCE(effective_peak_mc, 0), excluded.effective_peak_mc),
+                        candidate_peak_mc    = MAX(COALESCE(candidate_peak_mc, 0), excluded.candidate_peak_mc),
+                        candidate_peak_count = MAX(COALESCE(candidate_peak_count, 0), excluded.candidate_peak_count)
+                """, (price.mint, price.market_cap, now_ts,
+                      price.market_cap, price.market_cap, price.market_cap, 1, now_ts))
+                peak_iso = datetime.utcfromtimestamp(now_ts).isoformat() + "Z"
+                cursor.execute("""
+                    UPDATE token_analysis
+                    SET market_cap_highest = MAX(COALESCE(market_cap_highest, 0), ?),
+                        market_cap_highest_at_ts = CASE
+                            WHEN ? > COALESCE(market_cap_highest, 0) THEN ?
+                            WHEN market_cap_highest_at_ts IS NULL OR market_cap_highest_at_ts = 0 THEN ?
+                            ELSE market_cap_highest_at_ts
+                        END,
+                        market_cap_highest_at = CASE
+                            WHEN ? > COALESCE(market_cap_highest, 0) THEN ?
+                            WHEN market_cap_highest_at IS NULL OR market_cap_highest_at = '' THEN ?
+                            ELSE market_cap_highest_at
+                        END
+                    WHERE mint = ?
+                """, (price.market_cap, price.market_cap, now_ts, now_ts,
+                      price.market_cap, peak_iso, peak_iso, price.mint))
+
+            conn.commit()
+
+            # Periodic WAL checkpoint to prevent WAL from growing unbounded
+            # (66 writes/sec = ~4000 writes/min; checkpoint every 5000 writes keeps WAL <50MB)
+            if not hasattr(self, '_snapshot_write_count'):
+                self._snapshot_write_count = 0
+            self._snapshot_write_count += 1
+            if self._snapshot_write_count % 5000 == 0:
+                try:
+                    conn.execute("PRAGMA wal_checkpoint(PASSIVE)")
+                except Exception:
+                    pass
+
+            conn.close()
+
+        except Exception as e:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+            logger.error(f"Error storing price snapshot for {price.mint}: {e}")
+
+    def _fetch_birdeye_sync(self, mint: str) -> Optional[TokenPrice]:
+        """
+        Fetch Birdeye price synchronously using shared requests.Session per thread.
+        
+        Called via run_in_executor from get_token_price() to avoid blocking the event loop.
+        """
+        try:
+            # Get or create a shared session for this thread
+            if not hasattr(self._birdeye_local, 'session'):
+                self._birdeye_local.session = requests.Session()
+                self._birdeye_local.session.headers.update({'accept': 'application/json'})
+            
+            resp = self._birdeye_local.session.get(
+                f"{BirdeyeClient.BASE_URL}/token_price",
+                params={'address': mint},
+                timeout=1.0
+            )
+            
+            if resp.status_code != 200:
+                return None
+            
+            data = resp.json()
+            price_data = data.get('data', {})
+            
+            if not price_data or not price_data.get('price'):
+                return None
+            
+            price_usd = float(price_data.get('price', 0))
+            if price_usd == 0:
+                return None
+            
+            return TokenPrice(
+                mint=mint,
+                price_usd=price_usd,
+                price_sol=float(price_data.get('priceInSOL', 0)),
+                liquidity_usd=0,
+                volume_24h=0,
+                market_cap=0,
+                source='birdeye',
+                timestamp=int(time.time()),
+                is_stale=False
+            )
+        
+        except requests.Timeout:
+            logger.debug(f"Birdeye timeout for {mint}")
+            return None
+        except Exception as e:
+            logger.debug(f"Birdeye error for {mint}: {e}")
+            return None
+
+    def _get_exponential_cooldown(self, break_count: int) -> int:
+        """
+        Get cooldown in seconds based on break count (exponential backoff).
+
+        1st break:  10 min (600s)
+        2nd break:  30 min (1800s)
+        3rd break:  2 hours (7200s)
+        4th+ breaks: 4 hours (14400s)
+        """
+        BASE_COOLDOWN = 600  # 10 minutes
+        MAX_EXPONENT = 3     # Cap at 4 hours
+
+        if break_count <= 1:
+            return BASE_COOLDOWN
+
+        exponent = min(break_count - 1, MAX_EXPONENT)
+        cooldown = BASE_COOLDOWN * (2 ** exponent)
+        return int(cooldown)
+
+    def _load_circuit_breaker_state(self) -> None:
+        """Load persisted circuit breaker state from database."""
+        try:
+            conn = self._get_conn()
+            rows = conn.execute(
+                'SELECT source, disabled, disabled_at, break_count FROM circuit_breaker_state'
+            ).fetchall()
+
+            for source, disabled, disabled_at, break_count in rows:
+                if source in self.circuit_breaker:
+                    self.circuit_breaker[source] = {
+                        'disabled': bool(disabled),
+                        'disabled_at': disabled_at,
+                        'break_count': break_count or 0,
+                    }
+
+                    if disabled:
+                        elapsed = time.time() - disabled_at
+                        logger.info(
+                            f"Loaded circuit breaker state: {source} disabled "
+                            f"(elapsed {elapsed:.0f}s, break #{break_count})"
+                        )
+                    else:
+                        logger.info(f"Loaded circuit breaker state: {source} enabled")
+
+            conn.close()
+        except Exception as e:
+            logger.error(f"Failed to load circuit breaker state: {e}")
+            # Fall back to in-memory defaults (non-fatal)
+
+    def _save_circuit_breaker_state(self, source: str) -> None:
+        """Persist circuit breaker state to database."""
+        try:
+            conn = self._get_conn()
+            cb = self.circuit_breaker.get(source, {})
+            now = int(time.time())
+
+            conn.execute('''
+                INSERT OR REPLACE INTO circuit_breaker_state
+                (source, disabled, disabled_at, break_count, last_break_at, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, COALESCE((
+                    SELECT created_at FROM circuit_breaker_state WHERE source = ?
+                ), ?), ?)
+            ''', (
+                source,
+                int(cb.get('disabled', False)),
+                cb.get('disabled_at', 0),
+                cb.get('break_count', 0),
+                int(time.time()) if cb.get('disabled') else 0,
+                source,
+                now,
+                now
+            ))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logger.error(f"Failed to save circuit breaker state: {e}")
+            # Non-fatal; state still in memory
+
+    async def _fetch_with_timeout(self, coro, timeout_secs: float, source: str):
+        """
+        Execute a coroutine with strict timeout enforcement.
+        Raises asyncio.TimeoutError if timeout exceeded.
+        """
+        try:
+            return await asyncio.wait_for(coro, timeout=timeout_secs)
+        except asyncio.TimeoutError:
+            logger.debug(f"{source} exceeded timeout budget ({timeout_secs:.1f}s)")
+            raise
+
+    def _is_circuit_broken(self, source: str) -> bool:
+        """Check if source is currently circuit broken with exponential cooldown."""
+        cb = self.circuit_breaker.get(source, {})
+        if not cb.get('disabled'):
+            return False
+
+        # Get cooldown based on break count (exponential backoff)
+        break_count = cb.get('break_count', 0)
+        cooldown_secs = self._get_exponential_cooldown(break_count)
+
+        elapsed = time.time() - cb.get('disabled_at', 0)
+        if elapsed > cooldown_secs:
+            cb['disabled'] = False
+            cooldown_min = cooldown_secs / 60
+            logger.info(
+                f"Circuit breaker for {source} reset after {cooldown_min:.0f}min cooldown "
+                f"(break #{break_count})"
+            )
+            self._save_circuit_breaker_state(source)
+            return False
+
+        return True
+
+    def get_rolling_window_stats(self) -> dict:
+        """
+        Get rolling window statistics for all sources.
+        Used for monitoring and debugging source health.
+        """
+        stats = {}
+        for source in self.source_attempts:
+            attempts = self.source_attempts[source]
+            if attempts:
+                failures = sum(1 for _, s in attempts if not s)
+                success_rate = (len(attempts) - failures) / len(attempts)
+            else:
+                success_rate = 0.0
+            
+            stats[source] = {
+                'attempts_in_window': len(self.source_attempts[source]),
+                'success_rate': round(success_rate, 3),
+                'failure_rate': round(1 - success_rate, 3),
+            }
+        return stats
+
+    def _update_source_stats(self, source: str, success: bool) -> None:
+        """
+        Track attempt success and update:
+        1. Source attempt history (1-hour rolling window)
+        2. Circuit breaker failure rate (>90% over 20+ attempts)
+        3. Increment break_count and persist on circuit break
+        """
+        now = time.time()
+        self.source_attempts[source].append((now, success))
+
+        # Keep only last 1 hour of attempts (rolling window)
+        cutoff = now - 3600  # 1 hour
+        self.source_attempts[source] = [
+            (ts, s) for ts, s in self.source_attempts[source]
+            if ts > cutoff
+        ]
+
+        # Check if circuit should break (>90% failure over 20+ attempts)
+        attempts = self.source_attempts[source]
+        if len(attempts) >= 20:
+            failures = sum(1 for _, s in attempts if not s)
+            failure_rate = failures / len(attempts)
+
+            if failure_rate > 0.9 and not self.circuit_breaker[source]['disabled']:
+                self.circuit_breaker[source]['disabled'] = True
+                self.circuit_breaker[source]['disabled_at'] = now
+                self.circuit_breaker[source]['break_count'] = self.circuit_breaker[source].get('break_count', 0) + 1
+                break_count = self.circuit_breaker[source]['break_count']
+                cooldown_secs = self._get_exponential_cooldown(break_count)
+                cooldown_min = cooldown_secs / 60
+                logger.warning(
+                    f"Circuit breaker triggered for {source}: "
+                    f"{failure_rate:.1%} failure rate over {len(attempts)} attempts. "
+                    f"Break #{break_count}, cooldown {cooldown_min:.0f} min"
+                )
+                self._save_circuit_breaker_state(source)
+
+    def _get_source_rank(self, source: str) -> float:
+        """
+        Rank source by success rate and latency.
+
+        Score = (success_rate × 0.7) + (1 - normalized_latency × 0.3)
+        Range: 0.0 to 1.0 (higher is better)
+        """
+        attempts = self.source_attempts[source]
+        if not attempts:
+            return 0.5  # Default score for uninitialized sources
+
+        successes = sum(1 for _, s in attempts if s)
+        success_rate = successes / len(attempts)
+
+        # Normalize latency to 0-1 (assume max 500ms = 1.0)
+        latency_ms = self.source_latency_ewma[source]
+        normalized_latency = min(latency_ms / 500.0, 1.0)
+
+        score = (success_rate * 0.7) + ((1.0 - normalized_latency) * 0.3)
+        return score
+
+    def _get_sources_ordered(self) -> list:
+        """
+        Return list of sources ranked by success rate and latency.
+
+        Pool is always first (if not circuit-broken) — fastest source (dict read, no HTTP).
+        DexScreener is second (if not circuit-broken) — first fallback priority.
+        Jupiter/Birdeye ranked by success rate + latency.
+        Excludes circuit-broken sources.
+        Always includes stale fallback (not in returned list).
+        """
+        active_sources = []
+
+        # Pool: synchronous dict read, always first if available
+        if not self._is_circuit_broken('pool'):
+            active_sources.append(('pool', 1.0))
+
+        # DexScreener: pinned as first fallback option
+        if not self._is_circuit_broken('dexscreener'):
+            active_sources.append(('dexscreener', 1.0))
+
+        # Jupiter/Birdeye: ranked by success + latency
+        for source in ['jupiter', 'birdeye']:
+            if not self._is_circuit_broken(source):
+                rank = self._get_source_rank(source)
+                active_sources.append((source, rank))
+
+        # Sort remaining sources (excluding pool & dexscreener) by rank descending
+        if len(active_sources) > 2:
+            # Keep pool and dexscreener pinned, sort the rest
+            pinned = active_sources[:2]
+            rest = active_sources[2:]
+            rest.sort(key=lambda x: x[1], reverse=True)
+            active_sources = pinned + rest
+
+        return [source for source, _ in active_sources]
+
+    def _update_latency_ewma(self, source: str, latency_ms: float) -> None:
+        """Update EWMA latency for a source using 0.8 weight to previous."""
+        EWMA_ALPHA = 0.8
+        prev = self.source_latency_ewma[source]
+
+        if prev == 0.0:
+            # First measurement
+            self.source_latency_ewma[source] = latency_ms
+        else:
+            self.source_latency_ewma[source] = (EWMA_ALPHA * prev) + ((1.0 - EWMA_ALPHA) * latency_ms)
+
+    async def get_token_price(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
+        """
+        Get token price with multi-source fallback and 3-second total budget.
+
+        Sources ranked by success rate + latency (adaptive ordering).
+        Each source has its own timeout budget, and overall budget is capped at 3 seconds.
+        Circuit breaker disables failing sources.
+
+        Total budget: 3 seconds across all sources.
+        Per-provider budgets: dexscreener=1.2s, jupiter=0.8s, birdeye=1.0s (capped by remaining)
+        """
+        TOTAL_BUDGET_SECS = 3.0
+        fetch_start = time.time()
+
+        # Try in-memory cache (no budget check — free)
+        cached = self.cache.get(mint, cache_type)
+        if cached:
+            return cached
+
+        # Get sources ordered by current success rate + latency
+        sources_ordered = self._get_sources_ordered()
+
+        # Try each active source in ranked order
+        for source in sources_ordered:
+            elapsed = time.time() - fetch_start
+            if elapsed >= TOTAL_BUDGET_SECS:
+                break
+
+            # Skip if circuit breaker is disabled for this source
+            if self._is_circuit_broken(source):
+                continue
+
+            # Calculate remaining budget for this provider
+            remaining_budget = TOTAL_BUDGET_SECS - elapsed
+            provider_timeout = self.provider_timeouts.get(source, 1.0)
+            # Use the minimum of provider timeout and remaining budget
+            actual_timeout = min(provider_timeout, remaining_budget)
+
+            if actual_timeout <= 0:
+                break  # No time left for this provider
+
+            if source == 'pool':
+                # Pool: synchronous dict read, no HTTP, no budget consumed
+                self.stats['pool_attempted'] += 1
+                pool_price = self.pool_price_cache.get(mint)
+                if pool_price:
+                    self.stats['pool_success'] += 1
+                    self._update_source_stats('pool', True)
+                    self.cache.set(mint, pool_price)
+                    return pool_price
+                self.stats['pool_fail'] += 1
+                self._update_source_stats('pool', False)
+
+            elif source == 'dexscreener':
+                self.stats['dexscreener_attempted'] += 1
+                start = time.time()
+                try:
+                    # Override timeout in DexscreenerClient with actual_timeout
+                    dex_price = await self._fetch_with_timeout(
+                        DexscreenerClient.get_price(mint),
+                        actual_timeout,
+                        source
+                    )
+                    latency_ms = (time.time() - start) * 1000
+                    self._update_latency_ewma('dexscreener', latency_ms)
+
+                    if dex_price:
+                        self.stats['dexscreener_success'] += 1
+                        self._update_source_stats('dexscreener', True)
+                        self.cache.set(mint, dex_price)
+                        self._store_snapshot(dex_price)
+                        return dex_price
+
+                    self.stats['dexscreener_fail'] += 1
+                    self._update_source_stats('dexscreener', False)
+                except asyncio.TimeoutError:
+                    self.stats['dexscreener_fail'] += 1
+                    self._update_source_stats('dexscreener', False)
+                    logger.debug(f"Dexscreener timeout ({actual_timeout:.1f}s) for {mint}")
+
+            elif source == 'jupiter':
+                self.stats['jupiter_attempted'] += 1
+                start = time.time()
+                try:
+                    jup_price = await self._fetch_with_timeout(
+                        JupiterClient.get_price(mint),
+                        actual_timeout,
+                        source
+                    )
+                    latency_ms = (time.time() - start) * 1000
+                    self._update_latency_ewma('jupiter', latency_ms)
+
+                    if jup_price:
+                        self.stats['jupiter_success'] += 1
+                        self._update_source_stats('jupiter', True)
+                        self.cache.set(mint, jup_price)
+                        self._store_snapshot(jup_price)
+                        return jup_price
+
+                    self.stats['jupiter_fail'] += 1
+                    self._update_source_stats('jupiter', False)
+                except asyncio.TimeoutError:
+                    self.stats['jupiter_fail'] += 1
+                    self._update_source_stats('jupiter', False)
+                    logger.debug(f"Jupiter timeout ({actual_timeout:.1f}s) for {mint}")
+
+            elif source == 'birdeye':
+                self.stats['birdeye_attempted'] += 1
+                start = time.time()
+                try:
+                    loop = asyncio.get_event_loop()
+                    birdeye_price = await self._fetch_with_timeout(
+                        loop.run_in_executor(
+                            self._executor,
+                            self._fetch_birdeye_sync,
+                            mint
+                        ),
+                        actual_timeout,
+                        source
+                    )
+                    latency_ms = (time.time() - start) * 1000
+                    self._update_latency_ewma('birdeye', latency_ms)
+
+                    if birdeye_price:
+                        self.stats['birdeye_success'] += 1
+                        self._update_source_stats('birdeye', True)
+                        self.cache.set(mint, birdeye_price)
+                        self._store_snapshot(birdeye_price)
+                        return birdeye_price
+
+                    self.stats['birdeye_fail'] += 1
+                    self._update_source_stats('birdeye', False)
+                except asyncio.TimeoutError:
+                    self.stats['birdeye_fail'] += 1
+                    self._update_source_stats('birdeye', False)
+                    logger.debug(f"Birdeye timeout ({actual_timeout:.1f}s) for {mint}")
+
+        # Try database cache (stale) — always attempt, no budget check
+        db_price = self._get_cached_price(mint)
+        if db_price:
+            self.stats['stale_fallback'] += 1
+            self.cache.set(mint, db_price)
+            return db_price
+
+        # Unavailable
+        self.stats['unavailable'] += 1
+        unavailable = TokenPrice(
+            mint=mint,
+            price_usd=0,
+            price_sol=0,
+            liquidity_usd=0,
+            volume_24h=0,
+            market_cap=0,
+            source='unavailable',
+            is_stale=True
+        )
+        self.cache.set(mint, unavailable)
+        return unavailable
+    
+    async def get_token_prices(self, mints: List[str], cache_type: str = 'hot') -> Dict[str, TokenPrice]:
+        """Fetch multiple token prices in parallel."""
+        tasks = [self.get_token_price(mint, cache_type) for mint in mints]
+        prices = await asyncio.gather(*tasks)
+        return {mint: price for mint, price in zip(mints, prices)}
+    
+    def get_token_price_sync(self, mint: str, cache_type: str = 'hot') -> TokenPrice:
+        """Synchronous wrapper for get_token_price."""
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(self.get_token_price(mint, cache_type))
+        finally:
+            loop.close()
+    
+    def get_token_prices_sync(self, mints: List[str], cache_type: str = 'hot') -> Dict[str, TokenPrice]:
+        """Synchronous wrapper for get_token_prices."""
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(self.get_token_prices(mints, cache_type))
+        finally:
+            loop.close()
+    
+
+# Singleton instance
+_price_service: Optional[TokenPriceService] = None
+# X78.10 -- same unsynchronized-singleton defect as price_worker.get_price_worker()
+# (X78.9 Phase 12), found live during X78.10 production validation: concurrent
+# gthread callers into price_api.health() raced this None check, each starting
+# its own TokenPriceService() construction (_ensure_tables() +
+# _load_circuit_breaker_state(), both DB writes), producing repeated
+# CrossProcessDatabaseWriteTimeout events on price_service.py:339 waiting on
+# ITSELF (same PID, different ThreadPoolExecutor threads) approximately every
+# 60s. Guarded by a dedicated process-local lock, deliberately not the DB
+# write lane, for the same reason as X78.9 Phase 12: coupling singleton
+# construction to write-lane contention would mean an unrelated slow writer
+# blocks price-service construction and vice versa.
+_price_service_lock = threading.Lock()
+_price_service_init_error: Optional[BaseException] = None
+
+
+def get_price_service(db_path: str = 'database/flex_complete_database.db') -> TokenPriceService:
+    """Get or create singleton price service. Thread-safe: concurrent callers
+    block briefly on construction (not on DB writes) and all receive the same
+    instance. If construction fails, the failure is cached and re-raised to
+    every caller rather than silently retried per-request forever."""
+    global _price_service, _price_service_init_error
+    if _price_service is not None:
+        return _price_service
+    with _price_service_lock:
+        if _price_service is not None:
+            return _price_service
+        if _price_service_init_error is not None:
+            raise _price_service_init_error
+        try:
+            _price_service = TokenPriceService(db_path)
+        except BaseException as exc:
+            _price_service_init_error = exc
+            raise
+        return _price_service

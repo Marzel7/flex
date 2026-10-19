@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mission-control.invalid/schemas/operation-contract-v1.json",
+  "title": "Operation Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "contract_id", "contract_version", "lifecycle_status",
+    "evidence_requirements", "primitive_requirements", "behaviour_modules",
+    "topology_contract", "detector", "identity_contract", "confidence_model",
+    "governance_policy", "monitoring_policy", "presentation_schema"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "contract_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{2,127}$"},
+    "contract_version": {"$ref": "#/$defs/semver"},
+    "contract_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "lifecycle_status": {"enum": ["DRAFT", "SHADOW", "ACTIVE", "DEPRECATED", "DISABLED"]},
+    "evidence_requirements": {
+      "type": "array", "uniqueItems": true,
+      "items": {"$ref": "#/$defs/evidence_requirement"}
+    },
+    "primitive_requirements": {
+      "type": "array", "uniqueItems": true,
+      "items": {"$ref": "#/$defs/primitive_requirement"}
+    },
+    "behaviour_modules": {
+      "type": "array", "uniqueItems": true,
+      "items": {"$ref": "#/$defs/module_reference"}
+    },
+    "topology_contract": {"$ref": "#/$defs/topology_contract"},
+    "detector": {"$ref": "#/$defs/detector_reference"},
+    "identity_contract": {"$ref": "#/$defs/declarative_section"},
+    "confidence_model": {"$ref": "#/$defs/confidence_policy"},
+    "governance_policy": {"$ref": "#/$defs/governance_policy"},
+    "monitoring_policy": {"$ref": "#/$defs/monitoring_policy"},
+    "presentation_schema": {"$ref": "#/$defs/presentation_schema"}
+  },
+  "$defs": {
+    "semver": {"type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$"},
+    "identifier": {"type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_.-]{1,127}$"},
+    "version_constraint": {"type": "string", "pattern": "^(=|>=|\\^|~)?[0-9]+(?:\\.[0-9]+){0,2}$"},
+    "evidence_requirement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fact_family", "version_constraint", "required"],
+      "properties": {
+        "fact_family": {"$ref": "#/$defs/identifier"},
+        "version_constraint": {"$ref": "#/$defs/version_constraint"},
+        "required": {"type": "boolean"}
+      }
+    },
+    "primitive_requirement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["primitive_type", "version_constraint", "required"],
+      "properties": {
+        "primitive_type": {"$ref": "#/$defs/identifier"},
+        "version_constraint": {"$ref": "#/$defs/version_constraint"},
+        "required": {"type": "boolean"}
+      }
+    },
+    "module_reference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["module_id", "module_version", "required_primitive_types", "parameters"],
+      "properties": {
+        "module_id": {"$ref": "#/$defs/identifier"},
+        "module_version": {"$ref": "#/$defs/semver"},
+        "required_primitive_types": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "parameters": {"type": "object"}
+      }
+    },
+    "topology_contract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["topology_version", "local_roles", "edge_rules", "parameters"],
+      "properties": {
+        "topology_version": {"$ref": "#/$defs/semver"},
+        "local_roles": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "edge_rules": {
+          "type": "array", "uniqueItems": true,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["rule_id", "source_role", "destination_role", "primitive_type", "cardinality", "temporal_constraint", "required"],
+            "properties": {
+              "rule_id": {"$ref": "#/$defs/identifier"},
+              "source_role": {"$ref": "#/$defs/identifier"},
+              "destination_role": {"$ref": "#/$defs/identifier"},
+              "primitive_type": {"$ref": "#/$defs/identifier"},
+              "cardinality": {"enum": ["ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_ONE", "MANY_TO_MANY"]},
+              "temporal_constraint": {"type": ["object", "null"]},
+              "required": {"type": "boolean"}
+            }
+          }
+        },
+        "parameters": {"type": "object"}
+      }
+    },
+    "detector_reference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["detector_id", "detector_version", "parameters"],
+      "properties": {
+        "detector_id": {"$ref": "#/$defs/identifier"},
+        "detector_version": {"$ref": "#/$defs/semver"},
+        "parameters": {"type": "object"}
+      }
+    },
+    "declarative_section": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "configuration", "runtime_execution"],
+      "properties": {
+        "mode": {"enum": ["DISABLED", "DECLARATIVE", "RULE_BASED"]},
+        "configuration": {"type": "object"},
+        "runtime_execution": {"const": "LOAD_VALIDATE_ONLY"}
+      }
+    },
+    "confidence_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model_type", "configuration", "runtime_execution"],
+      "properties": {
+        "model_type": {"enum": ["DISABLED", "CATEGORICAL", "RULE_BASED", "NUMERIC"]},
+        "configuration": {"type": "object"},
+        "runtime_execution": {"const": "LOAD_VALIDATE_ONLY"}
+      }
+    },
+    "governance_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allowed_recommendations", "automatic_execution", "runtime_execution"],
+      "properties": {
+        "allowed_recommendations": {
+          "type": "array", "uniqueItems": true,
+          "items": {"enum": ["OBSERVE_ONLY", "CREATE_INVESTIGATION", "REQUEST_REVIEW", "PROPOSE_EXPANSION", "PROPOSE_NEW_OPERATION", "NO_AUTOMATIC_GOVERNANCE"]}
+        },
+        "automatic_execution": {"const": false},
+        "runtime_execution": {"const": "LOAD_VALIDATE_ONLY"}
+      }
+    },
+    "monitoring_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evaluation_trigger", "minimum_evidence_state", "reevaluation_conditions", "staleness_window_seconds", "dormancy_window_seconds", "runtime_execution"],
+      "properties": {
+        "evaluation_trigger": {"enum": ["MANUAL", "NEW_EVIDENCE", "NEW_PRIMITIVE", "SCHEDULED"]},
+        "minimum_evidence_state": {"enum": ["ANY", "COMPLETE", "VERIFIED"]},
+        "reevaluation_conditions": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "staleness_window_seconds": {"type": ["integer", "null"], "minimum": 0},
+        "dormancy_window_seconds": {"type": ["integer", "null"], "minimum": 0},
+        "runtime_execution": {"const": "LOAD_VALIDATE_ONLY"}
+      }
+    },
+    "presentation_schema": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "role_labels", "topology_labels", "evidence_class_labels", "section_order", "allowed_actions", "display_contract_version"],
+      "properties": {
+        "schema_version": {"$ref": "#/$defs/semver"},
+        "role_labels": {"type": "object", "additionalProperties": {"type": "string"}},
+        "topology_labels": {"type": "object", "additionalProperties": {"type": "string"}},
+        "evidence_class_labels": {"type": "object", "additionalProperties": {"type": "string"}},
+        "section_order": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "allowed_actions": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "display_contract_version": {"type": "boolean"}
+      }
+    }
+  }
+}

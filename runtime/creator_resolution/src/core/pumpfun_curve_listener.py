@@ -1,0 +1,12465 @@
+#!/usr/bin/env python3
+"""
+Pump.Fun → PumpSwap Migration Listener
+
+Detects token migrations from Pump.Fun bonding curve to PumpSwap AMM via WebSocket.
+When a migration is detected, runs post-migration analyzer to assess risk.
+"""
+
+import asyncio
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
+import json
+import os
+import re
+import sqlite3
+from src.utils.db_locking import db_connect, managed_db_connect, db_write_lock, AsyncDbWriteLock
+from src.utils.db_write_retry import async_write_batch_with_retry, async_write_with_retry, get_health_metrics as _db_write_health_metrics
+from src.core.database_write_service import (
+    CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError, PRIORITY_P0_CRITICAL_INGESTION,
+)
+import sys
+import time
+import threading
+from pathlib import Path
+import websockets
+import aiohttp
+import requests
+from src.core.pumpportal_birth_audit import configured_birth_audit
+from src.core.pumpfun_delivery_latency import configured_pumpfun_delivery_latency_capture
+from src.ops.byzantine_birth_signal import ByzantineBirthSignalEmitter, load_proven_creators
+from src.core.pumpportal_migration_census import configured_migration_census
+from src.ops.acquisition_availability import AcquisitionAvailability
+from datetime import datetime
+from src.core import runtime_budget as _budget
+from enum import Enum
+from typing import Any, Set, Optional, List, Dict, Tuple
+from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+from src.extractors.realtime_creator_funding_extractor import extract_funding_for_new_token
+from src.extractors.funder_incoming_extractor import extract_for_creator as extract_funder_transfers
+from src.analysis.clustering_task_queue import enqueue_clustering
+from src.core.fast_candidate_retry import PendingCandidateShortlist, score_candidate
+from src.core.fast_lane_discovery import FastLaneDiscovery
+from src.core.ws_price_tracer import trace as _wstrace
+from dotenv import load_dotenv
+
+# X78.24: legacy token-level prediction is permanently removed from live
+# execution. Historical tables remain queryable; this constant is deliberately
+# not an environment toggle so a missing env var cannot reactivate producers.
+TOKEN_PREDICTION_RUNTIME_ENABLED = False
+
+class RegisterResult(str, Enum):
+    SUCCESS    = "success"
+    RETRY      = "retry"      # transient: not yet visible on-chain — safe to re-attempt
+    FAIL       = "fail"       # permanent: wrong owner / extraction failure — never retry
+    DISPATCHED = "dispatched" # indexed + valid owner; heavy work enqueued as background Task
+
+
+# === ANSI Color Codes ===
+class Colors:
+    DETECT = "\033[94m"      # Blue for POOL_DETECT
+    DISCOVER = "\033[92m"    # Green for POOL_DISCOVER_FALLBACK
+    RESET = "\033[0m"
+
+# === Logging Helper ===
+
+# Migration log: pool discovery/detection events only
+_MIGRATION_LOG_PATH = os.path.join(
+    os.path.dirname(__file__), "../../migration.log"
+)
+
+# Pre-migration signal debug log: ALL PF signal inputs, parsing, and outputs
+PREMIG_LOG_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/premigration.log"
+)
+CURVE_WATCH_STATE_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/curve_watch_state.json"
+)
+# The listener process does the bulk of DB writes, but its serializer metrics are in-memory and
+# per-process — the API process can't read them directly. The listener periodically snapshots
+# db_locking.serializer_metrics() to this file so the dashboard endpoint (API process) can surface
+# the REAL write load. JSON file (not DB) keeps measurement off the write lane it measures.
+DB_SERIALIZER_METRICS_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/db_serializer_metrics.json"
+)
+# MC1.4 -- same cross-process-visibility problem as DB_SERIALIZER_METRICS_PATH
+# above, for birth_persistence_telemetry()'s in-memory counters (received/
+# persisted_direct/fallback_activations/permanently_lost etc, which only
+# this process's memory holds). Snapshotted on the same cadence/thread as
+# the serializer metrics so the API process can build an authoritative,
+# same-population Birth Durability panel instead of inferring it from logs.
+BIRTH_DURABILITY_METRICS_PATH = os.path.join(
+    os.path.dirname(__file__), "../../logs/birth_durability_metrics.json"
+)
+
+
+def _listener_ops_db_path() -> str:
+    """Resolve the listener's operations authority independently of its checkout."""
+    from src.core.db import resolve_ops_db_path
+    return resolve_ops_db_path()
+
+
+def premig_log(message: str) -> None:
+    """Append a line to premigration.log (fire-and-forget, never raises)."""
+    try:
+        ts = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+        with open(PREMIG_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(f"{ts}Z  {message}\n")
+    except Exception:
+        pass
+
+
+# Truncate premigration.log on every startup so each run starts fresh
+try:
+    with open(PREMIG_LOG_PATH, "w", encoding="utf-8") as _pf:
+        _pf.write(f"{datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]}Z  [STARTUP] premigration.log initialised\n")
+except Exception:
+    pass
+_MIGRATION_LOG_PREFIXES = (
+    "[EVENT]",
+    "[MIGRATION]",
+    "[STATE]",
+    "[POOL_DETECT]",
+    "[FAST_LANE]",
+    "[FAST_PATH_REGISTER]",
+    "[TIMING]",
+    "[DISCOVERY_CHECKPOINT]",
+    "[DECISION]",
+    "[INLINE RETRY",
+    "[VISIBILITY_PROBE]",
+    "[BATCH_VALIDATE_REASONS]",
+    "[CANDIDATE_REJECTED]",
+    "[FAST_LANE_PRIMARY]",
+    "[TIMING_PROBE]",
+    "[FUNDING_QUEUE]",
+    "[FRESH_CREATOR]",
+    "[RISK_SCORE]",
+    "[PREDICTION]",
+    "[LIVE_NETWORK]",
+    "[LOOP_LAG]",
+)
+
+_FLASK_BROADCAST_URL = "http://127.0.0.1:5002/api/internal/broadcast"
+
+def _broadcast_to_flask(event: dict) -> None:
+    """
+    Fire-and-forget HTTP POST to Flask's internal broadcast endpoint.
+    Flask runs in a separate process so we cannot use the in-process PriceStream.
+    Never raises — failures are logged and ignored.
+    """
+    try:
+        import urllib.request as _urllib_req, json as _json
+        _body = _json.dumps(event).encode()
+        _req = _urllib_req.Request(
+            _FLASK_BROADCAST_URL,
+            data=_body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with _urllib_req.urlopen(_req, timeout=1) as _resp:
+            log_print(f"[SSE_BROADCAST] → {event.get('type')} subscribers={_json.loads(_resp.read()).get('subscribers', '?')}", flush=True)
+    except Exception as _e:
+        log_print(f"[SSE_BROADCAST] ⚠️  {event.get('type')} failed: {_e}", flush=True)
+
+
+def _fetch_and_store_symbol(mint: str, db_path: str) -> None:
+    """
+    Background thread: fetch token symbol from Dexscreener and write it to
+    metadata_cache and tracked_tokens.symbol. No-op if already cached.
+    """
+    try:
+        import requests as _requests, time as _time
+        # Check metadata_cache first
+        try:
+            # X78.13: this lookup is read-only and must never enter the global
+            # write lane.  More importantly, the context manager guarantees
+            # closure if SQLite raises while the listener is under pressure.
+            with managed_db_connect(db_path, timeout=15, read_only=True) as _c:
+                _row = _c.execute(
+                    "SELECT symbol FROM metadata_cache WHERE mint = ?", (mint,)
+                ).fetchone()
+            if _row and _row[0] and _row[0] not in ('UNKNOWN', ''):
+                # Already cached — just backfill tracked_tokens if needed
+                with managed_db_connect(db_path, timeout=15) as _c2:
+                    _c2.execute(
+                        "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+                        (_row[0], mint)
+                    )
+                    _c2.commit()
+                log_print(f"[SYMBOL_FETCH] ✅ Symbol from cache: {_row[0]} ({mint[:16]}...)", flush=True)
+                return
+        except Exception:
+            pass
+
+        # Fetch from pump.fun first (available immediately at migration)
+        symbol = None
+        name = None
+        try:
+            resp = _requests.get(
+                f"https://frontend-api.pump.fun/coins/{mint}",
+                timeout=5,
+                headers={"Accept": "application/json"}
+            )
+            if resp.status_code == 200:
+                coin = resp.json()
+                symbol = coin.get("symbol") or None
+                name   = coin.get("name") or symbol
+                log_print(f"[SYMBOL_FETCH] pump.fun: {symbol} for {mint[:16]}...", flush=True)
+        except Exception:
+            pass
+
+        # Fallback: Dexscreener
+        if not symbol:
+            try:
+                resp2 = _requests.get(
+                    f"https://api.dexscreener.com/latest/dex/tokens/{mint}",
+                    timeout=8
+                )
+                if resp2.status_code == 200:
+                    pairs = resp2.json().get("pairs") or []
+                    if pairs:
+                        base = pairs[0].get("baseToken", {})
+                        symbol = base.get("symbol") or None
+                        name   = base.get("name") or symbol
+                        log_print(f"[SYMBOL_FETCH] dexscreener: {symbol} for {mint[:16]}...", flush=True)
+            except Exception:
+                pass
+
+        if not symbol:
+            log_print(f"[SYMBOL_FETCH] ⚠️  No symbol found for {mint[:16]}...", flush=True)
+            return
+
+        now = int(_time.time())
+        # This used to close only on the success path.  If either write or the
+        # commit raised, the broad outer exception handler swallowed the error
+        # while leaving the TrackedConnection's cross-process write lease held
+        # by a tok_work thread indefinitely.  That exact leaked owner blocked
+        # birth persistence and Creator Funding for repeated 60-second waits.
+        with managed_db_connect(db_path, timeout=15) as _c3:
+            _c3.execute(
+                "INSERT OR REPLACE INTO metadata_cache (mint, symbol, name, cached_at, cached_source) VALUES (?, ?, ?, ?, ?)",
+                (mint, symbol, name, now, "dexscreener_listener")
+            )
+            _c3.execute(
+                "UPDATE tracked_tokens SET symbol = ? WHERE mint = ? AND (symbol IS NULL OR symbol = '')",
+                (symbol, mint)
+            )
+            _c3.commit()
+        log_print(f"[SYMBOL_FETCH] ✅ {symbol} ({mint[:16]}...) written to DB", flush=True)
+
+        # Broadcast so the UI can update the symbol without a page reload
+        _broadcast_to_flask({
+            "type": "symbol_resolved",
+            "mint": mint,
+            "symbol": symbol,
+            "name": name,
+        })
+    except Exception as _e:
+        log_print(f"[SYMBOL_FETCH] ⚠️  {mint[:16]}...: {_e}", flush=True)
+    finally:
+        # Dedupe should only cover the active fetch.
+        # If a lookup fails or returns no symbol, allow future retries.
+        with _symbol_fetch_seen_lock:
+            _symbol_fetch_seen.discard(mint)
+
+
+_symbol_fetch_seen: set = set()
+_symbol_fetch_seen_lock = __import__('threading').Lock()
+
+# Budget degrade counters — incremented on abort/defer/drop, never reset.
+# Read by /api/ops-v2/intel/runtime-budget for the health panel.
+import threading as _threading
+_BUDGET_COUNTERS_LOCK = _threading.Lock()
+_BUDGET_COUNTERS = {
+    "validation_timeout":     0,   # batch_validate outer asyncio.wait_for fired
+    "pool_discovery_deferred": 0,  # pool discovery aborted + enqueued offline
+    "migration_deferred":      0,  # migration handler outer timeout
+}
+
+def _spawn_symbol_fetch(mint: str, db_path: str) -> None:
+    """Fire-and-forget symbol fetch submitted to the shared pool. Deduplicates per mint."""
+    with _symbol_fetch_seen_lock:
+        if mint in _symbol_fetch_seen:
+            return
+        _symbol_fetch_seen.add(mint)
+    _TOKEN_WORK_POOL.submit(_fetch_and_store_symbol, mint, db_path)
+
+
+def _pumpportal_failure_is_fatal(
+    consecutive_failures: int,
+    outage_started_at: float,
+    *,
+    now: float,
+) -> bool:
+    """Return whether PumpPortal reconnect failure warrants process recovery.
+
+    The recovery window starts with the first failure in the current outage.
+    Connection age is not outage age: using the timestamp of an hours-old
+    healthy connection made its first ordinary close immediately fatal.
+    """
+    if consecutive_failures >= 10:
+        return True
+    return bool(outage_started_at and (now - outage_started_at) > 3 * 60)
+
+
+def _primary_db_fd_count(open_files, db_path: str) -> int:
+    """Count SQLite connections, not their companion WAL/SHM descriptors."""
+    if not db_path:
+        return 0
+    target = os.path.realpath(db_path)
+    return sum(
+        1
+        for handle in open_files
+        if os.path.realpath(getattr(handle, "path", "")) == target
+    )
+
+
+def _next_fd_high_cycle(count: int, *, threshold: int, previous: int) -> int:
+    """Advance only a persistent high-FD streak; a recovered sample resets it."""
+    return previous + 1 if count >= threshold else 0
+
+
+def _write_migration_log(line: str) -> None:
+    """Append a line to migration.log (fire-and-forget, never raises)."""
+    try:
+        with open(_MIGRATION_LOG_PATH, "a", encoding="utf-8") as _f:
+            ts = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3]
+            _f.write(f"{ts}Z  {line}\n")
+    except Exception:
+        pass
+
+def log_print(*args, **kwargs):
+    """Print with flush support across Python versions"""
+    kwargs.pop('flush', None)  # Remove flush if present
+    print(*args, **kwargs)
+    sys.stdout.flush()
+    # Mirror migration/detection lines to migration.log
+    if args:
+        line = " ".join(str(a) for a in args)
+        # Strip ANSI colour codes before prefix match
+        import re as _re
+        clean = _re.sub(r"\033\[[0-9;]*m", "", line)
+        if any(clean.lstrip().startswith(p) for p in _MIGRATION_LOG_PREFIXES):
+            _write_migration_log(clean)
+
+# === Global Database Write Lock ===
+try:
+    from src.metrics.rpc_metrics_recorder import initialize_recorder, record_request
+    initialize_recorder(plan_monthly_credits=50_000_000)
+except ImportError:
+    def record_request(*args, **kwargs):
+        pass  # No-op if metrics recorder not available
+except Exception as e:
+    log_print(f"[WARNING] Could not initialize RPC metrics: {e}", flush=True)
+    def record_request(*args, **kwargs):
+        pass  # No-op fallback
+
+try:
+    from src.metrics.usage_tracker import record_wss, record_webhook
+except Exception:
+    def record_wss(*args, **kwargs): pass
+    def record_webhook(*args, **kwargs): pass
+
+# Serializes ALL database writes across threads/processes to prevent lock contention
+# Used by asyncio tasks (wrapped with self.db_lock THEN this), executor threads, and workers
+DB_WRITE_LOCK = threading.RLock()
+
+# Bounded thread pool for per-token background work (symbol fetch, scoring, price fast-lane).
+# Caps OS thread count; tasks queue internally if all workers are busy.
+_TOKEN_WORK_POOL = ThreadPoolExecutor(max_workers=40, thread_name_prefix="tok_work")
+
+# Import settings checker (will be imported dynamically when needed)
+def get_migration_setting(key: str, default=True) -> bool:
+    """Get a migration setting from file or database"""
+    try:
+        # Try database first (listener_settings table)
+        import sqlite3
+        import json
+        if key in ['listen_to_launches', 'listen_to_price_updates', 'auto_extract_funding', 'auto_extract_funders']:
+            # Use DB_PATH if available, otherwise fall back to default location
+            db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+            conn = db_connect(db_path, timeout=15)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("SELECT setting_value FROM listener_settings WHERE setting_key = ?", (key,))
+                row = cursor.fetchone()
+                if row:
+                    result = row[0] == 'true'
+                    conn.close()
+                    return result
+            except Exception as e:
+                pass
+            conn.close()
+
+        # Fall back to migration_settings.json for migration-specific settings
+        settings_file = "migration_settings.json"
+        if os.path.exists(settings_file):
+            with open(settings_file) as f:
+                settings = json.load(f)
+                return settings.get(key, default)
+    except Exception as e:
+        pass
+    return default
+
+
+async def extract_funder_transfers_async(creator_address: str):
+    """Async wrapper for funder transfer extraction"""
+    try:
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(None, extract_funder_transfers, creator_address)
+        if result.get('status') == 'complete':
+            log_print(f"[FUNDER_EXTRACTION] ✅ Funding complete for {creator_address[:8]}...: IN={result.get('incoming_found', 0)}, OUT={result.get('outgoing_found', 0)}, SOL={result.get('total_sol', 0):.4f}", flush=True)
+        else:
+            log_print(f"[FUNDER_EXTRACTION] Completed for {creator_address[:8]}...: {result}", flush=True)
+    except Exception as e:
+        log_print(f"[FUNDER_EXTRACTION] Error extracting transfers for {creator_address[:8]}...: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+
+
+async def update_network_clustering_async():
+    """Update network clustering database from extracted funding data (no RPC needed)"""
+    try:
+        loop = asyncio.get_event_loop()
+        # Rebuild super_clusters table based on extracted funding relationships
+        result = await loop.run_in_executor(None, rebuild_super_clusters_from_funding)
+        log_print(f"[CLUSTERING] ✅ Super-clusters updated from funding data", flush=True)
+    except Exception as e:
+        log_print(f"[CLUSTERING] Error updating network clustering: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+
+
+def rebuild_super_clusters_from_funding():
+    """Rebuild super_clusters table and assign creators to networks based on funding"""
+    try:
+        # Serialize writes: prevent other threads from interfering with clustering writes
+        with DB_WRITE_LOCK:
+            conn = db_connect(DB_PATH, timeout=60)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA busy_timeout=60000")
+            cursor = conn.cursor()
+
+            # Note: BEGIN IMMEDIATE removed - WAL mode + busy_timeout handles serialization
+            # Holding write lock for entire clustering operation starved other writers
+            try:
+                log_print(f"[CLUSTERING] 🔄 Rebuilding super_clusters from funding data...", flush=True)
+
+                # Get all creators with funding relationships
+                cursor.execute("""
+                    SELECT DISTINCT creator_address FROM creator_funders
+                    WHERE fully_analyzed = 1 AND amount_sol > 0
+                """)
+
+                creators_to_process = [row[0] for row in cursor.fetchall()]
+                log_print(f"[CLUSTERING]    Found {len(creators_to_process)} creators with complete funding extraction", flush=True)
+
+                # Update cluster counts and metadata for existing clusters
+                cursor.execute("""
+                    SELECT super_cluster_id FROM super_clusters
+                """)
+
+                for (cluster_id,) in cursor.fetchall():
+                    # Count creators in this cluster
+                    cursor.execute("""
+                        SELECT COUNT(DISTINCT creator_address) as creator_count
+                        FROM creator_super_cluster_membership
+                        WHERE super_cluster_id = ?
+                    """, (cluster_id,))
+
+                    row = cursor.fetchone()
+                    creator_count = row[0] if row else 0
+
+                    # Update cluster metadata
+                    cursor.execute("""
+                        UPDATE super_clusters
+                        SET creator_count = ?
+                        WHERE super_cluster_id = ?
+                    """, (creator_count, cluster_id))
+
+                # Assign creators and funders to super_clusters
+                # Logic:
+                # 1. Add creator to clusters where their funders are
+                # 2. Add funders to clusters if they fund real creators (not just CEX/INFRA)
+                creators_assigned = 0
+                funders_assigned = 0
+
+                _batch_n = 0
+                for creator in creators_to_process:
+                    # Find all super_clusters where this creator's funders appear as cluster members
+                    cursor.execute("""
+                        SELECT DISTINCT cscm.super_cluster_id, cf.funder_address
+                        FROM creator_funders cf
+                        JOIN creator_super_cluster_membership cscm ON cf.funder_address = cscm.creator_address
+                        WHERE cf.creator_address = ? AND cf.fully_analyzed = 1 AND cf.amount_sol > 0
+                        AND cf.is_cex = 0
+                    """, (creator,))
+
+                    results = cursor.fetchall()
+                    clusters = [row[0] for row in results]
+                    funders = [row[1] for row in results]
+
+                    # Add creator to those clusters
+                    for cluster_id in clusters:
+                        cursor.execute("""
+                            INSERT OR IGNORE INTO creator_super_cluster_membership
+                            (creator_address, super_cluster_id)
+                            VALUES (?, ?)
+                        """, (creator, cluster_id))
+                        creators_assigned += 1
+
+                    # Add funders to clusters if they fund real addresses (not just CEX/INFRA)
+                    for funder in funders:
+                        # Check if funder has outgoing transfers to non-CEX/INFRA addresses
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM funder_outgoing_transfers
+                            WHERE funder_address = ? AND is_cex = 0
+                        """, (funder,))
+
+                        has_real_funding = cursor.fetchone()[0] > 0
+
+                        if has_real_funding:
+                            # Add funder to all clusters where creator appears
+                            for cluster_id in clusters:
+                                cursor.execute("""
+                                    INSERT OR IGNORE INTO creator_super_cluster_membership
+                                    (creator_address, super_cluster_id)
+                                    VALUES (?, ?)
+                                """, (funder, cluster_id))
+                                funders_assigned += 1
+
+                    # Commit and reopen every 10 creators to release the write lock slot
+                    _batch_n += 1
+                    if _batch_n % 10 == 0:
+                        conn.commit()
+                        conn.close()
+                        import time as _time; _time.sleep(0.05)
+                        conn = db_connect(DB_PATH, timeout=60)
+                        conn.execute("PRAGMA journal_mode=WAL")
+                        conn.execute("PRAGMA synchronous=NORMAL")
+                        conn.execute("PRAGMA busy_timeout=60000")
+                        cursor = conn.cursor()
+
+                conn.commit()
+                log_print(f"[CLUSTERING] ✅ Assigned {creators_assigned} creators to networks", flush=True)
+                log_print(f"[CLUSTERING] ✅ Assigned {funders_assigned} funders to networks (funding real addresses)", flush=True)
+                log_print(f"[CLUSTERING] ✅ Updated super_cluster metadata", flush=True)
+
+            except Exception as e:
+                conn.rollback()
+                raise
+
+            finally:
+                conn.close()
+
+        return {'status': 'success', 'creators_updated': len(creators_to_process), 'creators_assigned': creators_assigned, 'funders_assigned': funders_assigned}
+
+    except Exception as e:
+        log_print(f"[CLUSTERING] ⚠ Error rebuilding super_clusters: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return {'status': 'error', 'error': str(e)}
+
+
+def check_if_cex_funding(cex_address: str) -> dict:
+    """Check if a wallet address is a known CEX wallet
+    
+    Returns dict with:
+    - is_cex: bool
+    - exchange_name: str or None
+    - wallet_type: str or None
+    - confidence_level: int (0-100)
+    - flag: str (e.g. "🏛️ Kraken Hot Wallet") or None
+    """
+    try:
+        import sqlite3
+        conn = db_connect(DB_PATH, timeout=15)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT exchange_name, wallet_type, confidence_level
+            FROM cex_wallets
+            WHERE cex_address = ? AND is_active = 1
+        """, (cex_address,))
+        
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            return {
+                'is_cex': True,
+                'exchange_name': row['exchange_name'],
+                'wallet_type': row['wallet_type'],
+                'confidence_level': row['confidence_level'],
+                'flag': f"🏛️ {row['exchange_name']} {row['wallet_type']}"
+            }
+        else:
+            return {
+                'is_cex': False,
+                'exchange_name': None,
+                'wallet_type': None,
+                'confidence_level': 0,
+                'flag': None
+            }
+    except Exception as e:
+        log_print(f"[ERROR] Failed to check CEX wallet: {e}")
+        return {
+            'is_cex': False,
+            'exchange_name': None,
+            'wallet_type': None,
+            'confidence_level': 0,
+            'flag': None
+        }
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '../../config/.env'))
+
+# === Config ===
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY", "")
+HELIUS_MONITORING_API_KEY = os.getenv("HELIUS_MONITORING_API_KEY", "")
+
+# Use monitoring key if available, fall back to regular key
+_RPC_KEY = HELIUS_MONITORING_API_KEY or HELIUS_API_KEY
+
+# RPC Configuration: Use Helius + Public Solana only (QuickNode removed)
+# WebSocket: Try Helius first, fall back to public Solana
+HELIUS_RPC_WS = f"wss://mainnet.helius-rpc.com/?api-key={_RPC_KEY}" if _RPC_KEY else "wss://api.mainnet-beta.solana.com/"
+
+# HTTP: Use Helius if available, otherwise public Solana
+RPC_HTTP = f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}" if _RPC_KEY else "https://api.mainnet-beta.solana.com"
+
+# RPC failover chain: Helius -> Public Solana
+RPC_URLS = []
+if _RPC_KEY:
+    RPC_URLS.append(f"https://mainnet.helius-rpc.com/?api-key={_RPC_KEY}")
+RPC_URLS.append("https://api.mainnet-beta.solana.com")  # Public fallback
+
+PUMPFUN_PROGRAM = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+PUMPFUN_MIGRATION_ACCOUNT = "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"
+SOL_MINT = "So11111111111111111111111111111111111111112"
+
+
+def _write_create_ledger_durable(
+    *, signature: str, mint: str, creator, slot, source: str,
+    parser_path: str, raw_detection_method: str, creator_resolution_state: str,
+) -> dict:
+    """X64.7A Phase 1/2 — write to the canonical CREATE-event ledger via
+    the serialized write lane, logging every required X64.7 Phase 4
+    event, and on any non-success result durably persist a retryable
+    pending-write row (Phase 2) rather than leaving the failure only in
+    logs. Never raises — a ledger-write problem must never abort the
+    caller's own birth/enrichment processing.
+    """
+    try:
+        _ops_path = os.environ.get(
+            "WT_OPS_DB_PATH",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "..", "..", "database", "wt_ops_v2.db"))
+        from src.core.database_write_service import database_write_service
+        _ops_selector = f"operations:{os.path.realpath(_ops_path)}"
+        database_write_service.register_database(_ops_selector, _ops_path)
+
+        log_print(f"[CREATE_LEDGER_WRITE_ATTEMPT] sig={signature[:20]}... mint={mint[:16]}... "
+                  f"state={creator_resolution_state}", flush=True)
+
+        def _write(_conn):
+            from src.ops import create_event_ledger
+            return create_event_ledger.record_create_event(
+                _conn, signature=signature, mint=mint, creator=creator,
+                slot=slot, source=source, parser_path=parser_path,
+                raw_detection_method=raw_detection_method,
+                creator_resolution_state=creator_resolution_state,
+            )
+        result = database_write_service.submit(_ops_selector, "create-event-ledger-write", _write)
+
+        if result and result.get("written"):
+            log_print(f"[CREATE_LEDGER_WRITE_COMMITTED] sig={signature[:20]}... "
+                      f"mint={mint[:16]}... state={result.get('state')}", flush=True)
+            return result
+
+        reason = result.get("reason") if result else "unknown"
+        conflict = result.get("conflict") if result else None
+        log_print(f"[CREATE_LEDGER_WRITE_FAILED] sig={signature[:20]}... mint={mint[:16]}... "
+                  f"reason={reason} conflict={conflict}", flush=True)
+
+        # Conflicts (SIGNATURE_MINT_MISMATCH / CREATOR_MISMATCH) are
+        # already durably recorded by record_create_event itself in
+        # wt_create_ledger_conflicts — not retryable, not re-queued.
+        # Genuine invalid-input reasons (mint_required, bad signature)
+        # are also not retryable — retrying an invalid signature can
+        # never succeed. Only a transient/unexpected failure shape is
+        # queued for retry.
+        if not conflict and reason not in ("mint_required", "invalid_or_missing_signature"):
+            _persist_pending(signature=signature, mint=mint, creator=creator, slot=slot,
+                             source=source, parser_path=parser_path, last_error=str(reason))
+        return result or {"written": False, "reason": "unknown"}
+    except Exception as _ledger_err:
+        log_print(f"[CREATE_LEDGER_WRITE_FAILED] sig={signature[:20]}... mint={mint[:16]}... "
+                  f"reason=exception:{_ledger_err}", flush=True)
+        try:
+            _persist_pending(signature=signature, mint=mint, creator=creator, slot=slot,
+                             source=source, parser_path=parser_path,
+                             last_error=f"exception:{_ledger_err}")
+        except Exception as _pending_err:
+            # Both the ledger write AND the durable pending-write persistence
+            # failed — this is the one case the task requires a CRITICAL
+            # structured event for, since the failure now exists nowhere
+            # durable at all, only in this log line.
+            log_print(f"[CREATE_LEDGER_CRITICAL_FAILURE] sig={signature[:20]}... "
+                      f"mint={mint[:16]}... ledger_error={_ledger_err} "
+                      f"pending_persist_error={_pending_err}", flush=True)
+        return {"written": False, "reason": f"exception:{_ledger_err}"}
+
+
+def _persist_pending(*, signature: str, mint: str, creator, slot, source: str,
+                     parser_path: str, last_error: str) -> None:
+    """Best-effort durable persistence of a failed ledger write, via the
+    same serialized write lane. Raises on failure so the caller
+    (_write_create_ledger_durable) can detect the double-failure case
+    and emit CREATE_LEDGER_CRITICAL_FAILURE."""
+    _ops_path = os.environ.get(
+        "WT_OPS_DB_PATH",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "..", "..", "database", "wt_ops_v2.db"))
+    from src.core.database_write_service import database_write_service
+    _ops_selector = f"operations:{os.path.realpath(_ops_path)}"
+    database_write_service.register_database(_ops_selector, _ops_path)
+
+    def _persist(_conn):
+        from src.ops import create_event_ledger
+        return create_event_ledger.persist_pending_write(
+            _conn, signature=signature, mint=mint, creator=creator, slot=slot,
+            block_time=None, source=source, parser_path=parser_path, last_error=last_error,
+        )
+    database_write_service.submit(_ops_selector, "create-event-ledger-pending-write", _persist)
+KNOWN_NON_MINT_ADDRESSES = {
+    PUMPFUN_PROGRAM,
+    PUMPSWAP_PROGRAM,
+    SOL_MINT,
+    "11111111111111111111111111111111",
+    "ComputeBudget111111111111111111111111111111",
+    "BPFLoader1111111111111111111111111111111111",
+    "BPFLoader2111111111111111111111111111111111",
+    "BPFLoaderUpgradeab1e11111111111111111111111",
+    "SysvarRent111111111111111111111111111111111",
+    "SysvarC1ock11111111111111111111111111111111",
+    "SysvarRecentB1ockHashes11111111111111111111",
+    "Sysvar1nstructions1111111111111111111111111",
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+    "AddressLookupTab1e1111111111111111111111111",
+    "Stake11111111111111111111111111111111111111",
+    "Vote111111111111111111111111111111111111111",
+    "pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ",
+    "FLASHX8DrLbgeR8FcfNV1F5krxYcYMUdBkrP1EPBtxB9",
+    "Gz9VPiSLQYbvKyb3jZPjNfyA6n4T4qVFUuAukgL964nL",
+    "MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e",
+    "term9YPb9mzAsABaqN71A4xdbxHmpBNZavpBiQKZzN3",
+    "GMgnVFR8Jb39LoXsEVzb3DvBy3ywCmdmJquHUy1Lrkqb",
+    "FAdo9NCw1ssek6Z6yeWzWjhLVsr8uiCwcWNUnKgzTnHe",
+    "troyXT7Ty3s2rjJe4bqWaroUrS4Fjd8rbHHNHxcACF4",
+    "b1oomGGqPKGD6errbyfbVMBuzSC8WtAAYo8MwNafWW1",
+    "proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u",
+    "haqqqMGN35ehCftXca3KWxJFXTBcWTWeNHNtUHLGQdh",
+}
+SOLANA_PUBKEY_RE = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+
+# Use DB_PATH from environment or construct it relative to project root
+DB_PATH = os.getenv("DB_PATH")
+if not DB_PATH:
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    DB_PATH = os.path.join(PROJECT_ROOT, 'database', 'flex_complete_database.db')
+
+# ── Price tracking eligibility ───────────────────────────────────────────────
+# Determines which migrated tokens receive continuous price updates.
+# Returns (tier, priority) where tier ∈ {IGNORE, DISCOVERY, WATCH, OWNED}.
+#
+# Tier semantics:
+#   IGNORE    — generic pump.fun token; migration recorded, no pricing
+#   DISCOVERY — unclassified creator; register MEDIUM, expires via retention manager
+#   WATCH     — creator is known WATCHTOWER infra (sub-provisioner, treasury, ops_v2,
+#               wt_wallet_tier); register HIGH, never expires automatically
+#
+# Called at migration time. Reads DB_PATH only (no RPC). Creator (pf_ws_creator)
+# is available for ~93% of tokens by migration time; absent creator → DISCOVERY
+# so we don't silently drop potentially interesting tokens.
+def evaluate_price_interest(mint: str, conn) -> tuple:
+    """Return (tier: str, priority: str) for price tracking eligibility.
+
+    Pure DB read — no RPC, no side effects. Safe to call on the event loop
+    (caller must ensure conn is a read connection or call via asyncio.to_thread).
+    """
+    try:
+        cursor = conn.cursor()
+
+        # Fetch creator from token_analysis (set by pf_ws_creator at birth/migration)
+        cursor.execute(
+            "SELECT pf_ws_creator FROM token_analysis WHERE mint=? LIMIT 1",
+            (mint,),
+        )
+        row = cursor.fetchone()
+        creator = row[0] if row else None
+
+        if creator:
+            # WATCH: creator is a known sub-provisioner
+            cursor.execute(
+                "SELECT 1 FROM wt_sub_provisioners WHERE address=? LIMIT 1",
+                (creator,),
+            )
+            if cursor.fetchone():
+                return ("WATCH", "HIGH")
+
+            # WATCH: creator is a known treasury
+            cursor.execute(
+                "SELECT 1 FROM wt_operator_treasuries WHERE wallet=? LIMIT 1",
+                (creator,),
+            )
+            if cursor.fetchone():
+                return ("WATCH", "HIGH")
+
+            # WATCH: creator is in ops_v2 wallet graph
+            cursor.execute(
+                "SELECT 1 FROM wt_ops_v2_wallets WHERE wallet=? LIMIT 1",
+                (creator,),
+            )
+            if cursor.fetchone():
+                return ("WATCH", "HIGH")
+
+            # WATCH: creator has an explicit wallet tier classification
+            cursor.execute(
+                "SELECT 1 FROM wt_wallet_tier WHERE wallet_address=? LIMIT 1",
+                (creator,),
+            )
+            if cursor.fetchone():
+                return ("WATCH", "HIGH")
+
+        # No WATCHTOWER signal — treat as DISCOVERY if creator present, else DISCOVERY anyway
+        # (unknown creator is interesting enough to monitor briefly)
+        return ("DISCOVERY", "MEDIUM")
+
+    except Exception:
+        # Fail open: never silently drop a token due to a DB error
+        return ("DISCOVERY", "MEDIUM")
+
+
+# ── Network LIQ cache ────────────────────────────────────────────────────────
+# Loaded once at startup, refreshed every 30 min. Maps network_name -> liq_rate
+# for networks with liq_rate >= LIQ_NETWORK_THRESHOLD. Sub-ms lookup at buy time.
+LIQ_NETWORK_THRESHOLD = 0.50
+_liq_networks: dict[str, float] = {}
+_liq_networks_lock = threading.Lock()
+_liq_networks_loaded_at: float = 0.0
+_LIQ_NETWORKS_TTL = 1800.0  # 30 min
+
+
+def _load_liq_networks(db_path: str) -> dict[str, float]:
+    try:
+        conn = db_connect(db_path, timeout=15)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("""
+            SELECT tps.network_name,
+                   ROUND(1.0 * COUNT(CASE WHEN tpa.liquidity_removed = 1 THEN 1 END) / COUNT(*), 4) AS liq_rate
+            FROM token_prediction_scores tps
+            JOIN token_analysis ta ON ta.mint = tps.mint
+            LEFT JOIN token_pool_accounts tpa ON tpa.mint = tps.mint AND tpa.liquidity_removed = 1
+            WHERE tps.network_name IS NOT NULL AND ta.migrated_at IS NOT NULL
+            GROUP BY tps.network_name
+            HAVING COUNT(*) >= 2
+               AND liq_rate >= ?
+        """, (LIQ_NETWORK_THRESHOLD,)).fetchall()
+        conn.close()
+        return {r["network_name"]: r["liq_rate"] for r in rows}
+    except Exception:
+        return {}
+
+
+def _maybe_refresh_liq_networks(db_path: str) -> None:
+    global _liq_networks, _liq_networks_loaded_at
+    now = time.monotonic()
+    if now - _liq_networks_loaded_at < _LIQ_NETWORKS_TTL:
+        return
+    fresh = _load_liq_networks(db_path)
+    with _liq_networks_lock:
+        _liq_networks = fresh
+        _liq_networks_loaded_at = now
+
+
+def is_liq_network(network_name: str | None, db_path: str) -> tuple[bool, float]:
+    """Returns (is_liq, liq_rate). Safe to call from any thread."""
+    if not network_name:
+        return False, 0.0
+    _maybe_refresh_liq_networks(db_path)
+    with _liq_networks_lock:
+        rate = _liq_networks.get(network_name, 0.0)
+    return rate >= LIQ_NETWORK_THRESHOLD, rate
+
+
+# Creator pipeline DB (separate from main app DB)
+CREATOR_DB_PATH = os.getenv("CREATOR_DB_PATH") or os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "pumpswap_tokens.db",
+)
+
+
+def _check_watchtower_migration(mint: str, migrated_at: int, migration_tx: str | None, source: str) -> None:
+    """
+    Called at every migration write point. Cross-references the migrating mint against
+    wt_creator_launches and wt_staged_wallets to detect WATCHTOWER-linked migrations.
+    Emits WATCHTOWER_CREATOR_MIGRATED event and updates wt_creator_launches.
+    Runs in a background thread so it never blocks the migration hot path.
+    """
+    import threading as _th
+    def _run(mint=mint, migrated_at=migrated_at, migration_tx=migration_tx, source=source):
+        conn = None
+        try:
+            import sqlite3 as _sq, json as _json
+            conn = _sq.connect(DB_PATH, timeout=15)
+            conn.row_factory = _sq.Row
+
+            # Check wt_creator_launches first (creator already resolved at launch time)
+            row = conn.execute(
+                "SELECT creator_wallet, evidence_grade FROM wt_creator_launches WHERE mint_address=?", (mint,)
+            ).fetchone()
+
+            creator_wallet = None
+            evidence_grade = 'STRONG'
+
+            if row:
+                creator_wallet = row['creator_wallet']
+                evidence_grade = row['evidence_grade']
+            else:
+                # Fallback: check token_analysis creator against wt_staged_wallets
+                ta = conn.execute(
+                    "SELECT earliest_tx_creator, pf_ws_creator FROM token_analysis WHERE mint=?", (mint,)
+                ).fetchone()
+                if ta:
+                    for candidate in [ta['earliest_tx_creator'], ta['pf_ws_creator']]:
+                        if not candidate:
+                            continue
+                        staged = conn.execute(
+                            "SELECT wallet_address, provisioner_address FROM wt_staged_wallets WHERE wallet_address=?",
+                            (candidate,)
+                        ).fetchone()
+                        if staged:
+                            creator_wallet = staged['wallet_address']
+                            evidence_grade = 'STRONG'
+                            # Backfill wt_creator_launches with this newly discovered binding
+                            conn.execute("""
+                                INSERT OR IGNORE INTO wt_creator_launches
+                                    (creator_wallet, mint_address, launch_platform, evidence_grade, evidence_basis,
+                                     launch_success_state, migrated_at, migration_tx)
+                                VALUES (?, ?, 'pump_fun', ?, 'migration_backfill', 'migrated', ?, ?)
+                            """, (creator_wallet, mint, evidence_grade, migrated_at, migration_tx))
+                            break
+
+            if not creator_wallet:
+                # Creator unknown at migration time — resolve creator from token_analysis and
+                # enqueue for retrospective walkback so lineage can be recovered via RPC.
+                try:
+                    ta2 = conn.execute(
+                        "SELECT earliest_tx_creator FROM token_analysis WHERE mint=?", (mint,)
+                    ).fetchone()
+                    _creator_for_wb = ta2['earliest_tx_creator'] if ta2 else None
+                    # The walkback enqueue below targets the separate operations
+                    # database and waits synchronously for its writer.  The main
+                    # Flex DB is no longer needed, so release it before that
+                    # potentially long cross-database wait.  The outer finally
+                    # remains the backstop if this local read or close fails.
+                    conn.close()
+                    conn = None
+                    _ops_path = _listener_ops_db_path()
+                    from src.core.walkback_queue import enqueue_migration as _enq
+                    from src.core.database_write_service import database_write_service
+                    from src.ops.migration_walkback_handoff_retry import (
+                        ensure_schema as _ensure_handoff_schema,
+                        mark_attempt_failure as _handoff_failure,
+                        mark_complete as _handoff_complete,
+                        record_intent as _record_handoff_intent,
+                    )
+                    # This is a separate main-DB durability boundary.  It is
+                    # committed before touching OPS, so an OPS SQLITE_BUSY
+                    # cannot erase the intent to enqueue Walkback work.
+                    _handoff_selector = f"main-handoff:{__import__('os').path.realpath(DB_PATH)}"
+                    database_write_service.register_database(_handoff_selector, DB_PATH)
+                    database_write_service.submit(
+                        _handoff_selector, "listener-walkback-handoff-intent",
+                        lambda _handoff_conn: (
+                            _ensure_handoff_schema(_handoff_conn),
+                            _record_handoff_intent(
+                                _handoff_conn, mint=mint, creator=_creator_for_wb,
+                                migration_tx=migration_tx, migrated_at=migrated_at,
+                            ),
+                        ),
+                    )
+                    _ops_selector = f"operations:{__import__('os').path.realpath(_ops_path)}"
+                    database_write_service.register_database(_ops_selector, _ops_path)
+                    try:
+                        _cls = database_write_service.submit(
+                            _ops_selector, "listener-walkback-enqueue",
+                            lambda _ops_conn: _enq(
+                                _ops_conn, mint=mint, creator=_creator_for_wb
+                            ),
+                        )
+                    except Exception as _enqueue_error:
+                        database_write_service.submit(
+                            _handoff_selector, "listener-walkback-handoff-failure",
+                            lambda _handoff_conn: _handoff_failure(
+                                _handoff_conn, mint, _enqueue_error
+                            ),
+                        )
+                        raise
+                    database_write_service.submit(
+                        _handoff_selector, "listener-walkback-handoff-complete",
+                        lambda _handoff_conn: _handoff_complete(_handoff_conn, mint),
+                    )
+                    if _cls:
+                        log_print(f"[WATCHTOWER] walkback enqueued mint={mint[:20]} cls={_cls} creator={(_creator_for_wb or '')[:20]}", flush=True)
+                except Exception as _wb_e:
+                    log_print(f"[WATCHTOWER] walkback enqueue error: {_wb_e}", flush=True)
+                return
+
+            # Update launch record: mark as migrated
+            conn.execute("""
+                UPDATE wt_creator_launches
+                SET launch_success_state='migrated', migrated_at=COALESCE(migrated_at, ?), migration_tx=COALESCE(migration_tx, ?)
+                WHERE creator_wallet=? AND mint_address=?
+            """, (migrated_at, migration_tx, creator_wallet, mint))
+
+            # Emit migration event
+            conn.execute("""
+                INSERT OR IGNORE INTO watchtower_events
+                    (event_type, wallet_address, token_mint, payload_json, created_at)
+                VALUES ('WATCHTOWER_CREATOR_MIGRATED', ?, ?, ?, strftime('%s','now'))
+            """, (creator_wallet, mint, _json.dumps({
+                'mint': mint,
+                'creator_wallet': creator_wallet,
+                'migrated_at': migrated_at,
+                'migration_tx': migration_tx,
+                'evidence_grade': evidence_grade,
+                'source': source,
+            })))
+
+            conn.commit()
+            # Release the primary database before best-effort derived-lifecycle
+            # work.  The outer finally remains the exception/early-return
+            # backstop; clearing the reference prevents a double close.
+            conn.close()
+            conn = None
+            log_print(f"[WATCHTOWER] 🔴 CREATOR MIGRATED — creator={creator_wallet[:20]}... mint={mint[:20]}...", flush=True)
+            # Advance derived lifecycle table (wt_ops_v2.db), best-effort
+            try:
+                _lc_path = __import__('os').environ.get(
+                    "WT_OPS_DB_PATH",
+                    __import__('os').path.join(
+                        __import__('os').path.dirname(__import__('os').path.abspath(__file__)),
+                        "..", "..", "database", "wt_ops_v2.db"))
+                from src.core.ws_cascade_store import advance_lifecycle_migrated as _adv
+                from src.core.database_write_service import database_write_service
+                _lc_selector = f"operations:{__import__('os').path.realpath(_lc_path)}"
+                database_write_service.register_database(_lc_selector, _lc_path)
+                database_write_service.submit(
+                    _lc_selector, "listener-lifecycle-migrated",
+                    lambda _lc_conn: _adv(
+                        _lc_conn, mint=mint, migrated_at=migrated_at,
+                        migration_sig=migration_tx,
+                    ),
+                )
+            except Exception as _lc_e:
+                log_print(f"[LIFECYCLE] advance_lifecycle_migrated error: {_lc_e}", flush=True)
+        except Exception as _e:
+            log_print(f"[WATCHTOWER] _check_watchtower_migration error: {_e}", flush=True)
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except Exception as _close_e:
+                    log_print(
+                        f"[WATCHTOWER] _check_watchtower_migration close error: {_close_e}",
+                        flush=True,
+                    )
+
+    # route through the BOUNDED pool, not a fresh per-migration thread — under DB lock contention
+    # these blocked on db_connect and accumulated unbounded (the recurring 17→300 thread leak).
+    _TOKEN_WORK_POOL.submit(_run)
+
+
+def migration_capture_metrics(db_path: str, window_secs: int = 86400) -> dict:
+    """Migration capture metrics from token_analysis.migration_source (the durable, cross-process
+    source of truth — survives restarts, unlike in-process counters). Shows how many migrations the
+    real-time WS caught vs how many the reconciler had to recover, i.e. the WS-drop rate the
+    reconciler is closing.
+
+        WS migrations / Reconciler recoveries / Recovery rate % / Total migrations
+    """
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(f"file:{db_path}?mode=ro", uri=True, timeout=10)
+        cutoff = int(time.time()) - window_secs
+        rows = conn.execute(
+            "SELECT COALESCE(migration_source,'UNKNOWN'), COUNT(*) FROM token_analysis "
+            "WHERE migrated_at IS NOT NULL AND migrated_at > ? GROUP BY 1", (cutoff,)
+        ).fetchall()
+        conn.close()
+    except Exception:
+        return {}
+    by = {r[0]: r[1] for r in rows}
+    ws = by.get("WEBSOCKET", 0)
+    rec = by.get("RECONCILER", 0)
+    unknown = by.get("UNKNOWN", 0)   # migrations recorded before provenance existed
+    total = ws + rec + unknown
+    rate = round(100.0 * rec / total, 2) if total else 0.0
+    return {
+        "window_hours": round(window_secs / 3600, 1),
+        "ws_migrations": ws,
+        "reconciler_recoveries": rec,
+        "unattributed": unknown,
+        "total_migrations": total,
+        "recovery_rate_pct": rate,
+    }
+
+
+# X78.19 -- in-process birth persistence telemetry. Counters only (no PII/large
+# payloads); cheap, thread-safe, reset on process restart by design -- durable
+# counts (queued/pending/persisted) are derived fresh from birth_persist_queue
+# and token_analysis instead, so a restart never loses the durability picture,
+# only the in-memory rate counters, which naturally restart at zero anyway.
+import threading as _bt_threading
+_BIRTH_TELEMETRY_LOCK = _bt_threading.Lock()
+_BIRTH_TELEMETRY = {
+    "received": 0,
+    "persisted_direct": 0,
+    "queued_for_retry": 0,
+    "retry_succeeded": 0,
+    "retry_failed": 0,
+    "write_timeouts": 0,
+    # MC1.4 -- these two were previously only logged (🟡 fallback, 🔴
+    # CRITICAL), never counted, so "how many births ever needed the file
+    # fallback" and "how many were genuinely unrecoverable" had no
+    # authoritative source. Both are cumulative-since-process-start, same
+    # scope as every other counter here.
+    "fallback_activations": 0,
+    "permanently_lost": 0,
+}
+
+
+def _birth_telemetry_incr(key: str, n: int = 1) -> None:
+    with _BIRTH_TELEMETRY_LOCK:
+        _BIRTH_TELEMETRY[key] = _BIRTH_TELEMETRY.get(key, 0) + n
+
+
+def birth_persistence_telemetry(db_path: str | None = None) -> dict:
+    """Mission Control read: authoritative birth-persistence pipeline state.
+
+    In-memory counters (received/persisted_direct/queued_for_retry/retry_*)
+    reflect this process's lifetime only. The queue-depth/oldest-pending/
+    latency figures below are read fresh from birth_persist_queue and are
+    therefore durable across listener restarts -- Phase I / Phase H (X78.19).
+
+    MC1.4 -- the fields under "durability" (below the legacy X78.19 fields,
+    kept for backward compatibility) are a SAME-POPULATION reconciliation:
+    every count is a mutually-exclusive share of `received` for this
+    process's lifetime, so `persisted_immediately + pending_recovery +
+    recovered + permanently_lost <= received` always holds (birth_persist_queue
+    rows in RETRY status are still in-flight recovery attempts, not yet
+    resolved either way, so they don't get their own bucket separate from
+    pending_recovery). This is what makes immediate_persistence_pct and
+    eventual_durability_pct mathematically incapable of exceeding 100% --
+    unlike the legacy log-tail "seen vs persisted" comparison (MC1.2B),
+    which draws its two numbers from different regex-matched populations
+    over a possibly-different log-tail window and can disagree in either
+    direction.
+    """
+    with _BIRTH_TELEMETRY_LOCK:
+        snapshot = dict(_BIRTH_TELEMETRY)
+
+    db_path = db_path or DB_PATH
+    pending = 0
+    oldest_pending_age_s = None
+    processed_recent = 0
+    avg_retry_latency_s = None
+    recovered_total = 0
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*), MIN(received_at) FROM birth_persist_queue WHERE status IN ('PENDING','RETRY')"
+            ).fetchone()
+            pending = row[0] or 0
+            now = int(time.time())
+            oldest_pending_age_s = (now - row[1]) if row[1] else None
+
+            row2 = conn.execute(
+                "SELECT COUNT(*), AVG(processed_at - received_at) FROM birth_persist_queue"
+                " WHERE status = 'PROCESSED' AND processed_at > ?",
+                (now - 3600,),
+            ).fetchone()
+            processed_recent = row2[0] or 0
+            avg_retry_latency_s = round(row2[1], 2) if row2[1] is not None else None
+
+            recovered_total = conn.execute(
+                "SELECT COUNT(*) FROM birth_persist_queue WHERE status = 'PROCESSED'"
+            ).fetchone()[0] or 0
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+    fallback_pending = _fallback_file_line_count()
+
+    received = snapshot["received"]
+    persisted_immediately = snapshot["persisted_direct"]
+    permanently_lost = snapshot["permanently_lost"]
+    # "Deferred" = ever needed the retry path this process-lifetime, whether
+    # still pending, already recovered, or (rare) genuinely lost. Bounding
+    # deferred_total to what's actually representable against `received`
+    # protects the ratio even if a birth was queued during a PRIOR process
+    # lifetime and only resolved in this one (pending/recovered read from
+    # the durable table, `received` is this-process-only) -- see
+    # birth_durability_summary()'s docstring for the full same-population
+    # argument; this floor just keeps this function's own raw numbers
+    # sane in isolation.
+    pending_recovery = min(pending, max(0, received - persisted_immediately))
+    recovered_this_population = max(0, min(recovered_total, received - persisted_immediately - permanently_lost))
+
+    return {
+        "births_received": received,
+        "births_persisted_direct": persisted_immediately,
+        "births_queued_for_retry": snapshot["queued_for_retry"],
+        "birth_retries_succeeded": snapshot["retry_succeeded"],
+        "birth_retries_failed": snapshot["retry_failed"],
+        "birth_write_timeout_count": snapshot["write_timeouts"],
+        "birth_queue_pending_durable": pending,
+        "birth_queue_oldest_pending_age_s": oldest_pending_age_s,
+        "birth_queue_processed_last_hour": processed_recent,
+        "birth_retry_avg_latency_s": avg_retry_latency_s,
+        "birth_fallback_file_pending": fallback_pending,
+        # MC1.4 -- authoritative, same-population durability state.
+        "durability": {
+            "received": received,
+            "persisted_immediately": persisted_immediately,
+            "recovered": recovered_this_population,
+            "pending_recovery": pending_recovery,
+            "fallback_activations_total": snapshot["fallback_activations"],
+            "fallback_pending": fallback_pending,
+            "permanently_lost": permanently_lost,
+        },
+    }
+
+
+def _fallback_file_path() -> str:
+    base = DB_PATH or "flex_complete_database.db"
+    return f"{base}.birth_fallback.jsonl"
+
+
+class MigrationTerminalDurabilityRisk(RuntimeError):
+    """The migration could not be made durable by either persistence layer."""
+
+
+def _migration_fallback_file_path() -> str:
+    """The last-resort journal for migration queue-enqueue failures.
+
+    This deliberately sits beside the DB, like the birth journal, so it is
+    retained by the same local-volume backup and restart lifecycle.
+    """
+    base = DB_PATH or "flex_complete_database.db"
+    return f"{base}.migration_fallback.jsonl"
+
+
+def _migration_terminal_risk_file_path() -> str:
+    base = DB_PATH or "flex_complete_database.db"
+    return f"{base}.migration_terminal_durability_risk.jsonl"
+
+
+def _durable_jsonl_append(path: str, record: dict) -> None:
+    """Append exactly one compact record and force it to the local volume."""
+    import json as _json
+    payload = (_json.dumps(record, separators=(",", ":"), sort_keys=True) + "\n").encode("utf-8")
+    fd = os.open(path, os.O_APPEND | os.O_CREAT | os.O_WRONLY, 0o600)
+    try:
+        # A single O_APPEND write prevents one fallback envelope overwriting
+        # another.  fsync is the durability boundary before we return.
+        written = os.write(fd, payload)
+        if written != len(payload):
+            raise OSError(f"short fallback journal write: {written}/{len(payload)}")
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _migration_fallback_append(mint, migration_signature, received_at, source, last_error,
+                               migration_slot=None) -> None:
+    """Persist the minimal data needed to recreate migration_persist_queue."""
+    _durable_jsonl_append(_migration_fallback_file_path(), {
+        "version": 1,
+        "mint": mint,
+        "signature": migration_signature,
+        "received_at": received_at,
+        "source": source,
+        "migration_slot": migration_slot,
+        "last_error": str(last_error)[:1000],
+    })
+
+
+def _migration_fallback_file_line_count() -> int:
+    try:
+        with open(_migration_fallback_file_path(), encoding="utf-8") as f:
+            return sum(1 for line in f if line.strip())
+    except FileNotFoundError:
+        return 0
+    except Exception:
+        return 0
+
+
+def _migration_terminal_risk_count() -> int:
+    try:
+        with open(_migration_terminal_risk_file_path(), encoding="utf-8") as f:
+            return sum(1 for line in f if line.strip())
+    except FileNotFoundError:
+        return 0
+    except Exception:
+        return 0
+
+
+def _retain_migration_terminal_risk(mint, signature, received_at, queue_error, fallback_error) -> None:
+    """Keep an explicit operator-visible record when the normal journal fails."""
+    _durable_jsonl_append(_migration_terminal_risk_file_path(), {
+        "version": 1,
+        "state": "MIGRATION_TERMINAL_DURABILITY_RISK",
+        "mint": mint,
+        "signature": signature,
+        "received_at": received_at,
+        "queue_error": str(queue_error)[:1000],
+        "fallback_error": str(fallback_error)[:1000],
+    })
+
+
+def _reconcile_migration_fallback_file_into_queue() -> int:
+    """Commit journalled migrations to the existing queue before acknowledging.
+
+    The journal is intentionally retained on *any* import/cleanup failure.
+    Queue uniqueness (signature) makes retrying an interrupted import safe.
+    """
+    import json as _json
+    path = _migration_fallback_file_path()
+    try:
+        with open(path, encoding="utf-8") as f:
+            records = [_json.loads(line) for line in f if line.strip()]
+    except FileNotFoundError:
+        return 0
+    except Exception:
+        return 0
+    records = [r for r in records if r.get("mint") and r.get("signature")]
+    if not records:
+        return 0
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
+        with conn:
+            for r in records:
+                conn.execute(
+                    """INSERT INTO migration_persist_queue
+                       (signature, source, mint, received_at, status, last_error)
+                       VALUES (?, ?, ?, ?, 'PENDING', ?)
+                       ON CONFLICT(signature) DO UPDATE SET
+                           last_error=excluded.last_error,
+                           last_attempt_at=excluded.received_at,
+                           status=CASE WHEN migration_persist_queue.status='PROCESSED'
+                                       THEN 'PROCESSED' ELSE 'PENDING' END""",
+                    (r["signature"], r.get("source") or "mark_migrated", r["mint"],
+                     r.get("received_at") or int(time.time()), r.get("last_error")),
+                )
+        conn.close()
+    except Exception:
+        return 0
+    try:
+        os.remove(path)  # queue commit is the acknowledgement boundary
+    except Exception:
+        return 0
+    return len(records)
+
+
+def _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
+                            create_tx_signature, symbol, name, received_at, last_error) -> None:
+    """X78.19 last-resort backstop -- caught live 2026-08-09 during production
+    validation: sqlite3.connect(DB_PATH, ...) is globally intercepted
+    (db_locking.py _patched_connect) and routed through the SAME
+    cross-process write lane as every other write, so birth_persist_queue's
+    own enqueue can itself time out under sustained contention (mint=
+    8Vv9jE9nasuQxGzf was lost exactly this way before this existed). A plain
+    local file append touches no SQLite connection and therefore cannot be
+    blocked by the write lane -- this is the true floor under which a birth
+    cannot be lost. drain_birth_persist_queue() reconciles this file into
+    birth_persist_queue on every poll cycle, best-effort, once the lane frees.
+    """
+    import json as _json
+    record = {
+        "mint": mint, "creator": creator, "created_at": created_at,
+        "bonding_curve_pda": bonding_curve_pda, "create_tx_signature": create_tx_signature,
+        "symbol": symbol, "name": name, "received_at": received_at, "last_error": last_error,
+    }
+    with open(_fallback_file_path(), "a", encoding="utf-8") as f:
+        f.write(_json.dumps(record) + "\n")
+
+
+def _fallback_file_line_count() -> int:
+    try:
+        path = _fallback_file_path()
+        if not os.path.exists(path):
+            return 0
+        with open(path, encoding="utf-8") as f:
+            return sum(1 for _ in f)
+    except Exception:
+        return 0
+
+
+def _reconcile_fallback_file_into_queue() -> int:
+    """Best-effort: move every record currently in the fallback file into
+    birth_persist_queue, then truncate the file only after a successful
+    write. If the DB write fails (lane still busy), the file is left
+    untouched and retried on the next poll -- never data-losing, since the
+    file is only cleared after the DB confirms the rows landed."""
+    import json as _json
+    path = _fallback_file_path()
+    if not os.path.exists(path):
+        return 0
+    try:
+        with open(path, encoding="utf-8") as f:
+            lines = [ln for ln in f.read().splitlines() if ln.strip()]
+    except Exception:
+        return 0
+    if not lines:
+        return 0
+
+    records = []
+    for ln in lines:
+        try:
+            records.append(_json.loads(ln))
+        except Exception:
+            continue  # corrupt line -- drop rather than block the rest
+
+    try:
+        import sqlite3 as _sq
+        conn = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
+        with conn:
+            for r in records:
+                conn.execute(
+                    """INSERT INTO birth_persist_queue
+                       (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
+                        symbol, name, received_at, status, last_error)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)
+                       ON CONFLICT(mint) DO UPDATE SET
+                           last_error = excluded.last_error,
+                           last_attempt_at = excluded.received_at,
+                           status = CASE WHEN birth_persist_queue.status = 'PROCESSED'
+                                         THEN birth_persist_queue.status ELSE 'PENDING' END""",
+                    (r.get("mint"), r.get("creator"), r.get("created_at"),
+                     r.get("bonding_curve_pda"), r.get("create_tx_signature"),
+                     r.get("symbol"), r.get("name"), r.get("received_at"), r.get("last_error")),
+                )
+        conn.close()
+    except Exception:
+        return 0  # lane still busy -- file left intact, try again next cycle
+
+    # Only truncate after the DB write is confirmed committed.
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+    return len(records)
+
+
+def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
+    import sqlite3 as _sq
+    conn = _sq.connect(db_path, timeout=10)
+    with conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS webhook_birth_queue (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                signature TEXT    NOT NULL UNIQUE,
+                consumed  INTEGER NOT NULL DEFAULT 0,
+                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            )
+        """)
+        # Columns added for PumpPortal retry path — ALTER is idempotent (ignored if column exists).
+        for _col, _defn in [
+            ("payload",     "TEXT"),
+            ("source",      "TEXT NOT NULL DEFAULT 'helius_webhook'"),
+            ("retry_count", "INTEGER NOT NULL DEFAULT 0"),
+        ]:
+            try:
+                conn.execute(f"ALTER TABLE webhook_birth_queue ADD COLUMN {_col} {_defn}")
+            except Exception:
+                pass  # column already present — not an error
+    conn.close()
+
+
+class PumpFunCurveListener(FastLaneDiscovery):
+    """Detects Pump.Fun → PumpSwap migrations via WebSocket and analyzes them"""
+
+    def __init__(self):
+        super().__init__()  # Initialize FastLaneDiscovery
+        # EB0.1: default-off, bounded timing collector. It does no RPC or DB
+        # work and records receive timing immediately after ws.recv(), before
+        # JSON parsing or ingestion work.
+        self._eb_birth_audit = configured_birth_audit()
+        self._pumpfun_delivery_latency = configured_pumpfun_delivery_latency_capture()
+        self._byzantine_birth_signal = None
+        if os.environ.get("BYZANTINE_BIRTH_SIGNAL_ENABLED", "0").lower() in {"1", "true", "yes"}:
+            try:
+                creators = load_proven_creators(Path(__file__).resolve().parents[2] / "database" / "wt_ops_v2.db")
+                self._byzantine_birth_signal = ByzantineBirthSignalEmitter(creators, enabled=True)
+            except Exception as _byz_signal_error:
+                log_print(f"[BYZANTINE_SIGNAL] disabled: {_byz_signal_error}", flush=True)
+        self._migration_census = configured_migration_census()
+        # MC1.4 -- explicit window anchor for birth_persistence_telemetry()'s
+        # in-memory counters, so a consumer of the snapshot file always knows
+        # exactly what population "received" etc. cover (this process's
+        # lifetime, not an arbitrary log-tail boundary).
+        self._process_started_at = int(time.time())
+        self._acquisition_availability = AcquisitionAvailability(DB_PATH, f"listener:{os.getpid()}:{self._process_started_at}")
+        self._acquisition_availability.transition("BIRTH", "UNKNOWN", "listener startup")
+        self._acquisition_availability.transition("MIGRATION", "UNKNOWN", "listener startup")
+        self.seen_mints: Set[str] = set()
+        self.processing_migrations: Set[str] = set()
+        self.completed_migrations: Set[str] = set()
+        self.processing_launches: Set[str] = set()
+        self.completed_launches: Set[str] = set()
+        self.analyzed_tokens = {}
+        # Write serialization is now enforced at the CONNECTION layer (TrackedConnection acquires the
+        # one global write lane per write transaction — covers ALL modules transparently). self.db_lock
+        # stays a plain asyncio.Lock for its original in-process async coordination; it must NOT be the
+        # write-lane lock, or callers wrapping it would double-acquire and self-deadlock.
+        self.db_lock = asyncio.Lock()
+        # PumpPortal live vSol state: {mint: {"v_sol": float, "ts": int, "symbol": str, "name": str, "creator": str}}
+        self._portal_vsol: dict = {}
+        self.websocket_connected = False
+        self._pumpportal_connected = False   # True only while inside the active WS context
+        self._birth_reconciler_last_seen_sig: Optional[str] = None  # dedup anchor
+        self.websocket_msg_count = 0  # Track message receipt
+        self.websocket_migration_count = 0  # Track migrations detected
+        # MIGRATION RECONCILER counters — the WS is the fast path; the reconciler is the
+        # correctness path that recovers migrations dropped during a WS reconnect gap.
+        self.reconciler_checked = 0       # migration sigs examined by the sweep
+        self.reconciler_recovered = 0     # migrations the WS missed and the reconciler recovered
+        self.reconciler_skipped_non_migration = 0  # sigs pre-filtered as non-MigrateV2
+        self.reconciler_last_run = 0.0
+        self._reconciler_pending: Set[str] = set()   # sigs the reconciler is currently routing
+        self._reconciler_failed: dict = {}            # sig -> attempts; skip after N (non-migrations)
+        self._reconciler_non_migration: Set[str] = set()  # confirmed non-MigrateV2, skip permanently
+
+        # === NEW: Transaction caching ===
+        self.tx_cache = {}  # {signature: (tx_data, timestamp)}
+        self.tx_cache_ttl_seconds = 1800  # 30 minutes TTL
+        self.tx_cache_max_size = 10000  # Prevent unbounded growth
+        self.tx_inflight_locks = {}  # {signature: asyncio.Lock()} for singleflight
+        self.tx_cache_pending_retries = {}  # {signature: retry_task} for delayed re-checks
+        self.tx_cache_stats = {
+            'hit': 0,
+            'miss': 0,
+            'wait': 0,
+        }
+
+        # === Price extraction metrics ===
+        self.price_stats = {
+            'onchain_success': 0,
+            'dexscreener_fallback': 0,
+        }
+
+        # === NEW: Deferred pool detection retries ===
+        self.pool_detection_retries = {}  # {mint: (tx_data, signature, retry_count)}
+        self.pool_detection_max_retries = 3
+        self.pool_detection_retry_delay = 5  # seconds
+
+        # === NEW: Token state tracking (pending → resolved) ===
+        self.token_states = {}  # {mint: "pending" | "resolving" | "resolved"}
+        self.token_discovery_times = {}  # {mint: {"detected": time, "resolved": time}}
+        self._flow_windows_by_mint: Dict[str, deque] = {}
+        self._last_market_cap_by_mint: Dict[str, float] = {}
+        self._bonding_curve_to_mint: Dict[str, str] = {}
+        self._known_bonding_curve_mints: Set[str] = set()
+        self._curve_watch_queue: asyncio.Queue = asyncio.Queue()
+        self._curve_watch_subscribed: set = set()
+        self._recent_birth_mints: Dict[str, float] = {}
+        self._recent_birth_cache_ttl_seconds = 20 * 60
+        self._bonding_curve_index_last_rowid = 0
+        self._bonding_curve_refresh_interval_seconds = 15
+        self._last_bonding_curve_refresh_monotonic = 0.0
+        self._last_bonding_curve_refresh_failure_monotonic = 0.0
+        self._bonding_curve_refresh_failure_cooldown_seconds = 2.0
+        self._bonding_curve_refresh_retry_attempts = 3
+        self._bonding_curve_refresh_retry_backoff_seconds = 0.15
+        self._premigration_signal_floor_warm = 50000.0
+        self._premigration_signal_floor_hot = 58000.0
+        self._pumpfun_trade_debug_budget = 25
+        self._resolver_resolved_count = 0
+        self._resolver_unresolved_count = 0
+
+        _t0 = time.monotonic()
+        self._ensure_db()
+        log_print(f"[STARTUP] _ensure_db done in {(time.monotonic()-_t0)*1000:.0f}ms", flush=True)
+
+        _t1 = time.monotonic()
+        if __import__('os').environ.get("LISTENER_DB_STARTUP_MAINTENANCE_ENABLED", "1") != "0":
+            self._normalize_existing_pumpfun_rows()
+            log_print(f"[STARTUP] _normalize_existing_pumpfun_rows done in {(time.monotonic()-_t1)*1000:.0f}ms", flush=True)
+        else:
+            log_print("[STARTUP] Skipping normalize_existing_pumpfun_rows due to recovery flag", flush=True)
+
+        _t2 = time.monotonic()
+        if __import__('os').environ.get("LISTENER_BONDING_INDEX_FULL_HYDRATE_ENABLED", "1") != "0":
+            self._hydrate_bonding_curve_index()
+            log_print(f"[STARTUP] _hydrate_bonding_curve_index done in {(time.monotonic()-_t2)*1000:.0f}ms", flush=True)
+        else:
+            log_print("[STARTUP] Skipping full bonding curve hydrate due to recovery flag", flush=True)
+
+        log_print(f"[INIT] Pump.Fun → PumpSwap Migration Listener ready", flush=True)
+        log_print(f"[INIT] ✅ TX Cache initialized (TTL: {self.tx_cache_ttl_seconds}s)", flush=True)
+        log_print(f"[INIT] 🔄 Pool detection retries enabled (max {self.pool_detection_max_retries} retries, {self.pool_detection_retry_delay}s delay)", flush=True)
+        log_print(f"[INIT] Monitoring PumpSwap program: {PUMPSWAP_PROGRAM}", flush=True)
+        log_print(f"[INIT] WebSocket: {HELIUS_RPC_WS[:60]}...", flush=True)
+        log_print(f"[INIT] HTTP RPC: {RPC_HTTP[:60]}...", flush=True)
+
+        # === PHASE 2: Critical-path protection ===
+        # Protect pool discovery from background RPC contention
+        self.DISCOVERY_CRITICAL_WINDOW_SECONDS = 45
+        self.DISCOVERY_HARD_TIMEOUT_SECONDS = 60
+        self.CREATOR_FUNDING_JOB_TIMEOUT_SECONDS = 90
+        self.critical_window_tasks = {}  # {mint: critical_window_expiry_time}
+
+        # RPC isolation: separate quotas for discovery vs background.
+        # LISTENER_DISCOVERY_RPC_CONCURRENCY caps concurrent getTransaction chains — lower
+        # values prevent semaphore saturation under RPC degradation (239s avg lag observed
+        # at concurrency=8; target=3 keeps slots free so the loop stays responsive).
+        _disc_concurrency = int(os.environ.get("LISTENER_DISCOVERY_RPC_CONCURRENCY", "8"))
+        self.discovery_rpc_semaphore = asyncio.Semaphore(_disc_concurrency)
+        self.background_rpc_semaphore = asyncio.Semaphore(2)  # 2 concurrent background calls
+
+        # Background job queue (deferred execution during critical window)
+        self.background_job_queue = asyncio.Queue()
+        self.background_jobs_processing = False
+        asyncio.create_task(self._process_background_queue())
+
+        # Periodic TX cache cleanup (prevent memory leak on long-running listener)
+        asyncio.create_task(self._cleanup_tx_cache_periodic())
+        if __import__('os').environ.get("LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED", "1") != "0":
+            asyncio.create_task(self._process_creator_resolution_queue_periodic())
+            log_print("[STARTUP] Creator resolution queue enabled", flush=True)
+        else:
+            log_print("[STARTUP] Skipping creator resolution queue due to LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0", flush=True)
+        log_print("[STARTUP] Creator funding is owned by the standalone creator_funding_worker", flush=True)
+        # DISABLED: _periodic_cluster_rebuild reprocessed ~3000 creators every 10min (O(n) funding
+        # walk + heavy super_clusters rewrite) — the listener's 113% CPU hog and a major live-db
+        # write/lock-storm source. It's network-ANALYSIS, not needed for launch detection; the
+        # 77s page loads were the live db starved by its writes. Re-enable if cluster analysis is
+        # needed, ideally as a standalone off-peak job (not inline in the hot listener).
+        # asyncio.create_task(self._periodic_cluster_rebuild())
+        if __import__('os').environ.get("LISTENER_PORTAL_VSOL_FLUSH_ENABLED", "1") != "0":
+            asyncio.create_task(self._flush_portal_vsol_periodic())
+            log_print("[STARTUP] Portal vSOL flush enabled", flush=True)
+        else:
+            log_print("[STARTUP] Skipping portal vSOL flush due to LISTENER_PORTAL_VSOL_FLUSH_ENABLED=0", flush=True)
+        if __import__('os').environ.get("LISTENER_DB_MAINTENANCE_ENABLED", "1") != "0":
+            asyncio.create_task(self._db_maintenance_periodic())
+            log_print("[STARTUP] DB maintenance enabled", flush=True)
+        else:
+            log_print("[STARTUP] Skipping DB maintenance due to LISTENER_DB_MAINTENANCE_ENABLED=0", flush=True)
+        # CORRECTNESS PATH: reconcile migrations the WS dropped during reconnect gaps
+        if __import__('os').environ.get("LISTENER_MIGRATION_RECONCILER_ENABLED", "1") != "0":
+            asyncio.create_task(self._migration_reconciler_loop())
+            log_print("[STARTUP] Migration reconciler enabled", flush=True)
+        else:
+            log_print("[STARTUP] Skipping migration reconciler due to LISTENER_MIGRATION_RECONCILER_ENABLED=0", flush=True)
+        # OBSERVABILITY: snapshot DB-serializer metrics to disk so the API/dashboard can read the
+        # listener's (the heavy writer's) real write load cross-process. Runs in a plain DAEMON
+        # THREAD, not an asyncio task — the listener's event loop is heavily loaded and was starving
+        # the async version (it logged 'started' but never wrote). A thread can't be starved by the
+        # loop, which is exactly what makes it a trustworthy observer of a saturated process.
+        import threading as _th_dbm
+        _th_dbm.Thread(target=self._db_serializer_metrics_snapshot_thread, daemon=True,
+                       name="db-metrics-snapshot").start()
+
+        # Telemetry for discovery attempts
+        self.discovery_attempts = {}  # {mint: [attempt_1, attempt_2, ...]}
+
+        # Post-extraction intelligence refresh debounce
+        self._intel_refresh_last_run: float = 0.0
+        self._intel_refresh_debounce_secs: int = 180  # 3 min window
+
+        # === Initialize price worker with WebSocket for pool price streaming ===
+        import os as _os_pw
+        from src.core.price_worker import BROAD_PRICE_TRACKING_RUNTIME_ENABLED
+        if (BROAD_PRICE_TRACKING_RUNTIME_ENABLED
+                and _os_pw.environ.get("LISTENER_PRICE_WORKER_ENABLED", "0") != "0"):
+            try:
+                from src.core.price_worker import get_price_worker
+                import os as _os_init
+                from src.core.ws_snapshot_logger import _LOG_PATH as _ws_log_path
+                _db_abs = _os_init.path.abspath(self.db_path if hasattr(self, 'db_path') else 'database/flex_complete_database.db')
+                _ws_log_abs = _os_init.path.abspath(_ws_log_path)
+                log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
+                log_print(f"[STARTUP] role=listener pid={_os_init.getpid()}", flush=True)
+                log_print(f"[STARTUP] db={_db_abs}", flush=True)
+                log_print(f"[STARTUP] ws_snapshot_log={_ws_log_abs}", flush=True)
+                log_print(f"[STARTUP] cwd={os.getcwd()}", flush=True)
+                log_print(f"[STARTUP] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
+                self.price_worker = get_price_worker()
+                self.price_worker.start()
+                log_print(f"[INIT] ✅ Price worker started pid={os.getpid()} worker=0x{id(self.price_worker):x}", flush=True)
+            except Exception as e:
+                log_print(f"[INIT] ⚠️  Price worker initialization failed: {e}", flush=True)
+                self.price_worker = None
+        else:
+            log_print(
+                "[STARTUP] Broad price tracking decommissioned "
+                "(historical data retained; selective price access remains)",
+                flush=True,
+            )
+            self.price_worker = None
+
+        log_print(f"[INIT] ✅ Phase 2 critical-path protection initialized", flush=True)
+        log_print(f"[INIT]   • Discovery RPC: 8 concurrent slots", flush=True)
+        log_print(f"[INIT]   • Background RPC: 2 concurrent slots", flush=True)
+        log_print(f"[INIT]   • Critical window: {self.DISCOVERY_CRITICAL_WINDOW_SECONDS}s", flush=True)
+
+        # === NEW: Duplicate discovery prevention guards ===
+        self._active_pool_discoveries_by_mint = set()  # {mint}
+        self._active_pool_discoveries_by_sig = set()   # {signature}
+        self._retry_tasks_by_mint = {}                  # {mint: task}
+        self._primary_attempted_by_mint = {}            # {mint: timestamp}
+        # Candidates that failed registration (timeout or validation) — never retry these
+        self._failed_registration: dict = {}            # {mint: set(addr)}
+        # Account info fetched during batch validation — reused in registration to skip re-fetch
+        self._validated_account_cache: dict = {}        # {addr: account_info}
+        # Candidates FAST_LANE validated but could not register (indexing lag).
+        # Handed to _retry_pool_discovery so it can skip re-extraction/scoring/getMultipleAccounts.
+        self._retry_candidates: dict = {}              # {mint: [addr, ...]}
+
+    def _hydrate_bonding_curve_index(self) -> None:
+        """Warm a mint/bonding-curve lookup table from the local DB without RPC."""
+        try:
+            rows = self._refresh_bonding_curve_index(force=True, full=True)
+            log_print(f"[INIT] ✅ Bonding-curve index hydrated ({rows} rows)", flush=True)
+            log_print(f"[PREMIG_INIT] indexed_mints={len(self._known_bonding_curve_mints)}", flush=True)
+        except Exception as e:
+            log_print(f"[INIT] ⚠ Could not hydrate bonding-curve index: {e}", flush=True)
+
+    def _refresh_bonding_curve_index(self, *, force: bool = False, full: bool = False) -> int:
+        """Incrementally hydrate Pump.fun rows into the in-memory resolver index."""
+        now_mono = time.monotonic()
+        if not force and not full:
+            elapsed = now_mono - float(self._last_bonding_curve_refresh_monotonic or 0.0)
+            if elapsed < self._bonding_curve_refresh_interval_seconds:
+                return 0
+        recent_failure_elapsed = now_mono - float(self._last_bonding_curve_refresh_failure_monotonic or 0.0)
+        if force and not full and recent_failure_elapsed < float(self._bonding_curve_refresh_failure_cooldown_seconds or 0.0):
+            return 0
+
+        query = """
+            SELECT rowid, mint, bonding_curve_pda
+            FROM token_analysis
+            WHERE mint IS NOT NULL
+              AND (
+                    NULLIF(TRIM(COALESCE(bonding_curve_pda, '')), '') IS NOT NULL
+                    OR COALESCE(source_platform, '') = 'pumpfun'
+                    OR COALESCE(lifecycle_stage, '') = 'bonding_curve'
+                  )
+        """
+        params: List[Any] = []
+        if not full and self._bonding_curve_index_last_rowid:
+            query += " AND rowid > ?"
+            params.append(int(self._bonding_curve_index_last_rowid))
+        query += " ORDER BY rowid ASC"
+        log_print(
+            f"[INDEX_REFRESH_START] force={'yes' if force else 'no'} full={'yes' if full else 'no'} "
+            f"last_rowid={int(self._bonding_curve_index_last_rowid or 0)} cached_index={len(self._bonding_curve_to_mint)}",
+            flush=True,
+        )
+
+        rows: List[Tuple[Any, Any, Any]] = []
+        refresh_error: Optional[Exception] = None
+        max_attempts = max(1, int(self._bonding_curve_refresh_retry_attempts or 1))
+        for attempt in range(1, max_attempts + 1):
+            conn = None
+            try:
+                conn = db_connect(DB_PATH, timeout=15)
+                conn.execute("PRAGMA query_only = ON")
+                conn.execute("PRAGMA busy_timeout = 5000")
+                cursor = conn.cursor()
+                cursor.execute(query, tuple(params))
+                rows = cursor.fetchall()
+                refresh_error = None
+                break
+            except sqlite3.OperationalError as e:
+                refresh_error = e
+                if attempt < max_attempts:
+                    log_print(
+                        f"[INDEX_REFRESH_RETRY] attempt={attempt} error={str(e)[:160]}",
+                        flush=True,
+                    )
+                    time.sleep(float(self._bonding_curve_refresh_retry_backoff_seconds or 0.15) * attempt)
+            except Exception as e:
+                refresh_error = e
+                break
+            finally:
+                try:
+                    if conn is not None:
+                        conn.close()
+                except Exception:
+                    pass
+
+        if refresh_error is not None:
+            self._last_bonding_curve_refresh_failure_monotonic = now_mono
+            log_print(
+                f"[INDEX_REFRESH_FAIL] preserved_cached_index=yes error={str(refresh_error)[:160]} "
+                f"cached_index={len(self._bonding_curve_to_mint)}",
+                flush=True,
+            )
+            return 0
+
+        max_rowid = int(self._bonding_curve_index_last_rowid or 0)
+        for rowid, mint, bonding_curve in rows:
+            if rowid:
+                max_rowid = max(max_rowid, int(rowid))
+            self._remember_bonding_curve_token(
+                str(mint) if mint else "",
+                str(bonding_curve) if bonding_curve else None,
+            )
+
+        self._bonding_curve_index_last_rowid = max_rowid
+        self._last_bonding_curve_refresh_monotonic = now_mono
+        self._last_bonding_curve_refresh_failure_monotonic = 0.0
+        log_print(
+            f"[INDEX_REFRESH_OK] rows={len(rows)} last_rowid={self._bonding_curve_index_last_rowid} "
+            f"cached_index={len(self._bonding_curve_to_mint)} known_mints={len(self._known_bonding_curve_mints)}",
+            flush=True,
+        )
+        return len(rows)
+
+    def _prune_recent_birth_cache(self, *, now_ts: Optional[float] = None) -> None:
+        """Drop stale birth cache entries so the resolver stays lightweight."""
+        now = float(now_ts or time.time())
+        cutoff = now - float(self._recent_birth_cache_ttl_seconds)
+        stale_mints = [mint for mint, ts in self._recent_birth_mints.items() if float(ts) < cutoff]
+        for mint in stale_mints:
+            self._recent_birth_mints.pop(mint, None)
+
+    def _remember_recent_birth_token(self, mint: str, bonding_curve_pda: Optional[str] = None) -> None:
+        """Track newly created Pump.fun tokens immediately for live buy resolution."""
+        if not mint:
+            return
+        self._prune_recent_birth_cache()
+        self._recent_birth_mints[str(mint)] = time.time()
+        self._remember_bonding_curve_token(mint, bonding_curve_pda)
+
+    def _normalize_existing_pumpfun_rows(self) -> None:
+        """Promote legacy bonding-curve rows into the Pump.fun tracking namespace."""
+        try:
+            conn = db_connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                UPDATE token_analysis
+                SET
+                    source_platform = COALESCE(source_platform, 'pumpfun'),
+                    lifecycle_stage = CASE
+                        WHEN COALESCE(lifecycle_stage, 'migration_pending') = 'migrated' THEN lifecycle_stage
+                        WHEN NULLIF(TRIM(COALESCE(pool_address, pumpswap_pool_address, dex, '')), '') IS NOT NULL THEN lifecycle_stage
+                        ELSE 'bonding_curve'
+                    END
+                WHERE mint IS NOT NULL
+                  AND NULLIF(TRIM(COALESCE(bonding_curve_pda, '')), '') IS NOT NULL
+                  AND NULLIF(TRIM(COALESCE(pool_address, pumpswap_pool_address, dex, '')), '') IS NULL
+                  AND (source_platform IS NULL OR source_platform = '' OR lifecycle_stage IS NULL OR lifecycle_stage = 'migration_pending')
+                """
+            )
+            normalized = cursor.rowcount or 0
+            conn.commit()
+            conn.close()
+            log_print(f"[PREMIG_NORMALIZE] rows={normalized}", flush=True)
+        except Exception as e:
+            log_print(f"[PREMIG_NORMALIZE] ⚠ Failed to normalize Pump.fun rows: {e}", flush=True)
+
+    def _remember_bonding_curve_token(self, mint: str, bonding_curve_pda: Optional[str] = None) -> None:
+        """Keep an in-memory lookup from bonding curve and mint to the tracked token."""
+        if mint:
+            self._known_bonding_curve_mints.add(str(mint))
+        if mint and bonding_curve_pda:
+            self._bonding_curve_to_mint[str(bonding_curve_pda)] = str(mint)
+
+    def _is_definitely_not_mint_candidate(self, value: str) -> bool:
+        """Reject obvious non-mint account keys before treating them as mint candidates."""
+        if not isinstance(value, str):
+            return True
+        candidate = value.strip()
+        if not candidate:
+            return True
+        if candidate in KNOWN_NON_MINT_ADDRESSES:
+            return True
+        if candidate in self._bonding_curve_to_mint:
+            return True
+        if len(candidate) < 32 or len(candidate) > 44:
+            return True
+        if not SOLANA_PUBKEY_RE.fullmatch(candidate):
+            return True
+        if any(ch in candidate for ch in ("0", "O", "I", "l", "+", "/", "=")):
+            return True
+        if candidate.startswith("AAAAAAAA") or candidate.endswith("AAAAAAAA"):
+            return True
+        lowered = candidate.lower()
+        if lowered.startswith("computebudget") or lowered.startswith("bpfloader"):
+            return True
+        if len(set(candidate)) <= 3:
+            return True
+        return False
+
+    def _looks_like_pumpfun_mint(self, value: str) -> bool:
+        """Strict filter for Pump.fun mint-like log candidates."""
+        if self._is_definitely_not_mint_candidate(value):
+            return False
+        candidate = value.strip()
+        if not candidate.lower().endswith("pump"):
+            return False
+        return True
+
+    def _is_pumpfun_buy_candidate(self, logs: List[str]) -> bool:
+        """Identify Pump.fun buy traffic from websocket logs without RPC."""
+        lowered = " ".join(logs or []).lower()
+        if "instruction: create" in lowered or "instruction: migrate" in lowered:
+            return False
+        if "instruction: sell" in lowered:
+            return False
+        if "instruction: buy" in lowered:
+            return True
+        if re.search(r"\bbuy\b", lowered):
+            return True
+        if "program data:" in lowered:
+            candidates = self._extract_base58_candidates(logs)
+            if any(candidate in self._bonding_curve_to_mint or candidate in self._known_bonding_curve_mints for candidate in candidates):
+                return True
+        return False
+
+    def _is_pumpfun_sell_candidate(self, logs: List[str]) -> bool:
+        lowered = " ".join(logs or []).lower()
+        if "instruction: create" in lowered or "instruction: migrate" in lowered:
+            return False
+        return "instruction: sell" in lowered or bool(re.search(r"\bsell\b", lowered))
+
+    def _extract_base58_candidates(self, logs: List[str]) -> List[str]:
+        text = " ".join(logs or [])
+        return re.findall(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b", text)
+
+    def _extract_instruction_names_from_logs(self, logs: List[str]) -> List[str]:
+        instruction_names: List[str] = []
+        seen: Set[str] = set()
+        for line in logs or []:
+            for match in re.finditer(r"Instruction:\s*([A-Za-z0-9_]+)", str(line), flags=re.IGNORECASE):
+                name = str(match.group(1) or "").strip()
+                if not name or name in seen:
+                    continue
+                seen.add(name)
+                instruction_names.append(name)
+        return instruction_names
+
+    def _extract_candidate_tokens_from_text(self, value: Any) -> List[str]:
+        if not isinstance(value, str):
+            return []
+        text = value.strip()
+        if not text:
+            return []
+        tokens: List[str] = []
+        raw_tokens = re.findall(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b", text)
+        for match in re.finditer(
+            r"(?:mint|token[_\s-]?mint|base[_\s-]?mint|bonding[_\s-]?curve|account|accounts?)[:=\s\[]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+            text,
+            flags=re.IGNORECASE,
+        ):
+            raw_tokens.append(match.group(1))
+        for token in raw_tokens:
+            if token.startswith("AAAAAAAA") or token.endswith("AAAAAAAA"):
+                continue
+            tokens.append(token)
+        return tokens
+
+    def _extract_raw_mint_resolution_candidates(
+        self,
+        logs: List[str],
+        explicit_mint: Optional[str] = None,
+    ) -> List[str]:
+        raw_candidates: List[str] = []
+        if explicit_mint:
+            raw_candidates.append(explicit_mint)
+        for line in logs or []:
+            raw_candidates.extend(self._extract_candidate_tokens_from_text(line))
+        return raw_candidates
+
+    def _normalize_mint_resolution_candidates(self, raw_candidates: List[str]) -> List[str]:
+        normalized: List[str] = []
+        seen: Set[str] = set()
+        for value in raw_candidates:
+            if not isinstance(value, str):
+                continue
+            candidate = value.strip().strip("[]{}(),;\"'")
+            if not candidate or candidate in seen:
+                continue
+            seen.add(candidate)
+            normalized.append(candidate)
+        return normalized
+
+    def _extract_account_keys_from_tx(self, tx_data: Optional[Dict]) -> List[str]:
+        if not isinstance(tx_data, dict):
+            return []
+        keys: List[str] = []
+        seen: Set[str] = set()
+        message = (tx_data.get("transaction") or {}).get("message") or {}
+        raw_keys = message.get("accountKeys") or []
+        for entry in raw_keys:
+            value = None
+            if isinstance(entry, str):
+                value = entry
+            elif isinstance(entry, dict):
+                value = entry.get("pubkey") or entry.get("address")
+            if not isinstance(value, str):
+                continue
+            candidate = value.strip()
+            if not candidate or candidate in seen:
+                continue
+            seen.add(candidate)
+            keys.append(candidate)
+
+        loaded_addresses = (tx_data.get("meta") or {}).get("loadedAddresses") or {}
+        for section in ("writable", "readonly"):
+            for entry in loaded_addresses.get(section, []) or []:
+                if not isinstance(entry, str):
+                    continue
+                candidate = entry.strip()
+                if not candidate or candidate in seen:
+                    continue
+                seen.add(candidate)
+                keys.append(candidate)
+        return keys
+
+    def _extract_instruction_contexts_from_tx(self, tx_data: Optional[Dict]) -> List[Dict[str, Any]]:
+        if not isinstance(tx_data, dict):
+            return []
+        contexts: List[Dict[str, Any]] = []
+        message = (tx_data.get("transaction") or {}).get("message") or {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+
+        def _normalise_account_ref(value: Any) -> Optional[str]:
+            if isinstance(value, str):
+                return value.strip() or None
+            if isinstance(value, int) and 0 <= value < len(account_keys):
+                resolved = account_keys[value].strip()
+                return resolved or None
+            if isinstance(value, dict):
+                pubkey = value.get("pubkey") or value.get("address")
+                if isinstance(pubkey, str):
+                    pubkey = pubkey.strip()
+                    return pubkey or None
+            return None
+
+        def _append_instruction(ix: Any) -> None:
+            if not isinstance(ix, dict):
+                return
+            parsed = ix.get("parsed") if isinstance(ix.get("parsed"), dict) else {}
+            info = parsed.get("info") if isinstance(parsed.get("info"), dict) else {}
+            program_id = ix.get("programId")
+            if not isinstance(program_id, str):
+                program_id = ix.get("program")
+            program_id = str(program_id or "").strip() or None
+            instruction_name = str(parsed.get("type") or ix.get("program") or ix.get("name") or "").strip() or None
+            accounts: List[str] = []
+            for account_ref in ix.get("accounts", []) or []:
+                resolved = _normalise_account_ref(account_ref)
+                if resolved:
+                    accounts.append(resolved)
+            for value in info.values():
+                if isinstance(value, list):
+                    for child in value:
+                        resolved = _normalise_account_ref(child)
+                        if resolved:
+                            accounts.append(resolved)
+            contexts.append(
+                {
+                    "instruction": instruction_name,
+                    "program_id": program_id,
+                    "info": info,
+                    "accounts": list(dict.fromkeys(accounts)),
+                }
+            )
+
+        for instruction in message.get("instructions", []) or []:
+            _append_instruction(instruction)
+        for inner_group in (tx_data.get("meta") or {}).get("innerInstructions", []) or []:
+            for instruction in inner_group.get("instructions", []) or []:
+                _append_instruction(instruction)
+        return contexts
+
+    def _extract_token_account_mint_map(self, tx_data: Optional[Dict]) -> Dict[str, str]:
+        token_account_to_mint: Dict[str, str] = {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        meta = (tx_data or {}).get("meta") or {}
+        for balance in (meta.get("preTokenBalances") or []) + (meta.get("postTokenBalances") or []):
+            if not isinstance(balance, dict):
+                continue
+            mint = str(balance.get("mint") or "").strip()
+            if not mint:
+                continue
+            account_index = balance.get("accountIndex")
+            if isinstance(account_index, int) and 0 <= account_index < len(account_keys):
+                token_account = account_keys[account_index]
+                if token_account:
+                    token_account_to_mint[token_account] = mint
+        return token_account_to_mint
+
+    def _extract_token_account_owner_map(self, tx_data: Optional[Dict]) -> Dict[str, str]:
+        token_account_to_owner: Dict[str, str] = {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        meta = (tx_data or {}).get("meta") or {}
+        for balance in (meta.get("preTokenBalances") or []) + (meta.get("postTokenBalances") or []):
+            if not isinstance(balance, dict):
+                continue
+            owner = str(balance.get("owner") or "").strip()
+            if not owner:
+                continue
+            account_index = balance.get("accountIndex")
+            if isinstance(account_index, int) and 0 <= account_index < len(account_keys):
+                token_account = account_keys[account_index]
+                if token_account:
+                    token_account_to_owner[token_account] = owner
+        return token_account_to_owner
+
+    def _extract_signer_keys_from_tx(self, tx_data: Optional[Dict]) -> List[str]:
+        if not isinstance(tx_data, dict):
+            return []
+        signers: List[str] = []
+        seen: Set[str] = set()
+        message = (tx_data.get("transaction") or {}).get("message") or {}
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        raw_keys = message.get("accountKeys") or []
+
+        for idx, entry in enumerate(raw_keys):
+            pubkey = None
+            signer = None
+            if isinstance(entry, str):
+                pubkey = entry
+            elif isinstance(entry, dict):
+                pubkey = entry.get("pubkey") or entry.get("address")
+                signer = entry.get("signer")
+            if not isinstance(pubkey, str):
+                continue
+            candidate = pubkey.strip()
+            if not candidate or candidate in seen:
+                continue
+            if signer is True:
+                seen.add(candidate)
+                signers.append(candidate)
+                continue
+            if signer is False:
+                continue
+            header = message.get("header") if isinstance(message.get("header"), dict) else {}
+            required = header.get("numRequiredSignatures")
+            if isinstance(required, int) and idx < required:
+                seen.add(candidate)
+                signers.append(candidate)
+
+        if signers:
+            return signers
+
+        header = message.get("header") if isinstance(message.get("header"), dict) else {}
+        required = header.get("numRequiredSignatures")
+        if isinstance(required, int) and required > 0:
+            for candidate in account_keys[:required]:
+                clean = str(candidate or "").strip()
+                if clean and clean not in seen:
+                    seen.add(clean)
+                    signers.append(clean)
+        return signers
+
+    def _is_viable_buyer_candidate(
+        self,
+        value: Any,
+        *,
+        mint: Optional[str] = None,
+        token_account_to_mint: Optional[Dict[str, str]] = None,
+    ) -> bool:
+        if not isinstance(value, str):
+            return False
+        candidate = value.strip()
+        if not candidate or candidate == mint:
+            return False
+        if candidate in KNOWN_NON_MINT_ADDRESSES:
+            return False
+        if candidate in self._bonding_curve_to_mint:
+            return False
+        if candidate in (token_account_to_mint or {}):
+            return False
+        if self._looks_like_pumpfun_mint(candidate):
+            return False
+        if not SOLANA_PUBKEY_RE.fullmatch(candidate):
+            return False
+        return True
+
+    def _coerce_sol_amount_candidate(self, value: Any, *, key: str = "") -> Optional[float]:
+        numeric_value: Optional[float] = None
+        if isinstance(value, (int, float)):
+            numeric_value = float(value)
+        elif isinstance(value, str):
+            stripped = value.strip()
+            if not stripped:
+                return None
+            try:
+                numeric_value = float(stripped)
+            except Exception:
+                return None
+        if numeric_value is None or numeric_value <= 0:
+            return None
+
+        lowered_key = str(key or "").lower()
+        if "lamport" in lowered_key or lowered_key in {"maxsolcost", "solcost"}:
+            return numeric_value / 1e9
+        if "sol" in lowered_key:
+            if numeric_value > 1_000_000:
+                return numeric_value / 1e9
+            return numeric_value
+        return None
+
+    def _recover_partial_trade_details_from_tx(
+        self,
+        tx_data: Optional[Dict],
+        *,
+        mint: str,
+        buyer: Optional[str] = None,
+        sol_amount: Optional[float] = None,
+    ) -> Tuple[Optional[str], Optional[float], str, Optional[str]]:
+        if not isinstance(tx_data, dict):
+            return buyer, sol_amount, "count_only", "no_tx_context"
+
+        token_account_to_mint = self._extract_token_account_mint_map(tx_data)
+        token_account_to_owner = self._extract_token_account_owner_map(tx_data)
+        instruction_contexts = self._extract_instruction_contexts_from_tx(tx_data)
+        signer_keys = self._extract_signer_keys_from_tx(tx_data)
+
+        mint_contexts: List[Dict[str, Any]] = []
+        for context in instruction_contexts:
+            info = context.get("info") if isinstance(context.get("info"), dict) else {}
+            related_accounts = list(context.get("accounts") or [])
+            for key in ("account", "source", "destination", "wallet", "owner", "sourceAccount", "destinationAccount"):
+                value = info.get(key)
+                if isinstance(value, str):
+                    related_accounts.append(value)
+            info_mentions_mint = any(
+                str(info.get(key) or "").strip() == mint
+                for key in ("mint", "tokenMint", "baseMint", "quoteMint")
+            )
+            account_mentions_mint = mint in related_accounts or any(
+                token_account_to_mint.get(account) == mint for account in related_accounts
+            )
+            if info_mentions_mint or account_mentions_mint:
+                mint_contexts.append(context)
+
+        buyer_candidates: List[str] = []
+        for context in mint_contexts:
+            info = context.get("info") if isinstance(context.get("info"), dict) else {}
+            for key in ("buyer", "user", "owner", "authority", "wallet", "payer", "signer", "sourceOwner", "destinationOwner"):
+                value = info.get(key)
+                if self._is_viable_buyer_candidate(value, mint=mint, token_account_to_mint=token_account_to_mint):
+                    buyer_candidates.append(str(value).strip())
+
+            for account in context.get("accounts") or []:
+                owner = token_account_to_owner.get(account)
+                if self._is_viable_buyer_candidate(owner, mint=mint, token_account_to_mint=token_account_to_mint):
+                    buyer_candidates.append(str(owner).strip())
+                if account in signer_keys and self._is_viable_buyer_candidate(account, mint=mint, token_account_to_mint=token_account_to_mint):
+                    buyer_candidates.append(account)
+
+        if buyer is None and buyer_candidates:
+            ranked_candidates = sorted(
+                set(buyer_candidates),
+                key=lambda candidate: (
+                    -buyer_candidates.count(candidate),
+                    0 if candidate in signer_keys else 1,
+                    candidate,
+                ),
+            )
+            top_candidate = ranked_candidates[0]
+            top_count = buyer_candidates.count(top_candidate)
+            second_count = buyer_candidates.count(ranked_candidates[1]) if len(ranked_candidates) > 1 else 0
+            if len(ranked_candidates) == 1 or top_count > second_count:
+                buyer = top_candidate
+
+        if buyer is None:
+            viable_signers = [
+                candidate
+                for candidate in signer_keys
+                if self._is_viable_buyer_candidate(candidate, mint=mint, token_account_to_mint=token_account_to_mint)
+            ]
+            if len(viable_signers) == 1:
+                buyer = viable_signers[0]
+
+        if sol_amount is None:
+            for context in mint_contexts:
+                info = context.get("info") if isinstance(context.get("info"), dict) else {}
+                for key, value in info.items():
+                    recovered_sol = self._coerce_sol_amount_candidate(value, key=key)
+                    if recovered_sol is not None:
+                        sol_amount = recovered_sol
+                        break
+                if sol_amount is not None:
+                    break
+
+        if sol_amount is None:
+            account_keys = self._extract_account_keys_from_tx(tx_data)
+            meta = (tx_data.get("meta") or {})
+            pre_balances = meta.get("preBalances") or []
+            post_balances = meta.get("postBalances") or []
+            fee_lamports = float(meta.get("fee") or 0.0)
+            target_wallet = buyer
+            if target_wallet is None and len(signer_keys) == 1:
+                target_wallet = signer_keys[0]
+            if target_wallet and target_wallet in account_keys:
+                account_index = account_keys.index(target_wallet)
+                if account_index < len(pre_balances) and account_index < len(post_balances):
+                    try:
+                        lamport_delta = float(pre_balances[account_index] or 0.0) - float(post_balances[account_index] or 0.0)
+                    except Exception:
+                        lamport_delta = 0.0
+                    attributable_delta = max(lamport_delta - fee_lamports, 0.0)
+                    if attributable_delta > 0:
+                        sol_amount = attributable_delta / 1e9
+
+        if buyer is not None and sol_amount is not None:
+            return buyer, sol_amount, "full", None
+        if buyer is not None:
+            return buyer, sol_amount, "buyer_only", None
+        if sol_amount is not None:
+            return buyer, sol_amount, "sol_only", None
+        return buyer, sol_amount, "count_only", "no_confident_buyer_or_sol"
+
+    def _pick_confident_pumpfun_mint(self, candidates: List[str]) -> Optional[str]:
+        for candidate in candidates:
+            if candidate in self._recent_birth_mints:
+                return candidate
+        for candidate in candidates:
+            if candidate in self._known_bonding_curve_mints:
+                return candidate
+        for candidate in candidates:
+            if self._looks_like_pumpfun_mint(candidate):
+                return candidate
+        return None
+
+    def _build_unresolved_shape_summary(
+        self,
+        logs: List[str],
+        *,
+        tx_data: Optional[Dict] = None,
+        normalized_candidates: Optional[List[str]] = None,
+        birth_neighbor_candidates: Optional[List[str]] = None,
+    ) -> str:
+        instruction_names = self._extract_instruction_names_from_logs(logs)
+        tx_instruction_names = []
+        if tx_data:
+            tx_instruction_names = [
+                str(ctx.get("instruction") or "").strip()
+                for ctx in self._extract_instruction_contexts_from_tx(tx_data)
+                if str(ctx.get("instruction") or "").strip()
+            ]
+        names: List[str] = []
+        seen: Set[str] = set()
+        for name in instruction_names + tx_instruction_names:
+            clean = str(name or "").strip()
+            if not clean or clean in seen:
+                continue
+            seen.add(clean)
+            names.append(clean)
+        ata_present = any(
+            "createidempotent" in name.lower() or "create" == name.lower()
+            for name in names
+        ) or any("ATokenGP" in str(line) for line in (logs or []))
+        token_program_present = any(
+            token in " ".join(logs or [])
+            for token in ("Tokenkeg", "TokenzQd", "ATokenGP")
+        )
+        mint_like_present = any(self._looks_like_pumpfun_mint(candidate) for candidate in (normalized_candidates or []))
+        birth_neighbors = len(birth_neighbor_candidates or [])
+        instr_preview = ",".join(names[:4]) if names else "none"
+        return (
+            f"[UNRESOLVED_SHAPE] sig=? instrs={instr_preview} "
+            f"ata={'yes' if ata_present else 'no'} "
+            f"token_prog={'yes' if token_program_present else 'no'} "
+            f"mint_like={'yes' if mint_like_present else 'no'} "
+            f"birth_neighbors={birth_neighbors}"
+        )
+
+    def _extract_buyer_from_logs(self, logs: List[str]) -> Optional[str]:
+        text = " ".join(logs or [])
+        patterns = [
+            r"(?:buyer|user|owner|trader)[:=\s]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+            r"([1-9A-HJ-NP-Za-km-z]{32,44})\s+(?:bought|buying)",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text, flags=re.IGNORECASE)
+            if match:
+                return match.group(1)
+        return None
+
+    def _extract_sol_amount_from_logs(self, logs: List[str]) -> Optional[float]:
+        text = " ".join(logs or [])
+        sol_match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*SOL\b", text, flags=re.IGNORECASE)
+        if sol_match:
+            try:
+                return float(sol_match.group(1))
+            except Exception:
+                return None
+
+        lamports_match = re.search(r"([0-9]{5,})\s*lamports\b", text, flags=re.IGNORECASE)
+        if lamports_match:
+            try:
+                return float(lamports_match.group(1)) / 1e9
+            except Exception:
+                return None
+        return None
+
+    def _extract_explicit_mint_from_logs(self, logs: List[str]) -> Optional[str]:
+        """Best-effort extraction for logs that explicitly label the mint."""
+        patterns = [
+            r"(?:^|[\s,;])mint[:=\s]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+            r"(?:token[_\s-]?mint|base[_\s-]?mint)[:=\s]+([1-9A-HJ-NP-Za-km-z]{32,44})",
+        ]
+        for line in logs or []:
+            for pattern in patterns:
+                match = re.search(pattern, line, flags=re.IGNORECASE)
+                if not match:
+                    continue
+                candidate = match.group(1)
+                if candidate in self._known_bonding_curve_mints or self._looks_like_pumpfun_mint(candidate):
+                    return candidate
+        return None
+
+    def _classify_mint_resolution_candidate(
+        self,
+        candidate: str,
+        *,
+        explicit_mint: Optional[str] = None,
+    ) -> Tuple[str, Optional[str]]:
+        if not isinstance(candidate, str):
+            return "unknown", "non_string"
+        value = candidate.strip()
+        if not value:
+            return "unknown", "empty"
+        if value == explicit_mint:
+            return "explicit_mint", None
+        if value in self._bonding_curve_to_mint:
+            return "known_bonding_curve_pda", None
+        if value in KNOWN_NON_MINT_ADDRESSES:
+            if value in {PUMPFUN_PROGRAM, PUMPSWAP_PROGRAM} or value.startswith("ComputeBudget") or value.startswith("BPFLoader"):
+                return "known_program_id", "program_id"
+            return "known_non_mint_account", "known_non_mint"
+        if len(value) < 32 or len(value) > 44:
+            return "unknown", "malformed_length"
+        if not SOLANA_PUBKEY_RE.fullmatch(value):
+            return "unknown", "not_base58_like"
+        if value.startswith("AAAAAAAA") or value.endswith("AAAAAAAA"):
+            return "unknown", "junk_pattern"
+        if value in self._recent_birth_mints or value in self._known_bonding_curve_mints:
+            return "mint_like", None
+        if self._looks_like_pumpfun_mint(value):
+            return "mint_like", None
+        return "unknown", "not_pump_suffix"
+
+    def _log_resolver_summary(self) -> None:
+        resolved = int(self._resolver_resolved_count or 0)
+        unresolved = int(self._resolver_unresolved_count or 0)
+        total = resolved + unresolved
+        resolved_pct = (resolved / total * 100.0) if total > 0 else 0.0
+        premig_log(
+            f"[RESOLVER_SUMMARY] index_rows={len(self._bonding_curve_to_mint)} "
+            f"birth_cache={len(self._recent_birth_mints)} "
+            f"resolved={resolved} unresolved={unresolved} resolved_pct={resolved_pct:.1f}"
+        )
+
+    def _evaluate_migration_prediction_snapshot(
+        self,
+        snapshot: Dict[str, Any],
+        *,
+        migrated_at: int,
+    ) -> Dict[str, Any]:
+        pre_migration_cutoff_seconds = 3
+        pre_migration_cutoff = max(0, int(migrated_at) - pre_migration_cutoff_seconds)
+        signal_updated_at = snapshot.get("migration_signal_updated_at")
+        signal_age_seconds: Optional[int] = None
+        if signal_updated_at is not None:
+            try:
+                signal_age_seconds = max(0, int(migrated_at) - int(signal_updated_at))
+            except Exception:
+                signal_age_seconds = None
+
+        signal_observed_before_cutoff = (
+            signal_updated_at is not None and int(signal_updated_at) <= pre_migration_cutoff
+        )
+        signal_observed_after_cutoff = (
+            signal_updated_at is not None and int(signal_updated_at) > pre_migration_cutoff
+        )
+        signal_was_fresh = bool(
+            signal_observed_before_cutoff
+            and signal_age_seconds is not None
+            and signal_age_seconds <= 15 * 60
+        )
+        market_cap_current = float(snapshot.get("market_cap_current") or 0.0)
+        signal_source = str(snapshot.get("migration_signal_source") or "").strip().lower()
+        migration_band = str(snapshot.get("migration_band") or "").strip().lower()
+        explicit_signal = bool(snapshot.get("is_about_to_migrate")) or migration_band in {"hot", "warm"}
+        weak_market_cap_signal = market_cap_current >= float(self._premigration_signal_floor_warm or 0.0)
+        birth_only_signal = bool(
+            signal_source == "birth"
+            and not explicit_signal
+            and not weak_market_cap_signal
+        )
+        has_observed_signal = bool(
+            (signal_updated_at is not None and not birth_only_signal)
+            or (signal_source and signal_source != "birth")
+            or explicit_signal
+            or weak_market_cap_signal
+        )
+
+        predicted_by_flow = bool(
+            signal_was_fresh
+            and signal_source == "flow"
+        )
+        predicted_by_market_cap = bool(
+            signal_was_fresh and weak_market_cap_signal
+        )
+        predicted_by_explicit_signal = bool(signal_was_fresh and explicit_signal)
+        was_about_to_migrate_at_migration = bool(signal_was_fresh and snapshot.get("is_about_to_migrate"))
+        was_hot_or_warm_before_migration = bool(signal_was_fresh and migration_band in {"hot", "warm"})
+
+        if predicted_by_flow or predicted_by_explicit_signal:
+            final_verdict = "predicted"
+        elif predicted_by_market_cap:
+            final_verdict = "market_cap_only"
+        elif birth_only_signal:
+            final_verdict = "no_signal"
+        elif signal_updated_at is None:
+            final_verdict = "no_signal"
+        elif not has_observed_signal:
+            final_verdict = "no_signal"
+        elif signal_observed_after_cutoff:
+            final_verdict = "late_capture"
+        elif not signal_was_fresh:
+            final_verdict = "stale_signal"
+        else:
+            final_verdict = "missed"
+
+        return {
+            "predicted_by_flow": int(predicted_by_flow),
+            "predicted_by_market_cap": int(predicted_by_market_cap),
+            "predicted_by_explicit_signal": int(predicted_by_explicit_signal),
+            "was_about_to_migrate_at_migration": int(was_about_to_migrate_at_migration),
+            "was_hot_or_warm_before_migration": int(was_hot_or_warm_before_migration),
+            "signal_age_seconds": signal_age_seconds,
+            "signal_was_fresh": int(signal_was_fresh),
+            "signal_before_cutoff": int(signal_observed_before_cutoff),
+            "signal_after_cutoff": int(signal_observed_after_cutoff),
+            "final_verdict": final_verdict,
+        }
+
+    async def _mark_token_migrated_in_db(
+        self,
+        mint: str,
+        *,
+        migrated_at: Optional[int] = None,
+        migration_tx: Optional[str] = None,
+        pool_address: Optional[str] = None,
+        dex: Optional[str] = None,
+        migration_slot: Optional[int] = None,
+    ) -> None:
+        migrated_ts = int(migrated_at or time.time())
+
+        def _do_write():
+            with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO token_analysis (
+                        mint, analyzed_at, created_at, source_platform,
+                        lifecycle_stage, migrated_at, migration_tx,
+                        dex, pumpswap_pool_address, pool_address, migration_slot, is_new
+                    ) VALUES (?, ?, ?, 'pumpfun', 'migrated', ?, ?, ?, ?, ?, ?, 1)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        analyzed_at = excluded.analyzed_at,
+                        source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
+                        lifecycle_stage = 'migrated',
+                        migrated_at = COALESCE(token_analysis.migrated_at, excluded.migrated_at),
+                        migration_tx = COALESCE(excluded.migration_tx, token_analysis.migration_tx),
+                        dex = COALESCE(excluded.dex, token_analysis.dex),
+                        pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, token_analysis.pumpswap_pool_address),
+                        pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
+                        migration_slot = COALESCE(excluded.migration_slot, token_analysis.migration_slot),
+                        is_new = 1
+                    """,
+                    (
+                        mint,
+                        float(time.time()),
+                        migrated_ts,
+                        migrated_ts,
+                        migration_tx,
+                        dex,
+                        pool_address,
+                        pool_address,
+                        migration_slot,
+                    ),
+                )
+                conn.commit()
+
+        try:
+            await asyncio.to_thread(_do_write)
+            log_print(f"[DB] ✅ Marked token migrated: {mint[:16]}... dex={dex} tx={migration_tx[:20] if migration_tx else 'N/A'}...", flush=True)
+        except Exception as exc:
+            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to mark migrated state for {mint[:16]}...: {exc} — queuing for retry", flush=True)
+            try:
+                import sqlite3 as _sq
+                _qc = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
+                with _qc:
+                    _qc.execute(
+                        """INSERT OR IGNORE INTO migration_persist_queue
+                           (signature, source, mint, received_at, status, last_error)
+                           VALUES (?, 'mark_migrated', ?, ?, 'PENDING', ?)""",
+                        (migration_tx or mint, mint, migrated_ts, str(exc)),
+                    )
+                _qc.close()
+            except Exception as _qe:
+                # The queue is normally the durable boundary.  If its own
+                # insert loses the DB write lane, use a compact fsync'd local
+                # journal rather than returning with an untracked migration.
+                try:
+                    _migration_fallback_append(
+                        mint=mint,
+                        migration_signature=migration_tx or mint,
+                        received_at=migrated_ts,
+                        source="mark_migrated",
+                        last_error=f"final_write={exc}; queue_insert={_qe}",
+                        migration_slot=migration_slot,
+                    )
+                    log_print(f"[MIGRATION_VERIFY] ⚠ queue unavailable; retained migration fallback mint={mint[:16]}", flush=True)
+                except Exception as _fe:
+                    # A separate risk journal lets Health surface the loss of
+                    # the primary fallback where the filesystem remains usable.
+                    try:
+                        _retain_migration_terminal_risk(
+                            mint, migration_tx or mint, migrated_ts, _qe, _fe,
+                        )
+                    except Exception as _risk_exc:
+                        log_print(f"[MIGRATION_VERIFY] 🔴 MIGRATION_TERMINAL_DURABILITY_RISK mint={mint[:16]} queue={_qe} fallback={_fe} risk_journal={_risk_exc}", flush=True)
+                    raise MigrationTerminalDurabilityRisk(
+                        f"MIGRATION_TERMINAL_DURABILITY_RISK mint={mint}"
+                    ) from _fe
+            return
+
+        if TOKEN_PREDICTION_RUNTIME_ENABLED:
+            def _score():
+                try:
+                    from src.core.token_prediction_builder import TokenPredictionBuilder
+                    from src.utils.db_locking import db_connect as _db_connect
+                    conn2 = _db_connect(DB_PATH, timeout=30)
+                    try:
+                        TokenPredictionBuilder(DB_PATH).score_single(conn2, mint, 'MIGRATED')
+                    finally:
+                        receive_utc_ns = time.time_ns()
+                        receive_monotonic_ns = time.monotonic_ns()
+                        try:
+                            conn2.close()
+                        except Exception:
+                            pass
+                except Exception as _e:
+                    log_print(f"[PREDICTION] ⚠ score_single MIGRATED {mint[:16]}: {_e}", flush=True)
+            _TOKEN_WORK_POOL.submit(_score)
+        else:
+            log_print(f"[PREDICTION] scoring parked by LISTENER_PREDICTION_SCORING_ENABLED=0", flush=True)
+
+    async def _record_migration_verification_snapshot(
+        self,
+        mint: str,
+        *,
+        migrated_at: Optional[int] = None,
+        migration_tx: Optional[str] = None,
+        dex: Optional[str] = None,
+        pumpswap_pool_address: Optional[str] = None,
+    ) -> None:
+        migrated_ts = int(migrated_at or time.time())
+        try:
+            # Compute signal/evaluation on the event loop (accesses self state), then
+            # hand only the DB write off to a thread so the loop is never blocked on lock wait.
+            market_cap_current = float(self._last_market_cap_by_mint.get(mint, 0.0) or 0.0)
+            signal_snapshot = self._compute_pre_migration_signal(mint, market_cap_current, migrated_ts)
+
+            def _do_write():
+                with managed_db_connect(DB_PATH, timeout=30) as conn:
+                    conn.row_factory = sqlite3.Row
+                    cursor = conn.cursor()
+                    row = cursor.execute(
+                        """
+                        SELECT mint, source_platform, lifecycle_stage, migration_tx, dex, pumpswap_pool_address,
+                               is_about_to_migrate, migration_band, migration_progress_pct,
+                               migration_signal_updated_at, first_pre_migration_signal_at, migration_signal_source,
+                               market_cap_current, price_updated_at, bonding_curve_pda
+                        FROM token_analysis
+                        WHERE mint = ?
+                        """,
+                        (mint,),
+                    ).fetchone()
+                    row_dict = dict(row) if row else {}
+                    mc = float(row_dict.get("market_cap_current") or market_cap_current or 0.0)
+                    snapshot = {
+                        "mint": mint,
+                        "migration_signal_source": row_dict.get("migration_signal_source"),
+                        "is_about_to_migrate": int(row_dict.get("is_about_to_migrate") or 0),
+                        "migration_band": row_dict.get("migration_band"),
+                        "migration_progress_pct": row_dict.get("migration_progress_pct"),
+                        "migration_signal_updated_at": (
+                            row_dict.get("first_pre_migration_signal_at")
+                            or row_dict.get("migration_signal_updated_at")
+                        ),
+                        "market_cap_current": mc,
+                        "market_cap_updated_at": row_dict.get("price_updated_at"),
+                        "buys_10s": int(signal_snapshot.get("buys_10s") or 0),
+                        "unique_30s": int(signal_snapshot.get("unique_buyers_30s") or 0),
+                        "sol_15s": float(signal_snapshot.get("sol_15s") or 0.0),
+                        "inflow_accel": float(signal_snapshot.get("inflow_accel") or 0.0),
+                        "signal_score": int(signal_snapshot.get("score") or 0),
+                    }
+                    evaluation = self._evaluate_migration_prediction_snapshot(snapshot, migrated_at=migrated_ts)
+                    cursor.execute(
+                        """
+                        INSERT INTO pumpfun_migration_verification (
+                            mint, migrated_at, migration_tx, dex, pumpswap_pool_address,
+                            pre_is_about_to_migrate, pre_migration_band, pre_migration_progress_pct,
+                            pre_migration_signal_updated_at, pre_market_cap_current, pre_market_cap_updated_at,
+                            pre_buys_10s, pre_unique_30s, pre_sol_15s, pre_inflow_accel, pre_signal_score,
+                            pre_migration_signal_source, predicted_by_flow, predicted_by_market_cap,
+                            predicted_by_explicit_signal, was_about_to_migrate_at_migration,
+                            was_hot_or_warm_before_migration, signal_age_seconds, signal_was_fresh,
+                            final_verdict, created_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(mint) DO UPDATE SET
+                            migrated_at = excluded.migrated_at,
+                            migration_tx = COALESCE(excluded.migration_tx, pumpfun_migration_verification.migration_tx),
+                            dex = COALESCE(excluded.dex, pumpfun_migration_verification.dex),
+                            pumpswap_pool_address = COALESCE(excluded.pumpswap_pool_address, pumpfun_migration_verification.pumpswap_pool_address),
+                            pre_is_about_to_migrate = excluded.pre_is_about_to_migrate,
+                            pre_migration_band = excluded.pre_migration_band,
+                            pre_migration_progress_pct = excluded.pre_migration_progress_pct,
+                            pre_migration_signal_updated_at = excluded.pre_migration_signal_updated_at,
+                            pre_market_cap_current = excluded.pre_market_cap_current,
+                            pre_market_cap_updated_at = excluded.pre_market_cap_updated_at,
+                            pre_buys_10s = excluded.pre_buys_10s,
+                            pre_unique_30s = excluded.pre_unique_30s,
+                            pre_sol_15s = excluded.pre_sol_15s,
+                            pre_inflow_accel = excluded.pre_inflow_accel,
+                            pre_signal_score = excluded.pre_signal_score,
+                            pre_migration_signal_source = excluded.pre_migration_signal_source,
+                            predicted_by_flow = excluded.predicted_by_flow,
+                            predicted_by_market_cap = excluded.predicted_by_market_cap,
+                            predicted_by_explicit_signal = excluded.predicted_by_explicit_signal,
+                            was_about_to_migrate_at_migration = excluded.was_about_to_migrate_at_migration,
+                            was_hot_or_warm_before_migration = excluded.was_hot_or_warm_before_migration,
+                            signal_age_seconds = excluded.signal_age_seconds,
+                            signal_was_fresh = excluded.signal_was_fresh,
+                            final_verdict = excluded.final_verdict,
+                            created_at = excluded.created_at
+                        """,
+                        (
+                            mint,
+                            migrated_ts,
+                            migration_tx or row_dict.get("migration_tx"),
+                            dex or row_dict.get("dex"),
+                            pumpswap_pool_address or row_dict.get("pumpswap_pool_address"),
+                            snapshot["is_about_to_migrate"],
+                            snapshot["migration_band"],
+                            snapshot["migration_progress_pct"],
+                            snapshot["migration_signal_updated_at"],
+                            snapshot["market_cap_current"],
+                            snapshot["market_cap_updated_at"],
+                            snapshot["buys_10s"],
+                            snapshot["unique_30s"],
+                            snapshot["sol_15s"],
+                            snapshot["inflow_accel"],
+                            snapshot["signal_score"],
+                            snapshot["migration_signal_source"],
+                            evaluation["predicted_by_flow"],
+                            evaluation["predicted_by_market_cap"],
+                            evaluation["predicted_by_explicit_signal"],
+                            evaluation["was_about_to_migrate_at_migration"],
+                            evaluation["was_hot_or_warm_before_migration"],
+                            evaluation["signal_age_seconds"],
+                            evaluation["signal_was_fresh"],
+                            evaluation["final_verdict"],
+                            migrated_ts,
+                        ),
+                    )
+                    conn.commit()
+                log_print(
+                    f"[MIGRATION_VERIFY] mint={mint[:16]} verdict={evaluation['final_verdict']} "
+                    f"flow={evaluation['predicted_by_flow']} market_cap={evaluation['predicted_by_market_cap']} "
+                    f"explicit={evaluation['predicted_by_explicit_signal']} age={evaluation['signal_age_seconds']}",
+                    flush=True,
+                )
+
+            await asyncio.to_thread(_do_write)
+        except Exception as exc:
+            log_print(f"[MIGRATION_VERIFY] ⚠ Failed to store verification snapshot for {mint[:16]}...: {exc}", flush=True)
+
+    def _lookup_recent_unresolved_mint_in_db(self, candidates: List[str]) -> Tuple[Optional[str], Optional[str]]:
+        """Optional DB fallback for very recent unresolved Pump.fun candidates."""
+        if not candidates:
+            return None, None
+        try:
+            unique_candidates = list(dict.fromkeys(candidates[:8]))
+            placeholders = ",".join("?" for _ in unique_candidates)
+            recent_cutoff = time.time() - (2 * 60 * 60)
+            query = f"""
+                SELECT mint, bonding_curve_pda
+                FROM token_analysis
+                WHERE (
+                        mint IN ({placeholders})
+                        OR bonding_curve_pda IN ({placeholders})
+                      )
+                  AND (
+                        COALESCE(source_platform, '') = 'pumpfun'
+                        OR COALESCE(lifecycle_stage, '') = 'bonding_curve'
+                        OR NULLIF(TRIM(COALESCE(bonding_curve_pda, '')), '') IS NOT NULL
+                      )
+                  AND COALESCE(analyzed_at, 0) >= ?
+                ORDER BY COALESCE(analyzed_at, 0) DESC
+                LIMIT 1
+            """
+            conn = db_connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            cursor.execute(query, tuple(unique_candidates + unique_candidates + [recent_cutoff]))
+            row = cursor.fetchone()
+            conn.close()
+            if not row:
+                return None, None
+            mint = str(row[0]) if row[0] else None
+            bonding_curve = str(row[1]) if row[1] else None
+            if mint:
+                self._remember_bonding_curve_token(mint, bonding_curve)
+            return mint, bonding_curve
+        except Exception:
+            return None, None
+
+    async def _get_trade_transaction_context(self, signature: Optional[str]) -> Optional[Dict]:
+        if not signature:
+            return None
+        try:
+            cached = (self.tx_cache or {}).get(signature)
+            if cached:
+                cached_data, cached_time = cached
+                if (time.time() - float(cached_time or 0.0)) < float(self.tx_cache_ttl_seconds or 0):
+                    return cached_data
+        except Exception:
+            pass
+
+        try:
+            result = await self.call_background_rpc(
+                "getTransaction",
+                [
+                    signature,
+                    {
+                        "encoding": "jsonParsed",
+                        "commitment": "confirmed",
+                        "maxSupportedTransactionVersion": 0,
+                    },
+                ],
+                timeout=4.0,
+            )
+            tx_data = result.get("result") if isinstance(result, dict) else None
+            if tx_data:
+                self.tx_cache[signature] = (tx_data, time.time())
+            return tx_data
+        except Exception:
+            return None
+
+    async def _infer_indirect_pumpfun_mint(
+        self,
+        signature: Optional[str],
+        logs: List[str],
+        *,
+        normalized_candidates: Optional[List[str]] = None,
+    ) -> Tuple[Optional[str], Optional[str], List[str], Optional[str], Optional[Dict], List[str]]:
+        sig_label = (signature or "")[:16]
+        log_print(f"[INDIRECT_INFER_ATTEMPT] sig={sig_label}", flush=True)
+        tx_data = await self._get_trade_transaction_context(signature)
+        if not tx_data:
+            log_print(f"[INDIRECT_INFER_FAIL] sig={sig_label} reason=no_tx_context", flush=True)
+            return None, None, [], "no_tx_context", None, []
+
+        account_keys = self._extract_account_keys_from_tx(tx_data)
+        instruction_contexts = self._extract_instruction_contexts_from_tx(tx_data)
+        token_account_to_mint = self._extract_token_account_mint_map(tx_data)
+
+        direct_info_mints: List[str] = []
+        ata_context_mints: List[str] = []
+        token_account_context_mints: List[str] = []
+        birth_neighbor_mints: List[str] = []
+        tx_candidates: List[str] = []
+
+        for key in account_keys:
+            if key in self._bonding_curve_to_mint:
+                mapped_mint = self._bonding_curve_to_mint.get(key)
+                if mapped_mint:
+                    tx_candidates.append(mapped_mint)
+                    birth_neighbor_mints.append(mapped_mint)
+            if key in self._recent_birth_mints:
+                birth_neighbor_mints.append(key)
+                tx_candidates.append(key)
+
+        for mint in token_account_to_mint.values():
+            tx_candidates.append(mint)
+
+        for context in instruction_contexts:
+            info = context.get("info") if isinstance(context.get("info"), dict) else {}
+            program_id = str(context.get("program_id") or "")
+            instruction_name = str(context.get("instruction") or "")
+            is_ata_context = (
+                program_id == "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+                or instruction_name.lower() in {"createidempotent", "create"}
+            )
+            for mint_key in ("mint", "tokenMint", "baseMint", "quoteMint"):
+                mint_value = info.get(mint_key)
+                if isinstance(mint_value, str):
+                    tx_candidates.append(mint_value)
+                    if is_ata_context:
+                        ata_context_mints.append(mint_value)
+                    else:
+                        direct_info_mints.append(mint_value)
+
+            related_accounts = list(context.get("accounts") or [])
+            for related_key in ("account", "source", "destination", "wallet", "owner", "sourceAccount", "destinationAccount"):
+                related_value = info.get(related_key)
+                if isinstance(related_value, str):
+                    related_accounts.append(related_value)
+            for account in related_accounts:
+                mint_value = token_account_to_mint.get(account)
+                if not mint_value:
+                    continue
+                tx_candidates.append(mint_value)
+                if is_ata_context:
+                    ata_context_mints.append(mint_value)
+                else:
+                    token_account_context_mints.append(mint_value)
+
+        birth_neighbor_mints = list(dict.fromkeys(birth_neighbor_mints))
+        direct_info_mints = list(dict.fromkeys(direct_info_mints))
+        ata_context_mints = list(dict.fromkeys(ata_context_mints))
+        token_account_context_mints = list(dict.fromkeys(token_account_context_mints))
+        tx_candidates = self._normalize_mint_resolution_candidates(tx_candidates)
+
+        for candidates, source in (
+            (direct_info_mints, "token_account_context"),
+            (birth_neighbor_mints, "birth_neighbor"),
+            (ata_context_mints, "ata_context"),
+            (token_account_context_mints, "token_account_context"),
+        ):
+            resolved = self._pick_confident_pumpfun_mint(candidates)
+            if resolved:
+                shortlist = self._normalize_mint_resolution_candidates((normalized_candidates or []) + [resolved])[:5]
+                log_print(
+                    f"[INDIRECT_INFER_SUCCESS] sig={sig_label} mint={resolved} source={source}",
+                    flush=True,
+                )
+                return resolved, source, shortlist, f"indirect_{source}={resolved}", tx_data, birth_neighbor_mints
+
+        mint, bonding_curve = self._lookup_recent_unresolved_mint_in_db(tx_candidates)
+        if mint:
+            shortlist = self._normalize_mint_resolution_candidates((normalized_candidates or []) + tx_candidates + [mint])[:5]
+            reason = f"indirect_db_lookup_mint={mint}"
+            if bonding_curve:
+                reason += f" bonding_curve={bonding_curve}"
+            log_print(
+                f"[INDIRECT_INFER_SUCCESS] sig={sig_label} mint={mint} source=token_account_context",
+                flush=True,
+            )
+            return mint, "token_account_context", shortlist, reason, tx_data, birth_neighbor_mints
+
+        log_print(f"[INDIRECT_INFER_FAIL] sig={sig_label} reason=no_strong_link", flush=True)
+        return None, None, tx_candidates[:5], "no_strong_link", tx_data, birth_neighbor_mints
+
+    async def _resolve_bonding_curve_mint_for_trade(
+        self,
+        signature: str,
+        logs: List[str],
+    ) -> Tuple[Optional[str], Optional[str], List[str], Optional[str], Optional[Dict]]:
+        mint, source, candidates, reason = self._resolve_bonding_curve_mint_from_logs_detailed(logs, signature=signature)
+        if mint:
+            return mint, source, candidates, reason, None
+
+        normalized_candidates = self._normalize_mint_resolution_candidates(self._extract_raw_mint_resolution_candidates(logs))
+        inferred_mint, inferred_source, inferred_candidates, inferred_reason, tx_data, birth_neighbors = await self._infer_indirect_pumpfun_mint(
+            signature,
+            logs,
+            normalized_candidates=normalized_candidates,
+        )
+        if inferred_mint:
+            merged_candidates = self._normalize_mint_resolution_candidates((candidates or []) + (inferred_candidates or []))[:5]
+            return inferred_mint, inferred_source, merged_candidates, inferred_reason, tx_data
+
+        shape_line = self._build_unresolved_shape_summary(
+            logs,
+            tx_data=tx_data,
+            normalized_candidates=normalized_candidates,
+            birth_neighbor_candidates=birth_neighbors,
+        ).replace("sig=?", f"sig={(signature or '')[:16]}")
+        premig_log(shape_line)
+        return None, source, candidates, reason or inferred_reason, tx_data
+
+    def _resolve_bonding_curve_mint_from_logs_detailed(
+        self,
+        logs: List[str],
+        *,
+        signature: Optional[str] = None,
+    ) -> Tuple[Optional[str], Optional[str], List[str], Optional[str]]:
+        """Resolve buy mints with source attribution while preserving the legacy return path."""
+        self._prune_recent_birth_cache()
+        explicit_mint = self._extract_explicit_mint_from_logs(logs)
+
+        raw_candidates = self._extract_raw_mint_resolution_candidates(logs, explicit_mint)
+        normalized_candidates = self._normalize_mint_resolution_candidates(raw_candidates)
+        viable_candidates: List[str] = []
+        rejected_candidates: List[Tuple[str, str]] = []
+        explicit_candidates: List[str] = []
+        birth_cache_candidates: List[str] = []
+        mint_like_candidates: List[str] = []
+        pda_candidates: List[str] = []
+
+        for candidate in normalized_candidates:
+            classification, rejection_reason = self._classify_mint_resolution_candidate(
+                candidate,
+                explicit_mint=explicit_mint,
+            )
+            if classification == "explicit_mint":
+                viable_candidates.append(candidate)
+                explicit_candidates.append(candidate)
+                log_print(f"[MINT_CANDIDATE_ACCEPT] sig={(signature or '')[:16]} value={candidate} class=explicit_mint", flush=True)
+                continue
+            if classification == "known_bonding_curve_pda":
+                viable_candidates.append(candidate)
+                pda_candidates.append(candidate)
+                continue
+            if classification == "mint_like":
+                viable_candidates.append(candidate)
+                if candidate in self._recent_birth_mints:
+                    birth_cache_candidates.append(candidate)
+                    log_print(f"[MINT_CANDIDATE_ACCEPT] sig={(signature or '')[:16]} value={candidate} class=birth_cache", flush=True)
+                else:
+                    mint_like_candidates.append(candidate)
+                    log_print(f"[MINT_CANDIDATE_ACCEPT] sig={(signature or '')[:16]} value={candidate} class=mint_like", flush=True)
+                continue
+            rejected_candidates.append((candidate, rejection_reason or classification))
+            log_print(
+                f"[MINT_CANDIDATE_REJECT] sig={(signature or '')[:16]} value={candidate} reason={rejection_reason or classification}",
+                flush=True,
+            )
+
+        top_candidates = (explicit_candidates + birth_cache_candidates + mint_like_candidates + pda_candidates)[:5]
+        log_print(
+            f"[CANDIDATE_SUMMARY] sig={(signature or '')[:16]} raw={len(raw_candidates)} "
+            f"normalized={len(normalized_candidates)} rejected={len(rejected_candidates)} viable={len(viable_candidates)}",
+            flush=True,
+        )
+        for rejected_value, rejected_reason in rejected_candidates[:3]:
+            log_print(
+                f"[CANDIDATE_REJECTION] sig={(signature or '')[:16]} value={rejected_value} reason={rejected_reason}",
+                flush=True,
+            )
+
+        if explicit_candidates:
+            mint = explicit_candidates[0]
+            return mint, "explicit_mint", top_candidates, f"explicit_mint={mint}"
+
+        if birth_cache_candidates:
+            mint = birth_cache_candidates[0]
+            return mint, "birth_cache", top_candidates, f"recent_birth={mint}"
+
+        if mint_like_candidates:
+            mint = mint_like_candidates[0]
+            return mint, "mint_candidate", top_candidates, f"mint_like={mint}"
+
+        mint, bonding_curve = self._lookup_recent_unresolved_mint_in_db(viable_candidates or normalized_candidates)
+        if mint:
+            reason = f"db_lookup_mint={mint}"
+            if bonding_curve:
+                reason += f" bonding_curve={bonding_curve}"
+            shortlist = top_candidates or [mint]
+            return mint, "db_refresh", shortlist[:5], reason
+
+        for candidate in pda_candidates:
+            mint = self._bonding_curve_to_mint.get(candidate)
+            if mint:
+                return mint, "pda_map", top_candidates[:5], f"bonding_curve={candidate}"
+
+        refreshed = self._refresh_bonding_curve_index(force=True)
+        if refreshed:
+            mint, bonding_curve = self._lookup_recent_unresolved_mint_in_db(viable_candidates or normalized_candidates)
+            if mint:
+                reason = f"db_lookup_mint={mint}"
+                if bonding_curve:
+                    reason += f" bonding_curve={bonding_curve}"
+                shortlist = top_candidates or [mint]
+                return mint, "db_refresh", shortlist[:5], reason
+            for candidate in pda_candidates:
+                mint = self._bonding_curve_to_mint.get(candidate)
+                if mint:
+                    return mint, "pda_map", top_candidates[:5], f"bonding_curve={candidate}"
+
+        return None, None, top_candidates[:5], "no_viable_candidate"
+
+    def _resolve_bonding_curve_mint_from_logs(self, logs: List[str]) -> Optional[str]:
+        mint, _, _, _ = self._resolve_bonding_curve_mint_from_logs_detailed(logs)
+        return mint
+
+    def _debug_pumpfun_trade_skip(self, reason: str, logs: List[str]) -> None:
+        if self._pumpfun_trade_debug_budget <= 0:
+            return
+        self._pumpfun_trade_debug_budget -= 1
+        joined = " | ".join((logs or [])[:6])
+        log_print(f"[PREMIG_DEBUG] reason={reason} logs={joined[:400]}", flush=True)
+
+    def _record_flow_event(
+        self,
+        mint: str,
+        *,
+        observed_at: Optional[float] = None,
+        buyer: Optional[str] = None,
+        sol_amount: Optional[float] = None,
+        kind: str = "buy",
+    ) -> None:
+        if not mint:
+            return
+        now = float(observed_at or time.time())
+        flow = self._flow_windows_by_mint.setdefault(mint, deque())
+        flow.append({
+            "ts": now,
+            "buyer": buyer,
+            "sol_amount": float(sol_amount) if sol_amount is not None else None,
+            "kind": kind,
+        })
+        cutoff = now - 45
+        while flow and float(flow[0]["ts"]) < cutoff:
+            flow.popleft()
+
+    # Maximum plausible market cap for a Pump.fun bonding-curve token at migration.
+    # Pump.fun migration occurs at ~$69k SOL raised → MC ceiling ≈ $150k.
+    # Anything beyond $5M is almost certainly a corrupted value (wrong pair, unit bug, etc.)
+    # and must not be used for fallback classification.
+    _PREMIG_MC_SANITY_CAP = 5_000_000  # $5M USD
+
+    def _compute_pre_migration_signal(
+        self,
+        mint: str,
+        current_market_cap: float,
+        now_ts: int,
+    ) -> Dict[str, Optional[float]]:
+        # Clamp corrupted/stale MC values before any scoring or fallback logic.
+        # DexScreener sometimes returns migrated-pair data for bonding-curve rows,
+        # producing trillion-scale values that cause every token to be classified hot.
+        sanitised_mc = current_market_cap
+        if current_market_cap and current_market_cap > self._PREMIG_MC_SANITY_CAP:
+            premig_log(f"[MC_CLAMPED] mint={mint} raw_mc={current_market_cap} clamped_to=0")
+            sanitised_mc = 0.0
+        current_market_cap = sanitised_mc
+
+        events = self._flow_windows_by_mint.get(mint, deque())
+        buys_10s = 0
+        buy_events_45s = 0
+        buyers_30s = set()
+        sol_15s = 0.0
+        sol_15s_prev = 0.0
+        have_trade_details = False
+
+        for event in events:
+            age = now_ts - float(event["ts"])
+            if event.get("kind") != "buy":
+                continue
+            buy_events_45s += 1
+            if age <= 10:
+                buys_10s += 1
+            if age <= 30 and event.get("buyer"):
+                buyers_30s.add(str(event["buyer"]))
+            if event.get("sol_amount") is not None:
+                have_trade_details = True
+                if age <= 15:
+                    sol_15s += float(event["sol_amount"] or 0.0)
+                elif 15 < age <= 30:
+                    sol_15s_prev += float(event["sol_amount"] or 0.0)
+
+        score = 0
+        fallback_used = False
+        if buys_10s >= 10:
+            score += 1
+        if buys_10s >= 20:
+            score += 1
+
+        unique_buyers_30s = len(buyers_30s)
+        if unique_buyers_30s >= 6:
+            score += 1
+        if unique_buyers_30s >= 12:
+            score += 1
+
+        if sol_15s >= 20:
+            score += 1
+        if sol_15s >= 40:
+            score += 1
+
+        if sol_15s_prev > 0 and (sol_15s / sol_15s_prev) >= 1.5:
+            score += 1
+        if sol_15s_prev > 0 and (sol_15s / sol_15s_prev) >= 2.0:
+            score += 1
+
+        inflow_accel = (sol_15s / sol_15s_prev) if sol_15s_prev > 0 else 0.0
+
+        flow_min_buys = buys_10s >= 6
+        flow_min_unique = unique_buyers_30s >= 4
+        flow_min_sol = sol_15s >= 2.0
+        flow_min_hits = int(flow_min_buys) + int(flow_min_unique) + int(flow_min_sol)
+        flow_candidate = score >= 3 or flow_min_hits >= 1
+        strong_flow = score >= 5 or flow_min_hits >= 2
+        very_strong_flow = score >= 7 or flow_min_hits >= 3 or (score >= 5 and inflow_accel >= 1.5)
+
+        band = None
+        is_about_to_migrate = 0
+        if very_strong_flow:
+            band = "hot"
+            is_about_to_migrate = 1
+        elif strong_flow:
+            band = "warm"
+        elif flow_candidate:
+            band = "likely_close"
+        elif score >= 1:
+            band = "early"
+
+        if not band:
+            if current_market_cap >= self._premigration_signal_floor_hot:
+                band = "hot"
+                is_about_to_migrate = 1
+                fallback_used = True
+            elif current_market_cap >= self._premigration_signal_floor_warm:
+                band = "warm"
+                fallback_used = True
+
+        if band == "hot":
+            progress = max(min(score * 12.5, 100.0), 87.5)
+        elif band == "warm":
+            progress = max(min(score * 12.5, 87.5), 67.5)
+        elif band == "likely_close":
+            progress = max(min(score * 12.5, 72.5), 50.0)
+        elif band == "early":
+            progress = max(min(score * 12.5, 45.0), 25.0)
+        else:
+            progress = 0.0
+        if progress <= 0 and current_market_cap >= self._premigration_signal_floor_hot:
+            progress = 87.5
+            fallback_used = True
+        elif progress <= 0 and current_market_cap >= self._premigration_signal_floor_warm:
+            progress = 62.5
+            fallback_used = True
+
+        premig_log(
+            f"[FLOW_METRICS] mint={mint} "
+            f"buys_10s={buys_10s} "
+            f"unique_30s={unique_buyers_30s} "
+            f"sol_15s={sol_15s:.4f} "
+            f"sol_prev_15s={sol_15s_prev:.4f}"
+        )
+        premig_log(
+            f"[SCORE] mint={mint} score={score} band={band} "
+            f"flow_min_hits={flow_min_hits} flow_candidate={int(flow_candidate)} "
+            f"strong_flow={int(strong_flow)}"
+        )
+
+        if buys_10s == 0 and sol_15s == 0:
+            premig_log(f"[ZERO_FLOW] mint={mint} no activity detected")
+
+        if current_market_cap and current_market_cap > 100_000_000:
+            premig_log(f"[MC_ANOMALY] mint={mint} mc={current_market_cap}")
+
+        log_print(
+            f"[PREMIG_SIGNAL] mint={mint[:6]} "
+            f"score={score} band={band} "
+            f"buys_10s={buys_10s} "
+            f"unique_30s={unique_buyers_30s} "
+            f"sol_15s={sol_15s:.2f} "
+            f"accel={inflow_accel:.2f}",
+            flush=True,
+        )
+        if fallback_used:
+            premig_log(f"[FALLBACK_USED] mint={mint} mc={current_market_cap} band={band}")
+            log_print(
+                f"[PREMIG_FALLBACK] mint={mint[:6]} "
+                f"mc={current_market_cap:.2f} -> band={band}",
+                flush=True,
+            )
+
+        return {
+            "score": score,
+            "buys_10s": buys_10s,
+            "unique_buyers_30s": unique_buyers_30s,
+            "sol_15s": sol_15s,
+            "sol_15s_prev": sol_15s_prev,
+            "inflow_accel": inflow_accel,
+            "band": band,
+            "is_about_to_migrate": is_about_to_migrate,
+            "migration_progress_pct": progress if band else None,
+            "has_trade_details": have_trade_details,
+            "observed_flow_event": buy_events_45s > 0,
+            "fallback_used": fallback_used,
+            "signal_source": "flow" if flow_candidate else ("fallback" if band else None),
+        }
+
+    def _persist_pre_migration_signal_sync(
+        self,
+        mint: str,
+        current_market_cap: float,
+        signal: dict,
+        now: int,
+        *,
+        source_hint: Optional[str] = None,
+        shared_conn=None,
+    ) -> dict:
+        """Sync DB work for _persist_pre_migration_signal — safe to run in asyncio.to_thread."""
+        _owns_conn = shared_conn is None
+        conn = None
+        result = {
+            "bonding_curve_pda": None,
+            "should_check_pf_ws_creator": False,
+            "pf_ws_creator_band": None,
+            "enqueue_hot": None,   # (creator, sig) or None
+            "enqueue_75": None,    # (creator, sig, band) or None
+        }
+        try:
+            conn = shared_conn if shared_conn is not None else db_connect(DB_PATH, timeout=30)
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT
+                    mint,
+                    source_platform,
+                    lifecycle_stage,
+                    dex,
+                    pool_address,
+                    pumpswap_pool_address,
+                    create_tx_signature,
+                    bonding_curve_pda,
+                    is_about_to_migrate,
+                    migration_band,
+                    migration_progress_pct,
+                    migration_signal_source,
+                    migration_signal_updated_at,
+                    first_pre_migration_signal_at,
+                    pf_ws_creator
+                FROM token_analysis
+                WHERE mint = ?
+                LIMIT 1
+                """,
+                (mint,),
+            )
+            row = cursor.fetchone()
+            row_exists = row is not None
+            source_platform = str(row[1]) if row and row[1] is not None else None
+            lifecycle_stage = str(row[2]) if row and row[2] is not None else None
+            dex_value = str(row[3]) if row and row[3] is not None else None
+            pool_address = str(row[4]) if row and row[4] is not None else None
+            pf_ws_creator_from_row = str(row[15]) if row and row[15] is not None else None
+            pumpswap_pool_address = str(row[5]) if row and row[5] is not None else None
+            create_tx_signature = str(row[6]) if row and row[6] is not None else None
+            bonding_curve_pda = str(row[7]) if row and row[7] is not None else None
+            before_row = row[8:14] if row else None
+            result["bonding_curve_pda"] = bonding_curve_pda
+            premig_log(
+                f"[DB_MATCH_CHECK] mint={mint} "
+                f"row_exists={'yes' if row_exists else 'no'} "
+                f"source_platform={source_platform or ''} "
+                f"lifecycle_stage={lifecycle_stage or ''} "
+                f"dex={dex_value or ''} "
+                f"pool_address={pool_address or ''} "
+                f"pumpswap_pool_address={pumpswap_pool_address or ''} "
+                f"create_tx_signature={create_tx_signature or ''} "
+                f"bonding_curve_pda={bonding_curve_pda or ''}"
+            )
+
+            row_materialized = False
+            if not row_exists and source_hint == "flow":
+                cursor.execute(
+                    """
+                    INSERT INTO token_analysis (
+                        mint,
+                        analyzed_at,
+                        created_at,
+                        source_platform,
+                        lifecycle_stage,
+                        migration_signal_updated_at,
+                        first_pre_migration_signal_at
+                    ) VALUES (?, ?, ?, 'pumpfun', 'bonding_curve', ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        analyzed_at = COALESCE(token_analysis.analyzed_at, excluded.analyzed_at),
+                        created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                        source_platform = COALESCE(NULLIF(TRIM(token_analysis.source_platform), ''), excluded.source_platform),
+                        lifecycle_stage = CASE
+                            WHEN COALESCE(token_analysis.lifecycle_stage, 'migration_pending') = 'migrated' THEN token_analysis.lifecycle_stage
+                            ELSE 'bonding_curve'
+                        END,
+                        migration_signal_updated_at = COALESCE(token_analysis.migration_signal_updated_at, excluded.migration_signal_updated_at),
+                        first_pre_migration_signal_at = COALESCE(token_analysis.first_pre_migration_signal_at, excluded.first_pre_migration_signal_at)
+                    """,
+                    (mint, float(now), now, now, now),
+                )
+                row_materialized = True
+                premig_log(f"[DB_CREATE] mint={mint} source=flow")
+                cursor.execute(
+                    """
+                    SELECT
+                        is_about_to_migrate,
+                        migration_band,
+                        migration_progress_pct,
+                        migration_signal_source,
+                        migration_signal_updated_at,
+                        first_pre_migration_signal_at
+                    FROM token_analysis
+                    WHERE mint = ?
+                    LIMIT 1
+                    """,
+                    (mint,),
+                )
+                before_row = cursor.fetchone()
+                source_platform = "pumpfun"
+                lifecycle_stage = "bonding_curve"
+
+            signal_source = signal["signal_source"]
+            if before_row and (before_row[3] or None) == "flow" and signal_source != "flow":
+                signal["is_about_to_migrate"] = int(before_row[0] or 0)
+                signal["band"] = before_row[1] or None
+                signal["migration_progress_pct"] = before_row[2]
+                signal_source = "flow"
+
+            signal_has_presence = bool(
+                signal.get("observed_flow_event")
+                or signal_source
+                or signal.get("band")
+                or signal.get("is_about_to_migrate")
+                or int(signal.get("score") or 0) > 0
+                or float(current_market_cap or 0.0) >= float(self._premigration_signal_floor_warm or 0.0)
+            )
+            existing_signal_updated_at = before_row[4] if before_row else None
+            existing_first_pre_signal_at = before_row[5] if before_row else None
+            changed_values = (
+                before_row is None
+                or int(before_row[0] or 0) != int(signal["is_about_to_migrate"] or 0)
+                or (before_row[1] or None) != (signal["band"] or None)
+                or before_row[2] != signal["migration_progress_pct"]
+                or (before_row[3] or None) != (signal_source or None)
+            )
+            should_seed_signal_timestamp = bool(signal_has_presence and existing_signal_updated_at is None)
+            signal_updated_at_to_write = now if should_seed_signal_timestamp else existing_signal_updated_at
+            should_seed_first_pre_signal_at = bool(signal_has_presence and existing_first_pre_signal_at is None)
+            first_pre_signal_at_to_write = now if should_seed_first_pre_signal_at else existing_first_pre_signal_at
+
+            if source_hint != "flow" and (not signal_has_presence) and (not changed_values):
+                premig_log(f"[DB_SKIP] mint={mint} reason=empty_periodic_refresh")
+                return result  # conn left open if shared — caller closes
+
+            cursor.execute(
+                """
+                UPDATE token_analysis
+                SET
+                    source_platform = CASE
+                        WHEN COALESCE(source_platform, '') = '' THEN 'pumpfun'
+                        ELSE source_platform
+                    END,
+                    lifecycle_stage = CASE
+                        WHEN COALESCE(lifecycle_stage, 'migration_pending') = 'migrated' THEN lifecycle_stage
+                        ELSE 'bonding_curve'
+                    END,
+                    is_about_to_migrate = ?,
+                    migration_band = ?,
+                    migration_progress_pct = ?,
+                    migration_signal_source = CASE
+                        WHEN ? = 'flow' THEN 'flow'
+                        WHEN COALESCE(migration_signal_source, '') = 'flow' THEN migration_signal_source
+                        ELSE ?
+                    END,
+                    migration_signal_updated_at = ?,
+                    first_pre_migration_signal_at = COALESCE(first_pre_migration_signal_at, ?)
+                WHERE mint = ?
+                  AND COALESCE(lifecycle_stage, 'migration_pending') != 'migrated'
+                """,
+                (
+                    signal["is_about_to_migrate"],
+                    signal["band"],
+                    signal["migration_progress_pct"],
+                    signal_source,
+                    signal_source,
+                    signal_updated_at_to_write,
+                    first_pre_signal_at_to_write,
+                    mint,
+                ),
+            )
+            changed = cursor.rowcount
+            if _owns_conn:
+                conn.commit()
+
+            if not changed:
+                premig_log(
+                    f"[DB_MATCH_CHECK] mint={mint} row_exists={'yes' if row_exists else 'no'} "
+                    f"source_platform={source_platform or ''} lifecycle_stage={lifecycle_stage or ''}"
+                )
+                premig_log(f"[DB_SKIP] mint={mint} reason=no_matching_row")
+            if changed:
+                if not changed_values:
+                    premig_log(f"[DB_SKIP] mint={mint} reason=no_value_change band={signal['band']} source={signal_source}")
+                if changed_values:
+                    write_label = "DB_CREATE" if row_materialized else "DB_UPDATE"
+                    premig_log(
+                        f"[{write_label}] mint={mint} "
+                        f"source={signal_source} "
+                        f"band={signal['band']} "
+                        f"progress={float(signal['migration_progress_pct'] or 0.0):.1f}"
+                    )
+                    premig_log(
+                        f"[DB_WRITE] mint={mint} "
+                        f"source={signal_source} "
+                        f"band={signal['band']} "
+                        f"progress={float(signal['migration_progress_pct'] or 0.0):.1f}"
+                    )
+                    log_print(
+                        f"[PREMIG_DB_WRITE] mint={mint[:6]} "
+                        f"band={signal['band']} "
+                        f"about_to_migrate={signal['is_about_to_migrate']} "
+                        f"progress={float(signal['migration_progress_pct'] or 0.0):.1f} "
+                        f"source={signal_source}",
+                        flush=True,
+                    )
+                if should_seed_first_pre_signal_at:
+                    log_print(
+                        f"[PREMIG_FIRST_SEEN] mint={mint[:6]} ts={first_pre_signal_at_to_write} "
+                        f"band={signal['band']} source={signal_source or 'none'}",
+                        flush=True,
+                    )
+                log_print(f"[PREMIG_REFRESH] mint={mint[:6]} ts_updated", flush=True)
+
+                result["should_check_pf_ws_creator"] = bool(
+                    changed_values and signal.get("is_about_to_migrate")
+                )
+                result["pf_ws_creator_band"] = signal.get("band") or "unknown"
+
+                if (
+                    changed_values
+                    and signal.get("band") == "hot"
+                    and (before_row is None or (before_row[1] or "") != "hot")
+                ):
+                    result["enqueue_hot"] = (pf_ws_creator_from_row, str(row[6]) if row and row[6] else None)
+
+                _prev_band = (before_row[1] or "") if before_row else ""
+                if (
+                    changed_values
+                    and signal.get("band") in ("warm", "hot")
+                    and _prev_band not in ("warm", "hot")
+                ):
+                    result["enqueue_75"] = (pf_ws_creator_from_row, str(row[6]) if row and row[6] else None, signal.get("band"))
+
+        except Exception as e:
+            log_print(f"[PREMIG_SIGNAL] ⚠ Failed to persist signal for {mint[:16]}...: {e}", flush=True)
+        finally:
+            if _owns_conn and conn is not None:
+                conn.close()
+        return result
+
+    async def _persist_pre_migration_signal(
+        self,
+        mint: str,
+        current_market_cap: float,
+        now_ts: Optional[int] = None,
+        *,
+        source_hint: Optional[str] = None,
+        shared_conn=None,
+    ) -> None:
+        now = int(now_ts or time.time())
+        signal = self._compute_pre_migration_signal(mint, current_market_cap or 0.0, now)
+
+        result = await asyncio.to_thread(
+            self._persist_pre_migration_signal_sync,
+            mint, current_market_cap, signal, now,
+            source_hint=source_hint,
+            shared_conn=shared_conn,
+        )
+
+        bonding_curve_pda = result["bonding_curve_pda"]
+        should_check_pf_ws_creator = result["should_check_pf_ws_creator"]
+        pf_ws_creator_band = result["pf_ws_creator_band"]
+
+        if result["enqueue_hot"]:
+            _hot_creator, _hot_sig = result["enqueue_hot"]
+            async def _enqueue_with_creator_resolve(_mint=mint, _creator=_hot_creator, _sig=_hot_sig):
+                if not _creator:
+                    _creator = await self._ensure_pf_ws_creator(_mint, reason="hot_band_early")
+                if not _creator:
+                    log_print(f"[EARLY_FUNDING] ⚠ mint={_mint[:8]} band=hot — creator unresolved, skipping", flush=True)
+                    return
+                log_print(
+                    f"[EARLY_FUNDING] 🔥 mint={_mint[:8]} band=hot → enqueuing early extraction for creator={_creator[:8]}",
+                    flush=True,
+                )
+                await self._enqueue_creator_funding_job(
+                    _creator, mint=_mint, migration_timestamp=None,
+                    create_tx_signature=_sig, delay_seconds=0, source="early_hot_band",
+                )
+            asyncio.create_task(_enqueue_with_creator_resolve())
+
+        if result["enqueue_75"]:
+            _pre75_creator, _pre75_sig, _pre75_band = result["enqueue_75"]
+            async def _enqueue_pre_migration_75(_mint=mint, _creator=_pre75_creator,
+                                                 _sig=_pre75_sig, _band=_pre75_band):
+                if not _creator:
+                    _creator = await self._ensure_pf_ws_creator(_mint, reason="pre_migration_75pct")
+                if not _creator:
+                    log_print(
+                        f"[PRE75_FUNDING] ⚠ mint={_mint[:8]} band={_band} — creator unresolved, skipping",
+                        flush=True,
+                    )
+                    return
+                log_print(
+                    f"[PRE75_FUNDING] 📶 mint={_mint[:8]} band={_band} → pre-migration enqueue creator={_creator[:8]}",
+                    flush=True,
+                )
+                await self._enqueue_creator_funding_job(
+                    _creator, mint=_mint, migration_timestamp=None,
+                    create_tx_signature=_sig, delay_seconds=0,
+                    source="pre_migration_bonding_75pct", pre_migration=True,
+                )
+            asyncio.create_task(_enqueue_pre_migration_75())
+
+        # Add to curve watcher when token crosses the hot threshold
+        if bonding_curve_pda and signal.get("is_about_to_migrate"):
+            await self.watch_bonding_curve(bonding_curve_pda)
+
+    async def handle_pumpfun_trade(self, signature: str, logs: List[str]) -> None:
+        """Best-effort no-RPC tracking of Pump.fun buy momentum from websocket logs."""
+        mint, source, candidates, reason, tx_data = await self._resolve_bonding_curve_mint_for_trade(signature, logs)
+        premig_log(f"[PARSE_ATTEMPT] sig={signature[:16]} mint={mint} logs={json.dumps(logs)[:400]}")
+        if not mint:
+            self._resolver_unresolved_count += 1
+            log_print(
+                f"[BUY_UNRESOLVED] sig={signature[:16]} reason={reason or 'no_viable_candidate'} top_candidates={candidates}",
+                flush=True,
+            )
+            premig_log(f"[NO_BUY_MATCH] sig={signature[:16]} reason=mint_unresolved")
+            self._debug_pumpfun_trade_skip("mint_unresolved", logs)
+            return
+        self._resolver_resolved_count += 1
+        log_print(
+            f"[BUY_RESOLVED] sig={signature[:16]} mint={mint} source={source or 'unknown'} candidates={candidates}",
+            flush=True,
+        )
+        buyer = self._extract_buyer_from_logs(logs)
+        sol_amount = self._extract_sol_amount_from_logs(logs)
+        if buyer is None or sol_amount is None:
+            log_print(f"[PARTIAL_ENRICH_ATTEMPT] sig={signature[:16]} mint={mint}", flush=True)
+            if tx_data is None:
+                tx_data = await self._get_trade_transaction_context(signature)
+            buyer, sol_amount, partial_mode, enrich_reason = self._recover_partial_trade_details_from_tx(
+                tx_data,
+                mint=mint,
+                buyer=buyer,
+                sol_amount=sol_amount,
+            )
+            if partial_mode != "count_only":
+                log_print(
+                    f"[PARTIAL_ENRICH_SUCCESS] sig={signature[:16]} mint={mint} mode={partial_mode}",
+                    flush=True,
+                )
+                log_print(
+                    f"[BUY_ENRICHED] sig={signature[:16]} mint={mint} "
+                    f"buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'} mode={partial_mode}",
+                    flush=True,
+                )
+            else:
+                log_print(
+                    f"[PARTIAL_ENRICH_FAIL] sig={signature[:16]} mint={mint} reason={enrich_reason or 'no_confident_buyer_or_sol'}",
+                    flush=True,
+                )
+            log_print(
+                f"[BUY_PARTIAL] sig={signature[:16]} mint={mint} "
+                f"buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'} mode={partial_mode}",
+                flush=True,
+            )
+            self._debug_pumpfun_trade_skip(
+                f"partial_trade_details buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'} mode={partial_mode}",
+                logs,
+            )
+        if buyer is not None and sol_amount is not None:
+            premig_log(f"[BUY_DETECTED] mint={mint} sol={sol_amount} buyer={buyer}")
+        elif buyer is not None or sol_amount is not None:
+            premig_log(
+                f"[BUY_PARTIAL] mint={mint} buyer={'yes' if buyer else 'no'} sol={'yes' if sol_amount is not None else 'no'}"
+            )
+        else:
+            premig_log(f"[BUY_PARTIAL] mint={mint} buyer=no sol=no")
+        now = time.time()
+        self._record_flow_event(mint, observed_at=now, buyer=buyer, sol_amount=sol_amount, kind="buy")
+        market_cap_hint = self._last_market_cap_by_mint.get(mint, 0.0)
+        await self._persist_pre_migration_signal(mint, market_cap_hint, int(now), source_hint="flow")
+
+    async def _refresh_pre_migration_signals_periodic(self) -> None:
+        """Keep Pump.fun watchlist rows fresh from DB activity without adding RPC calls."""
+        await asyncio.sleep(5)
+        while True:
+            try:
+                def _read_candidates():
+                    conn = db_connect(DB_PATH, timeout=15)
+                    conn.row_factory = sqlite3.Row
+                    try:
+                        rows = conn.execute(
+                            """
+                            SELECT mint,
+                                   CASE
+                                     WHEN COALESCE(market_cap_current, 0) > 5000000 THEN 0
+                                     ELSE COALESCE(market_cap_current, 0)
+                                   END AS market_cap_current
+                            FROM token_analysis
+                            WHERE mint IS NOT NULL
+                              AND source_platform = 'pumpfun'
+                              AND COALESCE(lifecycle_stage, 'bonding_curve') = 'bonding_curve'
+                              AND COALESCE(lifecycle_stage, '') != 'migrated'
+                              AND NULLIF(TRIM(COALESCE(pool_address, pumpswap_pool_address, dex, '')), '') IS NULL
+                            ORDER BY
+                              COALESCE(is_about_to_migrate, 0) DESC,
+                              COALESCE(migration_progress_pct, 0) DESC,
+                              COALESCE(market_cap_current, 0) DESC,
+                              mint ASC
+                            LIMIT 25
+                            """
+                        ).fetchall()
+                        return [(str(r["mint"]), float(r["market_cap_current"] or 0.0)) for r in rows]
+                    finally:
+                        conn.close()
+
+                candidates = await asyncio.to_thread(_read_candidates)
+
+                if candidates:
+                    index_rows = self._refresh_bonding_curve_index()
+                    now_ts = int(time.time())
+                    flow_count = 0
+                    fallback_count = 0
+
+                    def _sweep(_candidates=candidates, _now=now_ts):
+                        sweep_conn = db_connect(DB_PATH, timeout=60)
+                        sweep_conn.execute("PRAGMA busy_timeout=60000")
+                        refreshed = 0
+                        try:
+                            for _mint, _mc in _candidates:
+                                _sig = self._compute_pre_migration_signal(_mint, _mc, _now)
+                                self._persist_pre_migration_signal_sync(
+                                    _mint, _mc, _sig, _now, shared_conn=sweep_conn
+                                )
+                                refreshed += 1
+                            sweep_conn.commit()
+                        finally:
+                            sweep_conn.close()
+                        return refreshed
+
+                    refreshed = await asyncio.to_thread(_sweep)
+                    for mint, _ in candidates:
+                        if self._flow_windows_by_mint.get(mint):
+                            flow_count += 1
+                        else:
+                            fallback_count += 1
+                    premig_log(
+                        f"[SUMMARY] active_mints={len(self._flow_windows_by_mint)} "
+                        f"index_rows={index_rows} "
+                        f"sweep_candidates={refreshed} "
+                        f"flow_active={flow_count} fallback_active={fallback_count}"
+                    )
+                    self._log_resolver_summary()
+                    log_print(f"[PREMIG_SWEEP] refreshed={refreshed} index_rows={index_rows}", flush=True)
+            except Exception as e:
+                log_print(f"[PREMIG_SWEEP] ⚠ refresh failed: {e}", flush=True)
+            await asyncio.sleep(60)
+
+    def _log_fl(self, msg: str):
+        """Override fast-lane logging to use log_print for consistent output."""
+        log_print(msg, flush=True)
+
+    def _filter_failed(self, mint: str, candidates: List[str]) -> List[str]:
+        """Remove candidates that previously failed registration for this mint."""
+        failed = self._failed_registration.get(mint, set())
+        if not failed:
+            return candidates
+        filtered = [c for c in candidates if c not in failed]
+        if len(filtered) < len(candidates):
+            removed = len(candidates) - len(filtered)
+            log_print(
+                f"[FAST_LANE] 🚫 Filtered {removed} previously-failed candidate(s) for {mint[:16]}...",
+                flush=True,
+            )
+        return filtered
+
+    # ===== PHASE 2: Background Job Queue Processing =====
+
+    async def _process_background_queue(self):
+        """Process background jobs after critical window expires."""
+        while True:
+            try:
+                # Check if any critical windows have expired
+                now = time.time()
+                expired_mints = [
+                    mint for mint, expiry in self.critical_window_tasks.items()
+                    if now >= expiry
+                ]
+
+                # Remove expired windows and allow their jobs to process
+                for mint in expired_mints:
+                    del self.critical_window_tasks[mint]
+
+                # Process jobs whose own mint's critical window has expired.
+                # A job is eligible if its mint has no active window, or it has no mint.
+                jobs_processed = 0
+                requeue = []
+                try:
+                    while not self.background_job_queue.empty():
+                        job_item = self.background_job_queue.get_nowait()
+                        mint = job_item.get('mint', '?')
+                        mint_still_active = (
+                            mint and mint != '?'
+                            and mint in self.critical_window_tasks
+                            and time.time() < self.critical_window_tasks[mint]
+                        )
+                        if mint_still_active:
+                            requeue.append(job_item)
+                            self.background_job_queue.task_done()
+                            continue
+                        try:
+                            log_print(f"[BACKGROUND] 🚀 Executing queued job (mint={mint[:8]}...)", flush=True)
+                            await job_item['coro']
+                            jobs_processed += 1
+                        except Exception as e:
+                            logger.error(f"[BACKGROUND] ❌ Job failed (mint={mint[:8]}...): {e}")
+                        self.background_job_queue.task_done()
+                except asyncio.QueueEmpty:
+                    pass
+                # Re-enqueue jobs that were still in their critical window
+                for job_item in requeue:
+                    await self.background_job_queue.put(job_item)
+
+                if jobs_processed > 0:
+                    log_print(f"[BACKGROUND] ✅ Processed {jobs_processed} background jobs after critical windows expired", flush=True)
+
+                await asyncio.sleep(0.5)
+            except Exception as e:
+                logger.error(f"Background queue processor error: {e}")
+                await asyncio.sleep(1)
+
+    async def queue_background_job(self, coro, mint: str = None, priority: str = "normal"):
+        """Queue a background job for deferred execution."""
+        await self.background_job_queue.put({
+            'coro': coro,
+            'mint': mint,
+            'priority': priority,
+            'queued_at': time.time()
+        })
+
+    def start_critical_window(self, mint: str):
+        """Mark when critical discovery window starts for a token."""
+        self.critical_window_tasks[mint] = time.time() + self.DISCOVERY_CRITICAL_WINDOW_SECONDS
+
+    def any_token_in_critical_window(self) -> bool:
+        """Check if ANY token is currently in critical discovery window."""
+        now = time.time()
+        return any(
+            now < expiry
+            for expiry in self.critical_window_tasks.values()
+        )
+
+    def _correlation_id(self, mint: str, attempt: int = None, tier: str = None, elapsed: float = None) -> str:
+        """Generate correlation ID for log tracing: mint|attempt|tier|elapsed."""
+        parts = [mint[:8] if mint else "?"]
+        if attempt is not None:
+            parts.append(f"A{attempt}")
+        if tier:
+            parts.append(f"T{tier[:1]}")  # T=TX_ONLY, L=Light, F=Full
+        if elapsed is not None:
+            parts.append(f"{elapsed:.1f}s")
+        return "|".join(parts)
+
+    def assert_not_in_critical_window(self, job_type: str, mint: str = None) -> bool:
+        """
+        Assert that a non-discovery job is NOT running during critical window.
+
+        Returns True if OK to run (no active critical window).
+        Returns False if BLOCKED (active critical window detected).
+
+        Logs loudly if violation detected.
+        """
+        if not self.critical_window_tasks:
+            # No active critical windows - OK to proceed
+            return True
+
+        # Critical window is ACTIVE - this job must wait
+        active_mints = list(self.critical_window_tasks.keys())
+        log_print(
+            f"[CRITICAL_PATH_LEAK] ❌ BLOCKED: {job_type} tried to run during critical_window=ACTIVE for mints={active_mints[:3]}",
+            flush=True
+        )
+        log_print(
+            f"[CRITICAL_PATH_ASSERTION] Job={job_type} mint={mint} MUST be queued, not spawned, during critical window",
+            flush=True
+        )
+        return False
+
+    def is_in_critical_window(self, mint: str) -> bool:
+        """Check if mint is still in critical discovery window."""
+        if mint not in self.critical_window_tasks:
+            return False
+        return time.time() < self.critical_window_tasks[mint]
+
+    # ===== PHASE 2: RPC Isolation =====
+
+    async def call_discovery_rpc(self, method: str, params: list, timeout: float = 5.0):
+        """RPC call with discovery quota priority."""
+        async with self.discovery_rpc_semaphore:
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": method,
+                    "params": params
+                }
+                result = await self.__internal_rpc(payload, timeout=timeout, priority="critical")
+                return result
+            except Exception as e:
+                logger.debug(f"Discovery RPC error ({method}): {e}")
+                return None
+
+    async def call_background_rpc(self, method: str, params: list, timeout: float = 10.0):
+        """RPC call with background quota (throttled during critical window)."""
+        async with self.background_rpc_semaphore:
+            try:
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": method,
+                    "params": params
+                }
+                result = await self.__internal_rpc(payload, timeout=timeout, priority="background")
+                return result
+            except Exception as e:
+                logger.debug(f"Background RPC error ({method}): {e}")
+                return None
+
+    async def _write_resolution_telemetry(self, mint: str, resolve_source: str, pool_address: str = None, retry_count: int = 0):
+        """Write token resolution telemetry to database."""
+        _tp_tel_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] TELEMETRY_START mint={mint[:16]} source={resolve_source}", flush=True)
+        try:
+            from src.core.vault_discovery_persistence import record_vault_discovery_result
+
+            now = int(time.time())
+            times = self.token_discovery_times.get(mint, {})
+            detected_at = times.get("detected") or now
+            resolved_at = times.get("resolved") or now
+
+            # CRITICAL: Use pool_registered_at (not resolved_at) for discovery time
+            # resolved_at includes post-registration delays (background jobs, state transitions)
+            # pool_registered_at is when discovery actually succeeded
+            pool_registered_at = times.get("pool_registered_at") or resolved_at
+            resolve_seconds = pool_registered_at - detected_at if detected_at else 0.0
+
+            def _telemetry_db_sync():
+                with managed_db_connect(DB_PATH, timeout=15) as _conn:
+                    _conn.execute("""
+                        INSERT OR REPLACE INTO token_resolution_telemetry
+                        (mint, detected_at, resolved_at, resolve_seconds, resolve_source, retry_count, pool_address, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (mint, int(detected_at), int(resolved_at), resolve_seconds, resolve_source, retry_count, pool_address, now, now))
+                    _conn.commit()
+
+                if pool_address:
+                    _attempts = retry_count + 1
+                    return record_vault_discovery_result(
+                        db_path=DB_PATH,
+                        mint=mint,
+                        base_account=pool_address,
+                        strategy=resolve_source,
+                        attempts=_attempts,
+                        elapsed_secs=float(resolve_seconds),
+                        pool_address=pool_address,
+                    )
+                return None
+
+            vault_success = await asyncio.to_thread(_telemetry_db_sync)
+
+            if pool_address:
+                if vault_success:
+                    log_print(
+                        f"[VAULT_PERSISTENCE] ✅ Persisted discovery: "
+                        f"strategy={resolve_source} attempts={retry_count + 1} elapsed={resolve_seconds}s",
+                        flush=True
+                    )
+                else:
+                    log_print(
+                        f"[VAULT_PERSISTENCE] ⚠️  Failed to persist discovery data "
+                        f"for {mint[:16]}... / {pool_address[:16]}...",
+                        flush=True
+                    )
+
+        except Exception as e:
+            log_print(f"[TELEMETRY] ⚠️  Failed to write telemetry for {mint}: {e}", flush=True)
+
+        log_print(f"[TIMING_PROBE] TELEMETRY_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_tel_t0)*1000)}", flush=True)
+        # Fire-and-forget symbol fetch for every resolved token (covers all resolution paths)
+        _spawn_symbol_fetch(mint, DB_PATH)
+
+    async def __internal_rpc(self, payload: dict, timeout: int = 10, priority: str = "critical") -> Optional[dict]:
+        """
+        Post to RPC with automatic failover chain.
+
+        Tries: Primary QuickNode -> Secondary QuickNode -> Helius -> Public Solana
+        Returns: JSON response data or None if all fail
+
+        Args:
+            priority: "critical" (discovery RPC) or "background" (deferred work RPC)
+        """
+        try:
+            rpc_method = payload.get("method", "unknown")
+            start_time = time.time()
+            last_status = None
+            last_error = None
+            retry_count = 0
+            optimization_layer = "critical_discovery" if priority == "critical" else "background_deferred"
+
+            # Critical-path calls (pool discovery) must not stall the event loop.
+            # Skip the public Solana fallback — it connects fast but drip-feeds responses,
+            # causing sock_read hangs well past the 'total' timeout.
+            _urls = [u for u in RPC_URLS if "mainnet-beta.solana.com" not in u] if priority == "critical" else RPC_URLS
+            if not _urls:
+                _urls = RPC_URLS   # always have at least one
+            async with aiohttp.ClientSession() as session:
+                for i, rpc_url in enumerate(_urls):
+                    try:
+                        retry_count = i  # Track which RPC endpoint we tried
+                        # sock_read caps individual read chunks so a drip-feeding server
+                        # can't hold open a connection past the intended timeout.
+                        _t = aiohttp.ClientTimeout(total=timeout, connect=3, sock_read=timeout)
+                        async with session.post(rpc_url, json=payload, timeout=_t) as resp:
+                            latency_ms = (time.time() - start_time) * 1000
+
+                            if resp.status == 200:
+                                # Success - record metrics with priority tag
+                                record_request(
+                                    section="listener",
+                                    provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                                    method=rpc_method,
+                                    status_code=200,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=retry_count,
+                                    source_file="pumpfun_curve_listener",
+                                    optimization_layer=optimization_layer,
+                                    error=None,
+                                )
+                                return await resp.json()
+                            elif resp.status == 429:
+                                # Rate limited, record and try next in chain
+                                last_status = 429
+                                record_request(
+                                    section="listener",
+                                    provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                                    method=rpc_method,
+                                    status_code=429,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=retry_count,
+                                    source_file="pumpfun_curve_listener",
+                                    optimization_layer=optimization_layer,
+                                    error="Rate limited",
+                                )
+                                if i < len(_urls) - 1:
+                                    continue
+                            else:
+                                # Other error, record and try next
+                                last_status = resp.status
+                                record_request(
+                                    section="listener",
+                                    provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                                    method=rpc_method,
+                                    status_code=resp.status,
+                                    latency_ms=latency_ms,
+                                    mode="realtime",
+                                    retries=retry_count,
+                                    source_file="pumpfun_curve_listener",
+                                    optimization_layer=optimization_layer,
+                                    error=f"HTTP {resp.status}",
+                                )
+                                if i < len(_urls) - 1:
+                                    continue
+                    except asyncio.TimeoutError:
+                        latency_ms = (time.time() - start_time) * 1000
+                        last_error = "Timeout"
+                        record_request(
+                            section="listener",
+                            provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                            method=rpc_method,
+                            status_code=0,
+                            latency_ms=latency_ms,
+                            mode="realtime",
+                            retries=retry_count,
+                            source_file="pumpfun_curve_listener",
+                            optimization_layer=optimization_layer,
+                            error="Timeout",
+                        )
+                        if i < len(_urls) - 1:
+                            continue
+                    except Exception as e:
+                        latency_ms = (time.time() - start_time) * 1000
+                        last_error = str(e)
+                        record_request(
+                            section="listener",
+                            provider="helius_rpc" if "helius" in rpc_url else "quicknode_rpc" if "quiknode" in rpc_url else "solana_rpc",
+                            method=rpc_method,
+                            status_code=0,
+                            latency_ms=latency_ms,
+                            mode="realtime",
+                            retries=retry_count,
+                            source_file="pumpfun_curve_listener",
+                            optimization_layer=optimization_layer,
+                            error=last_error,
+                        )
+                        if i < len(_urls) - 1:
+                            continue
+
+                # All RPC endpoints failed - record final failure
+                latency_ms = (time.time() - start_time) * 1000
+                record_request(
+                    section="listener",
+                    provider="solana_rpc",
+                    method=rpc_method,
+                    status_code=last_status or 0,
+                    latency_ms=latency_ms,
+                    mode="realtime",
+                    retries=retry_count,
+                    source_file="pumpfun_curve_listener",
+                    optimization_layer=optimization_layer,
+                    error=last_error or "All endpoints failed",
+                )
+                return None
+        except Exception as e:
+            log_print(f"[RPC_ERROR] {e}", flush=True)
+            # Record the outer exception too
+            latency_ms = (time.time() - start_time) * 1000 if 'start_time' in locals() else 0
+            record_request(
+                section="listener",
+                provider="solana_rpc",
+                method=payload.get("method", "unknown"),
+                status_code=0,
+                latency_ms=latency_ms,
+                mode="realtime",
+                retries=0,
+                source_file="pumpfun_curve_listener",
+                optimization_layer=optimization_layer if 'optimization_layer' in locals() else "unknown",
+                error=str(e),
+            )
+            return None
+
+    async def _get_transaction_cached(self, signature: str, timeout: int = 15) -> Optional[Dict]:
+        """
+        Fetch transaction with TTL cache + singleflight deduplication.
+        Includes retry/backoff for indexing delays.
+
+        Returns tx_data dict from "result" field, or None if not found.
+        """
+        import time
+        current_time = time.time()
+
+        # === Check cache hit ===
+        if signature in self.tx_cache:
+            cached_data, cached_time = self.tx_cache[signature]
+            age = current_time - cached_time
+            if age < self.tx_cache_ttl_seconds:
+                self.tx_cache_stats['hit'] += 1
+                log_print(f"[TX_CACHE] 💾 HIT: {signature[:16]}... (age: {age:.1f}s)", flush=True)
+                return cached_data
+            else:
+                # Expired, remove from cache
+                del self.tx_cache[signature]
+                # Also remove pending retry task if exists
+                if signature in self.tx_cache_pending_retries:
+                    del self.tx_cache_pending_retries[signature]
+
+        # === Check if already in-flight (singleflight pattern) ===
+        if signature in self.tx_inflight_locks:
+            # Another coroutine is already fetching this
+            self.tx_cache_stats['wait'] += 1
+            lock = self.tx_inflight_locks[signature]
+            await lock.acquire()
+            lock.release()
+
+            # After lock released, tx should be in cache
+            if signature in self.tx_cache:
+                cached_data, _ = self.tx_cache[signature]
+                log_print(f"[TX_CACHE] ⏳ WAIT: {signature[:16]}... (shared fetch completed)", flush=True)
+                return cached_data
+            return None
+
+        # === Cache miss: fetch with retry/backoff ===
+        self.tx_cache_stats['miss'] += 1
+
+        # Create lock for this signature (singleflight)
+        lock = asyncio.Lock()
+        self.tx_inflight_locks[signature] = lock
+        await lock.acquire()
+
+        try:
+            log_print(f"[TX_CACHE] 🌐 MISS: fetching {signature[:16]}...", flush=True)
+
+            # Retry with backoff for indexing delays.
+            # LISTENER_GETTX_RETRY_DELAYS overrides the delay list (comma-separated seconds).
+            # Default [1,2,4,8] = 15s max, 5 attempts. Under RPC degradation set to "1" (1
+            # attempt after first miss, 2 total) — reconciler backstop covers any misses.
+            _delays_env = os.environ.get("LISTENER_GETTX_RETRY_DELAYS", "1,2,4,8")
+            retry_delays = [int(x) for x in _delays_env.split(",") if x.strip().isdigit()]
+            if not retry_delays:
+                retry_delays = [1, 2, 4, 8]
+            total_attempts = len(retry_delays) + 1
+
+            for attempt in range(total_attempts):
+                if attempt > 0:
+                    delay = retry_delays[attempt - 1]
+                    log_print(f"[TX_CACHE] ⏳ Retry {attempt + 1}/{total_attempts} after {delay}s for {signature[:16]}...", flush=True)
+                    await asyncio.sleep(delay)
+
+                payload = {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "getTransaction",
+                    "params": [
+                        signature,
+                        {
+                            "encoding": "jsonParsed",
+                            "commitment": "confirmed",
+                            "maxSupportedTransactionVersion": 0,
+                        },
+                    ],
+                }
+
+                # Use discovery RPC tier with semaphore protection
+                result = await self.call_discovery_rpc(
+                    "getTransaction",
+                    [signature, {
+                        "encoding": "jsonParsed",
+                        "commitment": "confirmed",
+                        "maxSupportedTransactionVersion": 0,
+                    }],
+                    timeout=timeout
+                )
+                tx_data = result
+
+                # Check if we got a real result
+                if tx_data and "result" in tx_data and tx_data["result"]:
+                    result = tx_data["result"]
+                    # Cache it
+                    self.tx_cache[signature] = (result, time.time())
+                    log_print(f"[TX_CACHE] 💾 CACHED: {signature[:16]}... ({len(str(result))} bytes)", flush=True)
+                    return result
+
+                # Log what we got (for debugging indexing delays)
+                if tx_data is None:
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: _post_rpc_with_fallback returned None", flush=True)
+                elif "error" in tx_data:
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: RPC error: {tx_data['error']}", flush=True)
+                elif "result" not in tx_data:
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: No 'result' field in response", flush=True)
+                elif tx_data["result"] is None:
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is None (indexing delay)", flush=True)
+                else:
+                    log_print(f"[TX_CACHE] ⚠ Attempt {attempt + 1}/{total_attempts}: result is empty/falsy", flush=True)
+
+            log_print(f"[TX_CACHE] ❌ All {total_attempts} attempts exhausted for {signature[:16]}...", flush=True)
+            return None
+
+        except asyncio.TimeoutError:
+            log_print(f"[TX_CACHE] ⏱️  Timeout fetching {signature[:16]}...", flush=True)
+            return None
+
+        except Exception as e:
+            log_print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
+            return None
+
+        finally:
+            # Release lock for other waiters
+            lock.release()
+            self.tx_inflight_locks.pop(signature, None)
+
+    async def _cleanup_tx_cache_periodic(self):
+        """
+        Periodically clean up expired entries in TX cache to prevent memory leak.
+        Also enforces max size cap by evicting oldest entries.
+        Runs every 60 seconds.
+        """
+        import time
+        while True:
+            try:
+                await asyncio.sleep(60)
+                now = time.time()
+
+                # Remove expired entries
+                expired = [
+                    sig for sig, (_, cached_time) in self.tx_cache.items()
+                    if now - cached_time > self.tx_cache_ttl_seconds
+                ]
+                if expired:
+                    for sig in expired:
+                        del self.tx_cache[sig]
+                        self.tx_cache_pending_retries.pop(sig, None)
+                        self.tx_inflight_locks.pop(sig, None)
+                    log_print(f"[TX_CACHE_CLEANUP] Removed {len(expired)} expired entries (cache size: {len(self.tx_cache)})", flush=True)
+
+                # Enforce max size by evicting oldest entries
+                if len(self.tx_cache) > self.tx_cache_max_size:
+                    to_evict = len(self.tx_cache) - self.tx_cache_max_size
+                    # Sort by timestamp and evict oldest
+                    oldest = sorted(self.tx_cache.items(), key=lambda x: x[1][1])[:to_evict]
+                    for sig, _ in oldest:
+                        del self.tx_cache[sig]
+                        self.tx_cache_pending_retries.pop(sig, None)
+                        self.tx_inflight_locks.pop(sig, None)
+                    log_print(f"[TX_CACHE_CLEANUP] Evicted {to_evict} oldest entries (cache size: {len(self.tx_cache)})", flush=True)
+
+            except Exception as e:
+                log_print(f"[TX_CACHE_CLEANUP] Error during cleanup: {e}", flush=True)
+
+    async def _db_maintenance_periodic(self):
+        """
+        Nightly DB maintenance: purge expired RPC cache rows, prune rpc_metrics and
+        helius_usage_snapshots, then checkpoint the WAL.  Runs at startup if >12h since
+        last run, then again every 24h.  Results are stored in db_maintenance_log so the
+        performance dashboard can surface them.
+        """
+        import time as _time
+
+        INTERVAL = 6 * 3600
+        MIN_GAP  = 4 * 3600
+
+        def _run():
+            conn = db_connect(DB_PATH, timeout=60)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=60000")
+            try:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS db_maintenance_log (
+                        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ran_at       INTEGER NOT NULL,
+                        rpc_cache_deleted   INTEGER,
+                        rpc_metrics_deleted INTEGER,
+                        helius_snapshots_deleted INTEGER,
+                        wal_checkpoint_pages INTEGER,
+                        duration_ms  INTEGER
+                    )
+                """)
+                conn.commit()
+
+                # Check last run time
+                row = conn.execute(
+                    "SELECT ran_at FROM db_maintenance_log ORDER BY ran_at DESC LIMIT 1"
+                ).fetchone()
+                if row and (_time.time() - row[0]) < MIN_GAP:
+                    return None  # Too soon
+
+                t0 = _time.time()
+
+                # 1. Purge expired RPC cache rows
+                cur = conn.execute(
+                    "DELETE FROM rpc_response_cache WHERE cached_at + ttl_seconds <= ?",
+                    (int(_time.time()),)
+                )
+                rpc_cache_deleted = cur.rowcount
+                conn.commit()
+
+                # 2. Prune rpc_metrics — keep 7 days
+                cur = conn.execute(
+                    "DELETE FROM rpc_metrics WHERE timestamp < ?",
+                    (_time.time() - 7 * 86400,)
+                )
+                rpc_metrics_deleted = cur.rowcount
+                conn.commit()
+
+                # 3. Prune helius_usage_snapshots — keep 48h
+                cur = conn.execute(
+                    "DELETE FROM helius_usage_snapshots WHERE captured_at < datetime('now', '-2 days')"
+                )
+                helius_deleted = cur.rowcount
+                conn.commit()
+
+                # 4. Routine maintenance must not wait for readers.  The
+                # threshold watchdog owns bounded heavy TRUNCATE maintenance.
+                conn.execute("PRAGMA busy_timeout=0")
+                ckpt = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+                wal_pages = ckpt[2] if ckpt else 0
+
+                # 5. NO full VACUUM. VACUUM rewrites the ENTIRE database into the WAL
+                # (observed 8.9 GB WAL spike) AND holds an exclusive lock for its whole
+                # duration → "database is locked" for every other writer. This was THE
+                # root cause of the recurring lock-storm. The DELETEs above already free
+                # pages for reuse; a periodic full VACUUM on a large, busy DB is never
+                # worth the exclusive-lock + multi-GB WAL cost. Left intentionally absent.
+
+                duration_ms = int((_time.time() - t0) * 1000)
+
+                conn.execute(
+                    """INSERT INTO db_maintenance_log
+                       (ran_at, rpc_cache_deleted, rpc_metrics_deleted,
+                        helius_snapshots_deleted, wal_checkpoint_pages, duration_ms)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    (int(_time.time()), rpc_cache_deleted, rpc_metrics_deleted,
+                     helius_deleted, wal_pages, duration_ms)
+                )
+                conn.commit()
+                return {
+                    'rpc_cache_deleted': rpc_cache_deleted,
+                    'rpc_metrics_deleted': rpc_metrics_deleted,
+                    'helius_snapshots_deleted': helius_deleted,
+                    'wal_pages': wal_pages,
+                    'duration_ms': duration_ms,
+                }
+            finally:
+                conn.close()
+
+        # Run at startup (respects MIN_GAP), then every 24h
+        while True:
+            try:
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(None, _run)
+                if result:
+                    log_print(
+                        f"[DB_MAINTENANCE] ✅ rpc_cache={result['rpc_cache_deleted']} deleted, "
+                        f"rpc_metrics={result['rpc_metrics_deleted']} deleted, "
+                        f"helius_snapshots={result['helius_snapshots_deleted']} deleted, "
+                        f"wal_pages={result['wal_pages']}, took {result['duration_ms']}ms",
+                        flush=True
+                    )
+                else:
+                    log_print("[DB_MAINTENANCE] Skipped — ran recently", flush=True)
+            except Exception as e:
+                log_print(f"[DB_MAINTENANCE] Error: {e}", flush=True)
+            await asyncio.sleep(INTERVAL)
+
+    async def _flush_portal_vsol_periodic(self):
+        """Write _portal_vsol to portal_vsol.json every 5s for Flask to read."""
+        import json as _json
+        out_path = os.path.join(os.path.dirname(DB_PATH), '..', 'portal_vsol.json')
+        while True:
+            try:
+                await asyncio.sleep(5)
+                # Prune entries older than 10 minutes
+                cutoff = int(time.time()) - 600
+                pruned = {m: s for m, s in self._portal_vsol.items() if s.get("ts", 0) >= cutoff}
+                self._portal_vsol = pruned
+                with open(out_path, 'w') as _f:
+                    _json.dump(pruned, _f)
+            except Exception:
+                pass
+
+    # --- Database ---
+    # X78.10 -- startup DDL retry budget for cross-process write-lane
+    # contention. Same convention as creator_funding_worker.py's
+    # _retry_on_nested_write: bounded exponential backoff capped at 30s,
+    # env-overridable, retrying ONLY the specific transient exception class
+    # (CrossProcessDatabaseWriteTimeout -- proven bounded by its own 60s
+    # deadline, so it MUST eventually clear). Schema errors, programming
+    # errors, and any other exception are NOT retried and fail startup
+    # immediately, unchanged from before.
+    _ENSURE_DB_RETRY_MAX_ATTEMPTS = int(os.environ.get("LISTENER_ENSURE_DB_RETRY_MAX_ATTEMPTS", "5"))
+    _ENSURE_DB_RETRY_BASE_SECONDS = float(os.environ.get("LISTENER_ENSURE_DB_RETRY_BASE_SECONDS", "1.0"))
+
+    def _ensure_db(self):
+        """Retry wrapper around _ensure_db_once(): a single bounded
+        cross-process lock timeout during startup DDL must not crash the
+        whole listener process (X78.9 turned what used to be an indefinite
+        hang here into a fast, bounded failure -- observed live during
+        X78.10 validation: a 60s contention timeout at startup crashed the
+        process, and supervisord's immediate restart-into-the-same-
+        contention produced a ~2min-cadence crash-loop). Retrying here,
+        with the caller (main()) unchanged, means startup either succeeds
+        within the retry budget or fails loudly with the real exception --
+        never a silent indefinite hang, never a tight crash-loop."""
+        import random as _random
+
+        attempt = 0
+        while True:
+            try:
+                self._ensure_db_once()
+                return
+            except CrossProcessDatabaseWriteTimeout as exc:
+                attempt += 1
+                if attempt > self._ENSURE_DB_RETRY_MAX_ATTEMPTS:
+                    log_print(
+                        f"[STARTUP] _ensure_db: cross-process lock timeout persisted past "
+                        f"{self._ENSURE_DB_RETRY_MAX_ATTEMPTS} attempts (last wait={exc.wait_seconds:.1f}s, "
+                        f"owner={exc.current_owner}) -- giving up, startup fails",
+                        flush=True,
+                    )
+                    raise
+                wait_s = min(30.0, self._ENSURE_DB_RETRY_BASE_SECONDS * (2 ** (attempt - 1)))
+                wait_s += _random.uniform(0, wait_s * 0.25)  # jitter to avoid thundering-herd retries
+                log_print(
+                    f"[STARTUP] _ensure_db: cross-process lock timeout (attempt {attempt}/"
+                    f"{self._ENSURE_DB_RETRY_MAX_ATTEMPTS}, owner={exc.current_owner.get('command') if exc.current_owner else None}), "
+                    f"retrying in {wait_s:.1f}s -- proven transient (bounded by the lock's own "
+                    f"60s deadline), not a permanent stall",
+                    flush=True,
+                )
+                time.sleep(wait_s)
+
+    def _ensure_db_once(self):
+        conn = db_connect(DB_PATH, timeout=15)
+        try:
+            self._ensure_db_with_connection(conn)
+        finally:
+            # X78.13: startup retries must never retain a partially-acquired
+            # TrackedConnection.  Previously a timeout/error after the first
+            # CREATE escaped without close(); the retry then self-nested on
+            # this thread's own leaked lease and supervisor entered a loop.
+            conn.close()
+
+    def _ensure_db_with_connection(self, conn):
+        conn.execute("PRAGMA journal_mode=WAL")
+        cursor = conn.cursor()
+
+        # Post-migration token analysis with live on-chain price and market cap tracking
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS token_analysis (
+                mint TEXT PRIMARY KEY,
+                analyzed_at REAL,
+                total_txs INTEGER,
+                total_events INTEGER,
+                events_parsed INTEGER,
+                mint_concentration REAL,
+                unique_minters_ratio REAL,
+                sell_suppression_ratio REAL,
+                mint_velocity_sec REAL,
+                buy_size_variance REAL,
+                sell_volume_concentration REAL,
+                creator_activity_ratio REAL,
+                post_migration_mint_concentration REAL,
+                post_migration_unique_minters_ratio REAL,
+                post_migration_sell_suppression_ratio REAL,
+                post_migration_mint_velocity_sec REAL,
+                post_migration_buy_size_variance REAL,
+                post_migration_sell_volume_concentration REAL,
+                post_migration_creator_activity_ratio REAL,
+                post_migration_coverage REAL,
+                rug_probability REAL,
+                risk_level TEXT,
+                migration_tx TEXT,
+                price_current REAL,
+                price_highest REAL,
+                market_cap_current REAL,
+                market_cap_highest REAL,
+                market_cap_highest_at TIMESTAMP,
+                price_updated_at TIMESTAMP,
+                price_source TEXT,
+                pool_address TEXT,
+                creator_address TEXT,
+                creator_reputation TEXT,
+                earliest_tx_creator TEXT,
+                creator_is_blocked INTEGER DEFAULT 0,
+                network_risk INTEGER DEFAULT 0,
+                connected_malicious_count INTEGER,
+                is_about_to_migrate BOOLEAN DEFAULT 0,
+                migration_progress_pct REAL,
+                migration_band TEXT,
+                migration_signal_updated_at INTEGER,
+                first_pre_migration_signal_at INTEGER,
+                lifecycle_stage TEXT DEFAULT 'migration_pending',
+                migrated_at INTEGER,
+                dex TEXT,
+                pumpswap_pool_address TEXT,
+                source_platform TEXT,
+                is_new INTEGER DEFAULT 0,
+                rug_indicator TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # Creator network tracking - stores SOL transfer destinations
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_sol_transfers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_address TEXT NOT NULL,
+                destination_address TEXT NOT NULL,
+                total_amount REAL DEFAULT 0,
+                transfer_count INTEGER DEFAULT 0,
+                first_detected_at TIMESTAMP,
+                last_detected_at TIMESTAMP,
+                is_pool_address INTEGER DEFAULT 0,
+                UNIQUE(creator_address, destination_address)
+            )
+        """)
+
+        # Creator funders - tracks funding sources for each creator
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_funders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                creator_address TEXT NOT NULL,
+                funder_address TEXT NOT NULL,
+                amount_sol REAL DEFAULT 0,
+                transfer_count INTEGER DEFAULT 0,
+                first_detected_at TIMESTAMP,
+                last_detected_at TIMESTAMP,
+                fully_analyzed INTEGER DEFAULT 0,
+                is_cex INTEGER DEFAULT 0,
+                cex_name TEXT,
+                detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(creator_address, funder_address)
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pumpfun_migration_verification (
+                mint TEXT PRIMARY KEY,
+                migrated_at INTEGER,
+                migration_tx TEXT,
+                dex TEXT,
+                pumpswap_pool_address TEXT,
+                pre_is_about_to_migrate INTEGER DEFAULT 0,
+                pre_migration_band TEXT,
+                pre_migration_progress_pct REAL,
+                pre_migration_signal_updated_at INTEGER,
+                pre_market_cap_current REAL,
+                pre_market_cap_updated_at INTEGER,
+                pre_buys_10s INTEGER DEFAULT 0,
+                pre_unique_30s INTEGER DEFAULT 0,
+                pre_sol_15s REAL DEFAULT 0,
+                pre_inflow_accel REAL DEFAULT 0,
+                pre_signal_score INTEGER DEFAULT 0,
+                pre_migration_signal_source TEXT,
+                predicted_by_flow INTEGER DEFAULT 0,
+                predicted_by_market_cap INTEGER DEFAULT 0,
+                predicted_by_explicit_signal INTEGER DEFAULT 0,
+                was_about_to_migrate_at_migration INTEGER DEFAULT 0,
+                was_hot_or_warm_before_migration INTEGER DEFAULT 0,
+                signal_age_seconds INTEGER,
+                signal_was_fresh INTEGER DEFAULT 0,
+                final_verdict TEXT,
+                created_at INTEGER
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS creator_funding_queue (
+                creator_address TEXT NOT NULL,
+                mint TEXT NOT NULL,
+                migration_timestamp TEXT,
+                create_tx_signature TEXT,
+                status TEXT DEFAULT 'pending',
+                source TEXT,
+                next_attempt_at INTEGER DEFAULT 0,
+                locked_until INTEGER DEFAULT 0,
+                attempts INTEGER DEFAULT 0,
+                last_error TEXT,
+                observation_required INTEGER NOT NULL DEFAULT 0,
+                created_at INTEGER DEFAULT (strftime('%s','now')),
+                updated_at INTEGER DEFAULT (strftime('%s','now')),
+                PRIMARY KEY (creator_address, mint)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_queue_status ON creator_funding_queue(status, next_attempt_at)")
+        # X21D.4 Part B: /api/funding-queue's row-listing query does
+        # ORDER BY created_at DESC LIMIT 100 combined with a LEFT JOIN against
+        # metadata_cache. Without this index, SQLite cannot use the join's
+        # LIMIT to short-circuit the scan — it must join all 12k+ rows against
+        # metadata_cache THEN sort THEN limit (measured: 2.5-4.8s). Proven via
+        # EXPLAIN QUERY PLAN: this index changes the plan from
+        # "SCAN cfq" + "USE TEMP B-TREE FOR ORDER BY" to
+        # "SCAN cfq USING INDEX idx_creator_funding_queue_created_at" with no
+        # temp b-tree — measured 3.4s -> 16-75ms (45-200x).
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funding_queue_created_at ON creator_funding_queue(created_at DESC)")
+        try:
+            cursor.execute("PRAGMA table_info(creator_funding_queue)")
+            cfq_cols = [col[1] for col in cursor.fetchall()]
+            if "source" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN source TEXT")
+                log_print("[DB] ✅ Added source column to creator_funding_queue", flush=True)
+            if "funding_enqueued_at" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN funding_enqueued_at INTEGER")
+                log_print("[DB] ✅ Added funding_enqueued_at column to creator_funding_queue", flush=True)
+            if "funding_extracted_at" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN funding_extracted_at INTEGER")
+                log_print("[DB] ✅ Added funding_extracted_at column to creator_funding_queue", flush=True)
+            if "curve_completed_slot" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN curve_completed_slot INTEGER")
+                log_print("[DB] ✅ Added curve_completed_slot column to creator_funding_queue", flush=True)
+            if "enqueued_slot" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN enqueued_slot INTEGER")
+                log_print("[DB] ✅ Added enqueued_slot column to creator_funding_queue", flush=True)
+            if "job_priority" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN job_priority INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added job_priority column to creator_funding_queue", flush=True)
+            if "priority_reason" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN priority_reason TEXT")
+                log_print("[DB] ✅ Added priority_reason column to creator_funding_queue", flush=True)
+            if "observation_required" not in cfq_cols:
+                cursor.execute("ALTER TABLE creator_funding_queue ADD COLUMN observation_required INTEGER NOT NULL DEFAULT 0")
+                log_print("[DB] ✅ Added observation_required column to creator_funding_queue", flush=True)
+        except Exception:
+            pass
+
+        # Add columns if they don't exist (for backward compatibility)
+        try:
+            cursor.execute("PRAGMA table_info(token_analysis)")
+            columns = [col[1] for col in cursor.fetchall()]
+            
+            if "creator_is_blocked" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN creator_is_blocked INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added creator_is_blocked column to token_analysis", flush=True)
+            
+            if "network_risk" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN network_risk INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added network_risk column to token_analysis", flush=True)
+            
+            if "connected_malicious_count" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN connected_malicious_count INTEGER")
+                log_print("[DB] ✅ Added connected_malicious_count column to token_analysis", flush=True)
+
+            if "is_about_to_migrate" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN is_about_to_migrate BOOLEAN DEFAULT 0")
+                log_print("[DB] ✅ Added is_about_to_migrate column to token_analysis", flush=True)
+
+            # migration provenance — WEBSOCKET (real-time WS) vs RECONCILER (recovered by the
+            # reliability sweep on PUMPFUN_MIGRATION_ACCOUNT). Lets us measure recovery rate and
+            # prove the reconciler is closing the WS-drop gap.
+            if "migration_source" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_source TEXT")
+                log_print("[DB] ✅ Added migration_source column to token_analysis", flush=True)
+
+            if "migration_progress_pct" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_progress_pct REAL")
+                log_print("[DB] ✅ Added migration_progress_pct column to token_analysis", flush=True)
+
+            if "migration_band" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_band TEXT")
+                log_print("[DB] ✅ Added migration_band column to token_analysis", flush=True)
+
+            if "migration_signal_updated_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_signal_updated_at INTEGER")
+                log_print("[DB] ✅ Added migration_signal_updated_at column to token_analysis", flush=True)
+
+            if "first_pre_migration_signal_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN first_pre_migration_signal_at INTEGER")
+                log_print("[DB] ✅ Added first_pre_migration_signal_at column to token_analysis", flush=True)
+
+            if "migration_signal_source" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_signal_source TEXT")
+                log_print("[DB] ✅ Added migration_signal_source column to token_analysis", flush=True)
+
+            if "lifecycle_stage" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN lifecycle_stage TEXT DEFAULT 'migration_pending'")
+                log_print("[DB] ✅ Added lifecycle_stage column to token_analysis", flush=True)
+
+            if "migrated_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migrated_at INTEGER")
+                log_print("[DB] ✅ Added migrated_at column to token_analysis", flush=True)
+
+            if "dex" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN dex TEXT")
+                log_print("[DB] ✅ Added dex column to token_analysis", flush=True)
+
+            if "pumpswap_pool_address" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN pumpswap_pool_address TEXT")
+                log_print("[DB] ✅ Added pumpswap_pool_address column to token_analysis", flush=True)
+
+            if "source_platform" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN source_platform TEXT")
+                log_print("[DB] ✅ Added source_platform column to token_analysis", flush=True)
+
+            if "is_new" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN is_new INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added is_new column to token_analysis", flush=True)
+
+            if "curve_complete" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN curve_complete INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added curve_complete column to token_analysis", flush=True)
+
+            if "curve_completed_at" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN curve_completed_at INTEGER")
+                log_print("[DB] ✅ Added curve_completed_at column to token_analysis", flush=True)
+
+            if "curve_completed_slot" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN curve_completed_slot INTEGER")
+                log_print("[DB] ✅ Added curve_completed_slot column to token_analysis", flush=True)
+
+            if "curve_complete_source" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN curve_complete_source TEXT")
+                log_print("[DB] ✅ Added curve_complete_source column to token_analysis", flush=True)
+
+            if "migration_slot" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN migration_slot INTEGER")
+                log_print("[DB] ✅ Added migration_slot column to token_analysis", flush=True)
+
+            if "creator_resolved_slot" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN creator_resolved_slot INTEGER")
+                log_print("[DB] ✅ Added creator_resolved_slot column to token_analysis", flush=True)
+
+            if "funding_job_enqueued_slot" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN funding_job_enqueued_slot INTEGER")
+                log_print("[DB] ✅ Added funding_job_enqueued_slot column to token_analysis", flush=True)
+
+            if "funding_extracted_slot" not in columns:
+                cursor.execute("ALTER TABLE token_analysis ADD COLUMN funding_extracted_slot INTEGER")
+                log_print("[DB] ✅ Added funding_extracted_slot column to token_analysis", flush=True)
+        except Exception as e:
+            pass  # Columns likely already exist
+
+        # Add network columns to creator_blocklist if they don't exist
+        try:
+            cursor.execute("PRAGMA table_info(creator_blocklist)")
+            columns = [col[1] for col in cursor.fetchall()]
+            if "connected_to_malicious" not in columns:
+                cursor.execute("ALTER TABLE creator_blocklist ADD COLUMN connected_to_malicious INTEGER DEFAULT 0")
+                log_print("[DB] ✅ Added connected_to_malicious column to creator_blocklist", flush=True)
+            if "network_members" not in columns:
+                cursor.execute("ALTER TABLE creator_blocklist ADD COLUMN network_members TEXT")
+                log_print("[DB] ✅ Added network_members column to creator_blocklist", flush=True)
+        except Exception as e:
+            pass  # Columns likely already exist
+
+        # === NEW: Funder webhook tables (Task A) ===
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS funder_watchlist (
+                funder_address TEXT PRIMARY KEY,
+                risk_score INTEGER DEFAULT 0,
+                risk_reasons TEXT,
+                first_added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active INTEGER DEFAULT 1,
+                webhook_group_id TEXT
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS funder_webhook_groups (
+                webhook_group_id TEXT PRIMARY KEY,
+                description TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active INTEGER DEFAULT 1,
+                helius_webhook_id TEXT
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS funder_webhook_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                funder_address TEXT NOT NULL,
+                signature TEXT NOT NULL,
+                slot INTEGER,
+                block_time INTEGER,
+                direction TEXT,
+                counterparty TEXT,
+                amount_sol REAL,
+                mint TEXT,
+                raw_payload TEXT,
+                ingested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(signature, funder_address)
+            )
+        """)
+
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_watchlist_active ON funder_watchlist(is_active)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_watchlist_group ON funder_watchlist(webhook_group_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_funder ON funder_webhook_events(funder_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_funder_webhook_events_block_time ON funder_webhook_events(block_time DESC)")
+
+        # Create indexes for canonical creator-funding facts.
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_creator ON creator_funders(creator_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_funder ON creator_funders(funder_address)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_creator_funders_analyzed ON creator_funders(fully_analyzed)")
+
+        log_print("[DB] ✅ Funder webhook tables ensured", flush=True)
+        log_print("[DB] ✅ Creator funder tables ensured", flush=True)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS migration_persist_queue (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                signature       TEXT    NOT NULL,
+                source          TEXT    NOT NULL DEFAULT 'mark_migrated',
+                mint            TEXT,
+                received_at     INTEGER,
+                status          TEXT    NOT NULL DEFAULT 'PENDING',
+                retry_count     INTEGER NOT NULL DEFAULT 0,
+                last_error      TEXT,
+                last_attempt_at INTEGER,
+                processed_at    INTEGER,
+                UNIQUE(signature)
+            )
+        """)
+
+        # X78.19 -- durable retry for birth inserts that lose the write-lane race
+        # (CrossProcessDatabaseWriteTimeout / NestedDatabaseWriteError / "database
+        # is locked"). mint is the idempotency key: token_analysis.mint is UNIQUE
+        # PRIMARY KEY and _insert_bonding_curve_token's INSERT...ON CONFLICT(mint)
+        # DO UPDATE is itself idempotent, so replaying a queued row (including
+        # after a crash/restart) can never create a duplicate token row.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS birth_persist_queue (
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                mint                 TEXT    NOT NULL,
+                creator              TEXT,
+                created_at           TEXT,
+                bonding_curve_pda    TEXT,
+                create_tx_signature  TEXT,
+                symbol               TEXT,
+                name                 TEXT,
+                received_at          INTEGER NOT NULL,
+                status               TEXT    NOT NULL DEFAULT 'PENDING',
+                retry_count          INTEGER NOT NULL DEFAULT 0,
+                last_error           TEXT,
+                last_attempt_at      INTEGER,
+                processed_at         INTEGER,
+                UNIQUE(mint)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_birth_persist_queue_status ON birth_persist_queue(status)")
+
+        conn.commit()
+
+    async def _enqueue_creator_funding_job(
+        self,
+        creator: Optional[str],
+        *,
+        mint: Optional[str],
+        migration_timestamp: Optional[str],
+        create_tx_signature: Optional[str] = None,
+        delay_seconds: Optional[int] = None,
+        source: Optional[str] = None,
+        curve_completed_slot: Optional[int] = None,
+        pre_migration: bool = False,
+        observation_required: bool = False,
+    ) -> bool:
+        """Persist creator funding extraction so it survives restarts."""
+        if not creator or not mint:
+            return False
+        now = int(time.time())
+        next_attempt_at = now + int(delay_seconds if delay_seconds is not None else self.DISCOVERY_CRITICAL_WINDOW_SECONDS)
+
+        # Brand-new creators (no existing funder data) get priority=1 so they jump
+        # ahead of any backlog in the queue worker. Known creators stay at priority=0.
+        # Pre-migration jobs use priority=-1 so migration-triggered jobs always win.
+        def _enqueue_sync():
+            # Priority check + creator-level cache check
+            _check = None
+            try:
+                _check = db_connect(DB_PATH, timeout=3)
+                _funder_row = _check.execute(
+                    """SELECT COUNT(*), MAX(CASE WHEN fully_analyzed=1 THEN last_analyzed END)
+                       FROM creator_funders WHERE creator_address=?""",
+                    (creator,),
+                ).fetchone()
+                _funder_count = _funder_row[0] if _funder_row else 0
+                _last_analyzed = _funder_row[1] if _funder_row else None
+
+                # Cache hit: creator already fully analyzed within 30 days on a prior mint.
+                # Only applies to migration-triggered jobs (pre_migration jobs can proceed
+                # to build the cache in the first place).
+                _cache_fresh = bool(
+                    not pre_migration
+                    and _last_analyzed is not None
+                    and (now - int(_last_analyzed)) < 30 * 86400
+                )
+                if not _cache_fresh:
+                    # Also check queue: a complete row for this creator on any mint
+                    _queue_row = _check.execute(
+                        """SELECT source FROM creator_funding_queue
+                           WHERE creator_address=? AND status='complete'
+                           ORDER BY updated_at DESC LIMIT 1""",
+                        (creator,),
+                    ).fetchone()
+                    _cache_fresh = bool(not pre_migration and _queue_row is not None)
+                    _cache_prior_source = str(_queue_row[0]) if _queue_row else None
+                else:
+                    _cache_prior_source = "creator_funders_fully_analyzed"
+
+                if _cache_fresh and not pre_migration and not observation_required:
+                    return ("cache_hit", _cache_prior_source or "unknown")
+
+                if pre_migration:
+                    _job_priority = -1
+                    _priority_reason = "pre_migration_75pct"
+                else:
+                    _job_priority = 1 if _funder_count == 0 else 0
+                    _priority_reason = "brand_new_creator" if _job_priority else "known_creator"
+            except Exception:
+                _job_priority = 0
+                _priority_reason = "unknown"
+                _cache_fresh = False
+            finally:
+                # The cache/priority query can time out while the listener is
+                # under write-lane pressure.  Closing only on the success path
+                # leaked the thread-local SQLite handle, which the listener FD
+                # watchdog cannot safely close from its own thread.
+                if _check is not None:
+                    _check.close()
+
+            conn = None
+            try:
+                conn = db_connect(DB_PATH, timeout=30)
+                cursor = conn.cursor()
+                existing = cursor.execute(
+                    """
+                    SELECT creator_address, status
+                    FROM creator_funding_queue
+                    WHERE mint = ?
+                    LIMIT 1
+                    """,
+                    (mint,),
+                ).fetchone()
+                if existing:
+                    existing_creator = str(existing[0]) if existing[0] else "unknown"
+                    existing_status = str(existing[1]) if existing[1] else "unknown"
+                    return ("skip", existing_creator, existing_status, _job_priority, _priority_reason)
+                cursor.execute(
+                    """
+                    INSERT INTO creator_funding_queue (
+                        creator_address, mint, migration_timestamp, create_tx_signature,
+                        status, source, next_attempt_at, locked_until, attempts, last_error,
+                        funding_enqueued_at, curve_completed_slot, enqueued_slot,
+                        job_priority, priority_reason, observation_required,
+                        created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, 'pending', ?, ?, 0, 0, NULL, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(creator_address, mint) DO NOTHING
+                    """,
+                    (creator, mint, migration_timestamp, create_tx_signature, source, next_attempt_at,
+                     now, curve_completed_slot, curve_completed_slot, _job_priority, _priority_reason,
+                     int(observation_required), now, now),
+                )
+                conn.commit()
+                conn2 = None
+                try:
+                    conn2 = db_connect(DB_PATH, timeout=10)
+                    conn2.execute(
+                        "UPDATE token_analysis SET funding_job_enqueued_slot = ? WHERE mint = ?",
+                        (now, mint),
+                    )
+                    conn2.commit()
+                except Exception:
+                    pass
+                finally:
+                    if conn2 is not None:
+                        conn2.close()
+                return ("ok", _job_priority, _priority_reason)
+            except Exception as e:
+                return ("error", str(e))
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        async with self.db_lock:
+            result = await asyncio.to_thread(_enqueue_sync)
+
+        if result[0] == "cache_hit":
+            _, prior_source = result
+            log_print(
+                f"[FUNDING_QUEUE] ✅ Cache hit creator={creator[:8]}... mint={mint[:8]} prior_source={prior_source} — skipping re-analysis",
+                flush=True,
+            )
+            return True
+        elif result[0] == "skip":
+            _, existing_creator, existing_status, _, _ = result
+            log_print(
+                f"[FUNDING_QUEUE] ⏭️ Skip duplicate enqueue for mint={mint[:8]}... existing_creator={existing_creator[:8]}... status={existing_status}",
+                flush=True,
+            )
+            return False
+        elif result[0] == "ok":
+            _, job_priority, priority_reason = result
+            # X78.39B: queue persistence is already committed above.  The
+            # lifecycle event is deliberately fail-open and cannot alter the
+            # enqueue outcome if telemetry storage is unavailable.
+            try:
+                from src.core.creator_funding_lifecycle import record_event_fail_open
+                telemetry_ok = await asyncio.to_thread(
+                    record_event_fail_open, DB_PATH, creator=creator, mint=mint,
+                    source=source, event="CREATED", occurred_at=now,
+                    previous_status=None, new_status="pending",
+                )
+                if not telemetry_ok:
+                    log_print("[CFQ_LIFECYCLE] telemetry gap on CREATED", flush=True)
+            except Exception:
+                log_print("[CFQ_LIFECYCLE] telemetry gap on CREATED", flush=True)
+            log_print(
+                f"[FUNDING_QUEUE] 📥 Enqueued creator funding for {creator[:8]}... mint={mint[:8]} next={next_attempt_at} priority={'HIGH' if job_priority > 0 else ('PRE_MIG' if job_priority < 0 else 'normal')} reason={priority_reason}",
+                flush=True,
+            )
+            premig_log(f"[TIMING] mint={mint} enqueued source={source} t={now}")
+            return True
+        else:
+            log_print(f"[FUNDING_QUEUE] ⚠ Failed to enqueue funding for {creator[:16]}...: {result[1]}", flush=True)
+            return False
+
+    async def _post_extraction_intelligence_refresh(self, creator: str) -> None:
+        """
+        Targeted intelligence refresh fired after creator funding extraction completes.
+        Debounced: skipped if a refresh ran within the last debounce window.
+        Runs in a background thread so it never blocks the listener event loop.
+
+        Signals updated immediately:
+          1. IRC watchlist row for this creator
+          2. NetworksReleaseBuilder (dashboard summary)
+          3. Relationship events diff (log new discoveries)
+
+        Signals intentionally deferred to cron:
+          - WalletClusteringEngine, FarmClusterDetection, CoordinatedEdgesBuilder
+          - SecondHopExpansionBuilder / UpstreamExpansionBuilder
+        """
+        import time as _time
+        now = _time.time()
+
+        # Debounce: if a refresh just ran, skip — cron will catch it
+        if now - self._intel_refresh_last_run < self._intel_refresh_debounce_secs:
+            remaining = int(self._intel_refresh_debounce_secs - (now - self._intel_refresh_last_run))
+            log_print(f"[INTEL_REFRESH] Debounced for {creator[:8]}… (next in {remaining}s)", flush=True)
+            return
+
+        self._intel_refresh_last_run = now
+
+        def _run_refresh():
+            import time as _t
+            t0 = _t.time()
+            try:
+                # 1. Snapshot before (for relationship event diff)
+                from src.core.relationship_events import take_snapshot
+                before = take_snapshot(DB_PATH)
+
+                # 2. IRC — targeted upsert for this creator only (avoid full rebuild)
+                _ts = _t.time()
+                try:
+                    from src.core.intelligence_refresh import apply_migration as irc_migrate, _db as irc_db, _score_creator, _now as irc_now
+                    import json as _json
+                    irc_migrate(DB_PATH)
+                    _irc_conn = irc_db(DB_PATH)
+                    _now_ts = irc_now()
+                    _row = _irc_conn.execute("""
+                        SELECT
+                            COUNT(DISTINCT cf.funder_address) AS funder_count,
+                            COUNT(DISTINCT ta.mint)           AS token_count,
+                            SUM(CASE WHEN ta.migrated_at IS NOT NULL THEN 1 ELSE 0 END) AS migrated_count,
+                            csf.is_self_funding,
+                            (SELECT COUNT(*) FROM network_membership nm WHERE nm.creator_address = ta.earliest_tx_creator) AS network_count
+                        FROM token_analysis ta
+                        LEFT JOIN creator_funders cf ON cf.creator_address = ta.earliest_tx_creator AND cf.is_cex = 0
+                        LEFT JOIN creator_self_funding csf ON csf.creator_address = ta.earliest_tx_creator
+                        WHERE ta.earliest_tx_creator = ?
+                        GROUP BY ta.earliest_tx_creator
+                    """, (creator,)).fetchone()
+                    _non_cex_funders = (_row["funder_count"] or 0) if _row else 0
+                    _existing = _irc_conn.execute(
+                        "SELECT status FROM intelligence_refresh_candidates WHERE target_type='creator' AND target_address=?",
+                        (creator,)
+                    ).fetchone()
+                    if not _existing:
+                        if _non_cex_funders >= 1:
+                            # Baseline watchlist — every migrated creator with ≥1 non-CEX funder.
+                            # rpc_allowed=0: no RPC scan triggered. Analyzers upgrade priority later
+                            # if signals emerge (shared funders, self-funding, cluster overlap etc.)
+                            _baseline_reasons = _json.dumps(["migrated_creator", "has_non_cex_funder", "baseline_watchlist"])
+                            _irc_conn.execute("""
+                                INSERT INTO intelligence_refresh_candidates
+                                    (target_type, target_address, priority, reason_codes, status, rpc_allowed, created_at, updated_at)
+                                VALUES ('creator', ?, 15, ?, 'watchlist', 0, ?, ?)
+                            """, (creator, _baseline_reasons, _now_ts, _now_ts))
+                            _irc_conn.commit()
+                            log_print(f"[INTEL_REFRESH] Baseline watchlist added for {creator[:8]}… ({_non_cex_funders} non-CEX funders)", flush=True)
+                    elif _row and _non_cex_funders > 0:
+                        # Creator already in IRC — check if signal score warrants an upgrade
+                        _priority, _reasons = _score_creator(
+                            self_funding=bool(_row["is_self_funding"]),
+                            funder_count=_non_cex_funders,
+                            single_creator_ratio=0.0,
+                            last_scan_age_days=999,
+                            migrated_count=_row["migrated_count"] or 0,
+                            token_count=_row["token_count"] or 0,
+                            no_network=(_row["network_count"] or 0) == 0,
+                        )
+                        if _priority > 15 and _existing["status"] == "watchlist":
+                            _irc_conn.execute("""
+                                UPDATE intelligence_refresh_candidates
+                                SET priority=?, reason_codes=?, updated_at=?
+                                WHERE target_type='creator' AND target_address=? AND priority < ?
+                            """, (_priority, _json.dumps(_reasons), _now_ts, creator, _priority))
+                            _irc_conn.commit()
+                    _irc_conn.close()
+                    log_print(f"[INTEL_REFRESH] IRC upsert for {creator[:8]}… ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] IRC error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                # Full 2H expansion is intentionally kept out of the listener
+                # hot path. It can scan a large static exclusion set and hold
+                # SQLite write locks long enough to block migration ingestion.
+                # The local graph refresh/analyzer cycle rebuilds 2H instead.
+                log_print("[INTEL_REFRESH] 2H expansion deferred to local graph refresh", flush=True)
+
+                # 3. NetworksReleaseBuilder
+                _ts = _t.time()
+                try:
+                    from src.utils.build_networks_release import build_networks_release
+                    build_networks_release(DB_PATH)
+                    log_print(f"[INTEL_REFRESH] NetworksRelease rebuilt ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] NetworksRelease error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                # 5. Relationship events diff
+                _ts = _t.time()
+                try:
+                    from src.core.relationship_events import rebuild_after_scan
+                    rebuild_after_scan(DB_PATH, before=before)
+                    log_print(f"[INTEL_REFRESH] Events diff done ({_t.time()-_ts:.1f}s)", flush=True)
+                except Exception as e:
+                    log_print(f"[INTEL_REFRESH] Relationship events error ({_t.time()-_ts:.1f}s): {e}", flush=True)
+
+                log_print(f"[INTEL_REFRESH] Done in {_t.time()-t0:.1f}s", flush=True)
+
+            except Exception as e:
+                log_print(f"[INTEL_REFRESH] Unexpected error: {e}", flush=True)
+
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, _run_refresh)
+
+    async def _process_creator_resolution_queue_periodic(self) -> None:
+        """Drain P0 missing-creator jobs before creator funding extraction."""
+        await asyncio.sleep(2)
+        while True:
+            sleep_seconds = 15
+            try:
+                from src.core.creator_resolution_queue import (
+                    enqueue_missing_migrated_tokens,
+                    process_queue as process_creator_resolution_queue,
+                )
+
+                enqueued = await asyncio.to_thread(
+                    enqueue_missing_migrated_tokens,
+                    DB_PATH,
+                    limit=25,
+                    source="listener_p0_sweep",
+                    max_age_seconds=3600,
+                )
+                result = await asyncio.to_thread(
+                    process_creator_resolution_queue,
+                    DB_PATH,
+                    limit=2,
+                )
+                processed = int(result.get("processed") or 0)
+                if enqueued or processed:
+                    sleep_seconds = 3
+                    log_print(
+                        "[CREATOR_RESOLUTION_QUEUE] "
+                        f"P0 enqueued={enqueued} processed={processed} "
+                        f"resolved={result.get('resolved', 0)} "
+                        f"funding={result.get('funding_enqueued', 0)} "
+                        f"failed={result.get('failed', 0)}",
+                        flush=True,
+                    )
+            except Exception as e:
+                log_print(f"[CREATOR_RESOLUTION_QUEUE] ⚠ P0 worker error: {e}", flush=True)
+                sleep_seconds = 20
+            await asyncio.sleep(sleep_seconds)
+
+    async def _periodic_cluster_rebuild(self) -> None:
+        """Legacy clustering — disabled (super_clusters superseded by WATCHTOWER ops model)."""
+        return
+
+
+    async def _store_analysis(self, mint: str, analysis: dict, signature: str = None, pool_address: str = None):
+        """Store post-migration analysis results"""
+        def _sync_store(_mint=mint, _analysis=analysis, _sig=signature, _pool=pool_address):
+            conn = None
+            try:
+                conn = db_connect(DB_PATH, timeout=15)
+                cursor = conn.cursor()
+
+                creator_address = _analysis.get("earliest_tx_creator")
+                cluster_id = None
+                cluster_name = None
+                cluster_risk_multiplier = 1.0
+                network_funder_address = None
+                network_name = None
+
+                if creator_address:
+                    try:
+                        from cluster_risk_checker import check_creator
+                        cluster_info = check_creator(creator_address)
+                        if cluster_info.get('in_cluster'):
+                            cluster_id = cluster_info.get('cluster_id')
+                            cluster_name = cluster_info.get('cluster_name', cluster_id)
+                            cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
+                    except Exception as e:
+                        log_print(f"[CLUSTER] Error checking creator {creator_address}: {e}", flush=True)
+
+                    try:
+                        cursor.execute("""
+                            SELECT DISTINCT funder_address
+                            FROM creator_funders
+                            WHERE creator_address = ?
+                            LIMIT 1
+                        """, (creator_address,))
+                        funder_row = cursor.fetchone()
+                        if funder_row:
+                            network_funder_address = funder_row[0]
+                            cursor.execute("""
+                                SELECT network_name
+                                FROM atomic_network_names
+                                WHERE funder_address = ?
+                                LIMIT 1
+                            """, (network_funder_address,))
+                            network_row = cursor.fetchone()
+                            if network_row:
+                                network_name = network_row[0]
+                    except Exception as e:
+                        log_print(f"[NETWORK] Error looking up creator network {creator_address}: {e}", flush=True)
+
+                cursor.execute("""
+                    INSERT INTO token_analysis (
+                        mint, created_at, analyzed_at, events_parsed,
+                        post_migration_mint_concentration, post_migration_unique_minters_ratio,
+                        post_migration_sell_suppression_ratio, post_migration_mint_velocity_sec,
+                        post_migration_buy_size_variance, post_migration_sell_volume_concentration,
+                        post_migration_creator_activity_ratio,
+                        rug_probability, risk_level, post_migration_coverage,
+                        migration_tx, price_current, price_highest, pool_address, earliest_tx_creator, creator_is_blocked, network_risk, connected_malicious_count,
+                        lifecycle_stage,
+                        cluster_id, cluster_name, cluster_risk_multiplier, network_funder_address, network_name
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                        analyzed_at = excluded.analyzed_at,
+                        events_parsed = excluded.events_parsed,
+                        post_migration_mint_concentration = excluded.post_migration_mint_concentration,
+                        post_migration_unique_minters_ratio = excluded.post_migration_unique_minters_ratio,
+                        post_migration_sell_suppression_ratio = excluded.post_migration_sell_suppression_ratio,
+                        post_migration_mint_velocity_sec = excluded.post_migration_mint_velocity_sec,
+                        post_migration_buy_size_variance = excluded.post_migration_buy_size_variance,
+                        post_migration_sell_volume_concentration = excluded.post_migration_sell_volume_concentration,
+                        post_migration_creator_activity_ratio = excluded.post_migration_creator_activity_ratio,
+                        rug_probability = excluded.rug_probability,
+                        risk_level = excluded.risk_level,
+                        post_migration_coverage = excluded.post_migration_coverage,
+                        migration_tx = COALESCE(excluded.migration_tx, token_analysis.migration_tx),
+                        pool_address = COALESCE(excluded.pool_address, token_analysis.pool_address),
+                        earliest_tx_creator = COALESCE(excluded.earliest_tx_creator, token_analysis.earliest_tx_creator),
+                        creator_mismatch = CASE
+                            WHEN excluded.earliest_tx_creator IS NOT NULL
+                             AND token_analysis.pf_ws_creator IS NOT NULL
+                             AND excluded.earliest_tx_creator != token_analysis.pf_ws_creator
+                            THEN 1 ELSE 0
+                        END,
+                        creator_is_blocked = COALESCE(excluded.creator_is_blocked, token_analysis.creator_is_blocked),
+                        network_risk = COALESCE(excluded.network_risk, token_analysis.network_risk),
+                        connected_malicious_count = COALESCE(excluded.connected_malicious_count, token_analysis.connected_malicious_count),
+                        lifecycle_stage = COALESCE(token_analysis.lifecycle_stage, excluded.lifecycle_stage),
+                        cluster_id = COALESCE(excluded.cluster_id, token_analysis.cluster_id),
+                        cluster_name = COALESCE(excluded.cluster_name, token_analysis.cluster_name),
+                        cluster_risk_multiplier = COALESCE(excluded.cluster_risk_multiplier, token_analysis.cluster_risk_multiplier),
+                        network_funder_address = COALESCE(excluded.network_funder_address, token_analysis.network_funder_address),
+                        network_name = COALESCE(excluded.network_name, token_analysis.network_name)
+                """, (
+                    _mint, time.time(), time.time(),
+                    _analysis.get("total_events", 0),
+                    _analysis.get("mint_concentration", 0),
+                    _analysis.get("unique_minters_ratio", 0),
+                    _analysis.get("sell_suppression_ratio", 0),
+                    _analysis.get("mint_velocity_sec", 0),
+                    _analysis.get("buy_size_variance", 0),
+                    _analysis.get("sell_volume_concentration", 0),
+                    _analysis.get("creator_activity_ratio", 0),
+                    _analysis.get("rug_probability", 0),
+                    _analysis.get("risk_level", ""),
+                    _analysis.get("coverage", 0),
+                    _sig, None, None, _pool,
+                    _analysis.get("earliest_tx_creator"),
+                    _analysis.get("creator_is_blocked", 0),
+                    _analysis.get("network_risk", 0),
+                    _analysis.get("connected_malicious_count"),
+                    'migration_pending',
+                    cluster_id, cluster_name, cluster_risk_multiplier,
+                    network_funder_address, network_name,
+                ))
+                conn.commit()
+
+                rpc_creator = _analysis.get("earliest_tx_creator")
+                if rpc_creator:
+                    conn2 = db_connect(DB_PATH, timeout=15)
+                    row = conn2.execute(
+                        "SELECT pf_ws_creator, creator_mismatch FROM token_analysis WHERE mint = ?", (_mint,)
+                    ).fetchone()
+                    conn2.close()
+                    if row and row[0]:
+                        if row[1]:
+                            log_print(f"[CREATOR_CHECK] ⚠ MISMATCH {_mint} | WS={row[0][:8]}... RPC={rpc_creator[:8]}...", flush=True)
+                        else:
+                            log_print(f"[CREATOR_CHECK] ✅ MATCH {_mint} | WS={row[0][:8]}... RPC={rpc_creator[:8]}...", flush=True)
+
+                pool_info = f"Pool: {_pool[:16]}" if _pool else "Pool: will discover at price-time"
+                log_print(f"[DB] ✅ Stored analysis {_mint} | {pool_info}", flush=True)
+                return rpc_creator
+            except Exception as e:
+                log_print(f"[DB] ❌ Failed to store analysis for {_mint}: {e}", flush=True)
+                return None
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        rpc_creator = await asyncio.to_thread(_sync_store)
+
+        # Enqueue creator funding / resolution off the event loop.
+        if rpc_creator:
+            await self._enqueue_creator_funding_job(
+                rpc_creator,
+                mint=mint,
+                migration_timestamp=None,
+                create_tx_signature=None,
+                delay_seconds=0,
+                source="store_analysis",
+            )
+        else:
+            try:
+                from src.core.creator_resolution_queue import connect as _crq_connect, enqueue_missing_creator
+                with _crq_connect(DB_PATH, timeout=10) as _crq_conn:
+                    enqueue_missing_creator(
+                        _crq_conn,
+                        mint,
+                        reason="store_analysis_missing_creator",
+                        source="store_analysis",
+                    )
+                    _crq_conn.commit()
+            except Exception as _crq_e:
+                log_print(
+                    f"[CREATOR_RESOLUTION_QUEUE] ⚠ enqueue failed mint={mint[:8]}...: {_crq_e}",
+                    flush=True,
+                )
+
+    def _token_exists_in_db_sync(self, mint: str) -> bool:
+        try:
+            conn = db_connect(DB_PATH, timeout=60)
+            cursor = conn.cursor()
+            cursor.execute("SELECT lifecycle_stage FROM token_analysis WHERE mint = ?", (mint,))
+            result = cursor.fetchone()
+            conn.close()
+            if not result:
+                return False
+            lifecycle_stage = result[0]
+            return lifecycle_stage != 'bonding_curve'
+        except Exception as e:
+            log_print(f"[DB] ⚠ Could not check if token exists: {e}", flush=True)
+            return False
+
+    async def _token_exists_in_db(self, mint: str) -> bool:
+        """
+        Check whether a token is already in a post-birth lifecycle stage.
+
+        Pre-migration launch rows are inserted early with `lifecycle_stage='bonding_curve'`.
+        Those rows must still be allowed to flow through the later migration pipeline.
+        """
+        return await asyncio.to_thread(self._token_exists_in_db_sync, mint)
+
+    # --- Migration Detection ---
+    def _is_migration_transaction(self, logs: list) -> bool:
+        """
+        Check if transaction logs indicate a Pump.Fun → PumpSwap migration.
+
+        Looks for:
+        - "Instruction: Migrate" (Pump.Fun migration marker)
+        - Pool initialization patterns
+        - Excludes swaps (Buy/Sell instructions)
+        - Excludes MigrateBondingCurveCreator (NOT a pool creation)
+        """
+        logs_text = ' '.join(logs or [])
+        lowered = logs_text.lower()
+
+        # Exclude swaps (Buy/Sell instructions)
+        if 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
+            return False
+
+        # Filter out MigrateBondingCurveCreator - that's NOT a pool creation
+        if 'MigrateBondingCurveCreator' in logs_text:
+            return False
+
+        # Must have Migrate instruction (Pump.Fun migration marker)
+        if 'Instruction: Migrate' not in logs_text:
+            return False
+
+        # Match real migration log shapes, including the observed "Instruction: CreatePool".
+        if not any(pattern in lowered for pattern in (
+            'initialize',
+            'create_pool',
+            'createpool',
+            'initializepool',
+            PUMPSWAP_PROGRAM.lower(),
+        )):
+            return False
+
+        return True
+
+    def _debug_pumpswap_migration_skip(self, signature: str, logs: list) -> None:
+        """Log why a PumpSwap-side websocket event was not classified as a migration."""
+        try:
+            logs_text = ' '.join(logs or [])
+            lowered = logs_text.lower()
+            reason = "unknown"
+
+            if 'MigrateBondingCurveCreator' in logs_text:
+                reason = 'migrate_bonding_curve_creator'
+            elif 'Instruction: Migrate' not in logs_text:
+                reason = 'no_migrate_instruction'
+            elif 'Instruction: Buy' in logs_text or 'Instruction: Sell' in logs_text:
+                reason = 'swap_not_migration'
+            elif not any(pattern in lowered for pattern in (
+                'initialize',
+                'create_pool',
+                'createpool',
+                'initializepool',
+                PUMPSWAP_PROGRAM.lower(),
+            )):
+                reason = 'no_pool_init_pattern'
+
+            interesting = (
+                'Instruction: Migrate' in logs_text
+                or 'CreatePool' in logs_text
+                or 'InitializePool' in logs_text
+                or 'MigrateBondingCurveCreator' in logs_text
+            )
+            if interesting:
+                premig_log(
+                    f"[PUMPSWAP_SKIP] sig={signature[:16]} reason={reason} logs={json.dumps((logs or [])[:20])[:1200]}"
+                )
+        except Exception:
+            pass
+
+    def _is_pumpfun_create_candidate(self, logs: list) -> bool:
+        """
+        Cheap pre-filter for Pump.fun birth events.
+
+        We only fetch the transaction when logs look like a CREATE and clearly are
+        not buy/sell/migrate noise.
+        """
+        logs_text = " ".join(logs or [])
+        lowered = logs_text.lower()
+
+        if "instruction: migrate" in lowered or "migratebondingcurvecreator" in lowered:
+            return False
+        if "instruction: buy" in lowered or "instruction: sell" in lowered:
+            return False
+        if "instruction: create" in lowered:
+            return True
+        if "initializemint" in lowered or "initializemint2" in lowered:
+            return True
+        return False
+
+    def _extract_birth_timestamp(self, tx_data: Optional[Dict]) -> str:
+        """Return ISO timestamp for token birth using tx blockTime when available."""
+        try:
+            block_time = (tx_data or {}).get("blockTime")
+            if block_time:
+                return datetime.utcfromtimestamp(int(block_time)).isoformat() + "Z"
+        except Exception:
+            pass
+        return datetime.utcnow().isoformat() + "Z"
+
+    def _extract_birth_metadata(self, tx_data: Optional[Dict]) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Best-effort extraction of token symbol/name from the CREATE transaction.
+
+        Pump.fun CREATE transactions sometimes surface UTF-8 metadata strings directly in
+        parsed instruction payloads or nested dict values. Keep this deliberately cheap and
+        defensive: if we cannot extract clean values, downstream symbol fetch will backfill.
+        """
+        if not tx_data:
+            return None, None
+
+        def _clean_text(value: str, *, upper: bool = False) -> Optional[str]:
+            if not isinstance(value, str):
+                return None
+            text = value.strip().replace("\x00", "")
+            if not text or len(text) > 64:
+                return None
+            if not re.fullmatch(r"[A-Za-z0-9 _.\-/$]{1,64}", text):
+                return None
+            if upper and not re.fullmatch(r"[A-Z0-9._\-/$]{1,16}", text):
+                return None
+            return text
+
+        symbol = None
+        name = None
+
+        def _walk(value):
+            nonlocal symbol, name
+            if symbol and name:
+                return
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    lowered = str(key).lower()
+                    if symbol is None and lowered == "symbol":
+                        symbol = _clean_text(child, upper=True)
+                    elif name is None and lowered == "name":
+                        name = _clean_text(child)
+                    else:
+                        _walk(child)
+            elif isinstance(value, list):
+                for item in value:
+                    _walk(item)
+
+        try:
+            _walk(tx_data)
+        except Exception:
+            return None, None
+
+        return symbol, name
+
+    async def _upsert_birth_metadata_cache(
+        self,
+        mint: str,
+        symbol: Optional[str],
+        name: Optional[str],
+    ) -> None:
+        """Persist launch metadata for immediate dashboard use when it is available."""
+        if not symbol and not name:
+            return
+        # metadata_cache.symbol is NOT NULL — use name as fallback, skip if both absent
+        if not symbol:
+            symbol = name
+
+        try:
+            def _write_metadata(_m=mint, _sym=symbol, _nm=name):
+                with managed_db_connect(DB_PATH, timeout=30) as _conn:
+                    _now = int(time.time())
+                    _conn.execute(
+                        """
+                        INSERT INTO metadata_cache (mint, symbol, name, cached_at, cached_source)
+                        VALUES (?, ?, ?, ?, 'pumpfun_birth')
+                        ON CONFLICT(mint) DO UPDATE SET
+                            symbol = COALESCE(metadata_cache.symbol, excluded.symbol),
+                            name = COALESCE(metadata_cache.name, excluded.name),
+                            cached_at = excluded.cached_at,
+                            cached_source = CASE
+                                WHEN COALESCE(metadata_cache.symbol, metadata_cache.name) IS NULL
+                                    THEN excluded.cached_source
+                                ELSE metadata_cache.cached_source
+                            END
+                        """,
+                        (_m, _sym, _nm, _now),
+                    )
+                    _conn.commit()
+            await asyncio.to_thread(_write_metadata)
+        except Exception as e:
+            log_print(f"[BIRTH] ⚠ Failed to persist metadata for {mint[:16]}...: {e}", flush=True)
+
+    async def _insert_bonding_curve_token(
+        self,
+        mint: str,
+        creator: Optional[str],
+        created_at: str,
+        *,
+        bonding_curve_pda: Optional[str] = None,
+        create_tx_signature: Optional[str] = None,
+        symbol: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        """Insert a token at birth into token_analysis without creating duplicates."""
+        analyzed_at = time.time()
+        birth_seen_at = int(analyzed_at)
+
+        def _do_write():
+            with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
+                conn.execute(
+                    """
+                    INSERT INTO token_analysis (
+                        mint, created_at, analyzed_at, earliest_tx_creator,
+                        pf_ws_creator,
+                        bonding_curve_pda, create_tx_signature, source_platform,
+                        lifecycle_stage, is_new, migration_signal_source,
+                        migration_signal_updated_at, first_pre_migration_signal_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pumpfun', 'bonding_curve', 1, 'birth', ?, ?)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                        analyzed_at = excluded.analyzed_at,
+                        earliest_tx_creator = COALESCE(token_analysis.earliest_tx_creator, excluded.earliest_tx_creator),
+                        pf_ws_creator = COALESCE(token_analysis.pf_ws_creator, excluded.pf_ws_creator),
+                        bonding_curve_pda = COALESCE(token_analysis.bonding_curve_pda, excluded.bonding_curve_pda),
+                        create_tx_signature = COALESCE(token_analysis.create_tx_signature, excluded.create_tx_signature),
+                        source_platform = COALESCE(token_analysis.source_platform, excluded.source_platform),
+                        lifecycle_stage = CASE
+                            WHEN token_analysis.lifecycle_stage = 'migrated' THEN token_analysis.lifecycle_stage
+                            ELSE 'bonding_curve'
+                        END,
+                        migration_signal_source = CASE
+                            WHEN COALESCE(token_analysis.migration_signal_source, '') = '' THEN excluded.migration_signal_source
+                            WHEN token_analysis.migration_signal_source = 'flow' THEN token_analysis.migration_signal_source
+                            ELSE token_analysis.migration_signal_source
+                        END,
+                        migration_signal_updated_at = COALESCE(token_analysis.migration_signal_updated_at, excluded.migration_signal_updated_at),
+                        first_pre_migration_signal_at = COALESCE(token_analysis.first_pre_migration_signal_at, excluded.first_pre_migration_signal_at),
+                        is_new = 1
+                    """,
+                    (
+                        mint,
+                        created_at,
+                        analyzed_at,
+                        creator,
+                        creator,
+                        bonding_curve_pda,
+                        create_tx_signature,
+                        birth_seen_at,
+                        birth_seen_at,
+                    ),
+                )
+                conn.commit()
+
+        _birth_telemetry_incr("received")
+        try:
+            await asyncio.to_thread(_do_write)
+            self._remember_recent_birth_token(mint, bonding_curve_pda)
+            _birth_telemetry_incr("persisted_direct")
+            log_print(f"[PREMIG_BIRTH_SEED] mint={mint[:6]} ts={birth_seen_at} source=birth", flush=True)
+        except Exception as e:
+            if isinstance(e, (CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError)) or "database is locked" in str(e):
+                _birth_telemetry_incr("write_timeouts")
+            log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e} — queuing for durable retry", flush=True)
+            try:
+                import sqlite3 as _sq
+                _qc = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
+                with _qc:
+                    _qc.execute(
+                        """INSERT INTO birth_persist_queue
+                           (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
+                            symbol, name, received_at, status, last_error)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)
+                           ON CONFLICT(mint) DO UPDATE SET
+                               last_error = excluded.last_error,
+                               last_attempt_at = excluded.received_at,
+                               status = CASE WHEN birth_persist_queue.status = 'PROCESSED'
+                                             THEN birth_persist_queue.status ELSE 'PENDING' END""",
+                        (mint, creator, created_at, bonding_curve_pda, create_tx_signature,
+                         symbol, name, birth_seen_at, str(e)),
+                    )
+                _qc.close()
+                _birth_telemetry_incr("queued_for_retry")
+                log_print(f"[BIRTH_RETRY] queued mint={mint[:16]} for durable retry", flush=True)
+            except Exception as _qe:
+                # X78.19 live validation (2026-08-09 20:58 UTC) caught this
+                # path for real: sqlite3.connect(DB_PATH, ...) against the
+                # real DB path is globally intercepted (db_locking.py
+                # _patched_connect) and routed through the SAME cross-process
+                # write lane as the primary insert -- so under sustained
+                # contention the "durable" enqueue write can itself time out,
+                # and mint=8Vv9jE9nasuQxGzf was lost this way before this
+                # fallback existed. A plain append-only local file needs no
+                # SQLite connection at all, so it can never be blocked by the
+                # write lane -- it is the true last-resort backstop.
+                # drain_birth_persist_queue() reconciles this file into the
+                # real table on every poll cycle once the lane is free.
+                _birth_telemetry_incr("write_timeouts")
+                try:
+                    _fallback_append_birth(mint, creator, created_at, bonding_curve_pda,
+                                            create_tx_signature, symbol, name, birth_seen_at, str(_qe))
+                    _birth_telemetry_incr("fallback_activations")
+                    log_print(f"[BIRTH_RETRY] 🟡 queue write also failed for mint={mint[:16]}: {_qe} — appended to file-based fallback instead", flush=True)
+                except Exception as _fe:
+                    # Only a full disk / permissions failure reaches here --
+                    # log loudly, this is the one path with no further backstop.
+                    # MC1.4 -- this is the ONE path with no durable backstop
+                    # at all (primary insert failed, queue write failed, file
+                    # append failed); count it explicitly as permanently_lost
+                    # rather than leaving "how many births were truly lost"
+                    # answerable only by grepping for this log line.
+                    _birth_telemetry_incr("permanently_lost")
+                    log_print(f"[BIRTH_RETRY] 🔴 CRITICAL: failed to queue mint={mint[:16]} for retry AND fallback file write failed: {_fe} — birth may be lost", flush=True)
+            return
+
+        await self._upsert_birth_metadata_cache(mint, symbol, name)
+
+        if TOKEN_PREDICTION_RUNTIME_ENABLED:
+            def _score_birth():
+                try:
+                    from src.core.token_prediction_builder import TokenPredictionBuilder
+                    from src.utils.db_locking import db_connect as _db_connect
+                    conn2 = _db_connect(DB_PATH, timeout=30)
+                    try:
+                        TokenPredictionBuilder(DB_PATH).score_single(conn2, mint, 'BIRTH')
+                    finally:
+                        conn2.close()
+                except Exception as _e:
+                    log_print(f"[PREDICTION] ⚠ score_single BIRTH {mint[:16]}: {_e}", flush=True)
+            _TOKEN_WORK_POOL.submit(_score_birth)
+
+        # Birth registration removed: migration path registers with eligibility gate.
+        # Birth fires for every token including those that never migrate; the migration
+        # path always fires for survivors and wins the UPSERT anyway.
+        _spawn_symbol_fetch(mint, DB_PATH)
+
+        event = {
+            "type": "token_detected",
+            "mint": mint,
+            "creator": creator,
+            "created_at": created_at,
+            "detected_at": int(time.time()),
+            "status": "bonding_curve",
+            "source": "pumpfun_create",
+            "lifecycle_stage": "bonding_curve",
+        }
+        if symbol:
+            event["symbol"] = symbol
+        if name:
+            event["name"] = name
+        asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, event)
+
+    async def _ensure_pf_ws_creator(self, mint: str, reason: str = "premig") -> Optional[str]:
+        """
+        Populate pf_ws_creator from the Pump.fun CREATE tx using a single getTransaction RPC.
+
+        Flow:
+        create_tx_signature -> getTransaction -> strict CREATE validate -> infer creator.
+        """
+        try:
+            def _read_token_row(_m=mint):
+                _conn = db_connect(DB_PATH, timeout=30)
+                _conn.execute("PRAGMA journal_mode=WAL")
+                _conn.execute("PRAGMA synchronous=NORMAL")
+                _conn.execute("PRAGMA busy_timeout=30000")
+                _row = _conn.execute(
+                    "SELECT create_tx_signature, pf_ws_creator, earliest_tx_creator FROM token_analysis WHERE mint = ? LIMIT 1",
+                    (_m,),
+                ).fetchone()
+                _conn.close()
+                return _row
+            row = await asyncio.to_thread(_read_token_row)
+        except Exception as e:
+            log_print(f"[PF_WS_CREATOR] ⚠ DB read failed for {mint[:16]}...: {e}", flush=True)
+            return None
+
+        if not row:
+            return None
+
+        create_tx_signature = str(row[0]) if row[0] else None
+        existing_pf_ws_creator = str(row[1]) if row[1] else None
+        earliest_tx_creator = str(row[2]) if row[2] else None
+
+        if existing_pf_ws_creator:
+            _at_migration = reason.startswith("migration")
+            _should_enqueue = _at_migration
+            if not _should_enqueue:
+                try:
+                    def _check_curve_complete(_m=mint):
+                        _gc = db_connect(DB_PATH, timeout=5)
+                        _gr = _gc.execute("SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (_m,)).fetchone()
+                        _gc.close()
+                        return bool(_gr[0]) if _gr else False
+                    _should_enqueue = await asyncio.to_thread(_check_curve_complete)
+                except Exception:
+                    _should_enqueue = False
+            if _should_enqueue:
+                enqueue_source = "pf_ws_creator_existing_migration" if _at_migration else "pf_ws_creator_existing_curve_complete"
+                await self._enqueue_creator_funding_job(
+                    existing_pf_ws_creator,
+                    mint=mint,
+                    migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                    create_tx_signature=create_tx_signature,
+                    delay_seconds=0,
+                    source=enqueue_source,
+                    observation_required=_at_migration,
+                )
+            return existing_pf_ws_creator
+
+        # Fast path: PumpPortal already gave us the creator in-memory at birth — no RPC needed
+        portal_creator = (self._portal_vsol.get(mint) or {}).get('creator')
+        if portal_creator:
+            log_print(f"[PF_WS_CREATOR] ⚡ Portal fast-path: creator={portal_creator[:8]}... for {mint[:8]}... trigger={reason}", flush=True)
+            try:
+                async with self.db_lock:
+                    def _portal_creator_write(_c=portal_creator, _m=mint):
+                        _conn = db_connect(DB_PATH, timeout=30)
+                        _conn.execute("PRAGMA journal_mode=WAL")
+                        _conn.execute("PRAGMA synchronous=NORMAL")
+                        _conn.execute("UPDATE token_analysis SET pf_ws_creator=? WHERE mint=?", (_c, _m))
+                        _conn.commit()
+                        _conn.close()
+                    await asyncio.to_thread(_portal_creator_write)
+            except Exception as e:
+                log_print(f"[PF_WS_CREATOR] ⚠ Portal fast-path DB write failed: {e}", flush=True)
+            await self._enqueue_creator_funding_job(
+                portal_creator,
+                mint=mint,
+                migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                create_tx_signature=create_tx_signature,
+                delay_seconds=0,
+                source="pf_ws_creator_migration",
+                observation_required=True,
+            )
+            return portal_creator
+
+        rpc_url = RPC_HTTP or os.environ.get('HELIUS_RPC_URL')
+        analyzer = PostMigrationAnalyzer(mint, rpc_url=rpc_url)
+
+        if not create_tx_signature:
+            if os.environ.get("CREATOR_BACKFILL_ENABLED", "0") == "0":
+                log_print(
+                    f"[PF_WS_CREATOR] Inline RPC backfill disabled; skipping signature walk for {mint[:8]}...",
+                    flush=True,
+                )
+                return None
+            # Fallback: find creator via getSignaturesForAddress on the mint
+            log_print(
+                f"[PF_WS_CREATOR] ℹ No create_tx_signature for {mint[:8]}..., trying RPC fallback trigger={reason}",
+                flush=True,
+            )
+            try:
+                provenance = await analyzer.get_creator_from_earliest_tx()
+                pf_ws_creator = provenance.get('creator') if provenance else None
+                if not pf_ws_creator:
+                    log_print(f"[PF_WS_CREATOR] ⚠ RPC fallback found no creator for {mint[:8]}...", flush=True)
+                    return None
+            except Exception as e:
+                log_print(f"[PF_WS_CREATOR] ⚠ RPC fallback failed for {mint[:8]}...: {e}", flush=True)
+                return None
+        else:
+            tx_data = await self._get_transaction_cached(create_tx_signature)
+            if not tx_data:
+                log_print(
+                    f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=create_tx_unavailable trigger={reason}",
+                    flush=True,
+                )
+                return None
+
+            validation = analyzer._validate_pumpfun_create_tx(tx_data)
+            if not validation.get("is_pumpfun_create"):
+                log_print(
+                    f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=create_tx_not_strict trigger={reason}",
+                    flush=True,
+                )
+                return None
+
+            pf_ws_creator = analyzer._infer_creator_from_tx(tx_data)
+            if not pf_ws_creator:
+                log_print(
+                    f"[PF_WS_CREATOR] ⚠ Skip {mint[:8]}... reason=infer_failed trigger={reason}",
+                    flush=True,
+                )
+                return None
+
+        mismatch = bool(earliest_tx_creator and earliest_tx_creator != pf_ws_creator)
+
+        try:
+            async with self.db_lock:
+                def _pf_ws_creator_write(_c=pf_ws_creator, _m=mint):
+                    with managed_db_connect(DB_PATH, timeout=30) as _conn:
+                        _conn.cursor().execute(
+                            """
+                            UPDATE token_analysis
+                            SET pf_ws_creator = ?,
+                                earliest_tx_creator = COALESCE(NULLIF(TRIM(earliest_tx_creator), ''), ?),
+                                creator_mismatch = CASE
+                                    WHEN earliest_tx_creator IS NOT NULL
+                                     AND earliest_tx_creator != ''
+                                     AND earliest_tx_creator != ?
+                                    THEN 1 ELSE 0
+                                END
+                            WHERE mint = ?
+                            """,
+                            (_c, _c, _c, _m),
+                        )
+                        _conn.commit()
+                await asyncio.to_thread(_pf_ws_creator_write)
+        except Exception as e:
+            log_print(f"[PF_WS_CREATOR] ⚠ DB write failed for {mint[:16]}...: {e}", flush=True)
+            return None
+
+        status = "MISMATCH" if mismatch else "MATCH"
+        rpc_display = earliest_tx_creator[:8] + "..." if earliest_tx_creator else "none"
+        log_print(
+            f"[PF_WS_CREATOR] ✅ {status} mint={mint[:8]}... trigger={reason} "
+            f"pf_ws={pf_ws_creator[:8]}... rpc={rpc_display}",
+            flush=True,
+        )
+        _at_migration = reason.startswith("migration")
+        if not _at_migration:
+            try:
+                def _check_curve_complete2(_m=mint):
+                    _gc = db_connect(DB_PATH, timeout=5)
+                    _gr = _gc.execute("SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (_m,)).fetchone()
+                    _gc.close()
+                    return bool(_gr[0]) if _gr else False
+                _curve_complete = await asyncio.to_thread(_check_curve_complete2)
+            except Exception:
+                _curve_complete = False
+        else:
+            _curve_complete = True  # at migration, curve is complete by definition
+
+        if _curve_complete:
+            enqueue_source = "pf_ws_creator_migration" if _at_migration else "pf_ws_creator_curve_complete"
+            await self._enqueue_creator_funding_job(
+                pf_ws_creator,
+                mint=mint,
+                migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                create_tx_signature=create_tx_signature,
+                delay_seconds=0,
+                source=enqueue_source,
+                observation_required=_at_migration,
+            )
+        else:
+            log_print(
+                f"[PF_WS_CREATOR] ⏭️ Skip funding enqueue mint={mint[:8]}... reason=curve_not_complete",
+                flush=True,
+            )
+
+        # Phase 1 dual-write: upsert creator_profile and conditionally enqueue baseline job.
+        # Fire-and-forget — never raises, never blocks the hot path.
+        try:
+            from src.creators.migration_bridge import dual_write_creator_resolved
+            from src.creators.repository import CreatorRepository
+            from src.creators.helius_watch import register_creator_address
+            _repo = CreatorRepository(CREATOR_DB_PATH, self.db_lock)
+            asyncio.create_task(dual_write_creator_resolved(
+                pf_ws_creator, mint,
+                create_tx_signature=create_tx_signature,
+                reason=reason,
+                repo=_repo,
+                register_webhook_fn=register_creator_address,
+            ))
+        except Exception as _dw_e:
+            log_print(f"[PF_WS_CREATOR] ⚠ dual_write enqueue failed: {_dw_e}", flush=True)
+
+        return pf_ws_creator
+
+    def _token_needs_creator_backfill(self, mint: str) -> bool:
+        """Return True only when both creator fields are still missing."""
+        if not mint:
+            return False
+        try:
+            conn = db_connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            row = cursor.execute(
+                """
+                SELECT pf_ws_creator, earliest_tx_creator
+                FROM token_analysis
+                WHERE mint = ?
+                LIMIT 1
+                """,
+                (mint,),
+            ).fetchone()
+            conn.close()
+        except Exception as e:
+            log_print(f"[PF_WS_CREATOR] ⚠ Creator backfill check failed for {mint[:16]}...: {e}", flush=True)
+            return True
+
+        if not row:
+            return True
+
+        pf_ws_creator = str(row[0]).strip() if row[0] else ""
+        earliest_tx_creator = str(row[1]).strip() if row[1] else ""
+        return not (pf_ws_creator or earliest_tx_creator)
+
+    def _get_resolved_creator_for_mint_sync(self, mint: str) -> Tuple[Optional[str], Optional[str]]:
+        if not mint:
+            return None, None
+        try:
+            conn = db_connect(DB_PATH, timeout=15)
+            cursor = conn.cursor()
+            row = cursor.execute(
+                """
+                SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature
+                FROM token_analysis
+                WHERE mint = ?
+                LIMIT 1
+                """,
+                (mint,),
+            ).fetchone()
+            conn.close()
+        except Exception as e:
+            log_print(f"[FUNDING_QUEUE] ⚠ Creator lookup failed for {mint[:16]}...: {e}", flush=True)
+            return None, None
+
+        if not row:
+            return None, None
+
+        pf_ws_creator = str(row[0]).strip() if row[0] else ""
+        earliest_tx_creator = str(row[1]).strip() if row[1] else ""
+        create_tx_signature = str(row[2]).strip() if row[2] else None
+        return (pf_ws_creator or earliest_tx_creator or None), create_tx_signature
+
+    async def _get_resolved_creator_for_mint(self, mint: str) -> Tuple[Optional[str], Optional[str]]:
+        """Return the best resolved creator plus create-tx signature for a mint."""
+        return await asyncio.to_thread(self._get_resolved_creator_for_mint_sync, mint)
+
+    async def handle_birth(self, signature: str, logs: list):
+        """Process a Pump.fun token birth event."""
+        if signature in self.processing_launches or signature in self.completed_launches:
+            return
+
+        self.processing_launches.add(signature)
+        try:
+            # X64.7 Phase 4 — structured instrumentation. These early returns
+            # were previously completely silent (no log_print at all), making
+            # it impossible to distinguish "CREATE never received" from
+            # "CREATE observed but rejected at some later stage" from logs
+            # alone. Never changes control flow — same early returns as before.
+            log_print(f"[CREATE_TX_RECEIVED] sig={signature[:20]}...", flush=True)
+            tx_data = await self._get_transaction_cached(signature)
+            if not tx_data:
+                log_print(f"[CREATE_PARSE_REJECTED] sig={signature[:20]}... reason=tx_fetch_failed", flush=True)
+                return
+            log_print(f"[CREATE_PARSE_STARTED] sig={signature[:20]}...", flush=True)
+
+            mint = await self._extract_mint_from_tx(tx_data)
+            if not mint:
+                log_print(f"[CREATE_PARSE_REJECTED] sig={signature[:20]}... reason=mint_unresolved", flush=True)
+                return
+
+            analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+            validation = analyzer._validate_pumpfun_create_tx(tx_data)
+            if not validation.get("is_pumpfun_create"):
+                log_print(f"[CREATE_PARSE_REJECTED] sig={signature[:20]}... mint={mint[:16]}... "
+                          f"reason=not_pumpfun_create", flush=True)
+                return
+            log_print(f"[CREATE_INSTRUCTION_FOUND] sig={signature[:20]}... mint={mint[:16]}...", flush=True)
+            log_print(f"[CREATE_MINT_RESOLVED] sig={signature[:20]}... mint={mint[:16]}...", flush=True)
+
+            # X64.7A Phase 1 — commit the canonical ledger row BEFORE calling
+            # creator inference. If _infer_creator_from_tx raises, a durable,
+            # creator-PENDING ledger row already exists — the ordering bug
+            # X64.7A exists to close (X64.7's ledger write, while already
+            # creator-independent in principle, was sequenced AFTER creator
+            # inference in program order, so an exception in inference would
+            # have skipped the ledger write entirely; fixed here).
+            _slot = tx_data.get("slot")
+            _initial_ledger_result = _write_create_ledger_durable(
+                signature=signature, mint=mint, creator=None, slot=_slot,
+                source="WEBSOCKET", parser_path="handle_birth",
+                raw_detection_method="logsSubscribe_pumpfun_program",
+                creator_resolution_state="PENDING",
+            )
+            _ = _initial_ledger_result  # logged inside the helper
+
+            creator = analyzer._infer_creator_from_tx(tx_data)
+            log_print(f"[CREATE_CREATOR_RESOLVED] sig={signature[:20]}... mint={mint[:16]}... "
+                      f"creator={(creator[:16] + '...') if creator else 'UNRESOLVED'}", flush=True)
+            created_at = self._extract_birth_timestamp(tx_data)
+            bonding_curve_pda = validation.get("bonding_curve")
+            symbol, name = self._extract_birth_metadata(tx_data)
+
+            # X64.7A Phase 1 — second, idempotent enrichment write once the
+            # creator is known (or confirmed unresolved). record_create_event
+            # is idempotent on signature: this call only fills a NULL
+            # creator or updates last_seen_at, it never re-creates the row
+            # or reverts the PENDING write above.
+            _enriched_ledger_result = _write_create_ledger_durable(
+                signature=signature, mint=mint, creator=creator, slot=_slot,
+                source="WEBSOCKET", parser_path="handle_birth",
+                raw_detection_method="logsSubscribe_pumpfun_program",
+                creator_resolution_state=("RESOLVED" if creator else "UNRESOLVED"),
+            )
+
+            # Optional priority acceleration is dispatched only after the
+            # resolved CREATE-ledger write has committed. It is isolated from
+            # birth ingestion: a failure leaves the normal migration fallback
+            # untouched and cannot turn a receipt into a priority request.
+            if (creator and _enriched_ledger_result.get("written")
+                    and os.environ.get("OPERATION_EVIDENCE_PRIORITY_ENABLED", "0").lower() in {"1", "true", "yes"}):
+                try:
+                    from src.ops.byzantine_priority_walkback_binding import submit_committed_launch
+                    await asyncio.to_thread(
+                        submit_committed_launch, mint=mint, creator=creator,
+                        create_signature=signature, create_slot=_slot,
+                        launch_committed_at=_enriched_ledger_result["committed_at"],
+                    )
+                except Exception as _priority_binding_error:
+                    log_print(f"[PRIORITY_WALKBACK] post-commit handoff failed mint={mint[:16]}... err={_priority_binding_error}", flush=True)
+
+            # Generic passive opening-action evidence is deliberately bound
+            # only after the durable CREATE ledger commit above.  The binding
+            # performs a bounded local raw+spool transaction and is feature
+            # OFF by default; block/state resolution remains worker-side.
+            if os.environ.get("PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED", "0") == "1":
+                try:
+                    from src.ops.pumpfun_opening_action_worker import bind_committed_transaction
+                    _opening_store = os.environ.get(
+                        "PUMPFUN_OPENING_ACTION_EVIDENCE_DB",
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "database", "research_evidence", "pumpfun_opening_actions.sqlite"),
+                    )
+                    await asyncio.to_thread(
+                        bind_committed_transaction, _opening_store, tx_data,
+                        signature=signature, slot=int(_slot),
+                    )
+                except Exception as _opening_evidence_error:
+                    log_print(f"[PUMPFUN_OPENING_EVIDENCE] post-commit handoff failed sig={signature[:20]}... err={_opening_evidence_error}", flush=True)
+
+            if creator:
+                log_print(f"[CREATE_ENRICHMENT_ENQUEUED] sig={signature[:20]}... mint={mint[:16]}... "
+                          f"reason=creator_known_at_birth", flush=True)
+            else:
+                log_print(f"[CREATE_ENRICHMENT_SKIPPED] sig={signature[:20]}... mint={mint[:16]}... "
+                          f"reason=creator_unresolved_at_birth", flush=True)
+
+            await self._insert_bonding_curve_token(
+                mint,
+                creator,
+                created_at,
+                bonding_curve_pda=bonding_curve_pda,
+                create_tx_signature=signature,
+                symbol=symbol,
+                name=name,
+            )
+            self.completed_launches.add(signature)
+            self.seen_mints.add(mint)
+            meta_suffix = f" symbol={symbol}" if symbol else ""
+            log_print(f"[BIRTH] ✅ Pump.fun launch detected: {mint} creator={creator[:8] + '...' if creator else 'unknown'}{meta_suffix}", flush=True)
+
+            # Check if creator is a known WATCHTOWER launch candidate
+            if creator and DB_PATH:
+                try:
+                    def _check_wt_candidate(_cr=creator):
+                        _c = db_connect(DB_PATH, timeout=15)
+                        _c.row_factory = sqlite3.Row
+                        _r = _c.execute("SELECT source_operator, confidence FROM watchtower_launch_candidates WHERE address = ? LIMIT 1", (_cr,)).fetchone()
+                        _c.close()
+                        return dict(_r) if _r else None
+                    row = await asyncio.to_thread(_check_wt_candidate)
+                    if row:
+                        log_print(
+                            f"[BIRTH] 🔴 WATCHTOWER LAUNCH: mint={mint} creator={creator[:20]}... "
+                            f"operator={row['source_operator'][:20] if row['source_operator'] else '?'}... "
+                            f"confidence={row['confidence']}",
+                            flush=True,
+                        )
+                        from src.core.db_writer import emit_event
+                        emit_event(
+                            "watchtower_launch_detected",
+                            wallet_address=creator,
+                            token_mint=mint,
+                            payload={
+                                "source_operator": row["source_operator"],
+                                "confidence": row["confidence"],
+                                "symbol": symbol,
+                                "bonding_curve_pda": bonding_curve_pda,
+                            },
+                            source="curve_listener",
+                            domain="migration",
+                        )
+                except Exception as _e:
+                    log_print(f"[BIRTH] watchtower candidate check failed: {_e}", flush=True)
+
+            # Immediately watch the bonding curve — no need to wait for momentum threshold
+            if bonding_curve_pda:
+                await self.watch_bonding_curve(bonding_curve_pda)
+        except Exception as e:
+            log_print(f"[BIRTH] ⚠ Error handling launch {signature[:16]}...: {e}", flush=True)
+        finally:
+            self.processing_launches.discard(signature)
+
+    def _extract_mint_from_tx_result(self, tx_result: Dict) -> Optional[str]:
+        """Parse a getTransaction `result` for the token mint (postTokenBalances first,
+        accountKeys fallback). Pure parse — no RPC — so it works on prefetched tx data."""
+        if not tx_result:
+            return None
+        meta = tx_result.get("meta", {}) or {}
+        for balance in meta.get("postTokenBalances", []) or []:
+            mint = balance.get("mint", "")
+            if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
+                return mint
+        message = tx_result.get("transaction", {}).get("message", {})
+        accounts = message.get("accountKeys", []) or []
+        system_programs = {
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",  # Pump.Fun
+            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",  # PumpSwap
+            "11111111111111111111111111111111",               # System program
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",  # ATA program
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # Token program
+            "So11111111111111111111111111111111111111112",   # Wrapped SOL
+        }
+        for account in accounts[:10]:
+            if len(account) in (43, 44) and account not in system_programs:
+                return account
+        return None
+
+    async def _fetch_mint_from_transaction(self, signature: str, prefetched_tx: Optional[Dict] = None) -> Optional[str]:
+        """
+        Fetch full transaction and extract token mint.
+
+        Strategy:
+        1. Try postTokenBalances first (most reliable)
+        2. Fall back to accountKeys if postTokenBalances missing
+        3. Filter out system programs
+        4. Accept 43 or 44 char addresses (Pump.Fun token length variance)
+
+        prefetched_tx: the already-fetched migration tx (the `result` object). The migration
+        tx is immutable and handle_migration already fetched it — reuse it to avoid a
+        duplicate getTransaction (the hot path = zero repeat RPC). If None, fall back to the
+        TTL-cached fetch (cold path = cached fallback).
+
+        Includes retry logic for newly-confirmed transactions that may have indexing delays.
+        """
+        # HOT PATH: caller already has the immutable migration tx → parse it directly.
+        if prefetched_tx:
+            return self._extract_mint_from_tx_result(prefetched_tx)
+        # COLD PATH: no prefetch → use the TTL-cached fetcher (singleflight-deduped),
+        # so even the fallback doesn't re-hit Helius for an already-seen signature.
+        _cached = await self._get_transaction_cached(signature)
+        if _cached:
+            _m = self._extract_mint_from_tx_result(_cached)
+            if _m:
+                return _m
+
+        max_retries = 12
+        retry_delays = [0.5, 1.0, 2.0, 3.0, 5.0, 8.0, 10.0, 15.0, 20.0, 30.0, 45.0, 60.0]  # Extended backoff for slow indexing
+
+        for attempt in range(max_retries):
+            try:
+                # Use discovery RPC tier for mint extraction (critical path)
+                data = await self.call_discovery_rpc(
+                    "getTransaction",
+                    [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                    timeout=15
+                )
+
+                if not data or "result" not in data or not data["result"]:
+                    # Transaction not indexed yet, retry with backoff
+                    if attempt < max_retries - 1:
+                        log_print(f"[MINT] 📝 Transaction indexing delay, retry {attempt + 1}/{max_retries}...", flush=True)
+                        await asyncio.sleep(retry_delays[attempt])
+                        continue
+                    log_print(f"[MINT] ⚠ Transaction not found after retries: {signature}", flush=True)
+                    return None
+
+                _mint = self._extract_mint_from_tx_result(data["result"])
+                if _mint:
+                    return _mint
+                log_print(f"[MINT] ⚠ No valid mint found in {signature}", flush=True)
+                return None
+
+            except asyncio.TimeoutError:
+                if attempt < max_retries - 1:
+                    log_print(f"[MINT] ⏱️  Timeout, retrying {attempt + 1}/{max_retries}...", flush=True)
+                    await asyncio.sleep(retry_delays[attempt])
+                    continue
+                log_print(f"[MINT] ⚠ Timeout after retries: {signature}", flush=True)
+                return None
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    log_print(f"[MINT] ⚠ Error on attempt {attempt + 1}, retrying: {e}", flush=True)
+                    await asyncio.sleep(retry_delays[attempt])
+                    continue
+                log_print(f"[MINT] ⚠ Error fetching {signature}: {e}", flush=True)
+                return None
+        
+        return None
+
+    async def _extract_mint_from_tx(self, tx_data: Dict) -> Optional[str]:
+        """
+        Extract token mint from transaction data (no RPC call needed).
+
+        Strategies:
+        1. Try postTokenBalances first (most reliable)
+        2. Fall back to accountKeys if postTokenBalances missing
+        3. Filter out system programs
+        """
+        if not tx_data:
+            return None
+
+        meta = tx_data.get("meta", {})
+
+        # Strategy 1: Try postTokenBalances first
+        post_balances = meta.get("postTokenBalances", [])
+        for balance in post_balances:
+            mint = balance.get("mint", "")
+            if mint and len(mint) in (43, 44) and mint != "So11111111111111111111111111111111111111112":
+                return mint
+
+        # Strategy 2: Fall back to accountKeys
+        message = tx_data.get("transaction", {}).get("message", {})
+        accounts = message.get("accountKeys", [])
+
+        system_programs = {
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+            "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA",
+            "11111111111111111111111111111111",
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "So11111111111111111111111111111111111111112",
+        }
+
+        for account in accounts[:10]:
+            if len(account) in (43, 44) and account not in system_programs:
+                return account
+
+        # Debug: log what we found
+        log_print(f"[MINT_EXTRACT] postTokenBalances count: {len(post_balances)}, accountKeys count: {len(accounts)}", flush=True)
+        if post_balances:
+            log_print(f"[MINT_EXTRACT] First postTokenBalance: {post_balances[0] if post_balances else 'None'}", flush=True)
+        if accounts:
+            log_print(f"[MINT_EXTRACT] First 5 accountKeys: {accounts[:5]}", flush=True)
+
+        return None
+
+    async def _extract_pool_from_migration_tx(self, signature: str, prefetched_tx: Optional[Dict] = None) -> List[str]:
+        """
+        Extract ALL PumpSwap pool candidates from migration transaction.
+        
+        Handles both int indices and string pubkey formats from different RPC providers.
+        Returns list of ALL candidate accounts (not filtered, not validated).
+        Caller is responsible for validation and filtering.
+        """
+        max_retries = 3
+        retry_delays = [1.0, 3.0, 5.0]
+
+        for attempt in range(max_retries):
+            try:
+                # HOT PATH: reuse the already-fetched immutable migration tx (zero repeat
+                # RPC). COLD PATH: TTL-cached fetch (singleflight-deduped) before raw RPC.
+                if prefetched_tx and attempt == 0:
+                    data = {"result": prefetched_tx}
+                else:
+                    _cached = await self._get_transaction_cached(signature) if attempt == 0 else None
+                    if _cached:
+                        data = {"result": _cached}
+                    else:
+                        # Use discovery RPC tier (still part of pool detection pipeline)
+                        data = await self.call_discovery_rpc(
+                            "getTransaction",
+                            [signature, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                            timeout=10
+                        )
+
+                if not data or "result" not in data or not data["result"]:
+                    return []
+
+                tx_data = data["result"]
+                message = tx_data.get("transaction", {}).get("message", {})
+                account_keys = message.get("accountKeys", [])
+                
+                if not account_keys:
+                    return []
+                
+                meta = tx_data.get("meta", {})
+                inner = meta.get("innerInstructions", [])
+                
+                candidates = set()
+                
+                # Find program index
+                program_idx = None
+                for i, acc in enumerate(account_keys):
+                    if acc == PUMPSWAP_PROGRAM:
+                        program_idx = i
+                        break
+                
+                # Extract ALL accounts from ALL PumpSwap instructions
+                if program_idx is not None:
+                    for group in inner:
+                        for ix in group.get("instructions", []):
+                            if ix.get("programIdIndex") != program_idx:
+                                continue
+
+                            raw_accounts = ix.get("accounts", [])
+                            if raw_accounts:
+                                log_print(
+                                    f"[IX_ACCOUNTS_SHAPE] types={[type(x).__name__ for x in raw_accounts[:5]]} sample={raw_accounts[:5]}",
+                                    flush=True
+                                )
+
+                            for acc_ref in raw_accounts:
+                                # Case 1: classic indexed format (int)
+                                if isinstance(acc_ref, int):
+                                    if 0 <= acc_ref < len(account_keys):
+                                        candidates.add(account_keys[acc_ref])
+                                # Case 2: already-normalized pubkey string
+                                elif isinstance(acc_ref, str):
+                                    if len(acc_ref) >= 32:
+                                        candidates.add(acc_ref)
+                else:
+                    # Fallback: scan ALL instructions (not just by index)
+                    # Some migrations don't include PumpSwap in accountKeys
+                    for group in inner:
+                        for ix in group.get("instructions", []):
+                            raw_accounts = ix.get("accounts", [])
+                            if raw_accounts:
+                                log_print(
+                                    f"[IX_ACCOUNTS_SHAPE] types={[type(x).__name__ for x in raw_accounts[:5]]} sample={raw_accounts[:5]}",
+                                    flush=True
+                                )
+
+                            for acc_ref in raw_accounts:
+                                # Case 1: classic indexed format (int)
+                                if isinstance(acc_ref, int):
+                                    if 0 <= acc_ref < len(account_keys):
+                                        candidates.add(account_keys[acc_ref])
+                                # Case 2: already-normalized pubkey string
+                                elif isinstance(acc_ref, str):
+                                    if len(acc_ref) >= 32:
+                                        candidates.add(acc_ref)
+
+                # Exclude system programs
+                SKIP = {
+                    PUMPSWAP_PROGRAM,
+                    PUMPFUN_PROGRAM,
+                    "11111111111111111111111111111111",
+                    "So11111111111111111111111111111111111111112",
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+                }
+                candidates = {c for c in candidates if c not in SKIP}
+
+                # Prevent pathological TX explosions (some migrations have 100+ accounts)
+                candidate_list = list(candidates)
+                if len(candidate_list) > 50:
+                    log_print(f"[EXTRACT_POOL] Limiting candidates from {len(candidate_list)} to 50", flush=True)
+                    candidate_list = candidate_list[:50]
+
+                return candidate_list
+
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    log_print(f"[POOL] ⚠ Error extracting pool (attempt {attempt + 1}/{max_retries}): {e}", flush=True)
+                    await asyncio.sleep(retry_delays[attempt])
+                else:
+                    log_print(f"[POOL_ERROR] Failed to extract pool address after {max_retries} attempts: {e}", flush=True)
+                    return []
+
+        return []
+
+    async def batch_validate_candidates_with_reasons(self, candidates: list, strict_mode: bool = True, loose_mode: bool = False) -> Tuple[list, Dict[str, str]]:
+        """
+        Batch validate all candidates and return both valid addresses and rejection reasons.
+
+        Returns:
+            Tuple of (valid_addresses, rejection_map)
+            - valid_addresses: List of valid pool addresses
+            - rejection_map: Dict mapping rejected addr -> reason
+                            (reason = "account_not_found", "wrong_owner", "shared_account", etc.)
+        """
+        if not candidates:
+            return [], {}
+
+        _tp_val_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] VALIDATE_START n_candidates={len(candidates)} loose={loose_mode}", flush=True)
+        try:
+            # Loose mode: 3s. Strict mode: budget CRITICAL_RPC_TOTAL_S (default 6s).
+            # An outer wait_for ensures the aiohttp sock_read bug can't hold the event loop
+            # past the intended ceiling — this is what caused 91s stalls in production.
+            _rpc_timeout = 3 if loose_mode else _budget.CRITICAL_RPC_TOTAL_S
+            _outer_timeout = (_rpc_timeout + 2)   # small margin above aiohttp timeout
+            result = await asyncio.wait_for(
+                self.call_discovery_rpc(
+                    "getMultipleAccounts",
+                    [candidates, {"encoding": "base64", "commitment": "processed"}],
+                    timeout=_rpc_timeout,
+                ),
+                timeout=_outer_timeout,
+            )
+
+            if not result or "result" not in result:
+                log_print(f"[BATCH_VALIDATE_REASONS] ❌ RPC call failed or empty result", flush=True)
+                return [], {}
+
+            PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            # Vault token accounts are owned by SPL Token or Token-2022 — accept both
+            ALLOWED_POOL_OWNERS = {
+                PUMPSWAP_PROGRAM,
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL Token
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
+            }
+            values = result.get("result", {}).get("value", [])
+
+            log_print(f"[BATCH_VALIDATE_REASONS] Validating {len(candidates)} candidates (strict_mode={strict_mode})", flush=True)
+
+            valid = []
+            rejections = {}
+
+            # Hoist PoolDiscovery construction outside the loop — instantiating per-candidate
+            # caused repeated module imports and object construction on the event loop.
+            from src.core.pool_discovery import PoolDiscovery
+            _pd_db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+            _pd = PoolDiscovery(_pd_db_path, "")
+            _shared_threshold = 2 if strict_mode else 3
+            # Loose mode: tighter per-candidate timeout + lower concurrency
+            _shared_timeout = 0.5 if loose_mode else 3.0
+            _semaphore_size = 2 if loose_mode else 8
+
+            # Phase A: cheap synchronous checks (exist + owner) — no I/O, no await
+            need_shared_check = []  # (addr, acc, owner) pairs that passed checks 1+2
+            for addr, acc in zip(candidates, values):
+                addr_short = addr[:16] if isinstance(addr, str) else str(addr)[:16]
+                if not acc:
+                    rejections[addr] = "account_not_found"
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=account_not_found", flush=True)
+                    continue
+                owner = acc.get("owner")
+                if owner not in ALLOWED_POOL_OWNERS:
+                    rejections[addr] = "wrong_owner"
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=wrong_owner owner={owner[:16] if owner else 'null'}...", flush=True)
+                    continue
+                need_shared_check.append((addr, acc, owner))
+
+            # Phase B: shared-account checks run concurrently.
+            # Strict: Semaphore(8), 3s per check. Loose: Semaphore(2), 0.5s per check.
+            _sem = asyncio.Semaphore(_semaphore_size)
+
+            async def _check_shared(addr, acc, owner):
+                addr_short = addr[:16]
+                async with _sem:
+                    try:
+                        is_shared = await asyncio.wait_for(
+                            _pd._is_shared_account(addr, threshold=_shared_threshold),
+                            timeout=_shared_timeout,
+                        )
+                    except asyncio.TimeoutError:
+                        # Loose: timeout = fail open (accept candidate, don't block)
+                        if loose_mode:
+                            log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check timed out {_shared_timeout}s, accepting in loose mode)", flush=True)
+                            return addr, {"address": addr, "account_info": acc, "owner": owner}, None
+                        # Strict: timeout = fail closed
+                        return addr, None, "shared_check_timeout"
+                    except Exception as check_error:
+                        reason = "shared_check_failed"
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason={reason} error={str(check_error)[:40]}", flush=True)
+                        if strict_mode:
+                            return addr, None, "shared_check_failed"
+                        log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check failed but accepting in retry mode)", flush=True)
+                        return addr, {"address": addr, "account_info": acc, "owner": owner}, None
+                    if is_shared:
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_account threshold={_shared_threshold}", flush=True)
+                        return addr, None, "shared_account"
+                    log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... passed all validation checks", flush=True)
+                    return addr, {"address": addr, "account_info": acc, "owner": owner}, None
+
+            results = await asyncio.gather(*[_check_shared(a, ac, ow) for a, ac, ow in need_shared_check])
+            for addr, rich_obj, rejection_reason in results:
+                if rejection_reason:
+                    rejections[addr] = rejection_reason
+                else:
+                    valid.append(rich_obj)
+                    self._validated_account_cache[addr] = rich_obj["account_info"]
+
+            log_print(f"[BATCH_VALIDATE_REASONS] Result: {len(valid)} valid, {len(rejections)} rejected from {len(candidates)} input", flush=True)
+            log_print(f"[TIMING_PROBE] VALIDATE_DONE n_valid={len(valid)} elapsed_ms={int((time.monotonic()-_tp_val_t0)*1000)}", flush=True)
+            return valid, rejections
+
+        except asyncio.TimeoutError:
+            elapsed = int((time.monotonic() - _tp_val_t0) * 1000)
+            log_print(f"[BATCH_VALIDATE_REASONS] ⏱ outer timeout after {elapsed}ms — aborting (budget={_outer_timeout}s)", flush=True)
+            log_print(f"[TIMING_PROBE] VALIDATE_DONE n_valid=0 elapsed_ms={elapsed} error=timeout", flush=True)
+            with _BUDGET_COUNTERS_LOCK:
+                _BUDGET_COUNTERS["validation_timeout"] += 1
+            return [], {}
+        except Exception as e:
+            log_print(f"[BATCH_VALIDATE_REASONS] ❌ Fatal error during validation: {e}", flush=True)
+            log_print(f"[TIMING_PROBE] VALIDATE_DONE n_valid=0 elapsed_ms={int((time.monotonic()-_tp_val_t0)*1000)} error=1", flush=True)
+            return [], {}
+
+    async def batch_validate_candidates(self, candidates: list, strict_mode: bool = True) -> list:
+        """
+        Batch validate all candidates with single RPC call.
+
+        Returns list of valid pool addresses owned by PUMPSWAP program.
+        Filters out shared accounts (known PDAs used across many tokens).
+
+        Args:
+            candidates: List of account addresses to validate
+            strict_mode: If True, apply all filters (first pass)
+                        If False, looser validation for retries (never allow shared accounts)
+        """
+        if not candidates:
+            return []
+
+        try:
+            _bv_rpc_timeout = _budget.CRITICAL_RPC_TOTAL_S
+            result = await asyncio.wait_for(
+                self.call_discovery_rpc(
+                    "getMultipleAccounts",
+                    [candidates, {"encoding": "base64", "commitment": "processed"}],
+                    timeout=_bv_rpc_timeout,
+                ),
+                timeout=_bv_rpc_timeout + 2,
+            )
+
+            if not result or "result" not in result:
+                log_print(f"[BATCH_VALIDATE] ❌ RPC call failed or empty result", flush=True)
+                return []
+
+            PUMPSWAP_PROGRAM = "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+            # Vault token accounts are owned by SPL Token or Token-2022 — accept both
+            ALLOWED_POOL_OWNERS = {
+                PUMPSWAP_PROGRAM,
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",  # SPL Token
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",  # Token-2022
+            }
+            values = result.get("result", {}).get("value", [])
+
+            log_print(f"[BATCH_VALIDATE] Validating {len(candidates)} candidates (strict_mode={strict_mode})", flush=True)
+
+            valid = []
+
+            from src.core.pool_discovery import PoolDiscovery
+            _pd_db_path = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), '../../database/flex_complete_database.db'))
+            _pd = PoolDiscovery(_pd_db_path, "")
+            _shared_threshold = 2 if strict_mode else 3
+
+            for addr, acc in zip(candidates, values):
+                addr_short = addr[:16] if isinstance(addr, str) else str(addr)[:16]
+
+                # Check 1: Account must exist
+                if not acc:
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=account_not_found", flush=True)
+                    continue
+
+                # Check 2: Owner must be PumpSwap pool program or a token vault program (SPL/Token-2022)
+                owner = acc.get("owner")
+                if owner not in ALLOWED_POOL_OWNERS:
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=wrong_owner owner={owner[:16] if owner else 'null'}...", flush=True)
+                    continue
+
+                # Check 3: Shared account check (always enforce, never accept ADyA-like accounts)
+                try:
+                    is_shared = await _pd._is_shared_account(addr, threshold=_shared_threshold)
+                    if is_shared:
+                        log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_account threshold={_shared_threshold}", flush=True)
+                        continue
+
+                except Exception as check_error:
+                    log_print(f"[CANDIDATE_REJECTED] addr={addr_short}... reason=shared_check_failed error={str(check_error)[:40]}", flush=True)
+                    # Only skip in strict mode; in retry mode, accept if check fails
+                    if strict_mode:
+                        continue
+                    log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... (shared check failed but accepting in retry mode)", flush=True)
+                    valid.append(addr)
+                    continue
+
+                # All checks passed
+                log_print(f"[CANDIDATE_ACCEPTED] addr={addr_short}... passed all validation checks", flush=True)
+                valid.append(addr)
+
+            log_print(f"[BATCH_VALIDATE] Result: {len(valid)} valid candidates from {len(candidates)} input", flush=True)
+            return valid
+
+        except asyncio.TimeoutError:
+            log_print(f"[BATCH_VALIDATE] ⏱ outer timeout — aborting (budget={_bv_rpc_timeout + 2}s)", flush=True)
+            with _BUDGET_COUNTERS_LOCK:
+                _BUDGET_COUNTERS["validation_timeout"] += 1
+            return []
+        except Exception as e:
+            log_print(f"[BATCH_VALIDATE] ❌ Fatal error during validation: {e}", flush=True)
+            return []
+
+    async def resolve_pool_from_tx(self, tx_data: Dict) -> Optional[str]:
+        """
+        Full pipeline: extract → filter → validate → return best pool
+        """
+        if not tx_data:
+            return None
+
+        candidates = await self._extract_pool_from_tx(tx_data)
+
+        if not candidates:
+            log_print("[RESOLVE_POOL] No candidates extracted", flush=True)
+            return None
+
+        log_print(f"[RESOLVE_POOL] Extracted {len(candidates)} candidates, filtering...", flush=True)
+
+        # Ensure all candidates are strings (RPC may return dicts or other types)
+        candidates = [str(c) if not isinstance(c, str) else c for c in candidates]
+
+        # Pre-filter obvious junk (saves RPC bandwidth)
+        candidates = [
+            c for c in candidates
+            if isinstance(c, str) and len(c) >= 32 and not c.startswith("111")
+        ]
+
+        if not candidates:
+            log_print("[RESOLVE_POOL] All candidates filtered out", flush=True)
+            return None
+
+        log_print(f"[RESOLVE_POOL] After pre-filter: {len(candidates)} candidates, batch validating (strict mode)...", flush=True)
+
+        # First pass: strict validation
+        valid = await self.batch_validate_candidates(candidates, strict_mode=True)
+
+        # Fallback: if strict mode found nothing, try again with looser validation
+        if not valid:
+            log_print("[RESOLVE_POOL] ⚠️  No valid pools in strict mode, trying looser validation for retry recovery...", flush=True)
+            valid = await self.batch_validate_candidates(candidates, strict_mode=False)
+
+            if not valid:
+                log_print("[RESOLVE_POOL] ❌ No valid pools found even with loose validation", flush=True)
+                return None
+
+            log_print(f"[RESOLVE_POOL] ✅ Found {len(valid)} candidates in loose mode", flush=True)
+
+        log_print(f"[RESOLVE_POOL] Proceeding with {len(valid)} valid candidates to selection phase", flush=True)
+
+        # Deterministic selection from multiple valid pools
+        pool = self.select_best_pool(valid, tx_data)
+        if pool:
+            log_print(f"[RESOLVE_POOL] ✅ Selected pool: {pool[:16]}...", flush=True)
+            return pool
+
+        log_print("[RESOLVE_POOL] ❌ No pool selected from candidates", flush=True)
+        return None
+
+    async def resolve_pool_from_signature(self, signature: str) -> Optional[str]:
+        """
+        Full pipeline: extract from TX signature → filter → validate → return best pool
+
+        Uses TX cache for deduplication, retry/backoff, and singleflight.
+        """
+        # Fetch tx_data using cache (retry/backoff, dedup, singleflight)
+        tx_data = await self._get_transaction_cached(signature)
+
+        if not tx_data:
+            log_print("[RESOLVE_POOL_SIG] Could not fetch transaction", flush=True)
+            return None
+
+        # Extract candidates from CACHED tx_data (NOT a new RPC call)
+        candidates = await self._extract_pool_from_tx(tx_data)
+
+        if not candidates:
+            log_print("[RESOLVE_POOL_SIG] No candidates extracted", flush=True)
+            return None
+
+        log_print(f"[RESOLVE_POOL_SIG] Extracted {len(candidates)} candidates, filtering...", flush=True)
+
+        # Ensure all candidates are strings (RPC may return dicts or other types)
+        candidates = [str(c) if not isinstance(c, str) else c for c in candidates]
+
+        # Pre-filter obvious junk
+        candidates = [
+            c for c in candidates
+            if isinstance(c, str) and len(c) >= 32 and not c.startswith("111")
+        ]
+
+        if not candidates:
+            log_print("[RESOLVE_POOL_SIG] All candidates filtered out", flush=True)
+            return None
+
+        log_print(f"[RESOLVE_POOL_SIG] After pre-filter: {len(candidates)} candidates, batch validating...", flush=True)
+
+        valid = await self.batch_validate_candidates(candidates)
+
+        if not valid:
+            log_print("[RESOLVE_POOL_SIG] No valid pools found after validation", flush=True)
+            return None
+
+        # Deterministic selection requires TX structure
+        if not tx_data:
+            log_print("[RESOLVE_POOL_SIG] ⚠️  No TX data — cannot deterministically select pool", flush=True)
+            return None
+
+        pool = self.select_best_pool(valid, tx_data)
+        if pool:
+            log_print(f"[RESOLVE_POOL_SIG] ✅ Selected pool: {pool[:16]}...", flush=True)
+            return pool
+
+        return None
+
+    def select_best_pool(self, candidates: list, tx_data: dict) -> str:
+        """
+        Choose the correct pool PDA from validated candidates using scoring.
+
+        Multiple accounts can be owned by PumpSwap:
+        - pool PDA ✅ (correct)
+        - LP mint ❌
+        - vault ❌
+
+        Scoring prioritizes:
+        1. Proximity to token mint + SOL mint (strongest signal)
+        2. Earliest appearance in accountKeys
+        3. Frequency in inner instructions
+        """
+        if not candidates:
+            return None
+
+        if len(candidates) == 1:
+            return candidates[0]
+
+        try:
+            message = tx_data.get("transaction", {}).get("message", {})
+            account_keys = message.get("accountKeys", [])
+            meta = tx_data.get("meta", {})
+            inner = meta.get("innerInstructions", [])
+
+            SOL_MINT = "So11111111111111111111111111111111111111112"
+
+            # Build scores for each candidate (ensure all are strings)
+            scores = {}
+            for candidate in candidates:
+                # Ensure candidate is string
+                candidate_str = str(candidate) if not isinstance(candidate, str) else candidate
+                score = 0
+
+                # Score 0: Proximity to SOL mint (highest priority - strong signal of real pool)
+                # Real pools appear near their token mint and SOL in the account list
+                if SOL_MINT in account_keys:
+                    sol_index = account_keys.index(SOL_MINT)
+                    if candidate_str in account_keys:
+                        candidate_index = account_keys.index(candidate_str)
+                        # Distance: pools are usually within 5 slots of SOL
+                        distance = abs(candidate_index - sol_index)
+                        if distance <= 5:
+                            score += 20  # Strong bonus for proximity to SOL
+                            log_print(f"[SELECT_POOL] {candidate_str[:16]}... has SOL proximity bonus (distance={distance})", flush=True)
+
+                # Score 1: earliest appearance in accountKeys (priority 5)
+                if candidate_str in account_keys:
+                    score += 5 + (100 - account_keys.index(candidate_str))
+
+                # Score 2: frequency in inner instructions (priority 3)
+                frequency = 0
+                for group in inner:
+                    for ix in group.get("instructions", []):
+                        if candidate_str in ix.get("accounts", []):
+                            frequency += 1
+                score += frequency * 3
+
+                scores[candidate_str] = score
+                log_print(f"[SELECT_POOL] Score {candidate_str[:16]}...: {score}", flush=True)
+
+            # Return highest scoring candidate
+            if not scores:
+                log_print("[SELECT_POOL] ❌ No candidates scored", flush=True)
+                return None
+
+            best = max(scores.items(), key=lambda x: x[1])[0]
+            log_print(f"[SELECT_POOL] Selected by scoring: {best[:16]}... (score: {scores[best]})", flush=True)
+            return best
+
+        except Exception as e:
+            log_print(f"[SELECT_POOL] Error analyzing TX structure: {e}", flush=True)
+
+        # No deterministic match found — strict mode
+        log_print("[SELECT_POOL] ❌ No deterministic match found in TX accountKeys", flush=True)
+        return None
+
+    async def _extract_pool_from_tx(self, tx_data: Dict) -> List[str]:
+        """
+        Extract pool candidates from transaction data using INSTRUCTION-FOCUSED extraction.
+        
+        This matches the retry path's parse_candidates_from_cached_tx() logic:
+        1. Extract accounts referenced by top-level instructions
+        2. Extract accounts referenced by inner instructions
+        3. Deduplicate and filter system programs
+        
+        This is more targeted than extracting all accounts, giving us a focused candidate set
+        that matches what the retry path sees.
+        """
+        if not tx_data:
+            return []
+
+        _tp_ext_t0 = time.monotonic()
+        log_print(f"[TIMING_PROBE] POOL_EXTRACT_START", flush=True)
+        try:
+            message = tx_data.get("transaction", {}).get("message", {})
+            meta = tx_data.get("meta", {})
+            
+            raw_account_keys = message.get("accountKeys", []) or []
+            loaded_addrs = meta.get("loadedAddresses", {}) or {}
+            loaded_writable = loaded_addrs.get("writable", []) or []
+            loaded_readonly = loaded_addrs.get("readonly", []) or []
+
+            # Normalize all accounts into a single ordered list
+            all_accounts = [
+                str(a.get("pubkey") if isinstance(a, dict) else a)
+                for a in (raw_account_keys + loaded_writable + loaded_readonly)
+            ]
+
+            if not all_accounts:
+                log_print(f"[_EXTRACT_POOL_FROM_TX] No accounts found in TX", flush=True)
+                return []
+
+            SYSTEM_PROGRAMS = {
+                "11111111111111111111111111111111",
+                "ComputeBudget111111111111111111111111111111",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                "So11111111111111111111111111111111111111112",
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            }
+
+            SKIP_ACCOUNTS = {
+                "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
+                "ADyA8hdefvWN2dbGGWFotbzWxrAvLW83WG6QCVXvJKqw",
+            }
+
+            def resolve_instruction_accounts(ix_obj):
+                """Return concrete pubkeys referenced by one instruction."""
+                resolved = []
+
+                # jsonParsed often has integer account indices
+                if isinstance(ix_obj, dict) and "accounts" in ix_obj:
+                    for ref in ix_obj.get("accounts", []):
+                        if isinstance(ref, int):
+                            if 0 <= ref < len(all_accounts):
+                                resolved.append(all_accounts[ref])
+                        elif isinstance(ref, str):
+                            resolved.append(ref)
+
+                # Sometimes parsed instructions expose programId directly
+                program_id = ix_obj.get("programId") if isinstance(ix_obj, dict) else None
+                if program_id:
+                    resolved.append(str(program_id))
+
+                return resolved
+
+            # 1) Top-level instruction accounts
+            instruction_accounts = []
+            top_level_ix = message.get("instructions", []) or []
+            for ix in top_level_ix:
+                instruction_accounts.extend(resolve_instruction_accounts(ix))
+
+            # 2) Inner instruction accounts
+            inner_ix_groups = meta.get("innerInstructions", []) or []
+            for group in inner_ix_groups:
+                for ix in group.get("instructions", []) or []:
+                    instruction_accounts.extend(resolve_instruction_accounts(ix))
+
+            # Deduplicate while preserving order
+            seen = set()
+            candidates = []
+            for acc in instruction_accounts:
+                if not acc or acc in seen:
+                    continue
+                if acc in SYSTEM_PROGRAMS or acc in SKIP_ACCOUNTS:
+                    continue
+                seen.add(acc)
+                candidates.append(acc)
+
+            # Fallback only if instruction parsing found nothing
+            if not candidates:
+                # Fall back to full account list (all_accounts filtered)
+                log_print(
+                    f"[_EXTRACT_POOL_FROM_TX] No instruction-derived accounts, falling back to full list",
+                    flush=True
+                )
+                seen = set()
+                for acc in all_accounts:
+                    if not acc or acc in seen:
+                        continue
+                    if acc in SYSTEM_PROGRAMS or acc in SKIP_ACCOUNTS:
+                        continue
+                    seen.add(acc)
+                    candidates.append(acc)
+            else:
+                log_print(
+                    f"[_EXTRACT_POOL_FROM_TX] Extracted {len(candidates)} instruction-derived candidates",
+                    flush=True
+                )
+
+            # Prevent pathological TX explosions
+            if len(candidates) > 50:
+                log_print(f"[_EXTRACT_POOL_FROM_TX] Limiting candidates from {len(candidates)} to 50", flush=True)
+                candidates = candidates[:50]
+
+            log_print(f"[TIMING_PROBE] POOL_EXTRACT_DONE n_candidates={len(candidates)} elapsed_ms={int((time.monotonic()-_tp_ext_t0)*1000)}", flush=True)
+            return candidates
+
+        except Exception as e:
+            log_print(f"[_EXTRACT_POOL_FROM_TX] Error: {e}", flush=True)
+            log_print(f"[TIMING_PROBE] POOL_EXTRACT_DONE n_candidates=0 elapsed_ms={int((time.monotonic()-_tp_ext_t0)*1000)} error=1", flush=True)
+            return []
+
+    async def _get_pool_address(self, token_mint: str, signature: str) -> Optional[str]:
+        """Get pool address from database only.
+        
+        Pool discovery happens in _process_migration_with_mint via:
+        1. Migration TX scan (stage 1)
+        2. Scheduled retry with program-account discovery (stage 2)
+        
+        This method only reads from DB - does not attempt discovery.
+        """
+        try:
+            def _read_pool(_m=token_mint):
+                _c = db_connect(DB_PATH, timeout=60)
+                _r = _c.execute("SELECT pool_address FROM token_analysis WHERE mint = ?", (_m,)).fetchone()
+                _c.close()
+                return _r
+            row = await asyncio.to_thread(_read_pool)
+            if row and row[0]:
+                return row[0]
+            return None
+        except Exception:
+            return None
+
+    async def _extract_price_from_transaction(self, signature: str, token_mint: str) -> Optional[tuple]:
+        """
+        Extract on-chain price from pool vault balances.
+
+        Strategy:
+        1. Get pool address (from DB or extract from transaction)
+        2. Retry on-chain price extraction with small delays (hydration guard)
+        3. Fall back to DexScreener only after retries exhausted
+
+        Returns: (price_usd, market_cap_usd, source, liquidity_usd) or None
+        """
+        try:
+            # Get or extract pool address
+            pool_address = await self._get_pool_address(token_mint, signature)
+
+            if pool_address:
+                # HYDRATION GUARD: Retry on-chain extraction (pool data may not be ready immediately)
+                # Pools need ~200-400ms to populate balances after registration
+                for attempt in range(3):
+                    result = await self._get_price_from_pool_account(pool_address, token_mint)
+                    if result is not None:
+                        price, market_cap, liquidity_usd = result
+                        self.price_stats['onchain_success'] += 1
+                        return (price, market_cap, "onchain", liquidity_usd)
+
+                    # Retry delay: 200ms initially, then 300ms, then 400ms
+                    if attempt < 2:
+                        delay = 0.2 + (attempt * 0.1)
+                        await asyncio.sleep(delay)
+
+            # Fall back to DexScreener only after all retries exhausted
+            self.price_stats['dexscreener_fallback'] += 1
+            fallback_rate = self.price_stats['dexscreener_fallback'] / (self.price_stats['onchain_success'] + self.price_stats['dexscreener_fallback'])
+            log_print(f"[PRICE_FALLBACK] mint={token_mint[:16]}... reason=onchain_failed (fallback_rate={fallback_rate:.2%})", flush=True)
+            _wstrace('ONCHAIN_FAILED', token_mint, f"fallback_rate={fallback_rate:.2%}")
+            result = await self._fetch_dexscreener_price(token_mint)
+            if result is not None:
+                price, market_cap, liquidity_usd = result
+                return (price, market_cap, "dexscreener", liquidity_usd)
+
+            return None
+
+        except Exception as e:
+            log_print(f"[PRICE_ERROR] Failed to extract price for {token_mint}: {e}", flush=True)
+            return None
+
+    async def _find_pool_account(self, token_mint: str) -> Optional[str]:
+        """
+        DEPRECATED: Use PoolDetector.detect_pool_from_tx() instead.
+
+        This method was a legacy fallback before hardened pool detection.
+        It has fundamental issues:
+        - Returns token account owner, not pool PDA
+        - Doesn't validate with parser
+        - Causes "Unknown pool program owner" errors
+
+        Do not use.
+        """
+        raise NotImplementedError(
+            "Legacy _find_pool_account() is deprecated. "
+            "Use PoolDetector.detect_pool_from_tx() for all pool discovery."
+        )
+
+    async def _get_price_from_pool_account(self, pool_address: str, token_mint: str) -> Optional[tuple]:
+        """
+        Get price by querying pool account's token and SOL balances.
+
+        PumpSwap pools store liquidity in WSOL (wrapped SOL) token accounts, not native lamports.
+        We query for both WSOL and the token mint, then calculate price from the balance ratio.
+
+        Returns: (price_usd, market_cap_usd, liquidity_usd) or None
+        """
+        try:
+            # Query WSOL (wrapped SOL) token accounts owned by this pool
+            # WSOL mint: So11111111111111111111111111111111111111112
+            wsol_mint = "So11111111111111111111111111111111111111112"
+
+            # Use background RPC tier (price extraction is not critical path)
+            data = await self.call_background_rpc(
+                "getTokenAccountsByOwner",
+                [pool_address, {"mint": wsol_mint}, {"encoding": "jsonParsed"}]
+            )
+
+            sol_balance = 0
+            if data and "result" in data:
+                result_data = data["result"]
+                if isinstance(result_data, dict) and "value" in result_data:
+                    accounts = result_data["value"]
+                    if accounts and isinstance(accounts, list) and len(accounts) > 0:
+                        # Get WSOL balance from first (should only be one)
+                        first_account = accounts[0]
+                        if isinstance(first_account, dict):
+                            account_obj = first_account.get("account", {})
+                            if isinstance(account_obj, dict):
+                                data_obj = account_obj.get("data", {})
+                                if isinstance(data_obj, dict):
+                                    parsed = data_obj.get("parsed", {})
+                                    if isinstance(parsed, dict):
+                                        wsol_info = parsed.get("info", {})
+                                        if isinstance(wsol_info, dict):
+                                            token_amount_info = wsol_info.get("tokenAmount", {})
+                                            if isinstance(token_amount_info, dict):
+                                                sol_balance = float(token_amount_info.get("uiAmount", 0))
+
+            # If no WSOL, fall back to pool account lamports
+            if sol_balance == 0:
+                # Use background RPC tier for fallback query
+                data = await self.call_background_rpc(
+                    "getAccountInfo",
+                    [pool_address, {"encoding": "jsonParsed"}]
+                )
+                if not data or "result" not in data or not data["result"]:
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=getAccountInfo_no_result", flush=True)
+                    return None
+
+                result_data = data["result"]
+                if not isinstance(result_data, dict):
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=getAccountInfo_bad_result_type", flush=True)
+                    return None
+
+                account_value = result_data.get("value", {})
+                if not account_value or not isinstance(account_value, dict):
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=getAccountInfo_no_value", flush=True)
+                    return None
+
+                lamports = account_value.get("lamports", 0)
+                sol_balance = lamports / 1e9
+
+            if sol_balance == 0:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=sol_balance_zero", flush=True)
+                return None
+
+            # Query token accounts owned by this pool (use background RPC tier)
+            data2 = await self.call_background_rpc(
+                "getTokenAccountsByOwner",
+                [pool_address, {"mint": token_mint}, {"encoding": "jsonParsed"}]
+            )
+            if not data2 or "result" not in data2:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=token_accounts_no_result sol={sol_balance:.4f}", flush=True)
+                return None
+
+            result_data2 = data2["result"]
+            if not isinstance(result_data2, dict) or "value" not in result_data2:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=token_accounts_bad_result sol={sol_balance:.4f}", flush=True)
+                return None
+
+            accounts = result_data2["value"]
+            if not accounts or not isinstance(accounts, list):
+                # No token accounts for this mint in this pool - wrong pool address
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=no_token_accounts sol={sol_balance:.4f}", flush=True)
+                return None
+
+            try:
+                # Find the account with the LARGEST token balance
+                # (PumpSwap pools may have multiple token accounts)
+                max_balance_account = None
+                max_balance = 0
+
+                for token_account in accounts:
+                    if not isinstance(token_account, dict):
+                        continue
+
+                    account_data = token_account.get("account", {})
+                    if not isinstance(account_data, dict):
+                        continue
+
+                    parsed = account_data.get("data", {})
+                    if isinstance(parsed, dict):
+                        parsed = parsed.get("parsed", {})
+                    elif not isinstance(parsed, dict):
+                        continue
+
+                    if not isinstance(parsed, dict):
+                        continue
+                    token_info = parsed.get("info", {})
+                    if not isinstance(token_info, dict):
+                        continue
+                    token_amount_info = token_info.get("tokenAmount", {})
+                    if not isinstance(token_amount_info, dict):
+                        continue
+                    balance = float(token_amount_info.get("uiAmount", 0))
+
+                    if balance > max_balance:
+                        max_balance = balance
+                        max_balance_account = token_account
+
+                if not max_balance_account:
+                    log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=no_parseable_token_account n_accounts={len(accounts)} sol={sol_balance:.4f}", flush=True)
+                    return None
+
+                account_data = max_balance_account.get("account", {})
+                if not isinstance(account_data, dict):
+                    return None
+                data_obj = account_data.get("data", {})
+                if not isinstance(data_obj, dict):
+                    return None
+                parsed = data_obj.get("parsed", {})
+                if not isinstance(parsed, dict):
+                    return None
+                token_info = parsed.get("info", {})
+                if not isinstance(token_info, dict):
+                    return None
+                token_amount_info = token_info.get("tokenAmount", {})
+                if not isinstance(token_amount_info, dict):
+                    return None
+                token_balance = float(token_amount_info.get("uiAmount", 0))
+
+            except (KeyError, ValueError, TypeError) as e:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=parse_exception err={e}", flush=True)
+                return None
+
+            # HYDRATION GUARD: Require both base AND quote to be ready
+            # Zero balances indicate pool data not yet synced from chain
+            if token_balance <= 0 or sol_balance <= 0:
+                log_print(f"[ONCHAIN_FAIL] mint={token_mint[:16]} pool={pool_address[:16]} reason=zero_balances sol={sol_balance:.4f} token={token_balance:.0f}", flush=True)
+                return None
+
+            # Calculate price
+            price_sol = sol_balance / token_balance
+            sol_usd = await self._get_sol_price_usd()
+            price_usd = price_sol * sol_usd
+            total_supply = 1_000_000_000  # Pump.Fun tokens have 1B supply
+            market_cap_usd = price_usd * total_supply
+            quote_liquidity_usd = sol_balance * sol_usd if sol_usd else 0
+
+            if quote_liquidity_usd < 750:
+                try:
+                    from src.core.price_worker import record_low_liquidity
+                    record_low_liquidity(
+                        token_mint,
+                        sol_balance,
+                        db_path=DB_PATH,
+                        quote_usd=quote_liquidity_usd,
+                        source="listener_onchain_threshold",
+                    )
+                except Exception as liq_err:
+                    log_print(f"[LIQUIDITY_FLAG_FAIL] mint={token_mint[:16]} err={liq_err}", flush=True)
+            elif sol_balance >= 5.0:
+                try:
+                    from src.core.price_worker import clear_low_liquidity
+                    clear_low_liquidity(token_mint, sol_balance, db_path=DB_PATH)
+                except Exception:
+                    pass
+
+            log_print(f"[ONCHAIN_OK] mint={token_mint[:16]} pool={pool_address[:16]} sol={sol_balance:.4f} token={token_balance:.0f} mc=${market_cap_usd:,.0f}", flush=True)
+            return (price_usd, market_cap_usd, quote_liquidity_usd)
+
+        except Exception as e:
+            log_print(f"[PRICE_ERROR] Exception in on-chain extraction: {e}", flush=True)
+            return None
+
+    async def _extract_onchain_pool_price(self, token_mint: str) -> Optional[tuple]:
+        """
+        Extract price from on-chain pool account balances.
+        
+        NOTE: The proper implementation would require:
+        1. Finding the actual pool account address for this token
+        2. Querying that specific account's vault balances
+        3. Calculating price from token/SOL ratio
+        
+        Since we don't have the pool address readily available during price updates,
+        and extracting it reliably from transactions is complex, we rely on DexScreener
+        which has verified, real-time pricing. The fallback mechanism ensures pricing
+        always works.
+        
+        Returns: None (signals to use DexScreener fallback)
+        """
+        return None
+
+    async def _get_pool_price_from_vault(self, token_mint: str) -> Optional[tuple]:
+        """
+        Extract on-chain price by querying token pool account balances.
+        Uses Jupiter API to find pool and fetch live vault balances.
+        
+        Returns: (price_usd, market_cap_usd) or None
+        """
+        try:
+            # Query Jupiter API for token info which includes pool address
+            url = f"https://api.jup.ag/tokens/v1?searchQuery={token_mint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return None
+                    
+                    data = await resp.json()
+                    tokens = data.get("tokens", [])
+                    
+                    if not tokens:
+                        return None
+                    
+                    # Get SOL price for USD conversion
+                    sol_price_usd = await self._get_sol_price_usd()
+                    
+                    # For now, fallback to DexScreener if we can't determine pool
+                    # TODO: Implement proper pool vault balance fetching
+                    return None
+                    
+        except Exception as e:
+            return None
+
+    async def _get_sol_price_usd(self) -> float:
+        """Get current SOL price in USD using the shared worker-grade cache/fetcher."""
+        try:
+            from src.core.sol_price_cache import get_sol_price_cache
+            from src.core.pool_price_engine import PoolPriceCalculator
+
+            cache = get_sol_price_cache()
+            price = await cache.get_price(PoolPriceCalculator.fetch_sol_price_usd)
+            # Sanity guard: if some upstream source returns nonsense, keep on-chain MC usable.
+            if price and 20.0 <= float(price) <= 1000.0:
+                return float(price)
+        except Exception:
+            pass
+        return 94.0
+
+    async def _fetch_dexscreener_price(self, token_mint: str) -> Optional[tuple]:
+        """
+        Fetch price and market cap from DexScreener API.
+        
+        Returns: (price_usd, market_cap_usd, liquidity_usd) or None
+        All values are in USD for consistency with database storage.
+        """
+        try:
+            url = f"https://api.dexscreener.com/latest/dex/tokens/{token_mint}"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                    if resp.status != 200:
+                        return None
+                    
+                    data = await resp.json()
+                    pairs = data.get("pairs", [])
+                    
+                    if not pairs:
+                        return None
+                    
+                    pair = pairs[0]
+                    
+                    # Get USD price and market cap from DexScreener
+                    price_usd = pair.get("priceUsd")
+                    market_cap_usd = pair.get("marketCap")
+                    
+                    if not price_usd or not market_cap_usd:
+                        return None
+                    
+                    try:
+                        price_usd = float(price_usd)
+                        market_cap_usd = float(market_cap_usd)
+                    except (ValueError, TypeError):
+                        return None
+                    
+                    liquidity_usd = float(pair.get("liquidity", {}).get("usd", 0) or 0)
+                    return (price_usd, market_cap_usd, liquidity_usd)
+                    
+        except Exception as e:
+            log_print(f"[PRICE_ERROR] DexScreener fetch failed {token_mint}: {e}", flush=True)
+            return None
+
+    def _extract_mint_from_logs(self, logs: list) -> Optional[str]:
+        """
+        Fallback: Extract token mint address from transaction logs.
+        Looks for patterns like "mint: EPjFWdd5Au..." in the logs.
+        """
+        try:
+            logs_text = ' '.join(logs)
+            # Look for "mint:" patterns followed by base58 addresses
+            matches = re.findall(r'mint[:\s]+([1-9A-HJ-NP-Z]{32,})', logs_text, re.IGNORECASE)
+            if matches:
+                # Return the first valid match (don't filter by "pump" - not all pump.fun tokens contain "pump")
+                return matches[0] if matches else None
+            return None
+        except Exception as e:
+            log_print(f"[MINT] ⚠ Error extracting mint from logs: {e}", flush=True)
+            return None
+
+    # --- Analyzer ---
+    async def analyze_post_migration(self, mint: str, signature: str = None, pool_address: str = None):
+        """Analyze token's post-migration activity on PumpSwap"""
+        if mint in self.analyzed_tokens:
+            return
+        try:
+            log_print(f"[ANALYZER] 🔍 Analyzing post-migration {mint}", flush=True)
+            analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+            await analyzer.fetch_curve_activity_async()
+
+            summary = await analyzer.get_summary_async()
+
+            # Extract creator from earliest transaction with provenance validation
+            earliest_creator = None
+            creator_is_blocked = 0
+            network_risk = None
+            if os.environ.get("CREATOR_BACKFILL_ENABLED", "0") != "0":
+                provenance = await analyzer.get_creator_from_earliest_tx()
+            else:
+                provenance = None
+                log_print(f"[ANALYZER] Inline RPC backfill disabled; skipping creator walk for {mint[:16]}...", flush=True)
+
+            if provenance:
+                earliest_creator = provenance.get('creator')
+                # Store provenance data in summary for auditing
+                summary["creator_provenance"] = {
+                    'status': provenance.get('status'),
+                    'earliest_sig': provenance.get('earliest_sig'),
+                    'reached_end': provenance.get('reached_end'),
+                    'pages_traversed': provenance.get('pages_traversed'),
+                    'is_pumpfun_create': provenance.get('is_pumpfun_create'),
+                    'slot': provenance.get('slot'),
+                    'blockTime': provenance.get('blockTime'),
+                    'validation_notes': provenance.get('validation_notes', [])
+                }
+
+            if earliest_creator:
+                summary["earliest_tx_creator"] = earliest_creator
+                provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
+                log_print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status})", flush=True)
+
+                # Check if creator is in blocklist
+                try:
+                    def _read_blocklist(_cr=earliest_creator):
+                        _c = db_connect(DB_PATH, timeout=60)
+                        try:
+                            _r = _c.execute("SELECT rug_count, reputation, connected_to_malicious, network_members FROM creator_blocklist WHERE creator_address = ?", (_cr,)).fetchone()
+                        except Exception:
+                            _r = None
+                        _c.close()
+                        return _r
+                    blocklist_row = await asyncio.to_thread(_read_blocklist)
+
+                    if blocklist_row:
+                        rug_count, reputation, connected_to_malicious, network_members_json = blocklist_row
+                        creator_is_blocked = 1
+                        summary["creator_is_blocked"] = 1
+                        summary["creator_reputation"] = reputation
+
+                        if rug_count >= 2:
+                            log_print(f"[BLOCKLIST] 🚨 MALICIOUS CREATOR DETECTED: {earliest_creator} | {rug_count} rugs", flush=True)
+                        else:
+                            log_print(f"[BLOCKLIST] 📝 SUSPICIOUS CREATOR: {earliest_creator} | on watch list", flush=True)
+
+                        # Check if connected to other malicious creators
+                        if connected_to_malicious:
+                            try:
+                                network_members = json.loads(network_members_json) if network_members_json else []
+                                network_risk = len(network_members)
+                                summary["network_risk"] = 1
+                                summary["connected_malicious_count"] = len(network_members)
+                                log_print(f"[NETWORK] 🔗 NETWORK RISK: Creator is connected to {len(network_members)} malicious creator(s)", flush=True)
+                            except:
+                                pass
+
+                except Exception as e:
+                    log_print(f"[BLOCKLIST_CHECK] Error checking creator: {e}", flush=True)
+
+            self.analyzed_tokens[mint] = summary
+            risk_level = summary.get("risk_level", "🟢 LOW RISK")
+            score = summary.get("rug_probability", 0.0)
+
+            # Add creator risk indicator if blocked
+            if creator_is_blocked:
+                if network_risk:
+                    risk_indicator = f"🔗 NETWORK RISK ({network_risk} connected)"
+                elif summary.get("creator_reputation") == "MALICIOUS":
+                    risk_indicator = "🚨 MALICIOUS CREATOR"
+                else:
+                    risk_indicator = "📝 SUSPICIOUS CREATOR"
+                log_print(f"[ANALYZER] {risk_indicator} | {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+            else:
+                log_print(f"[ANALYZER] {risk_level} | Score: {score:.2%} | {mint}", flush=True)
+
+            # Store analysis results (will be updated with live price in background)
+            # Pass pool_address if available
+            await self._store_analysis(mint, summary, signature, pool_address)
+
+            # Incrementally update networks if creator was found
+            if earliest_creator:
+                try:
+                    from main import update_networks_for_new_token
+                    update_networks_for_new_token(mint, earliest_creator)
+                except Exception as e:
+                    log_print(f"[NETWORK_UPDATE] Error updating networks for {mint}: {e}", flush=True)
+
+        except Exception as e:
+            log_print(f"[ANALYZER] ⚠ Analysis failed for {mint}: {e}", flush=True)
+
+    async def update_live_prices_background(self):
+        """Background task: Update live prices and market caps continuously"""
+        await asyncio.sleep(2)  # Wait 2s before starting
+        
+        while True:
+            try:
+                tokens = self._get_tokens_needing_price_update()
+                
+                if not tokens:
+                    await asyncio.sleep(5)
+                    continue
+                
+                updated_count = 0
+                failed_count = 0
+
+                for token_mint in tokens:
+                    try:
+                        # Get the migration transaction for this token to extract price
+                        tx_signature = await self._get_migration_tx_for_token(token_mint)
+
+                        if not tx_signature:
+                            failed_count += 1
+                            continue
+
+                        # Extract price from DexScreener or on-chain
+                        result = await self._extract_price_from_transaction(tx_signature, token_mint)
+
+                        if result is not None:
+                            price, market_cap, source, liquidity_usd = result
+                            await self._update_price_in_db(
+                                token_mint, price, market_cap, source, liquidity_usd
+                            )
+                            updated_count += 1
+                        else:
+                            failed_count += 1
+
+                        # Rate limit
+                        await asyncio.sleep(0.1)
+                    except Exception as e:
+                        failed_count += 1
+
+                # Loop back after 10 seconds for live updates
+                await asyncio.sleep(10)
+                        
+            except Exception as e:
+                log_print(f"[PRICE_BG] Error in background task: {e}", flush=True)
+                await asyncio.sleep(5)
+
+    def _prune_tx_cache(self):
+        """Remove expired entries from TX cache to prevent unbounded growth"""
+        import time
+        now = time.time()
+        expired = [sig for sig, (_, ts) in self.tx_cache.items() if (now - ts) >= self.tx_cache_ttl_seconds]
+        for sig in expired:
+            self.tx_cache.pop(sig, None)
+            # Also clean up pending retry tasks for expired entries
+            if sig in self.tx_cache_pending_retries:
+                self.tx_cache_pending_retries.pop(sig, None)
+        if expired:
+            log_print(f"[TX_CACHE] 🧹 Pruned {len(expired)} expired entries (cache size: {len(self.tx_cache)})", flush=True)
+
+    def _get_tokens_needing_price_update(self) -> List[str]:
+        """Get tokens that need live price updates (prioritize newer)"""
+        try:
+            conn = db_connect(DB_PATH, timeout=60)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Get top 50 newest tokens (all active tokens)
+            cursor.execute("""
+                SELECT mint FROM token_analysis
+                ORDER BY analyzed_at DESC
+                LIMIT 50
+            """)
+            
+            tokens = [row[0] for row in cursor.fetchall()]
+            conn.close()
+            return tokens
+        except Exception as e:
+            log_print(f"[DB_ERROR] Failed to fetch tokens: {e}", flush=True)
+            return []
+
+    async def _get_migration_tx_for_token(self, token_mint: str) -> Optional[str]:
+        """Get the migration transaction signature for a token"""
+        try:
+            def _read_migration_tx(_m=token_mint):
+                _c = db_connect(DB_PATH, timeout=60)
+                _r = _c.execute("SELECT migration_tx FROM token_analysis WHERE mint = ?", (_m,)).fetchone()
+                _c.close()
+                return _r
+            row = await asyncio.to_thread(_read_migration_tx)
+            return row[0] if row and row[0] else None
+        except Exception as e:
+            log_print(f"[DB_ERROR] Failed to get tx for {token_mint}: {e}", flush=True)
+            return None
+
+    async def _add_rug_creator_to_blocklist(self, token_mint: str, earliest_tx_creator: str = None):
+        """
+        When a rug is detected, add the creator to the block list in the database.
+        This allows future tokens from the same creator to be skipped.
+        """
+        if not earliest_tx_creator:
+            return
+
+        try:
+            def _blocklist_write(_creator=earliest_tx_creator, _mint=token_mint):
+                _conn = db_connect(DB_PATH, timeout=15)
+                try:
+                    _row = _conn.execute("SELECT rug_count, rugged_tokens FROM creator_blocklist WHERE creator_address = ?", (_creator,)).fetchone()
+                    if _row:
+                        _rug_count = _row[0] + 1
+                        try:
+                            _rugged = json.loads(_row[1]) if _row[1] else []
+                        except Exception:
+                            _rugged = []
+                        if _mint not in _rugged:
+                            _rugged.append(_mint)
+                        _rep = "MALICIOUS" if _rug_count >= 2 else "SUSPICIOUS"
+                        _conn.execute(
+                            "UPDATE creator_blocklist SET rug_count=?, rugged_tokens=?, reputation=?, last_rug_detected_at=datetime('now'), updated_at=datetime('now') WHERE creator_address=?",
+                            (_rug_count, json.dumps(_rugged), _rep, _creator),
+                        )
+                    else:
+                        _rug_count = 1
+                        _conn.execute(
+                            "INSERT INTO creator_blocklist (creator_address, rug_count, rugged_tokens, reputation, first_rug_detected_at, last_rug_detected_at) VALUES (?, 1, ?, 'SUSPICIOUS', datetime('now'), datetime('now'))",
+                            (_creator, json.dumps([_mint])),
+                        )
+                    _conn.commit()
+                    return _rug_count
+                finally:
+                    _conn.close()
+            rug_count = await asyncio.to_thread(_blocklist_write)
+            if rug_count >= 2:
+                log_print(f"[BLOCKLIST] 🚨 SERIAL RUGGER: {earliest_tx_creator} | {rug_count} rugs detected", flush=True)
+            else:
+                log_print(f"[BLOCKLIST] 📝 Added to watch list: {earliest_tx_creator} | {rug_count} rug", flush=True)
+        except Exception as e:
+            log_print(f"[BLOCKLIST_ERROR] Failed to update rug creator block list: {e}", flush=True)
+
+    async def _persist_price_update(self, token_mint: str, current_price: float, current_market_cap: float,
+                                    source: str = "onchain", liquidity_usd: float = 0.0) -> None:
+        """
+        Route listener prices through the canonical worker persistence sink so
+        current MC, snapshots, peaks, and SSE stay in one pipeline.
+        """
+        try:
+            from src.core.price_service import TokenPrice
+            from src.core.price_worker import get_price_worker
+
+            sol_usd = await self._get_sol_price_usd()
+            price_sol = (current_price / sol_usd) if sol_usd and current_price > 0 else 0.0
+            token_price = TokenPrice(
+                mint=token_mint,
+                price_usd=current_price or 0.0,
+                price_sol=price_sol or 0.0,
+                liquidity_usd=liquidity_usd or 0.0,
+                volume_24h=0.0,
+                market_cap=current_market_cap or 0.0,
+                source=source or "onchain",
+                timestamp=int(time.time()),
+                is_stale=False,
+            )
+
+            worker = self.price_worker or get_price_worker()
+            worker._on_price_fetched(token_mint, token_price)
+        except Exception as e:
+            log_print(f"[PRICE_CANONICAL] ⚠ Failed to persist {token_mint[:16]}... via worker sink: {e}", flush=True)
+            raise
+
+    async def _update_price_in_db(self, token_mint: str, current_price: float, current_market_cap: float,
+                                  source: str = "onchain", liquidity_usd: float = 0.0):
+        """
+        Persist live price via the canonical worker sink, then update listener-owned
+        metadata such as rug detection and price_highest.
+        
+        Also automatically detects and flags rug pulls:
+        - If time to peak < 30 minutes AND peak market cap < $100k → flag as 'quick_peak_low_mc'
+        
+        Note: Prices and market caps are stored in USD for consistency with DexScreener.
+        """
+        should_refresh_signal = False
+        signal_now = int(time.time())
+
+        # Run all sync DB reads+writes in a thread to avoid blocking the event loop on
+        # the write-lane serializer (threading.Lock.acquire(timeout=60)).
+        def _sync_price_db_work(
+            _mint=token_mint, _cur_price=current_price, _cur_mc=current_market_cap,
+            _src=source, _liq=liquidity_usd,
+        ):
+            # B2BC: all analysis is read-only and must not enter the shared
+            # write lane.  Open the write-capable connection only after the
+            # reads and in-memory rug/peak calculations are complete.
+            read_conn = db_connect(DB_PATH, timeout=15, read_only=True)
+            try:
+                cursor = read_conn.cursor()
+                cursor.execute(
+                    """
+                    SELECT price_highest, rug_indicator, created_at, lifecycle_stage,
+                           pool_address, pumpswap_pool_address, dex, source_platform, bonding_curve_pda
+                    FROM token_analysis WHERE mint = ?
+                    """,
+                    (_mint,)
+                )
+                row = cursor.fetchone()
+                _price_highest = row[0] if row and row[0] else _cur_price
+                _current_rug = row[1] if row else None
+                _created_at_raw = row[2] if row else None
+                _lifecycle = row[3] if row else None
+                _pool_addr = row[4] if row else None
+                _pumpswap_pool = row[5] if row else None
+                _dex_name = row[6] if row else None
+                _src_platform = row[7] if row else None
+                _bc_pda = row[8] if row else None
+
+                if _cur_price > _price_highest:
+                    _price_highest = _cur_price
+
+                cursor.execute(
+                    "SELECT peak_market_cap FROM token_market_cap_peaks WHERE mint = ?",
+                    (_mint,)
+                )
+                peak_row = cursor.fetchone()
+                _prev_peak_mc = peak_row[0] if peak_row and peak_row[0] else 0
+                _is_new_peak = _cur_mc > _prev_peak_mc
+
+                _rug_indicator = _current_rug
+                _rug_creator = None
+                _rug_log = None
+                if _is_new_peak and _created_at_raw is not None and _cur_mc > 0:
+                    try:
+                        _now_ts = int(datetime.now().timestamp())
+                        if isinstance(_created_at_raw, (int, float)):
+                            _created_ts = int(_created_at_raw)
+                        else:
+                            _created_ts = int(datetime.fromisoformat(
+                                str(_created_at_raw).replace('Z', '+00:00')
+                            ).timestamp())
+                        _ttp = (_now_ts - _created_ts) / 60
+                        if _ttp < 30 and _cur_mc < 100000:
+                            _rug_indicator = 'quick_peak_low_mc'
+                            _rug_log = f"[RUG] 🚨 DETECTED: {_mint} | Time to peak: {_ttp:.1f} min | Peak MC: ${_cur_mc:,.0f}"
+                            cursor.execute("SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (_mint,))
+                            _crow = cursor.fetchone()
+                            if _crow and _crow[0]:
+                                _rug_creator = _crow[0]
+                        elif _ttp < 30:
+                            _rug_indicator = None
+                            _rug_log = f"[PEAK] ⚡ Fast peak but legit size: {_mint} | Time: {_ttp:.1f} min | MC: ${_cur_mc:,.0f}"
+                        else:
+                            _rug_indicator = None
+                    except Exception as _e:
+                        log_print(f"[RUG_CHECK] ⚠ Could not analyze rug pattern for {_mint}: {_e}", flush=True)
+
+            finally:
+                read_conn.close()
+
+            # Fallback price write (canonical path skipped here; handled
+            # async after return).  This is intentionally the entire
+            # write-capable scope: one UPDATE and one commit.
+            write_conn = db_connect(DB_PATH, timeout=15)
+            try:
+                write_conn.execute("""
+                    UPDATE token_analysis
+                    SET price_current = ?,
+                        market_cap_current = ?,
+                        price_source = ?, price_updated_at = datetime('now'),
+                        price_highest = ?,
+                        rug_indicator = ?
+                    WHERE mint = ?
+                """, (_cur_price, _cur_mc, _src, _price_highest, _rug_indicator, _mint))
+                write_conn.commit()
+                return {
+                    'price_highest': _price_highest,
+                    'rug_indicator': _rug_indicator,
+                    'rug_creator': _rug_creator,
+                    'rug_log': _rug_log,
+                    'lifecycle_stage': _lifecycle,
+                    'pool_address': _pool_addr,
+                    'pumpswap_pool_address': _pumpswap_pool,
+                    'dex_name': _dex_name,
+                    'source_platform': _src_platform,
+                    'bonding_curve_pda': _bc_pda,
+                }
+            finally:
+                write_conn.close()
+
+        async with self.db_lock:
+            try:
+                _db_result = await asyncio.to_thread(_sync_price_db_work)
+
+                bonding_curve_pda = _db_result['bonding_curve_pda']
+                source_platform = _db_result['source_platform']
+                pool_address = _db_result['pool_address']
+                pumpswap_pool_address = _db_result['pumpswap_pool_address']
+                dex_name = _db_result['dex_name']
+                lifecycle_stage = _db_result['lifecycle_stage']
+                rug_indicator = _db_result['rug_indicator']
+
+                if bonding_curve_pda:
+                    self._remember_bonding_curve_token(token_mint, bonding_curve_pda)
+                if source_platform == 'pumpfun' or bonding_curve_pda:
+                    self._known_bonding_curve_mints.add(token_mint)
+
+                if _db_result['rug_log']:
+                    log_print(_db_result['rug_log'], flush=True)
+                if _db_result['rug_creator']:
+                    asyncio.create_task(self._add_rug_creator_to_blocklist(token_mint, _db_result['rug_creator']))
+
+                # Best-effort canonical price update (async, non-blocking)
+                try:
+                    await self._persist_price_update(
+                        token_mint,
+                        current_price,
+                        current_market_cap,
+                        source=source,
+                        liquidity_usd=liquidity_usd,
+                    )
+                except Exception:
+                    pass  # fallback already written in _sync_price_db_work
+
+                self._last_market_cap_by_mint[token_mint] = float(current_market_cap or 0.0)
+                has_pool = any(value and str(value).strip() for value in (pool_address, pumpswap_pool_address, dex_name))
+                if not has_pool and (source_platform == 'pumpfun' or bonding_curve_pda or lifecycle_stage in ('bonding_curve', 'migration_pending')):
+                    self._record_flow_event(
+                        token_mint,
+                        observed_at=signal_now,
+                        kind="buy" if float(current_market_cap or 0.0) > 0 else "observation",
+                    )
+                    should_refresh_signal = True
+
+            except Exception as e:
+                log_print(f"[DB_ERROR] Failed to update price for {token_mint}: {e}", flush=True)
+                return
+
+        if should_refresh_signal:
+            await self._persist_pre_migration_signal(
+                token_mint,
+                float(current_market_cap or 0.0),
+                signal_now,
+            )
+
+    async def _create_minimal_token_entry(self, mint: str):
+        """Create a minimal token entry in database immediately when migration is detected"""
+        max_retries = 6
+        base_delay = 0.25
+
+        def _do_write():
+            conn = None
+            try:
+                conn = db_connect(DB_PATH, timeout=30)
+                conn.execute("PRAGMA busy_timeout=30000")
+                now = time.time()
+                conn.execute("""
+                    INSERT INTO token_analysis (
+                        mint, created_at, analyzed_at,
+                        lifecycle_stage,
+                        rug_probability, risk_level, post_migration_coverage,
+                        rug_indicator, events_parsed
+                    ) VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL)
+                    ON CONFLICT(mint) DO UPDATE SET
+                        created_at = COALESCE(token_analysis.created_at, excluded.created_at),
+                        analyzed_at = excluded.analyzed_at,
+                        lifecycle_stage = COALESCE(token_analysis.lifecycle_stage, excluded.lifecycle_stage)
+                """, (mint, now, now, 'migration_pending'))
+                conn.commit()
+            finally:
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+
+        for attempt in range(max_retries):
+            try:
+                await asyncio.to_thread(_do_write)
+                log_print(f"[DB] ✅ Created minimal token entry for {mint}", flush=True)
+                return
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                    wait = base_delay * (2 ** attempt)
+                    log_print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                    await asyncio.sleep(wait)
+                    continue
+                log_print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                return
+            except Exception as e:
+                log_print(f"[DB_ERROR] Failed to create minimal token entry: {e}", flush=True)
+                return
+
+    async def _update_token_entry_with_creator(self, mint: str, creator: str, created_at: str, bonding_curve_pda: str = None, create_tx_signature: str = None):
+        """Update minimal token entry with creator, creation date, bonding curve, and CREATE tx signature"""
+        # Check if creator belongs to any cluster (sync operation, can run outside lock)
+        cluster_id = None
+        cluster_name = None
+        cluster_risk_multiplier = 1.0
+
+        if creator:
+            try:
+                from cluster_risk_checker import check_creator
+                cluster_info = check_creator(creator)
+                if cluster_info.get('in_cluster'):
+                    cluster_id = cluster_info.get('cluster_id')
+                    cluster_name = cluster_info.get('cluster_name', cluster_id)
+                    cluster_risk_multiplier = cluster_info.get('risk_multiplier', 1.0)
+                    log_print(f"[CLUSTER] ✅ Creator {creator[:8]}... belongs to {cluster_name} ({cluster_id}) - Risk multiplier: {cluster_risk_multiplier}x", flush=True)
+                else:
+                    log_print(f"[CLUSTER] ℹ Creator {creator[:8]}... not in any cluster", flush=True)
+            except Exception as e:
+                log_print(f"[CLUSTER] Error checking creator {creator}: {e}", flush=True)
+
+        max_retries = 6
+        base_delay = 0.25
+
+        def _update_creator_write(_m=mint, _cr=creator, _cat=created_at, _bcp=bonding_curve_pda, _cts=create_tx_signature, _cid=cluster_id, _cn=cluster_name, _crm=cluster_risk_multiplier):
+            _conn = db_connect(DB_PATH, timeout=30)
+            try:
+                _conn.execute("PRAGMA journal_mode=WAL")
+                _conn.execute("PRAGMA synchronous=NORMAL")
+                _conn.execute("PRAGMA busy_timeout=30000")
+                # X65.9 -- COALESCE guard: never let a NULL create_tx_signature
+                # (e.g. migration-time re-validation failing to reconfirm the
+                # CREATE tx) overwrite an already-persisted, correctly-captured
+                # signature. Validated safe in production via X65.3's live
+                # instrumentation (107/107 real overwrite attempts would have
+                # been prevented by this exact change; zero legitimate writes
+                # would have been blocked).
+                _conn.execute(
+                    "UPDATE token_analysis SET earliest_tx_creator=?, created_at=?, bonding_curve_pda=?, create_tx_signature=COALESCE(?, create_tx_signature), cluster_id=?, cluster_name=?, cluster_risk_multiplier=? WHERE mint=?",
+                    (_cr, _cat, _bcp, _cts, _cid, _cn, _crm, _m),
+                )
+                _conn.commit()
+            finally:
+                # This closure runs entirely in its asyncio.to_thread owner.
+                # Never leave a failed writer for the foreign-thread reaper:
+                # SQLite close is thread-affine and the reaper must fail closed.
+                _conn.close()
+
+        for attempt in range(max_retries):
+            try:
+                await asyncio.to_thread(_update_creator_write)
+
+                cluster_info_str = f" | Cluster: {cluster_name} ({cluster_risk_multiplier}x)" if cluster_id else ""
+                self._remember_bonding_curve_token(mint, bonding_curve_pda)
+                log_print(f"[DB] ✅ Updated token entry with creator: {creator[:8]}... | Created: {created_at} | CREATE tx: {create_tx_signature[:20] if create_tx_signature else 'N/A'}...{cluster_info_str}", flush=True)
+                await self._enqueue_creator_funding_job(
+                    creator,
+                    mint=mint,
+                    migration_timestamp=created_at,
+                    create_tx_signature=create_tx_signature,
+                    delay_seconds=0,
+                    source="creator_discovery",
+                )
+                return
+
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e).lower() and attempt < max_retries - 1:
+                    wait = base_delay * (2 ** attempt)
+                    log_print(f"[DB_RETRY] ⏳ Database locked (attempt {attempt+1}/{max_retries}), retrying in {wait:.2f}s...", flush=True)
+                    await asyncio.sleep(wait)
+                else:
+                    log_print(f"[DB_ERROR] Failed to update token entry with creator: {e}", flush=True)
+                    return
+
+    async def _register_pool_and_mark_resolved(
+        self,
+        mint: str,
+        pool_address: str,
+        discovery_source: str = "tx_parsing",
+        timeout: float = 8.0,
+        pool_account_info=None,
+    ) -> RegisterResult:
+        """
+        Register a pool and mark token as resolved.
+
+        Returns RegisterResult:
+            SUCCESS — registered and resolved
+            RETRY   — not yet visible on-chain; caller should wait briefly and re-attempt
+            FAIL    — permanent failure (wrong owner, extraction error); add to blacklist
+        """
+        # Priority: explicit pool_account_info arg > cache from batch validation > RPC fetch
+        cached_account_info = (
+            pool_account_info
+            or self._validated_account_cache.pop(pool_address, None)
+        )
+        try:
+            result = await asyncio.wait_for(
+                self._register_pool_inner(mint, pool_address, discovery_source, cached_account_info),
+                timeout=timeout,
+            )
+            if result == RegisterResult.FAIL:
+                self._mark_registration_failed(mint, pool_address)
+            # RETRY: do NOT blacklist — candidate is still good, just not indexed yet
+            return result
+        except asyncio.TimeoutError:
+            log_print(
+                f"[FAST_PATH_REGISTER] ⏳ Timeout ({timeout:.1f}s) — keeping {pool_address[:16]}... alive for retry",
+                flush=True,
+            )
+            # Slow pipeline ≠ bad candidate. Do NOT blacklist — return RETRY so the
+            # caller's micro-retry loop re-attempts rather than falling to secondary discovery.
+            return RegisterResult.RETRY
+        except Exception as e:
+            log_print(f"[FAST_PATH_REGISTER] ❌ Registration error: {e}", flush=True)
+            self._mark_registration_failed(mint, pool_address)
+            return RegisterResult.FAIL
+
+    def _mark_registration_failed(self, mint: str, addr: str) -> None:
+        """
+        Permanently blacklist a candidate that failed or timed out during registration.
+        Writes to both _failed_registration (for inline-retry filter) and the fast-lane
+        pending shortlist (so fast-lane retry loops never re-queue this candidate).
+        """
+        self._failed_registration.setdefault(mint, set()).add(addr)
+        # Feed back into the shortlist as a permanent reject so fast-lane naturally
+        # excludes it from get_ready_for_retry, forced fallback, and soft accept.
+        self.pending_candidates.record_rejection(mint, addr, "registration_failed")
+
+    async def _register_pool_inner(
+        self,
+        mint: str,
+        pool_address: str,
+        discovery_source: str,
+        cached_account_info=None,
+    ) -> RegisterResult:
+        """Light gate: check indexing + owner. Dispatches heavy work as a background Task.
+
+        Returns:
+            RETRY      — pool not yet visible at processed commitment (transient)
+            FAIL       — wrong owner / permanent error
+            DISPATCHED — indexed + valid owner; _heavy_pool_registration Task enqueued
+        """
+        log_print(f"[TIMING_PROBE] REGISTER_START mint={mint[:16]} pool={pool_address[:16]}", flush=True)
+        try:
+            from src.core.pool_detector import AMMPrograms
+
+            # Reuse account info from batch validation when available (saves one RPC round-trip)
+            if cached_account_info is not None:
+                value = cached_account_info
+                log_print(
+                    f"[FAST_PATH_REGISTER] ♻️  Reusing cached account info for {pool_address[:16]}...",
+                    flush=True
+                )
+            else:
+                acct = await self.call_discovery_rpc(
+                    "getAccountInfo",
+                    [pool_address, {"encoding": "base64", "commitment": "processed"}],
+                    timeout=5
+                )
+                result = (acct or {}).get("result") or {}
+                value = result.get("value")
+
+            if not value:
+                # Pool not yet indexed at processed commitment — transient, safe to retry
+                log_print(
+                    f"[FAST_PATH_REGISTER] ⏳ Not yet visible (processed): {pool_address[:16]}...",
+                    flush=True
+                )
+                return RegisterResult.RETRY
+
+            owner = value.get("owner")
+            if owner not in AMMPrograms.ALL:
+                log_print(
+                    f"[FAST_PATH_REGISTER] ❌ Invalid owner {owner[:16] if owner else '???'}... for {pool_address[:16]}...",
+                    flush=True
+                )
+                return RegisterResult.FAIL
+
+            # Pool is indexed with a valid AMM owner. Enqueue heavy work as a background Task
+            # so the listener hot path returns immediately without waiting for vault extraction,
+            # reserve registration, DB writes, or price bootstrap.
+            log_print(
+                f"[FAST_PATH_REGISTER] ✅ Indexed + valid owner — dispatching heavy registration for {pool_address[:16]}...",
+                flush=True
+            )
+            asyncio.create_task(
+                self._heavy_pool_registration(mint, pool_address, value, discovery_source),
+                name=f"heavy_reg_{mint[:12]}",
+            )
+            return RegisterResult.DISPATCHED
+
+        except Exception as e:
+            log_print(f"[FAST_PATH_REGISTER] ❌ Registration error: {e}", flush=True)
+            return RegisterResult.FAIL
+
+    async def _heavy_pool_registration(
+        self,
+        mint: str,
+        pool_address: str,
+        pool_account_info: dict,
+        discovery_source: str,
+    ) -> None:
+        """Heavy pool registration: vault discovery, DB writes, price bootstrap, broadcast.
+
+        Runs as a background Task (via asyncio.create_task). The listener hot path
+        returns DISPATCHED immediately; this Task completes asynchronously and marks
+        token_states[mint] = 'resolved' when done.
+        """
+        _tp_reg_t0 = time.monotonic()
+        try:
+            from src.core.pool_discovery import PoolDiscovery
+
+            # discover_and_register_pool: extract vaults, validate mint membership, persist
+            discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
+            registered = await discovery.discover_and_register_pool(
+                pool_address, mint, pool_account_info=pool_account_info
+            )
+
+            if not registered:
+                log_print(f"[HEAVY_REG] ❌ Pool registration failed: {pool_address[:16]}...", flush=True)
+                self._mark_registration_failed(mint, pool_address)
+                return
+
+            # Mark token as resolved
+            self.token_states[mint] = "resolved"
+            self.token_discovery_times[mint]["resolved"] = time.time()
+            elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+
+            log_print(
+                f"{Colors.DETECT}[HEAVY_REG] ✅ Pool {pool_address[:16]}... registered (resolved in {elapsed:.1f}s){Colors.RESET}",
+                flush=True
+            )
+            _wstrace('POOL_REGISTERED', mint, f"pool={pool_address[:20]} elapsed={elapsed:.1f}s")
+
+            # Write pool_address to token_analysis so _get_pool_address can find it for price extraction
+            try:
+                def _pool_addr_update_sync():
+                    _conn = db_connect(DB_PATH, timeout=15)
+                    _conn.execute(
+                        "UPDATE token_analysis SET pool_address = ?, pumpswap_pool_address = COALESCE(pumpswap_pool_address, ?), dex = COALESCE(dex, 'pumpswap'), lifecycle_stage = 'migrated' WHERE mint = ?",
+                        (pool_address, pool_address, mint),
+                    )
+                    _conn.commit()
+                    _conn.close()
+                await asyncio.to_thread(_pool_addr_update_sync)
+            except Exception as _e:
+                log_print(f"[HEAVY_REG] ⚠️  Failed to write pool_address to token_analysis: {_e}", flush=True)
+
+            _check_watchtower_migration(mint, migrated_at=int(time.time()), migration_tx=None, source='fast_path_register')
+
+            if TOKEN_PREDICTION_RUNTIME_ENABLED:
+                def _score_migrated_fast(m=mint):
+                    try:
+                        from src.core.token_prediction_builder import TokenPredictionBuilder
+                        from src.utils.db_locking import db_connect as _db_connect
+                        c = _db_connect(DB_PATH, timeout=30)
+                        try:
+                            TokenPredictionBuilder(DB_PATH).score_single(c, m, 'MIGRATED')
+                        finally:
+                            try:
+                                c.close()
+                            except Exception:
+                                pass
+                    except Exception as _e:
+                        log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
+                _TOKEN_WORK_POOL.submit(_score_migrated_fast)
+
+            await self._record_migration_verification_snapshot(
+                mint,
+                migrated_at=int(time.time()),
+                dex="pumpswap",
+                pumpswap_pool_address=pool_address,
+            )
+
+            # Persist telemetry (retry_count=0 for primary fast-lane path)
+            await self._write_resolution_telemetry(mint, discovery_source, pool_address, 0)
+
+            # Trigger WebSocket refresh and bootstrap reserves
+            if self.price_worker:
+                try:
+                    self.price_worker.trigger_pool_refresh()
+                except Exception as e:
+                    log_print(f"[HEAVY_REG] ⚠️  WebSocket refresh failed: {e}", flush=True)
+
+                try:
+                    def _bootstrap_read_sync():
+                        _conn2 = db_connect(DB_PATH, timeout=15)
+                        _conn2.row_factory = sqlite3.Row
+                        _row = _conn2.execute(
+                            "SELECT * FROM token_pool_accounts WHERE mint = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1",
+                            (mint,)
+                        ).fetchone()
+                        _conn2.close()
+                        return dict(_row) if _row else None
+                    _pool_row_dict = await asyncio.to_thread(_bootstrap_read_sync)
+                    if _pool_row_dict:
+                        _pool_meta = _pool_row_dict
+                        def _bootstrap_with_retry(mint=mint, pool_meta=_pool_meta):
+                            import time as _time
+                            for _attempt, _delay in enumerate([0, 3, 8, 20], 1):
+                                if _delay:
+                                    _time.sleep(_delay)
+                                ok = self.price_worker.bootstrap_single_pool(mint, pool_meta)
+                                if ok:
+                                    log_print(f"[HEAVY_REG] ✅ Bootstrap succeeded on attempt {_attempt} for {mint[:16]}...", flush=True)
+                                    return
+                                log_print(f"[HEAVY_REG] ⏳ Bootstrap attempt {_attempt} returned no reserves for {mint[:16]}... (retrying)", flush=True)
+                            log_print(f"[HEAVY_REG] ⚠️  Bootstrap gave up after 4 attempts for {mint[:16]}...", flush=True)
+                        _TOKEN_WORK_POOL.submit(_bootstrap_with_retry)
+                        log_print(f"[HEAVY_REG] 🔄 Bootstrapping reserves for {mint[:16]}... (with retry)", flush=True)
+                except Exception as _be:
+                    log_print(f"[HEAVY_REG] ⚠️  Reserve bootstrap failed: {_be}", flush=True)
+
+            # Register mint for price tracking via eligibility gate (same as migration path)
+            try:
+                from src.core.price_worker import PriceWorkerRegistry
+                from src.utils.db_locking import db_connect as _db_connect_hr
+
+                def _heavy_reg_evaluate():
+                    _c = _db_connect_hr(DB_PATH, timeout=10)
+                    try:
+                        tier, priority = evaluate_price_interest(mint, _c)
+                    finally:
+                        _c.close()
+                    if tier == "IGNORE":
+                        log_print(f"[HEAVY_REG] ⏭ {mint[:16]}… price skip (IGNORE)", flush=True)
+                        return
+                    PriceWorkerRegistry(DB_PATH).register_token(
+                        mint, None, None, priority, tracking_reason=tier
+                    )
+                    log_print(
+                        f"[HEAVY_REG] 📈 {mint[:16]}… tier={tier} priority={priority}",
+                        flush=True,
+                    )
+
+                await asyncio.to_thread(_heavy_reg_evaluate)
+                _spawn_symbol_fetch(mint, DB_PATH)
+            except Exception as _e:
+                log_print(f"[HEAVY_REG] ⚠️  Price tracking registration failed: {_e}", flush=True)
+
+            # Broadcast pool_registered event so the UI refreshes
+            _reg_creator = None
+            try:
+                def _reg_creator_read_sync():
+                    _rc = db_connect(DB_PATH, timeout=15)
+                    _rr = _rc.execute(
+                        "SELECT earliest_tx_creator FROM token_analysis WHERE mint = ?", (mint,)
+                    ).fetchone()
+                    _rc.close()
+                    return _rr[0] if (_rr and _rr[0]) else None
+                _reg_creator = await asyncio.to_thread(_reg_creator_read_sync)
+            except Exception:
+                pass
+            asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, {
+                "type": "pool_registered",
+                "mint": mint,
+                "pool_address": pool_address,
+                "elapsed_secs": round(elapsed, 3),
+                **({"creator": _reg_creator} if _reg_creator else {}),
+            })
+
+            log_print(f"[HEAVY_REG] DONE mint={mint[:16]} reg_total_ms={int((time.monotonic()-_tp_reg_t0)*1000)}", flush=True)
+
+        except Exception as e:
+            import traceback as _tb
+            log_print(f"[HEAVY_REG] ❌ Unhandled error for {pool_address[:16]}...: {e}\n{_tb.format_exc()}", flush=True)
+
+    async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None, source: str = "WEBSOCKET"):
+        """Continue migration pipeline once mint is known. `source` (WEBSOCKET/RECONCILER) is passed
+        EXPLICITLY — not via a shared instance var — so concurrent WS + reconciler processing of the
+        same migration can't cross-contaminate the migration_source tag (the burst-mislabel race)."""
+        import threading as _tp_threading
+        _tp_t0 = time.monotonic()
+        _tp_is_loop = threading.current_thread() is threading.main_thread()
+        log_print(f"[TIMING_PROBE] MIGRATION_START mint={mint[:16]} sig={signature[:16]} thread={_tp_threading.current_thread().name} on_loop={_tp_is_loop}", flush=True)
+        _mig_t = int(time.time())
+        try:
+            _tp_db1 = time.monotonic()
+            def _curve_check_read(_m=mint):
+                _gc = db_connect(DB_PATH, timeout=5)
+                _row = _gc.execute(
+                    "SELECT curve_complete, curve_completed_at FROM token_analysis WHERE mint=? LIMIT 1", (_m,)
+                ).fetchone()
+                _gc.close()
+                return _row
+            _cc_row = await asyncio.to_thread(_curve_check_read)
+            log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=curve_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db1)*1000)}", flush=True)
+            if _cc_row and _cc_row[1]:
+                _delta = _mig_t - int(_cc_row[1])
+                premig_log(f"[TIMING] mint={mint} migration_arrived t={_mig_t} curve_complete_was={'yes' if _cc_row[0] else 'no'} delta_since_complete={_delta}s")
+            else:
+                premig_log(f"[TIMING] mint={mint} migration_arrived t={_mig_t} curve_complete_was=no")
+        except Exception:
+            pass
+        if await self._token_exists_in_db(mint):
+            log_print(f"[MIGRATION] ⏭️  Token {mint} already analyzed - SKIPPED", flush=True)
+            resolved_creator, create_tx_sig = await self._get_resolved_creator_for_mint(mint)
+            if resolved_creator:
+                migration_time_str = datetime.utcfromtimestamp(int(time.time())).isoformat() + "Z"
+                await self._enqueue_creator_funding_job(
+                    resolved_creator,
+                    mint=mint,
+                    migration_timestamp=migration_time_str,
+                    create_tx_signature=create_tx_sig,
+                    delay_seconds=0,
+                    source="migration_already_known",
+                )
+            # Always ensure pf_ws_creator is set — returns early if already resolved.
+            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration:pre_tracked"))
+            if TOKEN_PREDICTION_RUNTIME_ENABLED:
+                def _score_already_known(m=mint):
+                    try:
+                        from src.core.token_prediction_builder import TokenPredictionBuilder
+                        from src.utils.db_locking import db_connect as _db_connect
+                        c = _db_connect(DB_PATH, timeout=30)
+                        try:
+                            TokenPredictionBuilder(DB_PATH).score_single(c, m, 'MIGRATED')
+                        finally:
+                            try:
+                                c.close()
+                            except Exception:
+                                pass
+                    except Exception as _e:
+                        log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
+                _TOKEN_WORK_POOL.submit(_score_already_known)
+            return
+
+        # === GUARD 1: Prevent duplicate primary discovery by mint ===
+        if mint in self._active_pool_discoveries_by_mint:
+            log_print(f"[DISCOVERY_GUARD] ⏭️  Skip duplicate primary discovery for mint={mint[:16]}...", flush=True)
+            return
+
+        # === GUARD 2: Prevent duplicate primary discovery by signature ===
+        if signature in self._active_pool_discoveries_by_sig:
+            log_print(f"[DISCOVERY_GUARD] ⏭️  Skip duplicate primary discovery for sig={signature[:16]}...", flush=True)
+            return
+
+        # === GUARD 3: Prevent re-entry if retry is already active ===
+        existing_task = self._retry_tasks_by_mint.get(mint)
+        if existing_task and not existing_task.done():
+            log_print(f"[DISCOVERY_GUARD] ⏭️  Retry already active for {mint[:16]}..., skipping duplicate primary discovery", flush=True)
+            return
+
+        # === GUARD 4: Prevent primary re-entry within short window ===
+        last_attempt = self._primary_attempted_by_mint.get(mint)
+        if last_attempt and time.time() - last_attempt < 120:
+            log_print(f"[PRIMARY_GUARD] ⏭️  Primary discovery already attempted recently for {mint[:16]}..., skipping", flush=True)
+            return
+
+        # Mark as active immediately
+        self._active_pool_discoveries_by_mint.add(mint)
+        self._active_pool_discoveries_by_sig.add(signature)
+        self._primary_attempted_by_mint[mint] = time.time()
+
+        try:
+            self.seen_mints.add(mint)
+            log_print(f"[EVENT] 🚀 MIGRATION DETECTED: {mint}", flush=True)
+            log_print(f"[EVENT] Migration signature: {signature}", flush=True)
+            _wstrace('MIGRATION_DETECTED', mint, f"sig={signature[:20]}")
+            migrated_at_ts = int(time.time())
+
+            # === PHASE 2: Start critical window for RPC isolation ===
+            # Discovery RPC calls use 8 concurrent slots, background jobs use only 2
+            self.start_critical_window(mint)
+
+            # Create minimal token entry immediately (so token appears in UI right away)
+            log_print(f"[MIGRATION_TRACE] step=create_minimal_entry:start mint={mint[:16]}... sig={signature[:16]}...", flush=True)
+            await self._create_minimal_token_entry(mint)
+            log_print(f"[MIGRATION_TRACE] step=create_minimal_entry:done mint={mint[:16]}...", flush=True)
+            log_print(f"[MIGRATION_TRACE] step=mark_migrated:start mint={mint[:16]}...", flush=True)
+            _migration_slot = tx_data.get("slot") if tx_data else None
+            await self._mark_token_migrated_in_db(
+                mint,
+                migrated_at=migrated_at_ts,
+                migration_tx=signature,
+                dex="pumpswap",
+                migration_slot=_migration_slot,
+            )
+            log_print(f"[MIGRATION_TRACE] step=mark_migrated:done mint={mint[:16]}...", flush=True)
+            log_print(f"[MIGRATION_TRACE] step=record_verification:start mint={mint[:16]}...", flush=True)
+            await self._record_migration_verification_snapshot(
+                mint,
+                migrated_at=migrated_at_ts,
+                migration_tx=signature,
+                dex="pumpswap",
+            )
+            log_print(f"[MIGRATION_TRACE] step=record_verification:done mint={mint[:16]}...", flush=True)
+
+            # Always resolve creator at migration — one getTransaction RPC, enqueues funding job.
+            # _ensure_pf_ws_creator returns early if pf_ws_creator already set.
+            asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="migration"))
+
+            # Gate price tracking by eligibility. evaluate_price_interest() is a pure DB read
+            # (no RPC) and runs in a thread to avoid blocking the event loop.
+            try:
+                from src.core.price_worker import PriceWorkerRegistry
+                from src.utils.db_locking import db_connect as _db_connect
+
+                def _evaluate_and_register():
+                    _conn = _db_connect(DB_PATH, timeout=10)
+                    try:
+                        tier, priority = evaluate_price_interest(mint, _conn)
+                    finally:
+                        _conn.close()
+                    if tier == "IGNORE":
+                        log_print(
+                            f"[MIGRATION] ⏭ {mint[:16]}… price tracking SKIP (tier=IGNORE)",
+                            flush=True,
+                        )
+                        return
+                    PriceWorkerRegistry(DB_PATH).register_token(
+                        mint, None, None, priority, tracking_reason=tier
+                    )
+                    log_print(
+                        f"[MIGRATION] 📈 {mint[:16]}… price tracking tier={tier} priority={priority}",
+                        flush=True,
+                    )
+
+                await asyncio.to_thread(_evaluate_and_register)
+                _spawn_symbol_fetch(mint, DB_PATH)
+            except Exception as _reg_err:
+                log_print(f"[MIGRATION] ⚠️  Price tracking registration skipped: {_reg_err}", flush=True)
+
+            # Fast-lane first-price: bypass the queue, retry every 3s for up to 60s
+            def _first_price_fast_lane(mint: str) -> None:
+                try:
+                    from src.core.price_worker import get_price_worker
+                    worker = get_price_worker()
+                    deadline = time.time() + 60
+                    interval = 3.0
+                    while time.time() < deadline:
+                        try:
+                            price = worker._fetch_single_price(mint)
+                            if price and price.source != 'unavailable' and price.price_usd > 0:
+                                worker._on_price_fetched(mint, price)
+                                log_print(f"[FAST_PRICE] ✅ {mint[:16]}... first price ${price.price_usd:.8f} (source={price.source})", flush=True)
+                                _wstrace('FAST_LANE_PRICE', mint, f"price=${price.price_usd:.8f} source={price.source}")
+                                return
+                        except Exception:
+                            pass
+                        time.sleep(interval)
+                    log_print(f"[FAST_PRICE] ⏱ {mint[:16]}... gave up after 60s", flush=True)
+                    _wstrace('FAST_LANE_TIMEOUT', mint, "no price after 60s")
+                except Exception as _e:
+                    log_print(f"[FAST_PRICE] ⚠️  fast-lane failed: {_e}", flush=True)
+
+            _TOKEN_WORK_POOL.submit(_first_price_fast_lane, mint)
+
+            # === INSTANT UI: broadcast token_detected before any discovery ===
+            _det_event = {
+                "type": "token_detected",
+                "mint": mint,
+                "detected_at": int(time.time()),
+                "status": "detecting",
+                "source": "migration",
+            }
+            # Enrich with any data already in DB from minimal entry
+            try:
+                _tp_db2 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=enrich_det_event mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                def _enrich_read(_m=mint):
+                    # X78.21: this callback previously closed only after a
+                    # successful execute/fetch.  A timeout/exception escaped
+                    # first, leaving the executor-thread connection open
+                    # indefinitely; production recorded the exact two leaked
+                    # IDs from this line at >167s.  Owner-scoped read-only
+                    # cleanup keeps native close on the creation thread.
+                    with managed_db_connect(
+                        DB_PATH, timeout=15, read_only=True
+                    ) as _conn:
+                        return _conn.execute(
+                            "SELECT symbol, earliest_tx_creator, pool_address FROM token_analysis WHERE mint = ?",
+                            (_m,)
+                        ).fetchone()
+                _row = await asyncio.to_thread(_enrich_read)
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=enrich_det_event mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db2)*1000)}", flush=True)
+                if _row:
+                    if _row[0]: _det_event["symbol"] = _row[0]
+                    if _row[1]: _det_event["creator"] = _row[1]
+                    if _row[2]: _det_event["pool_address"] = _row[2]
+            except Exception:
+                pass
+            asyncio.get_running_loop().run_in_executor(None, _broadcast_to_flask, _det_event)
+
+            # Store migration TX signature (needed for retry discovery and analytics)
+            try:
+                _tp_db3 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=store_migration_tx mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                def _store_migration_tx(_sig=signature, _ts=migrated_at_ts, _src=source, _mint=mint):
+                    for _attempt in range(4):
+                        try:
+                            _conn = db_connect(DB_PATH, timeout=15)
+                            _conn.cursor().execute(
+                                "UPDATE token_analysis SET migration_tx = ?, lifecycle_stage = 'migrated', "
+                                "migrated_at = COALESCE(migrated_at, ?), dex = COALESCE(dex, 'pumpswap'), "
+                                "source_platform = COALESCE(source_platform, 'pumpfun'), "
+                                "migration_source = COALESCE(migration_source, ?) WHERE mint = ?",
+                                (_sig, _ts, _src, _mint)
+                            )
+                            _conn.commit()
+                            _conn.close()
+                            return
+                        except Exception as _e:
+                            if _attempt < 3:
+                                import time as _t; _t.sleep(0.5 * (2 ** _attempt))
+                            else:
+                                raise
+                await asyncio.to_thread(_store_migration_tx)
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=store_migration_tx mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db3)*1000)}", flush=True)
+                log_print(f"[DB] ✅ Stored migration TX: {signature[:20]}...", flush=True)
+                _check_watchtower_migration(mint, migrated_at=migrated_at_ts, migration_tx=signature, source='migration_tx_store')
+                if TOKEN_PREDICTION_RUNTIME_ENABLED:
+                    def _score_migrated_tx(m=mint):
+                        try:
+                            from src.core.token_prediction_builder import TokenPredictionBuilder
+                            from src.utils.db_locking import db_connect as _db_connect
+                            c = _db_connect(DB_PATH, timeout=30)
+                            try:
+                                TokenPredictionBuilder(DB_PATH).score_single(c, m, 'MIGRATED')
+                            finally:
+                                try:
+                                    c.close()
+                                except Exception:
+                                    pass
+                        except Exception as _e:
+                            log_print(f"[PREDICTION] ⚠ score_single MIGRATED {m[:16]}: {_e}", flush=True)
+                    _TOKEN_WORK_POOL.submit(_score_migrated_tx)
+            except Exception as e:
+                log_print(f"[DB] ⚠️  Failed to store migration TX: {e}", flush=True)
+
+            # === NEW: Track token state (pending initially) ===
+            current_state = self.token_states.get(mint)
+            if current_state not in {"pending", "resolving", "resolved"}:
+                self.token_states[mint] = "pending"
+                detected_at = time.time()
+                self.token_discovery_times[mint] = {
+                    "detected": detected_at,
+                    "resolved": None,
+                    "first_valid_pool_at": None,
+                    "pool_registered_at": None,
+                    "resolved_at": None,
+                }
+                log_print(f"[STATE] Token {mint[:16]}... → pending", flush=True)
+            else:
+                log_print(
+                    f"[STATE_GUARD] ⏭️  Skip duplicate pending transition for {mint[:16]}... "
+                    f"(current={current_state})",
+                    flush=True
+                )
+
+            # === Write initial telemetry entry ===
+            try:
+                _tp_db4 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=init_telemetry mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                _now_tel = int(time.time())
+                def _write_telemetry(_mint=mint, _now=_now_tel):
+                    _conn = db_connect(DB_PATH, timeout=15)
+                    _conn.cursor().execute("""
+                        INSERT OR IGNORE INTO token_resolution_telemetry
+                        (mint, detected_at, created_at, updated_at)
+                        VALUES (?, ?, ?, ?)
+                    """, (_mint, _now, _now, _now))
+                    _conn.commit()
+                    _conn.close()
+                await asyncio.to_thread(_write_telemetry)
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=init_telemetry mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db4)*1000)}", flush=True)
+            except Exception as e:
+                log_print(f"[TELEMETRY] ⚠️  Failed to write initial telemetry for {mint}: {e}", flush=True)
+
+            # === Extract pool via FAST-LANE PRIMARY PATH ===
+            # NEW: Fast-lane is now the primary path when tx_data is available
+            # This replaces the old discover_pool_candidates_from_migration_tx approach
+            pool_address = None
+            pool_discovery_source = "none"
+
+            if tx_data:
+                # CRITICAL: Enrich tx_data before fast-lane (reconstruct meta.accounts from accountKeys + loadedAddresses)
+                tx_data = await self._enrich_tx_data(tx_data)
+
+                log_print(
+                    f"{Colors.DISCOVER}[FAST_LANE_PRIMARY] 🚀 Starting fast-lane discovery (PRIMARY PATH) for {mint[:16]}...{Colors.RESET}",
+                    flush=True
+                )
+                try:
+                    # Fast-lane with TX data: extract candidates, score, validate, and retry on transient failures.
+                    # 8.0s window: RPC visibility lag can exceed 4-7s for slower-indexing migrations;
+                    # retries are distributed across the full window via fast_candidate_retry delay schedule.
+                    _tp_fl = time.monotonic()
+                    log_print(f"[TIMING_PROBE] FAST_LANE_START mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                    pool = await asyncio.wait_for(
+                        self.fast_lane_resolve_with_retries(
+                            mint=mint,
+                            tx_data=tx_data,
+                            max_wait_secs=8.0
+                        ),
+                        timeout=30.0,  # hard ceiling — prevents DNS hang from stalling event loop
+                    )
+                    log_print(f"[TIMING_PROBE] FAST_LANE_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_fl)*1000)} found={pool is not None}", flush=True)
+
+                    if pool:
+                        # ✅ FAST-LANE SUCCESS: Record first valid pool timestamp
+                        first_valid_pool_at = time.time()
+                        self.token_discovery_times[mint]["first_valid_pool_at"] = first_valid_pool_at
+
+                        # Unwrap rich object returned by fast-lane (dict with address + cached account info)
+                        if isinstance(pool, dict):
+                            pool_addr = pool["address"]
+                            winner_account_info = pool.get("account_info")
+                        else:
+                            pool_addr = pool
+                            winner_account_info = None
+                        pool = pool_addr  # normalise to string for the rest of this block
+
+                        # pop_valid_candidates returns all valid candidates from the fast-lane run
+                        # (best first), then falls back to [pool] if somehow empty.
+                        # Try each in order until one registers successfully — never fall back to
+                        # full rediscovery while valid candidates still exist.
+                        raw_ranked = self.pop_valid_candidates(mint) or [pool]
+                        if pool not in raw_ranked:
+                            raw_ranked = [pool] + raw_ranked
+                        # Strip candidates that already failed registration this session
+                        _already_failed = self._failed_registration.get(mint, set())
+                        ranked = [c for c in raw_ranked if c not in _already_failed]
+                        if not ranked:
+                            ranked = raw_ranked  # all failed before — keep them as last resort
+
+                        registered = False
+                        retry_pending = []
+
+                        # Single-candidate fast path: no parallel overhead needed
+                        if len(ranked) == 1:
+                            res = await self._register_pool_and_mark_resolved(
+                                mint, ranked[0], "tx_parsing", timeout=8.0,
+                                pool_account_info=winner_account_info if ranked[0] == pool else None,
+                            )
+                            if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                                registered = True
+                            elif res == RegisterResult.RETRY:
+                                retry_pending = [ranked[0]]
+                                for _a in range(3):
+                                    await asyncio.sleep(0.2)
+                                    res = await self._register_pool_and_mark_resolved(
+                                        mint, ranked[0], "tx_parsing", timeout=8.0
+                                    )
+                                    if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                                        registered = True
+                                        break
+
+                        # PARALLEL REGISTRATION: race top 2 candidates simultaneously.
+                        # First SUCCESS wins and cancels the other.
+                        # RETRY results are collected for a brief local re-attempt window.
+                        # FAIL results are permanently blacklisted.
+                        elif len(ranked) >= 2:
+                            top2 = ranked[:2]
+                            self._log_fl(
+                                f"[FAST_LANE_PRIMARY] ⚡ Parallel registration: {top2[0][:16]}... vs {top2[1][:16]}..."
+                            )
+                            tasks = {
+                                asyncio.ensure_future(
+                                    self._register_pool_and_mark_resolved(
+                                        mint, c, "tx_parsing", timeout=8.0,
+                                        pool_account_info=winner_account_info if c == pool else None,
+                                    )
+                                ): c
+                                for c in top2
+                            }
+                            winner = None
+                            retry_pending = []
+                            pending_tasks = set(tasks)
+                            while pending_tasks and not winner:
+                                done, pending_tasks = await asyncio.wait(
+                                    pending_tasks, return_when=asyncio.FIRST_COMPLETED
+                                )
+                                for t in done:
+                                    if t.result() in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                                        winner = tasks[t]
+                                    elif t.result() == RegisterResult.RETRY:
+                                        retry_pending.append(tasks[t])
+                            for t in pending_tasks:
+                                t.cancel()
+                            if winner:
+                                registered = True
+                                pool = winner
+                            else:
+                                # Try remaining serial candidates first
+                                for candidate in ranked[2:]:
+                                    res = await self._register_pool_and_mark_resolved(
+                                        mint, candidate, "tx_parsing", timeout=8.0
+                                    )
+                                    if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                                        registered = True
+                                        pool = candidate
+                                        break
+                                    elif res == RegisterResult.RETRY:
+                                        retry_pending.append(candidate)
+                        # VISIBILITY MICRO-RETRY: candidates that returned RETRY were not yet
+                        # indexed at processed commitment. They are almost certainly valid —
+                        # wait briefly and re-attempt rather than falling to inline retry / secondary.
+                        if not registered and retry_pending:
+                            self._log_fl(
+                                f"[FAST_LANE_PRIMARY] ⏳ {len(retry_pending)} candidate(s) not yet visible — "
+                                f"micro-retry up to 3x (200ms each)"
+                            )
+                            for _attempt in range(3):
+                                await asyncio.sleep(0.2)
+                                for candidate in retry_pending:
+                                    res = await self._register_pool_and_mark_resolved(
+                                        mint, candidate, "tx_parsing", timeout=8.0
+                                    )
+                                    if res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                                        registered = True
+                                        pool = candidate
+                                        break
+                                if registered:
+                                    break
+
+                        if registered:
+                            # Record pool registration timestamp
+                            pool_registered_at = time.time()
+                            self.token_discovery_times[mint]["pool_registered_at"] = pool_registered_at
+
+                            log_print(
+                                f"{Colors.DETECT}[FAST_LANE_PRIMARY] ✅ Fast-lane short-circuiting: pool {pool[:16]}... "
+                                f"registered, skipping secondary discovery and retries{Colors.RESET}",
+                                flush=True
+                            )
+
+                            # Log timing checkpoints for debugging
+                            time_to_valid = first_valid_pool_at - self.token_discovery_times[mint]["detected"]
+                            time_to_registered = pool_registered_at - self.token_discovery_times[mint]["detected"]
+                            log_print(
+                                f"[TIMING] first_valid_pool={time_to_valid:.2f}s, pool_registered={time_to_registered:.2f}s",
+                                flush=True
+                            )
+
+                            # Extract creator and schedule background work, then return
+                            # (do not continue to secondary discovery or retry scheduling)
+                            pool_address = pool
+                            pool_discovery_source = "tx_parsing"
+                            # Continue to creator extraction below, but skip secondary/retries
+                        else:
+                            # FAST_LANE found valid candidates but registration returned RETRY
+                            # (pool account not yet indexed). Save ranked list so the retry
+                            # loop can attempt _register_pool_and_mark_resolved directly,
+                            # skipping re-extraction / scoring / getMultipleAccounts.
+                            if ranked:
+                                self._retry_candidates[mint] = list(ranked)
+                                log_print(
+                                    f"[FAST_LANE_PRIMARY] 💾 Saved {len(ranked)} validated candidate(s) for retry: "
+                                    f"{ranked[0][:16]}...{Colors.RESET}",
+                                    flush=True,
+                                )
+                    else:
+                        log_print(
+                            f"{Colors.DISCOVER}[FAST_LANE_PRIMARY] ⏭️  Fast-lane timed out or found no valid pool{Colors.RESET}",
+                            flush=True
+                        )
+                except Exception as e:
+                    log_print(
+                        f"{Colors.DISCOVER}[FAST_LANE_PRIMARY] ⏭️  Fast-lane error: {e}{Colors.RESET}",
+                        flush=True
+                    )
+
+            # INLINE RETRY: Quick retry before heavy fallback (high impact optimization)
+            # Only runs if the primary fast-lane returned no pool.
+            # _filter_failed inside fast-lane already strips FAIL-blacklisted candidates.
+            if not pool_address and tx_data:
+                log_print(
+                    f"{Colors.DISCOVER}[POOL_DETECT] ⚡ INLINE RETRY: Quick re-attempt for {mint[:16]}...{Colors.RESET}",
+                    flush=True
+                )
+                await asyncio.sleep(0.4)
+                try:
+                    candidate = await asyncio.wait_for(
+                        self.fast_lane_resolve_with_retries(
+                            mint=mint,
+                            tx_data=tx_data,
+                            max_wait_secs=5.0  # Inline retry: shorter than primary but still covers mid-range visibility lag
+                        ),
+                        timeout=20.0,
+                    )
+                except Exception as _e:
+                    log_print(f"[POOL_DETECT] ⚡ INLINE RETRY timeout/error: {_e}", flush=True)
+                    candidate = None
+                # Unwrap rich object: fast_lane_resolve_with_retries may return {"address": ..., ...}
+                if isinstance(candidate, dict):
+                    candidate = candidate.get("address") or None
+                _inline_failed = self._failed_registration.get(mint, set())
+                if candidate and candidate not in _inline_failed:
+                    pool_address = candidate
+                    pool_discovery_source = "tx_parsing_retry"
+                    log_print(
+                        f"{Colors.DISCOVER}[POOL_DETECT] ⚡ INLINE RETRY RETURNED CANDIDATE: {pool_address[:16]}...{Colors.RESET}",
+                        flush=True
+                    )
+                elif candidate:
+                    log_print(
+                        f"{Colors.DISCOVER}[POOL_DETECT] ⚡ INLINE RETRY: candidate {candidate[:16]}... already hard-failed, skipping{Colors.RESET}",
+                        flush=True
+                    )
+
+            # STAGE 2: RPC-based vault discovery (FALLBACK when fast-lane fails)
+            if not pool_address:
+                try:
+                    from src.core.vault_discovery import discover_vaults_rpc
+
+                    log_print(
+                        f"{Colors.DISCOVER}[POOL_DETECT] 🔍 SECONDARY: RPC vault discovery (Strategy 2/3) for {mint[:16]}...{Colors.RESET}",
+                        flush=True
+                    )
+
+                    # Create simple RPC client adapter for vault discovery
+                    class RPCClientAdapter:
+                        def __init__(self, rpc_url: str):
+                            self.rpc_url = rpc_url
+
+                        async def _post_rpc_with_fallback(self, payload):
+                            import aiohttp
+                            try:
+                                async with aiohttp.ClientSession() as session:
+                                    async with session.post(self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10.0)) as resp:
+                                        return await resp.json()
+                            except Exception as e:
+                                return None
+
+                        async def call_async(self, method: str, params):
+                            """Generic RPC call for vault discovery"""
+                            payload = {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": method,
+                                "params": params
+                            }
+                            result = await self._post_rpc_with_fallback(payload)
+                            if not result:
+                                return None
+                            if "error" in result:
+                                return None
+                            if "result" in result:
+                                return result["result"]
+                            return None
+
+                        async def get_account_info(self, address: str, encoding: str = "base64"):
+                            """Fetch account info for vault discovery"""
+                            result = await self.call_async(
+                                "getAccountInfo",
+                                [address, {"encoding": encoding, "commitment": "confirmed"}]
+                            )
+                            if result:
+                                return type('AccountInfo', (), {
+                                    'data': result.get('data', ''),
+                                    'owner': result.get('owner', ''),
+                                    'lamports': result.get('lamports', 0)
+                                })()
+                            return None
+
+                        async def get_multiple_accounts(self, addresses: list, encoding: str = "base64", commitment: str = "confirmed"):
+                            """Batch fetch account info for vault discovery"""
+                            result = await self.call_async(
+                                "getMultipleAccounts",
+                                [addresses, {"encoding": encoding, "commitment": commitment}]
+                            )
+                            if result and "value" in result:
+                                accounts = []
+                                for acct_data in result["value"]:
+                                    if acct_data:
+                                        accounts.append(type('AccountInfo', (), {
+                                            'data': acct_data.get('data', ''),
+                                            'owner': acct_data.get('owner', ''),
+                                            'lamports': acct_data.get('lamports', 0),
+                                            'executable': acct_data.get('executable', False)
+                                        })())
+                                    else:
+                                        accounts.append(None)
+                                return accounts
+                            return None
+
+                        async def get_token_accounts_by_owner(self, owner: str, mint: str, encoding: str = "base64"):
+                            """Query for token accounts owned by a specific owner (for quote vault fallback)"""
+                            result = await self.call_async(
+                                "getTokenAccountsByOwner",
+                                [owner, {"mint": mint}, {"encoding": encoding}]
+                            )
+                            if result and "value" in result:
+                                return result
+                            return None
+
+                    rpc_adapter = RPCClientAdapter(RPC_HTTP)
+                    vault_pair = await discover_vaults_rpc(
+                        token_mint=mint,
+                        rpc_client=rpc_adapter,
+                        ws_monitor=None,
+                        max_retries=1  # Single attempt in listener context
+                    )
+
+                    if vault_pair:
+                        pool_address = vault_pair.base_vault.address
+                        pool_discovery_source = "rpc_vaults"
+                        log_print(
+                            f"{Colors.DETECT}[POOL_DETECT] ✅ Pool discovered via RPC vaults: {pool_address[:16]}...{Colors.RESET}",
+                            flush=True
+                        )
+                        # Store quote vault for later use if needed
+                        if not hasattr(self, '_last_quote_vault'):
+                            self._last_quote_vault = {}
+                        self._last_quote_vault[mint] = vault_pair.quote_vault.get('address') if hasattr(vault_pair.quote_vault, 'get') else vault_pair.quote_vault
+
+                except Exception as e:
+                    pool_address = None
+
+            # === AUTO-REGISTER POOL FOR WEBSOCKET PRICING ===
+            # ✅ Validate pool owner before registration (belt-and-suspenders check).
+            # pool_discovery_source is treated as provisional until this passes —
+            # if owner check fails, reset to "none" so retry scheduling fires correctly.
+            #
+            # SKIP for pools already registered by fast-lane (_register_pool_and_mark_resolved).
+            # Those pools were validated + written to DB inside the fast-lane path.
+            # Re-running getAccountInfo here re-introduces the RPC indexing-lag problem and
+            # causes "source=none pool=None" to appear right after a successful registration.
+            _fast_lane_registered = pool_discovery_source == "tx_parsing"
+            if pool_address and not _fast_lane_registered:
+                try:
+                    from src.core.pool_detector import AMMPrograms
+                    # Check pool owner is actually an AMM program
+                    # Use discovery RPC (pool validation is critical)
+                    acct = await self.call_discovery_rpc(
+                        "getAccountInfo",
+                        [pool_address, {"encoding": "base64"}],
+                        timeout=5
+                    )
+                    pool_is_valid = False
+                    result = (acct or {}).get("result") or {}
+                    value = result.get("value")
+                    if value:
+                        owner = value.get("owner")
+                        if owner in AMMPrograms.ALL:
+                            pool_is_valid = True
+                        else:
+                            log_print(
+                                f"{Colors.DETECT}[POOL_DETECT] ⚠️  Rejecting pool {pool_address}: owner {owner[:16] if owner else '???'}... is not AMM program{Colors.RESET}",
+                                flush=True
+                            )
+                            pool_address = None
+                            pool_discovery_source = "none"  # Treat as not found — trigger retry scheduling
+                    else:
+                        log_print(
+                            f"{Colors.DETECT}[POOL_DETECT] ⚠️  Pool {pool_address[:16]}... not yet visible on-chain{Colors.RESET}",
+                            flush=True
+                        )
+                        pool_address = None
+                        pool_discovery_source = "none"  # Treat as not found — trigger retry scheduling
+
+                    if pool_is_valid:
+                        # Pool passed validation - proceed with registration
+                        try:
+                            from src.core.pool_discovery import PoolDiscovery
+                            discovery = PoolDiscovery(DB_PATH, RPC_HTTP)
+                            registered = await discovery.discover_and_register_pool(pool_address, mint)
+                            if registered:
+                                log_print(f"[POOL] 🚀 Auto-registered pool for WebSocket pricing", flush=True)
+                                # Transition to "resolved" state
+                                self.token_states[mint] = "resolved"
+                                self.token_discovery_times[mint]["resolved"] = time.time()
+                                elapsed = self.token_discovery_times[mint]["resolved"] - self.token_discovery_times[mint]["detected"]
+                                log_print(f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (in {elapsed:.1f}s){Colors.RESET}", flush=True)
+
+                                # Persist discovery metadata
+                                await self._write_resolution_telemetry(mint, "rpc_discovery", pool_address, 0)
+
+                                # Trigger WebSocket refresh to subscribe to new pool
+                                if self.price_worker:
+                                    log_print(f"[POOL] Triggering price worker WebSocket refresh for {mint[:16]}...", flush=True)
+                                    try:
+                                        self.price_worker.trigger_pool_refresh()
+                                    except Exception as e:
+                                        log_print(f"[POOL] ⚠️  Price worker refresh failed: {e}", flush=True)
+                            else:
+                                log_print(f"[POOL] ⚠️  Could not auto-register pool reserves", flush=True)
+                        except Exception as pool_err:
+                            log_print(f"[POOL] ⚠️  Pool auto-registration error: {pool_err}", flush=True)
+                except Exception as pool_err:
+                    log_print(f"{Colors.DETECT}[POOL_DETECT] ⚠️  Pool validation error: {pool_err}{Colors.RESET}", flush=True)
+                    pool_address = None
+                    pool_discovery_source = "none"
+
+            # ✅ Emit source-of-truth result AFTER owner validation has run.
+            # pool_discovery_source is only non-"none" here if the owner check passed.
+            log_print(
+                f"{Colors.DETECT}[POOL_DETECT] Final discovery result: source={pool_discovery_source} pool={pool_address if pool_address else 'None'}{Colors.RESET}",
+                flush=True
+            )
+
+            # === SCHEDULE RETRY DISCOVERY IF NO VALIDATED POOL FOUND ===
+            log_print(
+                f"🔴 [DISCOVERY_CHECKPOINT] pool_discovery_source='{pool_discovery_source}' (none=retry, other=success)",
+                flush=True
+            )
+
+            if pool_discovery_source == "none":
+                self.token_states[mint] = "resolving"
+                log_print(
+                    f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolving (scheduling retries){Colors.RESET}",
+                    flush=True
+                )
+                log_print(f"🔴 [DECISION] pool_discovery_source=none → WILL SCHEDULE RETRIES", flush=True)
+                log_print(
+                    f"{Colors.DETECT}[POOL_DETECT] Initial discovery failed, scheduling optimized retries...{Colors.RESET}",
+                    flush=True
+                )
+                schedule_retry_after_creator_extraction = True
+            else:
+                log_print(
+                    f"🔴 [DECISION] pool_discovery_source='{pool_discovery_source}' → NO retries needed",
+                    flush=True
+                )
+                schedule_retry_after_creator_extraction = False
+
+            # Trigger immediate price fetch (don't wait for background task)
+            # This ensures market cap appears quickly in UI regardless of analysis settings
+            try:
+                result = await self._extract_price_from_transaction(signature, mint)
+                if result is not None:
+                    price, market_cap, source, liquidity_usd = result
+                    await self._update_price_in_db(mint, price, market_cap, source, liquidity_usd)
+                    log_print(f"[PRICE] ✅ Initial price fetched: ${price:.2e} | Market Cap: ${market_cap:.2e} | Source: {source}", flush=True)
+            except Exception as price_err:
+                log_print(f"[PRICE] ⚠ Initial price fetch failed: {price_err}", flush=True)
+
+            # Extract earliest creator and creation date (always, regardless of analysis toggles)
+            # This ensures creator and date are always visible in the UI
+            earliest_creator = None
+            bonding_curve_pda = None
+            created_at = None
+            analyzer = None
+
+            # Fast path: check PumpPortal in-memory state and DB before hitting RPC
+            _fast_creator = (self._portal_vsol.get(mint) or {}).get('creator') or None
+            if not _fast_creator:
+                try:
+                    _tp_db5 = time.monotonic()
+                    log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=fast_creator mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                    def _fast_creator_read(_m=mint):
+                        _gc = db_connect(DB_PATH, timeout=5)
+                        _row = _gc.execute(
+                            "SELECT pf_ws_creator, earliest_tx_creator FROM token_analysis WHERE mint=? LIMIT 1", (_m,)
+                        ).fetchone()
+                        _gc.close()
+                        return _row
+                    _db_fast = await asyncio.to_thread(_fast_creator_read)
+                    log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=fast_creator mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db5)*1000)}", flush=True)
+                    if _db_fast:
+                        _fast_creator = (str(_db_fast[0]).strip() if _db_fast[0] else "") or (str(_db_fast[1]).strip() if _db_fast[1] else "") or None
+                except Exception:
+                    pass
+
+            if _fast_creator:
+                log_print(f"[CREATOR_EXTRACTION] ⚡ Fast-path creator={_fast_creator[:16]}... for {mint[:16]}...", flush=True)
+                earliest_creator = _fast_creator
+
+            try:
+                from src.analysis.pump_fun_post_migration_analyzer import PostMigrationAnalyzer
+                analyzer = PostMigrationAnalyzer(mint, rpc_url=RPC_HTTP)
+                _backfill_enabled = os.environ.get("CREATOR_BACKFILL_ENABLED", "0") != "0"
+                if not earliest_creator:
+                    if _backfill_enabled:
+                        provenance = await analyzer.get_creator_from_earliest_tx()
+                        earliest_creator = provenance.get('creator') if provenance else None
+                    else:
+                        provenance = None
+                        log_print(
+                            f"[CREATOR] Inline RPC backfill disabled (CREATOR_BACKFILL_ENABLED=0); "
+                            f"earliest_creator=None for {mint[:16]}... — resolution queue will handle",
+                            flush=True,
+                        )
+                else:
+                    provenance = None
+
+                log_print(
+                    f"🔴 [CREATOR_EXTRACTION] creator={earliest_creator[:16] if earliest_creator else 'NONE'}... "
+                    f"provenance={provenance.get('status') if provenance else 'fast-path'}",
+                    flush=True
+                )
+
+                # Prefer on-chain blockTime from provenance over migration tx blockTime
+                if provenance and provenance.get('blockTime'):
+                    block_time = provenance.get('blockTime')
+                    created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                    log_print(f"[CREATOR] 🕐 Using on-chain time from earliest tx: {created_at}", flush=True)
+
+                # Fallback: Get migration block time if provenance doesn't have blockTime
+                if not created_at and signature and tx_data:
+                    try:
+                        block_time = tx_data.get("blockTime")
+                        if block_time:
+                            created_at = datetime.utcfromtimestamp(block_time).isoformat() + "Z"
+                    except Exception:
+                        pass
+
+                created_at = created_at or (datetime.utcnow().isoformat() + "Z")
+
+                if earliest_creator:
+                    provenance_status = provenance.get('status', 'unknown') if provenance else 'unknown'
+                    bonding_curve_pda = provenance.get('bonding_curve_pda') if provenance else None
+
+                    # CRITICAL: Only accept create_tx_signature if it's a validated Pump.Fun CREATE transaction
+                    is_pumpfun_create = provenance.get('is_pumpfun_create', False) if provenance else False
+                    create_tx_signature = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature') and is_pumpfun_create) else None
+
+                    if create_tx_signature:
+                        log_print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validated: {create_tx_signature[:20]}...", flush=True)
+                    else:
+                        analyzer_sig = analyzer._create_tx_signature if (analyzer and hasattr(analyzer, '_create_tx_signature')) else None
+                        log_print(f"[CREATOR] ✅ Extracted from earliest tx: {earliest_creator} ({provenance_status}) | CREATE tx validation: {'FAILED' if analyzer_sig else 'NOT_SET'}", flush=True)
+
+                    # Update minimal entry with creator, date, bonding curve, and CREATE tx signature (only if validated)
+                    await self._update_token_entry_with_creator(mint, earliest_creator, created_at, bonding_curve_pda, create_tx_signature)
+
+                    # Creator tracking now handled by creator_outgoing_extractor (background job)
+            except Exception as creator_err:
+                log_print(f"[CREATOR] ⚠ Could not extract creator: {creator_err}", flush=True)
+
+            # === RETRY SCHEDULING (after creator extraction) ===
+            # If initial discovery failed, schedule optimized retries with full context
+            if schedule_retry_after_creator_extraction:
+                bonding_curve_for_retry = bonding_curve_pda if bonding_curve_pda else None
+                creator_for_retry = earliest_creator if earliest_creator else None
+                migration_timestamp_for_retry = None
+                if tx_data and 'blockTime' in tx_data:
+                    try:
+                        migration_timestamp_for_retry = int(tx_data['blockTime'])
+                    except Exception:
+                        pass
+
+                # CRITICAL: Check if anchors are missing
+                if not bonding_curve_for_retry or not creator_for_retry:
+                    log_print(
+                        f"⚠️ [RETRY_SCHEDULE] ⚠️ MISSING ANCHORS: "
+                        f"bonding_curve={'MISSING' if not bonding_curve_for_retry else bonding_curve_for_retry[:16]+'...'} "
+                        f"creator={'MISSING' if not creator_for_retry else creator_for_retry[:16]+'...'} "
+                        f"(follow-on discovery will be weaker or impossible)",
+                        flush=True
+                    )
+
+                log_print(
+                    f"{Colors.DISCOVER}[RETRY_SCHEDULE] Scheduling retries with context: bonding_curve={bonding_curve_for_retry[:16] if bonding_curve_for_retry else 'None'}... creator={creator_for_retry[:16] if creator_for_retry else 'None'}...{Colors.RESET}",
+                    flush=True
+                )
+
+                # === GUARD: Prevent duplicate retry tasks ===
+                existing_task = self._retry_tasks_by_mint.get(mint)
+                if existing_task and not existing_task.done():
+                    log_print(
+                        f"[RETRY_GUARD] ⏭️  Retry task already exists for {mint[:16]}..., skipping",
+                        flush=True
+                    )
+                else:
+                    # Schedule retries at optimized delays (don't await - fire and forget)
+                    # Optimized schedule: denser early retries + extended late retries (0.5s intervals for first 8, then 3-5s intervals)
+                    # Pass tx_data, tx_source, and discovery context to maximize pool discovery success
+                    log_print(
+                        f"🔴 [RETRY_CREATE_TASK] Creating asyncio task for {mint[:16]}... (THIS MUST LOG OR RETRY NEVER RUNS)",
+                        flush=True
+                    )
+                    task = asyncio.create_task(self._retry_pool_discovery(
+                        mint,
+                        signature,
+                        delays=[0.5, 1, 1.5, 2, 3, 5, 8, 12, 18, 25, 35, 50],
+                        tx_source="cached" if tx_data else "miss",
+                        tx_data=tx_data,
+                        bonding_curve=bonding_curve_for_retry,
+                        creator=creator_for_retry,
+                        migration_timestamp=migration_timestamp_for_retry
+                    ))
+                    self._retry_tasks_by_mint[mint] = task
+                    log_print(
+                        f"🔴 [RETRY_CREATED] Task created: {task}, done={task.done()}",
+                        flush=True
+                    )
+
+            # Analyze token history (includes creator behavior from all token transactions) - MUST be deferred during critical window
+            # This is a background task that consumes RPC quota and must wait until critical window expires
+            # Only runs for WATCH risk tokens (or if globally enabled for all tokens)
+            _run_history_check = False
+            try:
+                _tp_db6 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=risk_check mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                def _risk_check_read(_m=mint):
+                    _c = db_connect(DB_PATH, timeout=5)
+                    _row = _c.execute(
+                        "SELECT risk_level FROM token_prediction_scores WHERE mint = ? LIMIT 1", (_m,)
+                    ).fetchone()
+                    _c.close()
+                    return _row
+                _risk_row = await asyncio.to_thread(_risk_check_read)
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=risk_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db6)*1000)}", flush=True)
+                _token_risk = _risk_row[0] if _risk_row else None
+                _run_history_check = _token_risk == 'WATCH'
+            except Exception:
+                pass
+            if _run_history_check:
+                log_print(f"[SETTINGS] Token history ✅ ON (WATCH token) - queueing post-migration analysis (deferred)", flush=True)
+                await self.queue_background_job(self.analyze_post_migration(mint, signature, pool_address), mint=mint, priority=5)
+            else:
+                log_print(f"[SETTINGS] Token history ❌ OFF (risk={_token_risk}) - skipping post-migration analysis", flush=True)
+
+            log_print(f"[MIGRATION] ✅ CRITICAL PATH COMPLETE - Token {mint[:8]}... with creator {earliest_creator[:8] if earliest_creator else 'unknown'}... is now visible in UI", flush=True)
+
+            enqueue_creator = earliest_creator
+            enqueue_source = "migration"
+            # Always check DB — earliest_tx_creator may have been set via a path
+            # that bypasses pool discovery (e.g. pre-migration RPC fallback)
+            try:
+                _tp_db7 = time.monotonic()
+                log_print(f"[TIMING_PROBE] DB_CONNECT_START stage=enqueue_creator_check mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                def _enqueue_creator_read(_m=mint):
+                    _c = db_connect(DB_PATH, timeout=5)
+                    _row = _c.execute(
+                        "SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature FROM token_analysis WHERE mint = ? LIMIT 1",
+                        (_m,),
+                    ).fetchone()
+                    _c.close()
+                    return _row
+                _db_row = await asyncio.to_thread(_enqueue_creator_read)
+                log_print(f"[TIMING_PROBE] DB_QUERY_DONE stage=enqueue_creator_check mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_db7)*1000)}", flush=True)
+                if _db_row:
+                    db_creator = (str(_db_row[0]).strip() if _db_row[0] else "") or (str(_db_row[1]).strip() if _db_row[1] else "") or None
+                    if not enqueue_creator and db_creator:
+                        enqueue_creator = db_creator
+                        enqueue_source = "migration_db_fallback"
+            except Exception:
+                pass
+            if enqueue_creator:
+                create_tx_sig = analyzer._create_tx_signature if analyzer and hasattr(analyzer, '_create_tx_signature') else None
+                _tp_eq = time.monotonic()
+                log_print(f"[TIMING_PROBE] FUNDING_ENQUEUE_START mint={mint[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+                await self._enqueue_creator_funding_job(
+                    enqueue_creator,
+                    mint=mint,
+                    migration_timestamp=created_at,
+                    create_tx_signature=create_tx_sig,
+                    delay_seconds=0,
+                    source=enqueue_source,
+                )
+                log_print(f"[TIMING_PROBE] FUNDING_ENQUEUE_DONE mint={mint[:16]} elapsed_ms={int((time.monotonic()-_tp_eq)*1000)}", flush=True)
+            else:
+                log_print(f"[BACKGROUND] ⏭️ Skipping background tasks (no creator found)", flush=True)
+
+            log_print(f"[TIMING_PROBE] MIGRATION_TOTAL mint={mint[:16]} sig={signature[:16]} total_ms={int((time.monotonic()-_tp_t0)*1000)}", flush=True)
+
+        finally:
+            # Clean up active discovery tracking
+            self._active_pool_discoveries_by_mint.discard(mint)
+            self._active_pool_discoveries_by_sig.discard(signature)
+
+    async def _enrich_tx_data(self, tx_data: Optional[Dict]) -> Optional[Dict]:
+        """
+        Enrich tx_data by reconstructing meta.accounts from accountKeys + loadedAddresses.
+        
+        This is critical for pool candidate extraction, which relies on meta.accounts
+        to find accounts referenced in inner instructions.
+        
+        Args:
+            tx_data: Raw transaction data from RPC
+            
+        Returns:
+            Enriched tx_data (modified in-place), or None if invalid
+        """
+        if not tx_data:
+            return None
+
+        has_meta = tx_data.get('meta') is not None
+        has_block_time = tx_data.get('blockTime') is not None
+        has_transaction = tx_data.get('transaction') is not None
+        has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+        meta_accounts_count = len((tx_data.get('meta') or {}).get('accounts') or [])
+        tx_keys = list(tx_data.keys()) if tx_data else []
+
+        log_print(
+            f"🔴 [TX_DATA_VALIDATION] has_meta={has_meta} has_blockTime={has_block_time} "
+            f"has_transaction={has_transaction} has_meta_accounts={has_meta_accounts} "
+            f"meta_accounts_count={meta_accounts_count} "
+            f"keys={tx_keys[:5]}{'...' if len(tx_keys) > 5 else ''}",
+            flush=True
+        )
+
+        # If critical fields missing, log warning
+        if not (has_meta and has_block_time and has_transaction):
+            log_print(
+                f"⚠️ [TX_DATA_INCOMPLETE] MISSING: "
+                f"{'meta ' if not has_meta else ''}"
+                f"{'blockTime ' if not has_block_time else ''}"
+                f"{'transaction ' if not has_transaction else ''}",
+                flush=True
+            )
+
+        # ENRICHMENT: If meta.accounts is missing, reconstruct from accountKeys + loadedAddresses
+        if has_meta and not has_meta_accounts:
+            try:
+                message = tx_data.get('transaction', {}).get('message', {})
+                account_keys = message.get('accountKeys', [])
+                loaded_addresses = tx_data.get('meta', {}).get('loadedAddresses', {})
+
+                # Build full account list (accountKeys + loaded addresses)
+                all_accounts = []
+                all_accounts.extend(account_keys)  # Original accounts
+                all_accounts.extend(loaded_addresses.get('writable', []))  # Writable loaded
+                all_accounts.extend(loaded_addresses.get('readonly', []))   # Readonly loaded
+
+                # Create synthetic meta.accounts with owner info where available
+                # This is a best-effort reconstruction
+                synthetic_accounts = [{'pubkey': addr} for addr in all_accounts]
+
+                if synthetic_accounts:
+                    tx_data['meta']['accounts'] = synthetic_accounts
+                    log_print(
+                        f"🔧 [TX_DATA_ENRICHMENT] Reconstructed meta.accounts from accountKeys + loadedAddresses: "
+                        f"{len(synthetic_accounts)} accounts",
+                        flush=True
+                    )
+                    # Re-check
+                    has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+                    meta_accounts_count = len((tx_data.get('meta') or {}).get('accounts') or [])
+                    log_print(
+                        f"✅ [TX_DATA_ENRICHMENT] has_meta_accounts now={has_meta_accounts}, count={meta_accounts_count}",
+                        flush=True
+                    )
+            except Exception as e:
+                log_print(
+                    f"⚠️ [TX_DATA_ENRICHMENT] Failed to reconstruct accounts: {e}",
+                    flush=True
+                )
+
+        return tx_data
+
+    async def _retry_pool_discovery(self, mint: str, original_migration_sig: str, delays: List[int], tx_source: str = "miss", tx_data: Optional[Dict] = None, bonding_curve: Optional[str] = None, creator: Optional[str] = None, migration_timestamp: Optional[int] = None):
+        """
+        PHASE 2: Critical-path protected retry discovery with tier-based strategies.
+
+        Retry Tiers:
+        1. Retries 1-5 (T=0.5-8s): TX-only (protect RPC quota, poll exact migration TX)
+        2. Retries 6-7 (T=13-21s): TX + light RPC fallback (single RPC call)
+        3. Retries 8-12 (T=33-161s): TX + full RPC fallback (complete discovery)
+
+        Why tiers?
+        - Early window: TX not indexed yet, vaults not ready. Don't waste RPC.
+        - Middle window: TX indexed, vaults becoming ready. Light probing.
+        - Late window: Full RPC enabled, background jobs may start processing.
+
+        Args:
+            mint: Token mint address
+            original_migration_sig: Original migration transaction signature
+            delays: List of delays in seconds for retries
+            tx_source: Where the TX came from: "cached", "rpc", or "miss"
+            tx_data: Optional pre-fetched transaction data (from cached handle_migration fetch)
+            bonding_curve: Optional bonding curve PDA (primary anchor for follow-on discovery)
+            creator: Optional earliest creator address (secondary anchor for follow-on discovery)
+            migration_timestamp: Optional migration block time for context
+        """
+        log_print(
+            f"🔴 [RETRY_START] CRITICAL: Retry loop started for {mint[:16]}... "
+            f"sig={original_migration_sig[:16]}... "
+            f"delays={len(delays)} "
+            f"curve={bonding_curve[:16] if bonding_curve else 'None'}... "
+            f"creator={creator[:16] if creator else 'None'}... "
+            f"tx_data={'YES' if tx_data else 'NO'}",
+            flush=True
+        )
+
+        # CRITICAL: Validate tx_data structure (not just presence)
+        if tx_data:
+            has_meta = tx_data.get('meta') is not None
+            has_block_time = tx_data.get('blockTime') is not None
+            has_transaction = tx_data.get('transaction') is not None
+            has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+            meta_accounts_count = len((tx_data.get('meta') or {}).get('accounts') or [])
+            tx_keys = list(tx_data.keys()) if tx_data else []
+
+            log_print(
+                f"🔴 [TX_DATA_VALIDATION] has_meta={has_meta} has_blockTime={has_block_time} "
+                f"has_transaction={has_transaction} has_meta_accounts={has_meta_accounts} "
+                f"meta_accounts_count={meta_accounts_count} "
+                f"keys={tx_keys[:5]}{'...' if len(tx_keys) > 5 else ''}",
+                flush=True
+            )
+
+            # If critical fields missing, log warning
+            if not (has_meta and has_block_time and has_transaction):
+                log_print(
+                    f"⚠️ [TX_DATA_INCOMPLETE] MISSING: "
+                    f"{'meta ' if not has_meta else ''}"
+                    f"{'blockTime ' if not has_block_time else ''}"
+                    f"{'transaction ' if not has_transaction else ''}",
+                    flush=True
+                )
+
+            # ENRICHMENT: If meta.accounts is missing, reconstruct from accountKeys + loadedAddresses
+            if has_meta and not has_meta_accounts:
+                try:
+                    message = tx_data.get('transaction', {}).get('message', {})
+                    account_keys = message.get('accountKeys', [])
+                    loaded_addresses = tx_data.get('meta', {}).get('loadedAddresses', {})
+
+                    # Build full account list (accountKeys + loaded addresses)
+                    all_accounts = []
+                    all_accounts.extend(account_keys)  # Original accounts
+                    all_accounts.extend(loaded_addresses.get('writable', []))  # Writable loaded
+                    all_accounts.extend(loaded_addresses.get('readonly', []))   # Readonly loaded
+
+                    # Create synthetic meta.accounts with owner info where available
+                    # This is a best-effort reconstruction
+                    synthetic_accounts = [{'pubkey': addr} for addr in all_accounts]
+
+                    if synthetic_accounts:
+                        tx_data['meta']['accounts'] = synthetic_accounts
+                        log_print(
+                            f"🔧 [TX_DATA_ENRICHMENT] Reconstructed meta.accounts from accountKeys + loadedAddresses: "
+                            f"{len(synthetic_accounts)} accounts",
+                            flush=True
+                        )
+                        # Re-check
+                        has_meta_accounts = (tx_data.get('meta') or {}).get('accounts') is not None
+                        meta_accounts_count = len((tx_data.get('meta') or {}).get('accounts') or [])
+                        log_print(
+                            f"✅ [TX_DATA_ENRICHMENT] has_meta_accounts now={has_meta_accounts}, count={meta_accounts_count}",
+                            flush=True
+                        )
+                except Exception as e:
+                    log_print(
+                        f"⚠️ [TX_DATA_ENRICHMENT] Failed to reconstruct accounts: {e}",
+                        flush=True
+                    )
+
+        from src.core.post_migration_pool_discovery import PostMigrationPoolDiscovery
+        from src.core.pool_detector import AMMPrograms
+
+        # Track metrics for this token's discovery
+        discovery_metrics = {
+            'mint': mint,
+            'tx_parsing_attempts': 0,
+            'rpc_attempts': 0,
+            'total_candidates_tested': 0,
+            'rejections': {}
+        }
+
+        # Start critical window for this mint
+        self.start_critical_window(mint)
+
+        for attempt, delay in enumerate(delays, 1):
+            try:
+                await asyncio.sleep(delay)
+
+                # Guard: heavy registration Task may have resolved this mint already
+                if self.token_states.get(mint) == "resolved":
+                    self._retry_candidates.pop(mint, None)
+                    log_print(
+                        f"[FAST_PATH_RETRY] ✅ {mint[:16]}... already resolved (heavy_reg Task completed) — exiting retry loop",
+                        flush=True,
+                    )
+                    return
+
+                elapsed = time.time() - self.token_discovery_times[mint]["detected"]
+                in_critical_window = self.is_in_critical_window(mint)
+
+                # ── FAST PATH: reuse FAST_LANE's validated candidates ──────────────
+                # If FAST_LANE already identified valid pool candidates but couldn't
+                # register them (indexing lag), try them directly before doing any
+                # re-extraction, scoring, or getMultipleAccounts validation.
+                # Only candidates that returned RETRY (not FAIL) are kept — FAIL means
+                # wrong owner at _register_pool_inner level, not indexing lag.
+                _saved = self._retry_candidates.get(mint)
+                if _saved:
+                    _has_retry = False
+                    for _cand in list(_saved):
+                        _res = await self._register_pool_and_mark_resolved(
+                            mint, _cand, "tx_parsing", timeout=8.0
+                        )
+                        if _res in (RegisterResult.SUCCESS, RegisterResult.DISPATCHED):
+                            self._retry_candidates.pop(mint, None)
+                            if _res == RegisterResult.DISPATCHED:
+                                # Heavy work is running as a background Task; token_states
+                                # will be set to "resolved" when it completes.
+                                log_print(
+                                    f"[FAST_PATH_RETRY] ✅ {_cand[:16]}... dispatched on attempt {attempt} "
+                                    f"— heavy registration running in background",
+                                    flush=True,
+                                )
+                            else:
+                                resolved_at = time.time()
+                                self.token_states[mint] = "resolved"
+                                self.token_discovery_times[mint]["resolved"] = resolved_at
+                                elapsed_ok = resolved_at - self.token_discovery_times[mint]["detected"]
+                                log_print(
+                                    f"[FAST_PATH_RETRY] ✅ {_cand[:16]}... registered on attempt {attempt} "
+                                    f"({elapsed_ok:.1f}s) — skipped re-extraction",
+                                    flush=True,
+                                )
+                            await self._write_resolution_telemetry(mint, "tx_parsing", _cand, attempt - 1)
+                            if self.price_worker:
+                                try:
+                                    self.price_worker.trigger_pool_refresh()
+                                except Exception:
+                                    pass
+                            return
+                        elif _res == RegisterResult.RETRY:
+                            # Still not indexed — keep candidate, skip rediscovery this attempt
+                            _has_retry = True
+                        else:
+                            # RegisterResult.FAIL → permanent owner mismatch; discard
+                            _saved.remove(_cand)
+
+                    if not _saved:
+                        # All saved candidates permanently failed (owner mismatch, not indexing lag).
+                        # Clear and let full rediscovery run from next attempt onward.
+                        self._retry_candidates.pop(mint, None)
+                        log_print(
+                            f"[FAST_PATH_RETRY] ⚠️  All saved candidates invalid for {mint[:16]}..., "
+                            f"falling back to full rediscovery next attempt",
+                            flush=True,
+                        )
+                        # Skip full rediscovery THIS attempt — we just burned getAccountInfo
+                        # calls on each candidate. Wait for next delay slot.
+                        continue
+
+                    if _has_retry:
+                        # At least one candidate still viable but not yet indexed.
+                        # Skip full rediscovery this attempt.
+                        log_print(
+                            f"[FAST_PATH_RETRY] ⏳ attempt={attempt} saved candidate(s) not yet indexed, "
+                            f"skipping re-extraction",
+                            flush=True,
+                        )
+                        continue
+                # ── END FAST PATH ────────────────────────────────────────────────
+
+                # Determine retry tier based on attempt number
+                if attempt <= 5:
+                    tier = "TX_ONLY"
+                    run_tx = True
+                    run_rpc = False
+                elif attempt <= 7:
+                    tier = "TX_PLUS_LIGHT_RPC"
+                    run_tx = True
+                    run_rpc = True
+                    rpc_mode = "light"
+                else:
+                    tier = "TX_PLUS_FULL_RPC"
+                    run_tx = True
+                    run_rpc = True
+                    rpc_mode = "full"
+
+                corr_id = self._correlation_id(mint, attempt=attempt, tier=tier, elapsed=elapsed)
+                log_print(
+                    f"{Colors.DISCOVER}[DISCOVERY] corr={corr_id} tx_source={tx_source} window={'ACTIVE' if in_critical_window else 'EXPIRED'}{Colors.RESET}",
+                    flush=True
+                )
+
+                # ===== TIER: TX PARSING =====
+                if run_tx:
+                    try:
+                        discovery = PostMigrationPoolDiscovery(RPC_HTTP)
+
+                        # CRITICAL: Parse cached TX directly (no RPC, no refetch)
+                        # This is the fastest path - pure extraction from cached payload
+                        candidates_from_cached = []
+                        cached_tx_parsed = False
+                        cached_candidate_count = 0
+
+                        cached_diagnostics = {}
+                        if tx_data is not None:
+                            # Use cached-only parsing: no RPC, no fallback
+                            candidates_from_cached, cached_tx_parsed, cached_candidate_count, cached_diagnostics = await discovery.parse_candidates_from_cached_tx(tx_data)
+
+                            # 🔥 PATCH 4: Filter out garbage candidates before validation
+                            if candidates_from_cached:
+                                SKIP = {
+                                    mint,
+                                    bonding_curve,
+                                    "11111111111111111111111111111111",
+                                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                                    "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+                                }
+                                candidates_from_cached = [c for c in candidates_from_cached if c not in SKIP]
+                                cached_candidate_count = len(candidates_from_cached)
+
+                                # 🔥 PATCH 5: Batch validate ALL candidates at once
+                                if candidates_from_cached:
+                                    valid_from_cached = await self.batch_validate_candidates(candidates_from_cached)
+                                    if valid_from_cached:
+                                        candidates_from_cached = valid_from_cached
+                                        log_print(
+                                            f"{Colors.DISCOVER}[BATCH_VALIDATED] Found {len(valid_from_cached)} valid pools from {len(candidates_from_cached)} candidates{Colors.RESET}",
+                                            flush=True
+                                        )
+
+                            log_print(
+                                f"{Colors.DISCOVER}[CACHED_TX_PARSE] cached_tx_present=yes cached_tx_parsed={cached_tx_parsed} cached_candidate_count={cached_candidate_count}{Colors.RESET}",
+                                flush=True
+                            )
+
+                            # If zero candidates, log diagnostic reason
+                            if cached_candidate_count == 0 and cached_diagnostics:
+                                diag = cached_diagnostics
+                                log_print(
+                                    f"{Colors.DISCOVER}[CACHED_TX_DIAGNOSTICS] {diag.get('diagnostic_detail', 'unknown reason')}{Colors.RESET}",
+                                    flush=True
+                                )
+
+                        # === POST-PARSE ROUTING DECISION ===
+                        first_candidates = [c[:12] for c in candidates_from_cached[:5]] if candidates_from_cached else []
+                        log_print(
+                            f"[POST_PARSE_ROUTE] mint={mint[:16]}... "
+                            f"cached_candidate_count={cached_candidate_count} "
+                            f"first_candidates={first_candidates} "
+                            f"will_run_follow_on={attempt >= 2 if 'attempt' in locals() else 'N/A'} "
+                            f"curve_present={bonding_curve is not None} "
+                            f"creator_present={creator is not None} "
+                            f"tx_data_present={tx_data is not None}",
+                            flush=True
+                        )
+
+                        # If cached parsing yielded candidates, validate them
+                        # Otherwise try follow-on discovery (Phase 3)
+                        if candidates_from_cached:
+                            # 🔥 ORCHESTRATION: extract → validate → select (FAST-LANE OPTIMIZED)
+                            log_print(f"🔴 [PRE_RESOLVE] Calling fast_lane_resolve_with_retries with tx_data={tx_data is not None}", flush=True)
+                            pool = await asyncio.wait_for(
+                                self.fast_lane_resolve_with_retries(mint=mint, tx_data=tx_data, max_wait_secs=10.0),
+                                timeout=35.0,
+                            )
+                            if isinstance(pool, dict):
+                                pool = pool.get("address") or None
+                            if pool:
+                                log_print(f"[POOL_RESOLVED] ✅ Found valid pool via cached TX: {pool[:16]}...", flush=True)
+                                pool_candidates = [pool]
+                                using_cached_payload = True
+                                log_print(f"🔴 [POST_RESOLVE] pool_candidates set to [{pool[:16]}...], will validate", flush=True)
+                            else:
+                                log_print(f"[POOL_RESOLVED] ⚠️  Cached candidates didn't validate, trying follow-on", flush=True)
+                                pool_candidates = []
+                                using_cached_payload = False
+                        else:
+                            pool_candidates = []
+                            using_cached_payload = False
+
+                        # If resolved, skip follow-on
+                        if not pool_candidates:
+                            # Phase 3: Try follow-on transaction discovery
+                            # KEY INSIGHT: Use cached diagnostics to determine strategy
+                            pool_candidates = []
+                            follow_on_pool = None
+                            follow_on_anchor = None
+                            follow_on_txs_scanned = 0
+
+                            # Extract reason code from cached diagnostics
+                            reason_code = None
+                            if cached_diagnostics and isinstance(cached_diagnostics, dict):
+                                reason_code = cached_diagnostics.get("reason_code")
+
+                            # Runtime conditions for follow-on
+                            tx_data_present = tx_data is not None
+                            curve_present = bonding_curve is not None
+                            creator_present = creator is not None
+
+                            # 🔴 CRITICAL FIX: Routing logic
+                            # If no candidates in cached TX, check if we have anchors
+                            if cached_candidate_count == 0:
+                                if bonding_curve or creator:
+                                    follow_on_max_txs = 12  # immediately
+                                else:
+                                    follow_on_max_txs = 0
+                            else:
+                                follow_on_max_txs = 0
+
+                            log_print(
+                                f"[POST_PARSE_ROUTE] mint={mint[:16]}... "
+                                f"cached_candidate_count={cached_candidate_count} "
+                                f"candidates_from_cached={len(candidates_from_cached) if candidates_from_cached else 0} "
+                                f"will_run_follow_on={follow_on_max_txs > 0} "
+                                f"curve_present={curve_present} "
+                                f"creator_present={creator_present} "
+                                f"tx_data_present={tx_data_present} "
+                                f"reason_code={reason_code}",
+                                flush=True
+                            )
+
+                            log_print(
+                                f"[FOLLOW_ON_CHECK] mint={mint[:16]}... "
+                                f"follow_on_max_txs={follow_on_max_txs} "
+                                f"tx_data={tx_data_present} "
+                                f"cached_count={cached_candidate_count}",
+                                flush=True
+                            )
+
+                            # CRITICAL: Verify tx_data integrity before follow-on
+                            if tx_data_present:
+                                tx_has_meta = tx_data.get('meta') is not None
+                                tx_has_block_time = tx_data.get('blockTime') is not None
+                                tx_has_transaction = tx_data.get('transaction') is not None
+
+                                if not (tx_has_meta and tx_has_transaction):
+                                    log_print(
+                                        f"⚠️ [FOLLOW_ON_SKIP] tx_data incomplete: "
+                                        f"meta={tx_has_meta} transaction={tx_has_transaction}",
+                                        flush=True
+                                    )
+
+                            # Check follow-on condition
+                            follow_on_condition = (
+                                follow_on_max_txs > 0
+                                and tx_data_present
+                                and cached_candidate_count == 0
+                                and (curve_present or creator_present)
+                            )
+
+                            if not follow_on_condition:
+                                reasons = []
+                                if follow_on_max_txs == 0:
+                                    reasons.append(f"follow_on_max_txs={follow_on_max_txs}")
+                                if not tx_data_present:
+                                    reasons.append("tx_data=None")
+                                if cached_candidate_count > 0:
+                                    reasons.append(f"cached_candidate_count={cached_candidate_count}")
+                                if not (curve_present or creator_present):
+                                    reasons.append("no_anchor")
+                                log_print(
+                                    f"⏭️ [FOLLOW_ON_SKIP] Not running follow-on discovery: {', '.join(reasons)}",
+                                    flush=True
+                                )
+
+                            # Run follow-on if condition met
+                            if follow_on_condition:
+                                bonding_curve_for_follow_on = bonding_curve
+                                creator_for_follow_on = creator
+
+                                try:
+                                    follow_on_pool, follow_on_anchor, follow_on_offset, follow_on_txs_scanned = await discovery.discover_follow_on_pools(
+                                        mint=mint,
+                                        migration_sig=original_migration_sig,
+                                        bonding_curve=bonding_curve_for_follow_on,
+                                        creator=creator_for_follow_on,
+                                        token_mint=mint,
+                                        max_txs_per_anchor=follow_on_max_txs,
+                                    )
+
+                                    if follow_on_pool:
+                                        log_print(
+                                            f"{Colors.DISCOVER}[FOLLOW_ON_SUCCESS] Found pool {follow_on_pool[:16]}... "
+                                            f"via anchor={follow_on_anchor} at offset={follow_on_offset}{Colors.RESET}",
+                                            flush=True
+                                        )
+                                        pool_candidates = [follow_on_pool]
+                                        using_cached_payload = True
+                                    else:
+                                        log_print(
+                                            f"{Colors.DISCOVER}[FOLLOW_ON_EXHAUSTED] "
+                                            f"reason_code={reason_code} "
+                                            f"anchor={follow_on_anchor} "
+                                            f"scanned={follow_on_txs_scanned} TXs, no valid pool found{Colors.RESET}",
+                                            flush=True
+                                        )
+                                        pool_candidates = []
+                                        using_cached_payload = tx_data_present
+
+                                except Exception as e:
+                                    logger.error(f"[FOLLOW_ON_DISCOVERY] Error: {e}")
+                                    pool_candidates = []
+                                    using_cached_payload = tx_data_present
+
+                            # IMPROVED: Only fall back to migration-TX parsing if reason was NOT "no_amm_program_in_tx"
+                            # If it was, we already know the pool isn't there - don't waste RPC calls re-parsing it
+                            if not pool_candidates:
+                                using_cached_payload = tx_data_present
+
+                                if reason_code == "no_amm_program_in_tx":
+                                    log_print(
+                                        f"[MIGRATION_TX_PARSE_SKIP] mint={mint[:16]}... "
+                                        f"reason_code=no_amm_program_in_tx so skipping re-parse of migration TX",
+                                        flush=True
+                                    )
+                                    pool_candidates = []
+                                else:
+                                    pool_candidates = await discovery.discover_pool_candidates_from_migration_tx(
+                                        mint=mint,
+                                        migration_sig=original_migration_sig,
+                                        tx_data=tx_data
+                                    )
+
+                        candidates_tested = 0
+                        rejection_reasons = []
+
+                        log_print(
+                            f"🔴 [VALIDATION_LOOP] mint={mint[:16]}... pool_candidates={len(pool_candidates) if pool_candidates else 0} "
+                            f"candidates_from_cached={len(candidates_from_cached) if candidates_from_cached else 0}",
+                            flush=True
+                        )
+
+                        if pool_candidates:
+                            # 🔥 BATCH validate all candidates at once (not serial)
+                            log_print(
+                                f"[BATCH_VALIDATION] Validating {len(pool_candidates)} candidates in parallel",
+                                flush=True
+                            )
+
+                            try:
+                                batch_result = await self.call_discovery_rpc(
+                                    "getMultipleAccounts",
+                                    [pool_candidates, {"encoding": "base64"}],
+                                    timeout=10
+                                )
+
+                                if batch_result and "result" in batch_result:
+                                    accounts_info = batch_result.get("result", {}).get("value", [])
+
+                                    for candidate, acct in zip(pool_candidates, accounts_info):
+                                        candidates_tested += 1
+                                        discovery_metrics['total_candidates_tested'] += 1
+
+                                        if not acct:
+                                            log_print(
+                                                f"[CANDIDATE_REJECT] {candidate[:16]}... reason=tx_not_indexed",
+                                                flush=True
+                                            )
+                                            rejection_reasons.append("tx_not_indexed")
+                                            discovery_metrics['rejections']['tx_not_indexed'] = discovery_metrics['rejections'].get('tx_not_indexed', 0) + 1
+                                            continue
+
+                                        owner = acct.get("owner")
+                                        log_print(
+                                            f"[CANDIDATE_OWNER] {candidate[:16]}... owner={owner[:16] if owner else 'None'}... valid={owner in AMMPrograms.ALL if owner else False}",
+                                            flush=True
+                                        )
+
+                                        if owner not in AMMPrograms.ALL:
+                                            rejection_reasons.append("owner_mismatch")
+                                            discovery_metrics['rejections']['owner_mismatch'] = discovery_metrics['rejections'].get('owner_mismatch', 0) + 1
+                                            continue
+
+                                        # Owner valid - try registration
+                                        log_print(
+                                            f"[CANDIDATE_VALID] {candidate[:16]}... owner valid, attempting registration",
+                                            flush=True
+                                        )
+                                        try:
+                                            from src.core.pool_discovery import PoolDiscovery
+                                            discovery_pipeline = PoolDiscovery(DB_PATH, RPC_HTTP)
+                                            registered = await discovery_pipeline.discover_and_register_pool(
+                                                candidate, mint
+                                            )
+                                            if registered:
+                                                # SUCCESS!
+                                                # Record timing for retry path
+                                                resolved_at = time.time()
+                                                self.token_discovery_times[mint]["resolved_at"] = resolved_at
+
+                                                log_print(
+                                                    f"[POOL_REGISTERED] {candidate[:16]}... registered successfully",
+                                                    flush=True
+                                                )
+                                                self.token_states[mint] = "resolved"
+                                                self.token_discovery_times[mint]["resolved"] = resolved_at
+                                                elapsed = resolved_at - self.token_discovery_times[mint]["detected"]
+
+                                                # Log timing details
+                                                log_print(
+                                                    f"[TIMING] resolved={resolved_at}, detected={self.token_discovery_times[mint]['detected']}, elapsed={elapsed:.2f}s",
+                                                    flush=True
+                                                )
+
+                                                corr = self._correlation_id(mint, attempt=attempt, tier="TX", elapsed=elapsed)
+                                                log_print(
+                                                    f"{Colors.DISCOVER}[DISCOVERY_SUCCESS] corr={corr} strategy=tx_parsing pool={candidate[:16]}...{Colors.RESET}",
+                                                    flush=True
+                                                )
+                                                log_print(
+                                                    f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (TX parsing attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
+                                                    flush=True
+                                                )
+                                                await self._write_resolution_telemetry(mint, "tx_parsing", candidate, attempt - 1)
+
+                                                # Log fast-lane metrics
+                                                self.log_discovery_metrics(mint)
+
+                                                # Trigger WebSocket refresh to subscribe to new pool
+                                                if self.price_worker:
+                                                    log_print(f"[POOL_REGISTERED] Triggering price worker WebSocket refresh for {mint[:16]}...", flush=True)
+                                                    try:
+                                                        self.price_worker.trigger_pool_refresh()
+                                                    except Exception as e:
+                                                        log_print(f"[POOL_REGISTERED] ⚠️  Price worker refresh failed: {e}", flush=True)
+
+                                                return
+
+                                            else:
+                                                rejection_reasons.append("registration_failed")
+                                                discovery_metrics['rejections']['registration_failed'] = discovery_metrics['rejections'].get('registration_failed', 0) + 1
+
+                                        except Exception as reg_err:
+                                            rejection_reasons.append("registration_error")
+                                            discovery_metrics['rejections']['registration_error'] = discovery_metrics['rejections'].get('registration_error', 0) + 1
+
+                            except Exception as batch_err:
+                                log_print(
+                                    f"[BATCH_VALIDATION] ⚠️  Batch validation failed: {batch_err}",
+                                    flush=True
+                                )
+                                rejection_reasons.append("batch_rpc_error")
+                                discovery_metrics['rejections']['batch_rpc_error'] = discovery_metrics['rejections'].get('batch_rpc_error', 0) + 1
+
+                            # TX round summary
+                            discovery_metrics['tx_parsing_attempts'] += 1
+                            corr = self._correlation_id(mint, attempt=attempt)
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_TX] corr={corr} using_cached_payload={using_cached_payload} parsed_candidates={len(pool_candidates)} tested={candidates_tested} rejections={','.join(set(rejection_reasons))}{Colors.RESET}",
+                                flush=True
+                            )
+                        else:
+                            # No candidates (TX not indexed yet)
+                            discovery_metrics['tx_parsing_attempts'] += 1
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_TX] attempt={attempt} candidates=0 (tx_not_indexed){Colors.RESET}",
+                                flush=True
+                            )
+
+                    except Exception as tx_err:
+                        discovery_metrics['tx_parsing_attempts'] += 1
+                        log_print(
+                            f"{Colors.DISCOVER}[DISCOVERY_TX_ERROR] attempt={attempt} error={str(tx_err)[:50]}{Colors.RESET}",
+                            flush=True
+                        )
+
+                # ===== TIER: RPC FALLBACK =====
+                if run_rpc:
+                    try:
+                        from src.core.vault_discovery import discover_and_register_all_pools
+
+                        class SimpleRPCClient:
+                            def __init__(self, listener_instance):
+                                self.listener = listener_instance
+
+                            async def call_async(self, method, params):
+                                result = await self.listener.call_discovery_rpc(method, params, timeout=10)
+                                return result.get("result") if result else None
+
+                            async def get_account_info(self, address, encoding="base64", commitment="confirmed"):
+                                result = await self.call_async(
+                                    "getAccountInfo",
+                                    [address, {"encoding": encoding, "commitment": commitment}]
+                                )
+                                if result:
+                                    acct_data = result.get("value", {})
+                                    return type('Account', (), {
+                                        'owner': acct_data.get('owner'),
+                                        'lamports': acct_data.get('lamports'),
+                                        'data': acct_data.get('data', ['', ''])[0] if isinstance(acct_data.get('data'), list) else acct_data.get('data', ''),
+                                    })()
+                                return None
+
+                            async def get_multiple_accounts(self, addresses, encoding="base64", commitment="confirmed"):
+                                result = await self.call_async(
+                                    "getMultipleAccounts",
+                                    [addresses, {"encoding": encoding, "commitment": commitment}]
+                                )
+                                if result and "value" in result:
+                                    accounts = []
+                                    for acct_data in result["value"]:
+                                        if acct_data:
+                                            accounts.append(type('Account', (), {
+                                                'owner': acct_data.get('owner'),
+                                                'lamports': acct_data.get('lamports'),
+                                                'data': acct_data.get('data', ['', ''])[0],
+                                            })())
+                                        else:
+                                            accounts.append(None)
+                                    return accounts
+                                return []
+
+                        rpc_client = SimpleRPCClient(self)
+                        price_worker = self.price_worker
+
+                        rpc_success = await discover_and_register_all_pools(
+                            token_mint=mint,
+                            rpc_client=rpc_client,
+                            db=DB_PATH,
+                            price_worker=price_worker,
+                            max_retries=1
+                        )
+
+                        if rpc_success:
+                            # Record timing for RPC success path
+                            resolved_at = time.time()
+                            self.token_discovery_times[mint]["resolved_at"] = resolved_at
+
+                            self.token_states[mint] = "resolved"
+                            self.token_discovery_times[mint]["resolved"] = resolved_at
+                            elapsed = resolved_at - self.token_discovery_times[mint]["detected"]
+
+                            # Log timing details
+                            log_print(
+                                f"[TIMING] resolved={resolved_at}, detected={self.token_discovery_times[mint]['detected']}, elapsed={elapsed:.2f}s",
+                                flush=True
+                            )
+
+                            discovery_metrics['rpc_attempts'] += 1
+                            corr = self._correlation_id(mint, attempt=attempt, tier="RPC", elapsed=elapsed)
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_RPC_SUCCESS] corr={corr} strategy={rpc_mode}_rpc{Colors.RESET}",
+                                flush=True
+                            )
+                            log_print(
+                                f"{Colors.DETECT}[STATE] Token {mint[:16]}... → resolved (RPC fallback attempt {attempt} in {elapsed:.1f}s){Colors.RESET}",
+                                flush=True
+                            )
+                            await self._write_resolution_telemetry(mint, "rpc_discovery", None, attempt - 1)
+                            return
+                        else:
+                            discovery_metrics['rpc_attempts'] += 1
+                            log_print(
+                                f"{Colors.DISCOVER}[DISCOVERY_RPC] attempt={attempt} strategy={rpc_mode}_rpc rejected=vaults_not_ready{Colors.RESET}",
+                                flush=True
+                            )
+
+                    except Exception as rpc_err:
+                        discovery_metrics['rpc_attempts'] += 1
+                        log_print(
+                            f"{Colors.DISCOVER}[DISCOVERY_RPC_ERROR] attempt={attempt} error={str(rpc_err)[:50]}{Colors.RESET}",
+                            flush=True
+                        )
+
+                # Allow background jobs to process after critical window
+                if elapsed > self.DISCOVERY_CRITICAL_WINDOW_SECONDS and not in_critical_window:
+                    try:
+                        while not self.background_job_queue.empty():
+                            job_item = self.background_job_queue.get_nowait()
+                            try:
+                                await job_item['coro']
+                            except Exception as e:
+                                logger.error(f"Background job failed: {e}")
+                            self.background_job_queue.task_done()
+                    except asyncio.QueueEmpty:
+                        pass
+
+            except asyncio.CancelledError:
+                log_print(f"{Colors.DISCOVER}[DISCOVERY_CANCELLED] Cancelled at attempt {attempt}{Colors.RESET}", flush=True)
+                return
+            except Exception as e:
+                log_print(
+                    f"{Colors.DISCOVER}[DISCOVERY_ERROR] attempt={attempt} error={str(e)[:50]}{Colors.RESET}",
+                    flush=True
+                )
+
+        # All retries exhausted - classify failure
+        # Determine failure class based on what was tried
+        failure_class = "unknown_exhaustion"
+
+        if discovery_metrics['tx_parsing_attempts'] > 0 and discovery_metrics['rpc_attempts'] == 0:
+            failure_class = "no_cached_tx_candidates_never_tried_rpc"
+        elif discovery_metrics['tx_parsing_attempts'] > 0 and discovery_metrics['rpc_attempts'] > 0:
+            vaults_not_ready_count = discovery_metrics['rejections'].get('vaults_not_ready', 0)
+            if vaults_not_ready_count > 0:
+                failure_class = "rpc_vaults_never_ready"
+            else:
+                failure_class = "all_candidates_rejected_or_failed"
+        else:
+            failure_class = "no_discovery_attempted"
+
+        log_print(
+            f"{Colors.DISCOVER}[DISCOVERY_FAILED] ❌ All {len(delays)} attempts exhausted for {mint[:16]}... (failure_class={failure_class}){Colors.RESET}",
+            flush=True
+        )
+        log_print(
+            f"{Colors.DISCOVER}[DISCOVERY_METRICS] {mint[:16]}... → tx_attempts={discovery_metrics['tx_parsing_attempts']} rpc_attempts={discovery_metrics['rpc_attempts']} candidates_tested={discovery_metrics['total_candidates_tested']} rejections={discovery_metrics['rejections']} failure_class={failure_class}{Colors.RESET}",
+            flush=True
+        )
+
+        # Clean up retry task tracking when done
+        existing = self._retry_tasks_by_mint.get(mint)
+        if existing is asyncio.current_task():
+            self._retry_tasks_by_mint.pop(mint, None)
+        self._retry_candidates.pop(mint, None)
+
+    def _db_serializer_metrics_snapshot_thread(self):
+        """Write db_locking.serializer_metrics() to a JSON file every 15s (plain thread — immune to
+        event-loop starvation) so the API process can surface the listener's real write-lane load.
+
+        MC1.4 -- also snapshots birth_persistence_telemetry() on the same
+        cadence/thread to BIRTH_DURABILITY_METRICS_PATH, for the same
+        cross-process-visibility reason (see that constant's comment)."""
+        interval = float(os.environ.get("DB_SERIALIZER_SNAPSHOT_SECS", "15"))
+        log_print(f"[DB_METRICS] ✅ Serializer metrics snapshot thread started (every {interval:.0f}s → {DB_SERIALIZER_METRICS_PATH})", flush=True)
+        time.sleep(20)
+        while True:
+            try:
+                from src.utils.db_locking import serializer_metrics
+                m = serializer_metrics()
+                m["_process"] = "listener"
+                m["_snapshot_at"] = int(time.time())
+                tmp = DB_SERIALIZER_METRICS_PATH + ".tmp"
+                with open(tmp, "w") as f:
+                    json.dump(m, f)
+                os.replace(tmp, DB_SERIALIZER_METRICS_PATH)   # atomic
+            except Exception as e:
+                log_print(f"[DB_METRICS] snapshot error: {e}", flush=True)
+            try:
+                bt = birth_persistence_telemetry()
+                bt["_process"] = "listener"
+                bt["_snapshot_at"] = int(time.time())
+                bt["_process_started_at"] = self._process_started_at
+                tmp2 = BIRTH_DURABILITY_METRICS_PATH + ".tmp"
+                with open(tmp2, "w") as f:
+                    json.dump(bt, f)
+                os.replace(tmp2, BIRTH_DURABILITY_METRICS_PATH)   # atomic
+            except Exception as e:
+                log_print(f"[BIRTH_METRICS] snapshot error: {e}", flush=True)
+            time.sleep(interval)
+
+    async def _migration_reconciler_loop(self):
+        """CORRECTNESS PATH — guarantees migration completeness even when the WS drops events.
+
+        The websocket (logsSubscribe on PUMPFUN_MIGRATION_ACCOUNT) is the FAST path but provides
+        no replay: a MigrateV2 that lands during a disconnect→reconnect→resubscribe window is
+        permanently missed (root cause of AeFSni25/Hepc74 — both valid MigrateV2 txs that touch
+        the authority and pass the filter, yet never processed). This loop periodically reads the
+        authority account's recent signatures and routes any migration the WS missed through the
+        SAME handle_migration() path — fully idempotent (in-memory completed_migrations guard +
+        token_analysis mint/migration_tx DB idempotency), so a sig caught by both is processed once.
+
+        Bounded: the authority account carries ONLY migrations (low volume — not swaps), so the
+        signature list is small. We fetch a tx only for sigs not already recorded as a
+        migration_tx in token_analysis, keeping RPC cost proportional to *missed* migrations.
+        """
+        interval = float(os.environ.get("MIGRATION_RECONCILER_INTERVAL", "120"))   # 2 min
+        sig_limit = int(os.environ.get("MIGRATION_RECONCILER_SIG_LIMIT", "100"))
+        await self._wait_for_launch_toggle("PUMPSWAP")
+        log_print(f"[RECONCILER] ✅ Migration reconciler started (every {interval:.0f}s, limit {sig_limit})", flush=True)
+        # warm-up: let the WS establish first so we don't double-fetch the live stream on boot
+        await asyncio.sleep(30)
+        while True:
+            try:
+                self.reconciler_last_run = time.time()
+                res = await self.call_discovery_rpc(
+                    "getSignaturesForAddress",
+                    [PUMPFUN_MIGRATION_ACCOUNT, {"limit": sig_limit, "commitment": "confirmed"}],
+                    timeout=15,
+                )
+                sigs = (res or {}).get("result") if isinstance(res, dict) else res
+                sigs = sigs or []
+                # which of these sigs are already recorded as a migration? (persistent dedup —
+                # survives restarts, unlike the in-memory completed_migrations set)
+                cand_sigs = [s["signature"] for s in sigs if s.get("signature") and not s.get("err")]
+                missing = await asyncio.to_thread(self._reconciler_unseen_sigs, cand_sigs)
+                self.reconciler_checked += len(cand_sigs)
+                spawned = 0
+                skipped_non_mig = 0
+                if missing:
+                    log_print(f"[RECONCILER] {len(missing)}/{len(cand_sigs)} authority sigs not in token_analysis — verifying", flush=True)
+                for sig in missing:
+                    # already handled live this session? skip (in-memory guard)
+                    if sig in self.completed_migrations or sig in self.processing_migrations:
+                        continue
+                    # confirmed non-MigrateV2 from a previous sweep — skip permanently
+                    if sig in self._reconciler_non_migration:
+                        skipped_non_mig += 1
+                        continue
+                    # skip sigs that repeatedly failed to resolve a mint (non-migration authority
+                    # txs, or un-indexable) — don't re-attempt them every sweep forever.
+                    if self._reconciler_failed.get(sig, 0) >= 3:
+                        continue
+                    if sig in self._reconciler_pending:
+                        continue   # already being processed by an in-flight task
+                    # Route through the SAME path the WS uses, but DO NOT block the sweep on it —
+                    # handle_migration may take 45s+ (delayed mint re-check) on a bad sig; awaiting
+                    # it sequentially would stall the whole reconciler. Fire-and-forget like the WS
+                    # path (create_task), exactly as line ~9450 does. Each task records the recovery
+                    # + tags provenance on its own.
+                    self._reconciler_pending.add(sig)
+                    asyncio.create_task(self._reconcile_one(sig))
+                    spawned += 1
+                if missing:
+                    log_print(
+                        f"[RECONCILER] checked={len(cand_sigs)} migrate_v2_candidates={len(missing)} "
+                        f"skipped_non_migration={skipped_non_mig} spawned={spawned}",
+                        flush=True,
+                    )
+            except Exception as e:
+                log_print(f"[RECONCILER] ⚠ sweep error: {e}", flush=True)
+            await asyncio.sleep(interval)
+
+    async def _reconcile_one(self, sig: str):
+        """Process one reconciler-discovered migration sig OFF the sweep loop (its own task), so a
+        slow handle_migration (45s delayed mint re-check) can't stall the reconciler. Bounded by a
+        hard timeout.
+
+        PRE-FILTER: fetch the tx and check _is_migration_transaction before calling handle_migration.
+        Non-MigrateV2 authority txs (e.g. MigrateBondingCurveCreator, fee txs) are marked in
+        _reconciler_non_migration and permanently skipped from future sweeps — no timeout needed.
+        The fetched tx is stored in the tx_cache so handle_migration's _get_transaction_cached is a
+        cache hit and does not re-fetch.
+
+        RACE GUARD (correctness of the recovery metric): the dedup checks token_analysis.migration_tx,
+        but a WS migration is mid-flight for a few seconds (event → minimal entry → mark_migrated →
+        write migration_tx). If a sweep lands in that window the sig looks 'unseen', so we call
+        handle_migration — but the WS is the one actually doing the work. handle_migration's
+        completed_migrations/processing_migrations guard means our call is a NO-OP in that case, and
+        crediting it as a RECONCILER recovery would OVERCOUNT (the pw5DuxM2 mislabel). So we only
+        count a genuine recovery when the WS had NOT claimed the sig — otherwise it's the WS's, leave
+        the source WEBSOCKET."""
+        ws_owned_before = sig in self.completed_migrations or sig in self.processing_migrations
+        try:
+            # PRE-FILTER: fetch tx to confirm this is actually a MigrateV2 instruction before
+            # committing a 90s handle_migration call. Non-migration authority txs time out silently
+            # (up to 3×90s) without this check. Cache hit on the fetch means handle_migration below
+            # pays zero additional RPC cost.
+            try:
+                tx_data = await asyncio.wait_for(
+                    self._get_transaction_cached(sig), timeout=20
+                )
+                if tx_data is not None:
+                    tx_logs = (tx_data.get("meta") or {}).get("logMessages") or []
+                    if not self._is_migration_transaction(tx_logs):
+                        self._reconciler_non_migration.add(sig)
+                        self.reconciler_skipped_non_migration += 1
+                        log_print(
+                            f"[RECONCILER] ⏭ {sig[:16]}… not MigrateV2 — skipping permanently "
+                            f"(total skipped={self.reconciler_skipped_non_migration})",
+                            flush=True,
+                        )
+                        return
+            except (asyncio.TimeoutError, Exception):
+                # If we can't fetch the tx, fall through to handle_migration which has its own
+                # retry logic — don't permanently skip a sig we couldn't verify.
+                pass
+
+            await asyncio.wait_for(self.handle_migration(sig, [], source="RECONCILER"), timeout=90)
+            ws_owned = ws_owned_before or sig in self.completed_migrations or sig in self.processing_migrations
+            _in_ta = await asyncio.to_thread(self._sig_now_in_token_analysis, sig)
+            if _in_ta and not ws_owned:
+                # genuine recovery — the WS never handled this sig; the reconciler did.
+                self.reconciler_recovered += 1
+                await asyncio.to_thread(self._tag_migration_source, sig, "RECONCILER")
+                self._reconciler_failed.pop(sig, None)
+                log_print(f"[RECONCILER] ♻ RECOVERED migration {sig[:16]}… (WS missed it)", flush=True)
+            elif _in_ta:
+                # the WS handled it concurrently — not a recovery; ensure it's tagged WEBSOCKET.
+                await asyncio.to_thread(self._tag_migration_source, sig, "WEBSOCKET")
+                self._reconciler_failed.pop(sig, None)
+            else:
+                # no token_analysis row resulted → not a resolvable migration; count the attempt
+                self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1
+        except asyncio.TimeoutError:
+            self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1
+            log_print(f"[RECONCILER] ⚠ {sig[:16]}… timed out (attempt {self._reconciler_failed[sig]})", flush=True)
+        except Exception as e:
+            self._reconciler_failed[sig] = self._reconciler_failed.get(sig, 0) + 1
+            log_print(f"[RECONCILER] ⚠ {sig[:16]}… error: {e}", flush=True)
+        finally:
+            self._reconciler_pending.discard(sig)
+
+    def _reconciler_unseen_sigs(self, sigs: list) -> list:
+        """Return the subset of migration signatures NOT already recorded as migration_tx in
+        token_analysis (persistent dedup, survives restarts). Cheap single query."""
+        if not sigs:
+            return []
+        try:
+            with managed_db_connect(DB_PATH, timeout=10) as conn:
+                ph = ",".join("?" * len(sigs))
+                rows = conn.execute(
+                    f"SELECT migration_tx FROM token_analysis WHERE migration_tx IN ({ph})", sigs
+                ).fetchall()
+            seen = {r[0] for r in rows}
+            return [s for s in sigs if s not in seen]
+        except Exception:
+            return []   # on error, do nothing this cycle (handle_migration is idempotent anyway)
+
+    def _sig_now_in_token_analysis(self, sig: str) -> bool:
+        try:
+            with managed_db_connect(DB_PATH, timeout=10) as conn:
+                return conn.execute(
+                    "SELECT 1 FROM token_analysis WHERE migration_tx=? LIMIT 1", (sig,)
+                ).fetchone() is not None
+        except Exception:
+            return False
+
+    def _tag_migration_source(self, sig: str, source: str) -> None:
+        try:
+            with managed_db_connect(DB_PATH, timeout=10) as conn:
+                conn.execute(
+                    "UPDATE token_analysis SET migration_source=COALESCE(migration_source, ?) "
+                    "WHERE migration_tx=?", (source, sig))
+                conn.commit()
+        except Exception:
+            pass
+
+    async def handle_migration(self, signature: str, logs: list, source: str = "WEBSOCKET"):
+        """Process detected migration. `source` (WEBSOCKET fast-path vs RECONCILER correctness-path)
+        is threaded EXPLICITLY into _process_migration_with_mint — no shared instance var — so
+        concurrent WS+reconciler processing can't mislabel migration_source (the burst race)."""
+        if signature in self.processing_migrations or signature in self.completed_migrations:
+            return
+
+        self.processing_migrations.add(signature)
+
+        try:
+
+            # === CRITICAL OPTIMIZATION: Cache TX fetch ===
+            # Fetch TX once and reuse for mint, pool, blockTime extraction
+            tx_data = await self._get_transaction_cached(signature)
+
+            if tx_data:
+                mint = await self._extract_mint_from_tx(tx_data)
+            else:
+                mint = None
+
+            if not mint:
+                log_print(f"[MIGRATION] ⚠ Failed to extract mint from cached tx, trying logs fallback", flush=True)
+                mint = self._extract_mint_from_logs(logs)
+
+            if not mint:
+                log_print(f"[MIGRATION] ⚠ Could not extract mint from {signature}, scheduling delayed re-check...", flush=True)
+
+                # Schedule delayed re-check (fire-and-forget)
+                async def delayed_mint_recheck():
+                    """Re-attempt mint extraction after 45 seconds for delayed indexing"""
+                    await asyncio.sleep(45)
+                    try:
+                        # Use discovery RPC for delayed re-check (still critical path)
+                        raw = await self.call_discovery_rpc(
+                            "getTransaction",
+                            [
+                                signature,
+                                {
+                                    "encoding": "jsonParsed",
+                                    "commitment": "finalized",
+                                    "maxSupportedTransactionVersion": 0,
+                                },
+                            ],
+                            timeout=20
+                        )
+                        tx_data_retry = raw.get("result") if raw and "result" in raw else None
+
+                        if not tx_data_retry:
+                            log_print(f"[MIGRATION] ⚠ Delayed re-check still has no tx: {signature}", flush=True)
+                            return
+
+                        mint_retry = await self._extract_mint_from_tx(tx_data_retry)
+                        if not mint_retry:
+                            mint_retry = self._extract_mint_from_logs(logs)
+
+                        if not mint_retry:
+                            log_print(f"[MIGRATION] ⚠ Could not extract mint from {signature} after delayed re-check - SKIPPED", flush=True)
+                            return
+
+                        log_print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
+                        await self._process_migration_with_mint(signature, logs, mint_retry, tx_data_retry, source=source)
+                        self.completed_migrations.add(signature)
+
+                    except Exception as e:
+                        log_print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
+                    finally:
+                        self.processing_migrations.discard(signature)
+                        self.tx_cache_pending_retries.pop(signature, None)
+
+                # Fire-and-forget task, track to avoid duplicates
+                if signature not in self.tx_cache_pending_retries:
+                    task = asyncio.create_task(delayed_mint_recheck())
+                    self.tx_cache_pending_retries[signature] = task
+                return
+
+            # Mint found immediately - continue with normal pipeline
+            await self._process_migration_with_mint(signature, logs, mint, tx_data, source=source)
+            self.completed_migrations.add(signature)
+
+            # Cancel any pending delayed retry since migration succeeded
+            pending = self.tx_cache_pending_retries.pop(signature, None)
+            if pending and not pending.done():
+                pending.cancel()
+
+        except Exception as e:
+            log_print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Always release processing lock so the sig can be retried (completed_migrations
+            # guards against true duplicate processing; processing_migrations is a per-run lock).
+            self.processing_migrations.discard(signature)
+
+    # --- WebSocket Listener ---
+    def get_tx_cache_stats(self) -> Dict:
+        """Return current transaction cache statistics."""
+        total = sum(self.tx_cache_stats.values())
+        hit_rate = (self.tx_cache_stats['hit'] / total * 100) if total > 0 else 0
+
+        return {
+            'tx_cache_hit': self.tx_cache_stats['hit'],
+            'tx_cache_miss': self.tx_cache_stats['miss'],
+            'tx_cache_wait': self.tx_cache_stats['wait'],
+            'tx_cache_size': len(self.tx_cache),
+            'tx_cache_hit_rate_pct': round(hit_rate, 2),
+            'rpc_calls_avoided': self.tx_cache_stats['hit'],
+            'credits_saved': self.tx_cache_stats['hit'] * 10,
+        }
+
+    def _websocket_endpoints(self) -> list:
+        return [
+            (HELIUS_RPC_WS, "Helius"),
+            ("wss://api.mainnet-beta.solana.com/", "Public Solana"),
+        ]
+
+    async def _wait_for_launch_toggle(self, label: str) -> None:
+        # Listener always runs 24/7 — not gated by the dashboard toggle.
+        pass
+
+    async def listen_pumpswap_websocket(self):
+        """Dedicated PumpSwap websocket for migration intake."""
+        await self._wait_for_launch_toggle("PUMPSWAP")
+        log_print(f"\n[WEBSOCKET][PUMPSWAP] Connecting to PumpSwap program...", flush=True)
+
+        endpoints = self._websocket_endpoints()
+        current_endpoint_idx = 0
+        reconnect_delay = 5
+        _consecutive_failures = 0
+
+        # Track last activity times for dead-subscription detection
+        _last_any_msg_at = time.time()
+        _last_migration_at: float = 0.0
+        # How long with messages-but-no-migrations before we re-subscribe (seconds)
+        _SILENT_MIGRATION_RESUBSCRIBE_SECS = 600  # 10 minutes
+
+        while True:
+            try:
+                endpoint, name = endpoints[current_endpoint_idx]
+                async with websockets.connect(
+                    endpoint,
+                    # KEEPALIVE — THIS is the migration listener (logsSubscribe on the pump.fun
+                    # migration account 39azUYFW…); it detects every graduation in real-time. It had
+                    # ping_interval=None, so an idle Helius connection looked dead to the 180s
+                    # watchdog and got torn down (122 reconnects in one log). Migrations that fire
+                    # during a reconnect are LOST (no replay) — the real migration-miss cause
+                    # (PumpPortal only does births; THIS WS does migrations). Ping every 20s to keep
+                    # an idle connection alive + detect a dead one fast, minimising the drop window.
+                    ping_interval=float(os.environ.get("PUMPSWAP_PING_INTERVAL", "20")),
+                    ping_timeout=float(os.environ.get("PUMPSWAP_PING_TIMEOUT", "20")),
+                    close_timeout=2,
+                    max_size=10 * 1024 * 1024,
+                ) as ws:
+                    self.websocket_connected = True
+                    # Only reset reconnect_delay after subscription confirmed, not just connection
+                    log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Connected via {name}", flush=True)
+
+                    record_request(
+                        section='listener',
+                        provider='helius_rpc',
+                        method='logsSubscribe',
+                        status_code=200,
+                        latency_ms=0,
+                        source_file='pumpfun_curve_listener'
+                    )
+
+                    _req_id = 1
+
+                    async def _send_subscribe(ws, req_id: int) -> None:
+                        subscribe_msg = {
+                            "jsonrpc": "2.0",
+                            "id": req_id,
+                            "method": "logsSubscribe",
+                            "params": [
+                                {"mentions": [PUMPFUN_MIGRATION_ACCOUNT]},
+                                {"commitment": "confirmed"}
+                            ]
+                        }
+                        await ws.send(json.dumps(subscribe_msg))
+
+                    await _send_subscribe(ws, _req_id)
+                    log_print(f"[WEBSOCKET][PUMPSWAP] Subscribed to PumpFun migration account", flush=True)
+                    premig_log("[WS_SUBSCRIBED] program=pumpswap waiting for confirmation")
+
+                    subscription_id = None
+                    _sub_attempts = 0
+                    while subscription_id is None:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=10)
+                            data = json.loads(msg)
+                            if "result" in data and data.get("id") == _req_id:
+                                subscription_id = data.get("result")
+                                # Only reset backoff here — subscription confirmed
+                                reconnect_delay = 5
+                                _consecutive_failures = 0
+                                _last_any_msg_at = time.time()
+                                _last_migration_at = time.time()
+                                log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Subscription confirmed (id={subscription_id})", flush=True)
+                                self._acquisition_availability.transition("MIGRATION", "AVAILABLE", "logsSubscribe confirmed", str(subscription_id))
+                                premig_log(f"[WS_SUBSCRIBED] program=pumpswap subscription_id={subscription_id}")
+                                break
+                        except asyncio.TimeoutError:
+                            _sub_attempts += 1
+                            log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ No subscription confirmation after 10s (attempt {_sub_attempts})", flush=True)
+                            if _sub_attempts >= 3:
+                                log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Subscription never confirmed — backing off {reconnect_delay}s", flush=True)
+                                try:
+                                    await asyncio.wait_for(ws.close(), timeout=2)
+                                except Exception:
+                                    pass
+                                # Apply backoff before reconnecting (don't just continue)
+                                await asyncio.sleep(reconnect_delay)
+                                reconnect_delay = min(reconnect_delay * 2, 60)
+                                break
+                            await asyncio.sleep(5)
+                        except websockets.exceptions.ConnectionClosed as e:
+                            log_print(f"[WEBSOCKET][PUMPSWAP] 🔌 Connection closed during subscription ({e}), reconnecting...", flush=True)
+                            break
+
+                    if subscription_id is None:
+                        continue
+
+                    _consecutive_timeouts = 0
+                    while True:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                            _consecutive_timeouts = 0
+                            _last_any_msg_at = time.time()
+                            record_wss('pumpswap_logs', 'pumpfun_curve_listener', msg_count=1, est_bytes=len(msg))
+                            data = json.loads(msg)
+
+                            if 'params' not in data or 'result' not in data['params']:
+                                continue
+
+                            self.websocket_msg_count += 1
+                            result = data['params']['result']
+                            value = result.get('value', {})
+                            logs = value.get('logs', [])
+                            signature = value.get('signature', '')
+                            err = value.get('err')
+                            raw_sub_id = data['params'].get('subscription')
+
+                            if raw_sub_id != subscription_id:
+                                premig_log(f"[WS_MESSAGE_DROPPED] reason=unknown_subscription sub_id={raw_sub_id} expected={subscription_id} kind=pumpswap")
+                                continue
+
+                            if err or not signature:
+                                if err:
+                                    premig_log(f"[PUMPSWAP_ERR] sig={signature[:16] if signature else 'none'} err={json.dumps(err)[:400]}")
+                                premig_log(f"[WS_MESSAGE_DROPPED] reason={'err' if err else 'no_sig'} kind=pumpswap")
+                                continue
+
+                            logs_text = ' '.join(logs or [])
+                            if signature and signature[-1] in {'0', '1', '2'}:
+                                premig_log(
+                                    f"[PUMPSWAP_OK_SAMPLE] sig={signature[:16]} logs={json.dumps((logs or [])[:12])[:900]}"
+                                )
+                            if (
+                                'Instruction: Migrate' in logs_text
+                                or 'CreatePool' in logs_text
+                                or 'InitializePool' in logs_text
+                                or 'MigrateBondingCurveCreator' in logs_text
+                            ):
+                                premig_log(
+                                    f"[PUMPSWAP_EVENT] sig={signature[:16]} logs={json.dumps((logs or [])[:20])[:1200]}"
+                                )
+
+                            # Migration account subscription only receives graduation txs —
+                            # Instruction: Migrate is sufficient, no need for CreatePool check
+                            logs_text_check = ' '.join(logs or [])
+                            is_migration = (
+                                'Instruction: Migrate' in logs_text_check
+                                and 'Instruction: Buy' not in logs_text_check
+                                and 'Instruction: Sell' not in logs_text_check
+                                and 'MigrateBondingCurveCreator' not in logs_text_check
+                            )
+
+                            if is_migration:
+                                listen_enabled = get_migration_setting('listen_to_launches', True)
+                                log_print(f"[WEBSOCKET] 🔍 Migration found (migration account sub). listen_to_launches={listen_enabled}", flush=True)
+
+                                if not listen_enabled:
+                                    log_print(f"[WEBSOCKET] ⏸ Migration detected but launch listening disabled: {signature}", flush=True)
+                                    continue
+
+                                self.websocket_migration_count += 1
+                                _last_migration_at = time.time()
+                                premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_migration source=pumpswap_migration_account")
+                                log_print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected via migration account: {signature}", flush=True)
+                                asyncio.create_task(self.handle_migration(signature, logs))
+                                continue
+
+                            self._debug_pumpswap_migration_skip(signature, logs)
+
+                            # Dead-subscription check: messages arriving but no migration in
+                            # _SILENT_MIGRATION_RESUBSCRIBE_SECS — re-subscribe on same connection.
+                            # Only trigger if we've been connected long enough to expect migrations.
+                            now = time.time()
+                            migration_silence = now - _last_migration_at
+                            msg_age = now - _last_any_msg_at
+                            if (
+                                _last_migration_at > 0
+                                and migration_silence > _SILENT_MIGRATION_RESUBSCRIBE_SECS
+                                and msg_age < 120  # messages still arriving = connection is live
+                            ):
+                                log_print(
+                                    f"[WEBSOCKET][PUMPSWAP] ⚠ Messages arriving but no migration in "
+                                    f"{migration_silence/60:.1f}min — re-subscribing on live connection",
+                                    flush=True
+                                )
+                                premig_log(f"[WS_RESUBSCRIBE] silence={migration_silence:.0f}s msg_age={msg_age:.0f}s")
+                                _req_id += 2
+                                try:
+                                    await _send_subscribe(ws, _req_id)
+                                    # Wait briefly for new subscription confirmation
+                                    new_sub_msg = await asyncio.wait_for(ws.recv(), timeout=10)
+                                    new_data = json.loads(new_sub_msg)
+                                    if "result" in new_data and new_data.get("id") == _req_id:
+                                        subscription_id = new_data["result"]
+                                        _last_migration_at = time.time()  # reset silence window
+                                        log_print(f"[WEBSOCKET][PUMPSWAP] ✓ Re-subscribed (new id={subscription_id})", flush=True)
+                                    else:
+                                        log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Re-subscribe confirmation not received — reconnecting", flush=True)
+                                        try:
+                                            await asyncio.wait_for(ws.close(), timeout=2)
+                                        except Exception:
+                                            pass
+                                        break
+                                except Exception as _resub_err:
+                                    log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Re-subscribe failed ({_resub_err}) — reconnecting", flush=True)
+                                    try:
+                                        await asyncio.wait_for(ws.close(), timeout=2)
+                                    except Exception:
+                                        pass
+                                    break
+
+                        except asyncio.TimeoutError:
+                            _consecutive_timeouts += 1
+                            if _consecutive_timeouts >= 3:
+                                log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ No messages for {_consecutive_timeouts * 60}s — reconnecting...", flush=True)
+                                try:
+                                    await asyncio.wait_for(ws.close(), timeout=2)
+                                except Exception:
+                                    pass
+                                break
+                            continue
+                        except json.JSONDecodeError:
+                            continue
+                        except websockets.exceptions.ConnectionClosed as e:
+                            log_print(f"[WEBSOCKET][PUMPSWAP] 🔌 Connection closed ({e.code if hasattr(e, 'code') else e}), reconnecting...", flush=True)
+                            break
+                        except Exception as e:
+                            error_msg = str(e).lower()
+                            if "keepalive" not in error_msg and "close frame" not in error_msg:
+                                log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Error processing message: {e}", flush=True)
+                            if "close frame" in error_msg or "connection closed" in error_msg or "going away" in error_msg:
+                                break
+                            continue
+
+            except Exception as e:
+                self.websocket_connected = False
+                self._acquisition_availability.transition("MIGRATION", "DOWN", f"websocket failure: {type(e).__name__}")
+                error_str = str(e).lower()
+                if "401" in str(e) or "unauthorized" in error_str:
+                    log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Auth error (401) - falling back to public RPC", flush=True)
+                    current_endpoint_idx = 1
+                    reconnect_delay = 5
+                elif "connection" in error_str or "refused" in error_str:
+                    log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Connection refused, retrying in {reconnect_delay}s...", flush=True)
+                elif "close frame" not in error_str:
+                    log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ {name} connection error: {e}", flush=True)
+                    log_print(f"[WEBSOCKET][PUMPSWAP] Retrying in {reconnect_delay}s...", flush=True)
+
+                _consecutive_failures += 1
+                if _consecutive_failures >= 10:
+                    msg = (
+                        f"[WEBSOCKET][PUMPSWAP] FATAL: {_consecutive_failures} consecutive failures "
+                        f"— exiting for supervisord restart"
+                    )
+                    log_print(msg, flush=True)
+                    os._exit(1)
+                await asyncio.sleep(reconnect_delay)
+                reconnect_delay = min(reconnect_delay * 1.5, 60)
+
+    async def _seed_trade_subscriptions(self, ws, tracked_trade_mints: set):
+        """X78.18: deferred, best-effort trade-subscription seeding.
+
+        Runs as a background task after newToken/migration subscriptions are
+        already confirmed — never on the connect hot path. Any failure here
+        (DB contention, closed socket from a fast subsequent reconnect, etc.)
+        is swallowed; it can only degrade trade-event coverage for already-
+        active tokens, never birth/migration flow or reconnect stability.
+        """
+        try:
+            def _seed_read():
+                # This can scan a large active-token population.  It is
+                # strictly observational and must not own the global write
+                # lane for the duration of that scan.
+                class PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED(RuntimeError):
+                    pass
+
+                deadline = time.monotonic() + 2.0
+                deadline_exceeded = False
+
+                def _progress_handler():
+                    nonlocal deadline_exceeded
+                    if time.monotonic() >= deadline:
+                        deadline_exceeded = True
+                        return 1
+                    return 0
+
+                with managed_db_connect(DB_PATH, timeout=5, read_only=True) as _c:
+                    _c.set_progress_handler(_progress_handler, 1000)
+                    try:
+                        try:
+                            _rows = _c.execute("""
+                                SELECT mint FROM token_analysis
+                                WHERE source_platform = 'pumpfun'
+                                  AND lifecycle_stage = 'bonding_curve'
+                                ORDER BY
+                                    CASE WHEN (pf_ws_creator IS NULL OR pf_ws_creator = '') THEN 0 ELSE 1 END ASC,
+                                    analyzed_at DESC
+                                LIMIT 200
+                            """).fetchall()
+                        except sqlite3.OperationalError as exc:
+                            if deadline_exceeded:
+                                raise PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED(
+                                    "PSI0A_D6V_SEED_READ_DEADLINE_EXCEEDED: "
+                                    "startup seed read exceeded two-second deadline"
+                                ) from exc
+                            raise
+                        return [r[0] for r in _rows]
+                    finally:
+                        _c.set_progress_handler(None, 0)
+            seed_mints = await asyncio.to_thread(_seed_read)
+            if seed_mints:
+                # PumpPortal accepts up to 100 keys per message — batch if needed
+                for i in range(0, len(seed_mints), 100):
+                    batch = seed_mints[i:i+100]
+                    await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": batch}))
+                tracked_trade_mints.update(seed_mints)
+                log_print(f"[PUMPPORTAL] Seeded trade subscriptions for {len(seed_mints)} active tokens ({sum(1 for m in seed_mints if m not in tracked_trade_mints)} missing creator)", flush=True)
+        except Exception as _e:
+            log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed (deferred, non-fatal): {_e}", flush=True)
+
+    async def _handle_pumpportal_create_frame(
+        self,
+        data,
+        *,
+        signature,
+        mint,
+        receive_utc_ns,
+        receive_monotonic_ns,
+        tracked_trade_mints,
+        migration_sol_threshold,
+        ws,
+    ):
+        """Handle one PumpPortal create frame without changing its hot-path order."""
+        creator = data.get("traderPublicKey")
+        bonding_curve_pda = data.get("bondingCurveKey")
+        symbol = data.get("symbol")
+        name = data.get("name")
+        v_sol = float(data.get("vSolInBondingCurve") or 0)
+        mc_sol = float(data.get("marketCapSol") or 0)
+        self._eb_birth_audit.record(
+            receive_utc_ns=receive_utc_ns,
+            receive_monotonic_ns=receive_monotonic_ns,
+            parser_utc_ns=time.time_ns(), signature=signature,
+            mint=mint, creator=creator, market_cap_sol=mc_sol,
+            virtual_sol_reserves=v_sol, bonding_curve=bonding_curve_pda,
+            raw_payload=data,
+        )
+        self._pumpfun_delivery_latency.observe_pumpportal(
+            signature=signature, mint=mint,
+            receive_monotonic_ns=receive_monotonic_ns,
+            receive_utc_ns=receive_utc_ns,
+        )
+        # Non-canonical O(1) creator-continuity signal.  It is deliberately
+        # before the awaited SQLite persistence below and cannot affect it.
+        if self._byzantine_birth_signal is not None:
+            self._byzantine_birth_signal.observe(
+                mint=mint, creator=creator, signature=signature,
+                receive_utc_ns=receive_utc_ns,
+                monotonic_ns=time.monotonic_ns(),
+            )
+
+        if mint:
+            self._portal_vsol[mint] = {
+                "v_sol": v_sol,
+                "mc_sol": mc_sol,
+                "symbol": symbol or "",
+                "name": name or "",
+                "creator": creator or "",
+                "ts": int(time.time()),
+            }
+
+        if mint and signature and mint not in self.completed_launches:
+            self.completed_launches.add(signature)
+            self.seen_mints.add(mint)
+            if bonding_curve_pda:
+                self._remember_bonding_curve_token(mint, bonding_curve_pda)
+            try:
+                await self._insert_bonding_curve_token(
+                    mint, creator, str(int(time.time())),
+                    bonding_curve_pda=bonding_curve_pda,
+                    create_tx_signature=signature,
+                    symbol=symbol,
+                    name=name,
+                )
+                log_print(
+                    f"[PUMPPORTAL] 🟢 Birth: {mint[:16]}... symbol={symbol} creator={creator[:8] if creator else '?'}",
+                    flush=True,
+                )
+                # Trigger creator pipeline
+                asyncio.create_task(
+                    self._ensure_pf_ws_creator(mint, reason="birth")
+                )
+            except Exception as e:
+                log_print(f"[PUMPPORTAL] ⚠ Birth insert error {mint[:16]}: {e} — queuing for retry", flush=True)
+                try:
+                    import sqlite3 as _sq, json as _json
+                    _qconn = _sq.connect(DB_PATH, timeout=5)
+                    with _qconn:
+                        _qconn.execute(
+                            """INSERT OR IGNORE INTO webhook_birth_queue
+                               (signature, payload, source, consumed)
+                               VALUES (?, ?, 'pumpportal_retry', 0)""",
+                            (signature, _json.dumps(data)),
+                        )
+                    _qconn.close()
+                except Exception as _qe:
+                    log_print(f"[PUMPPORTAL] ⚠ Failed to queue birth retry for {mint[:16]}: {_qe}", flush=True)
+
+            # Subscribe to trades if already near migration threshold
+            if v_sol >= migration_sol_threshold and mint not in tracked_trade_mints:
+                tracked_trade_mints.add(mint)
+                await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
+
+    async def listen_pumpportal_websocket(self):
+        """
+        Single PumpPortal WSS connection replacing all Helius pump.fun subscriptions:
+          - subscribeNewToken  → handle_birth (no RPC getTransaction needed)
+          - subscribeMigration → handle_migration
+          - subscribeTokenTrade on near-complete tokens → handle_migration when vSol >= threshold
+
+        Zero Helius WSS credits consumed for pump.fun events.
+        """
+        PUMPPORTAL_WS = "wss://pumpportal.fun/api/data"
+        # pump.fun bonding curve fills at ~85 SOL virtual reserves
+        MIGRATION_SOL_THRESHOLD = 60.0
+        # Mints we are tracking trades for (near migration)
+        tracked_trade_mints: set = set()
+        reconnect_delay = 5
+        _attempt = 0
+        _consecutive_failures = 0
+        _last_connected_at: float = 0.0
+        _outage_started_at: float = 0.0
+
+        while True:
+            _attempt += 1
+            try:
+                async with websockets.connect(
+                    PUMPPORTAL_WS,
+                    # KEEPALIVE: ping_interval=None disabled WS pings, so an IDLE-but-healthy
+                    # PumpPortal connection looked dead to the 60s recv watchdog and got torn down
+                    # — every reconnect drops subscribeMigration events (THE migration-miss root
+                    # cause: 21 "No message in 60s" stalls in one log → AeFSni25/Hepc74 graduated
+                    # during gaps and were never recorded). Pinging every 20s keeps an idle
+                    # connection alive AND detects a genuinely dead one in ~40s, so we reconnect
+                    # only when truly necessary instead of on every quiet spell.
+                    ping_interval=float(os.environ.get("PUMPPORTAL_PING_INTERVAL", "20")),
+                    ping_timeout=float(os.environ.get("PUMPPORTAL_PING_TIMEOUT", "20")),
+                    close_timeout=10,
+                    max_size=10 * 1024 * 1024,
+                ) as ws:
+                    reconnect_delay = 5
+                    _consecutive_failures = 0
+                    _last_connected_at = time.time()
+                    _outage_started_at = 0.0
+                    self._pumpportal_connected = True
+                    log_print("[PUMPPORTAL] ✓ Connected", flush=True)
+
+                    await ws.send(json.dumps({"method": "subscribeNewToken"}))
+                    await ws.send(json.dumps({"method": "subscribeMigration"}))
+                    self._acquisition_availability.transition("BIRTH", "AVAILABLE", "subscribeNewToken sent on connected PumpPortal websocket")
+                    log_print("[PUMPPORTAL] Subscribed to newToken + migration", flush=True)
+
+                    # X78.18: seed trade-subscription read moved off the connect hot path.
+                    # It's a DB read that isn't required to start receiving newToken/migration
+                    # events, so it must not sit between subscribe and the first ws.recv() —
+                    # a stall acquiring a DB connection here previously delayed first-message
+                    # receipt (and, transitively, pushed _mins_since_connect toward the FATAL
+                    # threshold) even though the seed itself only affects trade-event coverage
+                    # for already-active tokens. Fired as a background task so a slow or failed
+                    # DB read can never block or fail the reconnect path itself.
+                    asyncio.create_task(
+                        self._seed_trade_subscriptions(ws, tracked_trade_mints)
+                    )
+
+                    while True:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                        except asyncio.TimeoutError:
+                            log_print("[PUMPPORTAL] ⚠ No message in 60s — reconnecting", flush=True)
+                            break
+
+                        # Immutable receive boundary for optional shadow
+                        # telemetry.  Capture before parsing/routing so it
+                        # cannot depend on migration business logic.
+                        receive_utc_ns = time.time_ns()
+                        receive_monotonic_ns = time.monotonic_ns()
+
+                        try:
+                            data = json.loads(msg)
+                        except Exception:
+                            continue
+
+                        # Ignore subscription confirmation messages
+                        if "message" in data and "txType" not in data:
+                            continue
+
+                        tx_type = data.get("txType")
+                        record_wss(
+                            f"pumpportal_{tx_type or 'other'}",
+                            "pumpfun_curve_listener",
+                            msg_count=1,
+                            est_bytes=len(msg),
+                        )
+                        sig = data.get("signature", "")
+                        mint = data.get("mint", "")
+
+                        if tx_type == "create":
+                            await self._handle_pumpportal_create_frame(
+                                data,
+                                signature=sig,
+                                mint=mint,
+                                receive_utc_ns=receive_utc_ns,
+                                receive_monotonic_ns=receive_monotonic_ns,
+                                tracked_trade_mints=tracked_trade_mints,
+                                migration_sol_threshold=MIGRATION_SOL_THRESHOLD,
+                                ws=ws,
+                            )
+
+                        elif tx_type in ("buy", "sell") and mint:
+                            v_sol = float(data.get("vSolInBondingCurve") or 0)
+                            mc_sol = float(data.get("marketCapSol") or 0)
+                            # Update live vSol state
+                            existing = self._portal_vsol.get(mint, {})
+                            self._portal_vsol[mint] = {
+                                "v_sol": v_sol,
+                                "mc_sol": mc_sol,
+                                "symbol": existing.get("symbol", ""),
+                                "name": existing.get("name", ""),
+                                "creator": existing.get("creator", "") or data.get("traderPublicKey", ""),
+                                "ts": int(time.time()),
+                            }
+                            # If not yet tracking this token but it's near migration, subscribe
+                            if v_sol >= MIGRATION_SOL_THRESHOLD and mint not in tracked_trade_mints:
+                                tracked_trade_mints.add(mint)
+                                await ws.send(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
+
+                        elif tx_type in ("migration", "migrate"):
+                            # Shadow-only receive observation; fail-open and no RPC/DB work.
+                            try:
+                                self._migration_census.record(receive_utc_ns=receive_utc_ns, receive_monotonic_ns=receive_monotonic_ns, signature=sig, mint=mint, creator=data.get("traderPublicKey"))
+                            except Exception:
+                                pass
+                            if sig and sig not in self.completed_migrations:
+                                log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
+                                asyncio.create_task(self.handle_migration(sig, []))
+                                # Unsubscribe from trade tracking for this mint
+                                if mint in tracked_trade_mints:
+                                    tracked_trade_mints.discard(mint)
+                                    await ws.send(json.dumps({"method": "unsubscribeTokenTrade", "keys": [mint]}))
+
+            except Exception as e:
+                self._acquisition_availability.transition("BIRTH", "DOWN", f"websocket failure: {type(e).__name__}")
+                _consecutive_failures += 1
+                _subs_desc = f"newToken,migration,trades={len(tracked_trade_mints)}"
+                log_print(
+                    f"[PUMPPORTAL] ⚠ reconnect attempt={_attempt} delay={reconnect_delay:.0f}s"
+                    f" exc_type={type(e).__name__} exc={repr(e)} subs={_subs_desc}",
+                    flush=True,
+                )
+                _now = time.time()
+                if not _outage_started_at:
+                    _outage_started_at = _now
+                _mins_since_connect = (
+                    (_now - _last_connected_at) / 60
+                    if _last_connected_at
+                    else 0.0
+                )
+                if _pumpportal_failure_is_fatal(
+                    _consecutive_failures,
+                    _outage_started_at,
+                    now=_now,
+                ):
+                    _mins_in_outage = (_now - _outage_started_at) / 60
+                    msg = (
+                        f"[PUMPPORTAL] FATAL: {_consecutive_failures} consecutive failures, "
+                        f"{_mins_in_outage:.1f}min in current outage "
+                        f"({_mins_since_connect:.1f}min since last connection) — "
+                        "exiting for supervisord restart"
+                    )
+                    log_print(msg, flush=True)
+                    os._exit(1)
+            self._pumpportal_connected = False
+            await asyncio.sleep(reconnect_delay)
+            reconnect_delay = min(reconnect_delay * 1.5, 60)
+
+    async def drain_webhook_birth_queue(self):
+        """
+        Drains the webhook_birth_queue table.  Runs forever on a 5-second poll cadence.
+
+        Rows with a payload column (source=pumpportal_retry) are replayed directly from
+        the stored JSON — no getTransaction RPC needed.  Helius-sourced rows (no payload)
+        fall back to handle_birth(sig, []).
+
+        A row is only marked consumed AFTER successful processing so a crash or lock error
+        leaves it unconsumed and eligible for the next drain cycle.
+        """
+        import sqlite3 as _sq, json as _json
+        _ensure_webhook_birth_queue_schema(DB_PATH)
+        log_print("[LISTENER] ✅ Webhook birth queue drainer started", flush=True)
+        while True:
+            try:
+                conn = _sq.connect(DB_PATH, timeout=10)
+                conn.row_factory = _sq.Row
+                try:
+                    rows = conn.execute(
+                        "SELECT id, signature, payload, source FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                    ).fetchall()
+                except Exception:
+                    # payload/source columns may not exist yet if ALTER TABLE lost the race
+                    rows = [
+                        {"id": r[0], "signature": r[1], "payload": None, "source": "helius_webhook"}
+                        for r in conn.execute(
+                            "SELECT id, signature FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                        ).fetchall()
+                    ]
+                conn.close()
+
+                for row in rows:
+                    sig    = row["signature"]
+                    source = (row["source"] or "helius_webhook") if row["source"] is not None else "helius_webhook"
+                    raw    = row["payload"]
+                    row_id = row["id"]
+
+                    if sig in self.completed_launches:
+                        # Already processed this birth — just mark consumed.
+                        _mark_consumed(DB_PATH, row_id)
+                        continue
+
+                    success = False
+                    if raw:
+                        # Fast path: raw PumpPortal payload available — insert directly.
+                        try:
+                            data = _json.loads(raw)
+                            _mint    = data.get("mint", "")
+                            _creator = data.get("traderPublicKey")
+                            _bcp     = data.get("bondingCurveKey")
+                            _symbol  = data.get("symbol")
+                            _name    = data.get("name")
+                            if _mint:
+                                await self._insert_bonding_curve_token(
+                                    _mint, _creator, str(int(time.time())),
+                                    bonding_curve_pda=_bcp,
+                                    create_tx_signature=sig,
+                                    symbol=_symbol,
+                                    name=_name,
+                                )
+                                if _bcp:
+                                    self._remember_bonding_curve_token(_mint, _bcp)
+                                self.seen_mints.add(_mint)
+                                self.completed_launches.add(sig)
+                                premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source={source} mint={_mint[:16]} replayed_from_payload")
+                                success = True
+                        except Exception as _re:
+                            log_print(f"[WEBHOOK_BIRTH] ⚠ payload replay failed sig={sig[:16]}: {_re}", flush=True)
+                    else:
+                        # Helius-sourced rows: use handle_birth which fetches the tx.
+                        try:
+                            premig_log(f"[WEBHOOK_BIRTH] sig={sig[:16]} source={source}")
+                            await self.handle_birth(sig, [])
+                            self.completed_launches.add(sig)
+                            success = True
+                        except Exception as _he:
+                            log_print(f"[WEBHOOK_BIRTH] ⚠ handle_birth failed sig={sig[:16]}: {_he}", flush=True)
+
+                    if success:
+                        _mark_consumed(DB_PATH, row_id)
+                    else:
+                        # Increment retry_count so runaway rows are visible.
+                        try:
+                            _rc = _sq.connect(DB_PATH, timeout=5)
+                            with _rc:
+                                _rc.execute("UPDATE webhook_birth_queue SET retry_count = retry_count + 1 WHERE id = ?", (row_id,))
+                            _rc.close()
+                        except Exception:
+                            pass
+
+            except Exception as exc:
+                log_print(f"[LISTENER] ⚠ webhook birth drain error: {exc}", flush=True)
+            await asyncio.sleep(5)
+
+    async def drain_migration_persist_queue(self):
+        """Retry failed migration DB writes from migration_persist_queue. 10s poll cadence."""
+        import sqlite3 as _sq
+        log_print("[STARTUP] Migration persist queue drainer started", flush=True)
+        while True:
+            try:
+                _reconciled = _reconcile_migration_fallback_file_into_queue()
+                if _reconciled:
+                    log_print(f"[MIGRATION_RETRY] reconciled {_reconciled} migration(s) from file fallback into migration_persist_queue", flush=True)
+                conn = _sq.connect(DB_PATH, timeout=10)
+                conn.row_factory = _sq.Row
+                rows = conn.execute(
+                    "SELECT signature, mint, received_at, retry_count FROM migration_persist_queue"
+                    " WHERE status IN ('PENDING','RETRY') ORDER BY id LIMIT 20"
+                ).fetchall()
+                conn.close()
+
+                for row in rows:
+                    sig  = row["signature"]
+                    mint = row["mint"]
+                    if not mint or not sig:
+                        continue
+                    try:
+                        await self._mark_token_migrated_in_db(
+                            mint,
+                            migrated_at=row["received_at"],
+                            migration_tx=sig,
+                            dex="pumpswap",
+                        )
+                        # If _mark_token_migrated_in_db returned without re-raising, it succeeded
+                        # (it enqueues on failure but doesn't raise). Check token_analysis directly.
+                        _vc = _sq.connect(DB_PATH, timeout=5)
+                        persisted = _vc.execute(
+                            "SELECT migration_tx FROM token_analysis WHERE mint=? AND migration_tx IS NOT NULL LIMIT 1",
+                            (mint,)
+                        ).fetchone()
+                        _vc.close()
+                        if persisted:
+                            _uc = _sq.connect(DB_PATH, timeout=5)
+                            with _uc:
+                                _uc.execute(
+                                    "UPDATE migration_persist_queue SET status='PROCESSED', processed_at=? WHERE signature=?",
+                                    (int(time.time()), sig),
+                                )
+                            _uc.close()
+                            log_print(f"[MIGRATION_RETRY] ✅ Persisted mint={mint[:16]} sig={sig[:16]}", flush=True)
+                            self.completed_migrations.add(sig)
+                        else:
+                            raise RuntimeError("migration_tx not in token_analysis after write attempt")
+                    except Exception as _re:
+                        try:
+                            _ec = _sq.connect(DB_PATH, timeout=5)
+                            with _ec:
+                                _ec.execute(
+                                    "UPDATE migration_persist_queue SET status='RETRY', retry_count=retry_count+1,"
+                                    " last_attempt_at=?, last_error=? WHERE signature=?",
+                                    (int(time.time()), str(_re)[:200], sig),
+                                )
+                            _ec.close()
+                        except Exception:
+                            pass
+            except Exception as exc:
+                log_print(f"[LISTENER] ⚠ migration persist drain error: {exc}", flush=True)
+            await asyncio.sleep(10)
+
+    async def drain_birth_persist_queue(self):
+        """X78.19 -- retry births whose first insert lost the write-lane race.
+
+        10s poll cadence: short enough that a birth is recovered well within
+        one Mission Control refresh cycle once the write lane frees up, long
+        enough not to add meaningful pressure of its own to that same lane.
+
+        mint is the idempotency key. _insert_bonding_curve_token's own
+        INSERT...ON CONFLICT(mint) DO UPDATE means replaying a queued row is
+        always safe -- an already-persisted mint just updates non-destructive
+        fields (COALESCE-guarded) rather than creating a duplicate row. A row
+        is only marked PROCESSED after persistence is confirmed, so a crash
+        between a failed retry and the next poll leaves the row PENDING/RETRY
+        and it is picked up again on the next cycle or after listener restart.
+        """
+        import sqlite3 as _sq
+        log_print("[LISTENER] ✅ Birth persist queue drainer started", flush=True)
+        while True:
+            try:
+                # X78.19 -- reconcile the file-based last-resort backstop
+                # first, so anything that couldn't even reach
+                # birth_persist_queue (the write lane was too busy for that
+                # enqueue too) gets a chance to rejoin the normal queue
+                # before this cycle's SELECT runs.
+                try:
+                    _reconciled = _reconcile_fallback_file_into_queue()
+                    if _reconciled:
+                        log_print(f"[BIRTH_RETRY] reconciled {_reconciled} birth(s) from file-based fallback into birth_persist_queue", flush=True)
+                except Exception as _rfe:
+                    log_print(f"[LISTENER] ⚠ fallback file reconcile error: {_rfe}", flush=True)
+
+                conn = _sq.connect(DB_PATH, timeout=10)
+                conn.row_factory = _sq.Row
+                rows = conn.execute(
+                    "SELECT id, mint, creator, created_at, bonding_curve_pda, create_tx_signature,"
+                    " symbol, name, received_at FROM birth_persist_queue"
+                    " WHERE status IN ('PENDING','RETRY') ORDER BY id LIMIT 50"
+                ).fetchall()
+                conn.close()
+
+                for row in rows:
+                    mint = row["mint"]
+                    row_id = row["id"]
+                    if not mint:
+                        continue
+                    try:
+                        await self._insert_bonding_curve_token(
+                            mint,
+                            row["creator"],
+                            row["created_at"] or str(row["received_at"]),
+                            bonding_curve_pda=row["bonding_curve_pda"],
+                            create_tx_signature=row["create_tx_signature"],
+                            symbol=row["symbol"],
+                            name=row["name"],
+                        )
+                        # _insert_bonding_curve_token swallows its own failures
+                        # (re-queues rather than raising) -- confirm durable
+                        # persistence directly before marking this row done.
+                        _vc = _sq.connect(DB_PATH, timeout=5)
+                        persisted = _vc.execute(
+                            "SELECT 1 FROM token_analysis WHERE mint=? LIMIT 1", (mint,)
+                        ).fetchone()
+                        _vc.close()
+                        if persisted:
+                            _uc = _sq.connect(DB_PATH, timeout=5, priority=PRIORITY_P0_CRITICAL_INGESTION)
+                            with _uc:
+                                _uc.execute(
+                                    "UPDATE birth_persist_queue SET status='PROCESSED', processed_at=? WHERE id=?",
+                                    (int(time.time()), row_id),
+                                )
+                            _uc.close()
+                            _birth_telemetry_incr("retry_succeeded")
+                            log_print(f"[BIRTH_RETRY] ✅ Persisted mint={mint[:16]} after retry", flush=True)
+                        else:
+                            raise RuntimeError("mint not in token_analysis after retry attempt")
+                    except Exception as _re:
+                        _birth_telemetry_incr("retry_failed")
+                        try:
+                            _ec = _sq.connect(DB_PATH, timeout=5)
+                            with _ec:
+                                _ec.execute(
+                                    "UPDATE birth_persist_queue SET status='RETRY', retry_count=retry_count+1,"
+                                    " last_attempt_at=?, last_error=? WHERE id=?",
+                                    (int(time.time()), str(_re)[:200], row_id),
+                                )
+                            _ec.close()
+                        except Exception:
+                            pass
+            except Exception as exc:
+                log_print(f"[LISTENER] ⚠ birth persist drain error: {exc}", flush=True)
+            await asyncio.sleep(10)
+
+    async def drain_migration_walkback_handoff_retry(self):
+        """Existing listener drain lifecycle; one bounded, guarded handoff tick per 10s."""
+        import asyncio as _asyncio
+        import os as _os
+        from src.core.db import resolve_ops_db_path
+        from src.ops.migration_walkback_handoff_retry import SCHEDULER_CADENCE_SECONDS, run_maintenance
+        if not hasattr(self, "_migration_walkback_handoff_drain_lock"):
+            self._migration_walkback_handoff_drain_lock = _asyncio.Lock()
+        raw_t0 = _os.environ.get("HANDOFF_DURABILITY_T0")
+        t0 = int(raw_t0) if raw_t0 and raw_t0.isdigit() else None
+        while True:
+            if not self._migration_walkback_handoff_drain_lock.locked():
+                try:
+                    async with self._migration_walkback_handoff_drain_lock:
+                        await _asyncio.to_thread(run_maintenance, DB_PATH, resolve_ops_db_path(), t0=t0)
+                except Exception as exc:
+                    log_print(f"[LISTENER] migration-walkback handoff drain error: {exc}", flush=True)
+            await _asyncio.sleep(SCHEDULER_CADENCE_SECONDS)
+
+
+def _mark_consumed(db_path: str, row_id: int) -> None:
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(db_path, timeout=5)
+        with conn:
+            conn.execute("UPDATE webhook_birth_queue SET consumed = 1 WHERE id = ?", (row_id,))
+        conn.close()
+    except Exception as _e:
+        log_print(f"[WEBHOOK_BIRTH] ⚠ mark_consumed failed row_id={row_id}: {_e}", flush=True)
+
+
+# _mark_consumed is a module-level helper; PumpFunCurveListener continues below.
+class PumpFunCurveListener(PumpFunCurveListener):  # type: ignore[no-redef]
+    async def listen_pumpfun_websocket(self):
+        """Dedicated Pump.fun websocket for births and pre-migration trade flow."""
+        await self._wait_for_launch_toggle("PUMPFUN")
+        log_print(f"\n[WEBSOCKET][PUMPFUN] Connecting to Pump.fun program...", flush=True)
+
+        endpoints = self._websocket_endpoints()
+        current_endpoint_idx = 0
+        reconnect_delay = 5
+
+        while True:
+            try:
+                endpoint, name = endpoints[current_endpoint_idx]
+                async with websockets.connect(
+                    endpoint,
+                    ping_interval=None,
+                    ping_timeout=None,
+                    close_timeout=10,
+                    max_size=10 * 1024 * 1024,
+                ) as ws:
+                    self.websocket_connected = True
+                    reconnect_delay = 5
+                    log_print(f"[WEBSOCKET][PUMPFUN] ✓ Connected via {name}", flush=True)
+
+                    record_request(
+                        section='listener',
+                        provider='helius_rpc',
+                        method='logsSubscribe',
+                        status_code=200,
+                        latency_ms=0,
+                        source_file='pumpfun_curve_listener'
+                    )
+
+                    subscribe_msg = {
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "logsSubscribe",
+                        "params": [
+                            {"mentions": [PUMPFUN_PROGRAM]},
+                            {"commitment": "confirmed"}
+                        ]
+                    }
+                    await ws.send(json.dumps(subscribe_msg))
+                    log_print(f"[WEBSOCKET][PUMPFUN] Subscribed to Pump.fun births + trades", flush=True)
+                    premig_log("[WS_SUBSCRIBED] program=pumpfun waiting for confirmation")
+
+                    subscription_id = None
+                    _sub_attempts = 0
+                    while subscription_id is None:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=10)
+                            data = json.loads(msg)
+                            if "result" in data and data.get("id") == 1:
+                                subscription_id = data.get("result")
+                                log_print(f"[WEBSOCKET][PUMPFUN] ✓ Subscription confirmed (id={subscription_id})", flush=True)
+                                premig_log(f"[WS_SUBSCRIBED] program=pumpfun subscription_id={subscription_id}")
+                                break
+                        except asyncio.TimeoutError:
+                            _sub_attempts += 1
+                            log_print(f"[WEBSOCKET][PUMPFUN] ⚠ No subscription confirmation after 10s (attempt {_sub_attempts})", flush=True)
+                            if _sub_attempts >= 3:
+                                log_print(f"[WEBSOCKET][PUMPFUN] ✗ Subscription never confirmed, reconnecting...", flush=True)
+                                break
+                            await asyncio.sleep(2)
+                        except websockets.exceptions.ConnectionClosed as e:
+                            log_print(f"[WEBSOCKET][PUMPFUN] 🔌 Connection closed during subscription ({e}), reconnecting...", flush=True)
+                            break
+
+                    if subscription_id is None:
+                        continue
+
+                    while True:
+                        try:
+                            msg = await asyncio.wait_for(ws.recv(), timeout=60)
+                            chain_receive_utc_ns = time.time_ns()
+                            chain_receive_monotonic_ns = time.monotonic_ns()
+                            data = json.loads(msg)
+
+                            if 'params' not in data or 'result' not in data['params']:
+                                continue
+
+                            self.websocket_msg_count += 1
+                            result = data['params']['result']
+                            value = result.get('value', {})
+                            logs = value.get('logs', [])
+                            signature = value.get('signature', '')
+                            err = value.get('err')
+                            raw_sub_id = data['params'].get('subscription')
+
+                            if raw_sub_id != subscription_id:
+                                premig_log(f"[WS_MESSAGE_DROPPED] reason=unknown_subscription sub_id={raw_sub_id} expected={subscription_id} kind=pumpfun")
+                                continue
+
+                            if err or not signature:
+                                premig_log(f"[WS_MESSAGE_DROPPED] reason={'err' if err else 'no_sig'} kind=pumpfun")
+                                continue
+
+                            premig_log(f"[RAW_EVENT] sig={signature[:16]} {json.dumps(logs)[:500]}")
+
+                            if self._is_migration_transaction(logs):
+                                listen_enabled = get_migration_setting('listen_to_launches', True)
+                                log_print(f"[WEBSOCKET] 🔍 Migration found via pumpfun subscription. listen_to_launches={listen_enabled}", flush=True)
+
+                                if not listen_enabled:
+                                    log_print(f"[WEBSOCKET] ⏸ Migration detected via pumpfun subscription but launch listening disabled: {signature}", flush=True)
+                                    continue
+
+                                self.websocket_migration_count += 1
+                                premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_migration source=pumpfun")
+                                log_print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected via pumpfun subscription: {signature}", flush=True)
+                                asyncio.create_task(self.handle_migration(signature, logs))
+                                continue
+
+                            if self._is_pumpfun_create_candidate(logs):
+                                self._pumpfun_delivery_latency.observe_chain(
+                                    signature=signature,
+                                    slot=(result.get("context") or {}).get("slot"),
+                                    receive_monotonic_ns=chain_receive_monotonic_ns,
+                                    receive_utc_ns=chain_receive_utc_ns,
+                                )
+                                premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_birth")
+                                asyncio.create_task(self.handle_birth(signature, logs))
+                                continue
+
+                            if self._is_pumpfun_buy_candidate(logs):
+                                premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_pumpfun_trade")
+                                asyncio.create_task(self.handle_pumpfun_trade(signature, logs))
+                                continue
+
+                            if self._is_pumpfun_sell_candidate(logs):
+                                premig_log(f"[WS_MESSAGE_DROPPED] reason=sell sig={signature[:16]}")
+                                continue
+
+                            self._debug_pumpfun_trade_skip("unclassified_pumpfun_event", logs)
+
+                        except asyncio.TimeoutError:
+                            continue
+                        except json.JSONDecodeError:
+                            continue
+                        except websockets.exceptions.ConnectionClosed as e:
+                            log_print(f"[WEBSOCKET][PUMPFUN] 🔌 Connection closed ({e.code if hasattr(e, 'code') else e}), reconnecting...", flush=True)
+                            break
+                        except Exception as e:
+                            error_msg = str(e).lower()
+                            if "keepalive" not in error_msg and "close frame" not in error_msg:
+                                log_print(f"[WEBSOCKET][PUMPFUN] ⚠ Error processing message: {e}", flush=True)
+                            if "close frame" in error_msg or "connection closed" in error_msg or "going away" in error_msg:
+                                break
+                            continue
+
+            except Exception as e:
+                self.websocket_connected = False
+                error_str = str(e).lower()
+                if "401" in str(e) or "unauthorized" in error_str:
+                    log_print(f"[WEBSOCKET][PUMPFUN] ⚠ Auth error (401) - falling back to public RPC", flush=True)
+                    current_endpoint_idx = 1
+                    reconnect_delay = 5
+                elif "connection" in error_str or "refused" in error_str:
+                    log_print(f"[WEBSOCKET][PUMPFUN] ⚠ Connection refused, retrying in {reconnect_delay}s...", flush=True)
+                elif "close frame" not in error_str:
+                    log_print(f"[WEBSOCKET][PUMPFUN] ⚠ {name} connection error: {e}", flush=True)
+                    log_print(f"[WEBSOCKET][PUMPFUN] Retrying in {reconnect_delay}s...", flush=True)
+
+                await asyncio.sleep(reconnect_delay)
+                reconnect_delay = min(reconnect_delay * 1.5, 30)
+
+    async def _handle_curve_complete_transition(self, bonding_curve_pda: str, slot: int) -> None:
+        """
+        Called when we observe complete=false→true on a bonding curve account.
+        Persists the transition, resolves the creator, and enqueues the funding job.
+        """
+        mint = self._bonding_curve_to_mint.get(bonding_curve_pda)
+        if not mint:
+            return
+
+        t0 = time.time()
+        now = int(t0)
+        log_print(
+            f"[CURVE_COMPLETE] ✅ mint={mint[:8]}... bonding_curve={bonding_curve_pda[:8]}... slot={slot}",
+            flush=True,
+        )
+        premig_log(f"[TIMING] mint={mint} curve_complete_event t=+0.000s slot={slot}")
+
+        # Persist curve_complete state
+        try:
+            def _write_curve_complete(_m=mint, _now=now, _slot=slot):
+                _conn = db_connect(DB_PATH, timeout=30)
+                _conn.execute("PRAGMA journal_mode=WAL")
+                _conn.execute("PRAGMA synchronous=NORMAL")
+                _conn.execute("PRAGMA busy_timeout=30000")
+                _conn.execute(
+                    "UPDATE token_analysis SET curve_complete=1, curve_completed_at=?, curve_completed_slot=?, curve_complete_source='account_state' WHERE mint=? AND (curve_complete IS NULL OR curve_complete=0)",
+                    (_now, _slot, _m),
+                )
+                _conn.commit()
+                _conn.close()
+            await asyncio.to_thread(_write_curve_complete)
+        except Exception as e:
+            log_print(f"[CURVE_COMPLETE] ⚠ DB write failed for {mint[:16]}...: {e}", flush=True)
+            return
+
+        # Resolve creator and enqueue funding job
+        premig_log(f"[TIMING] mint={mint} creator_resolve_start t=+{time.time()-t0:.3f}s")
+        creator = await self._ensure_pf_ws_creator(mint, reason="curve_complete")
+        premig_log(f"[TIMING] mint={mint} creator_resolve_done t=+{time.time()-t0:.3f}s creator={'yes' if creator else 'no'}")
+        if not creator:
+            # Creator resolution failed — still enqueue if we have a creator already
+            try:
+                def _fallback_creator_read(_m=mint):
+                    _gc = db_connect(DB_PATH, timeout=5)
+                    _r = _gc.execute("SELECT pf_ws_creator, earliest_tx_creator, create_tx_signature FROM token_analysis WHERE mint = ? LIMIT 1", (_m,)).fetchone()
+                    _gc.close()
+                    return _r
+                row = await asyncio.to_thread(_fallback_creator_read)
+                if row:
+                    creator = (str(row[0]).strip() if row[0] else "") or (str(row[1]).strip() if row[1] else "")
+                    create_tx_sig = str(row[2]) if row[2] else None
+                    if creator:
+                        await self._enqueue_creator_funding_job(
+                            creator,
+                            mint=mint,
+                            migration_timestamp=datetime.utcnow().isoformat() + "Z",
+                            create_tx_signature=create_tx_sig,
+                            delay_seconds=0,
+                            source="curve_complete_fallback",
+                            curve_completed_slot=slot,
+                        )
+                        premig_log(f"[TIMING] mint={mint} enqueued_fallback t=+{time.time()-t0:.3f}s")
+            except Exception as e:
+                log_print(f"[CURVE_COMPLETE] ⚠ Fallback enqueue failed for {mint[:16]}...: {e}", flush=True)
+        else:
+            premig_log(f"[TIMING] mint={mint} enqueue_start t=+{time.time()-t0:.3f}s")
+
+    def _get_hot_bonding_curves(self) -> List[str]:
+        """Return bonding curve PDAs for tokens that are close to migrating."""
+        try:
+            _gc = db_connect(DB_PATH, timeout=5)
+            rows = _gc.execute(
+                """
+                SELECT bonding_curve_pda FROM token_analysis
+                WHERE bonding_curve_pda IS NOT NULL
+                  AND lifecycle_stage = 'bonding_curve'
+                  AND curve_complete = 0
+                  AND is_about_to_migrate = 1
+                """,
+            ).fetchall()
+            _gc.close()
+            return [r[0] for r in rows if r[0]]
+        except Exception:
+            return []
+
+    async def watch_bonding_curve(self, pda: str) -> None:
+        """Dynamically add a bonding curve PDA to the active watcher. Thread-safe."""
+        if pda and pda not in self._curve_watch_subscribed:
+            self._curve_watch_queue.put_nowait(pda)
+
+    async def listen_bonding_curve_accounts(self):
+        """
+        accountSubscribe loop: watches hot bonding curve PDAs for complete=false→true.
+        Only subscribes to tokens near migration (progress >= 50% or is_about_to_migrate).
+        Unsubscribes immediately after complete fires to keep subscription count low.
+        New curves are added dynamically via watch_bonding_curve().
+        """
+        await self._wait_for_launch_toggle("PUMPFUN")
+        log_print("[CURVE_WATCH] Starting bonding curve account watcher...", flush=True)
+        premig_log("[CURVE_WATCH] Starting bonding curve account watcher...")
+
+        endpoints = self._websocket_endpoints()
+        current_endpoint_idx = 0
+        reconnect_delay = 5
+
+        subscribed_curves: Dict[str, int] = {}   # pda -> subscription_id
+        sub_id_to_curve: Dict[int, str] = {}      # subscription_id -> pda
+        curve_complete_state: Dict[str, bool] = {}
+        pending_confirmations: Dict[int, str] = {}
+        pending_unsubs: Dict[int, int] = {}        # req_id -> sub_id being unsubscribed
+        next_req_id = 100
+
+        while True:
+            try:
+                endpoint, name = endpoints[current_endpoint_idx]
+                async with websockets.connect(
+                    endpoint,
+                    ping_interval=None,
+                    ping_timeout=None,
+                    close_timeout=10,
+                    max_size=10 * 1024 * 1024,
+                ) as ws:
+                    log_print(f"[CURVE_WATCH] ✓ Connected via {name}", flush=True)
+                    premig_log(f"[CURVE_WATCH] Connected via {name}")
+                    reconnect_delay = 5
+                    subscribed_curves.clear()
+                    sub_id_to_curve.clear()
+                    pending_confirmations.clear()
+                    pending_unsubs.clear()
+                    self._curve_watch_subscribed.clear()
+                    next_req_id = 100
+
+                    def _write_state() -> None:
+                        try:
+                            mints = []
+                            for pda in list(subscribed_curves.keys()) + list(pending_confirmations.values()):
+                                mint = self._bonding_curve_to_mint.get(pda)
+                                mints.append({"pda": pda, "mint": mint or ""})
+                            with open(CURVE_WATCH_STATE_PATH, "w") as _f:
+                                json.dump({"subscriptions": mints, "updated_at": int(time.time())}, _f)
+                        except Exception:
+                            pass
+
+                    async def _subscribe(pda: str) -> None:
+                        nonlocal next_req_id
+                        if pda in subscribed_curves or pda in {v for v in pending_confirmations.values()}:
+                            return
+                        req_id = next_req_id
+                        next_req_id += 1
+                        await ws.send(json.dumps({
+                            "jsonrpc": "2.0", "id": req_id,
+                            "method": "accountSubscribe",
+                            "params": [pda, {"encoding": "base64", "commitment": "confirmed"}]
+                        }))
+                        pending_confirmations[req_id] = pda
+                        self._curve_watch_subscribed.add(pda)
+                        _write_state()
+
+                    async def _unsubscribe(pda: str) -> None:
+                        nonlocal next_req_id
+                        sub_id = subscribed_curves.pop(pda, None)
+                        if sub_id is None:
+                            return
+                        sub_id_to_curve.pop(sub_id, None)
+                        self._curve_watch_subscribed.discard(pda)
+                        req_id = next_req_id
+                        next_req_id += 1
+                        await ws.send(json.dumps({
+                            "jsonrpc": "2.0", "id": req_id,
+                            "method": "accountUnsubscribe",
+                            "params": [sub_id]
+                        }))
+                        pending_unsubs[req_id] = sub_id
+                        log_print(f"[CURVE_WATCH] 🔕 Unsubscribed pda={pda[:8]}... sub_id={sub_id}", flush=True)
+                        _write_state()
+
+                    # Subscribe to hot curves on startup
+                    hot = self._get_hot_bonding_curves()
+                    for pda in hot:
+                        await _subscribe(pda)
+                    log_print(f"[CURVE_WATCH] Subscribed to {len(hot)} hot bonding curves", flush=True)
+                    premig_log(f"[CURVE_WATCH] Subscribed to {len(hot)} hot bonding curves on startup")
+
+                    while True:
+                        # Drain any dynamically queued PDAs first
+                        while not self._curve_watch_queue.empty():
+                            try:
+                                pda = self._curve_watch_queue.get_nowait()
+                                await _subscribe(pda)
+                                log_print(f"[CURVE_WATCH] ➕ Added pda={pda[:8]}...", flush=True)
+                                premig_log(f"[CURVE_WATCH] Dynamic subscribe pda={pda[:8]}... total={len(subscribed_curves)+len(pending_confirmations)}")
+                            except asyncio.QueueEmpty:
+                                break
+
+                        try:
+                            raw = await asyncio.wait_for(ws.recv(), timeout=15)
+                        except asyncio.TimeoutError:
+                            continue
+
+                        try:
+                            data = json.loads(raw)
+                        except Exception:
+                            continue
+
+                        # Subscription confirmation
+                        if "result" in data and isinstance(data.get("result"), int):
+                            req_id = data.get("id")
+                            sub_id = data["result"]
+                            if req_id in pending_confirmations:
+                                pda = pending_confirmations.pop(req_id)
+                                subscribed_curves[pda] = sub_id
+                                sub_id_to_curve[sub_id] = pda
+                                _write_state()
+                            elif req_id in pending_unsubs:
+                                pending_unsubs.pop(req_id, None)
+
+                        # Account notification
+                        elif data.get("method") == "accountNotification":
+                            params = data.get("params", {})
+                            result = params.get("result", {})
+                            sub_id = params.get("subscription")
+                            pda = sub_id_to_curve.get(sub_id)
+                            if not pda:
+                                continue
+
+                            slot = result.get("context", {}).get("slot", 0)
+                            account_data = result.get("value", {}).get("data")
+                            if not account_data or not isinstance(account_data, list):
+                                continue
+
+                            try:
+                                import base64
+                                raw_bytes = base64.b64decode(account_data[0])
+                                if len(raw_bytes) < 49:
+                                    continue
+                                complete = bool(raw_bytes[48])
+                            except Exception:
+                                continue
+
+                            prev = curve_complete_state.get(pda)
+                            curve_complete_state[pda] = complete
+
+                            if complete and not prev:
+                                # false→true (or first-seen-complete) transition
+                                mint = self._bonding_curve_to_mint.get(pda)
+                                should_fire = False
+                                if prev is False:
+                                    should_fire = True
+                                elif prev is None and mint:
+                                    try:
+                                        def _check_curve(_m=mint):
+                                            _gc = db_connect(DB_PATH, timeout=5)
+                                            _r = _gc.execute("SELECT curve_complete FROM token_analysis WHERE mint = ? LIMIT 1", (_m,)).fetchone()
+                                            _gc.close()
+                                            return bool(_r and not _r[0])
+                                        should_fire = await asyncio.to_thread(_check_curve)
+                                    except Exception:
+                                        pass
+
+                                if should_fire:
+                                    premig_log(f"[CURVE_COMPLETE] pda={pda[:8]}... mint={mint or '?'} slot={slot} firing transition")
+                                    asyncio.create_task(
+                                        self._handle_curve_complete_transition(pda, slot)
+                                    )
+                                else:
+                                    premig_log(f"[CURVE_COMPLETE] pda={pda[:8]}... mint={mint or '?'} slot={slot} skipped (already complete in DB or no mint)")
+                                # Unsubscribe — we're done watching this curve
+                                await _unsubscribe(pda)
+                                curve_complete_state.pop(pda, None)
+
+            except Exception as e:
+                error_str = str(e).lower()
+                if "close frame" not in error_str and "connection closed" not in error_str:
+                    log_print(f"[CURVE_WATCH] ⚠ Connection error: {e}, retrying in {reconnect_delay}s", flush=True)
+                    premig_log(f"[CURVE_WATCH] Connection error: {e}, retrying in {reconnect_delay}s")
+                await asyncio.sleep(reconnect_delay)
+                reconnect_delay = min(reconnect_delay * 1.5, 30)
+
+    # --- Main listener ---
+
+
+    async def listen(self):
+        """Main entry point - start WebSocket listener with live price updater"""
+        PRICE_UPDATER_ENABLED = __import__('os').environ.get("LISTENER_LIVE_PRICE_UPDATER_ENABLED", "1") != "0"
+
+        if PRICE_UPDATER_ENABLED:
+            asyncio.create_task(self.update_live_prices_background())
+            log_print("[STARTUP] Live price updater enabled", flush=True)
+        else:
+            log_print("[STARTUP] Skipping live price updater due to LISTENER_LIVE_PRICE_UPDATER_ENABLED=0", flush=True)
+
+        # Creator outgoing transfer extraction is now handled by Helius webhook (real-time monitoring)
+        log_print("[LISTENER] ✅ Creator outgoing transfers monitored via Helius webhook (real-time)", flush=True)
+
+        # Start creator activity worker
+        if __import__('os').environ.get("LISTENER_CREATOR_ACTIVITY_ENABLED", "1") != "0":
+            try:
+                from src.creators.repository import CreatorRepository
+                from src.creators.worker import CreatorActivityWorker
+                from src.creators.baseline import CreatorBaselineScanner
+                from src.creators.helius_watch import register_creator_address
+                from src.creators.service import restore_creator_watches, enqueue_stale_creator_reconciles
+
+                _creator_lock = asyncio.Lock()
+                _creator_repo = CreatorRepository(db_path=CREATOR_DB_PATH, db_lock=_creator_lock)
+                _t_schema = time.monotonic()
+                await _creator_repo.ensure_schema()
+                log_print(f"[STARTUP] creator_repo.ensure_schema done in {(time.monotonic()-_t_schema)*1000:.0f}ms", flush=True)
+
+                _scanner = CreatorBaselineScanner(
+                    background_rpc_fn=self.call_background_rpc,
+                    repo=_creator_repo,
+                )
+                _creator_worker = CreatorActivityWorker(
+                    _creator_repo,
+                    run_baseline_scan_fn=_scanner.run_baseline_scan,
+                    get_signatures_fn=_scanner.get_signatures,
+                    process_signature_fn=_scanner.process_signature,
+                )
+                asyncio.create_task(_creator_worker.run())
+                log_print("[LISTENER] ✅ Creator activity worker started", flush=True)
+
+                # Re-register all creator watches after restart (marks stale, then re-registers).
+                _t_restore = time.monotonic()
+                asyncio.create_task(
+                    restore_creator_watches(repo=_creator_repo, register_webhook_fn=register_creator_address)
+                )
+                log_print(f"[STARTUP] restore_creator_watches task queued in {(time.monotonic()-_t_restore)*1000:.0f}ms", flush=True)
+
+                # Periodic stale-reconcile scheduler: every 10 minutes.
+                async def _stale_reconcile_loop():
+                    while True:
+                        await asyncio.sleep(600)
+                        try:
+                            n = await enqueue_stale_creator_reconciles(repo=_creator_repo)
+                            if n:
+                                log_print(f"[LISTENER] Enqueued {n} stale creator reconciles", flush=True)
+                        except Exception as exc:
+                            log_print(f"[LISTENER] ⚠ stale reconcile loop error: {exc}", flush=True)
+
+                asyncio.create_task(_stale_reconcile_loop())
+
+            except Exception as e:
+                log_print(f"[LISTENER] ⚠ Creator activity worker failed to start: {e}", flush=True)
+        else:
+            log_print("[STARTUP] Skipping creator activity block due to LISTENER_CREATOR_ACTIVITY_ENABLED=0", flush=True)
+
+        # PumpPortal WSS handles births, migrations, and near-complete curve tracking.
+        # listen_pumpswap_websocket detects PumpSwap pool creation (migrations) via Helius logsSubscribe.
+        # listen_pumpportal_websocket handles pump.fun births via PumpPortal WSS (free, no Helius cost).
+        # listen_pumpfun_websocket is a Helius logsSubscribe fallback for births when PumpPortal is down.
+        # drain_webhook_birth_queue is a fallback for Helius birth webhook delivery.
+        _helius_birth_enabled = os.environ.get("HELIUS_BIRTH_WS_ENABLED", "0").lower() not in ("0", "false", "no")
+        _birth_reconciler_enabled = os.environ.get("PUMPFUN_BIRTH_RECONCILER_ENABLED", "1").lower() not in ("0", "false", "no")
+        _tasks = [
+            self.listen_pumpswap_websocket(),
+            self.listen_pumpportal_websocket(),
+            self.drain_webhook_birth_queue(),
+            self.drain_migration_persist_queue(),
+            self.drain_birth_persist_queue(),
+            self.drain_migration_walkback_handoff_retry(),
+            self._loop_lag_watchdog(),
+            self._db_fd_watchdog(),
+        ]
+        # Separate passive PumpSwap program-log research capture.  It shares this
+        # listener's configured provider endpoint but has no migration callback,
+        # transaction submission, or canonical-state write path.  The raw flag
+        # defaults OFF, so this registration is inert until explicitly enabled.
+        from src.ops.pumpswap_live_runtime import ListenerPumpSwapRuntime, default_evidence_paths
+        from src.ops.pumpswap_research_supervisor import Supervisor as PumpSwapResearchSupervisor
+        _raw_store, _materialization_store = default_evidence_paths()
+        self.pumpswap_research_runtime = ListenerPumpSwapRuntime(
+            self, raw_store=_raw_store, materialization_store=_materialization_store)
+        self.pumpswap_research_supervisor = PumpSwapResearchSupervisor()
+        _pumpswap_materializer = self.pumpswap_research_runtime.bind_materializer(asyncio.get_running_loop(), os.environ)
+        _tasks.append(self.pumpswap_research_supervisor.run(
+            lambda: self.pumpswap_research_runtime.task(os.environ).run(), os.environ))
+        _tasks.append(_pumpswap_materializer.run())
+        _tasks.append(self.pumpswap_research_runtime.semantic_workers.run())
+        _desc = "pumpswap WS + pumpportal WS + birth drainer + migration persist drainer + birth persist retry drainer"
+        if _helius_birth_enabled:
+            _tasks.append(self.listen_pumpfun_websocket())
+            _desc += " + helius birth WS"
+        if _birth_reconciler_enabled:
+            _tasks.append(self._birth_reconciler_loop())
+            _desc += " + birth reconciler"
+        log_print(f"[STARTUP] gather() starting — {_desc}", flush=True)
+        await asyncio.gather(*_tasks)
+
+    async def _birth_reconciler_loop(self) -> None:
+        """
+        RPC-based birth reconciler: runs only when PumpPortal is down.
+
+        Every PUMPFUN_BIRTH_RECONCILE_INTERVAL_SECONDS, calls getSignaturesForAddress on
+        PUMPFUN_PROGRAM (limit=PUMPFUN_BIRTH_RECONCILE_LIMIT), stops at the last seen
+        signature, fetches and parses only unseen create candidates, and upserts births.
+        Concurrency=1 — one getTransaction at a time. Hard cap at limit per run.
+
+        Cost: ~10cr per getSignaturesForAddress + 10cr per getTransaction fetched.
+        At limit=100 and ~10% create rate: ~10 + 10×10 = 110cr per run max.
+        """
+        _interval = float(os.environ.get("PUMPFUN_BIRTH_RECONCILE_INTERVAL_SECONDS", "60"))
+        _limit = int(os.environ.get("PUMPFUN_BIRTH_RECONCILE_LIMIT", "100"))
+        _only_when_down = os.environ.get("PUMPFUN_BIRTH_RECONCILE_ONLY_WHEN_PUMPPORTAL_DOWN", "1") not in ("0", "false", "no")
+        _concurrency = int(os.environ.get("PUMPFUN_BIRTH_TX_CONCURRENCY", "1"))
+
+        # warm-up: let PumpPortal WS attempt connection before we start polling
+        await asyncio.sleep(45)
+        log_print(
+            f"[BIRTH_RECONCILER] Started — interval={_interval:.0f}s limit={_limit} "
+            f"only_when_pp_down={_only_when_down} concurrency={_concurrency}",
+            flush=True,
+        )
+
+        while True:
+            try:
+                if _only_when_down and self._pumpportal_connected:
+                    await asyncio.sleep(_interval)
+                    continue
+
+                if _only_when_down:
+                    log_print("[BIRTH_RECONCILER] PumpPortal down — running birth reconcile sweep", flush=True)
+
+                # 1. Fetch recent signatures for the Pump.fun program
+                res = await self.call_discovery_rpc(
+                    "getSignaturesForAddress",
+                    [PUMPFUN_PROGRAM, {"limit": _limit, "commitment": "confirmed"}],
+                    timeout=15,
+                )
+                sigs = (res or {}).get("result") if isinstance(res, dict) else (res or [])
+                if not sigs:
+                    await asyncio.sleep(_interval)
+                    continue
+
+                # 2. Stop at anchor — skip already-seen signatures
+                unseen = []
+                for entry in sigs:
+                    sig = entry.get("signature", "")
+                    if not sig or entry.get("err"):
+                        continue
+                    if sig == self._birth_reconciler_last_seen_sig:
+                        break
+                    unseen.append(sig)
+
+                if not unseen:
+                    await asyncio.sleep(_interval)
+                    continue
+
+                # Update anchor to the most recent sig from this batch
+                self._birth_reconciler_last_seen_sig = sigs[0].get("signature") or self._birth_reconciler_last_seen_sig
+
+                # 3. Filter: only fetch sigs not already in completed_launches / seen_mints
+                to_fetch = [s for s in unseen if s not in self.completed_launches]
+                log_print(
+                    f"[BIRTH_RECONCILER] {len(unseen)} unseen sigs, {len(to_fetch)} not in completed_launches",
+                    flush=True,
+                )
+
+                # 4. Fetch + parse — serial, concurrency=1 (configurable)
+                _sem = asyncio.Semaphore(_concurrency)
+                inserted = 0
+                skipped = 0
+
+                async def _try_one(sig: str) -> None:
+                    nonlocal inserted, skipped
+                    async with _sem:
+                        try:
+                            tx_data = await self._get_transaction_cached(sig)
+                            if not tx_data:
+                                return
+                            # cheap log-free pre-filter using existing parsed tx
+                            logs = ((tx_data.get("meta") or {}).get("logMessages") or [])
+                            if not self._is_pumpfun_create_candidate(logs):
+                                skipped += 1
+                                return
+                            # Delegate to handle_birth which does full parse + idempotent upsert
+                            await self.handle_birth(sig, logs)
+                            inserted += 1
+                        except Exception as _e:
+                            log_print(f"[BIRTH_RECONCILER] ⚠ sig={sig[:16]} error={_e}", flush=True)
+
+                await asyncio.gather(*[_try_one(s) for s in to_fetch])
+                log_print(
+                    f"[BIRTH_RECONCILER] sweep done — fetched={len(to_fetch)} inserted={inserted} skipped={skipped}",
+                    flush=True,
+                )
+
+            except Exception as exc:
+                log_print(f"[BIRTH_RECONCILER] ⚠ sweep error: {exc}", flush=True)
+
+            await asyncio.sleep(_interval)
+
+    async def _db_fd_watchdog(self) -> None:
+        """Monitor open file descriptors to flex_complete_database.db.
+        WAL checkpoint busy=1 + listener FD leak = p99 write latency spike.
+        A single high sample can be ordinary async migration concurrency, so a
+        clean restart requires the primary-handle threshold to persist."""
+        import psutil as _psutil
+        import os as _os
+        _DB = DB_PATH or ""
+        _WARN_FDS  = int(os.environ.get("LISTENER_DB_FD_WARN",  "8"))
+        _FATAL_FDS = int(os.environ.get("LISTENER_DB_FD_FATAL", "12"))
+        _FATAL_CYCLES = int(os.environ.get("LISTENER_DB_FD_FATAL_CYCLES", "3"))
+        _CHECK_INTERVAL = 30  # seconds
+        _high_cycles = 0
+
+        await asyncio.sleep(15)  # let startup settle
+        while True:
+            try:
+                proc = _psutil.Process(_os.getpid())
+                open_files = proc.open_files()
+                # One SQLite connection commonly owns descriptors for the
+                # database, WAL and SHM files.  Counting all three as separate
+                # connections made normal concurrent ingestion trip the fatal
+                # threshold and caused a deterministic restart loop.
+                n = _primary_db_fd_count(open_files, _DB)
+                from src.utils.db_locking import record_connection_snapshot
+                record_connection_snapshot(
+                    primary_fd_count=n,
+                    extra={
+                        "watchdog": "listener_primary_db_fd",
+                        "warn_threshold": _WARN_FDS,
+                        "fatal_threshold": _FATAL_FDS,
+                        "high_cycles_before_sample": _high_cycles,
+                    },
+                )
+                _high_cycles = _next_fd_high_cycle(
+                    n, threshold=_FATAL_FDS, previous=_high_cycles
+                )
+                if _high_cycles >= _FATAL_CYCLES:
+                    log_print(
+                        f"[DB_FD_WATCHDOG] 🚨 CRITICAL_LISTENER_DB_HANDLE_LEAK "
+                        f"fd_count={n} threshold={_FATAL_FDS} "
+                        f"cycles={_high_cycles}/{_FATAL_CYCLES} db={_DB} "
+                        "— exiting for clean restart",
+                        flush=True,
+                    )
+                    _os._exit(1)
+                elif n >= _WARN_FDS:
+                    log_print(
+                        f"[DB_FD_WATCHDOG] ⚠ HIGH_LISTENER_DB_FD_COUNT "
+                        f"fd_count={n} warn_threshold={_WARN_FDS} "
+                        f"fatal_cycles={_high_cycles}/{_FATAL_CYCLES} "
+                        "— monitoring for persistence",
+                        flush=True,
+                    )
+            except Exception as _e:
+                log_print(f"[DB_FD_WATCHDOG] check error: {_e}", flush=True)
+            await asyncio.sleep(_CHECK_INTERVAL)
+
+    async def _loop_lag_watchdog(self) -> None:
+        """Measure event-loop lag every 5s. Logs WARNING >2s, CRITICAL >10s.
+        On lag >30s dumps a diagnostic snapshot to logs/loop_lag_snapshot_<ts>.txt.
+        Snapshot throttled to one per 5 minutes. No DB writes."""
+        import time as _time
+        import traceback
+        import threading
+        import json as _json
+        import os as _os
+
+        _SNAPSHOT_THROTTLE_S = 300   # max one snapshot per 5 min
+        _last_snapshot: float = 0.0
+
+        def _write_snapshot(lag: float, listener: "PumpFunCurveListener") -> None:
+            nonlocal _last_snapshot
+            now = _time.time()
+            if now - _last_snapshot < _SNAPSHOT_THROTTLE_S:
+                return
+            _last_snapshot = now
+
+            ts_str = _time.strftime("%Y%m%d_%H%M%S", _time.gmtime(now))
+            snap_path = _os.path.join(
+                _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
+                "logs", f"loop_lag_snapshot_{ts_str}.txt"
+            )
+
+            lines = []
+            lines.append(f"=== LOOP_LAG SNAPSHOT {ts_str} UTC  lag={lag:.1f}s ===\n")
+
+            # 1. asyncio task stacks
+            lines.append("--- asyncio tasks ---\n")
+            try:
+                for task in asyncio.all_tasks():
+                    if task.done():
+                        continue
+                    name = task.get_name()
+                    coro = task.get_coro()
+                    lines.append(f"  TASK {name} coro={coro.__qualname__ if hasattr(coro,'__qualname__') else coro}\n")
+                    try:
+                        frames = task.get_stack()
+                        for frame in frames[-3:]:  # innermost 3 frames
+                            lines.append(
+                                f"    {frame.f_code.co_filename}:{frame.f_lineno} in {frame.f_code.co_name}\n"
+                            )
+                    except Exception:
+                        pass
+            except Exception as e:
+                lines.append(f"  (error collecting tasks: {e})\n")
+
+            # 2. threads
+            lines.append("--- threads ---\n")
+            try:
+                all_threads = threading.enumerate()
+                lines.append(f"  count={len(all_threads)}\n")
+                for t in all_threads:
+                    lines.append(f"  {t.name} daemon={t.daemon} alive={t.is_alive()}\n")
+            except Exception as e:
+                lines.append(f"  (error: {e})\n")
+
+            # 3. _TOKEN_WORK_POOL queue
+            lines.append("--- _TOKEN_WORK_POOL ---\n")
+            try:
+                pool = _TOKEN_WORK_POOL
+                q = getattr(pool, '_work_queue', None)
+                qsize = q.qsize() if q is not None else "n/a"
+                lines.append(f"  queue_size={qsize} max_workers={pool._max_workers}\n")
+                lines.append(f"  threads_alive={len(pool._threads)}\n")
+            except Exception as e:
+                lines.append(f"  (error: {e})\n")
+
+            # 4. DB serializer metrics
+            lines.append("--- db serializer ---\n")
+            try:
+                from src.utils.db_locking import serializer_metrics
+                m = serializer_metrics()
+                lines.append(f"  queue_depth={m.get('queue_depth')} max={m.get('max_queue_depth')}\n")
+                lines.append(f"  p95_wait_ms={m.get('p95_wait_ms')} p99_wait_ms={m.get('p99_wait_ms')}\n")
+                lines.append(f"  total_writes={m.get('total_writes')} writes_per_min={m.get('writes_per_min')}\n")
+                for w in (m.get('top_writers') or [])[:5]:
+                    lines.append(f"  writer={w['writer']} count={w['write_count']} avg_wait={w['avg_wait_ms']}ms\n")
+            except Exception as e:
+                lines.append(f"  (error: {e})\n")
+
+            # 5. listener state
+            lines.append("--- listener state ---\n")
+            try:
+                lines.append(f"  processing_migrations={len(listener.processing_migrations)}\n")
+                lines.append(f"  completed_migrations={len(listener.completed_migrations)}\n")
+                lines.append(f"  reconciler_pending={len(listener._reconciler_pending)}\n")
+                lines.append(f"  reconciler_non_migration={len(listener._reconciler_non_migration)}\n")
+                lines.append(f"  active_pool_discoveries_mint={len(listener._active_pool_discoveries_by_mint)}\n")
+                lines.append(f"  active_pool_discoveries_sig={len(listener._active_pool_discoveries_by_sig)}\n")
+                lines.append(f"  background_job_queue={listener.background_job_queue.qsize()}\n")
+                lines.append(f"  tx_cache_size={len(listener.tx_cache)}\n")
+            except Exception as e:
+                lines.append(f"  (error: {e})\n")
+
+            # 6. last 50 TIMING_PROBE lines from the supervisor log
+            lines.append("--- recent TIMING_PROBE (last 50) ---\n")
+            try:
+                log_path = _os.path.join(
+                    _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
+                    "logs", "supervisor", "listener.log"
+                )
+                with open(log_path, "r", errors="replace") as lf:
+                    # read tail efficiently
+                    lf.seek(0, 2)
+                    size = lf.tell()
+                    lf.seek(max(0, size - 512 * 1024))  # last 512KB
+                    tail_lines = lf.readlines()
+                probe_lines = [l for l in tail_lines if "[TIMING_PROBE]" in l][-50:]
+                lines.extend(f"  {l.rstrip()}\n" for l in probe_lines)
+            except Exception as e:
+                lines.append(f"  (error reading log: {e})\n")
+
+            try:
+                with open(snap_path, "w") as f:
+                    f.writelines(lines)
+                log_print(f"[LOOP_LAG] 📸 snapshot → {snap_path}", flush=True)
+            except Exception as e:
+                log_print(f"[LOOP_LAG] ⚠ snapshot write failed: {e}", flush=True)
+
+        # ---- watchdog loop ----
+        listener = self
+        while True:
+            t0 = _time.monotonic()
+            await asyncio.sleep(5)
+            lag = _time.monotonic() - t0 - 5.0
+            if lag > 30.0:
+                log_print(f"[LOOP_LAG] 🔴 CRITICAL event-loop lag={lag:.1f}s — asyncio loop is stalled", flush=True)
+                # snapshot is pure file I/O + in-memory reads — run in a thread so we don't
+                # add more work to the already-stalled loop
+                import threading as _thr
+                _thr.Thread(
+                    target=_write_snapshot, args=(lag, listener), daemon=True,
+                    name="loop_lag_snapshot"
+                ).start()
+            elif lag > 10.0:
+                log_print(f"[LOOP_LAG] 🔴 CRITICAL event-loop lag={lag:.1f}s — asyncio loop is stalled", flush=True)
+            elif lag > 2.0:
+                log_print(f"[LOOP_LAG] ⚠ WARNING event-loop lag={lag:.1f}s", flush=True)
+
+
+_listener_singleton: Optional["PumpFunCurveListener"] = None
+
+def _get_listener_instance() -> Optional["PumpFunCurveListener"]:
+    return _listener_singleton
+
+
+async def main():
+    # Ensure only one instance runs at a time
+    import fcntl
+    import os
+    from pathlib import Path
+    
+    lock_file = Path("/tmp/pumpfun_curve_listener.lock")
+    lock_file.parent.mkdir(parents=True, exist_ok=True)
+    lock_handle = open(lock_file, "w")
+    try:
+        fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        lock_handle.seek(0)
+        lock_handle.truncate()
+        lock_handle.write(str(os.getpid()))
+        lock_handle.flush()
+    except BlockingIOError:
+        log_print("[STARTUP] Another pumpfun_curve_listener instance is already running; exiting", flush=True)
+        return
+
+    # X78.18: walkback DDL moved off the pre-listen() startup path. submit()
+    # blocks the calling thread until the write actually completes (waits on
+    # a threading.Event) — under write-lane contention this previously
+    # delayed every process start (including every FATAL-triggered restart)
+    # before listen()/gather() and PumpPortal reconnection could even begin.
+    # Deferred to a daemon thread: schema DDL is idempotent (CREATE TABLE IF
+    # NOT EXISTS-style) and only needs to exist once per process, not before
+    # the reconnect path starts.
+    def _init_walkback_schema_background():
+        try:
+            from src.core.walkback_queue import ensure_schema as _ensure_walkback_schema
+            from src.core.db import OPS_DB_PATH as _OPS_SCHEMA_PATH
+            from src.core.database_write_service import database_write_service
+            _schema_selector = f"operations:{os.path.realpath(str(_OPS_SCHEMA_PATH))}"
+            database_write_service.register_database(_schema_selector, str(_OPS_SCHEMA_PATH))
+            database_write_service.submit(
+                _schema_selector, "listener-walkback-schema-startup",
+                _ensure_walkback_schema,
+            )
+            log_print("[STARTUP] Walkback schema verified (background)", flush=True)
+        except Exception as _schema_error:
+            log_print(f"[STARTUP] Walkback schema verification failed (background, non-fatal): {_schema_error}", flush=True)
+
+    import threading as _thr_startup
+    _thr_startup.Thread(
+        target=_init_walkback_schema_background, daemon=True,
+        name="walkback-schema-startup",
+    ).start()
+    
+    global _listener_singleton
+    listener = PumpFunCurveListener()
+    _listener_singleton = listener
+
+    # Enlarge the default asyncio executor (used by asyncio.to_thread for all off-loop sync work).
+    # Default = min(32, cpu+4) = 12 threads on this machine. With 7+ concurrent migrations each
+    # making multiple to_thread calls, the 12-slot pool saturates and queued calls wait 120s+,
+    # stalling the event loop watchdog. 40 threads matches _TOKEN_WORK_POOL (token/background work)
+    # but is kept SEPARATE — default executor = DB/sync wrappers, _TOKEN_WORK_POOL = token jobs.
+    _default_executor = ThreadPoolExecutor(max_workers=40, thread_name_prefix="asyncio_exec")
+    asyncio.get_event_loop().set_default_executor(_default_executor)
+    log_print("[STARTUP] Default asyncio executor max_workers=40", flush=True)
+
+    try:
+        await listener.listen()
+    finally:
+        try:
+            fcntl.flock(lock_handle, fcntl.LOCK_UN)
+            lock_handle.close()
+        except Exception:
+            pass
+
+
+def cleanup_and_restart():
+    """Kill Flask (5002) and listener, then restart both"""
+    import subprocess
+    import os
+    import time
+
+    log_print("[CLEANUP] 🔄 Cleaning up and restarting services...", flush=True)
+
+    try:
+        # Kill Flask on port 5002
+        os.system("lsof -i :5002 | tail -1 | awk '{print $2}' | xargs kill -9 2>/dev/null || true")
+        time.sleep(1)
+        log_print("[CLEANUP] ✓ Flask (port 5002) killed", flush=True)
+    except:
+        pass
+
+    try:
+        # Kill ALL listener instances (both module and direct script forms)
+        os.system("pkill -9 -f 'pumpfun_curve_listener' 2>/dev/null || true")
+        time.sleep(1)
+        log_print("[CLEANUP] ✓ All listener instances killed", flush=True)
+    except:
+        pass
+
+    try:
+        # Restart listener using module form (matches actual process)
+        log_print("[CLEANUP] 🚀 Starting listener...", flush=True)
+        listener_process = subprocess.Popen(
+            ["python", "-m", "src.core.pumpfun_curve_listener"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        time.sleep(4)
+        log_print("[CLEANUP] ✓ Listener restarted", flush=True)
+    except Exception as e:
+        log_print(f"[CLEANUP] ⚠️ Could not restart listener: {e}", flush=True)
+
+    try:
+        # Restart Flask
+        log_print("[CLEANUP] 🚀 Starting Flask...", flush=True)
+        flask_process = subprocess.Popen(
+            ["python", "run.py"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        time.sleep(3)
+        log_print("[CLEANUP] ✓ Flask restarted", flush=True)
+    except Exception as e:
+        log_print(f"[CLEANUP] ⚠️ Could not restart Flask: {e}", flush=True)
+
+
+def _run_routine_wal_checkpoint(db_path: str) -> dict:
+    """Run the routine WAL checkpoint without entering the application write lane.
+
+    PASSIVE is deliberately paired with a zero busy timeout: an active reader is
+    reported in the result and retried on the next cadence instead of turning
+    routine maintenance into a reader-dependent wait.  This connection performs
+    no application mutation and intentionally does not use ``db_connect``.
+    """
+    started_at = time.time()
+    started = time.monotonic()
+    wal_path = db_path + "-wal"
+    wal_bytes_before = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path, timeout=0, isolation_level=None)
+        conn.execute("PRAGMA busy_timeout=0")
+        result = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        busy, log_frames, checkpointed_frames = result or (0, 0, 0)
+        status = "busy" if int(busy or 0) else "ok"
+        error = None
+    except Exception as exc:
+        busy, log_frames, checkpointed_frames = None, None, None
+        status = "failed"
+        error = str(exc)
+    finally:
+        if conn is not None:
+            conn.close()
+
+    ended_at = time.time()
+    duration_ms = round((time.monotonic() - started) * 1000.0, 3)
+    wal_bytes_after = os.path.getsize(wal_path) if os.path.exists(wal_path) else 0
+    remaining_frames = (
+        max(0, int(log_frames) - int(checkpointed_frames))
+        if log_frames is not None and checkpointed_frames is not None else None
+    )
+    telemetry = {
+        "event": "wal_checkpoint",
+        "caller": "pumpfun_curve_listener",
+        "reason": "routine",
+        "mode": "PASSIVE",
+        "started_at": started_at,
+        "ended_at": ended_at,
+        "duration_ms": duration_ms,
+        "status": status,
+        "busy": busy,
+        "wal_frames": log_frames,
+        "checkpointed_frames": checkpointed_frames,
+        "remaining_frames": remaining_frames,
+        "wal_bytes_before": wal_bytes_before,
+        "wal_bytes_after": wal_bytes_after,
+        "application_write_lease_held": False,
+        "application_write_lease_max_ms": 0.0,
+    }
+    if error is not None:
+        telemetry["error"] = error
+    log_print(f"[WAL_CHECKPOINT] {json.dumps(telemetry, sort_keys=True)}", flush=True)
+    return telemetry
+
+
+def _start_wal_checkpoint_worker(
+    db_path: str,
+    interval_seconds: int = 300,
+    stop_event: Optional[threading.Event] = None,
+) -> threading.Thread:
+    """
+    Background daemon for non-blocking routine PASSIVE checkpoints.
+
+    Threshold/emergency TRUNCATE ownership remains with db_locking's WAL
+    watchdog; routine maintenance never escalates its own mode.
+    """
+    def _run():
+        stopper = stop_event or threading.Event()
+        while not stopper.wait(interval_seconds):
+            _run_routine_wal_checkpoint(db_path)
+
+    t = threading.Thread(target=_run, daemon=True, name="wal-checkpoint")
+    t.start()
+    log_print(
+        f"[WAL_CHECKPOINT] Daemon started — PASSIVE every {interval_seconds}s; "
+        "heavy checkpoints remain threshold-driven",
+        flush=True,
+    )
+    return t
+
+
+def start_rpc_metrics_api():
+    """Start RPC Metrics API in background subprocess"""
+    import subprocess
+
+    try:
+        # Check if API is already running
+        try:
+            requests.get("http://localhost:8001/health", timeout=2)
+            log_print("[INIT] ✓ RPC Metrics API already running on port 8001", flush=True)
+            return
+        except:
+            pass
+
+        # Start API server
+        log_print("[INIT] 🚀 Starting RPC Metrics API on port 8001...", flush=True)
+        api_process = subprocess.Popen(
+            ["python", "-m", "src.apis.rpc_metrics_api"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True
+        )
+        time.sleep(2)
+
+        # Verify it started
+        try:
+            requests.get("http://localhost:8001/health", timeout=2)
+            log_print("[INIT] ✓ RPC Metrics API started successfully", flush=True)
+        except:
+            log_print("[INIT] ⚠️ RPC Metrics API may not have started properly", flush=True)
+    except Exception as e:
+        log_print(f"[INIT] ⚠️ Could not start RPC Metrics API: {e}", flush=True)
+
+
+if __name__ == "__main__":
+    # Start RPC Metrics API before listener
+    start_rpc_metrics_api()
+
+    # Start WAL checkpoint daemon (every 5 min)
+    _start_wal_checkpoint_worker(DB_PATH, interval_seconds=300)
+
+    # Start listener
+    asyncio.run(main())

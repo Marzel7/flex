@@ -1,0 +1,29 @@
+{
+  "schema_version":"1","contract_id":"three_sw2","contract_version":"1.0.0","lifecycle_status":"SHADOW",
+  "evidence_requirements":[{"fact_family":"TransactionFact","version_constraint":"1","required":false},{"fact_family":"LaunchFact","version_constraint":"1","required":false}],
+  "primitive_requirements":[
+    {"primitive_type":"SYSTEM_TRANSFER","version_constraint":"1","required":true},{"primitive_type":"LAUNCH_SIGNER","version_constraint":"1","required":true},
+    {"primitive_type":"DIRECT_COUNTERPARTY","version_constraint":"1","required":false},{"primitive_type":"WALLET_FRESH_AT_EVENT","version_constraint":"1","required":false},
+    {"primitive_type":"LAUNCH_ACTIVATION","version_constraint":"1","required":false},{"primitive_type":"ECONOMIC_FUNDING","version_constraint":"1","required":false},
+    {"primitive_type":"REPEATED_COUNTERPARTY","version_constraint":"1","required":false},{"primitive_type":"BEHAVIOURAL_TIMING","version_constraint":"1","required":false}
+  ],
+  "behaviour_modules":[
+    {"module_id":"three_sw2_direct_activation","module_version":"1.0.0","required_primitive_types":["SYSTEM_TRANSFER","LAUNCH_ACTIVATION"],"parameters":{}},
+    {"module_id":"three_sw2_creator_freshness","module_version":"1.0.0","required_primitive_types":["WALLET_FRESH_AT_EVENT"],"parameters":{}},
+    {"module_id":"three_sw2_activation_timing","module_version":"1.0.0","required_primitive_types":["BEHAVIOURAL_TIMING"],"parameters":{}},
+    {"module_id":"three_sw2_economic_funding","module_version":"1.0.0","required_primitive_types":["ECONOMIC_FUNDING"],"parameters":{}},
+    {"module_id":"three_sw2_direct_creator_launch","module_version":"1.0.0","required_primitive_types":["LAUNCH_SIGNER"],"parameters":{}},
+    {"module_id":"three_sw2_controller_reuse","module_version":"1.0.0","required_primitive_types":["REPEATED_COUNTERPARTY"],"parameters":{}},
+    {"module_id":"three_sw2_no_intermediate_provisioner","module_version":"1.0.0","required_primitive_types":["SYSTEM_TRANSFER","LAUNCH_SIGNER"],"parameters":{}}
+  ],
+  "topology_contract":{"topology_version":"3.2.0","local_roles":["controller","creator","launch"],"edge_rules":[
+    {"rule_id":"controller_activation","source_role":"controller","destination_role":"creator","primitive_type":"SYSTEM_TRANSFER","cardinality":"ONE_TO_MANY","temporal_constraint":null,"required":true},
+    {"rule_id":"creator_launch","source_role":"creator","destination_role":"launch","primitive_type":"LAUNCH_SIGNER","cardinality":"ONE_TO_ONE","temporal_constraint":null,"required":true}
+  ],"parameters":{"controller_subject":"3SW2zquY2mVTbNuw1ZCGgtoehq2evfU36PFd6TTqSXdK"}},
+  "detector":{"detector_id":"three_sw2_detector","detector_version":"1.0.0","parameters":{"contact_is_identity":false}},
+  "identity_contract":{"mode":"DECLARATIVE","configuration":{"authority":"SHADOW_ONLY","contact_is_identity":false},"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "confidence_model":{"model_type":"DISABLED","configuration":{},"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "governance_policy":{"allowed_recommendations":["NO_AUTOMATIC_GOVERNANCE"],"automatic_execution":false,"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "monitoring_policy":{"evaluation_trigger":"MANUAL","minimum_evidence_state":"ANY","reevaluation_conditions":["NEW_PRIMITIVE"],"staleness_window_seconds":null,"dormancy_window_seconds":259200,"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "presentation_schema":{"schema_version":"3.2.0","role_labels":{"controller":"Controller","creator":"Creator","launch":"Launch"},"topology_labels":{"controller_activation":"Direct activation","creator_launch":"Creator-signed launch"},"evidence_class_labels":{"supporting":"Supporting","contact":"Operational contact","missing":"Unavailable"},"section_order":["identity","behaviour","topology","contact","evidence"],"allowed_actions":[],"display_contract_version":true}
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1",
+  "contract_id": "watchtower",
+  "contract_version": "1.0.0",
+  "lifecycle_status": "SHADOW",
+  "evidence_requirements": [
+    {"fact_family": "TransactionFact", "version_constraint": "1", "required": false},
+    {"fact_family": "LaunchFact", "version_constraint": "1", "required": false}
+  ],
+  "primitive_requirements": [
+    {"primitive_type": "SYSTEM_TRANSFER", "version_constraint": "1", "required": true},
+    {"primitive_type": "LAUNCH_SIGNER", "version_constraint": "1", "required": true},
+    {"primitive_type": "WSOL_CLOSE", "version_constraint": "1", "required": false},
+    {"primitive_type": "DIRECT_COUNTERPARTY", "version_constraint": "1", "required": false},
+    {"primitive_type": "WALLET_FRESH_AT_EVENT", "version_constraint": "1", "required": false},
+    {"primitive_type": "LAUNCH_ACTIVATION", "version_constraint": "1", "required": false},
+    {"primitive_type": "ECONOMIC_FUNDING", "version_constraint": "1", "required": false},
+    {"primitive_type": "REPEATED_COUNTERPARTY", "version_constraint": "1", "required": false},
+    {"primitive_type": "BEHAVIOURAL_TIMING", "version_constraint": "1", "required": false}
+  ],
+  "behaviour_modules": [
+    {"module_id":"watchtower_wrap_close","module_version":"1.0.0","required_primitive_types":["WSOL_CLOSE"],"parameters":{}},
+    {"module_id":"watchtower_creator_freshness","module_version":"1.0.0","required_primitive_types":["WALLET_FRESH_AT_EVENT"],"parameters":{}},
+    {"module_id":"watchtower_funding","module_version":"1.0.0","required_primitive_types":["SYSTEM_TRANSFER","DIRECT_COUNTERPARTY","LAUNCH_ACTIVATION","ECONOMIC_FUNDING"],"parameters":{}},
+    {"module_id":"watchtower_launch_identity","module_version":"1.0.0","required_primitive_types":["LAUNCH_SIGNER"],"parameters":{}},
+    {"module_id":"watchtower_timing","module_version":"1.0.0","required_primitive_types":["BEHAVIOURAL_TIMING"],"parameters":{}},
+    {"module_id":"watchtower_reuse","module_version":"1.0.0","required_primitive_types":["REPEATED_COUNTERPARTY"],"parameters":{}}
+  ],
+  "topology_contract": {"topology_version":"1.0.0","local_roles":["funding_source","funded_wallet"],"edge_rules":[{"rule_id":"directional_funding","source_role":"funding_source","destination_role":"funded_wallet","primitive_type":"SYSTEM_TRANSFER","cardinality":"ONE_TO_MANY","temporal_constraint":null,"required":true}],"parameters":{}},
+  "detector":{"detector_id":"watchtower_detector","detector_version":"1.0.0","parameters":{}},
+  "identity_contract":{"mode":"DECLARATIVE","configuration":{"authority":"SHADOW_ONLY"},"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "confidence_model":{"model_type":"DISABLED","configuration":{},"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "governance_policy":{"allowed_recommendations":["NO_AUTOMATIC_GOVERNANCE"],"automatic_execution":false,"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "monitoring_policy":{"evaluation_trigger":"MANUAL","minimum_evidence_state":"ANY","reevaluation_conditions":["NEW_PRIMITIVE"],"staleness_window_seconds":null,"dormancy_window_seconds":null,"runtime_execution":"LOAD_VALIDATE_ONLY"},
+  "presentation_schema":{"schema_version":"1.0.0","role_labels":{"funding_source":"Funding source","funded_wallet":"Funded wallet"},"topology_labels":{"directional_funding":"Directional funding"},"evidence_class_labels":{"supporting":"Supporting","missing":"Unavailable"},"section_order":["identity","behaviour","topology","evidence"],"allowed_actions":[],"display_contract_version":true}
+}

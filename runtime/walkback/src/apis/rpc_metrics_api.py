@@ -1,0 +1,2415 @@
+"""
+RPC Metrics API - FastAPI endpoints for metrics dashboard.
+
+Provides HTTP endpoints:
+- GET /metrics/rpc - Full metrics summary
+- GET /metrics/rpc/summary - Quick summary only
+- GET /metrics/rpc/sections - Per-section breakdown
+- GET /metrics/rpc/methods - Top methods by credits
+- POST /metrics/rpc/reset - Reset daily counters (admin only)
+"""
+
+from fastapi import FastAPI, HTTPException, Query, Body, BackgroundTasks
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from datetime import datetime
+import json
+from typing import Optional, Dict
+import threading
+import time
+import sqlite3
+import os
+import subprocess
+
+from src.metrics.rpc_metrics_recorder import (
+    get_recorder,
+    initialize_recorder,
+    RPCMetricsRecorder,
+    _get_state,
+)
+
+# Global state for background comparison tests
+comparison_results = {}
+comparison_lock = threading.Lock()
+
+
+# ============================================================================
+# FASTAPI APP
+# ============================================================================
+
+app = FastAPI(
+    title="FLEX RPC Metrics",
+    description="Monitor Helius credit usage by component section",
+    version="1.0.0",
+)
+
+DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
+
+# ============================================================================
+# DATABASE HELPERS FOR CROSS-PROCESS METRICS AGGREGATION
+# ============================================================================
+
+def _query_rpc_metrics_from_db(since_timestamp: Optional[float] = None) -> Dict:
+    """
+    Query RPC metrics from database for all processes.
+
+    Returns aggregated stats from rpc_metrics table.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+
+        # Get summary stats
+        where_clause = ""
+        params = []
+        if since_timestamp:
+            where_clause = "WHERE timestamp > ?"
+            params = [since_timestamp]
+
+        cursor = conn.execute(f"""
+            SELECT
+                COUNT(*) as total_requests,
+                SUM(credits) as total_credits,
+                COUNT(CASE WHEN status_code >= 400 THEN 1 END) as total_errors,
+                COUNT(CASE WHEN status_code = 429 THEN 1 END) as total_429s,
+                MIN(timestamp) as first_timestamp,
+                MAX(timestamp) as last_timestamp
+            FROM rpc_metrics
+            {where_clause}
+        """, params)
+
+        summary = dict(cursor.fetchone() or {})
+
+        # Get by method
+        cursor = conn.execute(f"""
+            SELECT method, COUNT(*) as requests, SUM(credits) as credits
+            FROM rpc_metrics
+            {where_clause}
+            GROUP BY method
+            ORDER BY credits DESC
+        """, params)
+
+        by_method = {row['method']: {'requests': row['requests'], 'credits': row['credits']}
+                     for row in cursor.fetchall()}
+
+        # Get by source file (with detailed stats)
+        cursor = conn.execute(f"""
+            SELECT
+                source_file,
+                COUNT(*) as requests,
+                SUM(credits) as credits,
+                COUNT(CASE WHEN status_code >= 400 THEN 1 END) as errors,
+                COUNT(CASE WHEN status_code = 429 THEN 1 END) as rate_limits_429,
+                AVG(latency_ms) as avg_latency_ms,
+                section
+            FROM rpc_metrics
+            {where_clause}
+            GROUP BY source_file, section
+            ORDER BY source_file, credits DESC
+        """, params)
+
+        # Aggregate by source file with sections breakdown
+        by_source = {}
+        for row in cursor.fetchall():
+            source_file = row['source_file']
+            if source_file not in by_source:
+                by_source[source_file] = {
+                    'requests': 0,
+                    'credits': 0,
+                    'errors': 0,
+                    'rate_limits_429': 0,
+                    'latencies': [],
+                    'sections': {},
+                    'avg_latency_ms': 0,
+                }
+
+            by_source[source_file]['requests'] += row['requests']
+            by_source[source_file]['credits'] += row['credits']
+            by_source[source_file]['errors'] += row['errors']
+            by_source[source_file]['rate_limits_429'] += row['rate_limits_429']
+            by_source[source_file]['latencies'].append(row['avg_latency_ms'] or 0)
+            by_source[source_file]['sections'][row['section']] = row['requests']
+
+        # Calculate final stats for each source file
+        for source_file, stats in by_source.items():
+            if stats['latencies']:
+                stats['avg_latency_ms'] = round(sum(stats['latencies']) / len(stats['latencies']), 2)
+            del stats['latencies']  # Remove temp array
+
+        # Get by section
+        cursor = conn.execute(f"""
+            SELECT section, COUNT(*) as requests, SUM(credits) as credits
+            FROM rpc_metrics
+            {where_clause}
+            GROUP BY section
+            ORDER BY credits DESC
+        """, params)
+
+        by_section = {row['section']: {'requests': row['requests'], 'credits': row['credits']}
+                      for row in cursor.fetchall()}
+
+        conn.close()
+
+        return {
+            "summary": summary,
+            "by_method": by_method,
+            "by_source_file": by_source,
+            "by_section": by_section,
+        }
+    except Exception as e:
+        print(f"[WARNING] Error querying RPC metrics from DB: {e}", flush=True)
+        return {"summary": {}, "by_method": {}, "by_source_file": {}, "by_section": {}}
+
+
+def _get_reset_timestamp_for_dashboard(hours: int) -> float:
+    """Use manual reset timestamp for default dashboard window, otherwise rolling hours."""
+    if hours == 24:
+        reset_ts = _get_state("comparison_reset_timestamp")
+        if reset_ts:
+            try:
+                return float(reset_ts)
+            except (ValueError, TypeError):
+                pass
+    return time.time() - (hours * 3600)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize recorder on startup (with 10M credits/month plan)"""
+    # Using Helius tier: 10M credits/month
+    initialize_recorder(plan_monthly_credits=10_000_000)
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint"""
+    return {"status": "ok"}
+
+
+@app.get("/metrics/rpc")
+async def metrics_full():
+    """
+    Full metrics endpoint with summary, sections, top methods, and alerts.
+    Returns everything needed for the dashboard.
+    """
+    recorder = get_recorder()
+
+    # Try to get latest Helius snapshot for display
+    helius_snapshot = None
+    try:
+        from src.monitoring.helius_cli_monitor import get_latest_snapshot
+        helius_snapshot = get_latest_snapshot()
+    except:
+        pass
+
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "summary": recorder.get_summary(),
+        "sections": recorder.get_section_stats(),
+        "top_methods": recorder.get_top_methods(limit=10),
+        "alerts": recorder.get_alerts(burn_rate_threshold=100.0),
+        "helius_snapshot": helius_snapshot,
+    }
+
+
+@app.get("/metrics/rpc/summary")
+async def metrics_summary():
+    """Quick summary only (low bandwidth)"""
+    recorder = get_recorder()
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "summary": recorder.get_summary(),
+    }
+
+
+@app.get("/metrics/rpc/sections")
+async def metrics_sections():
+    """Per-section breakdown"""
+    recorder = get_recorder()
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "sections": recorder.get_section_stats(),
+    }
+
+
+@app.get("/metrics/rpc/source-files")
+async def metrics_source_files():
+    """Per-source-file breakdown (which files/processes are making RPC calls)"""
+    recorder = get_recorder()
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "source_files": recorder.get_source_file_stats(),
+    }
+
+
+@app.get("/metrics/rpc/methods")
+async def metrics_methods(limit: int = Query(10, ge=1, le=50)):
+    """Top methods by credits"""
+    recorder = get_recorder()
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "top_methods": recorder.get_top_methods(limit=limit),
+    }
+
+
+@app.get("/metrics/rpc/database")
+async def metrics_database(since_hours: int = Query(24, ge=1, le=720)):
+    """
+    Get RPC metrics aggregated from database (cross-process).
+
+    This shows metrics from ALL processes combined (listener, extractors, etc).
+    Unlike in-memory metrics, this persists across process restarts.
+
+    Args:
+        since_hours: Only include metrics from last N hours
+    """
+    since_timestamp = time.time() - (since_hours * 3600)
+    db_metrics = _query_rpc_metrics_from_db(since_timestamp)
+
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "query_window_hours": since_hours,
+        "database_metrics": db_metrics,
+        "note": "Aggregated from rpc_metrics table (all processes)",
+    }
+
+
+@app.get("/metrics/rpc/untracked")
+async def metrics_untracked():
+    """
+    Compare Helius actual charges vs what we're tracking locally.
+
+    This endpoint helps identify which RPC calls are NOT being instrumented.
+    Large discrepancies indicate untracked processes or RPC calls.
+    """
+    try:
+        from src.monitoring.helius_cli_monitor import get_latest_snapshot
+
+        # Get Helius actual usage
+        helius_snapshot = get_latest_snapshot()
+        helius_credits = helius_snapshot.get("credits_used", 0) if helius_snapshot else 0
+
+        # Get instrumented metrics from database
+        db_metrics = _query_rpc_metrics_from_db()
+        instrumented_summary = db_metrics.get("summary", {})
+        instrumented_credits = instrumented_summary.get("total_credits", 0)
+
+        untracked_credits = max(0, helius_credits - instrumented_credits)
+        tracked_percentage = (instrumented_credits / helius_credits * 100) if helius_credits > 0 else 0
+
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "summary": {
+                "helius_total": helius_credits,
+                "tracked_locally": instrumented_credits,
+                "untracked": untracked_credits,
+                "tracking_coverage_percent": round(tracked_percentage, 2),
+            },
+            "tracked_calls": db_metrics.get("by_method", {}),
+            "tracked_by_source": db_metrics.get("by_source_file", {}),
+            "tracked_by_section": db_metrics.get("by_section", {}),
+            "recommendations": [
+                "✓ Good: Creator outgoing extractor is fully tracked",
+                "? Unknown: Check listener for untracked RPC calls",
+                "? Unknown: Check other background processes",
+                "? Action: Add record_request() calls to untracked RPC methods",
+            ] if tracked_percentage < 50 else [],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not analyze untracked metrics: {str(e)}")
+
+
+@app.get("/metrics/rpc/alerts")
+async def metrics_alerts(
+    burn_rate_threshold: float = Query(100.0, ge=1.0, le=10000.0)
+):
+    """Get active alerts"""
+    recorder = get_recorder()
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "alerts": recorder.get_alerts(burn_rate_threshold=burn_rate_threshold),
+    }
+
+
+@app.post("/metrics/rpc/record")
+async def record_metric(data: dict):
+    """Record a single RPC metric (called by instrumented code in other processes)"""
+    recorder = get_recorder()
+    credits = recorder.record_request(
+        section=data.get("section", "unknown"),
+        provider=data.get("provider", "unknown"),
+        method=data.get("method", "unknown"),
+        status_code=data.get("status_code", 0),
+        latency_ms=data.get("latency_ms", 0),
+        mode=data.get("mode", "realtime"),
+        retries=data.get("retries", 0),
+        bytes_in=data.get("bytes_in", 0),
+        bytes_out=data.get("bytes_out", 0),
+        source_file=data.get("source_file", "unknown"),
+        error=data.get("error"),
+    )
+    return {"credits": credits, "status": "recorded"}
+
+
+@app.post("/metrics/rpc/reset")
+async def metrics_reset(request: dict = Body(None)):
+    """Reset all RPC instrumentation metrics to 0, and set webhook baseline for delta tracking"""
+    # Reset is available for local/trusted access
+    # In production, add authentication if exposed to untrusted networks
+    try:
+        # Reset RPC metrics (this sets everything to 0, starting fresh)
+        recorder = get_recorder()
+        recorder.reset_daily()
+        recorder.reset_credits_today()
+        
+        # ALSO capture current Helius webhook credits as baseline for delta tracking
+        # This allows webhook metrics to show "amount since reset" not total
+        baseline_webhook_credits = 0
+        try:
+            result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10, env=os.environ.copy())
+            if result.returncode == 0:
+                helius_data = json.loads(result.stdout).get("creditsUsage", {})
+                baseline_webhook_credits = helius_data.get("webhookUsage", 0)
+        except Exception as e:
+            print(f"[RESET] Error getting Helius baseline: {e}", flush=True)
+        
+        # Set webhook baseline in a separate table (NOT in rpc_metrics to avoid counting as RPC credits)
+        try:
+            conn = sqlite3.connect(DB_PATH, timeout=30)
+            cur = conn.cursor()
+            
+            # Create webhook_baseline table if it doesn't exist
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS webhook_baseline (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    credits INTEGER NOT NULL
+                )
+            """)
+            
+            # Clear old baselines and set new one
+            cur.execute("DELETE FROM webhook_baseline")
+            cur.execute("INSERT INTO webhook_baseline (credits) VALUES (?)", (baseline_webhook_credits,))
+            
+            conn.commit()
+            conn.close()
+            
+            print(f"[RESET] Webhook baseline set to {baseline_webhook_credits}", flush=True)
+        except Exception as e:
+            print(f"[RESET] Error setting webhook baseline: {e}", flush=True)
+        
+        return {
+            "success": True,
+            "status": "success",
+            "message": "RPC monitoring session reset to 0. Webhook baseline captured for delta tracking.",
+            "reset_at": recorder._comparison_reset_time.isoformat(),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
+
+
+
+@app.post("/metrics/rpc/reset-comparison-baseline")
+async def reset_comparison_baseline():
+    """Reset comparison baseline so Helius and local metrics both start from 0"""
+    try:
+        recorder = get_recorder()
+        recorder.reset_comparison_baseline()
+        
+        summary = recorder.get_summary()
+        return {
+            "status": "success",
+            "message": "Comparison baseline reset",
+            "helius_credits_baseline": summary.get("helius_credits_today_raw", 0),
+            "local_credits_baseline": summary.get("local_credits_today_raw", 0),
+            "reset_at": summary.get("comparison_reset_at"),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Comparison reset failed: {str(e)}")
+
+def run_comparison_background(test_id: str, duration_seconds: int):
+    """Run comparison test in background thread
+    
+    Captures explicit Helius snapshots BEFORE and AFTER the test window
+    to ensure accurate delta measurement.
+    
+    Also tracks RPC method calls during test and waits for Helius to update.
+    """
+    DB_PATH = os.environ.get('DB_PATH', os.getenv('RPC_METRICS_DB', 'flex_complete_database.db'))
+
+    def _connect():
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.execute("PRAGMA busy_timeout=30000")
+        return conn
+
+    def get_latest_helius_snapshot():
+        """Get the latest Helius snapshot from database"""
+        conn = _connect()
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+                SELECT
+                  credits_remaining,
+                  credits_used,
+                  credits_used_month,
+                  prepaid_credits_used,
+                  overage_credits_used,
+                  overage_cost,
+                  timestamp
+                FROM helius_usage_snapshots
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """)
+            row = cur.fetchone()
+            if row:
+                return dict(row)
+            return None
+        finally:
+            conn.close()
+
+    def get_rpc_methods_during_test(start_time: float, end_time: float):
+        """Get unique RPC methods called during test window"""
+        conn = _connect()
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+                SELECT DISTINCT method, COUNT(*) as count, SUM(credits) as total_credits
+                FROM rpc_metrics
+                WHERE timestamp >= ? AND timestamp <= ?
+                GROUP BY method
+                ORDER BY total_credits DESC
+            """, (start_time, end_time))
+            rows = cur.fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
+    def trigger_helius_snapshot():
+        """Trigger a fresh Helius CLI snapshot capture"""
+        try:
+            import subprocess
+            subprocess.run(
+                ["python", "helius_cli_monitor.py"],
+                capture_output=True,
+                timeout=15
+            )
+            print(f"[COMPARISON] Triggered Helius snapshot capture", flush=True)
+        except Exception as e:
+            print(f"[COMPARISON] Warning: Could not trigger Helius snapshot: {str(e)[:100]}", flush=True)
+
+    try:
+        # BEFORE TEST: Trigger fresh Helius snapshot
+        print(f"[COMPARISON] Capturing BEFORE snapshot...", flush=True)
+        trigger_helius_snapshot()
+        time.sleep(2)  # Brief pause for snapshot to complete
+
+        # Get initial state from DATABASE (cross-process accurate)
+        # Query total credits from rpc_metrics table for today
+        def get_daily_credits_from_db():
+            """Get sum of credits from database for today"""
+            conn = _connect()
+            try:
+                cur = conn.cursor()
+                # Get midnight timestamp for today (use datetime format that SQLite understands)
+                today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%d 00:00:00')
+                cur.execute("""
+                    SELECT COALESCE(SUM(credits), 0) as total_credits
+                    FROM rpc_metrics
+                    WHERE recorded_at >= ?
+                """, (today_midnight,))
+                row = cur.fetchone()
+                return row[0] if row else 0
+            finally:
+                conn.close()
+
+        local_start = get_daily_credits_from_db()
+        test_start_time = time.time()
+        print(f"[COMPARISON] Initial local baseline: {local_start} credits (from database)", flush=True)
+
+        # Get BEFORE Helius snapshot (freshly captured)
+        helius_snapshot_before = get_latest_helius_snapshot()
+        helius_start = helius_snapshot_before.get('credits_used', 0) if helius_snapshot_before else 0
+        helius_timestamp_before = helius_snapshot_before.get('timestamp', 'unknown') if helius_snapshot_before else 'unknown'
+        print(f"[COMPARISON] BEFORE Helius snapshot: {helius_start} credits at {helius_timestamp_before}", flush=True)
+
+        # Run comparison loop
+        start_time = time.time()
+        measurements = []
+        local_delta = 0
+        helius_delta = 0
+        diff = 0
+        diff_pct = 0
+        status = "CLEAN"
+        last_helius_value = helius_start
+
+        while True:
+            elapsed = int(time.time() - start_time)
+
+            if elapsed > duration_seconds:
+                print(f"[COMPARISON] Test duration reached ({elapsed}s), stopping", flush=True)
+                break
+
+            # Fetch current LOCAL metrics (from database for cross-process accuracy)
+            try:
+                local_total = get_daily_credits_from_db()
+            except:
+                local_total = local_start
+
+            # Fetch current HELIUS metrics from DB (updates every 30s from CLI monitor)
+            try:
+                helius_snapshot = get_latest_helius_snapshot()
+                current_helius = helius_snapshot.get('credits_used', 0) if helius_snapshot else helius_start
+                
+                # Track if Helius updated
+                if current_helius > last_helius_value:
+                    print(f"[COMPARISON] @{elapsed}s: Helius updated to {current_helius} (was {last_helius_value})", flush=True)
+                    last_helius_value = current_helius
+                helius_end = current_helius
+            except Exception as e:
+                print(f"[COMPARISON] Error reading Helius snapshot: {str(e)}", flush=True)
+                helius_end = helius_start
+
+            # Calculate deltas (using latest known values)
+            local_delta = max(0, local_total - local_start)
+            helius_delta = max(0, helius_end - helius_start)
+
+            # Calculate comparison
+            diff = abs(local_delta - helius_delta)
+            diff_pct = (diff / max(helius_delta, 1) * 100) if helius_delta > 0 else 0
+
+            status = "CLEAN" if diff_pct <= 2 else "MINOR" if diff_pct <= 5 else "DRIFT"
+
+            measurements.append({
+                "elapsed": elapsed,
+                "local_credits": local_delta,
+                "helius_credits": helius_delta,
+                "difference": diff,
+                "difference_pct": round(diff_pct, 1) if helius_delta > 0 else 0,
+                "status": status
+            })
+
+            # Update results immediately (for live polling)
+            with comparison_lock:
+                comparison_results[test_id] = {
+                    "status": "running",
+                    "duration": elapsed,
+                    "updates": len(measurements),
+                    "summary": {
+                        "local_credits_used": local_delta,
+                        "helius_credits_used": helius_delta,
+                        "difference": diff,
+                        "difference_pct": round(diff_pct, 1),
+                        "status": status
+                    },
+                    "measurements": measurements[-5:],  # Last 5
+                    "notes": ["Test running...", "Local: Per-request instrumentation", "Helius: Account-level billing (explicit snapshots)"]
+                }
+
+            time.sleep(5)  # Update every 5 seconds
+
+        test_end_time = time.time()
+
+        # WAIT FOR HELIUS TO UPDATE (up to 50 seconds)
+        print(f"[COMPARISON] Test complete, waiting for Helius to update...", flush=True)
+        helius_updated = False
+        wait_start = time.time()
+        max_wait = 50  # Wait up to 50 seconds for Helius to update
+
+        while time.time() - wait_start < max_wait:
+            helius_snapshot = get_latest_helius_snapshot()
+            current_helius = helius_snapshot.get('credits_used', 0) if helius_snapshot else helius_start
+            
+            if current_helius > last_helius_value:
+                print(f"[COMPARISON] Helius updated! New value: {current_helius}", flush=True)
+                helius_updated = True
+                helius_end = current_helius
+                break
+            
+            wait_time = int(time.time() - wait_start)
+            print(f"[COMPARISON] Waiting for Helius ({wait_time}s)... Currently: {current_helius}", flush=True)
+            
+            # Update UI with waiting status
+            with comparison_lock:
+                comparison_results[test_id] = {
+                    "status": "waiting_for_helius",
+                    "duration": duration_seconds,
+                    "wait_time": wait_time,
+                    "updates": len(measurements),
+                    "summary": {
+                        "local_credits_used": local_delta,
+                        "helius_credits_used": helius_delta,
+                        "difference": diff,
+                        "difference_pct": round(diff_pct, 1),
+                        "status": status
+                    },
+                    "measurements": measurements[-5:],
+                    "notes": [f"Waiting for Helius to update ({wait_time}s)...", "Local: Per-request instrumentation", "Helius: Account-level billing (explicit snapshots)"]
+                }
+            
+            time.sleep(5)
+
+        # Capture final Helius snapshot
+        print(f"[COMPARISON] Capturing AFTER snapshot...", flush=True)
+        trigger_helius_snapshot()
+        time.sleep(2)  # Brief pause for snapshot to complete
+
+        # Get AFTER Helius snapshot (freshly captured)
+        helius_snapshot_after = get_latest_helius_snapshot()
+        helius_end_final = helius_snapshot_after.get('credits_used', 0) if helius_snapshot_after else helius_end
+        helius_timestamp_after = helius_snapshot_after.get('timestamp', 'unknown') if helius_snapshot_after else 'unknown'
+        print(f"[COMPARISON] AFTER Helius snapshot: {helius_end_final} credits at {helius_timestamp_after}", flush=True)
+
+        # Get RPC methods called during test
+        rpc_methods = get_rpc_methods_during_test(test_start_time, test_end_time)
+        print(f"[COMPARISON] RPC methods called: {len(rpc_methods)}", flush=True)
+
+        # Recalculate final deltas using explicit before/after snapshots
+        local_delta = max(0, local_total - local_start)
+        helius_delta = max(0, helius_end_final - helius_start)
+        diff = abs(local_delta - helius_delta)
+        diff_pct = (diff / max(helius_delta, 1) * 100) if helius_delta > 0 else 0
+        status = "CLEAN" if diff_pct <= 2 else "MINOR" if diff_pct <= 5 else "DRIFT"
+
+        print(f"[COMPARISON] FINAL DELTA: Local={local_delta}, Helius={helius_delta}, Diff={diff} ({diff_pct:.1f}%)", flush=True)
+
+        # Store final results
+        with comparison_lock:
+            comparison_results[test_id] = {
+                "status": "complete",
+                "duration": elapsed,
+                "updates": len(measurements),
+                "summary": {
+                    "local_credits_used": local_delta,
+                    "helius_credits_used": helius_delta,
+                    "difference": diff,
+                    "difference_pct": round(diff_pct, 1),
+                    "status": status
+                },
+                "measurements": measurements[-5:],  # Last 5
+                "rpc_methods": rpc_methods,  # RPC methods called during test
+                "snapshots": {
+                    "before": {
+                        "timestamp": helius_timestamp_before,
+                        "credits_used": helius_start
+                    },
+                    "after": {
+                        "timestamp": helius_timestamp_after,
+                        "credits_used": helius_end_final
+                    }
+                },
+                "notes": ["Test completed with explicit before/after snapshots", "Local: Per-request instrumentation", "Helius: Account-level billing (explicit snapshots)"]
+            }
+    except Exception as e:
+        print(f"[COMPARISON] Error in background test: {str(e)}", flush=True)
+        with comparison_lock:
+            comparison_results[test_id] = {
+                "status": "error",
+                "error": str(e)
+            }
+
+
+@app.post("/metrics/rpc/comparison")
+async def run_rpc_comparison(duration_seconds: int = Query(60), test_id: Optional[str] = Query(None)):
+    """
+    Start or check status of a 1-minute comparison test.
+
+    If test_id is provided, returns status/results of that test.
+    If test_id is not provided, starts a new test and returns the test_id for polling.
+
+    Args:
+        duration_seconds: How long to run the test (default 60 = 1 minute)
+        test_id: Test ID to check status (if None, starts new test)
+
+    Returns:
+        New test: {test_id, status: "running"}
+        Status check: {status: "running"|"complete"|"error", ...results}
+    """
+    import uuid
+
+    if test_id:
+        # Check existing test status
+        with comparison_lock:
+            if test_id in comparison_results:
+                return comparison_results[test_id]
+            else:
+                return {"status": "not_found"}
+
+    # Start new background test
+    new_test_id = str(uuid.uuid4())[:8]
+
+    # Start background thread
+    thread = threading.Thread(
+        target=run_comparison_background,
+        args=(new_test_id, duration_seconds),
+        daemon=True
+    )
+    thread.start()
+
+    with comparison_lock:
+        comparison_results[new_test_id] = {"status": "running"}
+
+    return {
+        "test_id": new_test_id,
+        "status": "running",
+        "message": "Test started, poll with test_id to get results",
+        "duration_seconds": duration_seconds
+    }
+
+
+@app.get("/metrics/rpc/scan-cost")
+async def scan_cost_estimate():
+    """
+    Get estimated credits for a complete creator_outgoing_extractor scan cycle.
+
+    Returns breakdown of:
+    - RPC calls (getSignaturesForAddress)
+    - Enhanced transaction parsing calls
+    - Total estimated credits
+    - Estimated duration with rate limiting
+    """
+    try:
+        from creator_outgoing_extractor import calculate_scan_cost_estimate
+        cost = calculate_scan_cost_estimate()
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "scan_cost_estimate": cost,
+            "configuration": {
+                "total_creators": 1000,
+                "pages_per_creator": 2,
+                "requests_per_second": 8.0,
+                "concurrency": 3,
+                "max_retries": 3,
+            },
+            "notes": [
+                "Estimate based on MAX_PAGES_PER_CYCLE=2 per creator",
+                "Rate limited to 8 req/sec (smooth, prevents 429s)",
+                "Enhanced calls assume 25 sigs per page, 100 sigs per batch",
+                "Actual cost may vary based on retry count and data volume",
+                "One scan cycle runs every 12 hours",
+                "Two cycles per day = covers all 1,453 creators",
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not calculate scan cost: {str(e)}")
+
+
+@app.get("/metrics/helius")
+async def helius_account_status():
+    """
+    Get Helius account status with full comparison
+
+    Returns:
+    - Account usage (credits used, remaining, budget) from Helius CLI
+    - Instrumented metrics (our RPC tracking from database)
+    - Comparison and discrepancy analysis
+    - Alerts if usage is high
+    """
+    try:
+        from src.monitoring.helius_cli_monitor import get_latest_snapshot
+
+        # Get Helius actual usage
+        helius_snapshot = get_latest_snapshot()
+        if not helius_snapshot:
+            return {
+                "status": "error",
+                "message": "Could not fetch Helius account status",
+                "timestamp": datetime.now().isoformat(),
+            }
+
+        # Get instrumented metrics from database (all processes)
+        db_metrics = _query_rpc_metrics_from_db()
+        instrumented_summary = db_metrics.get("summary", {})
+        instrumented_credits = instrumented_summary.get("total_credits", 0)
+        instrumented_requests = instrumented_summary.get("total_requests", 0)
+
+        # Get Helius usage
+        helius_credits = helius_snapshot.get("credits_used", 0)
+        helius_remaining = helius_snapshot.get("credits_remaining", 0)
+
+        # Calculate discrepancy
+        difference = helius_credits - instrumented_credits
+        percent_diff = (difference / helius_credits * 100) if helius_credits > 0 else 0
+
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "helius_account": {
+                "credits_used": helius_credits,
+                "credits_remaining": helius_remaining,
+                "rpc_usage": helius_snapshot.get("rpc_usage", 0),
+            },
+            "instrumented_metrics": {
+                "credits_used": instrumented_credits,
+                "requests": instrumented_requests,
+                "by_method": db_metrics.get("by_method", {}),
+                "by_source_file": db_metrics.get("by_source_file", {}),
+                "by_section": db_metrics.get("by_section", {}),
+            },
+            "comparison": {
+                "helius_used": helius_credits,
+                "instrumented_used": instrumented_credits,
+                "difference": difference,
+                "percent_difference": round(percent_diff, 2),
+                "note": "Helius is source of truth. Difference may be due to other processes, retries, or failed requests."
+            },
+            "source": "database",  # Using persistent rpc_metrics table
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Could not fetch Helius status: {str(e)}")
+
+
+@app.post("/metrics/helius/capture")
+async def capture_helius_snapshot():
+    """
+    Capture Helius usage snapshot via CLI tool.
+
+    Requires:
+    - helius-cli installed (npm install -g helius-cli)
+    - helius login already run with your keypair
+
+    Returns: Latest snapshot from CLI
+    """
+    try:
+        from src.monitoring.helius_cli_monitor import get_helius_usage_cli, record_usage_snapshot
+
+        usage = get_helius_usage_cli()
+        if not usage:
+            raise HTTPException(
+                status_code=503,
+                detail="Could not capture usage from Helius CLI. Ensure helius-cli is installed and authenticated.",
+            )
+
+        record_usage_snapshot(usage)
+        return {
+            "status": "success",
+            "message": "Helius usage snapshot captured",
+            "snapshot": {
+                "credits_remaining": usage.get("credits_remaining"),
+                "credits_used": usage.get("credits_used"),
+                "credits_used_month": usage.get("credits_used_month"),
+                "prepaid_credits_used": usage.get("prepaid_credits_used"),
+                "overage_credits_used": usage.get("overage_credits_used"),
+                "overage_cost": usage.get("overage_cost"),
+                "webhook_usage": usage.get("webhook_usage"),
+                "api_usage": usage.get("api_usage"),
+                "rpc_usage": usage.get("rpc_usage"),
+                "rpc_gpa_usage": usage.get("rpc_gpa_usage"),
+                "timestamp": usage.get("timestamp"),
+            },
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Capture failed: {str(e)}")
+
+
+@app.get("/metrics/helius/snapshots")
+async def get_helius_snapshots(limit: int = Query(20, ge=1, le=100)):
+    """
+    Get recent Helius usage snapshots from database.
+
+    Returns the last N snapshots in reverse chronological order.
+    """
+    try:
+        from src.monitoring.helius_cli_monitor import get_snapshot_history
+
+        snapshots = get_snapshot_history(limit=limit)
+        return {
+            "status": "success",
+            "count": len(snapshots),
+            "snapshots": snapshots,
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not fetch snapshots: {str(e)}"
+        )
+
+
+@app.get("/metrics/rpc/optimizations")
+async def metrics_rpc_optimizations(hours: int = Query(24, ge=1, le=720)):
+    """
+    Get RPC optimization layer statistics and KPI summary.
+    
+    Returns:
+    - KPI fields: actual_credits, saved_credits, estimated_without_optimizations, savings_pct
+    - Breakdown: by_optimization_layer dict with layer stats
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        
+        # Calculate timestamp threshold
+        since_timestamp = _get_reset_timestamp_for_dashboard(hours)
+
+        # Get summary stats: total credits spent + total credits saved
+        cursor = conn.execute("""
+            SELECT
+                SUM(credits) as total_actual_credits,
+                SUM(credits_saved) as total_credits_saved,
+                COUNT(*) as total_requests
+            FROM rpc_metrics
+            WHERE timestamp > ?
+        """, [since_timestamp])
+        
+        summary = dict(cursor.fetchone() or {})
+        actual_credits = summary.get('total_actual_credits') or 0
+        saved_credits = summary.get('total_credits_saved') or 0
+        
+        # Calculate estimated (actual + saved)
+        estimated = actual_credits + saved_credits
+        
+        # Calculate savings percentage
+        savings_pct = 0.0
+        if estimated > 0:
+            savings_pct = (saved_credits / estimated) * 100
+        
+        # Get optimization layer breakdown
+        cursor = conn.execute("""
+            SELECT
+                optimization_layer,
+                COUNT(*) as skip_count,
+                SUM(credits_saved) as credits_saved,
+                SUM(credits) as total_credits
+            FROM rpc_metrics
+            WHERE timestamp > ?
+              AND optimization_layer != 'none'
+              AND credits_saved > 0
+            GROUP BY optimization_layer
+            ORDER BY credits_saved DESC
+        """, [since_timestamp])
+        
+        by_optimization_layer = {}
+        
+        for row in cursor.fetchall():
+            layer = row['optimization_layer']
+            saved = row['credits_saved'] or 0
+            by_optimization_layer[layer] = {
+                'skip_count': row['skip_count'],
+                'credits_saved': saved,
+                'total_credits': row['total_credits'] or 0,
+            }
+        
+        conn.close()
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "hours": hours,
+            # KPI fields
+            "actual_credits": actual_credits,
+            "saved_credits": saved_credits,
+            "estimated_without_optimizations": estimated,
+            "savings_pct": savings_pct,
+            # Breakdown
+            "by_optimization_layer": by_optimization_layer,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching optimizations: {str(e)}")
+
+
+@app.get("/metrics/rpc/component-breakdown")
+async def metrics_rpc_component_breakdown(hours: int = Query(24, ge=1, le=720)):
+    """
+    Get RPC component (process/source file) breakdown.
+    
+    Returns credits usage by component (process/extractor) for the last N hours.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        conn.row_factory = sqlite3.Row
+        
+        # Calculate timestamp threshold
+        since_timestamp = _get_reset_timestamp_for_dashboard(hours)
+
+        # Map source files to component names
+        component_map = {
+            'pumpfun_curve_listener': 'Token Launch Listener',
+            'realtime_creator_funding_extractor': 'Creator Funding Extractor',
+            'funder_incoming_extractor': 'Funder Incoming Extractor',
+            'creator_outgoing_extractor': 'Creator Outgoing Extractor',
+            'creator_watch_manager': 'Creator Watch Manager',
+            'cross_funding_network_analyzer': 'Cross-Funding Analyzer',
+            'cluster_risk_checker': 'Cluster Risk Checker',
+            'ui_api': 'UI API',
+            'unknown': 'Unknown',
+        }
+        
+        # Get component breakdown by source file
+        cursor = conn.execute("""
+            SELECT
+                source_file,
+                COUNT(*) as requests,
+                SUM(credits) as credits,
+                SUM(credits_saved) as credits_saved
+            FROM rpc_metrics
+            WHERE timestamp > ?
+            GROUP BY source_file
+            ORDER BY credits DESC
+        """, [since_timestamp])
+        
+        components = {}
+        
+        for row in cursor.fetchall():
+            source_file = row['source_file'] or 'unknown'
+            component_name = component_map.get(source_file, source_file.replace('.py', '').replace('_', ' ').title())
+            
+            components[component_name] = {
+                'requests': row['requests'],
+                'credits': row['credits'] or 0,
+                'credits_saved': row['credits_saved'] or 0,
+            }
+        
+        conn.close()
+        
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "hours": hours,
+            "components": components,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching component breakdown: {str(e)}")
+
+
+@app.get("/dashboard")
+async def dashboard():
+    """Serve minimal HTML dashboard"""
+    return HTMLResponse(DASHBOARD_HTML)
+
+
+# ============================================================================
+# DASHBOARD HTML
+# ============================================================================
+
+DASHBOARD_HTML = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLEX RPC Metrics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+            color: #e2e8f0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 5px;
+        }
+
+        .card .unit {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .card.alert {
+            border-color: #f59e0b;
+        }
+
+        .card.alert .value {
+            color: #f59e0b;
+        }
+
+        .card.critical {
+            border-color: #ef4444;
+        }
+
+        .card.critical .value {
+            color: #ef4444;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #334155;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .method-cell {
+            font-family: "Courier New", monospace;
+            color: #60a5fa;
+        }
+
+        .alert-item {
+            padding: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 4px;
+        }
+
+        .alert-item.critical {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .alert-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #f59e0b;
+            margin-bottom: 5px;
+        }
+
+        .alert-item.critical .alert-label {
+            color: #ef4444;
+        }
+
+        .refresh-status {
+            text-align: center;
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .reset-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .reset-confirm {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 41, 59, 0.95);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 30px;
+            z-index: 1000;
+            max-width: 400px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .reset-confirm h3 {
+            color: #ef4444;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .reset-confirm p {
+            color: #cbd5e1;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .reset-confirm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .reset-confirm-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .reset-confirm-btn.confirm {
+            background: #ef4444;
+            color: white;
+        }
+
+        .reset-confirm-btn.confirm:hover {
+            background: #dc2626;
+        }
+
+        .reset-confirm-btn.cancel {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .reset-confirm-btn.cancel:hover {
+            background: #475569;
+        }
+
+        .reset-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .reset-overlay.show {
+            display: block;
+        }
+
+        .reset-status {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .reset-status.show {
+            display: block;
+        }
+
+        .reset-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+
+        .reset-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-controls">
+                <div>
+                    <h1>🚀 FLEX RPC Metrics Dashboard</h1>
+                    <p>Real-time Helius credit usage tracking by component</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); box-shadow: 0 4px 6px rgba(6, 182, 212, 0.3);" id="refreshBtn" onclick="refreshHelius()">💎 Refresh Helius</button>
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%); box-shadow: 0 4px 6px rgba(167, 139, 250, 0.3);" onclick="showComparisonModal()">📊 Local vs Helius</button>
+                    <button class="reset-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);" onclick="runLiveComparison()">🔬 Run Live Test (1 min)</button>
+                    <button class="reset-btn" onclick="showResetConfirm()">🔄 Reset Metrics</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="resetStatus" class="reset-status"></div>
+
+        <div id="content" class="loading">Loading metrics...</div>
+    </div>
+
+    <div id="resetOverlay" class="reset-overlay" onclick="hideResetConfirm()"></div>
+    <div id="resetConfirm" class="reset-confirm" style="display: none;">
+        <h3>⚠️ Reset Metrics?</h3>
+        <p>This will reset all metrics to 0 except for Helius credit baseline information. This action cannot be undone.</p>
+        <div class="reset-confirm-buttons">
+            <button class="reset-confirm-btn cancel" onclick="hideResetConfirm()">Cancel</button>
+            <button class="reset-confirm-btn confirm" onclick="confirmReset()">Reset All</button>
+        </div>
+    </div>
+
+    <div id="comparisonOverlay" class="reset-overlay" onclick="hideComparisonModal()"></div>
+    <div id="comparisonModal" class="reset-confirm" style="display: none; max-width: 900px; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>📊 Local vs Helius Comparison</h3>
+            <button style="background: none; border: none; color: #e2e8f0; font-size: 24px; cursor: pointer;" onclick="hideComparisonModal()">✕</button>
+        </div>
+        <div id="comparisonContent" style="color: #cbd5e1;">
+            <p>Loading comparison data...</p>
+        </div>
+    </div>
+
+    <div id="testResultsOverlay" class="reset-overlay" onclick="hideTestResults()"></div>
+    <div id="testResultsModal" class="reset-confirm" style="display: none; max-width: 900px; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3>🔬 Live Test Results</h3>
+            <button style="background: none; border: none; color: #e2e8f0; font-size: 24px; cursor: pointer;" onclick="hideTestResults()">✕</button>
+        </div>
+        <div id="testResultsContent" style="color: #cbd5e1;">
+            <p>Running test...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "/metrics/rpc";
+        const REFRESH_INTERVAL = 5000; // 5 seconds
+
+        async function fetchMetrics() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+
+                // Also fetch database metrics (cross-process)
+                const dbResponse = await fetch("/metrics/rpc/database?since_hours=24");
+                const dbData = await dbResponse.json();
+
+                // Also fetch source file stats
+                const sourceResponse = await fetch("/metrics/rpc/source-files");
+                const sourceData = await sourceResponse.json();
+                data.source_files = sourceData.source_files;
+
+                // Merge database metrics into display
+                if (dbData.database_metrics && dbData.database_metrics.by_section) {
+                    data.sections = dbData.database_metrics.by_section;
+                }
+                if (dbData.database_metrics && dbData.database_metrics.by_source_file) {
+                    data.source_files = dbData.database_metrics.by_source_file;
+                }
+                if (dbData.database_metrics && dbData.database_metrics.summary) {
+                    // Update summary with database totals
+                    data.summary.requests_total = dbData.database_metrics.summary.total_requests || 0;
+                    data.summary.credits_total = dbData.database_metrics.summary.total_credits || 0;
+                    data.summary.errors_total = dbData.database_metrics.summary.total_errors || 0;
+                    data.summary.sections_active = Object.keys(data.sections || {}).length;
+                }
+
+                renderDashboard(data);
+            } catch (error) {
+                console.error("Dashboard error:", error);
+                document.getElementById("content").innerHTML = `<p style="color: #ef4444;">Error loading metrics: ${error.message} (${error.name})</p><pre style="color: #cbd5e1; font-size: 10px;">${error.stack || ''}</pre>`;
+            }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat("en-US").format(Math.round(num));
+        }
+
+        function formatPercent(num) {
+            return num.toFixed(1) + "%";
+        }
+
+        function renderDashboard(data) {
+            const summary = data.summary || {};
+            const sections = data.sections || {};
+            const sourceFiles = data.source_files || {};
+            const topMethods = data.top_methods || [];
+            const alerts = data.alerts || [];
+            const heliusSnapshot = data.helius_snapshot || {};
+
+            let html = "";
+
+            // Summary cards
+            const creditsUsedSinceReset = summary.credits_instrumented_today || summary.credits_total || 0;
+            const creditsUsedAlert = creditsUsedSinceReset > 100000 ? 'alert' : '';
+
+            // Calculate burn rate if not provided
+            const burnRate = summary.credits_burn_rate_per_minute || 0;
+            const monthlyEstimate = summary.credits_monthly_estimate || (creditsUsedSinceReset * 1440);
+            const monthlyRemaining = summary.credits_monthly_remaining !== undefined ? summary.credits_monthly_remaining : null;
+
+            html += `<div class="grid">
+                <div class="card ${creditsUsedAlert}">
+                    <h3>Credits Used (Since Reset)</h3>
+                    <div class="value">${formatNumber(creditsUsedSinceReset)}</div>
+                    <div class="unit">your local instrumentation</div>
+                </div>
+                <div class="card">
+                    <h3>Daily Burn Rate</h3>
+                    <div class="value">${(burnRate || 0).toFixed(2)}</div>
+                    <div class="unit">credits/min</div>
+                </div>
+                <div class="card">
+                    <h3>Monthly Estimate</h3>
+                    <div class="value">${formatNumber(monthlyEstimate)}</div>
+                </div>
+                ${monthlyRemaining !== null ? `
+                <div class="card ${monthlyRemaining < monthlyEstimate * 0.2 ? 'alert' : ''}">
+                    <h3>Monthly Remaining</h3>
+                    <div class="value">${formatNumber(monthlyRemaining)}</div>
+                </div>
+                ` : ''}
+                <div class="card">
+                    <h3>Total Requests</h3>
+                    <div class="value">${formatNumber(summary.requests_total)}</div>
+                </div>
+                <div class="card ${summary.errors_total > summary.requests_total * 0.05 ? 'alert' : ''}">
+                    <h3>Errors</h3>
+                    <div class="value">${formatNumber(summary.errors_total)}</div>
+                </div>
+            </div>`;
+
+            // Helius breakdown
+            if (data.helius_snapshot) {
+                html += `<div class="section">
+                    <h2>💎 Helius Usage Breakdown</h2>
+                    <div class="grid">
+                        <div class="card" style="border: 1px solid #a78bfa;">
+                            <h3>Today's Usage</h3>
+                            <div class="value" style="color: #a78bfa;">${formatNumber(heliusSnapshot.prepaid_credits_used + (heliusSnapshot.overage_credits_used || 0))}</div>
+                            <div class="unit">credits</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #fbbf24;">
+                            <h3>Remaining</h3>
+                            <div class="value" style="color: #fbbf24;">${formatNumber(Math.max(0, 10000000 - (heliusSnapshot.prepaid_credits_used + (heliusSnapshot.overage_credits_used || 0))))}</div>
+                            <div class="unit">of 10M monthly</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>RPC Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.rpc_usage || 0)}</div>
+                            <div class="unit">RPC method calls</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>RPC GPA Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.rpc_gpa_usage || 0)}</div>
+                            <div class="unit">GetProgramAccounts calls</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>API Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.api_usage || 0)}</div>
+                            <div class="unit">REST API calls</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #06b6d4;">
+                            <h3>Webhook Usage</h3>
+                            <div class="value" style="color: #06b6d4;">${formatNumber(heliusSnapshot.webhook_usage || 0)}</div>
+                            <div class="unit">Webhook triggers</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #10b981;">
+                            <h3>Prepaid Used</h3>
+                            <div class="value" style="color: #10b981;">${formatNumber(heliusSnapshot.prepaid_credits_used || 0)}</div>
+                            <div class="unit">from prepaid tier</div>
+                        </div>
+                        <div class="card" style="border: 1px solid #ef4444;">
+                            <h3>Overage Used</h3>
+                            <div class="value" style="color: #ef4444;">${formatNumber(heliusSnapshot.overage_credits_used || 0)}</div>
+                            <div class="unit">beyond prepaid (cost: $${(heliusSnapshot.overage_cost || 0).toFixed(2)})</div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            // Alerts
+            if (alerts.length > 0) {
+                html += `<div class="section">
+                    <h2>⚠️ Active Alerts</h2>`;
+                alerts.forEach(alert => {
+                    html += `
+                        <div class="alert-item ${alert.level === 'critical' ? 'critical' : ''}">
+                            <div class="alert-label">${alert.level.toUpperCase()}: ${alert.type}</div>
+                            <div>${alert.message}</div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // Per-section breakdown
+            html += `<div class="section">
+                <h2>📊 By Component Section</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Credits</th>
+                            <th>Requests</th>
+                            <th>Errors</th>
+                            <th>429s</th>
+                            <th>Avg Latency (ms)</th>
+                            <th>P95 Latency (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            const sectionEntries = Object.entries(sections);
+            if (sectionEntries.length > 0) {
+                sectionEntries.forEach(([section, stats]) => {
+                    const errors = stats.errors || 0;
+                    const rateLimits = stats.rate_limits_429 || 0;
+                    const avgLatency = stats.avg_latency_ms ? stats.avg_latency_ms.toFixed(1) : 'N/A';
+                    const p95Latency = stats.p95_latency_ms ? stats.p95_latency_ms.toFixed(1) : 'N/A';
+
+                    html += `
+                        <tr>
+                            <td><strong>${section}</strong></td>
+                            <td>${formatNumber(stats.credits || 0)}</td>
+                            <td>${formatNumber(stats.requests || 0)}</td>
+                            <td style="color: ${errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(errors)}</td>
+                            <td style="color: ${rateLimits > 0 ? '#ef4444' : '#10b981'};">${formatNumber(rateLimits)}</td>
+                            <td>${avgLatency}</td>
+                            <td>${p95Latency}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="7" style="text-align: center; color: #94a3b8;">No section data available</td></tr>`;
+            }
+
+            html += `</tbody>
+                </table>
+            </div>`;
+
+            // By source file/process
+            html += `<div class="section">
+                <h2>📁 By Source File/Process</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>File/Process</th>
+                            <th>Credits</th>
+                            <th>Requests</th>
+                            <th>Errors</th>
+                            <th>429s</th>
+                            <th>Sections</th>
+                            <th>Avg Latency (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            // Map source files to human-readable labels
+            const sourceFileLabels = {
+                'pumpfun_curve_listener': '🎵 Token Launch Listener',
+                'realtime_creator_funding_extractor': '💰 Creator Funding Extraction (realtime_creator_funding_extractor.py)',
+                'funder_incoming_extractor': '💸 Funder Incoming Extraction (funder_incoming_extractor.py)',
+                'funder_helius_extractor': '🔍 Helius Funder Analysis',
+                'creator_outgoing_extractor': '📤 Creator Outgoing Transfers',
+                'cross_funding_network_analyzer': '🕸️ Network Clustering',
+                'blocksec_aml_batcher': '🔐 AML Verification',
+                'automatic_cex_detection': '💱 CEX Detection',
+                'unknown': '⚙️ UI API & Other Processes'
+            };
+
+            // Always show these key extractors even if they have 0 metrics
+            const keyExtractors = [
+                'realtime_creator_funding_extractor',
+                'funder_incoming_extractor'
+            ];
+
+            const sourceFileEntries = Object.entries(sourceFiles);
+
+            // Add entries for extractors with 0 metrics
+            keyExtractors.forEach(extractor => {
+                if (!sourceFiles[extractor]) {
+                    sourceFiles[extractor] = {
+                        requests: 0,
+                        credits: 0,
+                        errors: 0,
+                        rate_limits_429: 0,
+                        sections: {},
+                        avg_latency_ms: 0
+                    };
+                }
+            });
+
+            const allSourceFileEntries = Object.entries(sourceFiles);
+            if (allSourceFileEntries.length > 0) {
+                allSourceFileEntries.forEach(([sourceFile, stats]) => {
+                    // Skip untracked UI API calls - only show instrumented processes
+                    if (sourceFile === 'unknown') {
+                        return;
+                    }
+
+                    const displayLabel = sourceFileLabels[sourceFile] || sourceFile;
+                    const sections = stats.sections && Object.keys(stats.sections).length > 0 ? Object.entries(stats.sections)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([s, count]) => `${s} (${count})`)
+                        .join(", ")
+                        .substring(0, 50) + (Object.entries(stats.sections).length > 2 ? "..." : "") : '(inactive)';
+
+                    const avgLatency = stats.avg_latency_ms && stats.avg_latency_ms > 0 ? stats.avg_latency_ms.toFixed(1) : 'N/A';
+                    const errors = stats.errors || 0;
+                    const rateLimits = stats.rate_limits_429 || 0;
+
+                    // Highlight inactive extractors
+                    const inactiveStyle = stats.requests === 0 ? 'style="opacity: 0.6;"' : '';
+
+                    html += `
+                        <tr ${inactiveStyle}>
+                            <td>
+                                <strong>${displayLabel}</strong><br>
+                                <small style="color: #94a3b8; font-size: 11px;">${sourceFile}</small>
+                                ${stats.requests === 0 ? '<br><small style="color: #ef4444; font-size: 10px;">⏸️ Waiting for tokens...</small>' : ''}
+                            </td>
+                            <td>${formatNumber(stats.credits || 0)}</td>
+                            <td>${formatNumber(stats.requests || 0)}</td>
+                            <td style="color: ${errors > 0 ? '#f59e0b' : '#10b981'};">${formatNumber(errors)}</td>
+                            <td style="color: ${rateLimits > 0 ? '#ef4444' : '#10b981'};">${formatNumber(rateLimits)}</td>
+                            <td>${sections}</td>
+                            <td>${avgLatency}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="7" style="text-align: center; color: #94a3b8;">No source file data available</td></tr>`;
+            }
+
+            html += `</tbody>
+                </table>
+            </div>`;
+
+            // Top methods by credits
+            html += `<div class="section">
+                <h2>🔝 Top RPC Methods by Credits</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Credits</th>
+                            <th>Requests</th>
+                            <th>Credits/Request</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            if (topMethods && topMethods.length > 0) {
+                topMethods.forEach(method => {
+                    const creditsPerReq = (method.credits / method.requests).toFixed(1);
+                    html += `
+                        <tr>
+                            <td class="method-cell">${method.method}</td>
+                            <td>${formatNumber(method.credits)}</td>
+                            <td>${formatNumber(method.requests)}</td>
+                            <td>${creditsPerReq}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No data available</td></tr>`;
+            }
+
+            html += `</tbody>
+                </table>
+            </div>`;
+
+            // Refresh status
+            html += `<div class="refresh-status">
+                Last updated: ${new Date(summary.timestamp).toLocaleTimeString()}
+                <br>Auto-refreshing every ${REFRESH_INTERVAL / 1000}s
+            </div>`;
+
+            document.getElementById("content").innerHTML = html;
+        }
+
+        function showResetConfirm() {
+            document.getElementById("resetOverlay").classList.add("show");
+            document.getElementById("resetConfirm").style.display = "block";
+        }
+
+        function hideResetConfirm() {
+            document.getElementById("resetOverlay").classList.remove("show");
+            document.getElementById("resetConfirm").style.display = "none";
+        }
+
+        async function confirmReset() {
+            const resetBtn = document.querySelector(".reset-btn");
+            const statusDiv = document.getElementById("resetStatus");
+
+            resetBtn.disabled = true;
+            hideResetConfirm();
+
+            try {
+                // Call the reset endpoint
+                const response = await fetch("/metrics/rpc/reset", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.textContent = `✅ Monitoring session reset at ${data.reset_at}. Starting fresh baseline.`;
+                    statusDiv.classList.add("success", "show");
+
+                    // Refresh dashboard after reset
+                    setTimeout(() => {
+                        fetchMetrics();
+                        statusDiv.classList.remove("show");
+                    }, 2000);
+                } else {
+                    statusDiv.textContent = "⚠️ Reset failed: " + (response.statusText || "Unknown error");
+                    statusDiv.classList.add("error", "show");
+                }
+            } catch (error) {
+                statusDiv.textContent = "❌ Error resetting metrics: " + error.message;
+                statusDiv.classList.add("error", "show");
+            } finally {
+                resetBtn.disabled = false;
+            }
+        }
+
+        async function refreshHelius() {
+            const btn = document.getElementById("refreshBtn");
+            const statusDiv = document.getElementById("resetStatus");
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Syncing...";
+
+            try {
+                const response = await fetch("/metrics/helius/capture", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusDiv.textContent = "✅ Helius data synced! Remaining: " +
+                        new Intl.NumberFormat("en-US").format(data.snapshot.credits_remaining) + " credits";
+                    statusDiv.classList.add("success", "show");
+
+                    // Refresh dashboard
+                    setTimeout(() => {
+                        fetchMetrics();
+                        statusDiv.classList.remove("show");
+                    }, 1500);
+                } else {
+                    statusDiv.textContent = "⚠️ Helius sync failed: " + (response.statusText || "Unknown error");
+                    statusDiv.classList.add("error", "show");
+                }
+            } catch (error) {
+                statusDiv.textContent = "❌ Error syncing Helius: " + error.message;
+                statusDiv.classList.add("error", "show");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "💎 Refresh Helius";
+            }
+        }
+
+        async function runLiveComparison() {
+            const btn = event.target;
+            const statusDiv = document.getElementById("resetStatus");
+
+            btn.disabled = true;
+            btn.textContent = "⏳ Starting test...";
+
+            // Show test results modal
+            const overlay = document.getElementById("testResultsOverlay");
+            const modal = document.getElementById("testResultsModal");
+            overlay.classList.add("show");
+            modal.style.display = "block";
+
+            const contentDiv = document.getElementById("testResultsContent");
+
+            try {
+                // Step 1: Start the background test
+                const startResponse = await fetch("/metrics/rpc/comparison", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                if (!startResponse.ok) {
+                    throw new Error(`Failed to start test: ${startResponse.status}`);
+                }
+
+                const startData = await startResponse.json();
+                const testId = startData.test_id;
+
+                if (!testId) {
+                    throw new Error("No test_id returned from server");
+                }
+
+                // Step 2: Poll for results with live updates
+                let isComplete = false;
+                let pollCount = 0;
+                const maxPolls = 90; // ~180 seconds of polling (60s test + 50s wait for Helius + 70s buffer)
+                let allMeasurements = []; // Track all measurements for live display
+
+                while (!isComplete && pollCount < maxPolls) {
+                    pollCount++;
+
+                    // Wait before polling
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Poll for test status
+                    const pollResponse = await fetch(`/metrics/rpc/comparison?test_id=${testId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" }
+                    });
+
+                    if (!pollResponse.ok) {
+                        throw new Error(`Poll failed: ${pollResponse.status}`);
+                    }
+
+                    const pollData = await pollResponse.json();
+                    const summary = pollData.summary || {};
+                    const measurements = pollData.measurements || [];
+
+                    // Keep track of all measurements
+                    allMeasurements = measurements;
+
+                    // Display live progress with current measurements
+                    const elapsed = pollCount * 2;
+                    const remaining = Math.max(0, 60 - Math.min(elapsed, 60));
+
+                    let html = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 8px; padding: 15px;">
+                                <h4 style="color: #60a5fa; margin-bottom: 10px;">📊 Local Instrumentation</h4>
+                                <div style="font-size: 28px; font-weight: bold; color: #60a5fa; margin-bottom: 5px;">
+                                    ${formatNumber(summary.local_credits_used !== undefined ? summary.local_credits_used : 0)}
+                                </div>
+                                <div style="font-size: 12px; color: #cbd5e1;">
+                                    Credits used in test period<br/>
+                                    <span style="color: #94a3b8;">Per-request attribution</span>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.5); border-radius: 8px; padding: 15px;">
+                                <h4 style="color: #d8b4fe; margin-bottom: 10px;">💎 Helius Billing</h4>
+                                <div style="font-size: 28px; font-weight: bold; color: #d8b4fe; margin-bottom: 5px;">
+                                    ${formatNumber(summary.helius_credits_used !== undefined ? summary.helius_credits_used : 0)}
+                                </div>
+                                <div style="font-size: 12px; color: #cbd5e1;">
+                                    Credits used in test period<br/>
+                                    <span style="color: #94a3b8;">Account-level billing</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">📈 Test Results</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Difference</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: #60a5fa;">
+                                        ${formatNumber(summary.difference !== undefined ? summary.difference : 0)}
+                                    </div>
+                                    <div style="font-size: 11px; color: #94a3b8;">credits</div>
+                                </div>
+                                <div>
+                                    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Difference %</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: #60a5fa;">
+                                        ${(summary.difference_pct !== undefined ? summary.difference_pct : 0).toFixed(1)}%
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Status</div>
+                                    <div style="font-size: 20px; font-weight: bold; color: ${summary.status === 'CLEAN' ? '#10b981' : summary.status === 'MINOR' ? '#fbbf24' : '#ef4444'};">
+                                        ${summary.status === 'CLEAN' ? '✅ Clean' : summary.status === 'MINOR' ? '⚠️ Minor' : '❌ Drift'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${pollData.snapshots ? `
+                        <div style="background: rgba(100, 116, 139, 0.15); border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 11px; color: #cbd5e1;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">🔍 Helius Snapshot Points</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="background: rgba(34, 197, 94, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid #22c55e;">
+                                    <div style="color: #22c55e; font-weight: bold;">BEFORE Test</div>
+                                    <div style="color: #cbd5e1; font-size: 10px; margin-top: 3px;">
+                                        ${formatNumber(pollData.snapshots.before.credits_used)} credits
+                                    </div>
+                                    <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">
+                                        ${new Date(pollData.snapshots.before.timestamp).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                                <div style="background: rgba(34, 197, 94, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid #22c55e;">
+                                    <div style="color: #22c55e; font-weight: bold;">AFTER Test</div>
+                                    <div style="color: #cbd5e1; font-size: 10px; margin-top: 3px;">
+                                        ${formatNumber(pollData.snapshots.after.credits_used)} credits
+                                    </div>
+                                    <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">
+                                        ${new Date(pollData.snapshots.after.timestamp).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">📊 Live Measurements (${measurements.length} samples)
+                            ${!pollData.status || pollData.status === 'running' ? ' <span style="color: #fbbf24;">⏳ Test running...</span>' : ''}</h4>
+                            <div style="max-height: 300px; overflow-y: auto; font-size: 11px;">
+                                ${measurements.map(m => `
+                                    <div style="display: grid; grid-template-columns: 60px 100px 100px 70px; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(100, 116, 139, 0.3);">
+                                        <div><span style="color: #94a3b8;">+${m.elapsed}s</span></div>
+                                        <div>Local: <span style="color: #60a5fa;">${formatNumber(m.local_credits)}</span></div>
+                                        <div>Helius: <span style="color: #a78bfa;">${formatNumber(m.helius_credits)}</span></div>
+                                        <div><span style="color: ${m.status === 'CLEAN' ? '#10b981' : m.status === 'MINOR' ? '#fbbf24' : '#ef4444'};">${m.status}</span></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 10px;">
+                                ${!pollData.status || pollData.status === 'running' ? `⏱️ ${remaining}s remaining` : ''}
+                            </div>
+                        </div>
+
+                        ${pollData.rpc_methods && pollData.rpc_methods.length > 0 ? `
+                        <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                            <h4 style="color: #cbd5e1; margin-bottom: 10px;">🔌 RPC Methods Called (${pollData.rpc_methods.length})</h4>
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                <table style="width: 100%; font-size: 11px;">
+                                    <thead style="position: sticky; top: 0;">
+                                        <tr style="background: rgba(15, 23, 42, 0.8);">
+                                            <th style="text-align: left; padding: 8px; border-bottom: 1px solid #334155;">Method</th>
+                                            <th style="text-align: right; padding: 8px; border-bottom: 1px solid #334155;">Count</th>
+                                            <th style="text-align: right; padding: 8px; border-bottom: 1px solid #334155;">Credits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${pollData.rpc_methods.slice(0, 15).map(m => `
+                                            <tr style="border-bottom: 1px solid rgba(100, 116, 139, 0.3);">
+                                                <td style="padding: 8px; color: #60a5fa; font-family: monospace;">${m.method || 'unknown'}</td>
+                                                <td style="text-align: right; padding: 8px; color: #cbd5e1;">${m.count || 0}</td>
+                                                <td style="text-align: right; padding: 8px; color: #10b981;">${formatNumber(m.total_credits || 0)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ${pollData.rpc_methods.length > 15 ? `
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(100, 116, 139, 0.3); color: #94a3b8; font-size: 10px;">
+                                Showing top 15 of ${pollData.rpc_methods.length} methods
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+
+                        <div style="background: rgba(100, 116, 139, 0.15); border-radius: 8px; padding: 12px; font-size: 11px; color: #cbd5e1;">
+                            <strong>ℹ️ Interpretation:</strong><br/>
+                            • Local = Per-request RPC instrumentation (more accurate)<br/>
+                            • Helius = Account-level billing (includes all usage)<br/>
+                            • Streaming subscriptions & webhooks are Helius-only (expected drift)
+                        </div>
+                    `;
+
+                    document.getElementById("testResultsContent").innerHTML = html;
+
+                    if (pollData.status === "complete") {
+                        isComplete = true;
+                        statusDiv.textContent = "✅ Test complete!";
+                        statusDiv.classList.add("success", "show");
+                    } else if (pollData.status === "waiting_for_helius") {
+                        // Still waiting, show waiting indicator
+                        contentDiv.innerHTML = html.replace(
+                            '<strong>ℹ️ Interpretation:</strong>',
+                            `<div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                                <div style="color: #fbbf24; font-weight: bold; margin-bottom: 10px;">⏳ Waiting for Helius to Update</div>
+                                <div style="color: #cbd5e1; font-size: 12px;">
+                                    Test complete, waiting for Helius billing snapshot to update (typically 30-40 seconds)...
+                                    <br/>Wait time: ${pollData.wait_time || 0}s
+                                </div>
+                            </div>
+                            <strong>ℹ️ Interpretation:</strong>`
+                        );
+                    }
+                }
+
+                if (!isComplete) {
+                    throw new Error("Test did not complete within timeout");
+                }
+
+            } catch (error) {
+                contentDiv.innerHTML = '<p style="color: #ef4444;">❌ Error: ' + error.message + '</p>';
+                statusDiv.textContent = "❌ Error: " + error.message;
+                statusDiv.classList.add("error", "show");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "🔬 Run Live Test (1 min)";
+            }
+        }
+
+        function showComparisonModal() {
+            const overlay = document.getElementById("comparisonOverlay");
+            const modal = document.getElementById("comparisonModal");
+            overlay.classList.add("show");
+            modal.style.display = "block";
+            loadComparisonData();
+        }
+
+        function hideComparisonModal() {
+            const overlay = document.getElementById("comparisonOverlay");
+            const modal = document.getElementById("comparisonModal");
+            overlay.classList.remove("show");
+            modal.style.display = "none";
+        }
+
+        function hideTestResults() {
+            const overlay = document.getElementById("testResultsOverlay");
+            const modal = document.getElementById("testResultsModal");
+            overlay.classList.remove("show");
+            modal.style.display = "none";
+        }
+
+        async function loadComparisonData() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Safely extract data with defensive checks
+                const summary = (data && data.summary) ? data.summary : {};
+                const helius = (data && data.helius_snapshot) ? data.helius_snapshot : {};
+
+                // Fallback chain for local credits
+                const localCredits = summary.credits_instrumented_today !== undefined ? summary.credits_instrumented_today :
+                                    (summary.credits_total !== undefined ? summary.credits_total : 0);
+                const heliusCredits = helius.credits_used !== undefined ? helius.credits_used : 0;
+                const prepaidCredits = helius.prepaid_credits_used !== undefined ? helius.prepaid_credits_used : 0;
+                const overageCredits = helius.overage_credits_used !== undefined ? helius.overage_credits_used : 0;
+                const totalHelius = heliusCredits;
+
+                const diff = Math.abs(localCredits - totalHelius);
+                const diffPercent = totalHelius > 0 ? (diff / totalHelius * 100).toFixed(1) : 0;
+
+                let html = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 8px; padding: 15px;">
+                            <h4 style="color: #60a5fa; margin-bottom: 10px;">📊 Local Instrumentation</h4>
+                            <div style="font-size: 28px; font-weight: bold; color: #60a5fa; margin-bottom: 5px;">
+                                ${formatNumber(localCredits)}
+                            </div>
+                            <div style="font-size: 12px; color: #cbd5e1;">
+                                Credits used since last reset<br/>
+                                <span style="color: #94a3b8;">Per-request attribution</span>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.5); border-radius: 8px; padding: 15px;">
+                            <h4 style="color: #d8b4fe; margin-bottom: 10px;">💎 Helius Billing</h4>
+                            <div style="font-size: 28px; font-weight: bold; color: #d8b4fe; margin-bottom: 5px;">
+                                ${formatNumber(totalHelius)}
+                            </div>
+                            <div style="font-size: 12px; color: #cbd5e1;">
+                                Total credits used (prepaid + overage)<br/>
+                                <span style="color: #94a3b8;">Account-level billing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                        <h4 style="color: #cbd5e1; margin-bottom: 10px;">📈 Difference</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                            <div>
+                                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Absolute Difference</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${diff > 100 ? '#f97316' : '#10b981'};">
+                                    ${formatNumber(Math.round(diff))}
+                                </div>
+                            </div>
+                            <div>
+                                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Relative Difference</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${parseFloat(diffPercent) > 5 ? '#f97316' : '#10b981'};">
+                                    ${diffPercent}%
+                                </div>
+                            </div>
+                            <div>
+                                <div style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;">Status</div>
+                                <div style="font-size: 20px; font-weight: bold; color: ${Math.abs(parseFloat(diffPercent)) <= 2 ? '#10b981' : Math.abs(parseFloat(diffPercent)) <= 5 ? '#fbbf24' : '#ef4444'};">
+                                    ${Math.abs(parseFloat(diffPercent)) <= 2 ? '✅ Clean' : Math.abs(parseFloat(diffPercent)) <= 5 ? '⚠️ Minor' : '❌ Drift'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(100, 116, 139, 0.2); border-radius: 8px; padding: 15px;">
+                        <h4 style="color: #cbd5e1; margin-bottom: 10px;">💰 Helius Breakdown</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 12px;">
+                            <div>
+                                <span style="color: #94a3b8;">Prepaid Used:</span>
+                                <span style="color: #10b981; float: right; font-weight: bold;">${formatNumber(prepaidCredits)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #94a3b8;">Overage Used:</span>
+                                <span style="color: #ef4444; float: right; font-weight: bold;">${formatNumber(overageCredits)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #94a3b8;">Overage Cost:</span>
+                                <span style="color: #f59e0b; float: right; font-weight: bold;">$${(helius.overage_cost || 0).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span style="color: #94a3b8;">Remaining (10M):</span>
+                                <span style="color: #60a5fa; float: right; font-weight: bold;">${formatNumber(helius.credits_remaining || 0)}</span>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <span style="color: #94a3b8;">RPC Usage:</span>
+                                <span style="color: #06b6d4; float: right; font-weight: bold;">${formatNumber(helius.rpc_usage || 0)} calls</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(100, 116, 139, 0.3); font-size: 12px; color: #94a3b8;">
+                        <strong>Note:</strong> Local credits are from per-request instrumentation. Helius shows project-level account usage. Small differences are normal due to:
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Streaming/webhook usage (if tracked in Helius but not locally)</li>
+                            <li>Uninstrumented RPC endpoints</li>
+                            <li>Timing differences between resets and billing cycles</li>
+                        </ul>
+                    </div>
+                `;
+
+                document.getElementById("comparisonContent").innerHTML = html;
+            } catch (error) {
+                document.getElementById("comparisonContent").innerHTML =
+                    `<p style="color: #ef4444;">Error loading comparison data: ${error.message}</p>`;
+            }
+        }
+
+        // Initial fetch and auto-refresh
+        fetchMetrics();
+        setInterval(fetchMetrics, REFRESH_INTERVAL);
+    </script>
+</body>
+</html>
+"""
+
+
+@app.get("/webhook-metrics")
+async def webhook_metrics():
+    """Get webhook credit metrics showing amount since last reset (using baseline)"""
+    import time
+    from datetime import datetime, timedelta
+
+    # Get baseline from webhook_baseline table
+    baseline_webhook_credits = 0
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cur = conn.cursor()
+
+        cur.execute("SELECT credits FROM webhook_baseline LIMIT 1")
+        row = cur.fetchone()
+        if row:
+            baseline_webhook_credits = row[0] or 0
+
+        conn.close()
+    except Exception as e:
+        print(f"[WEBHOOK_METRICS] Error getting baseline: {e}", flush=True)
+
+    # Get current Helius webhook credits
+    current_webhook_credits = 0
+    try:
+        result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10)
+        if result.returncode == 0:
+            helius_data = json.loads(result.stdout).get("creditsUsage", {})
+            current_webhook_credits = helius_data.get("webhookUsage", 0)
+    except:
+        pass
+
+    # Calculate webhook credits since baseline (delta)
+    webhook_credits_since_reset = max(0, current_webhook_credits - baseline_webhook_credits)
+    
+    # Get metrics from RPC metrics table (new events since tracking started)
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cur = conn.cursor()
+        
+        # Get metrics for last 5 minutes from RPC metrics table
+        cutoff_5m = time.time() - (5 * 60)
+        cur.execute("""
+            SELECT COUNT(*) as event_count, SUM(credits) as credits_used
+            FROM rpc_metrics
+            WHERE section='webhooks' AND method='webhook_event' AND timestamp > ?
+        """, (cutoff_5m,))
+        rpc_metrics_5m = cur.fetchone()
+        metrics_5m = {
+            'event_count': rpc_metrics_5m[0] or 0,
+            'unique_creators': 0,
+            'unique_signatures': 0,
+            'credits_used': rpc_metrics_5m[1] or 0
+        }
+        
+        # Get metrics for last 60 minutes from RPC metrics table
+        cutoff_60m = time.time() - (60 * 60)
+        cur.execute("""
+            SELECT COUNT(*) as event_count, SUM(credits) as credits_used
+            FROM rpc_metrics
+            WHERE section='webhooks' AND method='webhook_event' AND timestamp > ?
+        """, (cutoff_60m,))
+        rpc_metrics_60m = cur.fetchone()
+        metrics_60m = {
+            'event_count': rpc_metrics_60m[0] or 0,
+            'unique_creators': 0,
+            'unique_signatures': 0,
+            'credits_used': rpc_metrics_60m[1] or 0
+        }
+        
+        # Get total webhook events from sol_transfers (all time, for cost per event calculation)
+        cur.execute("SELECT COUNT(*) as total_count FROM sol_transfers")
+        total_webhook_events = cur.fetchone()[0] or 0
+        
+        conn.close()
+    except Exception as e:
+        print(f"[WEBHOOK_METRICS] Error querying metrics: {e}", flush=True)
+        metrics_5m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0}
+        metrics_60m = {'event_count': 0, 'unique_creators': 0, 'unique_signatures': 0, 'credits_used': 0}
+        total_webhook_events = 0
+
+    # Get creator activity from sol_transfers (historical data)
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30)
+        cur = conn.cursor()
+        
+        cutoff = int((datetime.now() - timedelta(hours=24)).timestamp())
+        cur.execute("""
+            SELECT source as creator, COUNT(*) as event_count, SUM(amount_sol) as total_sol
+            FROM sol_transfers
+            WHERE block_time > ?
+            GROUP BY source
+            ORDER BY event_count DESC
+            LIMIT 5
+        """, (cutoff,))
+        
+        rows = cur.fetchall()
+        top_creators = [
+            {
+                'creator': r[0],
+                'event_count': r[1],
+                'total_sol': r[2]
+            }
+            for r in rows
+        ]
+        conn.close()
+    except Exception as e:
+        print(f"[WEBHOOK_METRICS] Error getting top creators: {e}", flush=True)
+        top_creators = []
+
+    # Get full Helius billing data
+    total_credits = 0
+    try:
+        result = subprocess.run(["helius", "usage", "--json"], capture_output=True, text=True, timeout=10)
+        if result.returncode == 0:
+            helius_data = json.loads(result.stdout).get("creditsUsage", {})
+            total_credits = helius_data.get("totalCreditsUsed", 0)
+    except:
+        pass
+
+    # Calculate cost per event based on amount since reset
+    # Assume 1 credit per event
+    cost_per_event = 1.0 if webhook_credits_since_reset > 0 else 0
+    events_per_minute = metrics_5m.get('event_count', 0) / 5.0 if metrics_5m.get('event_count', 0) > 0 else 0
+
+    return {
+        "metrics_5m": metrics_5m,
+        "metrics_60m": metrics_60m,
+        "top_creators": top_creators,
+        "helius_billing": {
+            "webhook_credits": webhook_credits_since_reset,
+            "current_helius_total": current_webhook_credits,
+            "baseline": baseline_webhook_credits,
+            "total_credits": total_credits,
+            "cost_per_event": cost_per_event,
+            "total_webhook_events": total_webhook_events
+        },
+        "burn_rate": {
+            "events_per_minute": events_per_minute,
+            "credits_per_hour": events_per_minute * 60 * cost_per_event if cost_per_event > 0 else 0,
+            "credits_per_day": events_per_minute * 60 * 24 * cost_per_event if cost_per_event > 0 else 0
+        }
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)

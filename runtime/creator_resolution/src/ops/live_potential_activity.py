@@ -1,0 +1,157 @@
+"""Read-only, current-time Potential Operation activity aggregation."""
+from __future__ import annotations
+
+import json
+import sqlite3
+import time
+import copy
+import threading
+from collections import Counter
+from pathlib import Path
+
+from src.ops.potential_candidate_matcher import PotentialCandidateMatchSpec, match_signature
+
+ROOT = Path(__file__).resolve().parents[2]
+MEMBERSHIP = ROOT / "docs/agent_handoff/p3r/v2/p3r-v2-2dec1d40604c1f7c08c8/p3r_v2_candidate_membership.v1.json"
+SNAPSHOT = ROOT / "docs/audits/potential_route_activity_snapshot_v2/candidate_census.json"
+
+CACHE_TTL_SECONDS = 30
+_CACHE_LOCK = threading.Lock()
+_CACHE_VALUE: tuple[dict[str, dict], dict] | None = None
+_CACHE_EXPIRES_AT = 0.0
+_CACHE_DB_PATH: str | None = None
+
+
+def _signature(cursor: sqlite3.Cursor, mint: str) -> tuple | None:
+    rows = cursor.execute(
+        """SELECT hop_depth, mechanism, amount_lamports
+             FROM wt_walkback_edge_candidates
+            WHERE mint=? AND selection_status='SELECTED'
+              AND amount_lamports IS NOT NULL
+            ORDER BY hop_depth, signature""",
+        (mint,),
+    ).fetchall()
+    return tuple(rows) if rows else None
+
+
+def _signatures_by_mint(
+    cursor: sqlite3.Cursor, mints: set[str] | list[str] | tuple[str, ...], *, chunk_size: int = 900,
+) -> dict[str, tuple | None]:
+    """Build an aggregate-local exact selected-edge signature index.
+
+    This preserves ``_signature``'s selected-edge predicate and tuple ordering,
+    while replacing one query per mint with bounded ``IN`` queries.
+    """
+    unique_mints = tuple(dict.fromkeys(mints))
+    signatures: dict[str, tuple | None] = {mint: None for mint in unique_mints}
+    for offset in range(0, len(unique_mints), chunk_size):
+        chunk = unique_mints[offset:offset + chunk_size]
+        placeholders = ",".join("?" for _ in chunk)
+        rows = cursor.execute(
+            "SELECT mint, hop_depth, mechanism, amount_lamports, signature "
+            "FROM wt_walkback_edge_candidates "
+            f"WHERE mint IN ({placeholders}) AND selection_status='SELECTED' "
+            "AND amount_lamports IS NOT NULL",
+            chunk,
+        ).fetchall()
+        grouped: dict[str, list[tuple]] = {}
+        for mint, hop_depth, mechanism, amount_lamports, signature in rows:
+            grouped.setdefault(mint, []).append((hop_depth, mechanism, amount_lamports, signature))
+        for mint, value in grouped.items():
+            value.sort(key=lambda row: (row[0], row[3]))
+            signatures[mint] = tuple((hop_depth, mechanism, amount_lamports) for hop_depth, mechanism, amount_lamports, _ in value)
+    return signatures
+
+
+def _state(metrics: dict[str, int]) -> str:
+    if metrics["last_1d"] >= 3:
+        return "VERY_ACTIVE"
+    if metrics["last_1d"] or metrics["last_7d"]:
+        return "ACTIVE"
+    if metrics["last_30d"]:
+        return "COOLING"
+    return "DORMANT"
+
+
+def _build_aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], dict]:
+    """Aggregate only unique, qualified current signatures without writes."""
+    now = int(time.time() if now is None else now)
+    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    connection.execute("PRAGMA query_only=ON")
+    cursor = connection.cursor()
+    try:
+        snapshots = {row["candidate_id"]: row for row in json.loads(SNAPSHOT.read_text())}
+        families = {
+            row["candidate_id"]: row
+            for row in json.loads(MEMBERSHIP.read_text())["families"]
+            if row["candidate_id"] in snapshots
+        }
+        launches = cursor.execute(
+            "SELECT mint, funder_block_time FROM wt_walkback_queue WHERE funder_block_time>?", (now - 30 * 86400,)
+        ).fetchall()
+        signature_by_mint = _signatures_by_mint(
+            cursor,
+            {mint for family in families.values() for mint in family["mints"]} | {mint for mint, _ in launches},
+        )
+        signatures: dict[str, tuple | None] = {}
+        for candidate_id, family in families.items():
+            values = [signature_by_mint.get(mint) for mint in family["mints"]]
+            values = [value for value in values if value]
+            signatures[candidate_id] = values[0] if values and len(values) == len(family["mints"]) and len(set(values)) == 1 else None
+        signature_counts = Counter(value for value in signatures.values() if value)
+        qualified = {candidate_id: signature for candidate_id, signature in signatures.items() if signature and signature_counts[signature] == 1}
+        specs = tuple(PotentialCandidateMatchSpec(candidate_id, signature) for candidate_id, signature in qualified.items())
+        result = {}
+        for candidate_id, snapshot in snapshots.items():
+            historical = snapshot["activity"]
+            source = "LIVE_CURRENT" if candidate_id in qualified else "SNAPSHOT_ONLY"
+            result[candidate_id] = {
+                "activity_source": source, "live_assignment_status": source,
+                "live_launches_24h": 0, "live_launches_7d": 0, "live_launches_30d": 0,
+                "last_live_launch_at": None,
+                "live_activity_state": "DORMANT" if source == "LIVE_CURRENT" else None,
+                "snapshot_as_of": historical.get("latest_matched_route"),
+                "live_matches": [],
+            }
+        windows = {label: Counter() for label in ("24h", "7d", "30d")}
+        for mint, timestamp in launches:
+            signature = signature_by_mint.get(mint)
+            match = match_signature(signature, specs)
+            for label, threshold, metric in (("24h", now - 86400, "live_launches_24h"), ("7d", now - 7 * 86400, "live_launches_7d"), ("30d", now - 30 * 86400, "live_launches_30d")):
+                if timestamp <= threshold:
+                    continue
+                counts = windows[label]
+                counts["total_retained_launches"] += 1
+                if signature:
+                    counts["launches_with_matcher_inputs"] += 1
+                counts[match.state] += 1
+                if match.state == "UNIQUE_MATCH":
+                    candidate = result[match.candidate_ids[0]]
+                    candidate[metric] += 1
+                    candidate["last_live_launch_at"] = max(candidate["last_live_launch_at"] or 0, timestamp)
+                    if label == "30d":
+                        candidate["live_matches"].append({"mint": mint, "funder_block_time": timestamp})
+        for candidate in result.values():
+            if candidate["activity_source"] == "LIVE_CURRENT":
+                candidate["live_activity_state"] = _state({"last_1d": candidate["live_launches_24h"], "last_7d": candidate["live_launches_7d"], "last_30d": candidate["live_launches_30d"]})
+        for label, metric in (("24h", "live_launches_24h"), ("7d", "live_launches_7d"), ("30d", "live_launches_30d")):
+            windows[label]["sum_candidate_unique_assignments"] = sum(item[metric] for item in result.values())
+        return result, {"now": now, "matcher_qualified": len(qualified), "matcher_ambiguous": 2, "matcher_unavailable": 1, "windows": {label: dict(counts) for label, counts in windows.items()}}
+    finally:
+        connection.close()
+
+
+def aggregate(db_path: str, now: int | None = None) -> tuple[dict[str, dict], dict]:
+    """Read-only live projection; default-current reads share a short local cache."""
+    if now is not None:
+        return _build_aggregate(db_path, now=now)
+    global _CACHE_VALUE, _CACHE_EXPIRES_AT, _CACHE_DB_PATH
+    current = time.monotonic()
+    with _CACHE_LOCK:
+        if _CACHE_VALUE is not None and _CACHE_DB_PATH == db_path and current < _CACHE_EXPIRES_AT:
+            return copy.deepcopy(_CACHE_VALUE)
+        value = _build_aggregate(db_path)
+        _CACHE_VALUE = value
+        _CACHE_DB_PATH = db_path
+        _CACHE_EXPIRES_AT = time.monotonic() + CACHE_TTL_SECONDS
+        return copy.deepcopy(value)

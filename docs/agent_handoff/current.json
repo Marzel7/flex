@@ -13759,6 +13759,27 @@
     "UNEXPECTED_GUARD_DENIALS": 0,
     "updated_utc": "2026-10-19T10:07:01.523327+00:00"
   },
+  "dev090_five_create_verification": {
+    "actual_provider_requests": 5,
+    "canonical_writes": 0,
+    "cost_scope": "Onecurveinspection reachesknownCREATE; oneinspectionneednotequaloneHTTPcall. No runtime cost/latency claim.",
+    "engineering_source_revision": "e3002467ce44a66487c9842a8dd79f51358fc593",
+    "fallbacks": 0,
+    "finding": "Five exact reads:4verifiedCREATE_V2,1notCREATE. FourCREATEs candidate1 in retained curve pages; verifiedslotsolderthanoldestmintpages, so absent from mint first pages.",
+    "history_requests": 0,
+    "local_report_sha256": "df48414c1fe28ea6dbaca8ec7696dfc81c27d0209923832a226ebb49c129699b",
+    "max_authorized_provider_calls": 5,
+    "milestone_verdict": "PASS_FIVE_EXACT_READS_COMPLETE_SAMPLE_ADVANTAGE_SUPPORTED",
+    "next_action": "Separate prospective same-budget curve-target qualification preserving strictCREATE and legacy/mint-only controls; no implementation/deployment now",
+    "pagination": 0,
+    "production_activation": "Services and configuration unchanged",
+    "production_changes": 0,
+    "qualification_decision": "CURVE_FIRST_EFFICIENCY_SUPPORTED for these controls; universal/legacy non-regression and actual operational total cost remain unqualified",
+    "raw_retention": false,
+    "retries": 0,
+    "runtime_deployment_required": false,
+    "source_changes": 0
+  },
   "dev090_four_create_decode": {
     "actual_provider_calls": 4,
     "canonical_writes": 0,

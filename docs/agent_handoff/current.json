@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:56:38.917754+00:00"
+    "published_at_utc": "2026-10-20T22:59:32.777178+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:56:27.517708+00:00",
-    "working_tree": "Final quarantine preflight GO for successor4ae681bf/exact42disposition, pending separate explicit installation/schema/quarantine/listener stop-start authorization. No live changes."
+    "updated_at_utc": "2026-10-20T22:59:22.226530+00:00",
+    "working_tree": "Prospective quarantine gate PASS:unchanged4ae681bfautomaticfutureconflicts proven by80focusedtests. Controlled installation remains pending explicit authorization."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40500,6 +40500,16 @@
     "production_flags": "Listener60284/resolution34567/Walkback10716 RUNNING; funding/Cascade STOPPED. No installation/DDL/quarantine/provider calls/restart.",
     "blocker": null,
     "next_action": "Request/obtain explicit authorization for the documented controlled sequence, including listener stop/start, one-field migration and exact42quarantine. Until then leave runtime and queue untouched.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "pumpportal_prospective_quarantine_gate_20261020": {
+    "status": "PASS_GO_PENDING_AUTHORIZATION",
+    "engineering_source_revision": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/pumpportal_prospective_quarantine_gate_20261020.v1.json",
+    "verification": "80focused provider-free tests pass:76candidate controls plus4actualconsumer new-arrival scenarios. Automatic future consistent/mixed conflicts quarantine; ambiguous/transient remain retryable.42historical patterns pass.",
+    "production_flags": "No source changes, deployment, live migration/quarantine/provider calls/service actions.",
+    "blocker": null,
+    "next_action": "Obtain authorization to execute the exact sequence in pumpportal_final_quarantine_preflight_20261020.v1.json: listener-only stop/start, two-file installation, one-field migration and targeted42quarantine. No source changes or new candidate needed.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

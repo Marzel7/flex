@@ -30958,6 +30958,16 @@
     "status": "QUALIFIED_NOT_DEPLOYED",
     "tests": "70 passed, 0 failed: new Deep classification, Deep historical, MonitorWorker, and DEV-019 Treasury rotation suites. Immutable projection conflict fails closed; repeated identical evidence is idempotent."
   },
+  "flex_v2_end_to_end_creator_coverage_20261019": {
+    "engineering_revision": "read-only audit; listener bf1bdfc59b4acfed0338a493189d91d212bda50f; resolver eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 with live worker SHA256 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb; Walkback afbe9e58b11eb2e4d616246da123ce31ab45700c",
+    "status": "PASS_READ_ONLY_COHORT_COVERAGE_MEASURED",
+    "finding": "Fixed complete UTC cohort 2026-10-19T00:00:00Z to 2026-10-20T00:00:00Z contains 799 unique migrations, retrieved through covering index token_analysis(migrated_at,mint). Direct evidence yields 33 PumpPortal-qualified births at/before migration and 71 strict RPC CREATE deliveries ACKed; paths are disjoint, so combined qualified creator coverage is 104/799 (13.02%). 203 jobs entered the resolver (71 COMPLETE strict, 132 BUDGET_EXCEEDED); 310 migrations have no retained creator. All 799 migration-to-Walkback handoffs are COMPLETE; Walkback has 489 COMPLETE (328 LINEAGE_GAP, 149 NO_ATTRIBUTION_FOUND, 12 WATCHTOWER_CONFIRMED) and 310 waiting. No provider calls, writes, replays, source/process/configuration changes, or receipt manipulation occurred.",
+    "evidence_limits": "63 direct PumpPortal receipt matches were COMMITTED; 33 were accepted before migration and 30 0.04952s-0.784394s after migration, therefore unqualified for the at-migration predicate. 736 migrations have no independently locatable PumpPortal receipt under direct identity lookup and are PROVENANCE_UNKNOWN; absence is not treated as proof no receipt ever existed. rpc_metrics has no mint/signature correlation, so actual provider request count and credits per qualified creator are UNKNOWN; queue telemetry only records 203 logical history pages and 162803 signatures examined.",
+    "retention": "Receipt store is healthy: 4096 protected legacy flat files plus 5466 sharded files (9562 total); maximum observed shard occupancy 40/384, 92838 sharded slots remain. Receipt mtimes span under 28 hours; no seven-day retirement candidate exists. Filesystem free space was 5,283,987,456 bytes; Core WAL 98,912 bytes and OPS WAL 0 bytes.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded read-only evidence audit only.",
+    "next_action": "Use the 2026-10-19 fixed cohort as the retained baseline; separately authorize telemetry keyed by mint/signature only if actual Helius cost attribution is required. Do not interpret historical PROVENANCE_UNKNOWN as failed PumpPortal ingestion."
+  },
   "watchtower_deep_classification_implementation_review_20260929": {
     "audit": "docs/audits/watchtower_deep_classification_implementation_review.v1.json sha256 d2026949842813b509841f4fe37577d1f3a6a529d8e2b83376cc232a1b226a19",
     "contract": "docs/audits/watchtower_deep_classification_deployment_contract.v1.json sha256 182c952f380d7e25e3f5c2523398f1f22765355f4ef596b0edbcbd2170763636; authorized=false; one bounded pinned-runtime reload/restart only after exact hash verification.",

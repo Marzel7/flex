@@ -35797,5 +35797,72 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0},
     "remote_handoff": "NOT_ATTEMPTED: disclosure control did not permit remote verification.",
     "next_action": "NONE for baseline promotion. Use the golden tag only through separately authorized deployment or rollback procedures."
+  },
+  "flex_v2_helius_rpc_credit_consumption_audit_20261020": {
+    "status": "COMPLETE_READ_ONLY_ATTRIBUTION",
+    "project_git_head": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "scope": "Retained local telemetry and bounded WAL-aware read-only checks only; no provider/API calls, source/configuration/database changes, restarts, replay, or deployment.",
+    "observation_windows_utc": {
+      "baseline": "2026-10-16T00:00:00Z/2026-10-17T00:00:00Z",
+      "spike_day": "2026-10-17T00:00:00Z/2026-10-18T00:00:00Z",
+      "spike_partial": "2026-10-18T00:00:00Z/2026-10-18T09:00:00Z",
+      "latest_complete": "2026-10-19T00:00:00Z/2026-10-20T00:00:00Z"
+    },
+    "internal_recorded_credit_units": {
+      "baseline": 1554910,
+      "spike_day": 3669600,
+      "spike_partial": 1946330,
+      "latest_complete": 3440,
+      "limitation": "Recorder-assigned units; no October account-usage snapshot validates dashboard billing equivalence."
+    },
+    "dominant_attribution": {
+      "service": "historical creator_funding_worker PID 92703 (stopped at audit)",
+      "spike_partial_recorded_credits": 1944340,
+      "methods": {
+        "getTransaction": 1520790,
+        "getSignaturesForAddress": 421880
+      },
+      "evidence": "PID-tagged rpc_metrics plus matching realtime funding-worker request logs.",
+      "not_creator_resolution": "Current resolver uses one-page/15-second generic policy; its October telemetry taxonomy is ui_api/unknown and cannot explain the historical funding-worker spike."
+    },
+    "runtime_at_audit": {
+      "running": {
+        "creator_resolution_worker": 71115,
+        "walkback_worker": 10716,
+        "watchtower_listener": 31403
+      },
+      "stopped": [
+        "creator_funding_worker",
+        "ws_cascade"
+      ],
+      "resolver_flags": {
+        "CREATOR_RESOLUTION_MAX_PAGES": "1",
+        "CREATOR_RESOLUTION_MAX_RUNTIME_SECS": "15",
+        "CRQ_HISTORICAL_DISCOVERY_ENABLED": "0"
+      },
+      "listener_flags": {
+        "LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED": "0",
+        "HELIUS_BIRTH_WS_ENABLED": "set_redacted"
+      },
+      "walkback_batch_rpc_budget": "80",
+      "credential_bindings": "HELIUS_RPC_URL/HELIUS_API_KEY present and redacted in active process environments."
+    },
+    "known_limitations": [
+      "No retained October Helius account usage snapshot: the 11.7M dashboard total cannot be assigned to Flex or reconciled exactly.",
+      "Walkback preserves batch rpc counts but no timestamp-indexed Helius method/credit ledger; listener has no shared rpc_metrics entries in the checked current window.",
+      "Resolver history metrics are labelled ui_api/unknown, so per-service physical provider requests and cache behaviour cannot be proven from the shared table.",
+      "LaserStream/WebSocket dashboard credits cannot be assigned to listener subscription attempts from retained evidence."
+    ],
+    "operational_health": {
+      "services": "listener/resolver/Walkback RUNNING; funding/Cascade STOPPED",
+      "disk_free_gib": 4.2,
+      "core_wal_bytes": 152472,
+      "ops_wal_bytes": 263712,
+      "swap_used_mib": 10050.25,
+      "swap_free_mib": 1213.75,
+      "recent_error_tail": "No matching 429, lock, or critical-WAL errors in final bounded log tails."
+    },
+    "verdict": "HOLD_EXACT_ACCOUNT_WIDE_ATTRIBUTION_UNAVAILABLE; demonstrated historical internal cost driver is stopped creator_funding_worker, not current creator-resolution.",
+    "next_action": "Separately authorize a bounded funding-extractor cost/stability review using existing telemetry to test duplicate-signature reuse and termination conditions; do not restart or enable the worker. For exact account-wide attribution, retain a sanitized timestamped account-usage export and per-service method/credit telemetry contract."
   }
 }

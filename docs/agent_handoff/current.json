@@ -35524,6 +35524,24 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_curve_first_deployment_preflight": {
+    "status": "READY_FOR_CONTROLLED_RESOLVER_ONLY_DEPLOYMENT",
+    "scope": "Read-only preflight only. No installation, restart, provider call, canonical write, source change, or production change occurred.",
+    "candidate": "18284f5c56a2448c12751702f242ad6c35670431 (clean isolated worktree; golden 2d825bbcf27f802bd0bfcef90cedeba43cc968eb is an ancestor)",
+    "runtime_authority": "Supervisor-owned creator_resolution_worker PID 71115 has cwd and PYTHONPATH /Users/kevinkeaveney/Production/flex-main-workers. The Supervisor file still names the DEV directory, but the inherited live environment overrides that static value. Production worker SHA-256 is 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb; loaded analyzer preimage SHA-256 is 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4, matching golden capture.",
+    "pid_transition": "PID 13810 completed its configured six-hour clean rollover while the queue was idle; retained log explicitly records this before PID 71115 starts. It was not an application crash.",
+    "candidate_contract": "Only the analyzer and qualification tests differ from golden. Normal one-page jobs retain mint-first and 15 seconds. High priority derives the curve PDA locally, spends at most eight of the existing 5,000 history pages on curve history, then preserves up to 4,992 mint pages; the 80-details-per-page allowance is shared, not additive. Strict CREATE/CREATE_V2 and fee-payer authority contract are preserved.",
+    "operational_health": "Resolver and listener RUNNING. Queue has no pending rows (19,811 complete, 143 ignored, 4,107 skipped). Core and OPS WAL files are 0 bytes; current resolver log records busy=0 and no stalled WAL cycles. Recent natural Helius history/detail requests succeeded with no observed 429 in the current resolver log; live credit balance is not observable without a provider request. Disk free is 8,428,060 KiB, above the established 2 GiB floor. Swap snapshot is high (6,453.12 MiB of 7,168 MiB used), but no swap-growth evidence or current memory fault was observed; carry this as a deployment observation rather than a source blocker.",
+    "rollback": "Exact preimage is available in the production runtime from golden analyzer SHA-256 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4; golden commit is locally visible. Restore only the resolver analyzer/source composition to that immutable preimage and perform the separately authorized controlled resolver restart. PumpPortal receipt writer and Walkback are outside the candidate diff.",
+    "qualification": "Retained provider-free qualification: 184 tests passed in the isolated candidate worktree and a fresh disposable checkout. No deployment gate pass is claimed because installation was not authorized or performed.",
+    "next_action": "If deployment is authorized, install only the qualified analyzer composition into /Users/kevinkeaveney/Production/flex-main-workers, verify hashes, restart only creator_resolution_worker under Supervisor, then perform bounded post-restart acceptance. Re-check disk/swap immediately before the restart.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

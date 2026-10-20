@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T20:19:03.855808+00:00"
+    "published_at_utc": "2026-10-20T20:23:40.800668+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T20:18:51.827312+00:00",
-    "working_tree": "Isolated minimal candidate clean; qualified offline; no deployment or restart"
+    "updated_at_utc": "2026-10-20T20:23:28.861757+00:00",
+    "working_tree": "Candidate unchanged; read-only preflight GO for separately authorized stopped-worker installation only"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36598,5 +36598,187 @@
     "PRODUCTION_CHANGES": 0,
     "SERVICE_RESTARTS": 0,
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
+  },
+  "minimal_funding_fix_deployment_preflight_20261020": {
+    "MINIMAL_FUNDING_FIX_PREFLIGHT": "PASS \u2014 INSTALLATION ONLY",
+    "CANDIDATE_INTEGRITY": {
+      "sha": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+      "tree": "0b566063f4cd43ea21985456cfc31277f2623700",
+      "hashes": [
+        {
+          "file": "src/acquisition/transaction.py",
+          "candidate_sha256": "cd5f190dd7c5e320f8d0741fdb123cd3e6a748718d72fb8a95b0ef4c4a081455",
+          "installed_sha256": "fc11a5401ccc869f433e99ee65687d8356f9a949d47a43d097fe8aea14a84605",
+          "installed_equals_baseline": true,
+          "bytes": 12717
+        },
+        {
+          "file": "src/core/creator_funding_worker.py",
+          "candidate_sha256": "99960d88b4c37df99e559d9a5e9dc0265c16f1677277830a0e9c4b86b4021116",
+          "installed_sha256": "d29a6d0e6a8c4fba9dd7be465455e17140cbf0fb7deaa0a9fac7e1e868e1da35",
+          "installed_equals_baseline": true,
+          "bytes": 94496
+        },
+        {
+          "file": "src/extractors/realtime_creator_funding_extractor.py",
+          "candidate_sha256": "66f1a83e8a14cc187e9484dec02a2d4a518940ea543bfaa17af48d59a5e59b7e",
+          "installed_sha256": "a9dbafabc0d3486639ccc98865eb628494ec03a55e53447bc4b64a0d7170f21d",
+          "installed_equals_baseline": true,
+          "bytes": 153350
+        }
+      ],
+      "qualification": "Retained 62-test provider-free pass and clean restoration verified against exact candidate tree; changed source and focused tests match qualified restoration. No new test run in this read-only preflight.",
+      "qualification_report_sha256": "050223cd7a86f1786f43299d7fb50be9795679053ef8127f5e1e11c60b1f1c18",
+      "scope": "Three executable files only: transaction version ceiling 1, physical outgoing detail/history/failure caps, explicit incomplete propagation. Existing timeout/retry policy unchanged. No attribution/parser change.",
+      "durable_budget_machinery": "ABSENT: no funding_budget module, producer hooks or queue budget-state changes"
+    },
+    "INSTALLED_PREIMAGE": {
+      "path": "/Users/kevinkeaveney/Production/flex-funding",
+      "head": "f10a56a01098755328f6d3b1eba9ba010412296d",
+      "tracked_and_untracked_status": "clean",
+      "local_source_overlays": "None; ignored src content consists of generated __pycache__ only. Ignored runtime database/log paths not installation targets.",
+      "active_configuration": {
+        "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python\n-m src.core.creator_funding_worker",
+        "directory": "/Users/kevinkeaveney/Production/flex-funding",
+        "autostart": "false",
+        "autorestart": "true",
+        "startsecs": "5",
+        "config_path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+        "config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+        "environment": {
+          "PYTHONPATH": "/Users/kevinkeaveney/Production/flex-funding",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+          "CFQ_BATCH_SIZE": "5",
+          "CFQ_BATCH_SIZE_IDLE": "1",
+          "CFQ_EXTRACTION_SLOTS": "2",
+          "CFQ_INTERVAL_SEC": "3",
+          "CFQ_INTERVAL_IDLE_SEC": "15",
+          "CFQ_BACKLOG_THRESHOLD": "10",
+          "CFQ_LOCK_SECONDS": "180",
+          "CFQ_MAX_ATTEMPTS": "5",
+          "CFQ_JOB_TIMEOUT_SECONDS": "90",
+          "CFQ_AUXILIARY_OUTGOING_TIMEOUT_SECONDS": "15",
+          "CFQ_INTEL_REFRESH_DEBOUNCE_SEC": "60",
+          "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "0",
+          "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "0",
+          "EVIDENCE_MIRROR_ENABLED": "0"
+        }
+      },
+      "service_isolation": "Listener bf1bdfc, resolution eed84ea, Walkback afbe9e5 remain separate pinned roots; do not install into shared DEV root or other service roots."
+    },
+    "WORKER_STATE": {
+      "supervisor": "STOPPED \u2014 Not started",
+      "process_probe": "No creator_funding_worker process found",
+      "active_autostart": false,
+      "activation_authorized": false
+    },
+    "SCHEMA_COMPATIBILITY": {
+      "status": "PASS",
+      "queue_columns": [
+        "creator_address",
+        "mint",
+        "migration_timestamp",
+        "create_tx_signature",
+        "status",
+        "next_attempt_at",
+        "locked_until",
+        "attempts",
+        "last_error",
+        "created_at",
+        "updated_at",
+        "source",
+        "funding_enqueued_at",
+        "funding_extracted_at",
+        "curve_completed_slot",
+        "enqueued_slot",
+        "priority_reason",
+        "job_priority",
+        "observation_required"
+      ],
+      "delta": "NONE \u2014 existing failed status, attempts, last_error and locked_until contract reused. Producer source unchanged relative to pinned funding baseline; no producer update or schema migration needed.",
+      "incomplete": "Marks existing row failed without deleting funding evidence; existing successful fast paths unchanged."
+    },
+    "DATABASE_AND_DISK_HEALTH": {
+      "read_only_probes": {
+        "flex_complete_database.db": {
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+          "bytes": 35652194304,
+          "wal_bytes": 0,
+          "shm_bytes": 0,
+          "journal_mode": "wal",
+          "schema_version": 848,
+          "queue_schema": "CREATE TABLE creator_funding_queue (\n                creator_address TEXT NOT NULL,\n                mint TEXT NOT NULL,\n                migration_timestamp TEXT,\n                create_tx_signature TEXT,\n                status TEXT DEFAULT 'pending',\n                next_attempt_at INTEGER DEFAULT 0,\n                locked_until INTEGER DEFAULT 0,\n                attempts INTEGER DEFAULT 0,\n                last_error TEXT,\n                created_at INTEGER DEFAULT (strftime('%s','now')),\n                updated_at INTEGER DEFAULT (strftime('%s','now')), source TEXT, funding_enqueued_at INTEGER, funding_extracted_at INTEGER, curve_completed_slot INTEGER, enqueued_slot INTEGER, priority_reason TEXT, job_priority INTEGER DEFAULT 0, observation_required INTEGER NOT NULL DEFAULT 0,\n                PRIMARY KEY (creator_address, mint)\n            )",
+          "queue_columns": [
+            "creator_address",
+            "mint",
+            "migration_timestamp",
+            "create_tx_signature",
+            "status",
+            "next_attempt_at",
+            "locked_until",
+            "attempts",
+            "last_error",
+            "created_at",
+            "updated_at",
+            "source",
+            "funding_enqueued_at",
+            "funding_extracted_at",
+            "curve_completed_slot",
+            "enqueued_slot",
+            "priority_reason",
+            "job_priority",
+            "observation_required"
+          ],
+          "read_probe": "PASS",
+          "probe_seconds": 0.008
+        },
+        "wt_ops_v2.db": {
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+          "bytes": 16194387968,
+          "wal_bytes": 0,
+          "shm_bytes": 32768,
+          "journal_mode": "wal",
+          "schema_version": 766,
+          "read_probe": "PASS",
+          "probe_seconds": 0.004
+        }
+      },
+      "main_lock_probes": {
+        "flex_complete_database.db": {
+          "conflicting_sqlite_main_lock": false,
+          "pid": 0
+        },
+        "wt_ops_v2.db": {
+          "conflicting_sqlite_main_lock": false,
+          "pid": 0
+        }
+      },
+      "disk_free_bytes": 9477316608,
+      "disk_free_observed": "8.8 GiB; 96% reported volume capacity",
+      "swap": "5120 MiB total; 3652.19 MiB used; 1467.81 MiB free at observation",
+      "memory_pressure_query": "48% system-wide memory free reported",
+      "assessment": "No sampled read/lock/WAL blocker to a sub-MB source-only installation. Resource observations are a point-in-time preflight, not database integrity certification or activation qualification. No full integrity scan, checkpoint, VACUUM or write-lock acquisition performed."
+    },
+    "ROLLBACK_READINESS": {
+      "status": "PASS",
+      "archive": "/private/tmp/minimal-funding-preflight-978d0dd45150/installed-source-preimage.tar",
+      "archive_bytes": 276480,
+      "archive_sha256": "f5acefed588790110d222f9621eecff7bc3ab86e939db1ab75f6d4d19823f4f1",
+      "rehearsal": "Candidate source replaced with archived preimage in disposable directory; all three restored bytes match installed source. Git baseline retains identical preimage too.",
+      "procedure": "Keep worker stopped; hash-check installed files against manifest before mutation; preserve archive; replace only three named source files from immutable candidate; verify postimage hashes. Roll back only those three source files if required; no DB rollback, service/config reload or restart. Any preimage drift requires recheck."
+    },
+    "INSTALLATION_DECISION": "GO \u2014 source installation only, subject to separate explicit installation authorization. No worker activation authorized.",
+    "NEXT_ACTION": "Request explicit authorization to install only the three candidate source files in /Users/kevinkeaveney/Production/flex-funding while creator_funding_worker remains stopped. Recheck stopped state and preimage hashes immediately before installation.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Read-only preflight; no executable behavior changed or installed.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "DATABASE_CHANGES": 0,
+    "SOURCE_INSTALLATIONS": 0,
+    "PRODUCTION_CHANGES": 0,
+    "SERVICE_RESTARTS": 0,
+    "storage": "Only small local report/preimage/rollback fixtures created; no live database clone, new retention path or file approaching 500 MB.",
+    "updated_at_utc": "2026-10-20T20:23:28.861757+00:00"
   }
 }

@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:11:22.293005+00:00"
+    "published_at_utc": "2026-10-20T22:17:12.571914+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:11:02.405633+00:00",
-    "working_tree": "Method-change investigation INSUFFICIENT_EVIDENCE: transport ASTs unchanged,18Oct prospective restoration proven, no getTransactionsForAddress caller/body retained. Workload change not causal method attribution. No implementation or runtime actions."
+    "updated_at_utc": "2026-10-20T22:16:56.207189+00:00",
+    "working_tree": "Live-attribution feasibility PARTIAL/HOLDfullcoverage:10s existing-record projection0rows; no shared completeHTTPobserver. Temporary metadata-only10sboundedobserver proposed, not implemented/deployed. Running services unchanged; funding/Cascade stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40323,5 +40323,110 @@
     "runtime_deployment_reason": "Targeted read-only source/runtime record investigation; no executable/config changes.",
     "bounds": "Selected18October DEV090 records under300KB each; three installed acquisition modules and targeted local overlays; AST/source hashes. Existing qualified telemetry aggregates reused. No raw provider payloads, database copies or newlargefiles.",
     "updated_at_utc": "2026-10-20T22:11:02.405633+00:00"
+  },
+  "helius_live_request_attribution_feasibility_20261020": {
+    "HELIUS_LIVE_REQUEST_ATTRIBUTION_FEASIBILITY": "PARTIAL existing metadata only; full three-service wire-method attribution unavailable under current no-change/no-service-action constraints",
+    "AVAILABLE_PASSIVE_OBSERVATION": {
+      "existing_rpc_metrics": "UTC epoch,PID,provider method label,status for some recorded requests; recent retained rows identify resolutionPID34567/getSignaturesForAddress. HTTPverb/path absent.",
+      "existing_stdout": "Listener method/timestamp records available, but no per-eventPID/status/path; Walkback batch counters lack exact request metadata. Do not infer fields or caller solely from timing.",
+      "OS_tools": "ps/lsof/nettop can identify processes and sockets/traffic totals, not HTTPS path,JSON-RPCmethod or HTTPstatus. Socket volume does not prove wallet-history requests.",
+      "bounded_probe": {
+        "start_utc": "2026-10-20T22:14:32.811836+00:00",
+        "end_utc": "2026-10-20T22:14:42.815841+00:00",
+        "window_seconds": 10.004004955291748,
+        "captured_existing_records": 0,
+        "event_file_bytes": 0,
+        "records_cap": 2048,
+        "bytes_cap": 1048576,
+        "event_artifact": "/private/tmp/helius-passive-feasibility-events.jsonl",
+        "http_path_method_coverage": "NOT_RECORDED; null rather than inferred",
+        "limitation": "Existing recorder gaps and async flush mean missing rows do not imply no requests."
+      },
+      "probe_interpretation": "0new retained metrics rows during10.004s window,0eventbytes. No inference of zero provider calls. Existing async flushing/disabled and bypassed recorders mean partial/delayed evidence.",
+      "observation_schema": [
+        "utc_timestamp",
+        "process_identity",
+        "http_method",
+        "sanitized_endpoint_path",
+        "provider_method_label",
+        "response_status"
+      ],
+      "unavailable_fields": "Null in qualified projection rather than derived or guessed."
+    },
+    "SERVICE_TRANSPORT_BOUNDARIES": {
+      "shared": "No single existing acquisition boundary covers allthree services. SharedTransactionAcquisition has optional sink only on routed requests and emits creator/launch/cursor metadata; direct calls bypass it.",
+      "listener": {
+        "root": "/Users/kevinkeaveney/Production/flex-listener",
+        "pid": 60284,
+        "boundaries": [
+          "pumpfun_curve_listener.__internal_rpc at4267 via aiohttp session.post at4298",
+          "additional direct aiohttp RPCadapter around9133",
+          "imported enhanced REST helpers use aiohttp/requests if invoked"
+        ],
+        "coverage_gap": "RPC metrics DB disabled; no currently configured TraceConfig found at relevant clients."
+      },
+      "creator_resolution": {
+        "root": "/Users/kevinkeaveney/Production/flex-main-workers",
+        "pid": 34567,
+        "boundaries": [
+          "PostMigrationAnalyzer._rpc_post at94",
+          "_post_rpc_with_fallback at304",
+          "fetch_tx_with_retry directaiohttp at442",
+          "known-signature parse POST at1162",
+          "enhanced iterator GET at266, conditional/dormant"
+        ],
+        "coverage_gap": "Direct detail/fallback and REST paths are not completely metered by shared recorder."
+      },
+      "Walkback": {
+        "root": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+        "pid": 10716,
+        "boundary": "walkback_worker._rpc at92 -> urllib.request.urlopen at99",
+        "coverage_gap": "Direct standard HTTPtransport bypasses shared transaction client and RPCmetrics. Cycle tracing observes queue/SQLite boundaries, not wire methods."
+      },
+      "requests_family": "Dormant enhanced/incoming helper SESSION uses requests.get/post. A coverage claim for every possible enhanced caller must account for this third HTTPfamily, not just aiohttp+urllib."
+    },
+    "SECRET_EXPOSURE_RISK": {
+      "safe_now": "Strict projection from already recorded PID/method/status/timestamp; no raw URLs,headers,params,bodies or exception strings retained.",
+      "unsafe_existing_options": "Do not enable raw acquisition mirroring/retention: it carries URL,payload,response and creator/cursor context outside allowed schema. Generic HTTPdebug,request repr and exception messages can expose keys/addresses/signatures.",
+      "forbidden": "No packet interception,TLSdecryption,debuggerinjection,live monkeypatch,raw process-memory dumping or new network request. None performed.",
+      "future_redaction": "Emit only fixed allowlisted endpoint templates (/ for RPC,/v0/transactions,/v0/addresses/{redacted}/transactions,otherwiseOTHER). Drop entire query/fragment,neverlogheaders/body/parameters or raw exceptions. Read or pass only a whitelisted scalarRPCmethod,neverserialize the body."
+    },
+    "MINIMUM_SAFE_INSTRUMENTATION": {
+      "status": "PROPOSAL ONLY \u2014 not implemented or qualified as executable code",
+      "scope": "One temporary disabled-by-default metadata-only observer; narrow hooks at aiohttp.ClientSession request boundary and urllib.request.urlopen for known live paths, plus requests.Session.request if enhanced helper coverage is required. No new database/worker/scheduler or persistent telemetry service.",
+      "record": "Exactly allowed six fields; PID/service identity from process,UTCtime,HTTPverb,constant sanitizedroute,allowlisted methodlabel,status ornull. No wallet/signature/query/body/header capture.",
+      "window": "One explicit10second activation window; no auto-renewal,rotation,retry or restart reset. Disable at expiry/cap; truncated/partial coverage declared in separate summary. No extension waiting for late responses.",
+      "behavior": "Original transport called exactly once with unchanged arguments; no added request,retry,failover,timeout,cache or attribution changes. Diagnostic failure disables observation, not acquisition.",
+      "semantics": "Qualify whether events count client dispatches or individual redirect hops; never present client-call counts as billed physical requests without redirect coverage. Status unavailable by deadline remainsnull.",
+      "offline_gate": "Before any deployment: provider-free fake transports verify redaction,allHTTPfamilies,exactly-once invocation,exceptions/cancellation preserved,expiry,cap,concurrency and disabled-default behavior. No implementation/test shim written in this task.",
+      "loading": "Existing processes have no verified safe hot-enable mechanism. Separate authorization must cover temporary diagnostic delivery and loading, potentially a controlled restart. Do not silently restart listener; begin any approved rollout with a non-intake worker. Runtime injection is not proposed as a workaround."
+    },
+    "EXPECTED_OUTPUT_SIZE": {
+      "actual_probe_event_bytes": 0,
+      "current_probe_cap_bytes": 1048576,
+      "proposed_per_event_max_bytes": 512,
+      "proposed_max_records_per_PID": 2048,
+      "proposed_single_event_file_max_bytes": 1048576,
+      "proposed_three_PID_total_max_bytes": 3145728,
+      "estimated_at_154requests_per_second_for10seconds": "1540events,at most788480bytes across observed requests; estimate only,not evidence154RPS occurred.",
+      "retention": "One fixed-size static diagnostic artifact perPID; no further append after10seconds/cap, no rotation or background retention growth. No file near500MB.",
+      "unbounded_growth_paths": 0
+    },
+    "GO_HOLD_DECISION": {
+      "GO": "Read-only, size-capped projections of existing retained metadata only. This narrow probe completed.",
+      "HOLD": "Complete live expensive-method caller attribution: existing passive data are insufficient, and instrumentation/loading/service changes are not authorized."
+    },
+    "NEXT_ACTION": "Separately authorize offline implementation/qualification of the temporary metadata-only observer with10second/1MiB-perPID bounds and an explicit loading plan. Deployment/loading remains a separate approval; keep all services unchanged and funding/Cascade stopped. Do not claim attribution from dashboard timing or this empty probe.",
+    "SERVICE_STATE": "Listener60284,resolution34567,Walkback10716RUNNING; funding/CascadeSTOPPED at final status snapshot.",
+    "PROVIDER_CALLS": 0,
+    "SOURCE_CHANGES": 0,
+    "DATABASE_WRITES": 0,
+    "CANONICAL_WRITES": 0,
+    "SERVICE_ACTIONS": 0,
+    "DEPLOYMENT": 0,
+    "PRODUCTION_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Read-only feasibility qualification; no executable instrumentation implemented or loaded.",
+    "updated_at_utc": "2026-10-20T22:16:56.207189+00:00"
   }
 }

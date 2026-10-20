@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T20:29:32.340223+00:00"
+    "published_at_utc": "2026-10-20T20:32:52.385639+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,7 +27348,7 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T20:29:29.928047+00:00",
+    "updated_at_utc": "2026-10-20T20:32:49.842055+00:00",
     "working_tree": "Qualified candidate clean; production funding preimage f10a56a0 plus exactly three installed candidate-file overlays; worker remains STOPPED/autostart=false"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -36918,5 +36918,22 @@
     "RUNTIME_DEPLOYMENT_GATE": "SOURCE_INSTALLED_NOT_ACTIVATED \u2014 running-code and functional runtime acceptance deliberately not attempted; no DEV_COMPLETE claim.",
     "storage": "One 276480-byte rollback archive plus compact JSON evidence/report. No new runtime retention paths or large files.",
     "updated_at_utc": "2026-10-20T20:29:29.928047+00:00"
+  },
+  "minimal_funding_fix_duplicate_request_recheck_20261020": {
+    "status": "ALREADY_INSTALLED \u2014 NO SECOND INSTALLATION; CURRENT SERVICE RECHECK PARTIAL",
+    "candidate": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "source_hashes": "All three match candidate",
+    "funding": "STOPPED; autostart=false",
+    "services": {
+      "listener": "Observed STARTING, then RUNNING pid 56351; changed from installation pid 55506",
+      "resolution": "RUNNING pid 34567 unchanged",
+      "walkback": "RUNNING pid 10716 unchanged"
+    },
+    "database": "Core/OPS WAL zero; read probes pass; OPS conflicting main-file lock sampled; Core no conflicting lock",
+    "disk_free_bytes": 9440104448,
+    "rollback": "Exact bundle verified; not applied because no new installation/mutation was attempted and installed hashes remain correct",
+    "actions": "Read-only duplicate-request verification only; no source writes, provider calls or service actions",
+    "next_action": "Keep funding stopped. Prior source-only installation remains complete; current unchanged-listener-PID condition is not satisfied. No automatic rollback or service intervention.",
+    "updated_at_utc": "2026-10-20T20:32:49.842055+00:00"
   }
 }

@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T23:05:11.342946+00:00"
+    "published_at_utc": "2026-10-20T23:20:32.403107+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27346,10 +27346,10 @@
   },
   "project": {
     "branch": "codex/birth-conflict-quarantine",
-    "git_head": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
+    "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T23:05:01.764135+00:00",
-    "working_tree": "DEPLOYMENTHOLD:4ae681bfinstalled/schemaadded/42quarantined,butlistenerstartupclosedconnectionerror. ListenerSTOPPED; othersunchanged. Requiresminimalmiddleware-awarerecovery; neverrestoreoldretryconsumerblindly."
+    "updated_at_utc": "2026-10-20T23:20:22.412589+00:00",
+    "working_tree": "ListenerstartuprecoveryPASS:ce98ec0aonefile2linefixinstalled;601sectenminnaturalacceptance. Listener81382RUNNING;42quarantinepreserved;othersunchanged. COMPLETE."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40521,5 +40521,15 @@
     "blocker": "InstalledTrackedConnection.__exit__closesfirstcontext; newensure_schema reusesclosedconnection. Intakeunavailableuntilminimalqualifiedfix.",
     "next_action": "Authorize minimal isolated DEV connection-lifecycle correction and actual middleware startup regression, followed by controlled listener-only recovery deployment/restart. Until qualified, keep listenerSTOPPED; do not reactivate old infinite-retry consumer.",
     "RUNTIME_DEPLOYMENT_GATE": "HOLD"
+  },
+  "flex_v2_listener_startup_recovery_20261021": {
+    "status": "PASS",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_listener_startup_recovery_20261021.v1.json",
+    "verification": "96focusedproviderfreetestspasswithactualinstalledwrapper;2lineruntimefixinstalled.601.37sec/21samplessamePID81382/noSQLiteerrors/exits;164births/162COMMITTED/11migrationnotifications/7persistedmints.42quarantineandcanonical/OPSunchanged;36receiptsbyteidentical/6missing.",
+    "production_flags": "Listener81382RUNNING; creator-resolution34567/Walkback10716unchangedRUNNING; funding/CascadeSTOPPED. Nonewschema; twonaturallyprocessedconflictsautomaticallyquarantined.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE. Listener restored; quarantine remains enforced.",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS"
   }
 }

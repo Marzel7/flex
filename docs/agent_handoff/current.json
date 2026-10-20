@@ -35765,6 +35765,23 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "production_changes": 0, "deletions": 0, "service_restarts": 0},
     "next_action": "Authorize a separately scoped evidence-retention review for a named audit group before any archival or deletion; age and inactive writers alone are insufficient."
   },
+  "flex_v2_normal_creator_recovery_failure_analysis_20261020": {
+    "status": "HOLD_NO_EVIDENCE_FOR_NORMAL_CURVE_FIRST_CHANGE",
+    "scope": "Bounded WAL-aware read-only comparison of the fixed recent cohort. No provider calls, replay, database writes, source changes, restarts, priority/budget changes, deployment, or production changes.",
+    "runtime_authority": "Creator-resolution queue source SHA-256 2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95 and worker SHA-256 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb under /Users/kevinkeaveney/Production/flex-main-workers. The deployed generic contract remains 15 seconds and one page; strict completion requires a Pump.fun CREATE/CREATE_V2 validation, rpc_pump_create creator authority, signature correlation, and non-inferred status.",
+    "fixed_55_cohort": "Exact two-hour migration window [1792506841,1792514041), creator-unknown by blank pf_ws_creator and earliest_tx_creator; 55 mints, deterministic mint-list SHA-256 e44d012ce28ba472a6f2f52eb0e8bc2b787098213439bb426f139b2c6a61613a. Each has one primary-key creator_resolution_queue row with source=migration_direct, status=skipped, skip_reason=BUDGET_EXCEEDED, tier=GENERIC, attempts=1, and pages_examined=1.",
+    "mint_first_evidence": "All 55 reached the one-page cap. Aggregate retained signature candidates examined=46,500: 45 rows at 1,000 and ten rows at 8-837. Structured failure data has 42 SEARCH_BUDGET_EXCEEDED/inferred_create/strict=false rows with inferred creator and source signature, plus 13 SEARCH_BUDGET_EXCEEDED/no_create_found rows with neither. Thus 42 have a retained strict-validation rejection signal and 13 have no retained candidate; neither group proves a valid CREATE lies beyond the first mint page. Runtime totals 502.22 seconds across worker attempts; recorded per-row elapsed time ranges 1.12-16.44 seconds.",
+    "curve_evidence": "No retained mint-keyed bonding-curve history page, curve candidate list, curve transaction decode, CREATE version discriminator, or curve strict-validation result exists for these mints. token_analysis has no bonding_curve_pda for all 55. rpc_response_cache is keyed only by opaque cache_key and wt_curve_impact_analysis is a post-create impact table, not a history/strict-CREATE acquisition ledger. Therefore curve-first one-page qualified CREATE recoveries: 0 PROVEN; actual count UNKNOWN for all 55. PDA/migration are not used as a proxy.",
+    "request_cost": "pages_examined records 55 mint-history pages but the retained rpc_metrics schema has no mint or signature correlation, so exact history/detail RPC calls and credits for the fixed cohort are UNKNOWN. A one-page curve-first substitution would keep the one-history-page ceiling, but has no demonstrated strict-recovery or credit advantage. Curve-then-mint would increase the ceiling to two history pages per attempted job and is unsupported by this cohort.",
+    "decision": "KEEP_MINT_FIRST_NORMAL. The fixed cohort establishes one-page exhaustion and a dominant inferred-candidate strict-rejection mode, but cannot establish that a curve page would yield any qualified CREATE, preserve any mint-only success, or reduce provider cost. Existing retained normal-budget qualification independently reached the same decision; its biased controls are not extrapolated to these 55.",
+    "query_safety": "Core opened mode=ro with query_only=ON and busy_timeout=250ms. Migration selection plan used idx_psi0a_token_analysis_migrated_mint; all 55 queue reads used the creator_resolution_queue mint primary key in batches no larger than 50. No scans, joins, provider calls, or writes.",
+    "next_action": "NONE for the normal strategy. Preserve one-page mint-first. Reconsider only with a separately retained, predeclared per-mint control set that records both first mint and first curve pages plus strict validation/version outcomes and correlated request costs; do not acquire or replay this cohort without separate authorization.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "flex_stable_v2_golden_baseline_promotion": {
     "status": "PROMOTED_METADATA_ONLY",
     "promoted_at_utc": "2026-10-19T23:42:19Z",

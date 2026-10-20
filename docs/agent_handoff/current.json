@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T23:43:08.842309+00:00"
+    "published_at_utc": "2026-10-20T23:49:27.608870+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T23:42:55.081794+00:00",
-    "working_tree": "Signature-historyspikeauditcomplete:exactcauseUNKNOWN;21creatorHTTPevents/14Walkbackcompletionsprimary,not450reconciled. Livefunctionalityunchanged."
+    "updated_at_utc": "2026-10-20T23:49:12.716450+00:00",
+    "working_tree": "Repeatcreatorreuseauditcomplete:1creator/3launcheswithdistinctCREATE/fundingtransactions;duplicateRPC/savingsUNKNOWN. Noacquisitionchangesjustified."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40540,6 +40540,16 @@
     "production_flags": "Listener81382/resolution34567/Walkback10716RUNNINGunchanged;funding/CascadeSTOPPED. No provider/source/DB/service changes.",
     "blocker": "ExactdashboardbucketalignmentandPID-linkeduninstrumentedphysicalrequestidentityevidencemissing;donotinventdominantcaller.",
     "next_action": "No source/service containment justified by this evidence. To resolve attribution, obtain the existing dashboard timezone/bucket width and separately authorize only the minimum missing PID-linked physical-request observation if required. No broad new investigation or instrumentation was started.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "flex_v2_repeat_creator_rpc_reuse_20261021": {
+    "status": "UNKNOWN_DUPLICATION_HOLD_CHANGES",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_repeat_creator_rpc_reuse_20261021.v1.json",
+    "verification": "Fixed20\u201323UTCindexedcohort125mints;1repeatcreator/3mints.3differentstrictCREATEsand3differentfundingtransactions;3completedWalkbackLINEAGE_GAPattempts1,cumulativeRPC31(notHTTP). NoexactPPproof/cacheentriesfound. ActualduplicateHTTP/ranges/savingsUNKNOWN.",
+    "production_flags": "Listener81382/resolution34567/Walkback10716RUNNINGunchanged;funding/CascadeSTOPPED. No provider/source/database/service changes.",
+    "blocker": "Matchingphysicalrequestidentities/historyrangesandhistoricalcacheavailabilitynotretained. Repeatedcreatorwalletaloneisnotredundancyproof.",
+    "next_action": "StopthisauditwithduplicationUNKNOWN. Beforeanycorrection,obtainretainedmatchingtransaction-requestidentityoridenticaladdress/cursor-rangeevidencewithpriorvalidcacheavailability. No providerreplay,newtelemetryorbroaderhistoricalscanwasstarted.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

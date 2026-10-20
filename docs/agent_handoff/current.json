@@ -35507,6 +35507,23 @@
     "canonical_writes": 0,
     "production_changes": 0
   },
+  "flex_v2_normal_curve_first_qualification": {
+    "status": "KEEP_MINT_FIRST_NORMAL",
+    "scope": "Read-only retained-evidence and provider-free qualification. No implementation, deployment, provider calls, canonical writes, source changes, service changes, or production changes.",
+    "golden_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "candidate_preserved": "18284f5c56a2448c12751702f242ad6c35670431; it deliberately keeps normal one-page jobs mint-first and changes only high-priority jobs.",
+    "runtime_authority": "Running creator_resolution_worker PID 13810 imports from /Users/kevinkeaveney/Production/flex-main-workers, not the editable DEV checkout. The worker remains RUNNING; its source SHA-256 is 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb. The independently captured runtime analyzer SHA-256 remains 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4, matching the golden package.",
+    "normal_budget": "One history page, existing candidate-detail allowance, existing retry/failover, and 15-second deadline. High priority is unchanged at eight curve pages plus up to 4,992 mint pages within the existing 5,000-page cap.",
+    "retained_evidence": "A 40-mint fixed chronological history cohort has 39 unknown CREATE identities and one independently verified CREATE_V2 absent from both first pages; it cannot measure strict CREATE recovery. A five-read exact-signature diagnostic has four verified curve-page CREATE_V2 positives and one non-CREATE, but is biased and has no independently decoded legacy control. The earlier one-allocation provider-free selection controls reach a curve-side CREATE_V2 positive but lose required synthetic mint-only legacy/V2 controls; curve-then-mint consumes an extra history acquisition. No independently qualified zero-RPC selector predicts the preferred one-page target.",
+    "strict_validation": "Preserved requirement: exact response-signature correlation, explicit successful-execution validation, Pump.fun program, exact mint and curve PDA, CREATE/CREATE_V2 compatibility, and qualified fee-payer creator authority. The retained four-signature serialized-creator decode is diagnostic evidence only and is not promoted to the runtime authority contract.",
+    "decision_basis": "Curve-first one-page superiority, representative legacy recovery, total RPC/Helius-credit advantage, actual mint-only loss count, actual curve-only gain count, and neither-path rate are UNKNOWN. The demonstrated modeled mint-only regression makes a default change unsupported; do not extrapolate the biased curve-only CREATE_V2 sample.",
+    "next_action": "Keep mint-first for normal jobs. Reconsider only if independently retained, predeclared, strict-validated controls cover legacy and CREATE_V2, recent/older/high-activity outcomes, mint-only/curve-only/neither placement, and a no-RPC path selector; no implementation is authorized now.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

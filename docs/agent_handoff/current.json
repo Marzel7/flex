@@ -35396,6 +35396,20 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_receipt_deployment": {
+    "status": "PASS",
+    "candidate": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
+    "golden_baseline": "FLEX_STABLE_V2 / 2d825bbcf27f802bd0bfcef90cedeba43cc968eb unchanged.",
+    "index": {"definition": "CREATE INDEX idx_migration_persist_queue_mint_status ON migration_persist_queue(mint, status)", "creation": "single 2-second-busy-timeout attempt, succeeded in 1.3 ms", "verified_plan": "SEARCH USING COVERING INDEX idx_migration_persist_queue_mint_status (mint,status)", "queue_records_modified": 0},
+    "installed_source": {"pumpportal_birth_audit_sha256": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae", "pumpportal_receipt_maintenance_sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce", "maintenance_command_sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364", "preimage_backup": "20 KiB local rollback bundle; previous receipt module SHA-256 6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"},
+    "listener": {"before_pid": 23723, "after_pid": 31403, "selective_restart": "watchtower_listener only", "duplicate_listener_processes": 0, "helius": "connected and PumpSwap subscription confirmed", "post_restart_failures": {"http_429": 0, "pumpswap_connection_refused": 0, "fatal_exit": 0}},
+    "receipts": {"legacy_flat_count": 4096, "legacy_newest_utc": "2026-10-19T19:12:42Z", "legacy_first_lookup": "PASS", "new_sharded_committed": 50, "newest_sharded_utc": "2026-10-20T09:00:01Z", "identity_and_bucket": "PASS", "retirement_executed": false},
+    "runtime_acceptance": {"pumpportal_births_after_restart": 50, "core_exact_indexed_mint_persistence": "PASS", "creator_resolution": "PID 13810 unchanged/RUNNING", "walkback": "PID 10716 unchanged/RUNNING", "creator_funding": "STOPPED under established receipt-only independence", "migration": "No migration naturally observed after this restart; active authenticated PumpSwap subscription confirms intake path."},
+    "health": {"core_wal": "absent/0 bytes", "ops_wal": "0 bytes", "disk_headroom": "approximately 9.2 GiB", "swap": "approximately 4.98 GiB used of 6 GiB", "new_lock_wal_pin_enospc": 0},
+    "rollback": "NOT_NEEDED. Local preimage bundle is retained; index intentionally remains if later source rollback is required unless separately authorized otherwise.",
+    "next_action": "Continue normal monitoring. Receipt retirement remains explicitly manual, bounded (16 buckets/128 candidates), indexed, fail-closed, and was not run during deployment.",
+    "safety": {"provider_calls": 0, "manual_rpc_acquisition": 0, "historical_replay": 0, "receipt_retirement": 0, "vacuum": 0, "checkpoint": 0, "unrelated_service_restarts": 0}
+  },
   "flex_stable_v2_final_receipt_deployment_preflight": {
     "status": "READY_FOR_CONTROLLED_INDEX_AND_RECEIPT_DEPLOYMENT",
     "observed_at_utc": "2026-10-20T09:34:00Z",

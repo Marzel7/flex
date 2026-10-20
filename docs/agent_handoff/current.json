@@ -35396,6 +35396,19 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_pumpswap_websocket_connectivity_verification": {
+    "status": "HELIUS_RATE_LIMIT_ESTABLISHED",
+    "observed_at_utc": "2026-10-20T07:49:00Z",
+    "effective_endpoint": "wss://mainnet.helius-rpc.com:443/?api-key=REDACTED",
+    "credential_authority": "Running listener PID 23117 has HELIUS_API_KEY present; HELIUS_MONITORING_API_KEY absent. The loaded source selects the regular API key in that condition.",
+    "single_bounded_diagnostic": {"dns": "SUCCESS (two public addresses)", "tcp": "SUCCESS in 33.2 ms", "tls": "SUCCESS TLSv1.3 in 44.8 ms", "websocket_handshake": "HTTP 429 Too Many Requests in 90.7 ms", "total_elapsed_ms": 176.4},
+    "classification": "Provider-side rate limiting/authenticated request-quota exhaustion at the HTTP WebSocket upgrade. This is not a DNS, TCP, TLS, local-listener, or endpoint-path refusal.",
+    "listener_comparison": "The listener's generic connection/refused classifier matches the 429 handshake exception text because it contains 'connection'; it logs Connection refused and deliberately exits after ten failures. The retained symptom is therefore consistent with the observed 429 response.",
+    "scope_controls": "One endpoint, one DNS/TCP/TLS/WebSocket attempt, no retry, no alternate endpoint, no subscription, no JSON-RPC payload, and no state change.",
+    "minimum_safe_recovery": "Restore or raise the authorized Helius WebSocket/request quota for the existing credential, then observe one naturally occurring listener reconnect. Do not alter retry budgets or failure detection.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "websocket_handshakes": 1},
+    "next_action": "Authorize provider-account/quota remediation for the existing credential; keep receipt deployment and Core DDL on hold until the listener reconnects and confirms its PumpSwap subscription."
+  },
   "flex_stable_v2_pumpswap_connectivity_diagnosis": {
     "status": "REMOTE_REFUSAL_ROOT_CAUSE_UNKNOWN_WITHOUT_CONNECTIVITY_PROBE",
     "observed_at_utc": "2026-10-20T07:43:31Z",

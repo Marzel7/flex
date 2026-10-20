@@ -35590,6 +35590,24 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_sqlite_audit_access_diagnosis": {
+    "status": "INSUFFICIENT_EVIDENCE_AUDIT_FAILURE_ATTRIBUTION__DATABASE_HEALTH_CLEARED",
+    "scope": "Strictly read-only diagnosis. No database writes, schema changes, checkpoints, VACUUM, restarts, provider calls, source changes, or production changes.",
+    "database_authority": "The live creator-resolution worker (PID 71115) uses DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db and WT_OPS_DB_PATH=/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db while importing production source. The live Walkback worker (PID 10716) uses those same Core/OPS paths while importing its separate production worktree. The earlier audit targeted those same paths. They are operational database bindings, not a DEV substitute. Frozen manifest records the same paths; it expects Core schema 847 and OPS schema 766.",
+    "manifest_drift": "Bounded read-only Core schema_version is 848 while frozen manifest records expected 847. OPS schema_version is 766 and matches. This is runtime-manifest schema drift, not evidence of SQLite corruption or the failed audit cause.",
+    "failed_audit": "Retained failure is SQLite primary error 14, SQLITE_CANTOPEN (unable to open database file), observed during the audit CLI preparation/open path using a file: URI with mode=ro. No retained extended SQLite error code or richer exception context exists. It therefore cannot be distinguished retrospectively between transient audit-side open conditions and client/configuration behavior.",
+    "filesystem_health": "Both database files and parent directory are readable/traversable. Core WAL/SHM are absent at inspection; OPS WAL is small (729,272 bytes) with 32,768-byte SHM. Core was held by the listener; no persistent OPS holder was observed. Disk free is about 8.4 GiB. Recent creator-resolution error log is stale at 2026-10-20T01:42:31Z and Walkback error log is older; no new retained lock, WAL-pin, or ENOSPC evidence was observed.",
+    "bounded_connection_test": "One controlled read-only connection per database succeeded: file:path?mode=ro, uri=True, PRAGMA query_only=ON, busy_timeout=250ms. Core SELECT 1 and schema_version completed in 20.89ms; its exact nonexistent-mint lookup used the queue primary-key covering index. OPS SELECT 1 and schema_version completed in 0.16ms. No immutable=1 flag was used.",
+    "worker_health": "creator_resolution_worker, walkback_worker, and listener were RUNNING at final check.",
+    "classification": "INSUFFICIENT_EVIDENCE for the historical audit failure's exact cause. Current evidence excludes ACTIVE_WAL_OR_LOCK_PROBLEM and DATABASE_HEALTH_PROBLEM at the bounded connection-test level; no claim is made about broader workload health.",
+    "minimum_safe_correction": "For a later audit, use the tested SQLite URI contract (mode=ro, uri=True, query_only=ON, 250ms busy timeout, strict deadline), capture sqlite_errorcode and sqlite_errorname on failure, and then run only the predeclared bounded indexed query. Separately reconcile the Core schema 847-versus-848 manifest drift before treating the frozen manifest as exact runtime configuration.",
+    "next_action": "No operational database recovery is required. Separately authorize a bounded audit rerun only after recording the tested connection contract; do not broaden queries or modify SQLite.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

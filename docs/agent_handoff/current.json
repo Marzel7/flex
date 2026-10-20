@@ -35396,6 +35396,18 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_helius_credit_renewal_recovery": {
+    "status": "PASS",
+    "observed_at_utc": "2026-10-20T08:57:44Z_to_09:07:52Z",
+    "listener": "watchtower_listener remained RUNNING as PID 23723 for 10m08s; no manual restart was performed.",
+    "websocket": "Helius connection and PumpSwap logsSubscribe acknowledgement retained (subscription id redacted). Two existing outbound TLS/443 sockets remained established at the end of the window.",
+    "intake": {"natural_migrations_after_confirmation": 9, "pumpportal_births_after_confirmation": 83},
+    "failures_after_confirmation": {"http_429": 0, "pumpswap_connection_refused": 0, "fatal_ten_failure_exit": 0, "database_is_locked": 0, "critical_wal_pinned": 0},
+    "database_health": {"core_wal": "absent/0 bytes", "ops_wal": "0 bytes", "disk_headroom": "approximately 9.5 GiB", "swap": "5.25 GiB used of 6 GiB"},
+    "scope_controls": {"provider_rpc_calls": 0, "canonical_writes_by_diagnostic": 0, "production_changes": 0, "service_restarts": 0},
+    "receipt_deployment": "NOT_AUTHORIZED by this recovery verification. Recovery removes the listener-stability blocker only; receipt candidate/index deployment requires its separate authorization and current preflight.",
+    "next_action": "Continue normal monitoring; if separately desired, repeat the scoped receipt deployment preflight before authorizing DDL or candidate installation."
+  },
   "flex_stable_v2_pumpswap_websocket_connectivity_verification": {
     "status": "HELIUS_RATE_LIMIT_ESTABLISHED",
     "observed_at_utc": "2026-10-20T07:49:00Z",

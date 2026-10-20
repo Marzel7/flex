@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T23:20:32.403107+00:00"
+    "published_at_utc": "2026-10-20T23:43:08.842309+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T23:20:22.412589+00:00",
-    "working_tree": "ListenerstartuprecoveryPASS:ce98ec0aonefile2linefixinstalled;601sectenminnaturalacceptance. Listener81382RUNNING;42quarantinepreserved;othersunchanged. COMPLETE."
+    "updated_at_utc": "2026-10-20T23:42:55.081794+00:00",
+    "working_tree": "Signature-historyspikeauditcomplete:exactcauseUNKNOWN;21creatorHTTPevents/14Walkbackcompletionsprimary,not450reconciled. Livefunctionalityunchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40531,5 +40531,15 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE. Listener restored; quarantine remains enforced.",
     "RUNTIME_DEPLOYMENT_GATE": "PASS"
+  },
+  "helius_signature_spike_verification_20261021": {
+    "status": "UNKNOWN_CAUSE_AUDIT_COMPLETE",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/helius_signature_spike_verification_20261021.v1.json",
+    "verification": "Full23:20\u201323:40UTCvs23:00\u201323:20window. CreatorPID34567has21vs19recordedHeliusgetSignaturesHTTP200/retries0;7at23:27\u201328.5strictCREATErecoverieseachwindow. Walkback14vs11completions;physicalmethoddispatchledgerabsent.450dashboardbucketnotreconciled.",
+    "production_flags": "Listener81382/resolution34567/Walkback10716RUNNINGunchanged;funding/CascadeSTOPPED. No provider/source/DB/service changes.",
+    "blocker": "ExactdashboardbucketalignmentandPID-linkeduninstrumentedphysicalrequestidentityevidencemissing;donotinventdominantcaller.",
+    "next_action": "No source/service containment justified by this evidence. To resolve attribution, obtain the existing dashboard timezone/bucket width and separately authorize only the minimum missing PID-linked physical-request observation if required. No broad new investigation or instrumentation was started.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

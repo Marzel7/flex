@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T20:23:40.800668+00:00"
+    "published_at_utc": "2026-10-20T20:29:32.340223+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T20:23:28.861757+00:00",
-    "working_tree": "Candidate unchanged; read-only preflight GO for separately authorized stopped-worker installation only"
+    "updated_at_utc": "2026-10-20T20:29:29.928047+00:00",
+    "working_tree": "Qualified candidate clean; production funding preimage f10a56a0 plus exactly three installed candidate-file overlays; worker remains STOPPED/autostart=false"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36780,5 +36780,143 @@
     "SERVICE_RESTARTS": 0,
     "storage": "Only small local report/preimage/rollback fixtures created; no live database clone, new retention path or file approaching 500 MB.",
     "updated_at_utc": "2026-10-20T20:23:28.861757+00:00"
+  },
+  "minimal_funding_fix_installation_20261020": {
+    "MINIMAL_FUNDING_FIX_INSTALLATION_STATUS": "PASS \u2014 SOURCE INSTALLED; WORKER STOPPED",
+    "CANDIDATE_SHA": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "INSTALLED_SOURCE_HASHES": [
+      {
+        "file": "src/acquisition/transaction.py",
+        "preimage_sha256": "fc11a5401ccc869f433e99ee65687d8356f9a949d47a43d097fe8aea14a84605",
+        "installed_sha256": "cd5f190dd7c5e320f8d0741fdb123cd3e6a748718d72fb8a95b0ef4c4a081455",
+        "candidate_sha256": "cd5f190dd7c5e320f8d0741fdb123cd3e6a748718d72fb8a95b0ef4c4a081455",
+        "match": true
+      },
+      {
+        "file": "src/core/creator_funding_worker.py",
+        "preimage_sha256": "d29a6d0e6a8c4fba9dd7be465455e17140cbf0fb7deaa0a9fac7e1e868e1da35",
+        "installed_sha256": "99960d88b4c37df99e559d9a5e9dc0265c16f1677277830a0e9c4b86b4021116",
+        "candidate_sha256": "99960d88b4c37df99e559d9a5e9dc0265c16f1677277830a0e9c4b86b4021116",
+        "match": true
+      },
+      {
+        "file": "src/extractors/realtime_creator_funding_extractor.py",
+        "preimage_sha256": "a9dbafabc0d3486639ccc98865eb628494ec03a55e53447bc4b64a0d7170f21d",
+        "installed_sha256": "66f1a83e8a14cc187e9484dec02a2d4a518940ea543bfaa17af48d59a5e59b7e",
+        "candidate_sha256": "66f1a83e8a14cc187e9484dec02a2d4a518940ea543bfaa17af48d59a5e59b7e",
+        "match": true
+      }
+    ],
+    "INSTALLED_IDENTITY": {
+      "path": "/Users/kevinkeaveney/Production/flex-funding",
+      "git_head": "f10a56a01098755328f6d3b1eba9ba010412296d",
+      "overlay": "Exactly three approved runtime source files from candidate; no other tracked source changed. No Git checkout, config or producer changes."
+    },
+    "WORKER_STATE": {
+      "before": "STOPPED",
+      "after": "STOPPED",
+      "autostart": false,
+      "configuration_unchanged": true,
+      "activation_authorized": false
+    },
+    "OTHER_SERVICE_HEALTH": {
+      "watchtower_listener": {
+        "before": {
+          "state": "RUNNING",
+          "pid": 55506
+        },
+        "after": {
+          "state": "RUNNING",
+          "pid": 55506
+        },
+        "pid_unchanged": true
+      },
+      "creator_resolution_worker": {
+        "before": {
+          "state": "RUNNING",
+          "pid": 34567
+        },
+        "after": {
+          "state": "RUNNING",
+          "pid": 34567
+        },
+        "pid_unchanged": true
+      },
+      "walkback_worker": {
+        "before": {
+          "state": "RUNNING",
+          "pid": 10716
+        },
+        "after": {
+          "state": "RUNNING",
+          "pid": 10716
+        },
+        "pid_unchanged": true
+      }
+    },
+    "DATABASE_AND_DISK_HEALTH": {
+      "before": {
+        "disk_free_bytes": 9463255040,
+        "databases": {
+          "flex_complete_database.db": {
+            "bytes": 35652194304,
+            "wal_bytes": 0,
+            "journal_mode": "wal",
+            "schema_version": 848,
+            "read_probe": "PASS",
+            "conflicting_main_lock": false
+          },
+          "wt_ops_v2.db": {
+            "bytes": 16194387968,
+            "wal_bytes": 0,
+            "journal_mode": "wal",
+            "schema_version": 766,
+            "read_probe": "PASS",
+            "conflicting_main_lock": false
+          }
+        }
+      },
+      "after": {
+        "disk_free_bytes": 9462857728,
+        "databases": {
+          "flex_complete_database.db": {
+            "bytes": 35652194304,
+            "wal_bytes": 0,
+            "journal_mode": "wal",
+            "schema_version": 848,
+            "read_probe": "PASS",
+            "conflicting_main_lock": false
+          },
+          "wt_ops_v2.db": {
+            "bytes": 16194387968,
+            "wal_bytes": 0,
+            "journal_mode": "wal",
+            "schema_version": 766,
+            "read_probe": "PASS",
+            "conflicting_main_lock": false
+          }
+        }
+      },
+      "assessment": "Bounded read-only probes pass; no sampled conflicting SQLite main locks; Core/OPS WALs zero; schema versions unchanged. Not a full DB integrity audit."
+    },
+    "ROLLBACK_READINESS": {
+      "status": "PASS",
+      "bundle": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/funding_spike_fix_installation_978d0dd45150/installed-source-preimage.tar",
+      "sha256": "f5acefed588790110d222f9621eecff7bc3ab86e939db1ab75f6d4d19823f4f1",
+      "bytes": 276480,
+      "verified": "Bundle exact contents verified against installed preimage immediately before source replacement; prior source-only rollback rehearsal passed. Original preflight bundle retained too."
+    },
+    "NEXT_ACTION": "NONE \u2014 authorized source-only installation complete. Keep creator_funding_worker stopped; activation requires separate explicit authorization.",
+    "FLEX_STABLE_V2": "Unchanged at 2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "SCHEMA_CHANGES": 0,
+    "HISTORICAL_REPLAY": 0,
+    "SERVICE_RESTARTS": 0,
+    "CONFIGURATION_CHANGES": 0,
+    "FUNDING_ACQUISITIONS": 0,
+    "RUNTIME_DEPLOYMENT_GATE": "SOURCE_INSTALLED_NOT_ACTIVATED \u2014 running-code and functional runtime acceptance deliberately not attempted; no DEV_COMPLETE claim.",
+    "storage": "One 276480-byte rollback archive plus compact JSON evidence/report. No new runtime retention paths or large files.",
+    "updated_at_utc": "2026-10-20T20:29:29.928047+00:00"
   }
 }

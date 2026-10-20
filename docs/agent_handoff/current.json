@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED_PENDING_REMOTE_VERIFICATION",
-    "updated_at_utc": "2026-10-20T17:20:32.303521+00:00"
+    "updated_at_utc": "2026-10-20T17:46:43.507289+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -36448,5 +36448,16 @@
     "safety": "Provider calls=0; canonical writes=0; source changes=0; production changes=0; no replay/checkpoint/VACUUM/clone.",
     "blocker": "No proven per-job/global provider budget; demonstrated failed-read/pagination amplification; cache/error and restart storage bounds unqualified.",
     "next_action": "KEEP_STOPPED; review minimal bounded outgoing-scan/error-handling correction and budget qualification under separate authorization."
+  },
+  "flex_v2_funding_rpc_correction_20261020": {
+    "engineering_revision": "/Users/kevinkeaveney/Production/flex-funding @ f10a56a01098755328f6d3b1eba9ba010412296d; tracked clean",
+    "status": "HOLD_POLICY_DECISION_REQUIRED",
+    "audit": "docs/audits/flex_v2_funding_rpc_correction_status_20261020.v1.json",
+    "verification": "Golden commit and committed runtime manifest verified against retained copy. Pinned funding tracked-clean; version=0 confirmed. No approved job-wide total or failure ceiling found. No candidate/tests yet.",
+    "production_flags": "Deployment/restart unauthorized; no runtime change. Current supervisorctl status unavailable in sandbox; previous stopped status not reasserted as a fresh observation.",
+    "runtime_deployment_required": false,
+    "blocker": "User section 3 requires stopping when approved acquisition bounds do not exist; total HTTP-attempt and failed-read ceilings absent.",
+    "next_action": "User supplies approved per-investigation signature-page, transaction-detail-attempt, failed-read and all-provider-HTTP-attempt ceilings, defining applicability across retries. Preserve or reduce existing 90-second timeout, concurrency and retry/failover settings. Then create isolated branch/worktree, implement and qualify only this correction.",
+    "safety": "Provider calls=0; canonical writes=0; source changes=0; production changes=0."
   }
 }

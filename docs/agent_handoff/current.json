@@ -35559,6 +35559,22 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_creator_recovery_strategy_decision": {
+    "status": "KEEP_EXISTING_ONE_PAGE_MINT_FIRST",
+    "scope": "Read-only retained-evidence comparison and provider-free request-bound modeling. No implementation, deployment, provider calls, canonical writes, source changes, service restarts, or production changes.",
+    "observed_population": "Recent creator-resolution cohort is 2,371 rows: 1,835 complete GENERIC priority-200, 535 skipped GENERIC priority-200, and one pending priority-200. Zero completed HIGH_PRIORITY rows. Skipped rows are not assumed to have acquired history, so actual aggregate acquisition is UNKNOWN.",
+    "strategy_A": "Existing one-page mint-first serves the automatic priority-200 cohort. Worst case per job is one history request plus up to 80 candidate detail requests; cohort ceiling is 2,371 history and 189,680 detail requests. Population strict-CREATE recovery rate and legacy/V2 split are not retained. Existing strict validation and durable handoff apply.",
+    "strategy_B": "One-page curve-first would serve the same automatic cohort under a hypothetical source change. It has the same one-history/80-detail per-job ceiling as A, but a retained biased five-read diagnostic has four curve-page CREATE_V2 positives and no verified legacy positive; the one-allocation controls lose required modeled mint-only legacy/V2 successes. Population recovery, mint-only loss count, and Helius savings are UNKNOWN. Strict validation/handoff can be preserved but superiority is unqualified.",
+    "strategy_C": "A bounded one-curve-page then one-mint-page approach can preserve the modeled mint-only controls when the mint fallback runs, and can reach the retained curve-side CREATE_V2 controls. It doubles the history ceiling to two per attempted job: 4,742 history requests across the 2,371-row cohort. Using the existing 80-details-per-page allowance yields a 160-per-job, 379,360-detail ceiling. These are ceilings, not expected usage; actual acquisition is UNKNOWN and no representative strict recovery rate supports paying the extra page for every automatic job. Candidate-style strict validation and durable handoff remain compatible.",
+    "strategy_D": "Qualified candidate 18284f5 changes only already-HIGH_PRIORITY execution: up to eight curve pages then up to 4,992 mint pages, within the pre-existing 5,000-page ceiling and shared 80-details-per-page cap (worst case 5,000 history/400,000 details per high-priority job). Its observed reach in the 2,371-row cohort is 0%, so it provides no demonstrated benefit to automatic priority-200 migrations without a classification change. Strict validation and DEV090 durable handoff were covered by its provider-free qualification.",
+    "decision": "Do not change priority threshold or normal budget. The smallest justified strategy is A, retaining normal one-page mint-first. D may be deployed only for the existing high-priority population under separate deployment authorization; B and C are HOLD because representative recovery benefit and Helius-credit advantage are unproven, while C has a known additional request ceiling.",
+    "next_action": "NONE for strategy policy. If future evidence is required, use only independently retained representative strict controls; do not turn priority-200 automatic jobs into high-priority or add fallback without separate authorization and a bounded provider-cost acceptance.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

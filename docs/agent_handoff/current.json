@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T20:32:52.385639+00:00"
+    "published_at_utc": "2026-10-20T20:57:54.663107+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T20:32:49.842055+00:00",
-    "working_tree": "Qualified candidate clean; production funding preimage f10a56a0 plus exactly three installed candidate-file overlays; worker remains STOPPED/autostart=false"
+    "updated_at_utc": "2026-10-20T20:57:43.217892+00:00",
+    "working_tree": "Funding three-file fix installed unchanged; funding STOPPED. Listener recurrent PumpSwap fatal exits; acceptance review HOLD. Read-only check only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36935,5 +36935,60 @@
     "actions": "Read-only duplicate-request verification only; no source writes, provider calls or service actions",
     "next_action": "Keep funding stopped. Prior source-only installation remains complete; current unchanged-listener-PID condition is not satisfied. No automatic rollback or service intervention.",
     "updated_at_utc": "2026-10-20T20:32:49.842055+00:00"
+  },
+  "listener_turnover_verification_20261020": {
+    "LISTENER_TURNOVER_STATUS": "HOLD \u2014 repeated operational failure with automatic Supervisor recovery, not planned turnover",
+    "EXIT_REASON": {
+      "old_pid": 55506,
+      "exit": "2026-10-20T20:32:18.335Z; status 1; Supervisor not expected",
+      "replacement_pid": 56351,
+      "spawn": "2026-10-20T20:32:19.342Z",
+      "running": "2026-10-20T20:32:29.356Z",
+      "supervisor_log_timezone": "Europe/London BST: log timestamps 21:32 correspond to UTC 20:32",
+      "application_record": "[WEBSOCKET][PUMPSWAP] FATAL: 10 consecutive failures \u2014 exiting for supervisord restart immediately before [LISTENER] 2026-10-20T20:32:19Z Starting listener",
+      "source_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py:10996-11014",
+      "mechanism": "Connection/refused-class exceptions increment consecutive failures; after ten failures os._exit(1); Supervisor autorestart=true respawns process. No exception traceback needed for this explicit fatal path.",
+      "recurrence": "Repeated exits about every 4m45s; visible since 20:08Z, before funding source installation at 20:29Z. Subsequent replacements 57264, 57803, 58337, 58807, 59199.",
+      "helius_429": "No exact HTTP/rate-limit 429 line found in bounded 3 MB listener stdout tail; does not establish absence outside that interval. Actual underlying WebSocket refusal/network cause not proven by generic connection-class message."
+    },
+    "CURRENT_LISTENER_HEALTH": {
+      "supervisor": "RUNNING pid 59199 at snapshot; spawned 20:56:06.471Z, RUNNING 20:56:16.505Z",
+      "assessment": "RUNNING alone is not stable: PumpSwap connection retry/fatal loop persists",
+      "application_exceptions": "Current-process CORE_AUTHORITY_CONFLICT birth insert failures and WEBHOOK_BIRTH RETRY_PENDING RuntimeError observed; seed subscription two-second deadline exceeded (logged non-fatal); local SSE endpoint connection refusal. Older stderr ENOSPC/DB_LOCK_ERROR entries end at 20:18Z, not evidence of new lock failures in current PID."
+    },
+    "PUMPPORTAL_INTAKE": {
+      "connection": "Connected; subscribed to newToken + migration in current process",
+      "birth_intake": "16 birth log entries in sampled current-process segment through 20:57Z; receipt intake is active",
+      "persistence": "Do not equate receipt with successful canonical persistence: CORE_AUTHORITY_CONFLICT and durable retry logs present. No canonical-write verification or payload copying performed."
+    },
+    "PUMPSWAP_SUBSCRIPTION": "UNHEALTHY \u2014 repeated connection/refused-class retries; no successful subscription confirmed in current process; same ten-failure fatal cycle caused exact PID transition.",
+    "OPS_LOCK_STATUS": {
+      "classification": "Prior observed conflict consistent with transient normal activity; no current conflicting main-file lock found",
+      "owner_metadata": "Walkback pid 10716, walkback_worker.py:513 in _ops_conn; committed and closed connection, sqlite_transaction_active=false; RELEASE_PENDING residual owner metadata at 20:56:30.958Z",
+      "stale_vs_active": "Residual metadata does not prove a held kernel lock. No current stale held lock demonstrated; files not deleted or changed.",
+      "Core_OPS_WAL_bytes": [
+        0,
+        0
+      ],
+      "read_probes": "PASS; schema versions 848/766",
+      "new_lock_failures": "No WAL_PIN or database-is-locked lines in bounded recent stdout; older stderr lock errors distinguished by its 20:18Z mtime. No checkpoint or full integrity scan."
+    },
+    "FUNDING_FIX_INTEGRITY": {
+      "candidate": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+      "three_installed_hashes": "All match candidate; source untouched",
+      "worker": "STOPPED; autostart=false",
+      "golden_baseline": "Preserved; no source/ref changes"
+    },
+    "READY_FOR_FUNDING_ACCEPTANCE_REVIEW": "NO \u2014 listener repeatedly exits and PumpSwap subscription is unavailable",
+    "NEXT_ACTION": "Keep funding stopped. Separately authorize targeted diagnosis/correction of the PumpSwap connection failure and fatal-restart loop; retain birth-persistence conflict as an observed issue. Recheck live subscription health after an authorized correction before funding acceptance. No changes made in this check.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Bounded read-only operational verification; no code changed.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "SERVICE_RESTARTS": 0,
+    "DATABASE_WRITES": 0,
+    "bounds": "Supervisor last 160 KB; listener stdout last 3 MB; stderr last 60 KB; compact schema and lock probes; no historical replay",
+    "updated_at_utc": "2026-10-20T20:57:43.217892+00:00"
   }
 }

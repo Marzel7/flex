@@ -16148,8 +16148,8 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T19:45:08.561922+00:00",
-    "verification": "Publisher requires exact origin file match before completion."
+    "published_at_utc": "2026-10-20T19:52:33.873996+00:00",
+    "verification": "Publisher requires exact remote file match before completion."
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27349,8 +27349,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "bc9c30dcd389c97ee9378512972770de40e2928d",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T19:44:22.631070+00:00",
-    "working_tree": "Candidate unchanged and clean; read-only activation gate HOLD"
+    "updated_at_utc": "2026-10-20T19:52:21.426578+00:00",
+    "working_tree": "Existing candidate unchanged/clean; explicit persistence stop before source correction"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36511,5 +36511,19 @@
     "production_flags": "No deployment/restart/activation; provider calls=0, canonical/live DB writes=0, application source changes=0, production changes=0.",
     "blocker": "GLOBAL_HTTP_ADMISSION; DURABLE_IDENTITY_AND_FRESH_ADMISSION; STORAGE_TARGET; SERVICE_SOURCE_COMPOSITION",
     "next_action": "Keep funding activation prohibited. Review these four concrete blockers and separately authorize only the minimum correction/policy work needed. No application source/configuration change was made in this audit."
+  },
+  "flex_v2_funding_activation_blocker_correction_20261020": {
+    "engineering_revision": "bc9c30dcd389c97ee9378512972770de40e2928d",
+    "status": "HOLD_REQUIRED_PERSISTENCE_CONTRACT",
+    "audit": "docs/audits/flex_v2_funding_activation_blocker_correction_20261020.v1.json",
+    "finding": "User section 4 explicitly requires stop if deletion destroys sole budget history. Reconfirmed unconditional queue DELETE followed by same-identity INSERT resets consumed state. Fail-open lifecycle telemetry cannot replace dispatch authority. Existing NULL conflicts remain closed; actual producer still grants fresh state to synthetic old migrations.",
+    "tests": "3 provider-free negative probes passed; no source/configuration/live DB/provider/process changes.",
+    "minimum_contract": "Retain investigation identity and consumed counters/deadline through queue clear/cleanup/recreation, including NULL history; enforce no deletion/reset at DB and producer boundaries. If queue deletion must persist, specify separate bounded surviving metadata with fail-closed quotas. Require trustworthy fresh-live admission, not merely INSERT success. No new DB/journal introduced.",
+    "storage_policy": "User clarification accepted: old authoritative Core size alone is not prohibited; bounded incremental/WAL/temp guard correction remains pending required stop.",
+    "runtime_deployment_required": false,
+    "production_flags": "No deployment, migration, activation or restart. Golden/receipts/creator resolution/funding attribution/Walkback preserved.",
+    "blocker": "Durable authority retention and genuine-new-investigation admission semantics unresolved; existing queue deletion destroys authority.",
+    "next_action": "Resolve/approve the minimum durable identity-retention contract: retain existing queue identities (including NULL-state history) through clearing/retries/recreation, or specify separately bounded surviving persistence if deletion must remain. Define fresh-live admission against that retained authority. Then resume the authorized bounded corrections in the existing isolated worktree; no deployment or restart is authorized.",
+    "safety": "Provider calls=0; canonical writes=0; application source changes=0; live DB changes=0; production changes=0; restarts=0."
   }
 }

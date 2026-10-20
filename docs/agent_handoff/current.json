@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:49:55.813410+00:00"
+    "published_at_utc": "2026-10-20T22:53:35.289029+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27346,10 +27346,10 @@
   },
   "project": {
     "branch": "codex/birth-conflict-quarantine",
-    "git_head": "2261f031c5d563927240784dd8d1508b5bd6dc6e",
+    "git_head": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:49:44.622309+00:00",
-    "working_tree": "Quarantine deployment preflight HOLD: candidate2261f031covers27of42;15mixed-Core-creator cases remain retryable. No engineering/live changes; source rollback bundle verified."
+    "updated_at_utc": "2026-10-20T22:53:26.001740+00:00",
+    "working_tree": "Successor4ae681bfqualified:42/42coverage,204provider-free tests and clean restoration. No live changes; ready for bounded deployment preflight."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40481,5 +40481,15 @@
     "blocker": "Candidate len(creators)==1 guard excludes15permanent signature-conflict rows across3mints, leaving retry loop. Earlier readiness claim superseded by this relevant source-to-live-pattern finding.",
     "next_action": "Separately authorize the smallest DEV correction: qualify permanent CREATE-signature conflict disposition when existing Core creator fields differ, using the unchanged canonical signature and completed VALID anchor as proof without selecting/reconciling/overwriting either creator field. Add the15existing identity-pattern controls, seal a new candidate, then repeat scoped deployment preflight.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "pumpportal_quarantine_coverage_20261020": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "engineering_source_revision": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/pumpportal_quarantine_coverage_20261020.v1.json",
+    "verification": "All42read-only live evidence cases qualify:27original+15mixed-Core-creator cases.204provider-free tests pass in DEV and clean restoration.36matching receipts byte-identical;6missing remain absent.",
+    "production_flags": "No installation/DDL/livequarantine/provider calls/service actions. Existing source and canonical identities preserved.",
+    "blocker": null,
+    "next_action": "Run bounded read-only deployment preflight for4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93, refreshing exact installed preimage,42evidence,one-field migration compatibility and rollback readiness. Do not install,migrate,quarantine or restart without separate authorization.",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED"
   }
 }

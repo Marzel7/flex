@@ -35608,6 +35608,23 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_generic_create_recovery_completion": {
+    "status": "PASS_BOUNDED_EVIDENCE_RETRIEVAL_WITH_RETAINED_LIMITATIONS",
+    "scope": "Seven-day rolling, priority-200 creator-resolution evidence retrieval only. WAL-aware SQLite read-only connections, no provider calls, replay, database writes, source changes, restarts, deployment, or production changes.",
+    "runtime_authority": "Supervisor-owned creator_resolution_worker PID 71115 imports /Users/kevinkeaveney/Production/flex-main-workers. SHA-256: creator_resolution_worker.py=797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb; creator_resolution_queue.py=2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95.",
+    "cohort_contract": "Current rolling seven-day cohort is rows with priority=200 and updated_at within seven days. The query was forced onto idx_creator_resolution_queue_updated; its plan is SEARCH ... USING INDEX idx_creator_resolution_queue_updated (updated_at>?), with only a temporary aggregate group-by. It returned 2,374 rows: 1,833 complete, 541 skipped, and zero pending/retry/failed in this defined window.",
+    "qualified_recovery": "293/1,833 completed rows retained both resolved_creator and create_tx_signature (15.98% of completed); 293/2,374 of all terminal cohort rows (12.34%). The remaining 1,540 completed rows lack one or both retained fields. All 541 skipped rows have skip_reason=BUDGET_EXCEEDED.",
+    "strict_and_handoff_evidence": "For all 293 queue-level qualified rows, Core migration_walkback_handoff primary-key lookup reports COMPLETE. Exact unique (epoch,mint) wb_create_delivery lookup reports 153 ACK records with qualification DEV074_STRICT_CREATE and exact mint/creator/signature agreement; 140 otherwise have no current-epoch delivery record. OPS primary-key walkback lookup for the same population reports 153 completed (90 LINEAGE_GAP, 59 NO_ATTRIBUTION_FOUND, 4 WATCHTOWER_CONFIRMED) and 140 skipped. This establishes 153 cross-plane strict deliveries/Walkback terminal outcomes; it does not make absent delivery rows failures.",
+    "classification_limitations": "Neither the queue nor durable delivery retains a legacy CREATE versus CREATE_V2 discriminator, or an independently auditable fee-payer-versus-serialized-creator representation. The OPS create-event ledger has no matching rows for these 293 signatures. Those requested distinctions are UNKNOWN, not zero. Current source requires strict Pump CREATE, rpc_pump_create authority, a non-inferred validation status, creator, and signature before status=complete, but source behavior is not retroactive per-transaction proof.",
+    "rpc_telemetry": "Queue telemetry retains 2,374 rows with pages_examined (sum 2,374) and sigs_examined (sum 2,094,487). The rpc_metrics table has no mint/signature correlation field, so actual history/detail transport-request counts cannot be derived for this cohort. Page/signature counters are not represented as provider request totals.",
+    "schema_848": "Core PRAGMA schema_version is 848; OPS remains 766. Current Core metadata includes idx_migration_persist_queue_mint_status on migration_persist_queue(mint,status), consistent with the previously authorized receipt-maintenance index. However schema_migrations has no 847-to-848 mapping (its retained row is an unrelated 2026-03-05 wallet-fingerprint migration), so the SQLite schema cookie alone cannot conclusively attribute the increment. Frozen manifest schema 847 remains stale and was not modified.",
+    "next_action": "Use the explicit 2,374-row / updated_at-indexed denominator for future comparisons. If legacy/V2 or serialized-authority breakdown is needed, separately authorize a new evidence-retention design; do not infer it from absent fields or reacquire providers.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

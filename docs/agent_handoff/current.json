@@ -35396,6 +35396,18 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_listener_crash_loop_diagnosis": {
+    "status": "CAUSE_ESTABLISHED_READ_ONLY",
+    "observed_at_utc": "2026-10-20T07:34:00Z",
+    "cause": "The loaded PumpSwap WebSocket loop records connection refusal, increments consecutive failures, and deliberately calls os._exit(1) at ten failures. This is an intentional Supervisord-restart path, not an unhandled traceback or SQLite/WAL failure.",
+    "source_location": "Production/flex-listener/src/core/pumpfun_curve_listener.py:10990-11015; fatal branch at 11010-11014.",
+    "three_exit_comparison": "Supervisor exits at 08:19:49, 08:24:33, and 08:29:18 BST are each exit status 1 after the same retained PUMPSWAP connection-refused/fatal-ten-failures record; respawn follows in about one second.",
+    "loaded_authority": {"base_commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f", "runtime_overlay": "dirty", "launcher_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434", "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634", "receipt_module_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"},
+    "intake": "PumpPortal birth records continue after every restart. Migration handling emits retained delayed recheck records. Exact missed-event count is UNKNOWN because no gap-complete external intake ledger exists.",
+    "health": "Core and OPS WALs observed at 0 bytes; no current WAL pin; approximately 11 GiB disk headroom. Historical ENOSPC/lock errors are retained but do not explain the current PumpSwap fatal path.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0},
+    "next_action": "Authorize a narrowly scoped recovery decision for the PumpSwap WebSocket failure policy or endpoint connectivity; do not run receipt deployment or Core DDL until listener stability is restored."
+  },
   "flex_stable_v2_database_health_gate": {
     "status": "HOLD_DATABASE_HEALTH",
     "candidate": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",

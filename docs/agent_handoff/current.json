@@ -35487,6 +35487,15 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0},
     "next_action": "Stabilize and attribute the active listener crash loop, then repeat this bounded health gate before separately authorizing short-timeout production DDL."
   },
+  "flex_historical_pumpportal_storage_cleanup_audit": {
+    "status": "HOLD_NO_SAFE_DELETION_AUTHORITY",
+    "observed_at_utc": "2026-10-20T09:33:00Z",
+    "finding": "The deployed compact receipt store is separate and preserved (approximately 19 MiB at audit start). The reported historical footprint exists in retained audit/research artifacts, not an active PumpPortal spool: 2,425,044,992 allocated bytes / 2,411,741,880 logical bytes across 7,398 pre-October files in five bounded groups. The three largest groups are ops_discovery_p3r_s2b_runs (1,017,278,464 allocated bytes), byzantine_lifecycle_103 (660,078,592), and operation_all_birth_research (415,432,704). Canonical birth signature and transaction ledgers add 332,255,232 allocated bytes and remain canonical/audit evidence.",
+    "classification": {"safe_to_delete_bytes": 0, "safe_after_archival_bytes": 0, "unknown_reference_hold_bytes": 2425044992, "current_compact_receipts": "PRESERVE", "active_writer": "No open files detected in the five historical paths; current listener writes only the compact receipt store."},
+    "health": {"listener": "RUNNING pid 31403", "creator_resolution": "RUNNING pid 13810", "walkback": "RUNNING pid 10716", "core_wal_bytes": 12392, "ops_wal_bytes": 0, "disk_headroom": "approximately 6.1 GiB"},
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "production_changes": 0, "deletions": 0, "service_restarts": 0},
+    "next_action": "Authorize a separately scoped evidence-retention review for a named audit group before any archival or deletion; age and inactive writers alone are insufficient."
+  },
   "flex_stable_v2_golden_baseline_promotion": {
     "status": "PROMOTED_METADATA_ONLY",
     "promoted_at_utc": "2026-10-19T23:42:19Z",

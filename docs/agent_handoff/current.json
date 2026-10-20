@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:25:54.545930+00:00"
+    "published_at_utc": "2026-10-20T22:34:26.105547+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:25:40.663333+00:00",
-    "working_tree": "Targeted expensive-RPC activation audit complete: handoff workload activation proven, native getTransactionsForAddress causal link UNKNOWN/HOLD. No implementation or service actions."
+    "updated_at_utc": "2026-10-20T22:34:14.267044+00:00",
+    "working_tree": "Three-hour health report PARTIAL: current intake/persistence recovered; incomplete CREATE coverage,42 pending signature retries, globalRPC exposure UNKNOWN. No runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40441,5 +40441,15 @@
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0
+  },
+  "flex_v2_three_hour_health_20261020": {
+    "status": "PARTIAL",
+    "engineering_source_revision": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_three_hour_health_20261020.v1.json",
+    "verification": "Read-only19\u201322UTC plus22:00\u201322:32:16 partial: COMMITTED1835/1425/1685/763; migrations41/7/64/26; strictRPC11/1/14/1; Walkback29/5/40/20. Installed hashes unchanged.",
+    "production_flags": "Listener/resolution/Walkback RUNNING; funding/Cascade STOPPED; no service actions.",
+    "blocker": "Complete hourly notification/error/physicalHTTP ledger absent;42 pending signature retries remain.",
+    "next_action": "Prioritize separately authorized permanent-conflict disposition for the42 retained pending signature retries, preserving canonical creator/CREATE evidence and receipts. No automatic overwrite, replay or funding activation. RPC spending attribution remains UNKNOWN under existing evidence; no new investigation launched.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

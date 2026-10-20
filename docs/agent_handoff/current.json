@@ -35575,6 +35575,21 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_generic_create_recovery_audit": {
+    "status": "HOLD_COHORT_RETRIEVAL_UNAVAILABLE",
+    "scope": "Bounded read-only audit only. No provider calls, historical replay, source changes, canonical writes, service restarts, deployment, or production changes.",
+    "runtime_authority": "Production queue SHA-256 2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95; analyzer SHA-256 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4.",
+    "completion_contract": "Current queue code writes status=complete only after creator exists, strict Pump CREATE is true, creator_source is rpc_pump_create, create_tx_signature exists, validation_status is not inferred_create, Core authority update succeeds, and durable handoff staging is invoked. Budget exhaustion writes skipped with skip_reason=BUDGET_EXCEEDED. This establishes current behavior but is not per-row historical transaction revalidation.",
+    "retained_cohort": "Previously retrieved seven-day aggregate remains 2,371 generic priority-200 rows: 1,835 complete, 535 skipped, one pending. It supports queue-status reporting only. It does not establish per-row legacy/V2 classification, serialized creator evidence, durable-handoff delivery, or actual request totals.",
+    "blocker": "The required subsequent bounded Core/OPS read-only schema and cohort queries failed SQLite open with error 14. A previous forced-index cohort join also failed error 14. Per scope, no broad retry, historical scan, database intervention, checkpoint, or provider acquisition was attempted.",
+    "unproven_metrics": "Independently verified qualified CREATE count, complete-without-qualified count, skipped-reason distribution, CREATE_V2 and legacy coverage, serialized-creator authority, durable handoff/Walkback outcome, actual history/detail request totals, and recovery percentages are UNKNOWN rather than zero.",
+    "next_action": "After SQLite availability stabilizes, separately authorize a bounded read-only rerun using only the existing queue updated/status indexes, token mint primary key, and OPS handoff indexes. Do not change resolver strategy based on the unavailable per-row audit.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

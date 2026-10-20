@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T21:05:52.820653+00:00"
+    "published_at_utc": "2026-10-20T21:23:43.389042+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T21:05:37.591465+00:00",
-    "working_tree": "Read-only diagnosis PARTIAL: PumpSwap InvalidStatusCode lacks HTTP status;39 conflicting birth retries across5 canonical/VALID-completed mints loop. Receipt writer and funding installation unchanged; funding stopped."
+    "updated_at_utc": "2026-10-20T21:23:31.992422+00:00",
+    "working_tree": "Helius natural reconnection PASS after600s observation; listener60284 stable, migrations/births active; old birth conflicts separate. Funding installed hashes unchanged and worker STOPPED/autostart=false."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -37081,5 +37081,119 @@
     "DATABASE_SCHEMA_CHANGES": 0,
     "bounds": "Up to3MB listener stdout,160KB Supervisor,60KB stderr,64 signature retry rows (39 present),5 indexed Core/OPS identities,39 deterministic receipt lookups plus5 current receipt samples. Small local evidence only.",
     "updated_at_utc": "2026-10-20T21:05:37.591465+00:00"
+  },
+  "helius_recovery_after_topup_20261020": {
+    "HELIUS_RECOVERY_STATUS": "PASS \u2014 natural reconnection and ten-minute stability verified",
+    "LISTENER_PID": {
+      "pid": 60284,
+      "unchanged_across_samples": 21,
+      "final_uptime": "16m39s"
+    },
+    "PUMPSWAP_SUBSCRIPTION": {
+      "state": "AVAILABLE throughout observation",
+      "acknowledgement_utc": "2026-10-20T21:08:24+00:00",
+      "retained_reason": "logsSubscribe confirmed",
+      "runtime_id": "listener:60284:1792530338",
+      "reconnection": "Natural existing retry, no manual restart or connection attempt"
+    },
+    "MIGRATIONS_RECEIVED": {
+      "pumpswap_notifications_in_window": 6,
+      "pumpportal_migration_log_entries": 12,
+      "count_semantics": "Notifications/log entries, not distinct launches; sources may duplicate one migration.",
+      "processing_evidence": "Migration critical-path completion messages observed in retained live logs during the window; no historical replay or manual acquisition. Creator unknown in some completion messages is not inferred attribution."
+    },
+    "PUMPPORTAL_BIRTHS": {
+      "birth_log_entries_in_window": 401,
+      "state": "AVAILABLE throughout observation",
+      "persistence_samples": [
+        {
+          "identity_matches": true,
+          "outcome": "COMMITTED",
+          "accepted": true,
+          "receipt_utc_ns": 1792530988639936000
+        },
+        {
+          "identity_matches": true,
+          "outcome": "COMMITTED",
+          "accepted": true,
+          "receipt_utc_ns": 1792530989014352000
+        },
+        {
+          "identity_matches": true,
+          "outcome": "COMMITTED",
+          "accepted": true,
+          "receipt_utc_ns": 1792530990055768000
+        },
+        {
+          "identity_matches": true,
+          "outcome": "COMMITTED",
+          "accepted": true,
+          "receipt_utc_ns": 1792530731247239000
+        },
+        {
+          "identity_matches": true,
+          "outcome": "COMMITTED",
+          "accepted": true,
+          "receipt_utc_ns": 1792531001857568000
+        }
+      ],
+      "known_separate_issue": "Old39 signature conflicts across5 canonical mints continue retrying;2691 CORE_AUTHORITY_CONFLICT log occurrences in window. This connectivity PASS does not close that separate issue."
+    },
+    "HTTP_ERRORS_AFTER_TOPUP": {
+      "window_http_429_log_matches": 0,
+      "window_InvalidStatusCode_log_matches": 0,
+      "window_pumpswap_failure_messages": 0,
+      "window_listener_exits": 0,
+      "scope": "No new observed errors in bounded logs and no availability DOWN transition during sampled window. Exact top-up time was not supplied; earlier pre-window failures remain historical."
+    },
+    "TEN_MINUTE_STABILITY": {
+      "status": "PASS",
+      "started_utc": "2026-10-20T21:12:15.889028+00:00",
+      "ended_utc": "2026-10-20T21:22:15.893856+00:00",
+      "elapsed_seconds": 600.2,
+      "samples": 21,
+      "interval_seconds": 30,
+      "no_log_rotation": true,
+      "creator_resolution_pid": 34567,
+      "walkback_pid": 10716,
+      "other_service_pids_unchanged": true
+    },
+    "DATABASE_HEALTH": {
+      "Core_final": {
+        "wal_bytes": 0,
+        "conflicting_lock": false,
+        "lock_pid": 0
+      },
+      "OPS_final": {
+        "wal_bytes": 0,
+        "conflicting_lock": false,
+        "lock_pid": 0
+      },
+      "Core_max_sampled_WAL_bytes": 1326672,
+      "OPS_max_sampled_WAL_bytes": 1413192,
+      "locks": "Transient worker-owned locks observed; final main-file probes clear. No new database-is-locked/DB_LOCK_ERROR/WAL_PIN messages.",
+      "disk_free_final_bytes": 10165960704,
+      "disk_free_min_sampled_bytes": 9124392960,
+      "read_probes": "Read-only indexed capability probes succeeded throughout; no integrity scan or checkpoints."
+    },
+    "FUNDING_WORKER_STATUS": {
+      "state": "STOPPED throughout",
+      "autostart": false,
+      "candidate": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+      "installed_three_hashes_match": true,
+      "activation_authorized": false
+    },
+    "NEXT_ACTION": "Helius connectivity recovery verification complete. Keep funding stopped; a funding-worker acceptance test still requires separate explicit authorization. Handle retained birth identity conflicts as their separate existing issue.",
+    "PROVIDER_CALLS_BY_AGENT": 0,
+    "MANUAL_SERVICE_RESTARTS": 0,
+    "CANONICAL_WRITES_BY_AGENT": 0,
+    "SOURCE_CHANGES": 0,
+    "RECEIPT_CLEANUP": 0,
+    "DEPLOYMENT": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Read-only passive operational verification; no source changes or deployment. Natural live-service activity continued independently.",
+    "observation_evidence": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/helius_recovery_observation_20261020/observation.json",
+    "storage": "Compact static observation/report only; no new runtime retention or large files.",
+    "updated_at_utc": "2026-10-20T21:23:31.992422+00:00"
   }
 }

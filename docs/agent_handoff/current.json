@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:34:26.105547+00:00"
+    "published_at_utc": "2026-10-20T22:38:25.970033+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:34:14.267044+00:00",
-    "working_tree": "Three-hour health report PARTIAL: current intake/persistence recovered; incomplete CREATE coverage,42 pending signature retries, globalRPC exposure UNKNOWN. No runtime changes."
+    "updated_at_utc": "2026-10-20T22:38:17.084804+00:00",
+    "working_tree": "Birth retry classification PASS:42permanent conflicts,0transient,0ambiguous.36matching receipts/6missing. No disposition executed; explicit quarantine semantics require separate authorization."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40450,6 +40450,16 @@
     "production_flags": "Listener/resolution/Walkback RUNNING; funding/Cascade STOPPED; no service actions.",
     "blocker": "Complete hourly notification/error/physicalHTTP ledger absent;42 pending signature retries remain.",
     "next_action": "Prioritize separately authorized permanent-conflict disposition for the42 retained pending signature retries, preserving canonical creator/CREATE evidence and receipts. No automatic overwrite, replay or funding activation. RPC spending attribution remains UNKNOWN under existing evidence; no new investigation launched.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "pumpportal_birth_retry_classification_20261020": {
+    "status": "PASS_CLASSIFICATION_ONLY",
+    "engineering_source_revision": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/pumpportal_birth_retry_classification_20261020.v1.json",
+    "verification": "42/42 permanent current canonical CREATE conflicts across5mints;39 creator conflicts; all42 covered by completed VALID canonical-matching Walkback anchors.36matched receipts,6missing. No transient-only or ambiguous classification.",
+    "production_flags": "No source/database/service changes; funding activation remains unauthorized.",
+    "blocker": "Existing signature queue has pending/consumed only; no explicit quarantine contract.",
+    "next_action": "Review this exact classified row set and separately authorize the minimal explicit conflict-disposition contract; do not mark persisted, delete, overwrite or replay.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

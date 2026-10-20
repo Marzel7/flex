@@ -35707,6 +35707,21 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_prospective_creator_enqueue_gate_20261020": {
+    "status": "PASS_DIRECT_PROSPECTIVE_ADMISSION",
+    "scope": "Bounded read-only source and runtime qualification. Indexed two-hour recent migration window plus exact primary-key Core/OPS lookups; no reconciliation invocation, queue write, provider call, replay, source change, restart, deployment, or production change.",
+    "effective_flags": "Listener PID 31403 has LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0; worker PID 71115 has CRQ_HISTORICAL_DISCOVERY_ENABLED=0. These disable listener periodic reconciliation and worker historical discovery respectively. They do not gate listener _mark_token_migrated_in_db or its direct enqueue_prospective_migration call.",
+    "atomicity": "Listener reads prior OPS state before its shared Core writer, upserts token_analysis migration state, calls enqueue_prospective_migration using the same open Core transaction, then commits. The direct function requires an in-transaction connection and INSERT OR IGNOREs the mint-primary-key queue row. Any exception from the transaction reaches the migration failure handler, which records a retry item in migration_persist_queue; no independent partial direct-enqueue commit exists in this path.",
+    "recent_window": "[1792506841,1792514041) (two hours ending audit time): 117 indexed migrations, 62 creator-known and 55 creator-unknown. All 55 creator-unknown mints have creator_resolution_queue source=migration_direct, yielding 55/55=100% bounded recent direct-admission rate. Their current queue status is skipped/BUDGET_EXCEEDED, which proves durable admission but not creator resolution success. No creator-unknown recent mint lacked a queue row.",
+    "guards": "wb_create_control is enabled and all recent migrations are after activation. No sampled creator-unknown mint met an outside-activation, historical, OPS-protected, existing-queue, conflict, or qualified-proof exclusion. Direct enqueue has no dependency on periodic-reconciliation flags; it is governed by its explicit activation/OPS/queue/proof guards.",
+    "query_safety": "Core/OPS opened mode=ro with query_only=ON and busy_timeout=250ms. Migration window used idx_psi0a_token_analysis_migrated_mint; queue and Walkback checks used mint primary keys; delivery used unique(epoch,mint).",
+    "next_action": "NONE for prospective direct admission. Preserve historical discovery and periodic reconciliation disabled. Treat the October 187 as a separate historical-evidence gap; do not replay or enqueue them without separate authorization.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "flex_v2_generic_complete_evidence_gap_audit": {
     "status": "EXPLAINED_HISTORICAL_PRE_STRICT_COMPLETIONS",
     "scope": "Fixed seven-day priority-200 cohort bounded by the prior updated_at interval [1791898812,1792503612]. WAL-aware read-only Core access; no provider calls, replay, writes, source changes, restarts, deployment, or production changes.",

@@ -35487,6 +35487,21 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0},
     "next_action": "Stabilize and attribute the active listener crash loop, then repeat this bounded health gate before separately authorizing short-timeout production DDL."
   },
+  "august_ops_discovery_retention_review": {
+    "status": "PARTIAL_CLEANUP_QUALIFIED",
+    "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",
+    "inventory": "28 files; 1,017,278,464 allocated bytes. Three runner_candidate.sqlite.capture.sqlite files account for 590,233,600 allocated bytes.",
+    "canonical_equivalence": "Each capture has only pumpfun_migration_verification(mint) and token_analysis(mint,pf_ws_creator). Exact read-only comparison found zero capture rows absent from the retained authoritative completed snapshot. The completed capture has the same row counts as that snapshot (43,609 migration, 2,012,723 token rows).",
+    "protected_references": "The completed run lifecycle names snapshot.sqlite authoritative; population_reproduced_audit.json directly names it as source_db. Lifecycle/source-boundary audits, final snapshot, and fixture namespaces remain protected audit/reproducibility evidence. No live service or Supervisor reference to this audit-run directory was found.",
+    "safe_deletion_candidates": "Only the three non-authoritative runner capture databases: 196,141,056 + 196,812,800 + 197,279,744 allocated bytes = 590,233,600 bytes. The two failed captures are explicitly temporary/non-authoritative; the completed capture is content-equivalent to the retained authoritative snapshot.",
+    "unknown_reference_bytes": 0,
+    "protected_allocated_bytes": 427044864,
+    "safety": "No age/open-handle inference used. No Watchtower, Byzantine, Nexus, or operation-attribution runtime dependency was found; the retained final snapshot remains the source for the historical population reproduction artifact.",
+    "next_action": "If capacity is required, separately authorize deletion only of the three listed capture files after recording their paths and SHA-256 values in a cleanup manifest. Retain all other 25 files, especially the authoritative snapshot.sqlite and lifecycle/boundary/reproduction evidence.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0
+  },
   "flex_historical_pumpportal_storage_cleanup_audit": {
     "status": "HOLD_NO_SAFE_DELETION_AUTHORITY",
     "observed_at_utc": "2026-10-20T09:33:00Z",

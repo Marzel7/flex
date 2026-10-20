@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:59:32.777178+00:00"
+    "published_at_utc": "2026-10-20T23:05:11.342946+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:59:22.226530+00:00",
-    "working_tree": "Prospective quarantine gate PASS:unchanged4ae681bfautomaticfutureconflicts proven by80focusedtests. Controlled installation remains pending explicit authorization."
+    "updated_at_utc": "2026-10-20T23:05:01.764135+00:00",
+    "working_tree": "DEPLOYMENTHOLD:4ae681bfinstalled/schemaadded/42quarantined,butlistenerstartupclosedconnectionerror. ListenerSTOPPED; othersunchanged. Requiresminimalmiddleware-awarerecovery; neverrestoreoldretryconsumerblindly."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40511,5 +40511,15 @@
     "blocker": null,
     "next_action": "Obtain authorization to execute the exact sequence in pumpportal_final_quarantine_preflight_20261020.v1.json: listener-only stop/start, two-file installation, one-field migration and targeted42quarantine. No source changes or new candidate needed.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "pumpportal_quarantine_deployment_20261021": {
+    "status": "HOLD_LISTENER_STOPPED",
+    "engineering_source_revision": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/pumpportal_quarantine_deployment_20261021.v1.json",
+    "verification": "Approvedschema+2files+exact42reasonupdatescommitted; consumed0/allcounters/payloads/canonical/OPS/mint-retryevidenceunchanged.36receiptsbyteidentical/6missing. StartupfailsProgrammingErrorclosedconnectionatsecondschemacontext; listenercontainedSTOPPED.",
+    "production_flags": "ListenerSTOPPED. Creator-resolution34567/Walkback10716RUNNINGunchanged. Funding/CascadeSTOPPED. No oldconsumerrollback.",
+    "blocker": "InstalledTrackedConnection.__exit__closesfirstcontext; newensure_schema reusesclosedconnection. Intakeunavailableuntilminimalqualifiedfix.",
+    "next_action": "Authorize minimal isolated DEV connection-lifecycle correction and actual middleware startup regression, followed by controlled listener-only recovery deployment/restart. Until qualified, keep listenerSTOPPED; do not reactivate old infinite-retry consumer.",
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD"
   }
 }

@@ -35625,6 +35625,23 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_generic_complete_evidence_gap_audit": {
+    "status": "EXPLAINED_HISTORICAL_PRE_STRICT_COMPLETIONS",
+    "scope": "Fixed seven-day priority-200 cohort bounded by the prior updated_at interval [1791898812,1792503612]. WAL-aware read-only Core access; no provider calls, replay, writes, source changes, restarts, deployment, or production changes.",
+    "runtime_authority": "Live creator-resolution worker imports /Users/kevinkeaveney/Production/flex-main-workers. Its loaded creator_resolution_queue.py SHA-256 is 2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95 and is a 98-add/35-remove dirty overlay over Git HEAD eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215. The overlay contains the strict current predicate and DEV090 durable handoff staging.",
+    "fixed_cohort": "2,374 rows: 1,833 complete and 541 skipped/BUDGET_EXCEEDED. All 1,833 complete rows retain resolved_creator; 293 retain create_tx_signature; therefore exactly 1,540 retain creator but no queue signature (not missing both fields). The complete subset is 153 strict-era (at/after 2026-10-18T17:13:00Z) with 153 signatures, and 1,680 pre-strict-era with 140 signatures and 1,540 without signatures. Strict-era terminal rows also include 259 skipped/BUDGET_EXCEEDED; pre-strict contains 282 skipped.",
+    "current_completion_contract": "Current process_queue can write complete only after strict Pump CREATE, rpc_pump_create authority, non-inferred validation, creator, and CREATE signature; then it atomically updates token_analysis, queues creator funding, writes the queue completion fields, invokes stage_rpc_completion, and commits. The queue completion creator/signature fields are outputs of this current contract, not merely optional metadata.",
+    "historical_gap_evidence": "For every one of the 1,540 pre-strict missing-signature rows, resolved_at is present, resolution_tier=GENERIC, source=crq_worker, token_analysis retains a creator matching resolved_creator, and creator_funding_queue retains the same creator. Only one has a token_analysis signature; none have a birth_persist_queue or wt_detected_creates creator/signature pair, and no funding-queue signature is retained. These prove historical creator/funding completion, not qualified strict CREATE recovery.",
+    "durable_handoff": "All 1,540 missing-signature rows have no current-epoch wb_create_delivery record; 1,535 have migration_walkback_handoff=COMPLETE and five are absent. Migration handoff is not CREATE-delivery proof. Conversely, all 153 strict-era rows have exact matching ACK DEV074_STRICT_CREATE delivery records and terminal Walkback outcomes. Thus durable strict CREATE delivery is mandatory/current for strict-era completions, but was not a retained requirement for the historical pre-strict category.",
+    "rate_interpretation": "Genuine cross-plane strict recovery is 153/2,374=6.45% of the entire mixed-era terminal cohort, 153/1,833=8.35% of all completed rows, and 153/412=37.14% of strict-era terminal rows. It is 153/153=100% of strict-era completed rows. The 140 pre-strict signatures are not retroactively classified strict; the 1,540 are not failures and must not be included as strict recoveries.",
+    "minimum_evidence": "A historical strict rate requires retained CREATE discriminator/version, serialized creator-authority proof, validated signature, and durable delivery identity for each completion. Current tables do not preserve all of those for pre-strict rows; do not infer them or reacquire providers.",
+    "next_action": "Use separate mixed-era, strict-era, and historical-creator-completion denominators in any decision. No resolver or provider-budget change is justified by the historical evidence gap.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

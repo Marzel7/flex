@@ -16146,11 +16146,9 @@
   "hand_off_transport_blocker": "HANDOFF_TRANSPORT_DEGRADED",
   "handoff_transport": {
     "branch": "agent-handoff",
-    "note": "DEV042 handoff-only publication. Verify remote exact transport commit and current.json bytes after push. No engineering/source-bundle branch published.",
     "protocol_version": 1,
-    "published_at_utc": "2026-08-17T15:35:17Z",
-    "status": "COMMIT_ADDRESSED_AGENT_HANDOFF",
-    "updated_at_utc": "2026-10-16T08:55:23.248007+00:00"
+    "status": "PUBLISHED_PENDING_REMOTE_VERIFICATION",
+    "updated_at_utc": "2026-10-20T17:20:32.303521+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27347,11 +27345,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev090",
-    "git_head": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
+    "branch": "detached runtime: /Users/kevinkeaveney/Production/flex-funding",
+    "git_head": "f10a56a01098755328f6d3b1eba9ba010412296d",
     "name": "flex",
-    "updated_at_utc": "2026-10-19T17:36:35.102935+00:00",
-    "working_tree": "DEV090 exact fingerprint/validator composition deployed to authorized DEV worker paths; three services running; bounded live commit acceptance PASS."
+    "updated_at_utc": "2026-10-20T17:20:27.621038+00:00",
+    "working_tree": "Audited pinned funding runtime tracked-clean; shared engineering checkout remains dirty and was not changed by this audit."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -35077,7 +35075,14 @@
         "schema_version": 847,
         "journal_mode": "wal",
         "wal_bytes": 0,
-        "required_tables_present": ["token_analysis", "creator_resolution_queue", "creator_funding_queue", "migration_inbox", "migration_persist_queue", "migration_walkback_handoff"]
+        "required_tables_present": [
+          "token_analysis",
+          "creator_resolution_queue",
+          "creator_funding_queue",
+          "migration_inbox",
+          "migration_persist_queue",
+          "migration_walkback_handoff"
+        ]
       },
       "ops": {
         "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
@@ -35095,7 +35100,13 @@
       "walkback_helius_rpc": "CONFIGURED",
       "walkback_rpc_budget_per_batch": 80,
       "walkback_batch_size": 8,
-      "creator_resolution": {"batch_size": 25, "max_runtime_seconds": 15, "max_pages": 1, "high_priority_max_runtime_seconds": 120, "high_priority_max_pages": 5000},
+      "creator_resolution": {
+        "batch_size": 25,
+        "max_runtime_seconds": 15,
+        "max_pages": 1,
+        "high_priority_max_runtime_seconds": 120,
+        "high_priority_max_pages": 5000
+      },
       "cascade_provider_configuration": "PRESENT_BUT_SERVICE_STOPPED; no provider interaction performed"
     },
     "dev090_retained_evidence": {
@@ -35132,7 +35143,14 @@
       "Restore only the recorded running/stopped topology after authorization, then verify PIDs, start times, working directories, and safe feature flags against this manifest."
     ],
     "recovery_verification": "PASS for immutable executable/configuration identity, process ownership, safe runtime flags, database binding/schema fingerprints, and remote-handoff source evidence. NOT a database-content recovery image or full acceptance baseline.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "configuration_changes": 0, "service_restarts": 0, "historical_replay": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "configuration_changes": 0,
+      "service_restarts": 0,
+      "historical_replay": 0
+    },
     "next_action": "Keep this provisional snapshot immutable. Separately authorize either a safe compact-receipt capacity remedy or a targeted runtime change; neither is included in this baseline."
   },
   "dev090_fingerprint_bypass_runtime_supplement": {
@@ -35164,7 +35182,14 @@
       "release_report_sha256": "00c4df716a44a19f9dcb215bb18f229a92dc602b66e154f200331793241289ec"
     },
     "interpretation": "Overall checkout hashes differ because afbe9e5 contains other Walkback changes and the active worktree has an overlay. The function-level identity plus matching pre-start bytecode proves the bypass is active; do not infer bypass absence from the checkout commit alone.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "service_restarts": 0, "deployment_actions": 0, "historical_replay": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "service_restarts": 0,
+      "deployment_actions": 0,
+      "historical_replay": 0
+    },
     "next_action": "Treat this supplemental record as the authoritative runtime correction while preserving the provisional snapshot unchanged. Any future restoration must preserve the listed function overlay or explicitly requalify an alternative."
   },
   "flex_stable_v2_single_commit_consolidation": {
@@ -35178,19 +35203,74 @@
       "release_commit_created": false
     },
     "current_component_authorities": {
-      "listener": {"checkout": "bf1bdfc59b4acfed0338a493189d91d212bda50f", "worktree_modified": true},
-      "creator_resolver": {"checkout": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "worktree_modified": true},
-      "walkback": {"checkout": "afbe9e58b11eb2e4d616246da123ce31ab45700c", "worktree_modified": true, "fingerprint_bypass": "ACTIVE via runtime overlay"}
+      "listener": {
+        "checkout": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+        "worktree_modified": true
+      },
+      "creator_resolver": {
+        "checkout": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+        "worktree_modified": true
+      },
+      "walkback": {
+        "checkout": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+        "worktree_modified": true,
+        "fingerprint_bypass": "ACTIVE via runtime overlay"
+      }
     },
     "candidate_assessment": {
       "commit": "38ddf8b4f4a6e650c075f918e5238ddf5ed47fff",
-      "primary_service_files_match_live": ["src/core/pumpfun_curve_listener.py", "src/core/creator_resolution_worker.py", "src/core/walkback_worker.py"],
+      "primary_service_files_match_live": [
+        "src/core/pumpfun_curve_listener.py",
+        "src/core/creator_resolution_worker.py",
+        "src/core/walkback_worker.py"
+      ],
       "not_a_complete_live_closure": true,
-      "tracked_src_differences_against_live": {"listener": 115, "resolver": 211, "walkback": 62},
+      "tracked_src_differences_against_live": {
+        "listener": 115,
+        "resolver": 211,
+        "walkback": 62
+      },
       "untracked_runtime_modules_present": true
     },
     "required_closure_conflicts": [
-      "src.analysis.cross_funding_network_analyzer", "src.analysis.pump_fun_post_migration_analyzer", "src.core.creator_resolution_queue", "src.core.creator_resolution_worker", "src.core.db", "src.core.db_writer", "src.core.deep_walkback", "src.core.intelligence_refresh", "src.core.launch_price_logger", "src.core.pumpfun_curve_listener", "src.core.pumpportal_birth_audit", "src.core.rpc_cache", "src.core.token_prediction_builder", "src.core.treasury_bank", "src.core.walkback_queue", "src.core.walkback_worker", "src.core.watchtower_registry_promotion", "src.core.wrap_close_detector", "src.core.ws_cascade_store", "src.core.ws_price_tracer", "src.core.ws_snapshot_logger", "src.metrics.usage_tracker", "src.ops.anchor_reconciliation", "src.ops.attribution_outcome", "src.ops.birth_anchored_opening_acquisition", "src.ops.create_event_ledger", "src.ops.known_spam_wallets", "src.ops.lineage_quarantine", "src.ops.manual_registry", "src.ops.operation_fingerprint_drift", "src.ops.operator_identity_governance", "src.ops.walkback_health", "src.ops.watchtower_candidates", "src.ops.watchtower_deep_prospective", "src.ops.watchtower_deep_review", "src.utils.build_networks_release", "src.utils.db_locking", "src.utils.db_write_retry"
+      "src.analysis.cross_funding_network_analyzer",
+      "src.analysis.pump_fun_post_migration_analyzer",
+      "src.core.creator_resolution_queue",
+      "src.core.creator_resolution_worker",
+      "src.core.db",
+      "src.core.db_writer",
+      "src.core.deep_walkback",
+      "src.core.intelligence_refresh",
+      "src.core.launch_price_logger",
+      "src.core.pumpfun_curve_listener",
+      "src.core.pumpportal_birth_audit",
+      "src.core.rpc_cache",
+      "src.core.token_prediction_builder",
+      "src.core.treasury_bank",
+      "src.core.walkback_queue",
+      "src.core.walkback_worker",
+      "src.core.watchtower_registry_promotion",
+      "src.core.wrap_close_detector",
+      "src.core.ws_cascade_store",
+      "src.core.ws_price_tracer",
+      "src.core.ws_snapshot_logger",
+      "src.metrics.usage_tracker",
+      "src.ops.anchor_reconciliation",
+      "src.ops.attribution_outcome",
+      "src.ops.birth_anchored_opening_acquisition",
+      "src.ops.create_event_ledger",
+      "src.ops.known_spam_wallets",
+      "src.ops.lineage_quarantine",
+      "src.ops.manual_registry",
+      "src.ops.operation_fingerprint_drift",
+      "src.ops.operator_identity_governance",
+      "src.ops.walkback_health",
+      "src.ops.watchtower_candidates",
+      "src.ops.watchtower_deep_prospective",
+      "src.ops.watchtower_deep_review",
+      "src.utils.build_networks_release",
+      "src.utils.db_locking",
+      "src.utils.db_write_retry"
     ],
     "behavioral_conflict_examples": {
       "walkback_registry_promotion": "181-line candidate/live difference (146 additions, 35 deletions in live worktree comparison)",
@@ -35205,7 +35285,15 @@
       "schema_observation": "Current Core schema 847 and OPS schema 766 are WAL-compatible with the active composition; clean unified-candidate compatibility is unqualified."
     },
     "decision": "STOPPED_BEFORE_RECONCILIATION. A one-commit restoration cannot be claimed without choosing among conflicting behavior-bearing live modules and capturing a reproducible dependency environment.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "configuration_changes": 0, "service_restarts": 0, "deployment": false, "historical_replay": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "configuration_changes": 0,
+      "service_restarts": 0,
+      "deployment": false,
+      "historical_replay": 0
+    },
     "next_action": "Obtain an explicit reconciliation contract for every required closure conflict, then create one source commit and one pinned dependency/configuration manifest in the isolated release worktree. Do not promote or deploy the current composition."
   },
   "flex_stable_v2_runtime_source_reconciliation": {
@@ -35213,7 +35301,13 @@
     "updated_at_utc": "2026-10-19T22:35:00Z",
     "mode": "READ_ONLY_QUALIFICATION",
     "method": "Static imports from the active listener, resolver and Walkback entry modules, plus exact SHA-256 comparison of their reachable source files and candidate 38ddf8b4f4a6.",
-    "classification_summary": {"EXACT_SHARED_SOURCE": 10, "AUTHORITATIVE_VARIANT_IDENTIFIED": 0, "COMPATIBLE_VARIANTS_WITH_PROOF": 0, "CONFLICT_REQUIRES_DECISION": 14, "INSUFFICIENT_EVIDENCE": 14},
+    "classification_summary": {
+      "EXACT_SHARED_SOURCE": 10,
+      "AUTHORITATIVE_VARIANT_IDENTIFIED": 0,
+      "COMPATIBLE_VARIANTS_WITH_PROOF": 0,
+      "CONFLICT_REQUIRES_DECISION": 14,
+      "INSUFFICIENT_EVIDENCE": 14
+    },
     "all_38_module_classifications": [
       "src.analysis.cross_funding_network_analyzer|L:1686cdf50b531488745bb378cd078a4cc718f1586a159b0e039773e68dcb1390|R:1686cdf50b531488745bb378cd078a4cc718f1586a159b0e039773e68dcb1390|W:9cd0ecc22864e824bfbd79d59ac775a7e85589bdd19fc31078def150c91d35f2|imports:L|INSUFFICIENT_EVIDENCE",
       "src.analysis.pump_fun_post_migration_analyzer|L:b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443|R:5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4|W:b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443|imports:L,R|CONFLICT_REQUIRES_DECISION",
@@ -35254,14 +35348,79 @@
       "src.utils.db_locking|L:cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390|R:cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390|W:ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89|imports:L,R,W|CONFLICT_REQUIRES_DECISION",
       "src.utils.db_write_retry|L:21e4653a851d0f60bff1e528ee5af24283cd499765f48f0a94f386e9f868e786|R:21e4653a851d0f60bff1e528ee5af24283cd499765f48f0a94f386e9f868e786|W:e201b94add2799c34dd95712b000fc750f294a094cac2e892abf37a49649823c|imports:L|INSUFFICIENT_EVIDENCE"
     ],
-    "shared_dependency_conflicts": ["pump_fun_post_migration_analyzer", "creator_resolution_queue", "db", "deep_walkback", "walkback_queue", "wrap_close_detector", "ws_cascade_store", "attribution_outcome", "create_event_ledger", "lineage_quarantine", "manual_registry", "operator_identity_governance", "watchtower_candidates", "db_locking"],
-    "authoritative_source_evidence": {"active_fingerprint_bypass": "Walkback worker exact function source matches qualified commit 38ddf8b4f4a6 and is proven loaded by matching pre-start CPython bytecode.", "dev090_scope": "DEV090 qualification authorizes the bypass only; it does not authorize selecting variants for unrelated conflicting modules.", "no_newest_wins_rule": "No later or alternate variant was selected absent an existing acceptance contract."},
-    "required_behaviour_preservation": ["DEV074 creator-authority safeguards and strict CREATE behavior", "DEV090 durable handoff and active fingerprint early return", "DEV-002 funding/promotion behavior", "existing Watchtower admission and attribution behavior", "PumpPortal compact receipts", "historical discovery disabled and Cascade stopped"],
-    "dependency_manifest_requirements": {"observed_python": "3.11.5", "observed_package_count": 251, "sanitized_package_inventory_sha256": "279d0893a997d6eb4e2cd1097218eca28899927129de742523eabf94bee0795d", "pinned_manifest_status": "MISSING", "required_future_artifact": "Commit a platform-appropriate, secret-free dependency lock plus interpreter identity and wheel/source hashes; do not rely on the ambient Anaconda environment."},
-    "supervisor_config_differences": {"active_sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc", "candidate_38dd_sha256": "8e39eef8e969ad2896095702846103dc44038a71c4b5bcd3d6a473ab9e04b8ff", "listener": ["command", "directory", "sanitized environment bindings and diagnostics paths"], "resolver": ["directory", "PYTHONPATH"], "walkback": ["directory", "PYTHONPATH", "diagnostics paths", "operations-mode and priority-observation bindings"], "secrets": "Not recorded."},
-    "minimum_composition_plan": ["Obtain an explicit contract decision for every CONFLICT_REQUIRES_DECISION and INSUFFICIENT_EVIDENCE module.", "Apply only chosen, contract-backed variants into the isolated worktree; track all currently untracked runtime modules.", "Commit one dependency lock and one sanitized runtime configuration manifest with the unified source.", "Run provider-free equivalence tests for PumpPortal receipt persistence, strict CREATE/creator authority, durable handoff, bypassed fingerprint callback, funding/promotion, and Watchtower admission.", "Run clean-checkout, schema 847/766 compatibility, and rollback qualification before any candidate or deployment."],
+    "shared_dependency_conflicts": [
+      "pump_fun_post_migration_analyzer",
+      "creator_resolution_queue",
+      "db",
+      "deep_walkback",
+      "walkback_queue",
+      "wrap_close_detector",
+      "ws_cascade_store",
+      "attribution_outcome",
+      "create_event_ledger",
+      "lineage_quarantine",
+      "manual_registry",
+      "operator_identity_governance",
+      "watchtower_candidates",
+      "db_locking"
+    ],
+    "authoritative_source_evidence": {
+      "active_fingerprint_bypass": "Walkback worker exact function source matches qualified commit 38ddf8b4f4a6 and is proven loaded by matching pre-start CPython bytecode.",
+      "dev090_scope": "DEV090 qualification authorizes the bypass only; it does not authorize selecting variants for unrelated conflicting modules.",
+      "no_newest_wins_rule": "No later or alternate variant was selected absent an existing acceptance contract."
+    },
+    "required_behaviour_preservation": [
+      "DEV074 creator-authority safeguards and strict CREATE behavior",
+      "DEV090 durable handoff and active fingerprint early return",
+      "DEV-002 funding/promotion behavior",
+      "existing Watchtower admission and attribution behavior",
+      "PumpPortal compact receipts",
+      "historical discovery disabled and Cascade stopped"
+    ],
+    "dependency_manifest_requirements": {
+      "observed_python": "3.11.5",
+      "observed_package_count": 251,
+      "sanitized_package_inventory_sha256": "279d0893a997d6eb4e2cd1097218eca28899927129de742523eabf94bee0795d",
+      "pinned_manifest_status": "MISSING",
+      "required_future_artifact": "Commit a platform-appropriate, secret-free dependency lock plus interpreter identity and wheel/source hashes; do not rely on the ambient Anaconda environment."
+    },
+    "supervisor_config_differences": {
+      "active_sha256": "18f39cb1b9d60d9e5b00d212acdc6697e9c0f68f1031d77c3cff91f40f3c4ccc",
+      "candidate_38dd_sha256": "8e39eef8e969ad2896095702846103dc44038a71c4b5bcd3d6a473ab9e04b8ff",
+      "listener": [
+        "command",
+        "directory",
+        "sanitized environment bindings and diagnostics paths"
+      ],
+      "resolver": [
+        "directory",
+        "PYTHONPATH"
+      ],
+      "walkback": [
+        "directory",
+        "PYTHONPATH",
+        "diagnostics paths",
+        "operations-mode and priority-observation bindings"
+      ],
+      "secrets": "Not recorded."
+    },
+    "minimum_composition_plan": [
+      "Obtain an explicit contract decision for every CONFLICT_REQUIRES_DECISION and INSUFFICIENT_EVIDENCE module.",
+      "Apply only chosen, contract-backed variants into the isolated worktree; track all currently untracked runtime modules.",
+      "Commit one dependency lock and one sanitized runtime configuration manifest with the unified source.",
+      "Run provider-free equivalence tests for PumpPortal receipt persistence, strict CREATE/creator authority, durable handoff, bypassed fingerprint callback, funding/promotion, and Watchtower admission.",
+      "Run clean-checkout, schema 847/766 compatibility, and rollback qualification before any candidate or deployment."
+    ],
     "unresolved_decisions": "All 14 true conflicts and 14 insufficient-evidence modules require contract evidence; in particular creator-resolution queue/analyzer, shared db locking, Walkback queue/promotion, and Watchtower admission/registry paths.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "test_changes": 0, "service_restarts": 0, "deployment": false, "historical_replay": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "test_changes": 0,
+      "service_restarts": 0,
+      "deployment": false,
+      "historical_replay": 0
+    },
     "next_action": "Stop. Do not reconcile source variants until explicit behavior-preservation decisions and bounded equivalence acceptance contracts are authorized."
   },
   "flex_stable_v2_single_commit_recovery_package": {
@@ -35271,21 +35430,73 @@
     "branch": "flex-stable-v2-recovery-package",
     "purpose": "Exact service-specific recovery package; not deployment authorization and not a golden baseline.",
     "source_authorities": {
-      "listener": {"installed_commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f", "entry": "src.core.pumpfun_curve_listener", "files": 670},
-      "creator_resolution": {"installed_commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "entry": "src.core.creator_resolution_worker", "files": 752},
-      "walkback": {"installed_commit": "afbe9e58b11eb2e4d616246da123ce31ab45700c", "entry": "src.core.walkback_worker", "files": 627}
+      "listener": {
+        "installed_commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+        "entry": "src.core.pumpfun_curve_listener",
+        "files": 670
+      },
+      "creator_resolution": {
+        "installed_commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+        "entry": "src.core.creator_resolution_worker",
+        "files": 752
+      },
+      "walkback": {
+        "installed_commit": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+        "entry": "src.core.walkback_worker",
+        "files": 627
+      }
     },
-    "package_layout": ["runtime/listener/src", "runtime/creator_resolution/src", "runtime/walkback/src", "manifests/flex_stable_v2_source_hashes.json", "manifests/flex_stable_v2_runtime_manifest.json"],
+    "package_layout": [
+      "runtime/listener/src",
+      "runtime/creator_resolution/src",
+      "runtime/walkback/src",
+      "manifests/flex_stable_v2_source_hashes.json",
+      "manifests/flex_stable_v2_runtime_manifest.json"
+    ],
     "verification": {
       "exact_source_hash_parity": "PASS before commit for all three service copies",
-      "entry_closure_static_imports": {"listener": 153, "creator_resolution": 11, "walkback": 81, "missing_internal_modules": 0},
+      "entry_closure_static_imports": {
+        "listener": 153,
+        "creator_resolution": 11,
+        "walkback": 81,
+        "missing_internal_modules": 0
+      },
       "syntax_compilation": "PASS",
-      "clean_checkout": {"commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce", "checked_files": 2049, "mismatch_count": 0, "listener_launcher_mode": "0755", "entry_points_resolve_from_isolated_roots": true},
-      "fixtures": {"passed": 161, "failed": 3, "status": "NOT_FULLY_PASSING"}
+      "clean_checkout": {
+        "commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
+        "checked_files": 2049,
+        "mismatch_count": 0,
+        "listener_launcher_mode": "0755",
+        "entry_points_resolve_from_isolated_roots": true
+      },
+      "fixtures": {
+        "passed": 161,
+        "failed": 3,
+        "status": "NOT_FULLY_PASSING"
+      }
     },
-    "limitations": ["Existing Anaconda environment inventory is captured, but a verified artifact lock is unavailable; clean-environment dependency restoration is not claimed.", "Three retained provider-free fixtures are incompatible with exact live behavior/test schema; no source changes were made to satisfy them.", "Core 847 and OPS 766 are retained DEV090 runtime observations; this package made no schema change or independent clean-schema restoration.", "GOLDEN_BASELINE_HOLD: behavioral equivalence and reproducible dependency restoration are not independently qualified."],
-    "runtime_preservation": ["PumpPortal listener unchanged", "creator-resolution worker unchanged", "Walkback worker unchanged", "fingerprint bypass preserved", "Cascade remains stopped", "historical discovery remains disabled"],
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
+    "limitations": [
+      "Existing Anaconda environment inventory is captured, but a verified artifact lock is unavailable; clean-environment dependency restoration is not claimed.",
+      "Three retained provider-free fixtures are incompatible with exact live behavior/test schema; no source changes were made to satisfy them.",
+      "Core 847 and OPS 766 are retained DEV090 runtime observations; this package made no schema change or independent clean-schema restoration.",
+      "GOLDEN_BASELINE_HOLD: behavioral equivalence and reproducible dependency restoration are not independently qualified."
+    ],
+    "runtime_preservation": [
+      "PumpPortal listener unchanged",
+      "creator-resolution worker unchanged",
+      "Walkback worker unchanged",
+      "fingerprint bypass preserved",
+      "Cascade remains stopped",
+      "historical discovery remains disabled"
+    ],
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "next_action": "Resolve the three fixture-contract discrepancies and create a verified dependency artifact lock before any golden-baseline promotion. Do not deploy this recovery package."
   },
   "flex_stable_v2_final_recovery_qualification": {
@@ -35294,27 +35505,75 @@
     "source_package_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
     "qualification_commit": "8bea5506023f10505a2cd4548552b2d4abc1716e",
     "qualification_scope": "two stale fixture-contract corrections and final offline verification only; no packaged application-source change",
-    "clean_checkout_source_hashes": {"checked": 2049, "mismatches": 0, "listener_launcher_mode": "0755"},
-    "provider_free_regressions": {"listener": "38 passed", "creator_resolution": "18 passed", "walkback": "106 passed; 2 deselected because they require a combined creator-resolution/Walkback src namespace"},
-    "fixture_rebaselining": ["listener websocket fixture now supplies the constructor-established availability collaborator", "creator-resolution empty-database fixture now initializes schema before its installed durable-handoff preflight"],
-    "dependency_lock": {"status": "HOLD_ARTIFACTS_UNAVAILABLE", "python": "3.11.5", "installed_distributions": 251, "verified_conda_metadata_records": 15, "unverified_distribution_artifacts": 236, "substitutions_or_upgrades": 0},
+    "clean_checkout_source_hashes": {
+      "checked": 2049,
+      "mismatches": 0,
+      "listener_launcher_mode": "0755"
+    },
+    "provider_free_regressions": {
+      "listener": "38 passed",
+      "creator_resolution": "18 passed",
+      "walkback": "106 passed; 2 deselected because they require a combined creator-resolution/Walkback src namespace"
+    },
+    "fixture_rebaselining": [
+      "listener websocket fixture now supplies the constructor-established availability collaborator",
+      "creator-resolution empty-database fixture now initializes schema before its installed durable-handoff preflight"
+    ],
+    "dependency_lock": {
+      "status": "HOLD_ARTIFACTS_UNAVAILABLE",
+      "python": "3.11.5",
+      "installed_distributions": 251,
+      "verified_conda_metadata_records": 15,
+      "unverified_distribution_artifacts": 236,
+      "substitutions_or_upgrades": 0
+    },
     "schema_compatibility": "Required Core/OPS relations and WAL mode were verified read-only. Core 847 and OPS 766 remain retained DEV090 labels, not independently encoded in SQLite user_version.",
     "rollback": "Source package and sanitized runtime manifest restore cleanly; a clean dependency-environment restore is held pending original artifacts.",
     "golden_baseline_ready": false,
     "remote_handoff": "NOT_ATTEMPTED: prior sanitized handoff transport remains disclosure-blocked; local evidence retained.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "next_action": "Acquire the original platform-appropriate package artifacts or a verified approved artifact source, then recreate and hash-lock the Python 3.11.5 environment before reconsidering golden-baseline promotion."
   },
   "flex_stable_v2_isolated_dependency_restoration": {
     "status": "PARTIAL_RESTORATION_GOLDEN_BASELINE_HOLD",
     "source_package_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
     "qualification_commit": "8bea5506023f10505a2cd4548552b2d4abc1716e",
-    "artifact_acquisition": {"approved_exact_wheels": 18, "downloaded": 18, "sha256_verified": 18, "cache_bytes": 26474914, "largest_file_bytes": 24883435},
-    "isolated_environment": {"interpreter": "Python 3.11.5", "system_site_packages": false, "pip_check": "PASS", "exact_versions": "18/18", "entry_imports": "listener/creator_resolution/walkback PASS", "compiled_extensions": "aiohttp, charset_normalizer, frozenlist, multidict, psutil, solders, websockets, yarl PASS"},
-    "clean_checkout": {"source_files_checked": 2049, "hash_mismatches": 0, "listener_launcher_mode": "0755"},
+    "artifact_acquisition": {
+      "approved_exact_wheels": 18,
+      "downloaded": 18,
+      "sha256_verified": 18,
+      "cache_bytes": 26474914,
+      "largest_file_bytes": 24883435
+    },
+    "isolated_environment": {
+      "interpreter": "Python 3.11.5",
+      "system_site_packages": false,
+      "pip_check": "PASS",
+      "exact_versions": "18/18",
+      "entry_imports": "listener/creator_resolution/walkback PASS",
+      "compiled_extensions": "aiohttp, charset_normalizer, frozenlist, multidict, psutil, solders, websockets, yarl PASS"
+    },
+    "clean_checkout": {
+      "source_files_checked": 2049,
+      "hash_mismatches": 0,
+      "listener_launcher_mode": "0755"
+    },
     "schema_contract": "Read-only required Core/OPS relation and WAL checks passed; retained Core 847 / OPS 766 labels remain external DEV090 evidence.",
     "limitation": "pytest is not among the 18 authorized hash-pinned artifacts. It was not installed or substituted, so provider-free pytest regressions were not run in the clean isolated environment.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "application_source_changes": 0
+    },
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Authorize a separately hash-pinned test-runner closure, or define an approved non-pytest clean-environment regression harness; then rerun clean-environment provider-free regressions before any golden-baseline decision."
   },
@@ -35323,12 +35582,29 @@
     "source_package_commit": "add62f1f04329876ec977d4e8ac1c8c1a6c71fce",
     "fixture_qualification_commit": "8bea5506023f10505a2cd4548552b2d4abc1716e",
     "dependency_lock_commit": "35165ba1f6f4d445c7100718b552939f0b3eeb00",
-    "frozen_locks": {"runtime": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock (18 artifacts)", "test_runner": "manifests/flex_stable_v2_test_runner_python311.lock (8 artifacts)"},
-    "isolated_results": {"runtime_wheels_sha256": "18/18 PASS", "test_wheels_sha256": "8/8 PASS", "pip_check": "PASS", "listener": "38 passed", "creator_resolution": "18 passed", "walkback": "106 passed; 2 mixed-service namespace tests intentionally deselected", "source_hashes": "2049 checked; 0 mismatches"},
+    "frozen_locks": {
+      "runtime": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock (18 artifacts)",
+      "test_runner": "manifests/flex_stable_v2_test_runner_python311.lock (8 artifacts)"
+    },
+    "isolated_results": {
+      "runtime_wheels_sha256": "18/18 PASS",
+      "test_wheels_sha256": "8/8 PASS",
+      "pip_check": "PASS",
+      "listener": "38 passed",
+      "creator_resolution": "18 passed",
+      "walkback": "106 passed; 2 mixed-service namespace tests intentionally deselected",
+      "source_hashes": "2049 checked; 0 mismatches"
+    },
     "schema_contract": "Read-only required Core/OPS relations and WAL mode PASS; retained Core 847 / OPS 766 labels unchanged.",
     "golden_baseline_ready": false,
     "hold_reason": "The existing frozen runtime manifest still records clean_environment_reproducible=false and artifact_hashes=UNKNOWN. It conflicts with the newly frozen artifact locks; do not silently treat the supplemental locks as an updated one-manifest golden configuration.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "application_source_changes": 0
+    },
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Separately authorize a manifest-only reconciliation that incorporates the two verified locks into one authoritative frozen runtime configuration manifest, then re-run the clean-checkout manifest binding before golden promotion review."
   },
@@ -35340,31 +35616,90 @@
     "change_scope": "Manifest-only: flex_stable_v2_runtime_manifest.json. The 2,049 packaged service-source files are unchanged.",
     "manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
     "integrity_references": {
-      "source_hash_manifest": {"path": "manifests/flex_stable_v2_source_hashes.json", "sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a", "files": 2049},
-      "runtime_lock": {"path": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock", "sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "artifacts": 18},
-      "test_lock": {"path": "manifests/flex_stable_v2_test_runner_python311.lock", "sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "artifacts": 8}
+      "source_hash_manifest": {
+        "path": "manifests/flex_stable_v2_source_hashes.json",
+        "sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a",
+        "files": 2049
+      },
+      "runtime_lock": {
+        "path": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock",
+        "sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676",
+        "artifacts": 18
+      },
+      "test_lock": {
+        "path": "manifests/flex_stable_v2_test_runner_python311.lock",
+        "sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9",
+        "artifacts": 8
+      }
     },
-    "fresh_clean_checkout": {"commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb", "manifest_json": "PASS", "integrity_reference_hashes": "3/3 PASS", "source_hashes": "2049 checked; 0 mismatches", "service_roots_unchanged_from_35165ba1": true, "isolated_entry_imports": "listener/creator_resolution/walkback PASS"},
-    "clean_environment_evidence": {"result": "PASS for the service-specific package closure on macOS arm64/Python 3.11.5", "runtime_artifacts": "18/18 sha256 verified", "test_artifacts": "8/8 sha256 verified", "provider_free_regressions": "listener 38 passed; creator-resolution 18 passed; Walkback 106 passed"},
+    "fresh_clean_checkout": {
+      "commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+      "manifest_json": "PASS",
+      "integrity_reference_hashes": "3/3 PASS",
+      "source_hashes": "2049 checked; 0 mismatches",
+      "service_roots_unchanged_from_35165ba1": true,
+      "isolated_entry_imports": "listener/creator_resolution/walkback PASS"
+    },
+    "clean_environment_evidence": {
+      "result": "PASS for the service-specific package closure on macOS arm64/Python 3.11.5",
+      "runtime_artifacts": "18/18 sha256 verified",
+      "test_artifacts": "8/8 sha256 verified",
+      "provider_free_regressions": "listener 38 passed; creator-resolution 18 passed; Walkback 106 passed"
+    },
     "historical_artifact_identity": "UNPROVEN: the shared original Anaconda environment's historical wheel/source artifacts were not retained. The committed locks establish reproducible exact-version equivalent artifacts, not identity of the historical installer inputs.",
     "explicit_coverage_limitation": "Two retained Walkback tests remain deliberately deselected because they require resolver and Walkback modules in one src namespace, contrary to service-specific import isolation. No assertion was weakened and no provider calls were made.",
     "schema_contract": "Read-only Core required relations/WAL and OPS required relations/WAL remain compatible with retained DEV090 Core 847 and OPS 766 labels; no schema migration or database write occurred.",
     "golden_baseline_ready": "READY_FOR_PROMOTION_REVIEW_ONLY: one immutable commit now contains the source package, frozen sanitized manifest, and two hash-pinned locks. Promotion and deployment remain unauthorized.",
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable; this local handoff is retained.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "application_source_changes": 0, "database_changes": 0, "deployment": false},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "application_source_changes": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "next_action": "Obtain the required independent promotion review; do not deploy or label the baseline golden until that review accepts the platform-bound exact-version-equivalent artifact evidence and the two-test isolation limitation."
   },
   "flex_stable_v2_independent_promotion_review": {
     "status": "HOLD_REQUIRED_CROSS_SERVICE_CONTRACT_UNQUALIFIED",
     "reviewed_at_utc": "2026-10-19T23:34:55Z",
     "candidate_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
-    "fresh_detached_checkout": {"source_hashes": "2049 checked; 0 mismatches", "runtime_lock_sha256": "PASS 58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "test_lock_sha256": "PASS 19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "service_specific_imports": "listener/creator_resolution/walkback PASS", "runtime_roots_unchanged_since_35165ba1": true},
-    "test_evidence": {"retained_clean_environment_result": "162 applicable provider-free tests passed: listener 38, creator-resolution 18, Walkback 106", "independent_recheck": "tests/test_dev090_handoff.py under isolated Walkback root: 43 passed, 2 deliberately deselected", "deselected_contract": "test_actual_rpc_producer_transaction_and_real_worker_execution and test_producer_pressure_stops_before_claim_or_rpc exercise creator-resolution producer to Walkback durable-handoff behavior."},
+    "fresh_detached_checkout": {
+      "source_hashes": "2049 checked; 0 mismatches",
+      "runtime_lock_sha256": "PASS 58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676",
+      "test_lock_sha256": "PASS 19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9",
+      "service_specific_imports": "listener/creator_resolution/walkback PASS",
+      "runtime_roots_unchanged_since_35165ba1": true
+    },
+    "test_evidence": {
+      "retained_clean_environment_result": "162 applicable provider-free tests passed: listener 38, creator-resolution 18, Walkback 106",
+      "independent_recheck": "tests/test_dev090_handoff.py under isolated Walkback root: 43 passed, 2 deliberately deselected",
+      "deselected_contract": "test_actual_rpc_producer_transaction_and_real_worker_execution and test_producer_pressure_stops_before_claim_or_rpc exercise creator-resolution producer to Walkback durable-handoff behavior."
+    },
     "hold_reason": "The two deselected tests cover a required cross-service contract. They require resolver producer and Walkback consumer in one src namespace, while the recovery package deliberately preserves separate source roots. Their passing in a single-root/package-isolated clean environment is therefore not established. The retained 162-test result does not remove this precise coverage gap.",
-    "runtime_restart_check": {"creator_resolution_worker": "RUNNING pid 60207; process start 2026-10-20T00:26:25+01:00", "installed_source_commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215", "worker_file_sha256_matches_packaged_manifest": true, "supervisor_directory": "/Users/kevinkeaveney/Production/flex-main-workers", "provider_budget_settings": "CREATOR_RESOLUTION_MAX_PAGES=1, MAX_RUNTIME_SECS=15, HIGH_PRIORITY_MAX_PAGES=5000, HIGH_PRIORITY_MAX_RUNTIME_SECS=120; no provider call made"},
-    "limitations_confirmed": ["Dependency reconstruction is platform-bound to macOS arm64/Python 3.11.5 and proves exact-version-equivalent artifacts, not historical installer identity.", "Database-content backup and recovery are explicitly outside the source/configuration package."],
+    "runtime_restart_check": {
+      "creator_resolution_worker": "RUNNING pid 60207; process start 2026-10-20T00:26:25+01:00",
+      "installed_source_commit": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+      "worker_file_sha256_matches_packaged_manifest": true,
+      "supervisor_directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "provider_budget_settings": "CREATOR_RESOLUTION_MAX_PAGES=1, MAX_RUNTIME_SECS=15, HIGH_PRIORITY_MAX_PAGES=5000, HIGH_PRIORITY_MAX_RUNTIME_SECS=120; no provider call made"
+    },
+    "limitations_confirmed": [
+      "Dependency reconstruction is platform-bound to macOS arm64/Python 3.11.5 and proves exact-version-equivalent artifacts, not historical installer identity.",
+      "Database-content backup and recovery are explicitly outside the source/configuration package."
+    ],
     "promotion_decision": "HOLD: do not formally promote FLEX_STABLE_V2 until the durable producer-to-Walkback consumer contract is qualified without violating service-specific isolation, or an explicit contract decision changes that mandatory gate.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0, "deployment": false},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "source_changes": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Define and authorize a provider-free process-boundary or equivalent isolated integration harness for the two durable-handoff tests; do not merge service source roots, deploy, or promote before it passes."
   },
@@ -35380,10 +35715,27 @@
     },
     "crash_retry_idempotency": "The first original contract requires one post-completion redrain to process 0; this passed. Its original assertion set does not inject a crash/retry branch. The second contract asserts pressure prevents a claim/RPC and durable row creation; this passed.",
     "preserved_regression_evidence": "162 applicable isolated provider-free tests remain: listener 38, creator-resolution 18, Walkback 106. The two formerly deselected contracts are now separately qualified through the isolated process boundary.",
-    "integrity_recheck": {"source_hashes": "2049 checked; 0 mismatches", "runtime_lock": "PASS 58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "test_lock": "PASS 19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "manifest_json": "PASS", "candidate_worktree": "clean"},
+    "integrity_recheck": {
+      "source_hashes": "2049 checked; 0 mismatches",
+      "runtime_lock": "PASS 58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676",
+      "test_lock": "PASS 19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9",
+      "manifest_json": "PASS",
+      "candidate_worktree": "clean"
+    },
     "final_promotion_readiness": "READY_FOR_GOLDEN_PROMOTION_REVIEW: all required source, lock, isolated import, provider-free regression, and cross-service handoff gates are evidenced. Formal promotion/deployment remains explicitly unauthorized.",
-    "remaining_limitations": ["Dependency reconstruction is platform-bound to macOS arm64/Python 3.11.5 and establishes exact-version-equivalent artifacts, not historical installer identity.", "Database-content backup/recovery remains outside the source/configuration baseline."],
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0, "deployment": false},
+    "remaining_limitations": [
+      "Dependency reconstruction is platform-bound to macOS arm64/Python 3.11.5 and establishes exact-version-equivalent artifacts, not historical installer identity.",
+      "Database-content backup/recovery remains outside the source/configuration baseline."
+    ],
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "source_changes": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "remote_handoff": "NOT_ATTEMPTED: disclosure approval remains unavailable.",
     "next_action": "Obtain the designated formal promotion decision. Do not deploy automatically."
   },
@@ -35397,8 +35749,19 @@
     "write_path": "One target-bucket capacity check, atomic temporary-write/fsync/replace/fsync, no Core/OPS query or bucket enumeration; compact persistence failure remains telemetry-only.",
     "legacy": "Existing flat receipts remain exact-readable and outcome/handoff-update compatible; no automatic migration.",
     "maintenance": "Explicit bounded command only; every dependency surface must be present and indexed or retirement is UNKNOWN/fail-closed; same-filesystem reversible move plus SHA-256 readback, bounded .retired archive, no scheduler/worker/schema/index.",
-    "qualification": {"tests": "7 new service-isolated provider-free contract tests passed in fresh detached checkout", "latency": "100 writes: median 0.628 ms, p95 0.818 ms", "source_integrity": "base 2,049-file manifest plus candidate source-delta describes 2,051 application files"},
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
+    "qualification": {
+      "tests": "7 new service-isolated provider-free contract tests passed in fresh detached checkout",
+      "latency": "100 writes: median 0.628 ms, p95 0.818 ms",
+      "source_integrity": "base 2,049-file manifest plus candidate source-delta describes 2,051 application files"
+    },
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "next_action": "Separately authorize a deployment preflight and installation if continuous production provenance is required; do not deploy automatically."
   },
   "flex_stable_v2_receipt_index_compatibility": {
@@ -35415,47 +35778,150 @@
       "clean_checkout": "83f5c05f detached checkout clean; source and manifest hashes match the committed source delta"
     },
     "deployment": "NOT_AUTHORIZED. Production DDL is a separate bounded maintenance operation and must acquire the Core SQLite writer/schema lock; no DDL or receipt move was performed.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0,
+      "deployment": false
+    },
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
   "flex_stable_v2_receipt_deployment": {
     "status": "PASS",
     "candidate": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
     "golden_baseline": "FLEX_STABLE_V2 / 2d825bbcf27f802bd0bfcef90cedeba43cc968eb unchanged.",
-    "index": {"definition": "CREATE INDEX idx_migration_persist_queue_mint_status ON migration_persist_queue(mint, status)", "creation": "single 2-second-busy-timeout attempt, succeeded in 1.3 ms", "verified_plan": "SEARCH USING COVERING INDEX idx_migration_persist_queue_mint_status (mint,status)", "queue_records_modified": 0},
-    "installed_source": {"pumpportal_birth_audit_sha256": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae", "pumpportal_receipt_maintenance_sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce", "maintenance_command_sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364", "preimage_backup": "20 KiB local rollback bundle; previous receipt module SHA-256 6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"},
-    "listener": {"before_pid": 23723, "after_pid": 31403, "selective_restart": "watchtower_listener only", "duplicate_listener_processes": 0, "helius": "connected and PumpSwap subscription confirmed", "post_restart_failures": {"http_429": 0, "pumpswap_connection_refused": 0, "fatal_exit": 0}},
-    "receipts": {"legacy_flat_count": 4096, "legacy_newest_utc": "2026-10-19T19:12:42Z", "legacy_first_lookup": "PASS", "new_sharded_committed": 50, "newest_sharded_utc": "2026-10-20T09:00:01Z", "identity_and_bucket": "PASS", "retirement_executed": false},
-    "runtime_acceptance": {"pumpportal_births_after_restart": 50, "core_exact_indexed_mint_persistence": "PASS", "creator_resolution": "PID 13810 unchanged/RUNNING", "walkback": "PID 10716 unchanged/RUNNING", "creator_funding": "STOPPED under established receipt-only independence", "migration": "No migration naturally observed after this restart; active authenticated PumpSwap subscription confirms intake path."},
-    "health": {"core_wal": "absent/0 bytes", "ops_wal": "0 bytes", "disk_headroom": "approximately 9.2 GiB", "swap": "approximately 4.98 GiB used of 6 GiB", "new_lock_wal_pin_enospc": 0},
+    "index": {
+      "definition": "CREATE INDEX idx_migration_persist_queue_mint_status ON migration_persist_queue(mint, status)",
+      "creation": "single 2-second-busy-timeout attempt, succeeded in 1.3 ms",
+      "verified_plan": "SEARCH USING COVERING INDEX idx_migration_persist_queue_mint_status (mint,status)",
+      "queue_records_modified": 0
+    },
+    "installed_source": {
+      "pumpportal_birth_audit_sha256": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae",
+      "pumpportal_receipt_maintenance_sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce",
+      "maintenance_command_sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364",
+      "preimage_backup": "20 KiB local rollback bundle; previous receipt module SHA-256 6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"
+    },
+    "listener": {
+      "before_pid": 23723,
+      "after_pid": 31403,
+      "selective_restart": "watchtower_listener only",
+      "duplicate_listener_processes": 0,
+      "helius": "connected and PumpSwap subscription confirmed",
+      "post_restart_failures": {
+        "http_429": 0,
+        "pumpswap_connection_refused": 0,
+        "fatal_exit": 0
+      }
+    },
+    "receipts": {
+      "legacy_flat_count": 4096,
+      "legacy_newest_utc": "2026-10-19T19:12:42Z",
+      "legacy_first_lookup": "PASS",
+      "new_sharded_committed": 50,
+      "newest_sharded_utc": "2026-10-20T09:00:01Z",
+      "identity_and_bucket": "PASS",
+      "retirement_executed": false
+    },
+    "runtime_acceptance": {
+      "pumpportal_births_after_restart": 50,
+      "core_exact_indexed_mint_persistence": "PASS",
+      "creator_resolution": "PID 13810 unchanged/RUNNING",
+      "walkback": "PID 10716 unchanged/RUNNING",
+      "creator_funding": "STOPPED under established receipt-only independence",
+      "migration": "No migration naturally observed after this restart; active authenticated PumpSwap subscription confirms intake path."
+    },
+    "health": {
+      "core_wal": "absent/0 bytes",
+      "ops_wal": "0 bytes",
+      "disk_headroom": "approximately 9.2 GiB",
+      "swap": "approximately 4.98 GiB used of 6 GiB",
+      "new_lock_wal_pin_enospc": 0
+    },
     "rollback": "NOT_NEEDED. Local preimage bundle is retained; index intentionally remains if later source rollback is required unless separately authorized otherwise.",
     "next_action": "Continue normal monitoring. Receipt retirement remains explicitly manual, bounded (16 buckets/128 candidates), indexed, fail-closed, and was not run during deployment.",
-    "safety": {"provider_calls": 0, "manual_rpc_acquisition": 0, "historical_replay": 0, "receipt_retirement": 0, "vacuum": 0, "checkpoint": 0, "unrelated_service_restarts": 0}
+    "safety": {
+      "provider_calls": 0,
+      "manual_rpc_acquisition": 0,
+      "historical_replay": 0,
+      "receipt_retirement": 0,
+      "vacuum": 0,
+      "checkpoint": 0,
+      "unrelated_service_restarts": 0
+    }
   },
   "flex_stable_v2_final_receipt_deployment_preflight": {
     "status": "READY_FOR_CONTROLLED_INDEX_AND_RECEIPT_DEPLOYMENT",
     "observed_at_utc": "2026-10-20T09:34:00Z",
-    "candidate": {"commit": "83f5c05f7af093b3290eea8a7acc92c8eb389bda", "tree": "b682f1cf108c087a52996bb58c0ac695a67b531b", "candidate_receipt_module_sha256": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae", "manifest_sha256": "1c7b6e0dfc603e34727d316e9157858aef59b0bc13a4a5b607d3f82fbb72c489"},
+    "candidate": {
+      "commit": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
+      "tree": "b682f1cf108c087a52996bb58c0ac695a67b531b",
+      "candidate_receipt_module_sha256": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae",
+      "manifest_sha256": "1c7b6e0dfc603e34727d316e9157858aef59b0bc13a4a5b607d3f82fbb72c489"
+    },
     "golden_baseline": "FLEX_STABLE_V2 / 2d825bbcf27f802bd0bfcef90cedeba43cc968eb retained unchanged.",
-    "runtime_preimage": {"listener_pid": 23723, "launcher_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434", "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634", "receipt_module_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"},
+    "runtime_preimage": {
+      "listener_pid": 23723,
+      "launcher_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+      "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+      "receipt_module_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"
+    },
     "live_health": "Listener, creator-resolution, and Walkback RUNNING. Creator-funding remains STOPPED under the established receipt-only independence finding. Post-renewal listener evidence: 14 migrations, 130 PumpPortal births, and zero 429/PumpSwap-refusal/fatal/lock/WAL-pin records after subscription confirmation.",
     "receipts": "4,096 unchanged flat legacy files; 2,275,280 logical bytes / 16,777,216 allocated bytes; candidate preserves legacy-first lookup and does not move flat-root evidence on write.",
-    "database": {"core_wal_bytes": 45352, "ops_wal_bytes": 0, "queue_rows": 55, "queue_states": "PROCESSED:55", "index_state": "Only UNIQUE(signature) exists; mint/status exact index absent as expected before DDL.", "preflight_plan": "Current mint/status plan scans; candidate fails closed until exact idx_migration_persist_queue_mint_status(mint,status) exists and its indexed plan is confirmed."},
-    "capacity": {"disk_headroom": "approximately 5.46 GiB (above candidate 2 GiB floor)", "swap": "approximately 9.29 GiB used of 10 GiB; degraded but no active listener/SQLite failure observed"},
+    "database": {
+      "core_wal_bytes": 45352,
+      "ops_wal_bytes": 0,
+      "queue_rows": 55,
+      "queue_states": "PROCESSED:55",
+      "index_state": "Only UNIQUE(signature) exists; mint/status exact index absent as expected before DDL.",
+      "preflight_plan": "Current mint/status plan scans; candidate fails closed until exact idx_migration_persist_queue_mint_status(mint,status) exists and its indexed plan is confirmed."
+    },
+    "capacity": {
+      "disk_headroom": "approximately 5.46 GiB (above candidate 2 GiB floor)",
+      "swap": "approximately 9.29 GiB used of 10 GiB; degraded but no active listener/SQLite failure observed"
+    },
     "qualification": "Candidate retains the qualified 11 provider-free maintenance contracts and 28 legacy compact-receipt compatibility tests; no source/provider/Walkback/Supervisor change is required by this deployment.",
     "transient_diagnostic_reader": "A read-only quick-check diagnostic reader was detected and terminated before decision; no service process or database content was changed.",
     "minimum_next_action": "In one separately authorized controlled window: create the exact index with a short lock timeout and abort on contention, verify its indexed plan, install the candidate against the recorded preimage, restart only the listener if installation requires it, verify a new bucketed COMMITTED receipt, and retain the preimage/golden rollback authority.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "ddl": 0, "receipt_moves": 0, "service_restarts": 0}
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "ddl": 0,
+      "receipt_moves": 0,
+      "service_restarts": 0
+    }
   },
   "flex_stable_v2_helius_credit_renewal_recovery": {
     "status": "PASS",
     "observed_at_utc": "2026-10-20T08:57:44Z_to_09:07:52Z",
     "listener": "watchtower_listener remained RUNNING as PID 23723 for 10m08s; no manual restart was performed.",
     "websocket": "Helius connection and PumpSwap logsSubscribe acknowledgement retained (subscription id redacted). Two existing outbound TLS/443 sockets remained established at the end of the window.",
-    "intake": {"natural_migrations_after_confirmation": 9, "pumpportal_births_after_confirmation": 83},
-    "failures_after_confirmation": {"http_429": 0, "pumpswap_connection_refused": 0, "fatal_ten_failure_exit": 0, "database_is_locked": 0, "critical_wal_pinned": 0},
-    "database_health": {"core_wal": "absent/0 bytes", "ops_wal": "0 bytes", "disk_headroom": "approximately 9.5 GiB", "swap": "5.25 GiB used of 6 GiB"},
-    "scope_controls": {"provider_rpc_calls": 0, "canonical_writes_by_diagnostic": 0, "production_changes": 0, "service_restarts": 0},
+    "intake": {
+      "natural_migrations_after_confirmation": 9,
+      "pumpportal_births_after_confirmation": 83
+    },
+    "failures_after_confirmation": {
+      "http_429": 0,
+      "pumpswap_connection_refused": 0,
+      "fatal_ten_failure_exit": 0,
+      "database_is_locked": 0,
+      "critical_wal_pinned": 0
+    },
+    "database_health": {
+      "core_wal": "absent/0 bytes",
+      "ops_wal": "0 bytes",
+      "disk_headroom": "approximately 9.5 GiB",
+      "swap": "5.25 GiB used of 6 GiB"
+    },
+    "scope_controls": {
+      "provider_rpc_calls": 0,
+      "canonical_writes_by_diagnostic": 0,
+      "production_changes": 0,
+      "service_restarts": 0
+    },
     "receipt_deployment": "NOT_AUTHORIZED by this recovery verification. Recovery removes the listener-stability blocker only; receipt candidate/index deployment requires its separate authorization and current preflight.",
     "next_action": "Continue normal monitoring; if separately desired, repeat the scoped receipt deployment preflight before authorizing DDL or candidate installation."
   },
@@ -35464,12 +35930,25 @@
     "observed_at_utc": "2026-10-20T07:49:00Z",
     "effective_endpoint": "wss://mainnet.helius-rpc.com:443/?api-key=REDACTED",
     "credential_authority": "Running listener PID 23117 has HELIUS_API_KEY present; HELIUS_MONITORING_API_KEY absent. The loaded source selects the regular API key in that condition.",
-    "single_bounded_diagnostic": {"dns": "SUCCESS (two public addresses)", "tcp": "SUCCESS in 33.2 ms", "tls": "SUCCESS TLSv1.3 in 44.8 ms", "websocket_handshake": "HTTP 429 Too Many Requests in 90.7 ms", "total_elapsed_ms": 176.4},
+    "single_bounded_diagnostic": {
+      "dns": "SUCCESS (two public addresses)",
+      "tcp": "SUCCESS in 33.2 ms",
+      "tls": "SUCCESS TLSv1.3 in 44.8 ms",
+      "websocket_handshake": "HTTP 429 Too Many Requests in 90.7 ms",
+      "total_elapsed_ms": 176.4
+    },
     "classification": "Provider-side rate limiting/authenticated request-quota exhaustion at the HTTP WebSocket upgrade. This is not a DNS, TCP, TLS, local-listener, or endpoint-path refusal.",
     "listener_comparison": "The listener's generic connection/refused classifier matches the 429 handshake exception text because it contains 'connection'; it logs Connection refused and deliberately exits after ten failures. The retained symptom is therefore consistent with the observed 429 response.",
     "scope_controls": "One endpoint, one DNS/TCP/TLS/WebSocket attempt, no retry, no alternate endpoint, no subscription, no JSON-RPC payload, and no state change.",
     "minimum_safe_recovery": "Restore or raise the authorized Helius WebSocket/request quota for the existing credential, then observe one naturally occurring listener reconnect. Do not alter retry budgets or failure detection.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "websocket_handshakes": 1},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0,
+      "websocket_handshakes": 1
+    },
     "next_action": "Authorize provider-account/quota remediation for the existing credential; keep receipt deployment and Core DDL on hold until the listener reconnects and confirms its PumpSwap subscription."
   },
   "flex_stable_v2_pumpswap_connectivity_diagnosis": {
@@ -35483,7 +35962,14 @@
     "pumpportal_intake": "PumpPortal birth records continue after listener respawns. Exact migration/birth loss count is UNKNOWN because retained logs are not a gap-complete external intake ledger.",
     "refusal_cause": "UNKNOWN. The code and logs establish refusal at the direct remote WebSocket connection step, but not whether the provider listener, credential/network policy, or an intervening network path is refusing it. No manual probe or provider request was made.",
     "minimum_safe_recovery": "Separately authorize one bounded, credential-safe TCP/WebSocket handshake diagnostic to the sanitized configured endpoint (and, only if necessary, the documented public fallback), capturing no payloads and no state changes. Do not alter retry budgets or failure detection before that result.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "manual_network_probes": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0,
+      "manual_network_probes": 0
+    },
     "next_action": "Authorize the bounded connectivity test; keep receipt deployment and Core DDL on hold until the remote refusal is attributed and listener stability is restored."
   },
   "flex_stable_v2_listener_crash_loop_diagnosis": {
@@ -35492,21 +35978,55 @@
     "cause": "The loaded PumpSwap WebSocket loop records connection refusal, increments consecutive failures, and deliberately calls os._exit(1) at ten failures. This is an intentional Supervisord-restart path, not an unhandled traceback or SQLite/WAL failure.",
     "source_location": "Production/flex-listener/src/core/pumpfun_curve_listener.py:10990-11015; fatal branch at 11010-11014.",
     "three_exit_comparison": "Supervisor exits at 08:19:49, 08:24:33, and 08:29:18 BST are each exit status 1 after the same retained PUMPSWAP connection-refused/fatal-ten-failures record; respawn follows in about one second.",
-    "loaded_authority": {"base_commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f", "runtime_overlay": "dirty", "launcher_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434", "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634", "receipt_module_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"},
+    "loaded_authority": {
+      "base_commit": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+      "runtime_overlay": "dirty",
+      "launcher_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+      "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+      "receipt_module_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"
+    },
     "intake": "PumpPortal birth records continue after every restart. Migration handling emits retained delayed recheck records. Exact missed-event count is UNKNOWN because no gap-complete external intake ledger exists.",
     "health": "Core and OPS WALs observed at 0 bytes; no current WAL pin; approximately 11 GiB disk headroom. Historical ENOSPC/lock errors are retained but do not explain the current PumpSwap fatal path.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0
+    },
     "next_action": "Authorize a narrowly scoped recovery decision for the PumpSwap WebSocket failure policy or endpoint connectivity; do not run receipt deployment or Core DDL until listener stability is restored."
   },
   "flex_stable_v2_database_health_gate": {
     "status": "HOLD_DATABASE_HEALTH",
     "candidate": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
     "observed_at_utc": "2026-10-20T07:23:23Z",
-    "finding": "Core and OPS WALs are 0 bytes and the latest creator-resolution rollover was the configured six-hour idle-queue clean restart. However, watchtower_listener has exited unexpectedly about every 4–5 minutes since 2026-10-20T06:37:08Z; its active checkout is dirty and the queue query plan still scans migration_persist_queue because the required mint/status index is absent.",
-    "runtime": {"watchtower_listener": "RUNNING pid 18441 after repeated unexpected exit-status-1 rollovers", "creator_resolution_worker": "RUNNING pid 13810 after expected idle-queue rollover", "creator_funding_worker": "STOPPED (pre-existing state)"},
-    "database": {"core_wal_bytes": 0, "ops_wal_bytes": 0, "core_lsof_owner": "listener process", "migration_persist_queue_rows": 55, "migration_persist_queue_states": "PROCESSED:55", "required_index_present": false, "current_plan": "SCAN migration_persist_queue"},
-    "capacity": {"filesystem_headroom": "approximately 11 GiB", "swap": "2.83 GiB used of 4 GiB", "historical_enospc": "retained listener errors are from 2026-10-18, not current"},
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0},
+    "finding": "Core and OPS WALs are 0 bytes and the latest creator-resolution rollover was the configured six-hour idle-queue clean restart. However, watchtower_listener has exited unexpectedly about every 4\u20135 minutes since 2026-10-20T06:37:08Z; its active checkout is dirty and the queue query plan still scans migration_persist_queue because the required mint/status index is absent.",
+    "runtime": {
+      "watchtower_listener": "RUNNING pid 18441 after repeated unexpected exit-status-1 rollovers",
+      "creator_resolution_worker": "RUNNING pid 13810 after expected idle-queue rollover",
+      "creator_funding_worker": "STOPPED (pre-existing state)"
+    },
+    "database": {
+      "core_wal_bytes": 0,
+      "ops_wal_bytes": 0,
+      "core_lsof_owner": "listener process",
+      "migration_persist_queue_rows": 55,
+      "migration_persist_queue_states": "PROCESSED:55",
+      "required_index_present": false,
+      "current_plan": "SCAN migration_persist_queue"
+    },
+    "capacity": {
+      "filesystem_headroom": "approximately 11 GiB",
+      "swap": "2.83 GiB used of 4 GiB",
+      "historical_enospc": "retained listener errors are from 2026-10-18, not current"
+    },
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "database_changes": 0
+    },
     "next_action": "Stabilize and attribute the active listener crash loop, then repeat this bounded health gate before separately authorizing short-timeout production DDL."
   },
   "flex_v2_curve_first_create_recovery": {
@@ -35760,9 +36280,31 @@
     "status": "HOLD_NO_SAFE_DELETION_AUTHORITY",
     "observed_at_utc": "2026-10-20T09:33:00Z",
     "finding": "The deployed compact receipt store is separate and preserved (approximately 19 MiB at audit start). The reported historical footprint exists in retained audit/research artifacts, not an active PumpPortal spool: 2,425,044,992 allocated bytes / 2,411,741,880 logical bytes across 7,398 pre-October files in five bounded groups. The three largest groups are ops_discovery_p3r_s2b_runs (1,017,278,464 allocated bytes), byzantine_lifecycle_103 (660,078,592), and operation_all_birth_research (415,432,704). Canonical birth signature and transaction ledgers add 332,255,232 allocated bytes and remain canonical/audit evidence.",
-    "classification": {"safe_to_delete_bytes": 0, "safe_after_archival_bytes": 0, "canonical_preserve_bytes": 332255232, "protected_audit_bytes": 1075511296, "unknown_reference_hold_bytes": 1017278464, "current_compact_receipts": "PRESERVE", "active_writer": "No open files detected in the five historical paths; current listener writes only the compact receipt store."},
-    "health": {"listener": "RUNNING pid 31403", "creator_resolution": "RUNNING pid 13810", "walkback": "RUNNING pid 10716", "core_wal_bytes": 12392, "ops_wal_bytes": 0, "disk_headroom": "approximately 6.1 GiB"},
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "source_changes": 0, "production_changes": 0, "deletions": 0, "service_restarts": 0},
+    "classification": {
+      "safe_to_delete_bytes": 0,
+      "safe_after_archival_bytes": 0,
+      "canonical_preserve_bytes": 332255232,
+      "protected_audit_bytes": 1075511296,
+      "unknown_reference_hold_bytes": 1017278464,
+      "current_compact_receipts": "PRESERVE",
+      "active_writer": "No open files detected in the five historical paths; current listener writes only the compact receipt store."
+    },
+    "health": {
+      "listener": "RUNNING pid 31403",
+      "creator_resolution": "RUNNING pid 13810",
+      "walkback": "RUNNING pid 10716",
+      "core_wal_bytes": 12392,
+      "ops_wal_bytes": 0,
+      "disk_headroom": "approximately 6.1 GiB"
+    },
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "source_changes": 0,
+      "production_changes": 0,
+      "deletions": 0,
+      "service_restarts": 0
+    },
     "next_action": "Authorize a separately scoped evidence-retention review for a named audit group before any archival or deletion; age and inactive writers alone are insufficient."
   },
   "flex_v2_normal_creator_recovery_failure_analysis_20261020": {
@@ -35786,15 +36328,44 @@
     "status": "PROMOTED_METADATA_ONLY",
     "promoted_at_utc": "2026-10-19T23:42:19Z",
     "golden_source_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
-    "golden_tag": {"name": "FLEX_STABLE_V2", "annotated_tag_object": "02566f7db0938d2efa53242719fe66541c4d5c98", "peeled_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb", "local_object_verification": "PASS"},
-    "immutable_identity": {"runtime_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7", "source_hash_manifest_sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a", "runtime_lock_sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676", "test_lock_sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9", "source_files": "2049 checked; 0 mismatches"},
-    "qualification_acceptance": {"provider_free_regressions": "162 passed: listener 38, creator-resolution 18, Walkback 106", "process_isolated_handoff": "both formerly deselected durable-handoff contracts PASS", "source_configuration_authority": "one commit plus frozen sanitized runtime manifest; no worktree overlay required"},
+    "golden_tag": {
+      "name": "FLEX_STABLE_V2",
+      "annotated_tag_object": "02566f7db0938d2efa53242719fe66541c4d5c98",
+      "peeled_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+      "local_object_verification": "PASS"
+    },
+    "immutable_identity": {
+      "runtime_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+      "source_hash_manifest_sha256": "874a386f36cd99686b5af159f70e38b3052606e51eefd565d0ed427c5cf5891a",
+      "runtime_lock_sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676",
+      "test_lock_sha256": "19c3e93e9c2fbeabcb79cdb9ffd8f7bf902b6ff9107978eaaf18c7d0b17538c9",
+      "source_files": "2049 checked; 0 mismatches"
+    },
+    "qualification_acceptance": {
+      "provider_free_regressions": "162 passed: listener 38, creator-resolution 18, Walkback 106",
+      "process_isolated_handoff": "both formerly deselected durable-handoff contracts PASS",
+      "source_configuration_authority": "one commit plus frozen sanitized runtime manifest; no worktree overlay required"
+    },
     "rollback_authority": "Checkout golden commit 2d825bbcf27f802bd0bfcef90cedeba43cc968eb (or tag FLEX_STABLE_V2) and use its frozen sanitized manifest. Database-content recovery remains separate.",
-    "preserved": ["previous golden baselines", "FLEX_STABLE_V2 provisional recovery snapshot", "all prior release commits and qualification evidence"],
-    "remaining_limitations": ["Dependency reconstruction remains platform-bound to macOS arm64/Python 3.11.5 and uses verified exact-version-equivalent artifacts rather than historical installer identity.", "Database-content backup/recovery is outside this baseline."],
+    "preserved": [
+      "previous golden baselines",
+      "FLEX_STABLE_V2 provisional recovery snapshot",
+      "all prior release commits and qualification evidence"
+    ],
+    "remaining_limitations": [
+      "Dependency reconstruction remains platform-bound to macOS arm64/Python 3.11.5 and uses verified exact-version-equivalent artifacts rather than historical installer identity.",
+      "Database-content backup/recovery is outside this baseline."
+    ],
     "repository_protection": "Annotated tag created locally and verified to peel only to the golden commit. Remote tag-policy enforcement was not assessed because disclosure-controlled remote publication was not permitted.",
     "deployment": "NOT_AUTHORIZED; promotion metadata does not alter runtime configuration, services, databases, or application source.",
-    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "source_changes": 0, "database_changes": 0},
+    "safety": {
+      "provider_calls": 0,
+      "canonical_writes": 0,
+      "production_changes": 0,
+      "service_restarts": 0,
+      "source_changes": 0,
+      "database_changes": 0
+    },
     "remote_handoff": "NOT_ATTEMPTED: disclosure control did not permit remote verification.",
     "next_action": "NONE for baseline promotion. Use the golden tag only through separately authorized deployment or rollback procedures."
   },
@@ -35864,5 +36435,18 @@
     },
     "verdict": "HOLD_EXACT_ACCOUNT_WIDE_ATTRIBUTION_UNAVAILABLE; demonstrated historical internal cost driver is stopped creator_funding_worker, not current creator-resolution.",
     "next_action": "Separately authorize a bounded funding-extractor cost/stability review using existing telemetry to test duplicate-signature reuse and termination conditions; do not restart or enable the worker. For exact account-wide attribution, retain a sanitized timestamped account-usage export and per-service method/credit telemetry contract."
+  },
+  "flex_v2_funding_worker_rpc_audit_20261020": {
+    "engineering_revision": "f10a56a01098755328f6d3b1eba9ba010412296d",
+    "status": "HOLD_RESTART",
+    "finding": "PID 92703 indexed metrics confirm 559,789 noncache signature/detail requests and 5,597,890 internal units over 17\u201318 October. 350,953 transaction misses returned RPC error -32015. Outgoing scan increments its 100 limit only for successful post-migration detail reads, bypasses signature cache and has no fixed page cap. Exact historical loaded source, signature duplication, billed credits and qualified-result denominator remain UNKNOWN.",
+    "audit": "docs/audits/flex_v2_funding_worker_rpc_audit_20261020.v1.json",
+    "verification": "Read-only indexed bounded SQL; rotated phase ledgers; clean pinned-source inspection; supervisorctl confirms STOPPED. No application tests required for audit.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit only",
+    "production_flags": "Worker STOPPED; configured autostart=true/autorestart=true; no activation or configuration change.",
+    "safety": "Provider calls=0; canonical writes=0; source changes=0; production changes=0; no replay/checkpoint/VACUUM/clone.",
+    "blocker": "No proven per-job/global provider budget; demonstrated failed-read/pagination amplification; cache/error and restart storage bounds unqualified.",
+    "next_action": "KEEP_STOPPED; review minimal bounded outgoing-scan/error-handling correction and budget qualification under separate authorization."
   }
 }

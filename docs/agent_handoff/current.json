@@ -35542,6 +35542,23 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
   },
+  "flex_v2_creator_resolution_priority_audit": {
+    "status": "COMPLETE_WITH_BOUNDED_COHORT_LIMITATION",
+    "scope": "Read-only source audit and bounded recent queue inspection. No provider calls, database writes, source changes, service restarts, deployment, or production changes.",
+    "runtime_authority": "Production resolver queue SHA-256 2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95; worker SHA-256 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb; deployed analyzer SHA-256 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4. Candidate 18284f5 is not deployed, and deployed analyzer has no curve-first symbols.",
+    "priority_rules": "Automatic enqueue requires migrated lifecycle plus missing earliest_tx_creator and pf_ws_creator; it does not test missing create_tx_signature or PumpPortal receipt/anchor evidence. It defaults to priority 200. Recent missing-creator promotion is also priority 200. At execution only, HIGH_PRIORITY is true if queue priority >200, source starts manual, tracked_tokens has OWNED/WATCH, or the mint exists in wt_watchtower_launches or wt_creator_birth_launch. The code comment mentions active operation candidates, but the predicate does not query that table. Priority 200 changes ordering but is GENERIC, because the high-budget threshold is strictly >200.",
+    "timing": "Priority numeric value is stored at enqueue and may be elevated before claim. The high/GENERIC tier and corresponding 5,000-page or one-page budget are resolved dynamically after claim, immediately before RPC execution.",
+    "curve_first": "Candidate curve-first runs only where execution supplies more than one page. Therefore it would run for HIGH_PRIORITY jobs at the current 5,000-page budget; normal and priority-200 jobs retain one-page mint-first behavior.",
+    "recent_cohort": "Successful seven-day queue aggregate: 1,835 complete GENERIC priority-200 rows, 535 skipped GENERIC priority-200 rows, and one pending priority-200 row; zero recorded HIGH_PRIORITY completions. This makes observed candidate curve-first eligibility 0/2,371 = 0% for that recent queue cohort. The aggregate used the existing queue index. A follow-up forced updated-at indexed join to inspect present-day missing creator+CREATE fields failed SQLite open with error 14; no broad retry or historical scan was performed.",
+    "missing_anchor_conclusion": "Missing PumpPortal creator/CREATE evidence does not automatically grant HIGH_PRIORITY. The source predicate only recognizes missing creator fields for enqueue, and high-tier signals are separate. The all-population proportion of missing-anchor migrations that would become curve-first is UNKNOWN; the observed recent completed cohort contains none recorded as HIGH_PRIORITY.",
+    "recommendation": "Do not change priority classification to increase candidate coverage. Deploy the qualified candidate only for its intended existing HIGH_PRIORITY population if separately authorized; normal one-page jobs remain mint-first.",
+    "next_action": "If a more precise missing-anchor percentage is required, separately authorize a time-bounded, read-only retry after SQLite availability is stable using the existing updated-at and mint primary-key paths; do not add indexes or scan historical migrations.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "august_ops_discovery_retention_review": {
     "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",

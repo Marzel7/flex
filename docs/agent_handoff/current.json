@@ -30958,6 +30958,18 @@
     "status": "QUALIFIED_NOT_DEPLOYED",
     "tests": "70 passed, 0 failed: new Deep classification, Deep historical, MonitorWorker, and DEV-019 Treasury rotation suites. Immutable projection conflict fails closed; repeated identical evidence is idempotent."
   },
+  "flex_v2_helius_outage_adjusted_creator_coverage_20261019": {
+    "engineering_revision": "read-only retained-evidence audit; fixed cohort and source authorities preserved from flex_v2_end_to_end_creator_coverage_20261019",
+    "status": "PASS_OUTAGE_ADJUSTED_COHORT_MEASURED",
+    "finding": "The fixed 799-migration cohort remains unchanged. Conservative timestamp partitioning yields 792 HEALTHY migrations and seven UNKNOWN migrations before the first recorded subscription acknowledgement at 2026-10-19T00:09:49Z; there are zero DEGRADED-cohort migrations. Reconnect gaps were classified UNKNOWN, not degraded. The confirmed Helius refusal/credit outage begins 2026-10-20T06:35:08Z and first recovers with a confirmed subscription at 2026-10-20T07:58:52Z, outside the fixed cohort.",
+    "healthy_metrics": "792 migrations: 33 PumpPortal-qualified (4.17%), 30 post-migration committed receipts, 729 provenance-unknown, 203 resolution jobs/enqueue outcomes (71 strict ACK recoveries, 132 BUDGET_EXCEEDED), combined qualified coverage 104/792 (13.13%), 484 Walkback COMPLETE (61.11%), 323 LINEAGE_GAP, 149 NO_ATTRIBUTION_FOUND, 12 WATCHTOWER_CONFIRMED, 308 waiting. All 792 migration handoffs are COMPLETE.",
+    "unknown_metrics": "7 migrations: 0 qualified PumpPortal or strict-RPC recoveries, 0 recorded resolution jobs, five Walkback COMPLETE / two waiting, five LINEAGE_GAP. The unknown timestamps are 00:00:55 through 00:06:48 UTC, before first positive subscription evidence; sample is too small for comparison.",
+    "outage_attribution": "No retained timestamped Helius 429, Helius refusal, or provider-failure evidence appears inside the cohort. No listener fatal/respawn or compact-receipt-capacity error is retained within it. Repeated PumpSwap reconnects all have later successful subscription acknowledgement. Therefore the low qualified-creator coverage cannot be materially attributed to the later Helius outage or listener crash loop. Retained evidence supports an eligibility/enqueue and provenance-retention gap, but does not establish a causal root cause.",
+    "limits": "WebSocket subscription health is not proof of HTTP/RPC-method health. Actual per-job provider request/credit data remains uncorrelated with mint/signature and is UNKNOWN. Missing receipts remain PROVENANCE_UNKNOWN, not proof of non-delivery. No provider calls, writes, replay, source/configuration/service changes, or receipt changes occurred.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only outage-adjusted evidence audit only.",
+    "next_action": "Prioritize bounded creator-resolution eligibility/queue-projection evidence before changing provider budgets. If causal RPC-outage attribution is required later, authorize mint/signature-correlated attempt telemetry; do not reinterpret this historical cohort."
+  },
   "flex_v2_end_to_end_creator_coverage_20261019": {
     "engineering_revision": "read-only audit; listener bf1bdfc59b4acfed0338a493189d91d212bda50f; resolver eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 with live worker SHA256 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb; Walkback afbe9e58b11eb2e4d616246da123ce31ab45700c",
     "status": "PASS_READ_ONLY_COHORT_COVERAGE_MEASURED",

@@ -35396,6 +35396,21 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_final_receipt_deployment_preflight": {
+    "status": "READY_FOR_CONTROLLED_INDEX_AND_RECEIPT_DEPLOYMENT",
+    "observed_at_utc": "2026-10-20T09:34:00Z",
+    "candidate": {"commit": "83f5c05f7af093b3290eea8a7acc92c8eb389bda", "tree": "b682f1cf108c087a52996bb58c0ac695a67b531b", "candidate_receipt_module_sha256": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae", "manifest_sha256": "1c7b6e0dfc603e34727d316e9157858aef59b0bc13a4a5b607d3f82fbb72c489"},
+    "golden_baseline": "FLEX_STABLE_V2 / 2d825bbcf27f802bd0bfcef90cedeba43cc968eb retained unchanged.",
+    "runtime_preimage": {"listener_pid": 23723, "launcher_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434", "listener_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634", "receipt_module_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"},
+    "live_health": "Listener, creator-resolution, and Walkback RUNNING. Creator-funding remains STOPPED under the established receipt-only independence finding. Post-renewal listener evidence: 14 migrations, 130 PumpPortal births, and zero 429/PumpSwap-refusal/fatal/lock/WAL-pin records after subscription confirmation.",
+    "receipts": "4,096 unchanged flat legacy files; 2,275,280 logical bytes / 16,777,216 allocated bytes; candidate preserves legacy-first lookup and does not move flat-root evidence on write.",
+    "database": {"core_wal_bytes": 45352, "ops_wal_bytes": 0, "queue_rows": 55, "queue_states": "PROCESSED:55", "index_state": "Only UNIQUE(signature) exists; mint/status exact index absent as expected before DDL.", "preflight_plan": "Current mint/status plan scans; candidate fails closed until exact idx_migration_persist_queue_mint_status(mint,status) exists and its indexed plan is confirmed."},
+    "capacity": {"disk_headroom": "approximately 5.46 GiB (above candidate 2 GiB floor)", "swap": "approximately 9.29 GiB used of 10 GiB; degraded but no active listener/SQLite failure observed"},
+    "qualification": "Candidate retains the qualified 11 provider-free maintenance contracts and 28 legacy compact-receipt compatibility tests; no source/provider/Walkback/Supervisor change is required by this deployment.",
+    "transient_diagnostic_reader": "A read-only quick-check diagnostic reader was detected and terminated before decision; no service process or database content was changed.",
+    "minimum_next_action": "In one separately authorized controlled window: create the exact index with a short lock timeout and abort on contention, verify its indexed plan, install the candidate against the recorded preimage, restart only the listener if installation requires it, verify a new bucketed COMMITTED receipt, and retain the preimage/golden rollback authority.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "ddl": 0, "receipt_moves": 0, "service_restarts": 0}
+  },
   "flex_stable_v2_helius_credit_renewal_recovery": {
     "status": "PASS",
     "observed_at_utc": "2026-10-20T08:57:44Z_to_09:07:52Z",

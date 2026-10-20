@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED_PENDING_REMOTE_VERIFICATION",
-    "updated_at_utc": "2026-10-20T17:46:43.507289+00:00"
+    "updated_at_utc": "2026-10-20T19:06:16.479378+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -36459,5 +36459,26 @@
     "blocker": "User section 3 requires stopping when approved acquisition bounds do not exist; total HTTP-attempt and failed-read ceilings absent.",
     "next_action": "User supplies approved per-investigation signature-page, transaction-detail-attempt, failed-read and all-provider-HTTP-attempt ceilings, defining applicability across retries. Preserve or reduce existing 90-second timeout, concurrency and retry/failover settings. Then create isolated branch/worktree, implement and qualify only this correction.",
     "safety": "Provider calls=0; canonical writes=0; source changes=0; production changes=0."
+  },
+  "flex_v2_funding_durable_budget_policy_20261020": {
+    "engineering_revision": "f10a56a01098755328f6d3b1eba9ba010412296d",
+    "status": "HOLD_DURABLE_ACCOUNTING_REQUIRES_SCHEMA_OR_SIGNIFICANT_ENGINEERING",
+    "policy": {
+      "signature_pages": 8,
+      "transaction_detail_physical_http_attempts": 100,
+      "failed_detail_reads": 10,
+      "all_provider_physical_http_attempts": 150,
+      "wall_clock_seconds": 90,
+      "scope": "One durable investigation, cumulative across retries, failovers, resumptions and restarts; reserve before dispatch; DEV qualification only."
+    },
+    "audit": "docs/audits/flex_v2_funding_durable_budget_policy_20261020.v1.json",
+    "verification": "NOT_RUN: no implementation candidate exists. Schema/source inspection demonstrates prerequisite gap; boundary, exhaustion, restart, idempotency, timeout, cache and attribution regressions must run after accounting design is authorized and implemented.",
+    "finding": "No existing durable funding counters/deadline; lifecycle is fail-open, cache expires, job attempts are not provider attempts, file checkpoint lacks cross-process atomic reservation safety. Ancillary direct HTTP bypasses shared transaction transport.",
+    "blocker": "User explicitly requires HOLD if schema changes or significant accounting engineering are needed.",
+    "smallest_alternative": "One bounded budget-state field on existing creator_funding_queue plus atomic pre-dispatch accounting through funding shared and ancillary HTTP paths; no new database/table/worker/scheduler.",
+    "runtime_deployment_required": false,
+    "production_flags": "Deployment/restart unauthorized; no source/config/schema/process mutation.",
+    "next_action": "Authorize only a minimal isolated DEV extension of existing queue-row schema for bounded durable budget state and its funding-only pre-dispatch enforcement. Then implement and run provider-free boundary/exhaustion/restart/idempotency/attribution and clean-checkout tests; no provider calls, production migration or restart.",
+    "safety": "Provider calls=0; canonical writes=0; production changes=0; source changes=0."
   }
 }

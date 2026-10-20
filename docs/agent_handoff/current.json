@@ -35379,6 +35379,23 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Separately authorize a deployment preflight and installation if continuous production provenance is required; do not deploy automatically."
   },
+  "flex_stable_v2_receipt_index_compatibility": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "base_golden_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "previous_candidate": "f72d4aba7eaf151ad4f4633445e9193ce3bdfbc6",
+    "successor_candidate": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
+    "scope": "Migration-reference maintenance checker only; receipt writing, sharding, legacy lookup, durable handoff, runtime services, and production schema remain unchanged.",
+    "required_index": "idx_migration_persist_queue_mint_status ON migration_persist_queue(mint,status)",
+    "contract": "PENDING and RETRY protect; PROCESSED is the only established terminal state; every other state protects. Missing columns, the exact index, or an indexed query plan returns UNKNOWN/fail-closed.",
+    "qualification": {
+      "disposable_fixture_query_plan": "SEARCH using COVERING INDEX idx_migration_persist_queue_mint_status for mint/state; no queue scan accepted",
+      "provider_free_tests": "11 receipt-maintenance contracts plus 54 pre-existing compact receipt/recovery tests: 65 passed in a fresh detached checkout",
+      "clean_checkout": "83f5c05f detached checkout clean; source and manifest hashes match the committed source delta"
+    },
+    "deployment": "NOT_AUTHORIZED. Production DDL is a separate bounded maintenance operation and must acquire the Core SQLite writer/schema lock; no DDL or receipt move was performed.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
+    "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
+  },
   "flex_stable_v2_golden_baseline_promotion": {
     "status": "PROMOTED_METADATA_ONLY",
     "promoted_at_utc": "2026-10-19T23:42:19Z",

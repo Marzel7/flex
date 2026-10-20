@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T21:40:18.929065+00:00"
+    "published_at_utc": "2026-10-20T21:53:03.336525+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T21:39:56.267991+00:00",
-    "working_tree": "Wallet-history forensic audit INSUFFICIENT_EVIDENCE: no active enhanced-history PID identified; standard listener21:13\u201321:17burst observed, no wallet/cursor ledger/export. Funding/Cascade stopped; all installations unchanged."
+    "updated_at_utc": "2026-10-20T21:52:53.347383+00:00",
+    "working_tree": "Shared Helius credential audit PARTIAL:414visibleprocesses,3supervisedenvmatches; Chrome dashboard also carries same key. No standaloneFlex DEV/orphan proved. Wallet-history burstPID UNKNOWN; no service/source changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39647,5 +39647,204 @@
       "storage": "Only compact JSON aggregates/report, no raw provider payload or database clone; no file near500MB."
     },
     "updated_at_utc": "2026-10-20T21:39:56.267991+00:00"
+  },
+  "helius_shared_credential_consumers_20261020": {
+    "HELIUS_SHARED_CREDENTIAL_AUDIT_STATUS": "PARTIAL \u2014 visible credential contexts identified; dashboard spike origin remains UNKNOWN",
+    "ACTIVE_CREDENTIAL_CONSUMERS": {
+      "supervised": [
+        {
+          "service": "Walkback",
+          "pid": 10716,
+          "supervisor_parent_pid": 1131,
+          "module": "src.core.walkback_worker",
+          "credential_group": "shared-credential-A",
+          "ephemeral_HMAC_SHA256": "83741c527cc9a430b0e46d7badbb46561227fdb9c4c3375217f1f789818e6b64",
+          "binding": "HELIUS_API_KEY and both configured endpoint query keys match",
+          "endpoint_host": "mainnet.helius-rpc.com",
+          "physical_activity_evidence": "Retained service logs/standard-RPC activity established in prior bounded audit; not an exact walletHistory/getTransactionsForAddress request ledger."
+        },
+        {
+          "service": "creator-resolution",
+          "pid": 34567,
+          "supervisor_parent_pid": 1131,
+          "module": "src.core.creator_resolution_worker",
+          "credential_group": "shared-credential-A",
+          "ephemeral_HMAC_SHA256": "83741c527cc9a430b0e46d7badbb46561227fdb9c4c3375217f1f789818e6b64",
+          "binding": "HELIUS_API_KEY and both configured endpoint query keys match",
+          "endpoint_host": "mainnet.helius-rpc.com",
+          "physical_activity_evidence": "Retained service logs/standard-RPC activity established in prior bounded audit; not an exact walletHistory/getTransactionsForAddress request ledger."
+        },
+        {
+          "service": "listener",
+          "pid": 60284,
+          "supervisor_parent_pid": 1131,
+          "module": "src.core.pumpfun_curve_listener",
+          "credential_group": "shared-credential-A",
+          "ephemeral_HMAC_SHA256": "83741c527cc9a430b0e46d7badbb46561227fdb9c4c3375217f1f789818e6b64",
+          "binding": "HELIUS_API_KEY and both configured endpoint query keys match",
+          "endpoint_host": "mainnet.helius-rpc.com",
+          "physical_activity_evidence": "Retained service logs/standard-RPC activity established in prior bounded audit; not an exact walletHistory/getTransactionsForAddress request ledger."
+        }
+      ],
+      "browser_context": {
+        "application": "Google Chrome",
+        "pid": 11449,
+        "credential_group": "shared-credential-A",
+        "matching_dashboard_routes": 2,
+        "route": "dashboard.helius.dev/[redacted-account]/metrics?api_key=[redacted]",
+        "retained_method_filter": "getTransactionsForAddress",
+        "evidence": "HMAC match of retained api_key query values, not emitted/persisted raw URL or key",
+        "not_proven": "Possession/filter navigation does not prove billable RPC or enhanced-history requests."
+      },
+      "process_scan": {
+        "same_user_initial_records_checked": 227,
+        "all_OS_visible_records_checked": 414,
+        "matching_args_visible_env_PIDs": [
+          10716,
+          34567,
+          60284
+        ],
+        "scope": "Arguments and OS-visible environment only, not arbitrary memory, browser JS state, credentials loaded then removed from environment, exited historical processes or other hosts."
+      },
+      "fingerprint_safety": "Ephemeral HMAC-SHA256 secret discarded. Only non-reversible fingerprint/group and boolean matches persisted; no credential, raw environment, full browser URL, cookies or tokens emitted/stored."
+    },
+    "NON_SUPERVISOR_CONSUMERS": {
+      "confirmed_billable_helius_consumer": "NONE identified outside Supervisor",
+      "additional_credential_context": "Chrome dashboard has matching key in retained metrics-page navigation; not evidence it generated the requests.",
+      "desktop_helpers": {
+        "count": 30,
+        "credential_env_matches": 0,
+        "identity": "Codex artifact-session host and ChatGPT CUA/code-review/app-tools Node/REPL helpers; parent lineage11730/11810, IPC pipes. Not Flex API/DEV servers.",
+        "filesystem_access": "Some helper cwd is Flex and same-user code could read configuration. Absence of environment key does not prove absence of a key in prior loaded memory or prior tool execution. No request-origin evidence establishes helper RPC consumption."
+      },
+      "ports": "Local LISTEN inventory showed macOS/NoMachine services; no Flex Python/Node DEV or API HTTP listener observed. Background workers can issue requests without listening ports.",
+      "duplicates_or_orphans": "No additional standalone Flex Python worker/module observed; Node helpers are desktop-app children, not established orphan wallet-history consumers.",
+      "current_browser_start": "Chrome PID11449 started17:12:47UTC on20Oct; earlier07UTC browser visits belong to historical browser context, not necessarily currentPID."
+    },
+    "WALLET_HISTORY_CALL_SITES": {
+      "wire_calls": "Live Walkback module dispatches standard getSignaturesForAddress/getTransaction/getAccountInfo; resolution uses standard history/detail helpers; listener has standard discovery RPC and WS subscriptions.",
+      "enhanced_REST_families": [
+        {
+          "file": "src/analysis/automatic_cex_detection.py:273-283",
+          "wire": "GET https://api.helius.xyz/v0/addresses/{address}/transactions",
+          "label": "getTransactionsForAddress is the local metric label, not a JSON-RPC body method here",
+          "limits": "One limit100 request per heuristic invocation, timeout10s; no pagination in this function.",
+          "activity": "No corresponding Oct20 retained metric events; no proven active worker call chain to this heuristic."
+        },
+        {
+          "file": "src/analysis/pump_fun_post_migration_analyzer.py:238-299",
+          "wire": "GET /v0/addresses/{address}/transactions",
+          "limits": "helius_iter_parsed_txs_for_address default200 pages,limit100,20s HTTP timeout; advances oldest signature cursor, stops non200/empty/missing cursor; no repeated-cursor detection.",
+          "activity": "Only definition found for this iterator in installed src. Active creator-resolution call path uses getSignaturesForAddress/getTransaction instead. Presence does not prove execution."
+        },
+        {
+          "file": "src/extractors/funder_helius_extractor.py:243",
+          "wire": "GET /v0/addresses/{address}/transactions",
+          "limits": "Default1 page,100 records,15s timeout,3 retries per page.",
+          "activity": "Potential enhanced-history library path; no identified live invocation in retained spike evidence."
+        },
+        {
+          "file": "src/extractors/funder_incoming_extractor.py:532",
+          "wire": "GET /v0/addresses/{address}/transactions",
+          "limits": "Caller max_pages, cursor from accumulated last signature; first-page RPC cache; 4-round standard-RPC retry helper separate.",
+          "activity": "Listener imports wrapper but its wrapper has no internal src invocation beyond definition. No enhanced-history request evidence in captured metrics."
+        },
+        {
+          "file": "src/utils/wallet_cache_production.py:402-",
+          "wire": "GET api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions",
+          "limits": "50-page default,30-day cutoff,high-transaction guard caps1page,3empty-page stop,cache/incremental boundary,Semaphore4 for batch. Empty pages may repeat same cursor up to bounded empty-page stop.",
+          "activity": "No demonstrated invocation from the three live worker entry paths; not grounds for attribution."
+        },
+        {
+          "file": "src/extractors/realtime_creator_funding_extractor.py:731,1512,2664",
+          "wire": "Enhanced REST address-history paths",
+          "activity": "Present in installed roots, funding consumer STOPPED; imported availability is not acquisition evidence. Do not assign dashboard traffic to stopped funding."
+        },
+        {
+          "file": "src/core/main.py and operation_*_poc.py",
+          "wire": "Enhanced address-history REST handlers/scripts",
+          "activity": "API/service is stopped; no matching live independent script demonstrated in OS inventory."
+        }
+      ],
+      "literal_walletHistory": "Not found in searched installed runtime source.",
+      "getTransactionsForAddress": "Found as a metrics-schedule name and the CEX heuristic metric label for an HTTP GET /v0/addresses/{address}/transactions. No literal JSON-RPC dispatch found.",
+      "SDK_aliases": "No proven live SDK call emitting walletHistory established. Dashboard label-to-wire mapping remains unknown; do not equate metric labels with RPC dispatch names.",
+      "high_concurrency": "Installed library wallet-cache batch helper has semaphore4; enhanced iterator default200pages is sequential and not proven called by live entry paths. Listener discovery concurrency3/background2 bounds simultaneous requests, not RPS. Desktop Node/REPL capabilities are generic and do not establish wallet-history execution or154RPS."
+    },
+    "BURST_TIME_CORRELATION": {
+      "retained_request_windows": [
+        {
+          "label": "0630-0730",
+          "from_utc": "2026-10-20T06:30:00+00:00",
+          "until_utc": "2026-10-20T07:30:00+00:00",
+          "listener_metric_events": 169,
+          "resolution_metric_events": 0,
+          "no_observed_walletHistory_or_getTransactionsForAddress_metric_events": true,
+          "physical_request_total": "UNKNOWN; unmetered paths and absent provider labels",
+          "listener_exits": 12
+        },
+        {
+          "label": "0845-0945",
+          "from_utc": "2026-10-20T08:45:00+00:00",
+          "until_utc": "2026-10-20T09:45:00+00:00",
+          "listener_metric_events": 163,
+          "resolution_metric_events": 41,
+          "no_observed_walletHistory_or_getTransactionsForAddress_metric_events": true,
+          "physical_request_total": "UNKNOWN; unmetered paths and absent provider labels",
+          "listener_exits": 0
+        },
+        {
+          "label": "1830-2130",
+          "from_utc": "2026-10-20T18:30:00+00:00",
+          "until_utc": "2026-10-20T21:30:00+00:00",
+          "listener_metric_events": 2958,
+          "resolution_metric_events": 105,
+          "no_observed_walletHistory_or_getTransactionsForAddress_metric_events": true,
+          "physical_request_total": "UNKNOWN; unmetered paths and absent provider labels",
+          "listener_exits": 13
+        }
+      ],
+      "prior_log_evidence": "Reused qualified bounded Oct20 window aggregates rather than rereading108MB logs. Listener standard-method burst21:13\u201321:17UTC; no enhanced-history dispatch proven.",
+      "browser_navigation_metadata": {
+        "retained_Helius_visits": 39,
+        "counts_by_UTC_hour": {
+          "07": 7,
+          "16": 7,
+          "17": 2,
+          "21": 23
+        },
+        "shared_key_metrics_navigation_times": [
+          "2026-10-20T21:41:43.633425+00:00",
+          "2026-10-20T21:41:43.681787+00:00",
+          "2026-10-20T21:42:23.974144+00:00",
+          "2026-10-20T21:42:24.037643+00:00",
+          "2026-10-20T21:47:25.772444+00:00",
+          "2026-10-20T21:47:25.803146+00:00"
+        ],
+        "interpretation": "Dashboard viewing/filter navigation only; not physical RPC dispatch. Browser history is not a network request log.",
+        "read_mode": "Bounded immutable read-only Chrome History queries; no WAL modification or browser navigation."
+      },
+      "dashboard_time_limit": "Dashboard timezone/rolling24h boundaries remain unverified; no timing-only causal conclusion."
+    },
+    "PROVEN_REQUEST_ORIGIN": {
+      "standard_Flex_RPC": "Existing service logs, process identity and metrics corroborate actual standard-RPC activity in listener/resolution/Walkback.",
+      "dashboard_wallet_history_bursts": "UNPROVEN. No retained row identifies wire method plus time plus PID for those requests.",
+      "shared_key_problem": "All3workers share same key; key identity alone cannot separate them. Browser also has the same key in dashboard state. No conclusion that the current bill belongs exclusively to Flex."
+    },
+    "PRIMARY_SUSPECT_OR_UNKNOWN": "UNKNOWN \u2014 no evidence-backed primary wallet-history spike suspect. Credential possession is not usage attribution.",
+    "NEXT_ACTION": "No CSV is required. The smallest missing evidence is a process-associated request sample during a burst: PID/caller identity + actual wire method/endpoint + UTC time/count. With current shared-key aggregate dashboard only, separately authorize a short controlled isolation test of non-intake Walkback/resolution against the existing live dashboard rate, or an equivalent bounded redacted process-level request observation. Keep listener running. HTTPS socket/byte totals alone cannot establish RPC methods. No such test, tracing installation or pause performed.",
+    "SERVICE_STATE": "Listener60284 RUNNING45m40s; resolution34567 RUNNING; Walkback10716 RUNNING. Funding and Cascade STOPPED; no state-changing commands issued.",
+    "PRESERVATION": "No source/ref/configuration changes; immutable FLEX_STABLE_V2 and current installations preserved. No application initialization/acquisition executed.",
+    "PROVIDER_CALLS": 0,
+    "SOURCE_CHANGES": 0,
+    "DATABASE_WRITES": 0,
+    "SERVICE_RESTARTS_OR_STOPS": 0,
+    "PROCESS_TERMINATIONS": 0,
+    "DEPLOYMENT": 0,
+    "PRODUCTION_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Strictly read-only credential-consumer inventory; no executable behavior changed.",
+    "bounds": "Two OS process metadata snapshots (414visible records in expanded snapshot), filtered cwd/stdio/listening-socket metadata, up to4Chrome history profiles (onlyDefault present),1\u20132second read-only query deadlines,40recentrelevantURLrows/200Heliusvisits cap. Compact redacted artifacts only, no large storage files.",
+    "updated_at_utc": "2026-10-20T21:52:53.347383+00:00"
   }
 }

@@ -35488,12 +35488,14 @@
     "next_action": "Stabilize and attribute the active listener crash loop, then repeat this bounded health gate before separately authorizing short-timeout production DDL."
   },
   "august_ops_discovery_retention_review": {
-    "status": "PARTIAL_CLEANUP_QUALIFIED",
+    "status": "CLEANUP_COMPLETED",
     "scope": "Read-only file-level retention review of docs/audits/ops_discovery_p3r_s2b_runs; no files, sources, databases, services, or runtime configuration changed.",
     "inventory": "28 files; 1,017,278,464 allocated bytes. Three runner_candidate.sqlite.capture.sqlite files account for 590,233,600 allocated bytes.",
     "canonical_equivalence": "Each capture has only pumpfun_migration_verification(mint) and token_analysis(mint,pf_ws_creator). Exact read-only comparison found zero capture rows absent from the retained authoritative completed snapshot. The completed capture has the same row counts as that snapshot (43,609 migration, 2,012,723 token rows).",
     "protected_references": "The completed run lifecycle names snapshot.sqlite authoritative; population_reproduced_audit.json directly names it as source_db. Lifecycle/source-boundary audits, final snapshot, and fixture namespaces remain protected audit/reproducibility evidence. No live service or Supervisor reference to this audit-run directory was found.",
-    "safe_deletion_candidates": "Only the three non-authoritative runner capture databases: 196,141,056 + 196,812,800 + 197,279,744 allocated bytes = 590,233,600 bytes. The two failed captures are explicitly temporary/non-authoritative; the completed capture is content-equivalent to the retained authoritative snapshot.",
+    "deleted_files": "Deleted only the three qualified runner_candidate.sqlite.capture.sqlite targets after SHA-256, identity, open-handle, and authoritative-snapshot checks. Their expected allocation total was 590,233,600 bytes.",
+    "post_deletion_verification": "All three target paths are absent. The original 25 protected files retain aggregate 39900e35219dad5840fdb2b754b5bb6eb07ef43085bc7247f90b6bd4b4587118. Authoritative snapshot SHA-256 d1c4d546e06a5a72a6b134e82509afa3fcd5faba85b223876b70cde2532417f2 remains readable with 2,012,723 token rows and 43,609 migration rows. Audit allocation fell to 427,048,960 bytes; filesystem free-space increased by 586,969,088 bytes.",
+    "cleanup_manifest": "docs/audits/ops_discovery_p3r_s2b_runs/20261020_capture_cleanup_manifest.json sha256 3ceb2ce7cd4901283618ea787c4b95c1e5d7246850ff9b742c78dee4a7ae16e6",
     "unknown_reference_bytes": 0,
     "protected_allocated_bytes": 427044864,
     "safety": "No age/open-handle inference used. No Watchtower, Byzantine, Nexus, or operation-attribution runtime dependency was found; the retained final snapshot remains the source for the historical population reproduction artifact.",

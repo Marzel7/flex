@@ -35396,6 +35396,20 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_pumpswap_connectivity_diagnosis": {
+    "status": "REMOTE_REFUSAL_ROOT_CAUSE_UNKNOWN_WITHOUT_CONNECTIVITY_PROBE",
+    "observed_at_utc": "2026-10-20T07:43:31Z",
+    "effective_endpoint": "wss://mainnet.helius-rpc.com/ (direct remote Helius WebSocket; API-key query value redacted)",
+    "ownership": "Remote provider endpoint. The loaded listener does not use a local relay or proxy for PumpSwap; its only configured fallback is the public Solana WebSocket.",
+    "connection_contract": "pumpfun_curve_listener.py:10718-10722 selects Helius first and public Solana second. The current loop calls websockets.connect with 20-second ping interval/timeout defaults, then logsSubscribe for the Pump.fun migration account at confirmed commitment.",
+    "retry_policy": "Connection exceptions containing connection/refused retain the Helius endpoint. Backoff is 5, 7.5, 11.25, 16.875, 25.3125, 37.96875, 56.953125, then 60/60/60 seconds; at ten failures pumpfun_curve_listener.py:11001-11016 calls os._exit(1). Public fallback is selected only after 401/unauthorized, not connection refusal.",
+    "retained_evidence": "The current generation begins at 2026-10-20T07:43:31Z and immediately records connection refusals. Retained logs show no successful PumpSwap connect or subscription confirmation in the current failure generations; 15 fatal-ten-failure cycles are retained. Earlier historical successful connections exist but do not establish current endpoint availability.",
+    "pumpportal_intake": "PumpPortal birth records continue after listener respawns. Exact migration/birth loss count is UNKNOWN because retained logs are not a gap-complete external intake ledger.",
+    "refusal_cause": "UNKNOWN. The code and logs establish refusal at the direct remote WebSocket connection step, but not whether the provider listener, credential/network policy, or an intervening network path is refusing it. No manual probe or provider request was made.",
+    "minimum_safe_recovery": "Separately authorize one bounded, credential-safe TCP/WebSocket handshake diagnostic to the sanitized configured endpoint (and, only if necessary, the documented public fallback), capturing no payloads and no state changes. Do not alter retry budgets or failure detection before that result.",
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "manual_network_probes": 0},
+    "next_action": "Authorize the bounded connectivity test; keep receipt deployment and Core DDL on hold until the remote refusal is attributed and listener stability is restored."
+  },
   "flex_stable_v2_listener_crash_loop_diagnosis": {
     "status": "CAUSE_ESTABLISHED_READ_ONLY",
     "observed_at_utc": "2026-10-20T07:34:00Z",

@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T21:53:03.336525+00:00"
+    "published_at_utc": "2026-10-20T21:59:52.533588+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T21:52:53.347383+00:00",
-    "working_tree": "Shared Helius credential audit PARTIAL:414visibleprocesses,3supervisedenvmatches; Chrome dashboard also carries same key. No standaloneFlex DEV/orphan proved. Wallet-history burstPID UNKNOWN; no service/source changes."
+    "updated_at_utc": "2026-10-20T21:59:35.450686+00:00",
+    "working_tree": "Expensive-history audit UNKNOWN currentbilling: REST helpers predate18Oct, historical401 labels16\u201318Oct, no19\u201320labelrows. No recent enhanced enablement proven;100x tariff unverified, localtransaction-relative model10x. No runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39846,5 +39846,156 @@
     "runtime_deployment_reason": "Strictly read-only credential-consumer inventory; no executable behavior changed.",
     "bounds": "Two OS process metadata snapshots (414visible records in expanded snapshot), filtered cwd/stdio/listening-socket metadata, up to4Chrome history profiles (onlyDefault present),1\u20132second read-only query deadlines,40recentrelevantURLrows/200Heliusvisits cap. Compact redacted artifacts only, no large storage files.",
     "updated_at_utc": "2026-10-20T21:52:53.347383+00:00"
+  },
+  "helius_expensive_history_method_audit_20261020": {
+    "HELIUS_ENHANCED_HISTORY_STATUS": "UNKNOWN CURRENT BILLING ATTRIBUTION \u2014 no recent enhanced-history enablement or active expensive-history caller proven. Historical REST attempts predate18October.",
+    "WIRE_ENDPOINT": {
+      "proven_local_enhanced_address_history": [
+        "GET https://api.helius.xyz/v0/addresses/{address}/transactions",
+        "GET https://api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions"
+      ],
+      "proven_local_enhanced_parsing": "POST https://api-mainnet.helius-rpc.com/v0/transactions with transactions:[known_signature]; parsing, not address-history pagination",
+      "standard": "POST https://mainnet.helius-rpc.com/?api-key=[REDACTED] with JSON-RPC method getTransaction or getSignaturesForAddress",
+      "dashboard_getTransactionsForAddress": "Exact wire mapping UNKNOWN from retained evidence. Local CEX helper uses that name as a metric label for REST GET; configuration separately describes it as a Helius-exclusive RPC method. These must not be conflated.",
+      "secret_handling": "No credential URLs emitted or persisted."
+    },
+    "BILLING_PRODUCT": {
+      "local_products": "Standard Solana JSON-RPC; enhanced parsed address-history REST; enhanced known-signature parsing REST are distinct.",
+      "dashboard_product": "UNKNOWN exact billing product/meter behind dashboard getTransactionsForAddress. No retained provider-authoritative definition found; no provider/documentation call made.",
+      "method_distinctions": [
+        {
+          "label": "getTransaction",
+          "installed_wire": "Standard JSON-RPC transaction details",
+          "retained_internal_units": 10
+        },
+        {
+          "label": "enhancedApiGetTransactionsByAddress",
+          "installed_wire": "No literal caller/label found. Possible provider naming is not a proven REST mapping.",
+          "retained_internal_units": "UNKNOWN"
+        },
+        {
+          "label": "getTransactionsForAddress",
+          "installed_wire": "CEX metric label for GET /v0/addresses; separate schedule describes exclusive RPC method, no literal JSON-RPC dispatcher found.",
+          "retained_internal_units": 100
+        },
+        {
+          "label": "walletHistory",
+          "installed_wire": "No literal dispatch found; dashboard/backend label semantics not retained.",
+          "retained_internal_units": "UNKNOWN"
+        }
+      ]
+    },
+    "METHOD_COST_MULTIPLIER": {
+      "billed_multiplier": "UNKNOWN \u2014100x claim not verified",
+      "local_primary_schedule": "Enhanced address-history100, exclusive getTransactionsForAddress100, standard getTransaction10, getSignaturesForAddress10, basic accountRPC1. Thus10x relative to those transaction/history methods,100x relative to1-unit account methods, only in local model.",
+      "schedule_conflict": "rpc_metrics_recorder fallback assigns enhanced batch/single parsing10 while primary config assigns enhanced batch100. Fallback applies only on config ImportError; primary config exists. Neither verifies current provider charges.",
+      "primary_evidence": {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/apis/rpc_metrics_config.py",
+        "sha256": "632dd95b0dca868c364a8fb65d3c5ba23120eb83a1630dd6cb9078e8190724b7"
+      },
+      "fallback_evidence": {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/metrics/rpc_metrics_recorder.py",
+        "sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e"
+      },
+      "retained_authority_limit": "Source comments cite a billing URL but are not a retained provider pricing snapshot or account-specific invoice. No pricing lookup performed under no-provider-call constraint."
+    },
+    "FIRST_OBSERVED_USAGE": {
+      "bounded_window_first": "2026-10-16T00:09:36.482711Z, local getTransactionsForAddress label, automatic_cex_detection, PID8868, HTTP401",
+      "latest_observed_historical_label": "2026-10-18T07:53:39.507500Z, PID92703, HTTP401",
+      "scope": "First within bounded16\u201320October evidence, not first-ever provider usage. Generic CEX label maps to REST, not necessarily dashboard billing method."
+    },
+    "ACTIVE_CALLER": {
+      "current": "UNKNOWN for dashboard expensive-history traffic; no currentPID request ledger proves it.",
+      "Walkback": "Current entry module uses standard RPC. Enhanced helper modules in checkout do not establish execution.",
+      "creator_resolution": "New PostMigrationAnalyzer per job initializes _create_tx_signature=None, then calls get_creator_from_earliest_tx once. Enhanced POST parse fast path requires preexisting signature, so not entered on that normal initial call. Known-signature/reused analyzer callers can reach it. The enhanced address-history iterator has no internal caller found.",
+      "listener": "Imports funding/incoming helpers, but wrapper has no internal invocation beyond definition in searched source; inline backfill disabled. No retained enhanced-history event proves current execution.",
+      "funding": "Remains stopped per existing verified state; historical16\u201318activity not attributed to currentactiveprocesses.",
+      "source_authority": "Installed pinned roots plus actual local overlays inspected; HEAD alone insufficient. Process memory/historical loaded source not independently attested."
+    },
+    "SOURCE_CHANGE_CAUSE": {
+      "finding": "No examined recent change enables an expensive history endpoint.",
+      "Git_history": "CEX label exists in reachable history by10March2026; enhanced address iterator and enhanced parse helper present in9March2026 commit1f09ec47. No16\u201320October committed change in examined paths in pinned listener/resolution/Walkback histories.",
+      "resolution_overlay": "Analyzer mtime19Oct17:26:20UTC; diff adds program-ID corrections, response-signature/execution validation and maxSupportedTransactionVersion1. Existing enhanced URLs/call sites predate overlay. No new history redirect introduced.",
+      "listener_launcher_overlay": "Disables migration reconciler; enables compact receipts/disables raw receipt retention. No enhanced-history enablement flag added.",
+      "fallback_provider_selection": "Analyzer detail failover posts same JSON-RPC payload over RPC_URLS; it does not rewrite to address-history REST. Separate known-signature parse fast path is not a newly added provider failover.",
+      "limit": "Absence of an enabling diff is not proof that a dormant path never ran or that no external caller exists."
+    },
+    "REQUEST_VOLUME": {
+      "comparison": [
+        {
+          "UTC_day": "2026-10-16",
+          "expensive_label_rows": 343,
+          "partial_lower_bound": false,
+          "statuses": [
+            401
+          ],
+          "internal_units": 0,
+          "labels": [
+            "getTransactionsForAddress"
+          ]
+        },
+        {
+          "UTC_day": "2026-10-17",
+          "expensive_label_rows": 363,
+          "partial_lower_bound": true,
+          "statuses": [
+            401
+          ],
+          "internal_units": 0,
+          "labels": [
+            "getTransactionsForAddress"
+          ]
+        },
+        {
+          "UTC_day": "2026-10-18",
+          "expensive_label_rows": 128,
+          "partial_lower_bound": false,
+          "statuses": [
+            401
+          ],
+          "internal_units": 0,
+          "labels": [
+            "getTransactionsForAddress"
+          ]
+        },
+        {
+          "UTC_day": "2026-10-19",
+          "expensive_label_rows": 0,
+          "partial_lower_bound": false,
+          "statuses": [],
+          "internal_units": 0,
+          "labels": []
+        },
+        {
+          "UTC_day": "2026-10-20",
+          "expensive_label_rows": 0,
+          "partial_lower_bound": false,
+          "statuses": [],
+          "internal_units": 0,
+          "labels": []
+        }
+      ],
+      "interpretation": "All observed expensive-label rows are HTTP401 CEX events. Zero captured rows on19\u201320October is not proof of zero actual expensive requests: telemetry has known gaps.",
+      "Oct17_limit": "First20hours yielded363rows; last4-hour slice hit2.5s bound. Whole-day query and optional all-retained method lookup also stopped at4s. No full-day count inferred.",
+      "unseen_labels": "No enhancedApiGetTransactionsByAddress or walletHistory row captured in successfully queried windows.",
+      "dashboard": "User-reported361krolling24hrequests cannot be allocated among products or currentPIDs from local evidence."
+    },
+    "ESTIMATED_CREDIT_IMPACT": {
+      "billed_impact": "UNKNOWN \u2014 no verified expensive-request count or applicable tariff",
+      "historical_failed_label_internal_units": 0,
+      "warning": "HTTP401 rows with0internal units are not a provider billing determination. Do not multiply all361k dashboardrequests by100 or treat local units as invoice credits. Current3.25M chart not reconciled."
+    },
+    "MINIMUM_SAFE_CORRECTION": "NONE justified for active acquisition: unintended expensive endpoint usage is not proven. Do not alter attribution, dormant helper limits, retry policy or current service configuration based solely on pricing labels. Preserve installed funding correction and compact receipts.",
+    "NEXT_ACTION": "No CSV required: obtain retained/provider-visible billing-product definition for dashboard method and one redacted request-origin sample (wire method/path,UTCtime,keyidentifier,callerPID or user-agent). With only shared-key aggregate metrics, separately authorized bounded caller isolation may be needed. No correction or service action implemented.",
+    "PROVIDER_CALLS": 0,
+    "DATABASE_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "SERVICE_RESTARTS_OR_STOPS": 0,
+    "DEPLOYMENT": 0,
+    "PRODUCTION_CHANGES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Targeted read-only endpoint/source/pricing audit; no executable changes.",
+    "bounds": "Core mode=ro queries4s/day; Oct17 subdivided into six4hwindows with2.5s deadlines; optional all-retained lookup stopped at4s. Installed helper diffs and targeted Git history only. Compact JSON output, no raw payload or large files.",
+    "updated_at_utc": "2026-10-20T21:59:35.450686+00:00"
   }
 }

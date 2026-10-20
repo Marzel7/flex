@@ -35690,6 +35690,23 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_creator_reconciliation_eligibility_20261020": {
+    "status": "CURRENT_RECOVERY_DISABLED",
+    "scope": "Strictly read-only operational verification of the fixed 187 creator-unknown/no-queue migration cohort. No reconciliation invocation, queue mutation, provider call, replay, source change, restart, deployment, or production change occurred.",
+    "runtime_authority": "creator_resolution_worker PID 71115 is RUNNING from /Users/kevinkeaveney/Production/flex-main-workers; listener PID 31403 is RUNNING from /Users/kevinkeaveney/Production/flex-listener. Observed SHA-256: worker=797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb, queue=2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95, listener=6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634.",
+    "effective_flags": "Filtered live process environments show creator worker CRQ_HISTORICAL_DISCOVERY_ENABLED=0 and listener LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED=0. Listener CRQ_HISTORICAL_DISCOVERY_ENABLED is unset, which source would default to enabled only if its queue task were started. These effective flags supersede the Supervisor file's omission/defaults.",
+    "cycle_status": "Worker loop is executing and its current retained log has normal processed/resolved/skipped cycles for pre-existing queue work, but its bulk discovery function returns immediately while CRQ_HISTORICAL_DISCOVERY_ENABLED is not '1'. Listener does not create its periodic reconciliation task while LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED is '0'. Consequently neither current process can admit the 187 through zero-provider reconciliation.",
+    "selection_contract": "When enabled, worker sweep selects at most 50 and listener sweep at most 25 rows ordered newest-first by COALESCE(migrated_at,created_at,analyzed_at), requiring lifecycle_stage=migrated and both creator fields blank. It excludes existing active/complete/ignored and authority-exhausted queue rows. CREATE signature is not required. Newest-first bounded selection can starve older eligible rows if a sustained newer eligible population exceeds each sweep limit; indexed-only verification cannot quantify that competing population without an unbounded predicate scan.",
+    "fixed_187_exact_checks": "All 187 have no creator_resolution_queue primary-key row. Their OPS rows are all waiting, enqueued after the enabled control activation, and therefore do not meet the documented direct-path OPS_PROTECTED condition. Authority exhaustion cannot apply without a queue row. These facts establish no current record-based exclusion; they do not reconstruct historical admission timing.",
+    "query_safety": "Core and OPS used mode=ro, query_only=ON, busy_timeout=250ms. Plans: cohort uses idx_psi0a_token_analysis_migrated_mint; Core queue/token and OPS Walkback checks use mint primary keys; control uses its integer primary key. Fixed mints were checked in batches of at most 50.",
+    "primary_blocker": "Disabled reconciliation in both live processes is the present operational blocker. It does not by itself prove why the October cohort was not admitted historically.",
+    "next_action": "No behaviour change was authorized. If recovery is desired, separately authorize an operational decision to enable the existing reconciliation paths, with a bounded starvation/ordering review and post-change observation; do not enqueue or replay the historical cohort under this audit.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "flex_v2_generic_complete_evidence_gap_audit": {
     "status": "EXPLAINED_HISTORICAL_PRE_STRICT_COMPLETIONS",
     "scope": "Fixed seven-day priority-200 cohort bounded by the prior updated_at interval [1791898812,1792503612]. WAL-aware read-only Core access; no provider calls, replay, writes, source changes, restarts, deployment, or production changes.",

@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:38:25.970033+00:00"
+    "published_at_utc": "2026-10-20T22:45:31.513245+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27345,11 +27345,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/funding-durable-budget",
-    "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "branch": "codex/birth-conflict-quarantine",
+    "git_head": "2261f031c5d563927240784dd8d1508b5bd6dc6e",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:38:17.084804+00:00",
-    "working_tree": "Birth retry classification PASS:42permanent conflicts,0transient,0ambiguous.36matching receipts/6missing. No disposition executed; explicit quarantine semantics require separate authorization."
+    "updated_at_utc": "2026-10-20T22:45:18.623158+00:00",
+    "working_tree": "Isolated permanent birth conflict quarantine qualified; candidate2261f031.155provider-free tests, clean restoration. No deployment or live schema/row changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40461,5 +40461,15 @@
     "blocker": "Existing signature queue has pending/consumed only; no explicit quarantine contract.",
     "next_action": "Review this exact classified row set and separately authorize the minimal explicit conflict-disposition contract; do not mark persisted, delete, overwrite or replay.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "pumpportal_conflict_quarantine_20261020": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "engineering_source_revision": "2261f031c5d563927240784dd8d1508b5bd6dc6e",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/pumpportal_conflict_quarantine_20261020.v1.json",
+    "verification": "155 provider-free tests pass with separate process isolation; clean restoration matches exact three-file delta.27quarantine,11receiptRetention,26compactRecovery,28compactReceipt,45handoff,18strictCREATE.",
+    "production_flags": "No deployment/schema migration/service actions; live42rows untouched; funding activation unauthorized.",
+    "blocker": null,
+    "next_action": "Obtain separate authorization for targeted listener/helper deployment and the one-field queue migration. Current live42 rows are unchanged by this work; no automatic historical reprocessing, receipt repair or funding activation.",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED"
   }
 }

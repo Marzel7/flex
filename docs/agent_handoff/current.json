@@ -16148,8 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T19:52:33.873996+00:00",
-    "verification": "Publisher requires exact remote file match before completion."
+    "published_at_utc": "2026-10-20T20:19:03.855808+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27347,10 +27346,10 @@
   },
   "project": {
     "branch": "codex/funding-durable-budget",
-    "git_head": "bc9c30dcd389c97ee9378512972770de40e2928d",
+    "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T19:52:21.426578+00:00",
-    "working_tree": "Existing candidate unchanged/clean; explicit persistence stop before source correction"
+    "updated_at_utc": "2026-10-20T20:18:51.827312+00:00",
+    "working_tree": "Isolated minimal candidate clean; qualified offline; no deployment or restart"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36525,5 +36524,79 @@
     "blocker": "Durable authority retention and genuine-new-investigation admission semantics unresolved; existing queue deletion destroys authority.",
     "next_action": "Resolve/approve the minimum durable identity-retention contract: retain existing queue identities (including NULL-state history) through clearing/retries/recreation, or specify separately bounded surviving persistence if deletion must remain. Define fresh-live admission against that retained authority. Then resume the authorized bounded corrections in the existing isolated worktree; no deployment or restart is authorized.",
     "safety": "Provider calls=0; canonical writes=0; application source changes=0; live DB changes=0; production changes=0; restarts=0."
+  },
+  "minimal_funding_spike_fix_20261020": {
+    "MINIMAL_FUNDING_SPIKE_FIX_STATUS": "QUALIFIED_NOT_DEPLOYED",
+    "EXACT_SOURCE_DIFF": {
+      "baseline": "f10a56a01098755328f6d3b1eba9ba010412296d",
+      "candidate": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+      "files": [
+        "src/acquisition/transaction.py",
+        "src/core/creator_funding_worker.py",
+        "src/extractors/realtime_creator_funding_extractor.py",
+        "tests/test_minimal_funding_spike_fix.py"
+      ],
+      "stat": "268 insertions, 50 deletions across 4 files relative to installed funding source",
+      "patch": "/private/tmp/minimal-funding-spike-978d0dd45150.patch",
+      "previous_candidate": "Unactivated durable-budget implementation removed; previous candidate preserved in Git history"
+    },
+    "SOURCE_AUTHORITY": {
+      "FLEX_STABLE_V2": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+      "manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+      "funding_runtime_baseline": "f10a56a01098755328f6d3b1eba9ba010412296d",
+      "historical_loaded_source": "Unproven; no exact October source reproduction claimed"
+    },
+    "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
+    "FAILED_READ_LIMIT": "10 failed physical outgoing transaction-detail reads, including retry/failover; no permanent negative cache; cached valid evidence reused",
+    "PAGINATION_LIMIT": "8 logical outgoing pages and at most 8 physical outgoing signature-history attempts including retries/failovers",
+    "MAXIMUM_PER_EXECUTION_EXPOSURE": {
+      "outgoing_detail_http_attempts": 100,
+      "outgoing_signature_history_http_attempts": 8,
+      "outgoing_total_http_attempts": 108,
+      "failed_detail_reads": 10,
+      "transport_rounds_unchanged": 5,
+      "investigation_deadline_seconds_unchanged": 90,
+      "scope": "Outgoing acquisition only. Existing main funding and ancillary paths unchanged; 108 is not an all-worker/global/lifetime ceiling."
+    },
+    "PROVIDER_FREE_TEST_RESULTS": {
+      "passed": 62,
+      "focused_cases": 18,
+      "clean_restoration_files": 5453,
+      "largest_tracked_file_bytes": 17014469,
+      "isolated_src_modules": 36,
+      "qualified_tree": "0b566063f4cd43ea21985456cfc31277f2623700",
+      "coverage": [
+        "versions legacy/0/1",
+        "-32015 explicit and ambiguous",
+        "missing results",
+        "429 and 503 retries/failovers",
+        "100 detail and 8 history caps",
+        "exact 108 attempt outgoing boundary",
+        "context-local concurrency",
+        "valid cache reuse",
+        "cancellation cleanup",
+        "incomplete public/worker propagation",
+        "funding fast paths and authoritative attribution",
+        "queue deduplication/accounting",
+        "RPC cache nested-write regression"
+      ],
+      "guard": "AF_INET/AF_INET6 socket dispatch blocked; live Core/Production SQLite access blocked; disposable fixture DBs only"
+    },
+    "CANDIDATE_SHA": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "FUNDING_ATTRIBUTION_COMPATIBILITY": "Existing successful transfer parsing/persistence, qualified funders, creator authority, Walkback and Watchtower logic unchanged. Capped outgoing scan returns incomplete; worker marks failed without treating it as complete or automatically retrying that capped execution.",
+    "REMAINING_RISKS": [
+      "Per-execution counters intentionally reset across distinct executions/restarts; no durable lifetime or global spending ceiling introduced.",
+      "Other existing funding/ancillary acquisition paths and concurrency remain unchanged.",
+      "Real provider version-1 compatibility was not exercised because provider calls are prohibited."
+    ],
+    "STORAGE": "No new storage path, schema, retention or unbounded growth path introduced; existing storage behavior unchanged. Compact fixture/test outputs only, no file reaches 500000000 bytes.",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+    "SAFE_TO_RESTART": "NOT_AUTHORIZED",
+    "NEXT_ACTION": "Review immutable candidate and exact diff; obtain separate controlled deployment/activation authorization. Do not deploy or restart under this milestone.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "SERVICE_RESTARTS": 0,
+    "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   }
 }

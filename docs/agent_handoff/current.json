@@ -35396,6 +35396,17 @@
     "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0, "deployment": false},
     "next_action": "Authorize the controlled production index creation and receipt-candidate deployment separately; abort on lock contention and retain fail-closed retirement behavior until the exact index is present."
   },
+  "flex_stable_v2_database_health_gate": {
+    "status": "HOLD_DATABASE_HEALTH",
+    "candidate": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
+    "observed_at_utc": "2026-10-20T07:23:23Z",
+    "finding": "Core and OPS WALs are 0 bytes and the latest creator-resolution rollover was the configured six-hour idle-queue clean restart. However, watchtower_listener has exited unexpectedly about every 4–5 minutes since 2026-10-20T06:37:08Z; its active checkout is dirty and the queue query plan still scans migration_persist_queue because the required mint/status index is absent.",
+    "runtime": {"watchtower_listener": "RUNNING pid 18441 after repeated unexpected exit-status-1 rollovers", "creator_resolution_worker": "RUNNING pid 13810 after expected idle-queue rollover", "creator_funding_worker": "STOPPED (pre-existing state)"},
+    "database": {"core_wal_bytes": 0, "ops_wal_bytes": 0, "core_lsof_owner": "listener process", "migration_persist_queue_rows": 55, "migration_persist_queue_states": "PROCESSED:55", "required_index_present": false, "current_plan": "SCAN migration_persist_queue"},
+    "capacity": {"filesystem_headroom": "approximately 11 GiB", "swap": "2.83 GiB used of 4 GiB", "historical_enospc": "retained listener errors are from 2026-10-18, not current"},
+    "safety": {"provider_calls": 0, "canonical_writes": 0, "production_changes": 0, "service_restarts": 0, "database_changes": 0},
+    "next_action": "Stabilize and attribute the active listener crash loop, then repeat this bounded health gate before separately authorizing short-timeout production DDL."
+  },
   "flex_stable_v2_golden_baseline_promotion": {
     "status": "PROMOTED_METADATA_ONLY",
     "promoted_at_utc": "2026-10-19T23:42:19Z",

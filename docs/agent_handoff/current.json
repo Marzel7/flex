@@ -16147,8 +16147,9 @@
   "handoff_transport": {
     "branch": "agent-handoff",
     "protocol_version": 1,
-    "status": "PUBLISHED_PENDING_REMOTE_VERIFICATION",
-    "updated_at_utc": "2026-10-20T19:06:16.479378+00:00"
+    "status": "PUBLISHED",
+    "published_at_utc": "2026-10-20T19:35:48.411333+00:00",
+    "verification": "Publisher must verify exact origin file match before completion."
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27345,11 +27346,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "detached runtime: /Users/kevinkeaveney/Production/flex-funding",
-    "git_head": "f10a56a01098755328f6d3b1eba9ba010412296d",
+    "branch": "codex/funding-durable-budget",
+    "git_head": "bc9c30dcd389c97ee9378512972770de40e2928d",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T17:20:27.621038+00:00",
-    "working_tree": "Audited pinned funding runtime tracked-clean; shared engineering checkout remains dirty and was not changed by this audit."
+    "updated_at_utc": "2026-10-20T19:34:23.323869+00:00",
+    "working_tree": "Clean isolated funding candidate; no production deployment"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36480,5 +36481,23 @@
     "production_flags": "Deployment/restart unauthorized; no source/config/schema/process mutation.",
     "next_action": "Authorize only a minimal isolated DEV extension of existing queue-row schema for bounded durable budget state and its funding-only pre-dispatch enforcement. Then implement and run provider-free boundary/exhaustion/restart/idempotency/attribution and clean-checkout tests; no provider calls, production migration or restart.",
     "safety": "Provider calls=0; canonical writes=0; production changes=0; source changes=0."
+  },
+  "flex_v2_funding_durable_budget_qualification_20261020": {
+    "engineering_revision": "bc9c30dcd389c97ee9378512972770de40e2928d",
+    "status": "PASS_PROVIDER_FREE_QUALIFICATION; QUALIFIED_NOT_DEPLOYED",
+    "source_worktree": "/Users/kevinkeaveney/.codex/worktrees/funding-durable-budget/flex",
+    "qualified_tree": "0dc789c9e5cf1497aa922d7a4ecc80e19529463a",
+    "audit": "docs/audits/flex_v2_funding_budget_qualification_20261020.v1.json",
+    "schema_delta": "ALTER TABLE creator_funding_queue ADD COLUMN funding_budget_state TEXT CHECK (funding_budget_state IS NULL OR length(CAST(funding_budget_state AS BLOB)) <= 16384);",
+    "finding": "Durable pre-dispatch BEGIN IMMEDIATE plus compare-and-update enforces 8 history pages, 100 detail HTTP attempts, 10 failed/interrupted detail reads, 150 all-provider physical attempts and a non-resetting 90-second acquisition deadline across retries/restarts. Old rows remain NULL and fail closed; fresh state only on actual new INSERT. Unknown outcomes retain spend and prevent completion.",
+    "verification": "102 provider-free tests passed in isolated worktree and again restored source; 5456 exact staged blobs and 29 funding source modules verified. Candidate tree equals tested tree. IP sockets/live database access blocked.",
+    "storage": "Single bounded 16384-byte state; no raw retention or new unbounded growth paths. Storage admission guard and compact/pinned-reader WAL tests pass.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "dev_complete": false,
+    "production_flags": "No live migration, deployment, activation, provider calls or service restart. Walkback/PumpPortal receipt/attribution behavior untouched. Candidate committed locally; engineering branch not pushed.",
+    "blocker": "NONE for offline qualification; deployment and restart remain explicitly unauthorized.",
+    "next_action": "Review immutable candidate; any live migration, service-specific production source composition, deployment or restart requires separate explicit authorization. No additional offline qualification work remains.",
+    "safety": "Provider calls=0; canonical writes=0; live Core/OPS writes=0; production changes=0; service restarts=0."
   }
 }

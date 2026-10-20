@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T21:30:21.284927+00:00"
+    "published_at_utc": "2026-10-20T21:40:18.929065+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T21:30:02.282236+00:00",
-    "working_tree": "Emergency Oct20 billing attribution UNKNOWN: local telemetry incomplete, no dominant billed consumer established. Three live Flex consumers; funding/Cascade stopped, source unchanged. Per-hour aggregates saved; no containment action authorized or performed."
+    "updated_at_utc": "2026-10-20T21:39:56.267991+00:00",
+    "working_tree": "Wallet-history forensic audit INSUFFICIENT_EVIDENCE: no active enhanced-history PID identified; standard listener21:13\u201321:17burst observed, no wallet/cursor ledger/export. Funding/Cascade stopped; all installations unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -37646,5 +37646,2006 @@
       "artifacts": "Compact aggregates only, no raw provider payloads or DB copies; no file approaches500MB"
     },
     "updated_at_utc": "2026-10-20T21:30:02.282236+00:00"
+  },
+  "helius_wallet_history_spike_investigation_20261020": {
+    "HELIUS_WALLET_HISTORY_SPIKE_STATUS": "INSUFFICIENT_EVIDENCE \u2014 no PID identified as generator of dashboard walletHistory/getTransactionsForAddress bursts",
+    "ACTIVE_PROVIDER_CONSUMERS": {
+      "live": [
+        {
+          "service": "Walkback",
+          "pid": 10716,
+          "root": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+          "head": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+          "module": "src/core/walkback_worker.py",
+          "sha256": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6",
+          "source_mtime_utc": "2026-10-19T17:26:21.253492+00:00",
+          "local_env_exists": false
+        },
+        {
+          "service": "creator-resolution",
+          "pid": 34567,
+          "root": "/Users/kevinkeaveney/Production/flex-main-workers",
+          "head": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+          "module": "src/core/creator_resolution_queue.py",
+          "sha256": "2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95",
+          "source_mtime_utc": "2026-10-18T21:07:46.813848+00:00",
+          "local_env_exists": false
+        },
+        {
+          "service": "listener",
+          "pid": 60284,
+          "root": "/Users/kevinkeaveney/Production/flex-listener",
+          "head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+          "module": "src/core/pumpfun_curve_listener.py",
+          "sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+          "source_mtime_utc": "2026-10-19T10:34:18.881103+00:00",
+          "local_env_exists": false
+        }
+      ],
+      "authority": "OS cwd and PYTHONPATH point to listed roots; Supervisor module launches and retained runtime logs agree. Installed files hashed. No debugger/process-memory import attestation; historical loaded imports during all burst windows not fully proven.",
+      "provider": "mainnet.helius-rpc.com; inherited HELIUS_API_KEY has identical redacted fingerprint8db217d38d3e across all3. No local config/.env in those roots. API-key identity of dashboard bursts is not provided.",
+      "duplicates": "No duplicate/orphan Flex worker module observed in current OS inventory. External/browser/other-host use of shared credentials not excluded.",
+      "funding": "STOPPED; installed fix hashes unchanged",
+      "Cascade": "STOPPED"
+    },
+    "WALLET_HISTORY_CALL_SITES": {
+      "literal_walletHistory": "No literal call found in searched installed src/Python/JS/TS.",
+      "literal_getTransactionsForAddress": "Only metrics schedule entries and CEX HTTP-GET metric label found; no literal JSON-RPC method dispatch.",
+      "label_caution": "Dashboard walletHistory/getTransactionsForAddress semantics cannot be equated to local function names or legacy REST endpoints without exported endpoint/method fields.",
+      "families": [
+        {
+          "file": "src/analysis/automatic_cex_detection.py:273-283",
+          "wire": "GET https://api.helius.xyz/v0/addresses/{address}/transactions",
+          "label": "getTransactionsForAddress is the local metric label, not a JSON-RPC body method here",
+          "limits": "One limit100 request per heuristic invocation, timeout10s; no pagination in this function.",
+          "activity": "No corresponding Oct20 retained metric events; no proven active worker call chain to this heuristic."
+        },
+        {
+          "file": "src/analysis/pump_fun_post_migration_analyzer.py:238-299",
+          "wire": "GET /v0/addresses/{address}/transactions",
+          "limits": "helius_iter_parsed_txs_for_address default200 pages,limit100,20s HTTP timeout; advances oldest signature cursor, stops non200/empty/missing cursor; no repeated-cursor detection.",
+          "activity": "Only definition found for this iterator in installed src. Active creator-resolution call path uses getSignaturesForAddress/getTransaction instead. Presence does not prove execution."
+        },
+        {
+          "file": "src/extractors/funder_helius_extractor.py:243",
+          "wire": "GET /v0/addresses/{address}/transactions",
+          "limits": "Default1 page,100 records,15s timeout,3 retries per page.",
+          "activity": "Potential enhanced-history library path; no identified live invocation in retained spike evidence."
+        },
+        {
+          "file": "src/extractors/funder_incoming_extractor.py:532",
+          "wire": "GET /v0/addresses/{address}/transactions",
+          "limits": "Caller max_pages, cursor from accumulated last signature; first-page RPC cache; 4-round standard-RPC retry helper separate.",
+          "activity": "Listener imports wrapper but its wrapper has no internal src invocation beyond definition. No enhanced-history request evidence in captured metrics."
+        },
+        {
+          "file": "src/utils/wallet_cache_production.py:402-",
+          "wire": "GET api-mainnet.helius-rpc.com/v0/addresses/{address}/transactions",
+          "limits": "50-page default,30-day cutoff,high-transaction guard caps1page,3empty-page stop,cache/incremental boundary,Semaphore4 for batch. Empty pages may repeat same cursor up to bounded empty-page stop.",
+          "activity": "No demonstrated invocation from the three live worker entry paths; not grounds for attribution."
+        },
+        {
+          "file": "src/extractors/realtime_creator_funding_extractor.py:731,1512,2664",
+          "wire": "Enhanced REST address-history paths",
+          "activity": "Present in installed roots, funding consumer STOPPED; imported availability is not acquisition evidence. Do not assign dashboard traffic to stopped funding."
+        },
+        {
+          "file": "src/core/main.py and operation_*_poc.py",
+          "wire": "Enhanced address-history REST handlers/scripts",
+          "activity": "API/service is stopped; no matching live independent script demonstrated in OS inventory."
+        }
+      ],
+      "Walkback_actual_transport": "Installed walkback_worker._rpc dispatches standard getSignaturesForAddress/getTransaction/getAccountInfo via urllib; no enhanced-history call in that worker module."
+    },
+    "SPIKE_INTERVALS_UTC": {
+      "requested_windows": [
+        {
+          "label": "0630-0730",
+          "from_utc": "2026-10-20T06:30:00+00:00",
+          "until_utc": "2026-10-20T07:30:00+00:00",
+          "listener_metric_events": 169,
+          "resolution_metric_events": 0,
+          "no_observed_walletHistory_or_getTransactionsForAddress_metric_events": true,
+          "physical_request_total": "UNKNOWN; unmetered paths and absent provider labels",
+          "listener_exits": 12
+        },
+        {
+          "label": "0845-0945",
+          "from_utc": "2026-10-20T08:45:00+00:00",
+          "until_utc": "2026-10-20T09:45:00+00:00",
+          "listener_metric_events": 163,
+          "resolution_metric_events": 41,
+          "no_observed_walletHistory_or_getTransactionsForAddress_metric_events": true,
+          "physical_request_total": "UNKNOWN; unmetered paths and absent provider labels",
+          "listener_exits": 0
+        },
+        {
+          "label": "1830-2130",
+          "from_utc": "2026-10-20T18:30:00+00:00",
+          "until_utc": "2026-10-20T21:30:00+00:00",
+          "listener_metric_events": 2958,
+          "resolution_metric_events": 105,
+          "no_observed_walletHistory_or_getTransactionsForAddress_metric_events": true,
+          "physical_request_total": "UNKNOWN; unmetered paths and absent provider labels",
+          "listener_exits": 13
+        }
+      ],
+      "timestamp_authority": "Metric Unix timestamps UTC; Supervisor BST timestamps converted with Europe/London timezone. Dashboard display timezone and rolling24h boundaries not supplied, so reported07:00/09:15/19\u201321bursts cannot be aligned conclusively.",
+      "retained_burst": "Listener21:13\u201321:17UTC recorded account/transaction activity:517events at21:14,467at21:15,303at21:16; maximum24 events/second per captured service. This is not measured154physicalrequests/sec nor an enhanced-history attribution.",
+      "supervisor_correlations": "12listener exits in06:30\u201307:30; one SIGTERM/restart at08:55:51UTC in08:45\u201309:45;13unexpected listener exits in18:30\u201321:30, last spawn21:05:37UTC. Resolution rotations06:40:34 and18:40:41UTC. Correlation does not establish usage cause.",
+      "minute_record_counts": [
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:31:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:32:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:35:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:36:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:38:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:39:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:40:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:43:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:44:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:45:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:46:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:47:00+00:00",
+          "events": 10
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:48:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:49:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:50:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:53:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:54:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:55:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:56:00+00:00",
+          "events": 10
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:58:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T06:59:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:00:00+00:00",
+          "events": 10
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:10:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:12:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:13:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:14:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:19:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:20:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:24:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:25:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:26:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:27:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "minute_utc": "2026-10-20T07:28:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T08:49:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T08:55:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:03:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:05:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:09:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:11:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:16:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:17:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:18:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:20:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:22:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:25:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:26:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:34:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:38:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:39:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T09:42:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:47:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:48:00+00:00",
+          "events": 7
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:49:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:51:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:54:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:55:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T08:58:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:00:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:03:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:05:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:08:00+00:00",
+          "events": 7
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:09:00+00:00",
+          "events": 7
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:10:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:11:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:12:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:14:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:15:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:16:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:18:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:19:00+00:00",
+          "events": 7
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:21:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:22:00+00:00",
+          "events": 13
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:24:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:25:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:26:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:30:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:32:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:34:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:37:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:38:00+00:00",
+          "events": 11
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:39:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "minute_utc": "2026-10-20T09:42:00+00:00",
+          "events": 14
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:35:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:36:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:38:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:41:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:42:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:43:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:45:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:46:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:50:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T18:53:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:01:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:02:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:03:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:05:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:06:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:07:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:08:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:09:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:12:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:13:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:20:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:25:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:27:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:41:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:43:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:44:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:45:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:47:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:48:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T19:57:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T20:00:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T20:03:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T20:04:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T20:05:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T20:15:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T20:16:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:10:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:11:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:12:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:13:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:14:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:19:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:23:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:26:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "minute_utc": "2026-10-20T21:27:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:31:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:34:00+00:00",
+          "events": 22
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:35:00+00:00",
+          "events": 12
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:36:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:38:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:39:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:41:00+00:00",
+          "events": 17
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:42:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:43:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:44:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:45:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:46:00+00:00",
+          "events": 13
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:47:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:49:00+00:00",
+          "events": 13
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:51:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:53:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:54:00+00:00",
+          "events": 15
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:56:00+00:00",
+          "events": 10
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:57:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:58:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T18:59:00+00:00",
+          "events": 17
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:00:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:01:00+00:00",
+          "events": 17
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:02:00+00:00",
+          "events": 22
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:03:00+00:00",
+          "events": 103
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:04:00+00:00",
+          "events": 35
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:05:00+00:00",
+          "events": 38
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:06:00+00:00",
+          "events": 38
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:07:00+00:00",
+          "events": 26
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:08:00+00:00",
+          "events": 22
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:11:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:13:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:16:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:19:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:20:00+00:00",
+          "events": 12
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:22:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:25:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:27:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:30:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:33:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:36:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:39:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:40:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:41:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:43:00+00:00",
+          "events": 13
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:44:00+00:00",
+          "events": 14
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:45:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:47:00+00:00",
+          "events": 35
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:48:00+00:00",
+          "events": 86
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:49:00+00:00",
+          "events": 3
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:51:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:54:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:56:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T19:57:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:00:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:01:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:03:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:04:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:05:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:06:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:07:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:08:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:10:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:11:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:12:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:15:00+00:00",
+          "events": 45
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:16:00+00:00",
+          "events": 30
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:17:00+00:00",
+          "events": 22
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:18:00+00:00",
+          "events": 12
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:19:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:21:00+00:00",
+          "events": 16
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:22:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:23:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:24:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:26:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:27:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:30:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:32:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:33:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:38:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:39:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:40:00+00:00",
+          "events": 8
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:41:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:44:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:46:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:47:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:48:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:49:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:50:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:51:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:52:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:53:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:54:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:55:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:57:00+00:00",
+          "events": 10
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:58:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T20:59:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:00:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:01:00+00:00",
+          "events": 10
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:02:00+00:00",
+          "events": 2
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:03:00+00:00",
+          "events": 4
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:04:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:06:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:08:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:09:00+00:00",
+          "events": 12
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:10:00+00:00",
+          "events": 7
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:11:00+00:00",
+          "events": 6
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:12:00+00:00",
+          "events": 85
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:13:00+00:00",
+          "events": 240
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:14:00+00:00",
+          "events": 517
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:15:00+00:00",
+          "events": 467
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:16:00+00:00",
+          "events": 303
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:17:00+00:00",
+          "events": 219
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:19:00+00:00",
+          "events": 13
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:22:00+00:00",
+          "events": 1
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:23:00+00:00",
+          "events": 9
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:26:00+00:00",
+          "events": 13
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:27:00+00:00",
+          "events": 5
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "minute_utc": "2026-10-20T21:29:00+00:00",
+          "events": 4
+        }
+      ]
+    },
+    "REQUESTS_BY_METHOD": {
+      "recorded_groups": [
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getMultipleAccounts",
+          "cache": "none",
+          "events": 1026,
+          "internal_units": 952
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getTransaction",
+          "cache": "none",
+          "events": 405,
+          "internal_units": 1610
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getAccountInfo",
+          "cache": "none",
+          "events": 1427,
+          "internal_units": 1427
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getTokenAccountsByOwner",
+          "cache": "none",
+          "events": 8,
+          "internal_units": 8
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "logsSubscribe",
+          "cache": "none",
+          "events": 9,
+          "internal_units": 9
+        },
+        {
+          "window": "1830-2130",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getTokenLargestAccounts",
+          "cache": "none",
+          "events": 83,
+          "internal_units": 71
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "logsSubscribe",
+          "cache": "none",
+          "events": 1,
+          "internal_units": 1
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getTransaction",
+          "cache": "none",
+          "events": 166,
+          "internal_units": 20
+        },
+        {
+          "window": "0630-0730",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getMultipleAccounts",
+          "cache": "none",
+          "events": 2,
+          "internal_units": 2
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "logsSubscribe",
+          "cache": "none",
+          "events": 7,
+          "internal_units": 7
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getTransaction",
+          "cache": "none",
+          "events": 59,
+          "internal_units": 550
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getMultipleAccounts",
+          "cache": "none",
+          "events": 92,
+          "internal_units": 92
+        },
+        {
+          "window": "0845-0945",
+          "service": "listener",
+          "source": "pumpfun_curve_listener",
+          "method": "getAccountInfo",
+          "cache": "none",
+          "events": 5,
+          "internal_units": 5
+        },
+        {
+          "window": "0845-0945",
+          "service": "creator_resolution_worker",
+          "source": "unknown",
+          "method": "getSignaturesForAddress",
+          "cache": "none",
+          "events": 41,
+          "internal_units": 380
+        },
+        {
+          "window": "1830-2130",
+          "service": "creator_resolution_worker",
+          "source": "unknown",
+          "method": "getSignaturesForAddress",
+          "cache": "none",
+          "events": 105,
+          "internal_units": 950
+        }
+      ],
+      "db_status_retry_groups": [
+        {
+          "window": "0630-0730",
+          "rows": []
+        },
+        {
+          "window": "0845-0945",
+          "rows": [
+            [
+              13810,
+              "getSignaturesForAddress",
+              200,
+              0,
+              "none",
+              37,
+              370,
+              1792486175.630744,
+              1792489357.579721
+            ],
+            [
+              13810,
+              "getSignaturesForAddress",
+              200,
+              3,
+              "none",
+              1,
+              10,
+              1792486190.255869,
+              1792486190.255869
+            ],
+            [
+              13810,
+              "getSignaturesForAddress",
+              429,
+              0,
+              "none",
+              1,
+              0,
+              1792486175.862209,
+              1792486175.862209
+            ],
+            [
+              13810,
+              "getSignaturesForAddress",
+              429,
+              1,
+              "none",
+              1,
+              0,
+              1792486178.0218,
+              1792486178.0218
+            ],
+            [
+              13810,
+              "getSignaturesForAddress",
+              429,
+              2,
+              "none",
+              1,
+              0,
+              1792486182.1808388,
+              1792486182.1808388
+            ]
+          ]
+        },
+        {
+          "window": "1830-2130",
+          "rows": [
+            [
+              34567,
+              "getSignaturesForAddress",
+              200,
+              0,
+              "none",
+              89,
+              890,
+              1792521702.3998878,
+              1792531665.6034591
+            ],
+            [
+              34567,
+              "getSignaturesForAddress",
+              429,
+              0,
+              "none",
+              2,
+              0,
+              1792526682.593039,
+              1792527342.958111
+            ],
+            [
+              34567,
+              "getSignaturesForAddress",
+              429,
+              1,
+              "none",
+              2,
+              0,
+              1792526684.688742,
+              1792527345.044715
+            ],
+            [
+              34567,
+              "getSignaturesForAddress",
+              429,
+              2,
+              "none",
+              2,
+              0,
+              1792526688.772575,
+              1792527349.104931
+            ],
+            [
+              34567,
+              "getSignaturesForAddress",
+              429,
+              3,
+              "none",
+              2,
+              0,
+              1792526696.8547819,
+              1792527357.247236
+            ],
+            [
+              34567,
+              "getSignaturesForAddress",
+              429,
+              4,
+              "none",
+              2,
+              0,
+              1792526712.9884229,
+              1792527373.371074
+            ],
+            [
+              71115,
+              "getSignaturesForAddress",
+              200,
+              0,
+              "none",
+              6,
+              60,
+              1792521340.8572779,
+              1792521521.149656
+            ]
+          ]
+        }
+      ],
+      "walletHistory": "No matching retained metric event in windows; physical total UNKNOWN",
+      "getTransactionsForAddress": "No matching retained metric event in windows; physical total UNKNOWN",
+      "coverage": "Listener stdout/recorded metrics omit request identity and status details; resolution detail fallback unmetered; Walkback bypasses shared recorder. Log events are not a complete physical-request ledger."
+    },
+    "REQUESTS_BY_PID": {
+      "resolution": "08:45\u201309:45:41recorded getSignaturesForAddress events from13810.18:30\u201321:30:99events34567 +6events71115.06:30\u201307:30:no shared metric rows.",
+      "listener": "Service stdout identifies listener, but each metric line lacksPID; current60284 must not be assigned all historical events.",
+      "walkback": "Completed-row counters do not encode physical dispatchPID/hour. No request-by-PID ledger for wallet-history methods."
+    },
+    "UNIQUE_ADDRESSES": "UNKNOWN \u2014 retained metric rows and stdout omit request wallet/address parameters; no matching provider export found among inspected local audit/Downloads filenames.",
+    "REPEATED_ADDRESS_ACQUISITION": "UNKNOWN \u2014 no address+method+cursor+response identity ledger. No evidence supports calling repeated addresses waste or identifying a permanent wallet-history retry loop.",
+    "PAGINATION_PROGRESS": "UNKNOWN for dashboard bursts. Static enhanced iterators generally advance last/oldest signature with page caps; some lack repeated-cursor guard, but none is proven executed during bursts. No identical-page reacquisition established.",
+    "RETRY_FAILOVER_AMPLIFICATION": {
+      "proven_small_standard_rpc_sequence": "Resolution08:49:35.862/38.021/42.180UTC has3 HTTP429 attempts then success retry-index3. Resolution20:04:42.593\u201320:05:12.988 and20:15:42.958\u201320:16:13.371 each show5 HTTP429 rounds.",
+      "attribution_limit": "These are getSignaturesForAddress, not walletHistory/getTransactionsForAddress. They do not explain361krequests or154RPS. Dashboard-burst retry/failover amplification UNKNOWN."
+    },
+    "QUEUE_PROGRESS_DURING_SPIKES": {
+      "walkback_completed_rows": [
+        {
+          "window": "0630-0730",
+          "completed_rows": 1,
+          "cumulative_row_rpc_counter": 1,
+          "first_completion_epoch": 1792477956,
+          "last_completion_epoch": 1792477956
+        },
+        {
+          "window": "0845-0945",
+          "completed_rows": 22,
+          "cumulative_row_rpc_counter": 574,
+          "first_completion_epoch": 1792485921,
+          "last_completion_epoch": 1792489348
+        },
+        {
+          "window": "1830-2130",
+          "completed_rows": 56,
+          "cumulative_row_rpc_counter": 1039,
+          "first_completion_epoch": 1792521271,
+          "last_completion_epoch": 1792531775
+        }
+      ],
+      "counter_caveat": "Counters are cumulative per completed row and assigned by completion timestamp, not physical dispatch/billed credits.",
+      "resolution": "Retained cycle logs show skipped/resolved jobs and pending_after0; exact wallet-history acquisition-to-completion mapping absent.",
+      "local_birth_conflicts": "Known conflict retries remain database-only and are not physical wallet-history acquisition evidence."
+    },
+    "REQUEST_LIMIT_ENFORCEMENT": {
+      "Walkback": "Effective batch8/interval45s/maxattempts3/application batchRPC budget80; standard signature windows3pages(default), special10;txreads5/hop(default),deep8hops/80rowattempt budget. Batch budget checked between jobs; not strict account-wide billed-credit/RPS ceiling.",
+      "resolution": "Effective generic1page/15s; highpriority5000pages/120s; candidate budget80/page. Standard history transport5rounds, endpoint failover separate detail path. No physical investigation-wide or globalRPS cap demonstrated. Configuring5000 does not prove it was exercised.",
+      "listener": "Effective discovery concurrency3,background2; GETTX retry delays1; inline creator backfill0 and in-listener fundingconsumer0. InternalRPC endpoint fallback bounded by configured endpoints.",
+      "global_rate": "Semaphores bound concurrency, not RPS. Fast requests can produce bursts; cannot rule out154RPS from configuration alone. No evidence that a live enhanced-history call bypassed its page/retry caps."
+    },
+    "PRIMARY_SPIKE_CAUSE": "INSUFFICIENT_EVIDENCE. EXTERNAL_OR_UNATTRIBUTED_API_USAGE remains a possibility, not a proven classification. No proven cursor loop, duplicate consumer or excessive enhanced-history acquisition.",
+    "HELIUS_CREDIT_ATTRIBUTION": {
+      "user_dashboard": "~361000requests/rolling24h,average4RPS,peak154RPS,~3.25Mcredits; supplied as observations, not independently exported request evidence.",
+      "reconciliation": "Dashboard account/key/method grouping, timezone, interval boundaries and method billing semantics missing. All three live consumers share an inherited key. Local scheduled units are not billed credits. No defensible per-process billed-credit estimate.",
+      "local_exports": "No independent Helius usage export located in limited relevant filenames search; existing audit aggregates are not provider exports."
+    },
+    "OPERATIONAL_HEALTH": {
+      "snapshot": {
+        "flex_complete_database.db": {
+          "wal_bytes": 0,
+          "conflicting_main_lock": true,
+          "lock_pid": 60284
+        },
+        "wt_ops_v2.db": {
+          "wal_bytes": 601552,
+          "conflicting_main_lock": true,
+          "lock_pid": 10716
+        },
+        "MIGRATION": [
+          "AVAILABLE",
+          1792530504,
+          "logsSubscribe confirmed",
+          "listener:60284:1792530338"
+        ],
+        "BIRTH": [
+          "AVAILABLE",
+          1792530338,
+          "subscribeNewToken sent on connected PumpPortal websocket",
+          "listener:60284:1792530338"
+        ],
+        "disk_free_bytes": 10138882048,
+        "funding_hashes_match": true
+      },
+      "services": "Listener60284 RUNNING32m12s; resolution34567 RUNNING; Walkback10716 RUNNING. Funding/CascadeSTOPPED.",
+      "PumpPortal": "BIRTHAVAILABLE, recent prior ten-minute verification confirmed401births and5COMMITTEDreceipt samples. No fresh canonical-write test performed.",
+      "locks": "Core lock60284 and OPSlock10716 belong to active workers at final sample; WAL0/601552bytes. Point-in-time locks are not stale-lock proof.",
+      "disk": "~9.4GiB free",
+      "swap": "3712.38MiB used/4096MiB; free383.62MiB. No resource intervention performed."
+    },
+    "MINIMUM_SAFE_CONTAINMENT": "No excessive wallet-history service is proven, so no service-specific configuration reduction or stop is justified by this audit. Preserve listener intake and keep funding/Cascade stopped. Do not change unused candidate helper limits as if they caused the bill.",
+    "NEXT_ACTION": "Obtain the existing Helius usage/request export covering the exact bursts: API-key identifier,UTCtimestamp/timezone,wire endpoint or method,request count/status,and address/cursor or request IDs if retained. These are the missing evidence needed to map the burst and test repeated pages. If provider data lacks caller identity, a separately authorized bounded attribution/isolation procedure is needed; no such test or provider call was performed.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "SERVICE_STOPS_OR_RESTARTS": 0,
+    "DATABASE_WRITES": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Bounded read-only forensic audit; no executable source/configuration changed.",
+    "bounds": {
+      "log_read_bytes": 105855678,
+      "log_cap_bytes": 110000000,
+      "Supervisor_tail_bytes": 500000,
+      "Core_window_query_deadline_seconds": 3,
+      "OPS_aggregate_deadline_seconds": 7,
+      "source_search": "Installed three runtime src trees and literal RPC labels; no broad engineering/reconciliation.",
+      "storage": "Only compact JSON aggregates/report, no raw provider payload or database clone; no file near500MB."
+    },
+    "updated_at_utc": "2026-10-20T21:39:56.267991+00:00"
   }
 }

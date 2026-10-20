@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T21:59:52.533588+00:00"
+    "published_at_utc": "2026-10-20T22:11:22.293005+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T21:59:35.450686+00:00",
-    "working_tree": "Expensive-history audit UNKNOWN currentbilling: REST helpers predate18Oct, historical401 labels16\u201318Oct, no19\u201320labelrows. No recent enhanced enablement proven;100x tariff unverified, localtransaction-relative model10x. No runtime changes."
+    "updated_at_utc": "2026-10-20T22:11:02.405633+00:00",
+    "working_tree": "Method-change investigation INSUFFICIENT_EVIDENCE: transport ASTs unchanged,18Oct prospective restoration proven, no getTransactionsForAddress caller/body retained. Workload change not causal method attribution. No implementation or runtime actions."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39997,5 +39997,331 @@
     "runtime_deployment_reason": "Targeted read-only endpoint/source/pricing audit; no executable changes.",
     "bounds": "Core mode=ro queries4s/day; Oct17 subdivided into six4hwindows with2.5s deadlines; optional all-retained lookup stopped at4s. Installed helper diffs and targeted Git history only. Compact JSON output, no raw payload or large files.",
     "updated_at_utc": "2026-10-20T21:59:35.450686+00:00"
+  },
+  "helius_transaction_method_change_20261020": {
+    "HELIUS_TRANSACTION_METHOD_CHANGE_STATUS": "INSUFFICIENT_EVIDENCE \u2014 an operational/workload change is proven, but no wire-method switch or cause of dashboard getTransactionsForAddress bursts is established.",
+    "FIRST_OBSERVED_METHOD_USAGE": {
+      "local_label": "2026-10-16T00:09:36.482711Z earliest in bounded16\u201320October retained metrics; automatic_cex_detection HTTP401. Local label maps to REST GET, not proof of Helius-specific RPC dispatch.",
+      "dashboard_method": "UNKNOWN first true wire getTransactionsForAddress usage; supplied chart observations lack exact request records/timezone."
+    },
+    "FIRST_MAJOR_BURST": {
+      "dashboard": "User reports19\u201320October prominence; first sustained boundary and volume UNKNOWN without inventing chart values.",
+      "local_distinct_burst": "21:13\u201321:17UTC on20October has standard listener account/transaction activity; peak517recorded events/minute and24/service/second. No getTransactionsForAddress/walletHistory event captured.",
+      "timezone": "Local metric epochs areUTC. Supervisor logs convertedBST->UTC. Dashboard timezone and rolling24h interval unverified."
+    },
+    "BEFORE_AFTER_METHOD_COMPARISON": [
+      {
+        "UTC_day": "2026-10-16",
+        "expensive_label_rows": 343,
+        "partial_lower_bound": false,
+        "statuses": [
+          401
+        ],
+        "internal_units": 0,
+        "labels": [
+          "getTransactionsForAddress"
+        ]
+      },
+      {
+        "UTC_day": "2026-10-17",
+        "expensive_label_rows": 363,
+        "partial_lower_bound": true,
+        "statuses": [
+          401
+        ],
+        "internal_units": 0,
+        "labels": [
+          "getTransactionsForAddress"
+        ]
+      },
+      {
+        "UTC_day": "2026-10-18",
+        "expensive_label_rows": 128,
+        "partial_lower_bound": false,
+        "statuses": [
+          401
+        ],
+        "internal_units": 0,
+        "labels": [
+          "getTransactionsForAddress"
+        ]
+      },
+      {
+        "UTC_day": "2026-10-19",
+        "expensive_label_rows": 0,
+        "partial_lower_bound": false,
+        "statuses": [],
+        "internal_units": 0,
+        "labels": []
+      },
+      {
+        "UTC_day": "2026-10-20",
+        "expensive_label_rows": 0,
+        "partial_lower_bound": false,
+        "statuses": [],
+        "internal_units": 0,
+        "labels": []
+      }
+    ],
+    "RUNTIME_SOURCE_CHANGES": {
+      "function_semantic_hash_comparison": {
+        "listener": {
+          "pinned_HEAD": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+          "installed_file_sha256": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+          "functions": {
+            "__internal_rpc": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "99c63b09fef49f06830195e664cfac538eb327c77ce9a9b980acf3ceae738503",
+              "after_AST_sha256": "99c63b09fef49f06830195e664cfac538eb327c77ce9a9b980acf3ceae738503"
+            },
+            "_websocket_endpoints": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "9c6844edaa2e2d85a6e07123fa4c79a31352fb23954001d7b10b2862bb52bb3b",
+              "after_AST_sha256": "9c6844edaa2e2d85a6e07123fa4c79a31352fb23954001d7b10b2862bb52bb3b"
+            }
+          }
+        },
+        "resolution": {
+          "pinned_HEAD": "eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215",
+          "installed_file_sha256": "5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4",
+          "functions": {
+            "_post_rpc_with_fallback": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "b4e3160a45bd97ca787d96201e49599e5e02376b12cf3a22827aab49bb250d32",
+              "after_AST_sha256": "b4e3160a45bd97ca787d96201e49599e5e02376b12cf3a22827aab49bb250d32"
+            },
+            "helius_iter_parsed_txs_for_address": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "3a6fc968db009669af7d6ebbc6c2a3d2f9920c2a869ee9bb2cb171fb403f4ac5",
+              "after_AST_sha256": "3a6fc968db009669af7d6ebbc6c2a3d2f9920c2a869ee9bb2cb171fb403f4ac5"
+            },
+            "get_true_earliest_signature": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "3487c91f63c86c600a9a303d5539336d90b1ecf756ea7f23d59d5015c619db1e",
+              "after_AST_sha256": "3487c91f63c86c600a9a303d5539336d90b1ecf756ea7f23d59d5015c619db1e"
+            },
+            "extract_bonding_curve_via_helius_parse": {
+              "same_AST_as_pinned_HEAD": false,
+              "before_AST_sha256": "cef71cc4b0ab423dad140bc2987ddae2b1838dd7031754b3a7ebb84b88039130",
+              "after_AST_sha256": "871a633fda72fa7e5527199a0cd66f2fbce07f2177840e9326491be8893bc0b5"
+            }
+          }
+        },
+        "walkback": {
+          "pinned_HEAD": "afbe9e58b11eb2e4d616246da123ce31ab45700c",
+          "installed_file_sha256": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6",
+          "functions": {
+            "_rpc": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "c0c21c8c987bd1e43541f8c12acbbf45bd3cf1de632243e58ecc189176cc6d73",
+              "after_AST_sha256": "c0c21c8c987bd1e43541f8c12acbbf45bd3cf1de632243e58ecc189176cc6d73"
+            },
+            "_get_sigs": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "944b7a0d90871c3d13d264d45756bade1287566d0625d8f5a6a4fd0bb00eaf6c",
+              "after_AST_sha256": "944b7a0d90871c3d13d264d45756bade1287566d0625d8f5a6a4fd0bb00eaf6c"
+            },
+            "_collect_signature_window": {
+              "same_AST_as_pinned_HEAD": true,
+              "before_AST_sha256": "59639182757d05c4fc4f9ed139639d3876e435d5156565329be676be80d933c8",
+              "after_AST_sha256": "59639182757d05c4fc4f9ed139639d3876e435d5156565329be676be80d933c8"
+            },
+            "_get_tx": {
+              "same_AST_as_pinned_HEAD": false,
+              "before_AST_sha256": "90bbd5fcf78329c93dae4c3ebb5bd2bae9bc3d8394dbe77e00a719d561495628",
+              "after_AST_sha256": "925be600045d4040df3615ab521cfe5f58d9fde29bd0b5dd2eb61145fbc08178"
+            }
+          }
+        }
+      },
+      "meaning": "Compared actual installed bytes against pinned Git preimages including staged/unstaged overlays. Same AST is a source comparison, not proof of historical loaded process memory.",
+      "listener": "Installed __internal_rpc and _websocket_endpoints AST-identical to pinnedbf1bdfc. Compact receipt/launcher changes do not introduce a new RPC history method.",
+      "creator_resolution": "Installed detail endpoint fallback, address-history iterator and earliest-history pagination AST-identical to pinnedeed84ea. Changed enhanced-parse helper adds signature/transaction success validation, not a new endpoint. Analyzer overlay includes version1 and program-ID corrections; source mtime19October is not an attested deployment time.",
+      "Walkback": "Installed _rpc,_get_sigs,_collect_signature_window AST-identical to pinnedafbe9e5. _get_tx changes version0->1 and verifies response signature. New maintenance/handoff/review hooks use retained local data; no new wallet-history dispatch identified in those hooks.",
+      "funding": "Known20October controlled install978d0dd three-file correction alters version ceiling/outgoing failed-read/page limits and incomplete outcome. Worker remains stopped in established state. Historical17\u201318loaded source identity unproven; cannot assign current traffic to it.",
+      "retained18October_deployment": {
+        "record": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/controlled-attempt-c604991687e7-retry2/DEV090_DEPLOYMENT_EXECUTION_STATUS.json",
+        "record_sha256": "4062a63701927b5a05e45cc9e6de7265c7ce32df300d53e422552642ad952aab",
+        "generated_at_utc": "2026-10-18T21:14:28.149104+00:00",
+        "candidate": "c604991687e7dd4aaf065fddd047dab6c993ccab",
+        "source_hashes": [
+          {
+            "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py",
+            "sha256": "2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95"
+          },
+          {
+            "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/walkback_create_handoff.py",
+            "sha256": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363"
+          },
+          {
+            "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+            "sha256": "bca037dfd7194f304493cac051ec894916ef3eac2d897871570dafbdaa56023d"
+          },
+          {
+            "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/walkback_create_handoff.py",
+            "sha256": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363"
+          }
+        ],
+        "historical_discovery_disabled": {
+          "value": "0",
+          "effective_child_environment_verified": true,
+          "worker": "creator_resolution_worker",
+          "configuration_persistent": true
+        },
+        "queue_preservation": {
+          "walkback_before": {
+            "COMPLETE": 1,
+            "complete": 74333,
+            "failed": 2,
+            "running": 1,
+            "skipped": 15396
+          },
+          "walkback_after": {
+            "COMPLETE": 1,
+            "complete": 74333,
+            "failed": 3,
+            "skipped": 15396
+          },
+          "creator_before": {
+            "complete": 19664,
+            "ignored": 143,
+            "skipped": 3854
+          },
+          "creator_after": {
+            "complete": 19664,
+            "ignored": 143,
+            "skipped": 3854
+          },
+          "retired_identities_verified_skipped": 15019,
+          "requested_active_backlog_after": 0,
+          "exhausted_exception": "Installed normal startup maintenance transitioned one expired running attempts3 row to failed/STALLED_RUNNING_JOB_ATTEMPTS_EXHAUSTED. No attempt reset or RPC execution; failed2to3,running1to0.",
+          "completed_results_unchanged": true,
+          "no_retirement_repeated": true
+        }
+      },
+      "authority_limits": "Exact full source compositions imported by every17\u201320October process are not retained. Retained18October deployment/source hashes plus current file/function hashes delimit verified comparisons. No broad source reconciliation performed."
+    },
+    "EXPLANATION_CLASSIFICATION": [
+      {
+        "hypothesis": "1 New source introduced getTransactionsForAddress",
+        "status": "RULED_OUT",
+        "scope": "Examined acquisition diffs only: no new literal dispatch; helpers/metric label predate18October by months. Unrecorded external code/historical loaded-memory gaps remain outside this ruling."
+      },
+      {
+        "hypothesis": "2 Dormant method activated by configuration",
+        "status": "UNKNOWN",
+        "evidence": "No examined flag proves enhanced-history activation. Mere helper presence or high-priority page allowance is insufficient."
+      },
+      {
+        "hypothesis": "3 Standard RPC fallback switched to Helius-specific history",
+        "status": "RULED_OUT",
+        "scope": "Examined installed listener/resolution/Walkback transports: same wire method/payload family over RPC URLs; no new REST or exclusive-history redirect."
+      },
+      {
+        "hypothesis": "4 Walkback began a different history method",
+        "status": "RULED_OUT",
+        "scope": "Examined standard history function ASTs unchanged; version and signature-validation changes do not change RPC method."
+      },
+      {
+        "hypothesis": "5 Listener or resolution began invoking enhanced history",
+        "status": "UNKNOWN",
+        "evidence": "No physical dispatch event proves this. Resolution fresh-analyzer flow initializes signatureNone; enhanced known-signature fast path requires it prepopulated. No address-history iterator caller found in searched src."
+      },
+      {
+        "hypothesis": "6 Existing processes began a different queue population",
+        "status": "PROVEN",
+        "evidence": "18October21:09:33.325917UTC activation commit enabled prospective durable handoff. Two workers restored with historical creator discovery disabled and active backlog0; existing completed/retired identities preserved. This proves workload/enrollment policy change, not an expensive-method cause.",
+        "method_shift_causation": "UNKNOWN"
+      },
+      {
+        "hypothesis": "7 Separate application sharing API key",
+        "status": "UNKNOWN",
+        "evidence": "Three supervised workers share key; Chrome dashboard also has matching key context. Prior414process-record scan found no additional argv/env match. Browser/tool memory and other-host consumption are not excluded; no billable RPC evidence from them."
+      }
+    ],
+    "ACTIVE_CALL_SITES": {
+      "standard": "Walkback standardRPC transport; creator-resolution getSignaturesForAddress plus direct getTransaction fallback; listener standardRPC discovery and WS subscriptions.",
+      "exclusive_rpc_getTransactionsForAddress": "No literal JSON-RPC dispatcher found in examined installed source.",
+      "enhanced_address_REST": "Legacy funding/incoming/wallet-cache/analyzer/CEX helper families exist. CEX emits a metric label getTransactionsForAddress for HTTPGET; no current burst caller proven.",
+      "enhanced_signature_REST": "POST/v0/transactions known-signature parse helper, preexisting conditional fast path; distinct from paginated address history.",
+      "other_dashboard_labels": "walletHistory/enhancedApiGetTransactionsByAddress have no literal local dispatcher; backend label mappings not retained.",
+      "provenance": "Existing audited call-site report retained, not assumed active based on import/config alone."
+    },
+    "WIRE_ENDPOINT_AND_PARAMETERS": {
+      "identified_active_dashboard_method": "NONE \u2014 endpoint,transactionDetails,limit,cursor,sort,retries,per-investigation count,response size all UNKNOWN for dashboard bursts.",
+      "local_wire_families": [
+        {
+          "type": "standardJSONRPC",
+          "endpoint": "https://mainnet.helius-rpc.com/?api-key=[redacted]",
+          "method": "getTransaction or getSignaturesForAddress",
+          "parameters": "jsonParsed,transactionversion1 on qualified current paths; signature-history cursorbefore/limit controlled by caller. No automatic substitution with getTransactionsForAddress."
+        },
+        {
+          "type": "enhancedRESThistory",
+          "endpoint": "GET https://api.helius.xyz/v0/addresses/{address}/transactions or api-mainnet.helius-rpc.com variant",
+          "parameters": "Legacy helper defaults commonlylimit100 andbefore-signature cursor; sequential iterator200pages, wallet-cache50pages/defaultsortdesc. These dormant/static defaults are not observed dashboard request parameters. No transactionDetails field in identified legacyGET construction."
+        },
+        {
+          "type": "enhancedRESTparse",
+          "endpoint": "POST https://api-mainnet.helius-rpc.com/v0/transactions",
+          "parameters": "transactions:[known_CREATE_signature],timeout10s; no history cursor; no response sizes retained."
+        }
+      ],
+      "Helius_specific_RPC": "Schedule describes exclusive getTransactionsForAddress but no retained authoritative wire/billing definition or actual body for the bursts; do not map it to REST solely by name."
+    },
+    "METHOD_COST_COMPARISON": {
+      "billed_cost": "UNKNOWN actual product/meter,response-size/returned-transaction charging, and per-useful-qualified-result cost. No retained provider billing rules verified.",
+      "local_model": "Primaryschedule100enhanced/exclusive-history,10getTransaction/getSignaturesForAddress,1basicaccount:10xversustransactionRPC or100xversusaccountRPC internally. Fallbackbatchparse10disagreeswithprimary100. These are not invoice credits.",
+      "full_transaction_response_hypothesis": "UNKNOWN \u2014 no identified burst request transactionDetails parameter, returned-item count or response bytes. Cannot attribute disproportionate charges to full responses."
+    },
+    "PROVIDER_ROUTING_CHANGES": "No method-family redirect in verified acquisition diffs. Existing same shared credential/standard primary endpoint; fallback changes endpoint, not method family. Broader historical runtime route identity not fully attested.",
+    "QUEUE_ACTIVITY_CORRELATION": {
+      "activation_utc": "2026-10-18T21:09:33.325917+00:00",
+      "activation_epoch_utc": "2026-10-18T21:06:58+00:00",
+      "deployment_result": "DEV090 prospective handoff activated; historical creator discoverydisabled; old activebacklog0; no acquisition in retained initial worker restoration observation.",
+      "Oct20_windows": {
+        "walkback_completed_rows": [
+          {
+            "window": "0630-0730",
+            "completed_rows": 1,
+            "cumulative_row_rpc_counter": 1,
+            "first_completion_epoch": 1792477956,
+            "last_completion_epoch": 1792477956
+          },
+          {
+            "window": "0845-0945",
+            "completed_rows": 22,
+            "cumulative_row_rpc_counter": 574,
+            "first_completion_epoch": 1792485921,
+            "last_completion_epoch": 1792489348
+          },
+          {
+            "window": "1830-2130",
+            "completed_rows": 56,
+            "cumulative_row_rpc_counter": 1039,
+            "first_completion_epoch": 1792521271,
+            "last_completion_epoch": 1792531775
+          }
+        ],
+        "counter_caveat": "Counters are cumulative per completed row and assigned by completion timestamp, not physical dispatch/billed credits.",
+        "resolution": "Retained cycle logs show skipped/resolved jobs and pending_after0; exact wallet-history acquisition-to-completion mapping absent.",
+        "local_birth_conflicts": "Known conflict retries remain database-only and are not physical wallet-history acquisition evidence."
+      },
+      "causal_limit": "Progress on standard queue work does not identify the source of missing wallet-history method traffic. Restarts/top-up correlation insufficient."
+    },
+    "REPEATED_ACQUISITION_EVIDENCE": "UNKNOWN for identified dashboard method: no retainedPID+wallet+range/cursor+request/responseidentity ledger. Cannot establish failed cursor progression, identical-page retries, completed-work reacquisition or duplicate history consumers. Known local birth-conflict retries are not proof of provider dispatch.",
+    "PRIMARY_CAUSE": "UNKNOWN. Proven change is prospective operational restoration/workload enrollment on18October, not a proven transaction-method change. Exact remaining uncertainty: actual wire request and caller behind dashboard getTransactionsForAddress, plus dashboardUTCwindow/productmeter.",
+    "MINIMUM_SAFE_CORRECTION": "NONE justified. Existing verified transports already use prior standard methods; do not replace or disable a method from per-request cost labels alone. Preserve CREATE validation, Walkback attribution, compact receipts and stopped funding.",
+    "NEXT_ACTION": "No CSV needed. Establish one redacted process-attributed burst sample (wire JSON-RPCmethod or RESTpath,UTCtimestamp,callerPID/keyidentifier,parameters,responsebytes) and provider-visible product/rate definition. With shared-key aggregate-only dashboard, a separately authorized bounded non-intake-worker isolation test is an alternative to identify caller. No such capture, source instrumentation, pause or provider/account request made here.",
+    "PROVIDER_CALLS": 0,
+    "CANONICAL_WRITES": 0,
+    "SOURCE_CHANGES": 0,
+    "PRODUCTION_CHANGES": 0,
+    "DATABASE_WRITES": 0,
+    "SERVICE_RESTARTS_OR_STOPS": 0,
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Targeted read-only source/runtime record investigation; no executable/config changes.",
+    "bounds": "Selected18October DEV090 records under300KB each; three installed acquisition modules and targeted local overlays; AST/source hashes. Existing qualified telemetry aggregates reused. No raw provider payloads, database copies or newlargefiles.",
+    "updated_at_utc": "2026-10-20T22:11:02.405633+00:00"
   }
 }

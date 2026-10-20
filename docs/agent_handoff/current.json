@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T20:57:54.663107+00:00"
+    "published_at_utc": "2026-10-20T21:05:52.820653+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T20:57:43.217892+00:00",
-    "working_tree": "Funding three-file fix installed unchanged; funding STOPPED. Listener recurrent PumpSwap fatal exits; acceptance review HOLD. Read-only check only."
+    "updated_at_utc": "2026-10-20T21:05:37.591465+00:00",
+    "working_tree": "Read-only diagnosis PARTIAL: PumpSwap InvalidStatusCode lacks HTTP status;39 conflicting birth retries across5 canonical/VALID-completed mints loop. Receipt writer and funding installation unchanged; funding stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36990,5 +36990,96 @@
     "DATABASE_WRITES": 0,
     "bounds": "Supervisor last 160 KB; listener stdout last 3 MB; stderr last 60 KB; compact schema and lock probes; no historical replay",
     "updated_at_utc": "2026-10-20T20:57:43.217892+00:00"
+  },
+  "flex_v2_listener_recovery_diagnosis_20261020": {
+    "FLEX_V2_LISTENER_RECOVERY_STATUS": "PARTIAL \u2014 conflict mechanism established; PumpSwap handshake rejection established but HTTP status/root rejection reason not retained. No implementation performed.",
+    "RUNTIME_AUTHORITY": {
+      "listener_git_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+      "installed_overlays_sha256": {
+        "run_listener.sh": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+        "src/core/pumpfun_curve_listener.py": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+        "src/core/pumpportal_birth_audit.py": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae",
+        "src/core/pumpportal_receipt_maintenance.py": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce",
+        "src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363"
+      },
+      "authority_note": "Pinned HEAD alone is insufficient: installed launcher/listener/receipt overlays and untracked handoff module are active source bindings. Running PID environment points PYTHONPATH at this checkout; no process-memory source attestation attempted.",
+      "supervisor_config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+      "supervisor_config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+      "endpoint": "wss://mainnet.helius-rpc.com/?api-key=[REDACTED]",
+      "credential_binding": "Source constructs WS URL from HELIUS_MONITORING_API_KEY or HELIUS_API_KEY. Running inherited environment has HELIUS_API_KEY, no monitoring key; local config/.env absent. HELIUS_WS_URL is configured but this source constructs endpoint rather than reading that URL. No proxy environment bindings found. Credentials not emitted or changed.",
+      "receipt_writer": "Installed compact seven-day writer and maintenance source hashes preserved; launcher enables compact receipts and disables raw payload retention."
+    },
+    "PUMPSWAP_FAILURE_CAUSE": {
+      "proven": "Retained acquisition_availability_transitions reports websocket failure: InvalidStatusCode for six successive listener generations. This is HTTP WebSocket upgrade rejection, not proof of TCP connection refusal. Source generic message discards actual HTTP status and headers.",
+      "status_429": "No exact HTTP 429/rate-limit message found in bounded recent stdout. This does not exclude a hidden HTTP 429 in InvalidStatusCode.",
+      "auth_quota_connection_limit_network": "Cannot distinguish rejected authentication, quota, connection limit or HTTP intermediary from retained evidence; no handshake response status/headers available. Pure DNS/TCP failure is not the exception class recorded on first failure of each generation.",
+      "diagnostics_limit": "Resolver-only file has old generation records ending Oct 3, not current handshake details. No new provider calls allowed.",
+      "blocker": "Exact HTTP rejection code/body needed before selecting endpoint/account/credential recovery; inventing that cause would be unsafe."
+    },
+    "PUMPSWAP_SUBSCRIPTION_STATE": "DOWN. Latest six migration generations have UNKNOWN then DOWN/InvalidStatusCode; no AVAILABLE/logsSubscribe-confirmed interval in this bounded sample.",
+    "LISTENER_FATAL_LOOP": {
+      "policy": "Ten consecutive failed connections, 5s exponential backoff capped60s, explicit os._exit(1), Supervisor autorestart=true; behaves as designed and remains unchanged.",
+      "exact_transition": "PID55506 exit status1 unexpectedly at 2026-10-20 20:32:18.335 UTC; PID56351 spawned20:32:19.342Z, RUNNING20:32:29.356Z. Supervisor log uses BST, one hour ahead of UTC.",
+      "recurrence": "Approximately 4m45s; present before funding installation. Current sampled PID59758 RUNNING with uptime3m35s; this does not establish stability.",
+      "independence": "Handshake rejected before subscription, while PumpPortal connects/receives/commits new births. Canonical conflicts are a separate data/queue condition; no evidence they cause HTTP upgrade rejection."
+    },
+    "CORE_AUTHORITY_CONFLICT_CAUSE": {
+      "exact_condition": "walkback_create_handoff.stage requires existing Core row, no nonempty creator field different from incoming creator, incoming creator present in canonical pair, identical CREATE signature and migrated_at. Birth UPSERT preserves non-null canonical fields via COALESCE, then stage_birth_completion raises CORE_AUTHORITY_CONFLICT before commit for conflicting already-migrated mints.",
+      "bounded_sample": {
+        "signature_keyed_retries": 39,
+        "distinct_mints": 5,
+        "all_have_existing_canonical": true,
+        "all_CREATE_signatures_differ": true,
+        "some_creator_disagreement": true
+      },
+      "canonical_evidence": "All five Core creator/signature identities match existing completed OPS Walkback entries with create_anchor_audit_state=VALID. Source listed token_analysis, not an independently fetched chain proof. Existing accepted authority must be preserved; no chain requalification performed.",
+      "mechanism": "This is an identity conflict, not a demonstrated database-lock problem. Do not overwrite creator/signature or bypass the authority check."
+    },
+    "BIRTH_RETRY_DURABILITY": {
+      "signature_queue": "All39 compact pumpportal_retry records remain consumed=0 with mint, traderPublicKey, signature and provenance; payload signature matches queue signature in all sampled rows.",
+      "retry_progress": "All39 retry counters advanced between two probes; sampled counters84\u201319428. Repeated acquisition is not involved here; permanent identity conflict does not become resolvable by repeating the insert.",
+      "mint_queue": "Five affected mint rows retain original creator/CREATE signature with PROCESSED status plus CORE_AUTHORITY_CONFLICT last_error; multiple signature variants for one mint are retained separately only in webhook_birth_queue. PROCESSED is not evidence that all variants were accepted.",
+      "root_retry_behavior": "Webhook drainer increments retry_count every failed pass, sleeps5s and has no permanent-conflict terminal disposition in this path. Current conflict work loops rather than making acceptance progress.",
+      "retained_identity": "Original supplied identities preserved in signature queue; do not treat conflicting variants as canonical evidence."
+    },
+    "COMPACT_RECEIPT_HEALTH": {
+      "current_live_sample": "Five recent successful births have matching COMMITTED receipts, accepted_at timestamps and exact canonical identity; file sizes561\u2013562bytes.",
+      "conflict_sample": "33 of39 pending signature records have exact identity-matched RETRY_PENDING receipts at expected legacy/sharded paths. Six receipts not found at those paths; no universal receipt-completeness claim. Queue identity durability remains independently observed.",
+      "write_order": "Compact receipt fsync+rename precedes awaited canonical persistence; outcome update follows success/readback or retry. Failure of canonical staging does not require overwriting the receipt.",
+      "scope": "Writer left unchanged; seven-day cleanup not executed or broadly rescanned."
+    },
+    "CREATOR_RESOLUTION_HEALTH": "RUNNING pid34567 unchanged; no process restart performed. Process health only, not full functional qualification.",
+    "WALKBACK_HEALTH": "RUNNING pid10716 unchanged; sampled completed/VALID anchors align with canonical records; no attribution changes.",
+    "DATABASE_AND_DISK_HEALTH": {
+      "Core": {
+        "wal_bytes": 0,
+        "conflicting_main_lock": false,
+        "lock_pid": 0
+      },
+      "OPS": {
+        "wal_bytes": 0,
+        "conflicting_main_lock": false,
+        "lock_pid": 0
+      },
+      "read_probes": "PASS, bounded mode=ro schema/indexed identity reads; no writes/checkpoints/replay",
+      "disk": "9.7GiB available, 96% reported capacity",
+      "swap": "4096MiB total;2648.44MiB used;1447.56MiB free",
+      "recent_errors": "No new WAL-pin/database-is-locked message established in bounded current stdout. Older stderr ENOSPC/lock traces distinguished from current failures.",
+      "funding_fix": "All three installed hashes match978d0dd45150500b7db6dd81a43a55fc5d8f6451; funding STOPPED, autostart=false."
+    },
+    "MINIMUM_SAFE_RECOVERY": {
+      "PumpSwap": "Separately authorize one bounded handshake-only diagnostic against the exact current endpoint/credential, retaining only redacted HTTP status/headers; no logsSubscribe, RPC, replay or restart. Then select a credential/account/endpoint correction justified by that status. No blind retry-policy or credential change recommended.",
+      "birth_conflict": "Separately authorize a narrowly scoped permanent-conflict disposition for the39 retained signature records: preserve their identity/receipts and existing canonical/Walkback evidence, remove them from active repeated attempts via an explicit auditable blocked/quarantined policy. Do not mark them successfully persisted or overwrite canonical identities. No schema/implementation design is authorized in this diagnosis."
+    },
+    "NEXT_ACTION": "Keep funding stopped. Obtain the bounded handshake diagnostic authorization to resolve the missing HTTP status; review separate conflict-disposition authorization. No combined fix, source change, deployment or service restart performed.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "runtime_deployment_reason": "Read-only diagnosis; implementation and deployment prohibited.",
+    "PROVIDER_CALLS": 0,
+    "SOURCE_CHANGES": 0,
+    "SERVICE_RESTARTS": 0,
+    "CANONICAL_WRITES": 0,
+    "DATABASE_SCHEMA_CHANGES": 0,
+    "bounds": "Up to3MB listener stdout,160KB Supervisor,60KB stderr,64 signature retry rows (39 present),5 indexed Core/OPS identities,39 deterministic receipt lookups plus5 current receipt samples. Small local evidence only.",
+    "updated_at_utc": "2026-10-20T21:05:37.591465+00:00"
   }
 }

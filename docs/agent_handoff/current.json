@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:17:12.571914+00:00"
+    "published_at_utc": "2026-10-20T22:25:54.545930+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:16:56.207189+00:00",
-    "working_tree": "Live-attribution feasibility PARTIAL/HOLDfullcoverage:10s existing-record projection0rows; no shared completeHTTPobserver. Temporary metadata-only10sboundedobserver proposed, not implemented/deployed. Running services unchanged; funding/Cascade stopped."
+    "updated_at_utc": "2026-10-20T22:25:40.663333+00:00",
+    "working_tree": "Targeted expensive-RPC activation audit complete: handoff workload activation proven, native getTransactionsForAddress causal link UNKNOWN/HOLD. No implementation or service actions."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40428,5 +40428,18 @@
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "runtime_deployment_reason": "Read-only feasibility qualification; no executable instrumentation implemented or loaded.",
     "updated_at_utc": "2026-10-20T22:16:56.207189+00:00"
+  },
+  "helius_expensive_rpc_activation_root_cause_20261020": {
+    "status": "HOLD_CAUSAL_ATTRIBUTION_UNKNOWN",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/helius_expensive_rpc_activation_root_cause_20261020.v1.json",
+    "engineering_source_revision": "978d0dd45150500b7db6dd81a43a55fc5d8f6451",
+    "acceptance": "Exact startup/control records and dynamic Walkback dispatch inspected; preactivation/current transport AST identical. No native wire caller proven. No tests needed for read-only audit.",
+    "activation_state": "No service changes; funding activation unauthorized.",
+    "blocker": "No retained PID+UTC native wire invocation linked to prospective queue work; historical loaded analyzer identity incomplete.",
+    "next_action": "Obtain the missing evidence: a naturally occurring native getTransactionsForAddress dispatch tied to UTC and caller PID/service, plus its queue/call-path origin. Existing retained records do not contain this link. Any temporary observation change requires separate authorization; stop this investigation here.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "production_changes": 0
   }
 }

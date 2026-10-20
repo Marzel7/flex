@@ -16148,8 +16148,8 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T19:35:48.411333+00:00",
-    "verification": "Publisher must verify exact origin file match before completion."
+    "published_at_utc": "2026-10-20T19:45:08.561922+00:00",
+    "verification": "Publisher requires exact origin file match before completion."
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27349,8 +27349,8 @@
     "branch": "codex/funding-durable-budget",
     "git_head": "bc9c30dcd389c97ee9378512972770de40e2928d",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T19:34:23.323869+00:00",
-    "working_tree": "Clean isolated funding candidate; no production deployment"
+    "updated_at_utc": "2026-10-20T19:44:22.631070+00:00",
+    "working_tree": "Candidate unchanged and clean; read-only activation gate HOLD"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -36499,5 +36499,17 @@
     "blocker": "NONE for offline qualification; deployment and restart remain explicitly unauthorized.",
     "next_action": "Review immutable candidate; any live migration, service-specific production source composition, deployment or restart requires separate explicit authorization. No additional offline qualification work remains.",
     "safety": "Provider calls=0; canonical writes=0; live Core/OPS writes=0; production changes=0; service restarts=0."
+  },
+  "flex_v2_funding_activation_safety_gate_20261020": {
+    "engineering_revision": "bc9c30dcd389c97ee9378512972770de40e2928d",
+    "status": "HOLD_ACTIVATION",
+    "audit": "docs/audits/flex_v2_funding_activation_safety_gate_20261020.v1.json",
+    "finding": "Per-investigation caps survive normal retry/restart with retained state, but no all-provider global rate limiter exists; synthetic 8 RPC + 4 ancillary overlap bypasses shared cap. DELETE/reinsert resets spent identity and real producer accepts old migrations as fresh rows. Configured 35.65GB Core exceeds 483222784-byte candidate guard, blocking migration/admission and producer handoff. Existing accepted producer roots lack initialization hooks; candidate must not replace the golden system tree.",
+    "tests": "106 candidate/queue regressions plus 6 activation probes passed (112 unique); negative probes reproduce activation gaps, not a qualified global limiter. No IP sockets or live DB access.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only/provider-free safety gate; no runtime change.",
+    "production_flags": "No deployment/restart/activation; provider calls=0, canonical/live DB writes=0, application source changes=0, production changes=0.",
+    "blocker": "GLOBAL_HTTP_ADMISSION; DURABLE_IDENTITY_AND_FRESH_ADMISSION; STORAGE_TARGET; SERVICE_SOURCE_COMPOSITION",
+    "next_action": "Keep funding activation prohibited. Review these four concrete blockers and separately authorize only the minimum correction/policy work needed. No application source/configuration change was made in this audit."
   }
 }

@@ -35488,15 +35488,16 @@
     "next_action": "Stabilize and attribute the active listener crash loop, then repeat this bounded health gate before separately authorizing short-timeout production DDL."
   },
   "flex_v2_curve_first_create_recovery": {
-    "status": "HOLD_RUNTIME_SOURCE_INCOMPATIBLE",
+    "status": "SOURCE_AUTHORITY_CORRECTED_RUNTIME_MATCHES_GOLDEN",
     "scope": "No provider calls, source changes, database writes, deployment, or service changes. An isolated worktree was created at the immutable golden commit only.",
     "golden_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
-    "runtime_import_root": "/Users/kevinkeaveney/Dev/claude/flex (Supervisor creator_resolution_worker PYTHONPATH and directory)",
-    "source_authority": "The runtime root HEAD 580508a70c80e7fc944e0069f85e67b851a117fa does not contain the golden commit. Its tracked analyzer source is last committed at c8cd164f68797b47fb6a53f7832ec25fa47636de, not an uncommitted overlay.",
-    "critical_difference": "Runtime src/analysis/pump_fun_post_migration_analyzer.py SHA-256 b7a051d2b21a860215393e9815b66c8ab9f16c14a932595755a21286a92a9443 differs from golden 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4. Relative to golden it removes authoritative transaction-signature correlation and execution-success checks, and changes getTransaction maxSupportedTransactionVersion 1 to 0. These are strict CREATE/CREATE_V2 authority contracts, not cosmetic differences.",
+    "runtime_import_root": "/Users/kevinkeaveney/Production/flex-main-workers (confirmed from running PID 13810 cwd and PYTHONPATH; neutral import resolution returns this path)",
+    "source_authority": "The frozen runtime manifest itself records this production worktree and its Supervisor directory. The running process uses it, not /Users/kevinkeaveney/Dev/claude/flex. That latter development checkout is a non-running source tree and was the source of the earlier false divergence.",
+    "strict_validation": "Running analyzer SHA-256 5c1e13c421e95c6c2eba62f0499721d5d0ceb2c2c749a5a97dbf6649628239b4 equals both the golden packaged root and runtime/creator_resolution capture. It retains signature correlation, explicit execution-success rejection, and maxSupportedTransactionVersion=1.",
+    "post_baseline_changes": "No post-baseline change to the loaded analyzer is evidenced: its mtime is 2026-10-19T18:26:20Z, before golden promotion at 2026-10-20T00:28:12+01:00. It is a local 41-addition/5-removal overlay over worktree commit eed84eaa, but its final bytes equal the golden source hash.",
     "runtime_budget_observation": "Frozen Supervisor creator-resolution limits are normal: 15 seconds/1 page; high priority: 120 seconds/5000 pages. No budget changes made.",
-    "blocker": "A curve-first candidate based solely on the golden source would not be behaviorally equivalent to the installed runtime; preserving the running behavior would retain a regression against the immutable strict-validation contract. The requested improvement cannot be safely qualified until an explicit source-authority/reconciliation decision selects the strict CREATE contract to restore.",
-    "next_action": "Separately authorize a narrow runtime-source reconciliation: adopt the golden strict validation/signature-correlation and transaction-version contracts as the authoritative preimage, then re-run isolated curve-first qualification with the existing aggregate RPC ceiling. Do not deploy this worktree.",
+    "correction": "The earlier runtime-source HOLD was withdrawn after process-level forensic verification; it incorrectly treated the editable development checkout as the live import authority.",
+    "next_action": "The source-authority prerequisite is satisfied. Resume isolated curve-first qualification from the golden worktree under the existing aggregate RPC ceiling; do not deploy this worktree.",
     "provider_calls": 0,
     "canonical_writes": 0,
     "production_changes": 0

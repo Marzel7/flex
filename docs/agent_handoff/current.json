@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T22:53:35.289029+00:00"
+    "published_at_utc": "2026-10-20T22:56:38.917754+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T22:53:26.001740+00:00",
-    "working_tree": "Successor4ae681bfqualified:42/42coverage,204provider-free tests and clean restoration. No live changes; ready for bounded deployment preflight."
+    "updated_at_utc": "2026-10-20T22:56:27.517708+00:00",
+    "working_tree": "Final quarantine preflight GO for successor4ae681bf/exact42disposition, pending separate explicit installation/schema/quarantine/listener stop-start authorization. No live changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40491,5 +40491,15 @@
     "blocker": null,
     "next_action": "Run bounded read-only deployment preflight for4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93, refreshing exact installed preimage,42evidence,one-field migration compatibility and rollback readiness. Do not install,migrate,quarantine or restart without separate authorization.",
     "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED"
+  },
+  "pumpportal_final_quarantine_preflight_20261020": {
+    "status": "GO_NOT_AUTHORIZED_TO_EXECUTE",
+    "engineering_source_revision": "4ae681bfd84a5ba1baf190ca5d79f1d5ae748d93",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/pumpportal_final_quarantine_preflight_20261020.v1.json",
+    "verification": "Candidate hashes/204retained tests/clean checkout verified. Refreshed42/42qualified incl15mixedcreator cases;36receipts unchanged/6missing. Live schema field absent, compatible. Exact rollback bundle verified.",
+    "production_flags": "Listener60284/resolution34567/Walkback10716 RUNNING; funding/Cascade STOPPED. No installation/DDL/quarantine/provider calls/restart.",
+    "blocker": null,
+    "next_action": "Request/obtain explicit authorization for the documented controlled sequence, including listener stop/start, one-field migration and exact42quarantine. Until then leave runtime and queue untouched.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

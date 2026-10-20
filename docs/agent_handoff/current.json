@@ -35672,6 +35672,24 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_creator_enqueue_gap_attribution_20261019": {
+    "status": "HOLD_MISSING_ENQUEUE_TRANSITION_EVIDENCE",
+    "scope": "Bounded read-only forensic audit of the fixed 187 creator-unknown/no-queue migrations. No provider calls, replay, database writes, queue mutations, source changes, restarts, deployment, or production changes.",
+    "fixed_187": "187 mints retain lifecycle_stage=migrated, migrated_at, migration_tx, and created_at; 184 retain migration_slot. All have blank creator and CREATE fields and no creator_resolution_queue primary-key row. Missing migration metadata does not explain the absent queue records.",
+    "call_paths": "At migration, listener _mark_token_migrated_in_db writes token_analysis then calls enqueue_prospective_migration before committing the same Core transaction. That direct path exits for inactive/historical controls, protected OPS states, creator conflict, existing queue state, qualified PumpPortal/OPS/Core proof, or otherwise INSERT OR IGNOREs a priority-200 migration_direct row. Independently, listener periodic sweep (limit 25) and creator-resolution worker loop (configured limit 50) invoke enqueue_missing_migrated_tokens. The bulk path requires migrated lifecycle and both creator fields blank, then mint-primary-key enqueue_missing_creator; it has no CREATE-signature requirement.",
+    "admission_and_retry": "Queue deduplication is by mint. Bulk selection excludes active, complete, ignored, and authority-exhausted failed rows; failed non-authority rows become retry on explicit enqueue. There is no separate queue-capacity rejection beyond each caller's bounded selection limit. The sweep returns zero if CRQ_HISTORICAL_DISCOVERY_ENABLED is not '1'; Supervisor configuration does not set that variable, but retained evidence cannot establish the effective historical process environment.",
+    "retained_invocation_evidence": "A bounded exact-prefix search of retained listener.log.2/.3 and creator_resolution_worker.log found one of 187 in listener.log.2, with PumpPortal migration/candidate/fast-path messages only. It found no mint-specific enqueue, rejection, queue-write failure, or worker-resolution line for any of the 187. The source logs aggregate auto-enqueue counts rather than mint identities; direct enqueue return values are not logged. Thus retained logs cannot show whether the direct call ran, which guard returned, or whether a queue write was attempted for each mint.",
+    "historical_vs_present": "All 187 match the present-day bulk predicate, but a missing current queue row is not proof of historical eligibility or non-enqueue. The fixed cohort has no surviving per-mint enqueue-attempt ledger, return-code record, or failure telemetry at the direct/sweep persistence boundary.",
+    "zero_provider_recovery": "An existing zero-provider reconciliation path exists in source: the listener and worker periodic bulk sweeps enumerate migrated creator-unknown rows and enqueue up to their respective bounded limits. It could recover qualifying rows without RPC acquisition, but this audit cannot prove it executed with discovery enabled or persisted entries for the historical 187. No replay/enqueue was performed.",
+    "primary_failure_boundary": "The unavailable transition is between token_analysis migration persistence and durable creator_resolution_queue insertion (including the independent sweep's selected-mint-to-insert transition). No evidence attributes it to provider budgets, strict CREATE validation, migration metadata, queue capacity, or Walkback.",
+    "minimum_safe_correction": "Do not change provider budgets or resolver strategy. If authorized, add only prospective, bounded, mint-keyed enqueue decision telemetry covering direct-return code and sweep selection/insert outcome, with explicit retention bounds and no provider call; use it to observe new migrations rather than replay this cohort.",
+    "next_action": "HOLD historical attribution. Authorize a prospective observation contract for the missing enqueue transition before considering any behaviour change.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "flex_v2_generic_complete_evidence_gap_audit": {
     "status": "EXPLAINED_HISTORICAL_PRE_STRICT_COMPLETIONS",
     "scope": "Fixed seven-day priority-200 cohort bounded by the prior updated_at interval [1791898812,1792503612]. WAL-aware read-only Core access; no provider calls, replay, writes, source changes, restarts, deployment, or production changes.",

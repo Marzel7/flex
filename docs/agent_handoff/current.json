@@ -35647,6 +35647,31 @@
     "production_changes": 0,
     "runtime_deployment_required": false
   },
+  "flex_v2_creator_queue_coverage_20261019": {
+    "status": "PASS_EXPLAINED_WITH_HISTORICAL_ENQUEUE_LIMITATION",
+    "scope": "Fixed 2026-10-19 UTC migration cohort read-only coverage audit. Used the existing migrated_at,mint cohort index and only mint-leading or primary-key reference paths. No provider calls, replay, database writes, queue mutations, source changes, restarts, deployment, or production changes.",
+    "fixed_cohort": "799 unique migrations; 766 had no qualified PumpPortal evidence at migration; 203 retained RPC resolver outcomes (71 complete and 132 skipped/BUDGET_EXCEEDED); 33 additional no-queue mints have deterministic COMMITTED PumpPortal receipts accepted no later than migration. The requested no-RPC-outcome population is therefore exactly 563.",
+    "runtime_authority": "Running worker imports /Users/kevinkeaveney/Production/flex-main-workers. Current creator_resolution_queue.py SHA-256=2226407ba6ba81d95b9ef23a23f2fd20343dbb0b12733c6738f5a8eb2ccd6b95; creator_resolution_worker.py SHA-256=797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb. Worktree Git HEAD is eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 with a dirty runtime overlay; observed source bytes, not HEAD alone, were used.",
+    "enqueue_contract": "The periodic bulk sweep and enqueue_missing_creator require lifecycle_stage=migrated and both earliest_tx_creator and pf_ws_creator blank. Missing CREATE signature alone does not enqueue. Mint is the queue primary key; complete, ignored, active, and authority-exhausted failed rows are deduplicated/excluded. Default automatic priority is 200; retries are active pending/retry handling, while BUDGET_EXCEEDED is terminal skipped without retry. The listener also has an at-migration direct path, but it enqueues only when no qualified PumpPortal/Core/OPS proof or terminal/active queue state exists; it does not treat plain Core creator fields as provenance proof.",
+    "classification": {
+      "creator_known_other_established_path": 376,
+      "creator_known_create_field_missing": 0,
+      "creator_unknown_no_queue_record_eligible_under_current_bulk_predicate": 187,
+      "enqueued_without_retained_terminal_outcome": 0,
+      "qualified_pumpportal_exceptions_not_in_563": 33,
+      "unresolved": 0
+    },
+    "established_path_evidence": "All 376 creator-known/no-RPC mints have both token_analysis creator fields and a nonblank create_tx_signature projection. Their indexed creator_funding_queue records are 374 source=pf_ws_creator_existing_migration and 2 source=migration_already_known; all 563 have migration_walkback_handoff=COMPLETE. No current-epoch strict wb_create_delivery record exists for any of the 563, so funding/handoff completion is not reclassified as strict CREATE proof. The retained projection does not timestamp when each Core creator/signature field became known; the path labels establish intentional operational bypass, while exact pre-migration strict CREATE qualification is not inferred.",
+    "query_safety": "Cohort plan: SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migrated_mint. Exact checks used creator_resolution_queue primary key, creator_funding_queue(mint), migration_walkback_handoff primary key, birth_persist_queue unique mint, wt_detected_creates unique mint, and wb_create_delivery unique(epoch,mint). No unindexed delivery mint probe, scan, broad join, or provider acquisition was run.",
+    "primary_coverage_gap": "187/563 (33.21%) have neither creator field nor any retained resolver queue row. They are eligible under the current bulk predicate at audit time, but retained evidence cannot prove whether the historical worker/listener enqueue invocation was unavailable, failed before persistence, or was intentionally suppressed by a then-active operational guard. This is an enqueue-coverage evidence gap, not evidence that the generic one-page RPC budget was insufficient.",
+    "minimum_safe_correction": "Do not alter search depth, priority, or provider budget. Separately authorize a narrowly scoped source/operational review of the historical enqueue invocation and its fail-closed persistence telemetry for creator-unknown migrated rows; any correction must preserve queue-mint deduplication and the existing strict CREATE/durable-handoff contract.",
+    "next_action": "HOLD implementation. First decide whether the 187 creator-unknown/no-queue rows warrant a separately authorized enqueue-coverage correction; do not infer missing strict CREATE from the 376 known-creator bypasses.",
+    "provider_calls": 0,
+    "canonical_writes": 0,
+    "source_changes": 0,
+    "production_changes": 0,
+    "runtime_deployment_required": false
+  },
   "flex_v2_generic_complete_evidence_gap_audit": {
     "status": "EXPLAINED_HISTORICAL_PRE_STRICT_COMPLETIONS",
     "scope": "Fixed seven-day priority-200 cohort bounded by the prior updated_at interval [1791898812,1792503612]. WAL-aware read-only Core access; no provider calls, replay, writes, source changes, restarts, deployment, or production changes.",

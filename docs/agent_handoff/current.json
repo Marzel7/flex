@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-21T06:01:19.300808+00:00"
+    "published_at_utc": "2026-10-21T06:18:12.655296+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-21T06:00:58.270285+00:00",
-    "working_tree": "Overnight spike attribution audit complete; expensive-method caller UNKNOWN. Runtime unchanged."
+    "updated_at_utc": "2026-10-21T06:17:47.071611+00:00",
+    "working_tree": "Exact installed history-callsite source audit complete; no active expensive-method path established; caller UNKNOWN."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40570,6 +40570,16 @@
     "production_flags": "Listener81382,resolution93371,Walkback10716RUNNING;funding/CascadeSTOPPED. No provider/runtime/database/service changes.",
     "blocker": "No PID-linked physical method/endpoint evidence for dashboardgetTransactionsForAddress; dashboardtimezone/bucketwidthunverified.",
     "next_action": "Separately authorize one temporary, disabled-by-default metadata observer at existing aiohttp and urllib HTTP boundaries (requests boundary only where active), offline-tested first: UTC,PID/service,fixed endpoint/method label,response status only. No URLs/query strings/headers/bodies/wallets/signatures/raw exceptions.10-second observation during one naturally occurring burst; max2048 records/PID,512bytes/record,1MiB/PID and3MiB total; hard expiry/cap, no rotation. Separate deployment authorization required. This proves future caller attribution, not historical exact identities; dashboard timezone/bucket width still needed for exact chart alignment.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "helius_exact_history_caller_source_20261021": {
+    "status": "SOURCE_INSPECTION_COMPLETE \u2014 EXPENSIVE_METHOD_CALLER_UNKNOWN",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/helius_exact_history_caller_source_20261021.v1.json",
+    "verification": "Allthreeinstalledroots+relevantSDKPythoninterfacesinspected.39matchedhelperfunctionsAST-identicaltoFLEX_STABLE_V2. NativegetTransactionsForAddress/walletHistory/enhancedApiGetTransactionsByAddressnotfoundaswirecalls;CEXexactlabelisRESTmetric;upstreamdormant.",
+    "production_flags": "No runtime/provider/database/service changes; existing source installations preserved.",
+    "blocker": "Dashboard method classification versus native/REST billing label remains unverified; no PID-linked physical expensive-method record. Other host/application sharing credential or historical loaded code may explain it, but neither is proven.",
+    "next_action": "Close this source-only inspection with caller UNKNOWN. Do not implement a correction or instrumentation based solely on these matches; attribution requires evidence connecting the dashboard product/method to an executing consumer.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

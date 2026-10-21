@@ -33579,8 +33579,8 @@
     "git_head": "a766d7e9c3efadc7bf270c62fca0b6d01fdb361c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-21T21:25:20.514630+00:00",
-    "working_tree": "Isolated immutable DEV candidate; production listener retains accepted ce98ec0a composition; no deployment authorized or performed."
+    "updated_at_utc": "2026-10-21T21:48:46.755154+00:00",
+    "working_tree": "Qualified two-file receipt failure accounting deployed to production listener; ten-minute acceptance PASS. Other service source/configuration unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -33920,17 +33920,125 @@
     "accepted_composition_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "blocker": null,
     "candidate_manifest": "manifests/flex_stable_v2_receipt_failure_accounting_v1.json",
+    "deployment_status": "DEPLOYED_AND_ACCEPTED",
     "engineering_revision": "a766d7e9c3efadc7bf270c62fca0b6d01fdb361c",
     "golden_source_revision": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
     "implementation": "Two listener runtime files only: fixed failure reason classifier and stage-specific failure-only stderr diagnostics at existing writer catch boundaries; existing outer birth readback warning gains a fixed reason. Original catch types, return values, identities, admission, retry, retention and quarantine preserved. One test file and one qualification manifest added.",
-    "next_action": "Deployment preflight only if separately requested; production installation and service restart are not authorized.",
+    "next_action": "NONE \u2014 COMPLETE; see deployment record.",
     "production_flags": "No installation/restart/liveDB/provider/replay/configuration changes. Funding/Cascade remain unactivated.",
-    "ready_for_deployment_preflight": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "ready_for_deployment_preflight": false,
+    "runtime_deployment_gate": "PASS",
     "runtime_deployment_required": true,
     "status": "PASS_PROVIDER_FREE_QUALIFICATION_QUALIFIED_NOT_DEPLOYED",
     "storage": "No new output paths or unbounded growth paths; no raw retention; existing Supervisor stdout20MiB/stderr10MiB file rotation retained; diagnostic record design bound256bytes; compact fixtures under8MiB; no file >=500000000bytes.",
     "verification": "673 installed listener application files match accepted composition. Golden 2049-record manifest reconciled with accepted correction chain. 137 tests pass in DEV and again from fresh clean checkout using Python3.11.5 existing offline environment; actual installed TrackedConnection exercised. Successful receipt byte parity, quiet successes, safe reason whitelist, failure return behaviour and logging failure isolation pass. Clean restoration checkout removed after verification. Production source hashes unchanged."
+  },
+  "pumpportal_receipt_failure_accounting_deployment": {
+    "acceptance": {
+      "canonical_authority": "All79 predeployment quarantined subjects retain exact Core creator/signature identities.",
+      "config_and_log_rotation": "SHA256 unchanged",
+      "database": {
+        "flex_complete_database.db": {
+          "lock_type": "UNLOCKED",
+          "read_ms": 11.24,
+          "wal_bytes": 0
+        },
+        "wt_ops_v2.db": {
+          "lock_type": "UNLOCKED",
+          "read_ms": 13.38,
+          "wal_bytes": 0
+        }
+      },
+      "diagnostic_counts": [
+        {
+          "count": 7,
+          "reason": "HANDOFF_IDENTITY",
+          "stage": "migration_handoff"
+        }
+      ],
+      "diagnostic_sanitization": "All observed new records matched fixed stage/reason vocabulary with no raw exception text or identities. Birth failure emission NOT_OBSERVED; no forced production failure.",
+      "elapsed_seconds": 600.1,
+      "finished_utc": "2026-10-21T21:47:55.729218+00:00",
+      "free_disk_bytes": 7584452608,
+      "natural_wss_counters": [
+        [
+          "pumpportal_create",
+          197,
+          1792619272.009623
+        ],
+        [
+          "pumpportal_migrate",
+          7,
+          1792619187.964304
+        ],
+        [
+          "pumpswap_logs",
+          13,
+          1792619188.6992168
+        ]
+      ],
+      "protected_existing_quarantine_rows": 79,
+      "quarantine_retry_growth": 0,
+      "sampled_new_COMMITTED_exact_Core_matches": 6,
+      "started_utc": "2026-10-21T21:37:55.644481+00:00"
+    },
+    "blocker": null,
+    "engineering_revision": "a766d7e9c3efadc7bf270c62fca0b6d01fdb361c",
+    "listener_pid_after": 42141,
+    "listener_pid_before": 81382,
+    "next_action": "NONE \u2014 COMPLETE",
+    "other_workers": {
+      "creator_funding_worker": {
+        "pid": 0,
+        "start": 0,
+        "statename": "STOPPED"
+      },
+      "creator_resolution_worker": {
+        "pid": 12326,
+        "start": 1792609774,
+        "statename": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 13612,
+        "start": 1792610372,
+        "statename": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 42141,
+        "start": 1792618665,
+        "statename": "RUNNING"
+      },
+      "ws_cascade": {
+        "pid": 0,
+        "start": 0,
+        "statename": "STOPPED"
+      }
+    },
+    "preimage_composition": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "restart_required_and_completed": true,
+    "rollback": {
+      "final_state": "CANDIDATE_DEPLOYED; no database/schema rollback.",
+      "intermediate_listener_pid": 41817,
+      "performed_once": true,
+      "reason": "Initial single-sample F_GETLK criterion treated transient/shared SQLite activity as failure. Exact two-file preimage restored and bounded health passed. Corrected observation distinguished shared read locks and sustained exclusive contention; same immutable candidate redeployed and completed full ten-minute acceptance."
+    },
+    "runtime_deployment_gate": "PASS",
+    "runtime_deployment_required": true,
+    "safety": "Only two approved runtime files installed. No schema/migration/replay/manual provider requests/provider-budget/configuration changes, funding activation, receipt retirement or other worker source changes. Protected helper hashes unchanged. Historical539 missing receipts not recovered or reclassified.",
+    "source_hashes": {
+      "src/core/pumpfun_curve_listener.py": {
+        "after": "5cb137c51c1167fdc54a3a3a311203e12da0860b96460104407a3650cde7cc8d",
+        "before": "ddd5553a35fa1d325d83d11f25f1d1e40234f9998dc8f037f3d76cac29b0e608"
+      },
+      "src/core/pumpportal_birth_audit.py": {
+        "after": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+        "before": "d519c2beedeb1bff1c4ce6877823633f17daf157b9a236d41b3dfbfc2cb404ae"
+      }
+    },
+    "startup_compatibility": "PASS; current wrapper and quarantine startup lifecycle preserved; no closed-SQLite-connection error observed.",
+    "status": "PASS",
+    "storage": "No new file >=500000000bytes; source/staging files bounded below1MiB each and existing rotated log bounds unchanged.",
+    "target_runtime": "/Users/kevinkeaveney/Production/flex-listener"
   },
   "pumpportal_timestamp_retention_check_20261021": {
     "blocker": null,

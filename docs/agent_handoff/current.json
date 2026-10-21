@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-21T18:19:19.810409+00:00"
+    "published_at_utc": "2026-10-21T18:34:09.648049+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27345,11 +27345,11 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/birth-conflict-quarantine",
+    "branch": "codex/prospective-only-cutoff",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-21T18:19:04.805935+00:00",
-    "working_tree": "Prospective-only restoration HOLD: no supported queue watermark; workers remain STOPPED. No historical catch-up authorized."
+    "updated_at_utc": "2026-10-21T18:33:55.864733+00:00",
+    "working_tree": "Isolated test-only admission-authority qualification HOLD;4characterizationfixtures pass, no runtime candidate, workers remain paused."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40646,6 +40646,18 @@
       "restoration_started": false,
       "note": "Precise reference recorded for this decision; no admission policy activated. A later qualified restoration must explicitly establish its activation watermark rather than automatically reusing this stale reference."
     },
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "flex_v2_prospective_admission_authority_qualification_20261021": {
+    "status": "HOLD_ORIGINAL_ADMISSION_AUTHORITY",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "branch": "codex/prospective-only-cutoff",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/prospective-only-cutoff/flex",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_prospective_admission_authority_qualification_20261021.v1.json",
+    "verification": "4provider-freecharacterizationfixturespass.Normaldedup/upsertretainsadmission;WalkbackforceDELETE/reINSERTrestamps100to200(cutoff150),resetsattempts;creatorlegacy0backfillsnow.Mandatoryoriginal-admissionprerequisitenotqualified.No runtimecandidate.",
+    "production_flags": "Listener81382RUNNING;resolution/Walkback/funding/CascadeSTOPPED.No provider/liveDB/schema/runtime-source/service changes.",
+    "blocker": "Existingtimestampsdonotuniversallyretainoriginaladmissionthroughsupportedrecreation/legacyfill.Requirement11HOLD;no mutabletimestamp substitution.",
+    "next_action": "Leave creator-resolution and Walkback STOPPED. Resolve and qualify the first-admission retention/fail-closed contract before proceeding with a prospective-only cutoff; current fields alone do not meet the requested original-admission proof. Do not silently substitute mutable timestamps or introduce broader schema/identity machinery. Test-only worktree retained for review. No deployment/restart authorized or performed.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

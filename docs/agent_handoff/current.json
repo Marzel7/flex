@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at": "2026-10-21T20:19:18.075258+00:00"
+    "published_at": "2026-10-21T20:30:25.941869+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27350,7 +27350,7 @@
     "name": "flex",
     "updated_at_utc": "2026-10-21T19:25:32.039214+00:00",
     "working_tree": "Operational backlog exclusion committed using existing states; resolver12326 andWalkback13612 restored. No engineering/source changes. Successful new resolver RPC CREATE recovery unobserved; acceptance partial.",
-    "updated_at": "2026-10-21T20:19:18.075258+00:00"
+    "updated_at": "2026-10-21T20:30:25.941869+00:00"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40753,5 +40753,17 @@
     "production_state": "No provider/source/config/database/queue/service/deployment changes.",
     "blocker": "Missing birth reception for539 plus absent authoritative migration event timestamps prevents requested full speed-versus-coverage inference.",
     "next_action": "No implementation. Preserve timing-unknown classification; do not infer fast migration or WebSocket loss from receipt absence."
+  },
+  "pumpportal_missing_birth_coverage_20261021": {
+    "engineering_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "status": "HOLD_CAUSE_UNKNOWN",
+    "audit": "docs/audits/pumpportal_missing_birth_coverage_20261021.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded read-only forensic audit;no implementation.",
+    "finding": "Fixed1048migrations/509matched/506qualified/539missing unchanged;no receipt rescan. Retained transport-state intervals classify1046detections connected(537missing),2unknown(2missing),0stopped/disconnected.7reconnect records;\u00b160s7migrations/3missing42.9% vs536/1041=51.5%outside. Missing births inall23completeUTChours;all1048sourceWEBSOCKET(not finer notification path). Higherbirthvolumehours179/322missing55.6%vs345/70948.7%;persistence-errorcontexthours354/65354.2%vs170/37845.0%;no causal attribution. Helius429hours70/14349.0%vs454/88851.1%.0receipt-capacitywarnings;0missinggroupbirthackprefixmatches.539birthtimesunknown.",
+    "limits": "Connected means retained transport-state records,not acknowledged complete delivery. Adjacent epoch contexts bracket logs,not exact event timestamps. Global hourly unique births/COMMITTED receipt totals unavailable without prohibited rescan;markedUNKNOWN. Migration-time coverage cannot establish birth-time coverage.",
+    "production_state": "Listener81382,resolver12326,Walkback13612 RUNNING;funding/Cascade STOPPED.99recentbirthframes,5migrationframes,9PumpSwapframes;7freshCOMMITTEDreceipt/Corematches. Quarantinehash unchanged. WAL0/locks clear. Disk2172801024bytesfree(~173MBabovewriter2GBfloor);swap1508.31MiBfree. No runtime changes.",
+    "blocker": "Original birth timing/provenance missing for539; no causal coverage defect established.",
+    "next_action": "Stop attribution at evidence limit;no speculative source/config/provider correction. Leave queues/services unchanged."
   }
 }

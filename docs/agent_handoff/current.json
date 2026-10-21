@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-21T06:18:12.655296+00:00"
+    "published_at_utc": "2026-10-21T06:33:58.116224+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-21T06:17:47.071611+00:00",
-    "working_tree": "Exact installed history-callsite source audit complete; no active expensive-method path established; caller UNKNOWN."
+    "updated_at_utc": "2026-10-21T06:33:42.755984+00:00",
+    "working_tree": "Native RPC caller attribution stopped with UNKNOWN_CALLER; exact Helius origin-evidence dependency recorded. No runtime change."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40580,6 +40580,16 @@
     "production_flags": "No runtime/provider/database/service changes; existing source installations preserved.",
     "blocker": "Dashboard method classification versus native/REST billing label remains unverified; no PID-linked physical expensive-method record. Other host/application sharing credential or historical loaded code may explain it, but neither is proven.",
     "next_action": "Close this source-only inspection with caller UNKNOWN. Do not implement a correction or instrumentation based solely on these matches; attribution requires evidence connecting the dashboard product/method to an executing consumer.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "helius_native_rpc_caller_attribution_20261021": {
+    "status": "UNKNOWN_CALLER",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/helius_native_rpc_caller_attribution_20261021.v1.json",
+    "verification": "439OS-visibleprocesses;only3knownservicesexposematchingcredential(ephemeralHMAC).Installedsourcesunchangedfrom67-matchaudit.NoactualnativegetTransactionsForAddressrequestoriginestablished.",
+    "production_flags": "Listener81382/resolution93371/Walkback10716RUNNING;funding/Cascade/APISTOPPED. No provider/account/source/DB/service/instrumentation actions.",
+    "blocker": "MissingHeliusrequest-originmetadata(nativewiremethod,time,requestID,originIP/clientidentifier/mode);sourcepresenceanddashboardtimingcannotassignPID.",
+    "next_action": "Obtain Helius request-origin evidence for the two fixed UTC windows: exact bucket boundaries/timezone; native method versus REST product; request timestamps/IDs; originating public IP; retained User-Agent/client identifier where available; response status; aggregate transactionDetails mode and billed credits. Use an internal key reference, never share the key. Origin IP alone may identify only a shared NAT/host, not a PID. If Helius cannot supply origin evidence, further attribution depends on separately authorized minimal process-linked instrumentation. Stop this investigation; no further broad source audit.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

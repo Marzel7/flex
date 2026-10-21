@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at": "2026-10-21T19:46:58.119254+00:00"
+    "published_at": "2026-10-21T19:52:05.357479+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27350,7 +27350,7 @@
     "name": "flex",
     "updated_at_utc": "2026-10-21T19:25:32.039214+00:00",
     "working_tree": "Operational backlog exclusion committed using existing states; resolver12326 andWalkback13612 restored. No engineering/source changes. Successful new resolver RPC CREATE recovery unobserved; acceptance partial.",
-    "updated_at": "2026-10-21T19:46:58.119254+00:00"
+    "updated_at": "2026-10-21T19:52:05.357479+00:00"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40691,5 +40691,15 @@
     "production_state": "Listener81382,resolver12326,Walkback13612 RUNNING;funding/Cascade STOPPED. Four fresh exact-identity COMMITTED receipt/Core matches. Both WAL0 and no conflicting locks on recheck;~2.95GiBfree.",
     "blocker": "Receipt lookup key requires missing creator and CREATE signature; mint-only receipt index unavailable.",
     "next_action": "Leave jobs unchanged. Obtain existing receipt identity evidence or separately authorize bounded mint-filtered receipt inventory; no engineering or recovery justified yet."
+  },
+  "pumpportal_mint_receipt_inventory_20261021": {
+    "engineering_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "status": "PASS_BOUNDED_AUDIT_COMPLETE_NO_BIRTH_MATCHES",
+    "audit": "docs/audits/pumpportal_mint_receipt_inventory_20261021.v1.json",
+    "finding": "19:51:41\u201319:51:51UTC bounded active receipt scan:48096files/26727705bytes fully read;46447birth+1649migration records. Exact10 unresolved mints match10migration receipts and0birth receipts. All active within7days;0read errors/limit hits.256shards,max216/384entries;4096legacyfiles. No zero-RPC recovery proven;coverage remains12/22. Point-in-time enumeration, not atomic snapshot.",
+    "runtime_deployment_required": false,
+    "production_state": "Unchanged; no service actions or provider/database/source/queue changes.",
+    "blocker": null,
+    "next_action": "NONE \u2014 audit complete; leave terminal jobs unchanged. No retained birth proof supports zero-provider recovery."
   }
 }

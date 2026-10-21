@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-21T18:34:09.648049+00:00"
+    "published_at_utc": "2026-10-21T19:26:44.024665+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/prospective-only-cutoff",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-21T18:33:55.864733+00:00",
-    "working_tree": "Isolated test-only admission-authority qualification HOLD;4characterizationfixtures pass, no runtime candidate, workers remain paused."
+    "updated_at_utc": "2026-10-21T19:25:32.039214+00:00",
+    "working_tree": "Operational backlog exclusion committed using existing states; resolver12326 andWalkback13612 restored. No engineering/source changes. Successful new resolver RPC CREATE recovery unobserved; acceptance partial."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40658,6 +40658,17 @@
     "production_flags": "Listener81382RUNNING;resolution/Walkback/funding/CascadeSTOPPED.No provider/liveDB/schema/runtime-source/service changes.",
     "blocker": "Existingtimestampsdonotuniversallyretainoriginaladmissionthroughsupportedrecreation/legacyfill.Requirement11HOLD;no mutabletimestamp substitution.",
     "next_action": "Leave creator-resolution and Walkback STOPPED. Resolve and qualify the first-admission retention/fail-closed contract before proceeding with a prospective-only cutoff; current fields alone do not meet the requested original-admission proof. Do not silently substitute mutable timestamps or introduce broader schema/identity machinery. Test-only worktree retained for review. No deployment/restart authorized or performed.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "flex_v2_operational_backlog_skip_restoration_20261021": {
+    "status": "PARTIAL_ACCEPTANCE \u2014 backlog excluded and both workers restored; successful new resolver RPC CREATE recovery not yet observed",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_operational_backlog_skip_restoration_20261021.v1.json",
+    "verification": "Existingstatus-onlydisposition272resolverignored+1250WalkbackskippedNULL;1250uniquemints.Boundary19:08:37.998805UTC.Preimages/canonicalhashesverified;excluded0reopens/attemptchanges.6newWalkbackcompletions,6newresolverbudgetskips;0strictresolverRPC_CREATEsuccessyet.39sourcehashesunchanged.",
+    "production_flags": "USER_AUTHORIZED_RESTORATION:resolver12326RUNNING;Walkback13612RUNNING;listener81382RUNNINGunchanged.Funding/CascadeSTOPPED.No source/schema/config/budgetchange.Historicalbacklogterminallyexcluded;NOFORCEREQUEUE.",
+    "blocker": "Operationalrestorecomplete;successfulnewresolverRPC_CREATErecoveryunobserved,sofullfunctionalacceptancePARTIAL. No429/lock/surgeevidencedinavailabletelemetry.",
+    "next_action": "Leave creator-resolution and Walkback running under unchanged limits; keep funding/Cascade stopped. Preserve ignored/skipped backlog identities and do not force-requeue/reset them. Successful new resolver RPC CREATE recovery remains unobserved; only a naturally arriving qualifying investigation can complete that acceptance item. No replay, artificial provider probe, automatic monitor or further engineering started.",
+    "restoration_boundary_UTC": "2026-10-21T19:08:37.998805+00:00",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

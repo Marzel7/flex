@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at": "2026-10-21T20:08:39.862995+00:00"
+    "published_at": "2026-10-21T20:13:04.217824+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27350,7 +27350,7 @@
     "name": "flex",
     "updated_at_utc": "2026-10-21T19:25:32.039214+00:00",
     "working_tree": "Operational backlog exclusion committed using existing states; resolver12326 andWalkback13612 restored. No engineering/source changes. Successful new resolver RPC CREATE recovery unobserved; acceptance partial.",
-    "updated_at": "2026-10-21T20:08:39.862995+00:00"
+    "updated_at": "2026-10-21T20:13:04.217824+00:00"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40729,5 +40729,17 @@
     "production_state": "No source/config/database/queue/service/provider changes. No new report/inventory/runtime files.",
     "blocker": null,
     "next_action": "No implementation needed for reception/ack timing. Obtain already-retained provider payload/schema evidence before authorizing optional reported CREATE slot/time retention."
+  },
+  "pumpportal_create_payload_timing_verification_20261021": {
+    "engineering_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "status": "PASS_BOUNDED_INSPECTION_NO_TIMING_FIELDS_OBSERVED",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Source and retained-payload inspection only.",
+    "sample": "20 existing raw CREATE envelopes,25921bytes;8192byte/record cap;20/20 canonical raw-payload SHA256 matches;all txType=create. Local receive_ns range1788304150147101000\u20131792166907028068000;historical convenience sample,not representative current feed census. No raw payloads copied or persisted.",
+    "finding": "No slot/blockTime/timestamp/created/date equivalent keys recursively present in20raw payloads. Two observed key shapes:19withbondingcurve/metadata/reserves+1withnewTokenBalance/tokensInPool;none timing. Parser routes txType=create and stores raw payload only in legacy noncompact path. Current compact path discards raw and forbids unlisted fields. CREATE_V2 fixture is transaction acquisition format,notPumpPortalwire;noV2-labelledrawframeverified.",
+    "minimum_source_change": "NONE justified. Existing identity hashes source/mint/creator/signature only, so optional provider-reported timing could be nonidentity metadata if actual fields later proven;would require compatible receipt allowlist/retry contract updates without DBschema. Do not infer chain timing from local receipt/Coretime.",
+    "provider_reported_vs_verified": "No provider chain-time field observed. Stored digest verifies retained bytes against envelope,not onchaintruth. Local receive/accepted times are observational only.",
+    "production_state": "No provider calls,source/config/DB/queue/service/deployment changes.",
+    "next_action": "Close zero-RPC timing proposal without implementation;reconsider only if an existing genuine PumpPortal payload/schema proves supplied CREATE timing. No additional acquisition."
   }
 }

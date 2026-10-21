@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-21T07:01:49.263481+00:00"
+    "published_at_utc": "2026-10-21T18:06:48.484221+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-21T06:56:20.958508+00:00",
-    "working_tree": "Temporary RPC pause: creator-resolution and Walkback STOPPED; listener preserved. Complete HTTP pause HOLD. Explicit user authorization required before any resume."
+    "updated_at_utc": "2026-10-21T18:06:25.884597+00:00",
+    "working_tree": "Pause verified; intake operational with one protected high-retry conflict and reduced disk headroom. Workers remain intentionally STOPPED; no auto-resume."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40600,6 +40600,26 @@
     "production_flags": "Creator-resolution/WalkbackSTOPPEDbyexplicituserauthorization.DONOTAUTORESUME.Listener81382RUNNING.Funding/Cascade/APISTOPPED.Source/config/credentialsunchanged.",
     "blocker": "ListenerHTTPtransaction/accountacquisitioncannotbeindependentlypausedusingexistingcontrolswithoutinterruptingcriticalintake;zeroHeliusconsumptionnotguaranteed.",
     "next_action": "Leave creator-resolution and Walkback STOPPED; do not auto-resume. Complete HTTP suppression cannot be guaranteed while listener intake remains running under existing supported controls. Further containment requires explicit acceptance of the listener-stop intake outage, or separately authorized engineering for independent HTTP suspension. Neither performed.",
+    "restoration": {
+      "authorization": "Do not execute until explicit user authorization. No automatic resume or automation installed.",
+      "commands": [
+        "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl -c /Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf start creator_resolution_worker",
+        "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl -c /Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf start walkback_worker",
+        "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl -c /Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf status"
+      ],
+      "procedure": "Keep funding/Cascade stopped. Start only the separately authorized worker(s) through Supervisor; existing source/configuration are retained. Let existing lease recovery resume durable work; do not reset queues, counters or leases. Verify service PID and bounded natural progress after authorized start.",
+      "configuration_restore": "NONE \u2014 configuration, credentials and source unchanged."
+    },
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "flex_v2_helius_pause_health_verification_20261021": {
+    "status": "PAUSE_VERIFIED_INTAKE_OPERATIONAL_WITH_LOCALIZED_RETRY_DEGRADATION",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_helius_pause_health_verification_20261021.v1.json",
+    "verification": "Stop06:52:40UTCverified;workersremainSTOPPED,listener81382unchanged.Latest16\u201317UTC1591birthmessages/1519COMMITTED_Corematches/54migrations. Resolver37recordedprepauseHTTPto0after;listenerHTTPcontinues.39sourcehashesmatch;baselineunchanged.",
+    "production_flags": "DONOTRESUMEresolver/Walkbackwithoutuserauthorization.Funding/CascadeSTOPPED.ListenerRUNNING.No provider/source/DB/config/service actions in this audit.",
+    "blocker": "Oneunquarantinedconflict>2100retriesrequirescompletedWalkbackbutrowpending;canonicalprotected.Disk~3.33GiBfree.NativeburstcallerUNKNOWN;pausepartial.",
+    "next_action": "Keep creator-resolution and Walkback STOPPED; no automatic restoration. Before any resume, obtain explicit authorization for the existing Supervisor start procedure. Record the single protected conflict awaiting completed Walkback and3.33GiBdiskheadroom as concrete operational exceptions; no canonical override or blanket quarantine. No source/configuration/service change is authorized or performed by this audit.",
     "restoration": {
       "authorization": "Do not execute until explicit user authorization. No automatic resume or automation installed.",
       "commands": [

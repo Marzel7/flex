@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-20T23:49:27.608870+00:00"
+    "published_at_utc": "2026-10-21T00:10:25.744454+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-20T23:49:12.716450+00:00",
-    "working_tree": "Repeatcreatorreuseauditcomplete:1creator/3launcheswithdistinctCREATE/fundingtransactions;duplicateRPC/savingsUNKNOWN. Noacquisitionchangesjustified."
+    "updated_at_utc": "2026-10-21T00:09:44.017891+00:00",
+    "working_tree": "Seven-daypopulationauditcomplete:76.77%knownbirthsrepeat inretainedbirthcohort;PPreceipt-subset76.28%. Repeat migration share29.20%;provenancelimits explicit. No runtimechanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40550,6 +40550,16 @@
     "production_flags": "Listener81382/resolution34567/Walkback10716RUNNINGunchanged;funding/CascadeSTOPPED. No provider/source/database/service changes.",
     "blocker": "Matchingphysicalrequestidentities/historyrangesandhistoricalcacheavailabilitynotretained. Repeatedcreatorwalletaloneisnotredundancyproof.",
     "next_action": "StopthisauditwithduplicationUNKNOWN. Beforeanycorrection,obtainretainedmatchingtransaction-requestidentityoridenticaladdress/cursor-rangeevidencewithpriorvalidcacheavailability. No providerreplay,newtelemetryorbroaderhistoricalscanwasstarted.",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "flex_v2_seven_day_repeat_creator_population_20261021": {
+    "status": "PARTIAL_PROVENANCE_AUDIT_COMPLETE",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_seven_day_repeat_creator_population_20261021.v1.json",
+    "verification": "14\u201321OctUTC cohort130393identifiedbirthmints/130365unambiguous/28ambiguous;7361repeatcreators account100083births=76.77%known. Strictreceipt-provenPPsubset76.28%. Repeat migration rate0.86%vs6.83%single;29.20%allobservedmigrations. Full7dayPPtransportprovenance unavailable.",
+    "production_flags": "No provider/source/DB/service changes. Listener81382/resolution34567/Walkback10716RUNNING;funding/CascadeSTOPPED.",
+    "blocker": "Seven-dayPumpPortal-only completeness and historicalprior-launch/caching coverage incomplete; populationcounts cannot establish redundantRPCsavings.",
+    "next_action": "NONE \u2014 population audit complete with explicit provenance limits. Repeat creators dominate retained births, but that alone does not authorize RPC reuse changes. Require matching redundant-request and valid-cache evidence before engineering; do not weaken per-mint CREATE or launch-specific funding attribution.",
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }
 }

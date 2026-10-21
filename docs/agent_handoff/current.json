@@ -16148,7 +16148,7 @@
     "branch": "agent-handoff",
     "protocol_version": 1,
     "status": "PUBLISHED",
-    "published_at_utc": "2026-10-21T18:06:48.484221+00:00"
+    "published_at_utc": "2026-10-21T18:19:19.810409+00:00"
   },
   "handoff_transport_status": null,
   "helius_credit_usage_investigation_20261008": {
@@ -27348,8 +27348,8 @@
     "branch": "codex/birth-conflict-quarantine",
     "git_head": "ce98ec0af892768b1420213716b659e3fe1b6653",
     "name": "flex",
-    "updated_at_utc": "2026-10-21T18:06:25.884597+00:00",
-    "working_tree": "Pause verified; intake operational with one protected high-retry conflict and reduced disk headroom. Workers remain intentionally STOPPED; no auto-resume."
+    "updated_at_utc": "2026-10-21T18:19:04.805935+00:00",
+    "working_tree": "Prospective-only restoration HOLD: no supported queue watermark; workers remain STOPPED. No historical catch-up authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -40629,6 +40629,22 @@
       ],
       "procedure": "Keep funding/Cascade stopped. Start only the separately authorized worker(s) through Supervisor; existing source/configuration are retained. Let existing lease recovery resume durable work; do not reset queues, counters or leases. Verify service PID and bounded natural progress after authorized start.",
       "configuration_restore": "NONE \u2014 configuration, credentials and source unchanged."
+    },
+    "RUNTIME_DEPLOYMENT_REQUIRED": false
+  },
+  "flex_v2_prospective_only_restoration_gate_20261021": {
+    "status": "HOLD_NO_SUPPORTED_PROSPECTIVE_CUTOFF",
+    "engineering_source_revision": "ce98ec0af892768b1420213716b659e3fe1b6653",
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/flex_v2_prospective_only_restoration_gate_20261021.v1.json",
+    "verification": "Installedprocess_queue/drain_batchselectoldestduebacklogwithnocreated/enqueuedwatermark.NoCLI/envcutoff.32eligibleprewatermarkrowssampledineachqueue. Sourcehashesunchanged.",
+    "production_flags": "NORESTARTPERFORMED.Resolver/WalkbackSTOPPED;listener81382RUNNING;funding/CascadeSTOPPED. Historicaldiscoverydisabled;noqueue/source/config/DBmutation.",
+    "blocker": "ExistingcontrolsdoNOTguaranteeprospective-onlyselectionorhistoricalrowimmutabilityuponstart.",
+    "next_action": "Keep creator-resolution and Walkback STOPPED while listener continues durable intake. This is the only existing-control alternative satisfying historical-row preservation. Prospective RPC restoration requires separate authorization for a minimal admission-watermark correction covering selection, atomic claim and historical recovery/promotion mutations in both workers, followed by qualification and a fresh activation watermark. No source change, queue manipulation or restart performed.",
+    "watermark": {
+      "gate_reference": "2026-10-21T18:16:58Z",
+      "enforced": false,
+      "restoration_started": false,
+      "note": "Precise reference recorded for this decision; no admission policy activated. A later qualified restoration must explicitly establish its activation watermark rather than automatically reusing this stale reference."
     },
     "RUNTIME_DEPLOYMENT_REQUIRED": false
   }

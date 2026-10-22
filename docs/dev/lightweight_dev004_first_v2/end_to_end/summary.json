@@ -1,0 +1,390 @@
+{
+  "status": "HOLD",
+  "cutover_readiness": "NOT_READY",
+  "functional_checks": {
+    "pass": 20,
+    "hold": 2
+  },
+  "tests": [
+    {
+      "name": "fresh_CREATE_canonical_and_compact_receipt",
+      "status": "PASS",
+      "evidence": {
+        "canonical": true,
+        "receipt_outcome": "COMMITTED",
+        "receipt_bytes": 562
+      }
+    },
+    {
+      "name": "duplicate_CREATE",
+      "status": "PASS",
+      "evidence": {
+        "canonical": true,
+        "receipt_outcome": "COMMITTED",
+        "receipt_bytes": 562
+      }
+    },
+    {
+      "name": "migration_detection_persistence_creator_admission",
+      "status": "PASS",
+      "evidence": {
+        "migration_persisted": true,
+        "creator_queue": "pending",
+        "scope": "installed detector and persistence closure; full daemon/transaction parsing not executed"
+      }
+    },
+    {
+      "name": "CREATE_proof_atomic_rollback_and_dedup",
+      "status": "PASS",
+      "evidence": {
+        "rollback_before_commit": true,
+        "committed": "PENDING",
+        "duplicate": "DUPLICATE"
+      }
+    },
+    {
+      "name": "Core_OPS_commit_then_crash_restart",
+      "status": "PASS",
+      "evidence": {
+        "first": [
+          [
+            "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU",
+            "RuntimeError"
+          ]
+        ],
+        "restart": [
+          [
+            "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU",
+            "ALREADY_COMMITTED"
+          ]
+        ],
+        "state": [
+          "ACK",
+          1
+        ],
+        "ops_anchor_unchanged": true
+      }
+    },
+    {
+      "name": "distinct_funding_account_topology",
+      "status": "PASS",
+      "evidence": {
+        "distinct_roles_preserved": true,
+        "edges": 3,
+        "classification": "synthetic persistence control; funding investigation and historical recognition not proved"
+      }
+    },
+    {
+      "name": "permanent_conflict_quarantine",
+      "status": "PASS",
+      "evidence": {
+        "quarantined": true,
+        "restart_idempotent": true,
+        "canonical_unchanged": true
+      }
+    },
+    {
+      "name": "completed_Walkback_not_reopened",
+      "status": "PASS",
+      "evidence": "completed job not reopened"
+    },
+    {
+      "name": "Birdeye_synthetic_strict_target_opening",
+      "status": "PASS",
+      "evidence": {
+        "entry": {
+          "timestamp": 1792710056,
+          "mc": 100.0
+        },
+        "window": [
+          1792710055,
+          1792710057
+        ]
+      }
+    },
+    {
+      "name": "opening_fallback_provenance_matches_accepted",
+      "status": "HOLD",
+      "error": "AssertionError:Installed opening omits accepted plus_one_absent/migration_absent fallback provenance"
+    },
+    {
+      "name": "new_price_assignment_and_dedup",
+      "status": "PASS",
+      "evidence": {
+        "stable_identity": "94877359b206d1e02f91bc1f5eeb8ce0a03013cd32d1cb890cba678e2eb4ae46",
+        "depth": {
+          "pending": 1,
+          "processing": 0,
+          "retry": 0,
+          "dead_letter": 0
+        }
+      }
+    },
+    {
+      "name": "installed_price_worker_candles_lifecycle_projection",
+      "status": "PASS",
+      "evidence": {
+        "fact": [
+          100.0,
+          250.0,
+          1.5,
+          "MONITORING_ACTIVE"
+        ],
+        "depth": {
+          "pending": 0,
+          "processing": 0,
+          "retry": 0,
+          "dead_letter": 0
+        },
+        "wal_bytes": 37112
+      }
+    },
+    {
+      "name": "durable_processing_queue_identity",
+      "status": "PASS",
+      "evidence": {
+        "identity_preserved": true,
+        "attempts_preserved": true,
+        "retry_recovered": true,
+        "completed_not_reopened": true
+      }
+    },
+    {
+      "name": "price_commit_ACK_crash_bounded_replay",
+      "status": "PASS",
+      "evidence": {
+        "observations_deduplicated": true,
+        "mock_transport_executions": 2,
+        "limitation": "External execution is at-least-once across commit/ACK ambiguity; existing bounded queue attempts retained. No exactly-once external-call guarantee claimed."
+      }
+    },
+    {
+      "name": "synthetic_terminal_finalization_and_reopen",
+      "status": "PASS",
+      "evidence": {
+        "ATH": 250,
+        "multiple": 2.5,
+        "reopen_finalization_identity_stable": true,
+        "additional_provider_calls": 0
+      }
+    },
+    {
+      "name": "existing_Birdeye_429_retry_bound",
+      "status": "PASS",
+      "evidence": {
+        "mock_attempts": 9,
+        "max_retry_limit": 8,
+        "waits": [
+          2,
+          5,
+          10,
+          30,
+          60,
+          60,
+          60,
+          60
+        ]
+      }
+    },
+    {
+      "name": "credential_authority_and_authorization",
+      "status": "PASS",
+      "evidence": {
+        "authority": "BIRDEYE",
+        "blank_rejected": true,
+        "authorization_header": true,
+        "credentials": "synthetic only"
+      }
+    },
+    {
+      "name": "Potential_candidate_match_and_collision_controls",
+      "status": "PASS",
+      "evidence": {
+        "exact_signature": true,
+        "insufficient_input": true,
+        "collision_not_promoted": true,
+        "scope": "pure matcher controls; candidate creation/review/global discovery not qualified"
+      }
+    },
+    {
+      "name": "Potential_persisted_identity_dependency",
+      "status": "HOLD",
+      "error": "OperationalError:no such table: potential_operation_identity"
+    },
+    {
+      "name": "authority_and_intent_rollback_before_commit",
+      "status": "PASS"
+    },
+    {
+      "name": "blocked_handoff_retry_ceiling_and_conflict_preservation",
+      "status": "PASS",
+      "state": [
+        "BLOCKED",
+        5,
+        "OPS_CREATOR_CONFLICT"
+      ]
+    },
+    {
+      "name": "queue_retry_exhaustion_not_reopened",
+      "status": "PASS",
+      "attempts": 3
+    }
+  ],
+  "matrix": [
+    {
+      "surface": "Canonical creator/CREATE for retained case",
+      "classification": "EXACT_MATCH",
+      "scope": "one frozen retained case; full RPC recovery not qualified"
+    },
+    {
+      "surface": "Retained Watchtower role-route/classification/outcome",
+      "classification": "EXACT_MATCH",
+      "scope": "existing11 frozen outputs; full behavioural reconstruction still unqualified"
+    },
+    {
+      "surface": "Ten known registry roots and selected profiles/contracts",
+      "classification": "EXACT_MATCH",
+      "scope": "27 keyed reference rows; full memberships and detection populations not included"
+    },
+    {
+      "surface": "Historical ATH valuation",
+      "classification": "WITHIN_APPROVED_TOLERANCE",
+      "scope": "existing approved0.0025616522% relative difference vs0.1%; canonical evidence unchanged"
+    },
+    {
+      "surface": "Fresh notification full-daemon V1/V2 equivalence",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "installed handler/detector/persistence interfaces tested; real socket/daemon bootstrap and full migration transaction parsing not exercised"
+    },
+    {
+      "surface": "Accepted opening fallback provenance",
+      "classification": "REGRESSION",
+      "scope": "accepted71b6e338 returns plus_one_absent/migration_absent flags; installed main-worker copy omits both for the same synthetic response"
+    },
+    {
+      "surface": "Full creator RPC recovery and funding investigation",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "admission/qualified proof delivery and topology persistence tested; complete resolver and historical funding populations not qualified"
+    },
+    {
+      "surface": "Deep/Byzantine/Nexus/P3R/other operation classification",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "registry roots are not equivalent to complete attribution evidence"
+    },
+    {
+      "surface": "Potential Operations discovery/publication/review",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "pure matcher controls pass; potential_operation_identity and required candidate populations absent"
+    },
+    {
+      "surface": "Live queue cutover reconciliation",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "synthetic queue transitions pass; live leases, ACK identities and allowance reconciliation not authorized/tested"
+    },
+    {
+      "surface": "API/UI full accepted projections",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "stored price/lifecycle projection fields tested; complete accepted API/UI runtime composition not assembled"
+    },
+    {
+      "surface": "Long-term physical storage enforcement",
+      "classification": "INSUFFICIENT_EVIDENCE",
+      "scope": "bounded fixtures pass; runtime-wide retention and file limits not qualified"
+    }
+  ],
+  "original_11_comparisons": {
+    "known_treasury": {
+      "classification": "EXACT_MATCH"
+    },
+    "known_subprovider": {
+      "classification": "EXACT_MATCH"
+    },
+    "watchtower_route": {
+      "classification": "EXACT_MATCH"
+    },
+    "creator_classification": {
+      "classification": "EXACT_MATCH"
+    },
+    "retained_outcome": {
+      "classification": "EXACT_MATCH"
+    },
+    "parent_candidates": {
+      "classification": "EXACT_MATCH"
+    },
+    "quarantine": {
+      "classification": "EXACT_MATCH"
+    },
+    "price_fact": {
+      "classification": "EXACT_MATCH"
+    },
+    "price_observations": {
+      "classification": "EXACT_MATCH"
+    },
+    "ohlc_reduction": {
+      "classification": "EXACT_MATCH"
+    },
+    "creator_funding_history": {
+      "classification": "EXACT_MATCH"
+    }
+  },
+  "known_reference_comparisons": 27,
+  "fixture_sizes": {
+    "core": 335872,
+    "ops": 671744
+  },
+  "fixture_sha256": {
+    "core": "0b3c5a13f94cbb84ca9f034cbc4842ab028f6aea6c27eef8b269a632dc0e7215",
+    "ops": "49ce8ebf2e94e75b70d978df623a9fdd6f7cc5d6686532788999d69a234ef30f"
+  },
+  "opening_comparison": {
+    "accepted_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "accepted": {
+      "timestamp": 1792710057,
+      "mc": 100.0,
+      "plus_one_absent": true,
+      "migration_absent": true
+    },
+    "installed": {
+      "timestamp": 1792710057,
+      "mc": 100.0
+    },
+    "classification": "REGRESSION"
+  },
+  "storage": {
+    "core": {
+      "file_bytes": 335872,
+      "schema_only_bytes": 335872,
+      "page_count": 82,
+      "freelist_pages": 0
+    },
+    "ops": {
+      "file_bytes": 671744,
+      "schema_only_bytes": 569344,
+      "page_count": 164,
+      "freelist_pages": 0
+    }
+  },
+  "observed_wal_bytes": 119512,
+  "schema_note": "Schema-only files use the same table/index definitions. Their allocation is not a logical payload-byte measure; matching file sizes do not imply zero data.",
+  "per_1000_births_100_migrations_estimate": "INSUFFICIENT_EVIDENCE; one synthetic birth/migration plus fixed schema setup cannot justify linear extrapolation.",
+  "fixture_design_bounds": {
+    "max_single_file_bytes": 16000000,
+    "sqlite_max_pages_per_writable_connection": 2048,
+    "sqlite_page_size": 4096,
+    "raw_provider_retention": false,
+    "per_run_unbounded_growth_paths": 0
+  },
+  "runtime_growth_paths": "At least3 existing growth surfaces lack demonstrated long-term V2 caps/retention in this prototype: token_analysis, wt_walkback_edge_candidates, operation_monitor_observations. Exact runtime-wide count not audited. No new retention system implemented.",
+  "test_boundary": "SQLite write adapters and noncanonical metadata/SSE/symbol side effects are test doubles; installed decision/receipt/queue bodies unchanged. No full daemon startup qualification.",
+  "provider_execution_limit": "Commit/ACK ambiguity repeats external request dispatch; synthetic transport ran twice. Existing bounded attempts and observation idempotency preserved, not an exactly-once external execution guarantee.",
+  "production_writes": 0,
+  "production_source_changes": 0,
+  "service_actions": 0,
+  "real_provider_calls": 0,
+  "live_websocket_connections": 0,
+  "v2_cutover": false,
+  "next_action": "HOLD cutover. First qualify the DEV004 price-runtime source composition against accepted71b6e338, preserving fallback provenance and the existing budgets. Then close Potential Operations populations and remaining reference/queue dependencies in the same DEV004; no production repair or activation authorized.",
+  "baseline_revision": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "runtime_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+  "reference_seed_original_unchanged": true
+}

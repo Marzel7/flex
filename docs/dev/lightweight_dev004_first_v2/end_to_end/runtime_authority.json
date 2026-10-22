@@ -1,0 +1,22 @@
+{
+  "configured_source": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+  "sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+  "programs": {
+    "watchtower_listener": {
+      "directory": "/Users/kevinkeaveney/Production/flex-listener",
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "creator_resolution_worker": {
+      "directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "walkback_worker": {
+      "directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    }
+  },
+  "scope": "Read-only configured authority; no process action or deployment attempted."
+}

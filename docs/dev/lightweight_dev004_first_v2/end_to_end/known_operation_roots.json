@@ -1,0 +1,279 @@
+{
+  "added_rows": {
+    "operators": 9,
+    "operator_identity_state": 4,
+    "operation_behavioural_profiles": 6,
+    "operation_qualification_contracts": 6
+  },
+  "comparisons": [
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "c52d91ce9edc6911ea88873d990ee269a8eb483d68a9a14f08b83105d27121df"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "4c701873caee8506c137bca8f16bc5e00b6df5431ead41d177eb2fd415d940cf"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "9b010d2eaf887891140bcef78d24e7b19f667b2b5bbf4cc86f247f970cb46c0f"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "777211c3-211e-551b-9310-ff9301570627"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "d0354520685520a22d05ef26639cae23b66829fde127fc3305cc873585308832"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "95cb58bf34286a11de258166dc4eb5af02b6c8a532b11c554b556522ff76649e"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "96f5fbe940f82b61146a72e293c37d868255451f2ea5d3ca195f2e7c793aeef0"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "d9820756f436f7bcfc02acb814b8a72d35b22943fd6bbd0bade22a934ecedd26"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "30740782b722a3276c96f9992866fc1f8f218c7478ecacdcfcaf731347b49be7"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "bd7d7479-1454-5d41-9f68-115550348f3e"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "5ab931f2606ef8aadac2d37c1fa3de76efc49381a321412965fdbd4b60842e53"
+    },
+    {
+      "table": "operators",
+      "key": {
+        "operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "af9ee7b194bc92695f40a12f2c5897b7b1faa86ecb3b72248c9c8751e71326de"
+    },
+    {
+      "table": "operator_identity_state",
+      "key": {
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "3a69a16cdce39049b6c6afcb6a79dd16f2287f391fa78dcdd8df12105f994e1a"
+    },
+    {
+      "table": "operator_identity_state",
+      "key": {
+        "operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "3218034d851aff7d6d3588b80bb68c53b13c04bf2d28a2e9a2f5e91332ba230d"
+    },
+    {
+      "table": "operator_identity_state",
+      "key": {
+        "operator_id": "777211c3-211e-551b-9310-ff9301570627"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "f1e33e79cab3e9bfa536cb031c3237603edcc39e56de2dbf2ac762075e71ffb0"
+    },
+    {
+      "table": "operator_identity_state",
+      "key": {
+        "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "9b818799850450acb0f0f1d84a38a2c37438322072bd03904a523d7d93042c76"
+    },
+    {
+      "table": "operator_identity_state",
+      "key": {
+        "operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "9f6820c2266de22f5142e8771daddb6d95e3322b2cb7324cd9baa52453937a12"
+    },
+    {
+      "table": "operation_behavioural_profiles",
+      "key": {
+        "profile_id": "fd0315a9-2306-5c16-b78a-77e9884a1b84"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "9d3a64e306967ec14edb6277f69d2ed46d093ff7fa647260d8d03401cb85574d"
+    },
+    {
+      "table": "operation_behavioural_profiles",
+      "key": {
+        "profile_id": "ecb6b817-4c8e-5bd6-921b-b5d21a12ad8f"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "eed18d22f5ad83e204701d5c2928fc32f4fa7ac3a73bd0e5b9af36ea4546db17"
+    },
+    {
+      "table": "operation_behavioural_profiles",
+      "key": {
+        "profile_id": "31c1c26c-9464-5d45-a854-d376789ef54c"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "a0d34f65a04ee015d69c7de4a3bdd568d2ce641abf2b7900c329a7f0b31b4c6f"
+    },
+    {
+      "table": "operation_behavioural_profiles",
+      "key": {
+        "profile_id": "05b8a773-5680-5959-9cdc-be43180b9b00"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "64de1effdc5e4432a796510beeea1f75cb2e91ec781c09cd8f3ec7b0ae570824"
+    },
+    {
+      "table": "operation_behavioural_profiles",
+      "key": {
+        "profile_id": "902bd804-bcb8-5f8d-95f6-cac3d05055a9"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "70caea0666217ea4eea499af371c60cd0fd9c1f072e33bab4942467ca30b1d11"
+    },
+    {
+      "table": "operation_behavioural_profiles",
+      "key": {
+        "profile_id": "907abae8-1e28-5068-9094-665f1c991b74"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "f1858430d436e356a8e90b5d9f3cbb758df39a33b24880608472ebbd40c0a030"
+    },
+    {
+      "table": "operation_qualification_contracts",
+      "key": {
+        "contract_id": "f95e3271-2bcc-501e-bbb3-38a08e4d7afa"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "f81f3e0cad6e7cdd8e84e871a84d668e9370037afd60122e13e9c23193798d3c"
+    },
+    {
+      "table": "operation_qualification_contracts",
+      "key": {
+        "contract_id": "094f65fd-a497-563e-a722-2be743de4f62"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "85ec55d472d1d19c9d0033078fdf4ec905d646626cb243983ecdd5053ac94fee"
+    },
+    {
+      "table": "operation_qualification_contracts",
+      "key": {
+        "contract_id": "094aef95-a615-5d5a-a9e6-1352a9f9aca1"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "dbb3eca4dd023354b96cfcbbcd8ea9d7e53e42e26aacf53656d8bf5262a54fb6"
+    },
+    {
+      "table": "operation_qualification_contracts",
+      "key": {
+        "contract_id": "e3580ca2-a115-5700-945f-34508eeefeb9"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "2d27ab647e469ac2a08fac430b4a599aa1ae1b2af28ae15f9c7a2f1536903537"
+    },
+    {
+      "table": "operation_qualification_contracts",
+      "key": {
+        "contract_id": "20ba454e-b3fb-58e3-b217-e7e633f310c2"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "45d35687b0c49a24f02543cc79a0a82824fa55dc949531803d487f4c58fd91f4"
+    },
+    {
+      "table": "operation_qualification_contracts",
+      "key": {
+        "contract_id": "fad8cc00-0a3c-5dbf-9c4f-c0add60f75a9"
+      },
+      "classification": "EXACT_MATCH",
+      "row_sha256": "850cf910ad4d1bf6471246e691a209eef326447524a503aff72d5c206c976d9a"
+    }
+  ],
+  "registry_inventory": [
+    {
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "display_name": "WATCHTOWER",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b",
+      "display_name": "P3R_EC1",
+      "status": "MERGED"
+    },
+    {
+      "operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875",
+      "display_name": "3SW2",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+      "display_name": "WSOL_PROVISION_CLOSE_1_SOL_MINUS_15K",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "display_name": "P3R",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e",
+      "display_name": "WATCHTOWER_DEEP",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+      "display_name": "Nexus",
+      "status": "ACTIVE"
+    },
+    {
+      "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+      "display_name": "P3R_13A04",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "display_name": "Byzantine",
+      "status": "CONFIRMED"
+    },
+    {
+      "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "display_name": "FOUR_STEP_30_SOL_14_479K_WSOL_LADDER",
+      "status": "CONFIRMED"
+    }
+  ],
+  "scope": "Canonical registry roots and retained profile/qualification contracts only; complete memberships, route/statistical population and classification equivalence remain unqualified."
+}

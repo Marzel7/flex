@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "authority_and_intent_rollback_before_commit",
+      "status": "PASS"
+    },
+    {
+      "name": "blocked_handoff_retry_ceiling_and_conflict_preservation",
+      "status": "PASS",
+      "state": [
+        "BLOCKED",
+        5,
+        "OPS_CREATOR_CONFLICT"
+      ]
+    },
+    {
+      "name": "queue_retry_exhaustion_not_reopened",
+      "status": "PASS",
+      "attempts": 3
+    }
+  ]
+}

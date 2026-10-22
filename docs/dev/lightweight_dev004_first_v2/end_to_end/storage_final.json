@@ -1,0 +1,14 @@
+{
+  "core": {
+    "file_bytes": 335872,
+    "schema_only_bytes": 335872,
+    "page_count": 82,
+    "freelist_pages": 0
+  },
+  "ops": {
+    "file_bytes": 671744,
+    "schema_only_bytes": 569344,
+    "page_count": 164,
+    "freelist_pages": 0
+  }
+}

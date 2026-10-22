@@ -1,0 +1,35 @@
+{
+  "known_treasury": {
+    "classification": "EXACT_MATCH"
+  },
+  "known_subprovider": {
+    "classification": "EXACT_MATCH"
+  },
+  "watchtower_route": {
+    "classification": "EXACT_MATCH"
+  },
+  "creator_classification": {
+    "classification": "EXACT_MATCH"
+  },
+  "retained_outcome": {
+    "classification": "EXACT_MATCH"
+  },
+  "parent_candidates": {
+    "classification": "EXACT_MATCH"
+  },
+  "quarantine": {
+    "classification": "EXACT_MATCH"
+  },
+  "price_fact": {
+    "classification": "EXACT_MATCH"
+  },
+  "price_observations": {
+    "classification": "EXACT_MATCH"
+  },
+  "ohlc_reduction": {
+    "classification": "EXACT_MATCH"
+  },
+  "creator_funding_history": {
+    "classification": "EXACT_MATCH"
+  }
+}

@@ -15943,6 +15943,65 @@
       "source_runtime_changes": 0
     }
   },
+  "flex_lightweight_dev003_compact_rpc_telemetry": {
+    "blocker": null,
+    "candidate_sha": "fde478b7ef2b77b983b58d41f46d0de451d22dd3",
+    "contract": "168h detailed queries; 31 inclusive UTC calendar labels for default30day reporting; six preceding observed-day trend totals; separate event/recorded clocks; durable lifetime and named/active reset checkpoints; forensic row pins.",
+    "engineering_head": "12b423a8a07e2af8a291e9fc1e403cf625e7d3e9",
+    "frozen_baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "next_action": "Separate deployment preflight for candidate fde478b7, preserving installed overlays and defining explicit migration/backfill/pin/rollback acceptance. Deployment, activation, production backfill, retirement and compaction remain unauthorized.",
+    "objective": "Implement and provider-free qualify compact telemetry without production history changes.",
+    "observed_at_utc": "2026-10-22T21:15:22.167656+00:00",
+    "production_state": {
+      "compaction": false,
+      "deployed": false,
+      "deployment_authorized": false,
+      "flag": "RPC_COMPACT_ENABLED defaults0; installed flags unchanged",
+      "production_backfill": false,
+      "production_database_writes": 0,
+      "production_schema_changes": 0,
+      "provider_calls": 0,
+      "raw_retirement": 0,
+      "service_restarts": 0
+    },
+    "ready_for_deployment_preflight": true,
+    "report_local_path": "/Users/kevinkeaveney/.codex/worktrees/lightweight-dev003-compact-telemetry/flex/docs/dev/lightweight_dev003/REPORT.md",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "schema_delta": "Six owned tables, two owned indexes, seven triggers; no raw columns or existing view definitions changed. Migration executed only in fixtures.",
+    "source_delta": "Opt-in compact module/API adapter and narrow recorder/API integration in canonical source plus three frozen packages. Atomic reset generations, source ID fence, explicit overflow/unsupported states.",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "storage_bounds": {
+      "aggregate_encoded_bytes": 25165824,
+      "default_slice_rows": 16,
+      "dimension_keys_per_group": 4096,
+      "max_cell_bytes": 4096,
+      "max_hook_rows": 512,
+      "max_slice_rows": 128,
+      "new_unbounded_paths": 0,
+      "note": "Existing raw append path retained; no new persistent data file; encoded limits are not physical filesystem recovery.",
+      "pins": 1024,
+      "reset_checkpoints": 30,
+      "wal_refusal_threshold_bytes": 67108864
+    },
+    "verification": {
+      "actual_reset_plan": "existing timestamp index, no temporary sort",
+      "errors": 0,
+      "failures": 0,
+      "fixture_measurements": {
+        "4200_dimension_fixture_db_bytes": 15728640,
+        "4200_dimension_fixture_encoded_bytes": 11483284,
+        "500_row_flush_processed": 500,
+        "500_row_flush_seconds": 0.05448275001253933,
+        "held_reader_wal_bytes": 412032
+      },
+      "installed_patch_checks": "PASS all3; installed affected files unchanged",
+      "package_syntax": "PASS",
+      "process_exit_recovery": "PASS before and after commit",
+      "retained_equivalence_checks": 22,
+      "skipped": 0,
+      "tests_passed": 46
+    }
+  },
   "flex_original_dev_objectives_reconciliation_20261008": {
     "admission": "For DEV-008 and DEV-007, proposed start authority is the clean frozen operational-baseline tag -> 4c1549718d3b711912dacdfb8c990dc5767267c5. Each future DEV requires its own codex/ branch, isolated worktree, V2 admission guard, unique temporary paths, clean status, named source ownership, and provider-free acceptance. They may run in parallel only after admission confirms no overlapping owned files; expected scopes are DEV-008 walkback/deep prospective logic and DEV-007 audit/fixtures. Respect the maximum two active implementation DEV limit. DEV-022 cannot pass admission with the currently recorded provenance.",
     "engineering_revision": "Read-only backlog reconciliation; no engineering source, runtime configuration, service, database, queue, or provider mutation. Authorities: V2 commit 8be99ed28aa2228dc9cec7d63103eab27376086d; prior handoff 6d4a35e74658ca3dd8169ca266df3573d4e164c0; frozen operational baseline watchtower-operational-baseline-20261008-d3c0d4ed -> 4c1549718d3b711912dacdfb8c990dc5767267c5.",
@@ -18547,7 +18606,7 @@
   "handoff_transport": {
     "branch": "agent-handoff",
     "protocol_version": 1,
-    "published_at": "2026-10-22T20:27:36.126741+00:00",
+    "published_at": "2026-10-22T21:15:22.167656+00:00",
     "status": "PUBLISHED"
   },
   "handoff_transport_status": null,
@@ -33641,12 +33700,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/lightweight-dev002-telemetry-contract",
-    "git_head": "b9f9b6c4f13d0d606b5ca15a18250d76997d04d6",
+    "branch": "codex/lightweight-dev003-compact-telemetry",
+    "git_head": "12b423a8a07e2af8a291e9fc1e403cf625e7d3e9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T20:27:36.126741+00:00",
-    "working_tree": "Isolated documentation/qualification-only DEV002 contract; runtime baseline unchanged. Contract commit is local; engineering branch not published."
+    "updated_at_utc": "2026-10-22T21:15:22.167656+00:00",
+    "working_tree": "Isolated DEV003 compact RPC telemetry candidate qualified, disabled and not deployed; clean worktree. Source/fixture commits local, engineering branch not published."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

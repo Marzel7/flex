@@ -33701,11 +33701,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "d5cad529a66116842a329adfe3d376c2f8237c3f",
+    "git_head": "06600d03bf50a4c5f27b55d6d0cd88f8256d5cd9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T23:01:36.335946+00:00",
-    "working_tree": "DEV004 isolated first V2 fixture qualification HOLD; production unchanged; credential deployment remains complete."
+    "updated_at_utc": "2026-10-22T23:13:41.435523+00:00",
+    "working_tree": "Existing DEV004 fixture extended with retained reference evidence; partial terminal restart qualification, unfinished acquisition HOLD; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41334,6 +41334,28 @@
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/REPORT.md",
     "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
     "storage": "Per-file RLIMIT16000000bytes, SQLite construction max2048pages, per-selectorLIMIT129/200000VM/1second, pass2048rows. No raw RPC/provider payload retention; zero per-run unbounded growth paths.",
-    "next_action": "One bounded retained-artifact lookup for the selected case accepted ATH finalization request and acquisition checkpoint/envelope; extend same fixture only with recovered evidence and rerun price/recovery comparisons. Keep HOLD if unavailable."
+    "next_action": "One bounded retained-artifact lookup for the selected case accepted ATH finalization request and acquisition checkpoint/envelope; extend same fixture only with recovered evidence and rerun price/recovery comparisons. Keep HOLD if unavailable.",
+    "evidence_completion": "See dev004_bounded_evidence_completion; existing OPS fixture extended with source-separated references, canonical comparisons unchanged; overall HOLD preserved."
+  },
+  "dev004_bounded_evidence_completion": {
+    "engineering_revision": "06600d03bf50a4c5f27b55d6d0cd88f8256d5cd9",
+    "status": "HOLD_PARTIAL_EVIDENCE_RECOVERED",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained-evidence lookup, existing disposable fixture extension and provider-free tests; no executable source changes.",
+    "scope": "Only selected DEV004 case ATH-finalization and acquisition checkpoint evidence. Previous credential deployment remains closed.",
+    "result": "Accepted ATH/provenance retained unchanged. Later source-specific candle/reference coverage located but cannot independently reproduce the accepted ATH. Finalized-request restart suppression qualified; unfinished acquisition cursor/retry/budget recovery unqualified.",
+    "verification": "15 separately labelled reference attachments added; canonical fixture rows unchanged. All11 original V1/V2 outputs still equal, including prior frozen values. Installed finalizer reopened twice against V1 and twice against V2: all4 returned ALREADY_FINALIZED with0 provider calls. Core294912bytes; OPS503808bytes. All artifacts below16MB.",
+    "blocker": "Original successful ATH input window not recovered. No original unfinished per-window completion cursor, pending/retry envelope or consumed-budget state recovered. A completed narrower historical pilot is not substituted for resumable acquisition.",
+    "remaining_separate_holds": [
+      "CREATE/atomic evidence",
+      "admission linkage",
+      "pending/retry recovery",
+      "Potential Operations discovery",
+      "full Watchtower behavioural reconstruction"
+    ],
+    "production_state": "V1 authoritative. No production writes, source/config changes, service actions, provider calls, live queue mutations or cutover.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/evidence_completion/REPORT.md",
+    "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
+    "next_action": "Keep unfinished acquisition on HOLD pending an original retained cursor/queue envelope, completion identities and consumed-budget state. Preserve accepted ATH as authoritative; independent original-window recomputation remains unqualified."
   }
 }

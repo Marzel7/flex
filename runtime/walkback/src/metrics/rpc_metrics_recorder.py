@@ -347,6 +347,12 @@ def _metric_flush_loop():
                             mode, retries, source_file, error, process_pid, cache_action,
                             credits_saved, optimization_layer)
                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", rows)
+                    # DEV003: opt-in bounded summaries share this transaction. Failure
+                    # rolls back only the summary savepoint, preserving raw persistence.
+                    from src.metrics.rpc_compact import advance_if_enabled
+                    compact_result = advance_if_enabled(conn, time.time())
+                    if compact_result and compact_result["status"] != "ok":
+                        print(f"[RPC_COMPACT] {compact_result}", flush=True)
                     conn.commit()
                 finally:
                     conn.close()
@@ -424,6 +430,35 @@ def _set_state(key: str, value: str) -> None:
             except Exception:
                 pass
 
+
+
+def _comparison_state_snapshot():
+    if os.environ.get("RPC_COMPACT_ENABLED", "0") != "1":
+        return {key: _get_state(key) for key in ("comparison_reset_timestamp", "baseline_helius_credits_today", "comparison_reset_time")}
+    from src.metrics.rpc_compact import recorder_state_snapshot
+    conn = db_connect(DB_PATH, timeout=5, read_only=True)
+    try:
+        return recorder_state_snapshot(conn)
+    finally:
+        conn.close()
+
+
+def _set_comparison_state(values):
+    if os.environ.get("RPC_COMPACT_ENABLED", "0") != "1":
+        for key, value in values.items():
+            _set_state(key, value)
+        return
+    from src.metrics.rpc_compact import write_recorder_state, Hold
+    conn = None
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=30, priority=3)
+        write_recorder_state(conn, values)
+        conn.commit()
+    except Exception as error:
+        raise Hold("RESET_PERSISTENCE_HOLD") from error
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 def _get_earliest_metric_timestamp() -> float:
@@ -547,9 +582,10 @@ class RPCMetricsRecorder:
 
         # Comparison reset baseline - timestamp-based for DB-backed queries
         # Load persisted values first, then fallback to earliest DB metric
-        persisted_reset_ts = _get_state("comparison_reset_timestamp")
-        persisted_helius_baseline = _get_state("baseline_helius_credits_today")
-        persisted_reset_time = _get_state("comparison_reset_time")
+        persisted = _comparison_state_snapshot()
+        persisted_reset_ts = persisted.get("comparison_reset_timestamp")
+        persisted_helius_baseline = persisted.get("baseline_helius_credits_today")
+        persisted_reset_time = persisted.get("comparison_reset_time")
 
         # If no persisted reset timestamp, use earliest metric in DB (includes all history)
         # If no metrics exist yet, use 0.0 (will include future metrics as they arrive)
@@ -612,15 +648,18 @@ class RPCMetricsRecorder:
         self._source_file_stats.clear()
         self._method_stats.clear()
 
-        _set_state("baseline_helius_credits_today", str(self._baseline_helius_credits_today))
-        _set_state("comparison_reset_time", self._comparison_reset_time.isoformat())
-        _set_state("comparison_reset_timestamp", str(self._comparison_reset_timestamp))
+        _set_comparison_state({
+            "baseline_helius_credits_today": str(self._baseline_helius_credits_today),
+            "comparison_reset_time": self._comparison_reset_time.isoformat(),
+            "comparison_reset_timestamp": str(self._comparison_reset_timestamp),
+        })
 
     def _refresh_reset_state_from_db(self) -> None:
         """Refresh persisted reset/baseline state so all processes stay in sync."""
-        persisted_reset_ts = _get_state("comparison_reset_timestamp")
-        persisted_helius_baseline = _get_state("baseline_helius_credits_today")
-        persisted_reset_time = _get_state("comparison_reset_time")
+        persisted = _comparison_state_snapshot()
+        persisted_reset_ts = persisted.get("comparison_reset_timestamp")
+        persisted_helius_baseline = persisted.get("baseline_helius_credits_today")
+        persisted_reset_time = persisted.get("comparison_reset_time")
 
         new_reset_ts = None
         if persisted_reset_ts:
@@ -863,6 +902,10 @@ class RPCMetricsRecorder:
 
     def _get_cache_stats(self, hours: int = 24, timestamp_cutoff: Optional[float] = None) -> Dict[str, int]:
         """Calculate cache-related stats from history (optionally time-windowed)"""
+        from src.metrics.rpc_compact import recorder_compact_stats
+        compact = recorder_compact_stats(DB_PATH, timestamp_cutoff) if timestamp_cutoff == self._comparison_reset_timestamp or (timestamp_cutoff is None and hours == 0) else None
+        if compact is not None:
+            return {"cache_skip_count": compact["skip_n"], "cache_refresh_count": compact["refresh_n"], "cache_full_scan_count": compact["full_scan_n"], "credits_saved_total": compact["cache_saved"]}
         cache_skip_count = 0
         cache_refresh_count = 0
         cache_full_scan_count = 0
@@ -1059,6 +1102,10 @@ class RPCMetricsRecorder:
 
     def _get_tracked_credits_since_reset(self) -> int:
         """Get tracked credits since comparison reset (DB-backed, cross-process)"""
+        from src.metrics.rpc_compact import recorder_compact_stats
+        compact = recorder_compact_stats(DB_PATH, self._comparison_reset_timestamp)
+        if compact is not None:
+            return compact["spent"]
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cursor = conn.execute("""
@@ -1079,6 +1126,10 @@ class RPCMetricsRecorder:
 
     def _get_credits_since_reset(self) -> int:
         """Get total credits consumed since manual reset."""
+        from src.metrics.rpc_compact import recorder_compact_stats
+        compact = recorder_compact_stats(DB_PATH, self._comparison_reset_timestamp)
+        if compact is not None:
+            return compact["spent"]
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cursor = conn.execute(
@@ -1097,6 +1148,10 @@ class RPCMetricsRecorder:
 
     def _get_tracked_calls_since_reset(self) -> int:
         """Get number of RPC calls since manual reset."""
+        from src.metrics.rpc_compact import recorder_compact_stats
+        compact = recorder_compact_stats(DB_PATH, self._comparison_reset_timestamp)
+        if compact is not None:
+            return compact["paid_n"]
         try:
             conn = sqlite3.connect(DB_PATH, timeout=30)
             cursor = conn.execute(
@@ -1347,6 +1402,8 @@ class RPCMetricsRecorder:
 
     def get_top_methods(self, limit: int = 10, hours: int = 24) -> List[Dict]:
         """Get top methods by credits across all processes (DB-backed)"""
+        from src.metrics.rpc_compact import require_detail_window
+        require_detail_window(hours, self._comparison_reset_timestamp)
         with self._lock:
             self._maybe_auto_reset_at_uk_midnight()
             self._refresh_reset_state_from_db()
@@ -1483,9 +1540,11 @@ class RPCMetricsRecorder:
             self._comparison_reset_timestamp = time.time()
 
             # Persist to database so all processes see the same reset point
-            _set_state("baseline_helius_credits_today", str(self._baseline_helius_credits_today))
-            _set_state("comparison_reset_time", self._comparison_reset_time.isoformat())
-            _set_state("comparison_reset_timestamp", str(self._comparison_reset_timestamp))
+            _set_comparison_state({
+                "baseline_helius_credits_today": str(self._baseline_helius_credits_today),
+                "comparison_reset_time": self._comparison_reset_time.isoformat(),
+                "comparison_reset_timestamp": str(self._comparison_reset_timestamp),
+            })
 
     def reset_credits_today(self):
         """Reset all local/session metrics to 0 and snapshot Helius for comparison."""
@@ -1518,10 +1577,12 @@ class RPCMetricsRecorder:
             self._method_stats.clear()
 
             # Persist comparison reset so all processes see the same baseline
-            _set_state("baseline_helius_credits_today", str(self._baseline_helius_credits_today))
-            _set_state("comparison_reset_time", self._comparison_reset_time.isoformat())
-            _set_state("comparison_reset_timestamp", str(self._comparison_reset_timestamp))
-            _set_state("manual_monitoring_reset_at", now_uk.isoformat())  # Config may not be available
+            _set_comparison_state({
+                "baseline_helius_credits_today": str(self._baseline_helius_credits_today),
+                "comparison_reset_time": self._comparison_reset_time.isoformat(),
+                "comparison_reset_timestamp": str(self._comparison_reset_timestamp),
+                "manual_monitoring_reset_at": now_uk.isoformat(),
+            })
 
     def get_optimization_savings(self, hours: int = 24) -> Dict:
         """
@@ -1540,6 +1601,8 @@ class RPCMetricsRecorder:
                 "by_section": {...}
             }
         """
+        from src.metrics.rpc_compact import require_detail_window
+        require_detail_window(hours, self._comparison_reset_timestamp)
         with self._lock:
             self._maybe_auto_reset_at_uk_midnight()
             self._refresh_reset_state_from_db()
@@ -1661,6 +1724,8 @@ class RPCMetricsRecorder:
                 "total_calls": 28
             }
         """
+        from src.metrics.rpc_compact import require_detail_window
+        require_detail_window(hours, self._comparison_reset_timestamp)
         with self._lock:
             self._maybe_auto_reset_at_uk_midnight()
             self._refresh_reset_state_from_db()
@@ -1837,11 +1902,15 @@ def record_stream_bytes(
 
 def get_optimization_savings(hours: int = 24) -> Dict:
     """Convenience function to get optimization savings with global instance"""
+    from src.metrics.rpc_compact import require_detail_window
+    require_detail_window(hours, self._comparison_reset_timestamp)
     return get_recorder().get_optimization_savings(hours)
 
 
 def get_component_breakdown(hours: int = 24) -> Dict:
     """Convenience function to get component breakdown with global instance"""
+    from src.metrics.rpc_compact import require_detail_window
+    require_detail_window(hours, self._comparison_reset_timestamp)
     return get_recorder().get_component_breakdown(hours)
 
 

@@ -4,6 +4,9 @@ Date: 2026-03-05
 Purpose: Track and visualize RPC optimization efficiency
 """
 
+from src.metrics.rpc_compact import Hold
+from src.metrics.rpc_compact_api import CompactReadConnection, enabled
+
 import sqlite3
 import json
 import os
@@ -123,7 +126,7 @@ def get_db_connection():
     """Get a read-only SQLite connection for dashboard queries."""
     conn = db_connect(DB_PATH, timeout=30, read_only=True)
     conn.row_factory = sqlite3.Row
-    return conn
+    return CompactReadConnection(conn) if enabled() else conn
 
 
 def query_daily_efficiency(days: int = 30) -> List[DailyEfficiency]:
@@ -165,6 +168,8 @@ def query_daily_efficiency(days: int = 30) -> List[DailyEfficiency]:
 
         return metrics
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_EFFICIENCY] Failed to query daily efficiency: {e}")
         return []
@@ -198,6 +203,8 @@ def query_efficiency_24h() -> Optional[EfficiencyScore24h]:
             cache_hit_rate_pct_24h=float(row['cache_hit_rate_pct_24h'] or 0),
         )
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_EFFICIENCY] Failed to query 24h efficiency: {e}")
         return None
@@ -233,6 +240,8 @@ def query_efficiency_all_time() -> Optional[EfficiencyAllTime]:
             overall_cache_hit_rate_pct=float(row['overall_cache_hit_rate_pct'] or 0),
         )
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_EFFICIENCY] Failed to query all-time efficiency: {e}")
         return None
@@ -276,6 +285,8 @@ def query_efficiency_by_section(days: int = 30) -> List[EfficiencyBySection]:
 
         return metrics
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_EFFICIENCY] Failed to query section efficiency: {e}")
         return []
@@ -319,6 +330,8 @@ def query_health_status(days: int = 7) -> List[HealthReport]:
 
         return reports
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_EFFICIENCY] Failed to query health status: {e}")
         return []

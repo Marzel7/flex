@@ -55,6 +55,16 @@ def _query_rpc_metrics_from_db(since_timestamp: Optional[float] = None) -> Dict:
 
     Returns aggregated stats from rpc_metrics table.
     """
+    from src.metrics.rpc_compact_api import enabled, database_daily
+    if enabled() and since_timestamp is None:
+        from pathlib import Path
+        compact_conn = sqlite3.connect(Path(DB_PATH).resolve().as_uri() + "?mode=ro", uri=True, timeout=5)
+        try:
+            result = database_daily(compact_conn, time.time(), lifetime=True)
+            result["database_metrics"]["compact_metadata"] = {"dimensions_overflow": result["dimensions_overflow"]}
+            return result["database_metrics"]
+        finally:
+            compact_conn.close()
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -167,6 +177,8 @@ def _get_reset_timestamp_for_dashboard(hours: int) -> float:
         reset_ts = _get_state("comparison_reset_timestamp")
         if reset_ts:
             try:
+                from src.metrics.rpc_compact import require_detail_window
+                require_detail_window(hours, float(reset_ts))
                 return float(reset_ts)
             except (ValueError, TypeError):
                 pass
@@ -263,6 +275,9 @@ async def metrics_database(since_hours: int = Query(24, ge=1, le=720)):
     Args:
         since_hours: Only include metrics from last N hours
     """
+    from src.metrics.rpc_compact_api import enabled, unsupported_hours
+    if enabled() and since_hours > 168:
+        return unsupported_hours(since_hours)
     since_timestamp = time.time() - (since_hours * 3600)
     db_metrics = _query_rpc_metrics_from_db(since_timestamp)
 
@@ -315,6 +330,8 @@ async def metrics_untracked():
                 "? Action: Add record_request() calls to untracked RPC methods",
             ] if tracked_percentage < 50 else [],
         }
+    except CompactTelemetryHold as error:
+        return error.response()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not analyze untracked metrics: {str(e)}")
 
@@ -936,6 +953,9 @@ async def metrics_rpc_optimizations(hours: int = Query(24, ge=1, le=720)):
     - KPI fields: actual_credits, saved_credits, estimated_without_optimizations, savings_pct
     - Breakdown: by_optimization_layer dict with layer stats
     """
+    from src.metrics.rpc_compact_api import enabled, unsupported_hours
+    if enabled() and hours > 168:
+        return unsupported_hours(hours)
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -1004,6 +1024,8 @@ async def metrics_rpc_optimizations(hours: int = Query(24, ge=1, le=720)):
             # Breakdown
             "by_optimization_layer": by_optimization_layer,
         }
+    except CompactTelemetryHold as error:
+        return error.response()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching optimizations: {str(e)}")
 
@@ -1015,6 +1037,9 @@ async def metrics_rpc_component_breakdown(hours: int = Query(24, ge=1, le=720)):
     
     Returns credits usage by component (process/extractor) for the last N hours.
     """
+    from src.metrics.rpc_compact_api import enabled, unsupported_hours
+    if enabled() and hours > 168:
+        return unsupported_hours(hours)
     try:
         conn = sqlite3.connect(DB_PATH, timeout=30)
         conn.row_factory = sqlite3.Row
@@ -1067,6 +1092,8 @@ async def metrics_rpc_component_breakdown(hours: int = Query(24, ge=1, le=720)):
             "hours": hours,
             "components": components,
         }
+    except CompactTelemetryHold as error:
+        return error.response()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching component breakdown: {str(e)}")
 
@@ -2413,3 +2440,30 @@ async def webhook_metrics():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+
+@app.get("/metrics/rpc/database/daily")
+async def metrics_database_daily(start_day: str, end_day: str, p95: bool = False):
+    """Explicit UTC day-aligned historical alternative to rolling detailed queries."""
+    from pathlib import Path
+    from src.metrics.rpc_compact import Hold
+    from src.metrics.rpc_compact_api import enabled, database_daily
+    if not enabled():
+        return {"status": "unsupported", "code": "COMPACT_DISABLED"}
+    conn = sqlite3.connect(Path(DB_PATH).resolve().as_uri() + "?mode=ro", uri=True, timeout=5)
+    try:
+        if p95:
+            return Hold("UNSUPPORTED_HISTORICAL_P95", available="recent session percentiles only").response()
+        return database_daily(conn, time.time(), start_day, end_day)
+    except Hold as error:
+        return error.response()
+    finally:
+        conn.close()
+
+
+from src.metrics.rpc_compact import Hold as CompactTelemetryHold
+
+@app.exception_handler(CompactTelemetryHold)
+async def compact_telemetry_hold_handler(request, error):
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=409, content=error.response())

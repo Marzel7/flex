@@ -1,0 +1,48 @@
+test_active_reset_generation_change_is_explicit_hold (test_rpc_compact.Tests.test_active_reset_generation_change_is_explicit_hold) ... ok
+test_atomic_install_and_idempotent_reinstall (test_rpc_compact.Tests.test_atomic_install_and_idempotent_reinstall) ... ok
+test_atomic_reset_generation_failure_cannot_publish_mixed_keys (test_rpc_compact.Tests.test_atomic_reset_generation_failure_cannot_publish_mixed_keys) ... ok
+test_changed_view_contract_is_hold_not_empty_metrics (test_rpc_compact.Tests.test_changed_view_contract_is_hold_not_empty_metrics) ... ok
+test_clock_regression_and_counter_overflow_fail_closed (test_rpc_compact.Tests.test_clock_regression_and_counter_overflow_fail_closed) ... ok
+test_cost_and_byte_bounds_rollback (test_rpc_compact.Tests.test_cost_and_byte_bounds_rollback) ... ok
+test_crash_rolls_back_cursor_and_counters (test_rpc_compact.Tests.test_crash_rolls_back_cursor_and_counters) ... ok
+test_database_api_unweighted_source_latency_and_lifetime (test_rpc_compact.Tests.test_database_api_unweighted_source_latency_and_lifetime) ... ok
+test_default_slice_budget_and_existing_transaction_rollback (test_rpc_compact.Tests.test_default_slice_budget_and_existing_transaction_rollback) ... ok
+test_dimension_overflow_preserves_global_totals (test_rpc_compact.Tests.test_dimension_overflow_preserves_global_totals) ... ok
+test_disabled_hook_has_no_schema_or_io_side_effect (test_rpc_compact.Tests.test_disabled_hook_has_no_schema_or_io_side_effect) ... ok
+test_existing_query_adapter_fields_order_and_explicit_hold (test_rpc_compact.Tests.test_existing_query_adapter_fields_order_and_explicit_hold) ... ok
+test_existing_savings_efficiency_helpers_return_existing_dataclasses (test_rpc_compact.Tests.test_existing_savings_efficiency_helpers_return_existing_dataclasses) ... ok
+test_flask_telemetry_routes_report_unsupported_and_overflow (test_rpc_compact.Tests.test_flask_telemetry_routes_report_unsupported_and_overflow) ... ok
+test_framework_endpoint_rejects_old_windows_without_app_startup (test_rpc_compact.Tests.test_framework_endpoint_rejects_old_windows_without_app_startup) ... ok
+test_hook_failure_preserves_detailed_transaction (test_rpc_compact.Tests.test_hook_failure_preserves_detailed_transaction) ... ok
+test_incomplete_reports_are_hold_not_partial (test_rpc_compact.Tests.test_incomplete_reports_are_hold_not_partial) ... ok
+test_keyset_plan_and_bounds (test_rpc_compact.Tests.test_keyset_plan_and_bounds) ... ok
+test_late_arrival_separate_clocks (test_rpc_compact.Tests.test_late_arrival_separate_clocks) ... ok
+test_lifetime_does_not_expire_and_days_are_distinct (test_rpc_compact.Tests.test_lifetime_does_not_expire_and_days_are_distinct) ... ok
+test_new_reset_lifetime_not_reset (test_rpc_compact.Tests.test_new_reset_lifetime_not_reset) ... ok
+test_null_empty_and_integer_division (test_rpc_compact.Tests.test_null_empty_and_integer_division) ... ok
+test_one_flush_can_process_500_rows_without_double_count (test_rpc_compact.Tests.test_one_flush_can_process_500_rows_without_double_count) ... ok
+test_overflow_unknown_action_preserves_cache_hits_and_savings (test_rpc_compact.Tests.test_overflow_unknown_action_preserves_cache_hits_and_savings) ... ok
+test_p95_explicitly_unsupported (test_rpc_compact.Tests.test_p95_explicitly_unsupported) ... ok
+test_pinned_forensic_rows_cannot_change_before_backfill (test_rpc_compact.Tests.test_pinned_forensic_rows_cannot_change_before_backfill) ... ok
+test_process_exit_before_and_after_commit_replays_exactly_once (test_rpc_compact.Tests.test_process_exit_before_and_after_commit_replays_exactly_once) ... ok
+test_provider_method_http_status_dimensions_are_retained (test_rpc_compact.Tests.test_provider_method_http_status_dimensions_are_retained) ... ok
+test_real_cell_bound_and_storage_footprint (test_rpc_compact.Tests.test_real_cell_bound_and_storage_footprint) ... ok
+test_recorder_cache_saved_includes_full_scan_and_custom_actions (test_rpc_compact.Tests.test_recorder_cache_saved_includes_full_scan_and_custom_actions) ... ok
+test_report_snapshot_excludes_concurrent_uncommitted_tail (test_rpc_compact.Tests.test_report_snapshot_excludes_concurrent_uncommitted_tail) ... ok
+test_reset_seed_external_baseline_and_late_rows (test_rpc_compact.Tests.test_reset_seed_external_baseline_and_late_rows) ... ok
+test_reset_ties_bootstrap_late_updates_and_query_plans (test_rpc_compact.Tests.test_reset_ties_bootstrap_late_updates_and_query_plans) ... ok
+test_restart_after_committed_slice (test_rpc_compact.Tests.test_restart_after_committed_slice) ... ok
+test_retained_22_equivalence_cases (test_rpc_compact.Tests.test_retained_22_equivalence_cases) ... ok
+test_retry_and_gaps_count_persisted_event_once (test_rpc_compact.Tests.test_retry_and_gaps_count_persisted_event_once) ... ok
+test_seven_day_and_unsupported_rolling (test_rpc_compact.Tests.test_seven_day_and_unsupported_rolling) ... ok
+test_source_immutability_id_reuse_and_pin_budget (test_rpc_compact.Tests.test_source_immutability_id_reuse_and_pin_budget) ... ok
+test_sync_existing_recorder_baseline_and_midnight_change (test_rpc_compact.Tests.test_sync_existing_recorder_baseline_and_midnight_change) ... ok
+test_thirty_day_labels_and_trend_seed (test_rpc_compact.Tests.test_thirty_day_labels_and_trend_seed) ... ok
+test_time_budget_failure_and_expiry_are_restart_safe (test_rpc_compact.Tests.test_time_budget_failure_and_expiry_are_restart_safe) ... ok
+test_wal_guard_pauses_summary_only (test_rpc_compact.Tests.test_wal_guard_pauses_summary_only) ... ok
+test_wal_small_fixture_no_checkpoint_call (test_rpc_compact.Tests.test_wal_small_fixture_no_checkpoint_call) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 2.721s
+
+OK

@@ -1,0 +1,122 @@
+{
+  "utc": "2026-10-22T20:55:22.414673+00:00",
+  "frozen_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "installed_read_only_patch_checks": {
+    "listener": {
+      "returncode": 0,
+      "installed_files_unchanged": true
+    },
+    "creator_resolution": {
+      "returncode": 0,
+      "installed_files_unchanged": true
+    },
+    "walkback": {
+      "returncode": 0,
+      "installed_files_unchanged": true
+    }
+  },
+  "files": {
+    "listener/src/metrics/rpc_metrics_recorder.py": {
+      "installed_sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "candidate_sha256": "3abc2860c62d00650091d763b5b7f3a3fb5242c5f9bbf8bfa1e1067fc1bce718"
+    },
+    "listener/src/apis/rpc_savings_api.py": {
+      "installed_sha256": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "candidate_sha256": "d0238abe599aa1710363f9c7b8bf7cdf137138b14306eb8023cfbe251fc377c6"
+    },
+    "listener/src/apis/rpc_efficiency_api.py": {
+      "installed_sha256": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "candidate_sha256": "ea33f3960197d9c4f67d2fb0a1175e5de051007a047556adab795e3af41684d7"
+    },
+    "listener/src/apis/rpc_metrics_api.py": {
+      "installed_sha256": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "candidate_sha256": "660389ad347988f833341bb85e86ef00332e1d283ead81837f0060587680148b"
+    },
+    "listener/src/core/main.py": {
+      "installed_sha256": "7be64c3c98e9ba0b195c9f39a462f4e4ab692d50ba0ad393b9f641e14b9d44e4",
+      "candidate_sha256": "12a28dfdefd10f25a219f5ebbf79c068ae1e3619e58990636faed503e62eb307"
+    },
+    "creator_resolution/src/metrics/rpc_metrics_recorder.py": {
+      "installed_sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "candidate_sha256": "3abc2860c62d00650091d763b5b7f3a3fb5242c5f9bbf8bfa1e1067fc1bce718"
+    },
+    "creator_resolution/src/apis/rpc_savings_api.py": {
+      "installed_sha256": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "candidate_sha256": "d0238abe599aa1710363f9c7b8bf7cdf137138b14306eb8023cfbe251fc377c6"
+    },
+    "creator_resolution/src/apis/rpc_efficiency_api.py": {
+      "installed_sha256": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "candidate_sha256": "ea33f3960197d9c4f67d2fb0a1175e5de051007a047556adab795e3af41684d7"
+    },
+    "creator_resolution/src/apis/rpc_metrics_api.py": {
+      "installed_sha256": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "candidate_sha256": "660389ad347988f833341bb85e86ef00332e1d283ead81837f0060587680148b"
+    },
+    "creator_resolution/src/core/main.py": {
+      "installed_sha256": "fb0b4ff9255b030ace2e48b1988159618ae8e8f39d3f8b1a0bad2efced21d222",
+      "candidate_sha256": "bc94f6ad2627512d5e08e57c64ea132a21e857830f4d49538c02f4732af29651"
+    },
+    "walkback/src/metrics/rpc_metrics_recorder.py": {
+      "installed_sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "candidate_sha256": "3abc2860c62d00650091d763b5b7f3a3fb5242c5f9bbf8bfa1e1067fc1bce718"
+    },
+    "walkback/src/apis/rpc_savings_api.py": {
+      "installed_sha256": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "candidate_sha256": "d0238abe599aa1710363f9c7b8bf7cdf137138b14306eb8023cfbe251fc377c6"
+    },
+    "walkback/src/apis/rpc_efficiency_api.py": {
+      "installed_sha256": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "candidate_sha256": "ea33f3960197d9c4f67d2fb0a1175e5de051007a047556adab795e3af41684d7"
+    },
+    "walkback/src/apis/rpc_metrics_api.py": {
+      "installed_sha256": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "candidate_sha256": "660389ad347988f833341bb85e86ef00332e1d283ead81837f0060587680148b"
+    },
+    "walkback/src/core/main.py": {
+      "installed_sha256": "e88ac1e7d2409c8e71bc987cfcb1ef73d6377cdf0507bbc81824a03bf2ef8a4d",
+      "candidate_sha256": "cfcb5d71269364aaa1c435c09d7d9b302c66da10099316b2d19aed6f05fe756d"
+    },
+    "listener/src/metrics/rpc_compact.py": {
+      "candidate_sha256": "bbe7fe483ed130fec070ddec7faf07e4be59e64df1c320bc1273c678467f1fae"
+    },
+    "listener/src/metrics/rpc_compact_api.py": {
+      "candidate_sha256": "c4d46cd40cad38f629f4cd098d1cb2e90cbef680e11aaaa22923fbf35c4d72be"
+    },
+    "creator_resolution/src/metrics/rpc_compact.py": {
+      "candidate_sha256": "bbe7fe483ed130fec070ddec7faf07e4be59e64df1c320bc1273c678467f1fae"
+    },
+    "creator_resolution/src/metrics/rpc_compact_api.py": {
+      "candidate_sha256": "c4d46cd40cad38f629f4cd098d1cb2e90cbef680e11aaaa22923fbf35c4d72be"
+    },
+    "walkback/src/metrics/rpc_compact.py": {
+      "candidate_sha256": "bbe7fe483ed130fec070ddec7faf07e4be59e64df1c320bc1273c678467f1fae"
+    },
+    "walkback/src/metrics/rpc_compact_api.py": {
+      "candidate_sha256": "c4d46cd40cad38f629f4cd098d1cb2e90cbef680e11aaaa22923fbf35c4d72be"
+    }
+  },
+  "candidate_updated_utc": "2026-10-22T21:06:44.334973+00:00",
+  "schema_delta": {
+    "new_tables": [
+      "rpc_compact_meta",
+      "rpc_compact_counts",
+      "rpc_compact_cells",
+      "rpc_compact_days",
+      "rpc_compact_resets",
+      "rpc_compact_pins"
+    ],
+    "new_indexes": 2,
+    "new_triggers": 7,
+    "rpc_metrics_columns_changed": 0,
+    "existing_views_replaced": 0
+  },
+  "live_metadata_verification": {
+    "observed_at_utc": "2026-10-22T20:52:14.276966+00:00",
+    "core_inode": 549513179,
+    "schema_version": 849,
+    "telemetry_columns": 17,
+    "rpc_views": 15,
+    "accepted_view_definitions_match": true,
+    "access": "mode=ro; schema metadata only"
+  }
+}

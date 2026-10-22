@@ -673,6 +673,10 @@ try:
     import src.apis.rpc_metrics_api
     from dataclasses import asdict
 
+    from src.metrics.rpc_compact import Hold
+    from src.metrics.rpc_compact_api import register_flask_contract
+    register_flask_contract(app, DB_PATH, db_connect)
+
     # RPC Savings Dashboard Routes
     @app.route('/api/rpc-savings/dashboard')
     def api_rpc_savings_dashboard():
@@ -680,6 +684,8 @@ try:
             days = request.args.get('days', 30, type=int)
             data = get_dashboard_data(days)
             return jsonify(data)
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -690,6 +696,8 @@ try:
             if data:
                 return jsonify(asdict(data))
             return jsonify({})
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -699,6 +707,8 @@ try:
             days = request.args.get('days', 30, type=int)
             metrics = query_daily_savings(days)
             return jsonify([asdict(m) for m in metrics])
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -708,6 +718,8 @@ try:
             days = request.args.get('days', 30, type=int)
             breakdown = query_section_breakdown(days)
             return jsonify([asdict(b) for b in breakdown])
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -718,6 +730,8 @@ try:
             days = request.args.get('days', 30, type=int)
             data = get_efficiency_dashboard(days)
             return jsonify(data)
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -728,6 +742,8 @@ try:
             if data:
                 return jsonify(asdict(data))
             return jsonify({})
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -737,6 +753,8 @@ try:
             days = request.args.get('days', 30, type=int)
             metrics = query_daily_efficiency(days)
             return jsonify([asdict(m) for m in metrics])
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -747,6 +765,8 @@ try:
             if data:
                 return jsonify(asdict(data))
             return jsonify({})
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -756,6 +776,8 @@ try:
             days = request.args.get('days', 30, type=int)
             metrics = query_efficiency_by_section(days)
             return jsonify([asdict(m) for m in metrics])
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -765,6 +787,8 @@ try:
             days = request.args.get('days', 7, type=int)
             reports = query_health_status(days)
             return jsonify([asdict(r) for r in reports])
+        except Hold as error:
+            return jsonify(error.response()), 409
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -22475,6 +22499,9 @@ def api_rpc_savings_reset():
     Reset RPC savings metrics in the database.
     Clears cache_action and credits_saved columns for all records.
     """
+    from src.metrics.rpc_compact_api import enabled
+    if enabled():
+        return jsonify({"status": "unsupported", "code": "UNSUPPORTED_HISTORICAL_TELEMETRY_MUTATION"}), 409
     try:
         conn = db_connect(DB_PATH, timeout=15)
         cursor = conn.cursor()
@@ -22494,6 +22521,8 @@ def api_rpc_savings_reset():
             'message': f'Reset {rows_affected} RPC metrics records',
             'rows_affected': rows_affected
         }), 200
+    except Hold as error:
+        return jsonify(error.response()), 409
     except Exception as e:
         return jsonify({
             'status': 'error',
@@ -23948,6 +23977,9 @@ def metrics_rpc_reset_comparison_proxy():
 @app.route('/api/rpc-metrics/reset', methods=['POST'])
 def api_rpc_metrics_reset():
     """Reset RPC metrics: clear database and reset Helius baseline"""
+    from src.metrics.rpc_compact_api import enabled
+    if enabled():
+        return jsonify({"status": "unsupported", "code": "UNSUPPORTED_HISTORICAL_TELEMETRY_MUTATION"}), 409
     try:
         conn = db_connect(DB_PATH, timeout=60)
         cursor = conn.cursor()

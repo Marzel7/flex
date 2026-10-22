@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-22T21:05:45.474245+00:00",
+  "tests_run": 43,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "measurements": {
+    "500_row_flush_seconds": 0.054754999990109354,
+    "500_row_flush_processed": 500,
+    "4200_dimension_fixture_db_bytes": 15728640,
+    "4200_dimension_fixture_encoded_bytes": 11483284,
+    "held_reader_wal_bytes": 412032
+  },
+  "production_data_samples": 0,
+  "production_writes": 0,
+  "provider_calls": 0,
+  "service_restarts": 0,
+  "large_database_copies": 0
+}

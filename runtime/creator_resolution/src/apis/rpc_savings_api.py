@@ -4,6 +4,9 @@ Date: 2026-03-05
 Purpose: Query rpc_metrics and return dashboard data for frontend visualization
 """
 
+from src.metrics.rpc_compact import Hold
+from src.metrics.rpc_compact_api import CompactReadConnection, enabled
+
 import sqlite3
 import json
 import os
@@ -122,7 +125,7 @@ def get_db_connection():
     """Get a read-only SQLite connection for dashboard queries."""
     conn = db_connect(DB_PATH, timeout=30, read_only=True)
     conn.row_factory = sqlite3.Row  # Return rows as dictionaries
-    return conn
+    return CompactReadConnection(conn) if enabled() else conn
 
 
 def query_daily_savings(days: int = 30) -> List[DailySavingsMetric]:
@@ -170,6 +173,8 @@ def query_daily_savings(days: int = 30) -> List[DailySavingsMetric]:
 
         return metrics
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_SAVINGS] Failed to query daily savings: {e}")
         return []
@@ -215,6 +220,8 @@ def query_section_breakdown(days: int = 30) -> List[SectionBreakdown]:
 
         return breakdown
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_SAVINGS] Failed to query section breakdown: {e}")
         return []
@@ -256,6 +263,8 @@ def query_cache_performance() -> List[CachePerformance]:
 
         return performance
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_SAVINGS] Failed to query cache performance: {e}")
         return []
@@ -295,6 +304,8 @@ def query_cumulative_summary() -> Optional[CumulativeSummary]:
             refresh_count=row['refresh_count'] or 0,
         )
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_SAVINGS] Failed to query cumulative summary: {e}")
         return None
@@ -331,6 +342,8 @@ def query_dashboard_24h() -> Optional[Dashboard24h]:
             total_requests_24h=row['total_requests_24h'] or 0,
         )
 
+    except Hold:
+        raise
     except Exception as e:
         logger.error(f"[RPC_SAVINGS] Failed to query 24h dashboard: {e}")
         return None

@@ -40907,5 +40907,91 @@
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "blocker": null,
     "next_action": "Ready for separately requested deployment preflight; do not install or restart. Historical 539 missing-birth causes remain unproven."
+  },
+  "pumpportal_create_numeric_parser_deployment_20261022": {
+    "status": "PASS",
+    "engineering_source_revision": "65da0e227727da5fb19a75950cae8de1c05bc9ab",
+    "runtime_target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+    "installed_source_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+    "preimage_sha256": "5cb137c51c1167fdc54a3a3a311203e12da0860b96460104407a3650cde7cc8d",
+    "listener_pid_before": 42141,
+    "listener_pid_after": 63796,
+    "verification": {
+      "offline_tests": 160,
+      "clean_restoration_tests": 160,
+      "natural_acceptance_seconds": 311.4,
+      "websocket_counts": [
+        {
+          "subscription": "pumpportal_create",
+          "messages": 33,
+          "latest": 1792656803.511468
+        },
+        {
+          "subscription": "pumpportal_migrate",
+          "messages": 1,
+          "latest": 1792656515.453289
+        },
+        {
+          "subscription": "pumpswap_logs",
+          "messages": 3,
+          "latest": 1792656609.0606022
+        }
+      ],
+      "new_exact_COMMITTED_receipts": 31,
+      "protected_quarantine_rows_unchanged": 80,
+      "quarantine_retry_growth": 0,
+      "protected_canonical_identities_unchanged": true,
+      "startup_connection_lifecycle_errors": 0,
+      "pumpportal_reconnect_warnings": 0,
+      "pumpswap_subscription_ack": true,
+      "installed_application_files_matching_candidate": 689
+    },
+    "database_and_disk_health": {
+      "free_bytes": 2780594176,
+      "database": {
+        "flex_complete_database.db": {
+          "wal": 0,
+          "lock_type": 2
+        },
+        "wt_ops_v2.db": {
+          "wal": 0,
+          "lock_type": 2
+        }
+      }
+    },
+    "production_state": {
+      "creator_funding_worker": {
+        "state": "STOPPED",
+        "pid": 0,
+        "start": 0
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 54979,
+        "start": 1792640366
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 13612,
+        "start": 1792610372
+      },
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 63796,
+        "start": 1792656487
+      },
+      "ws_cascade": {
+        "state": "STOPPED",
+        "pid": 0,
+        "start": 0
+      }
+    },
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "production_flags": "Only approved listener source file installed and only listener restarted. Receipt accounting, quarantine and seven-day retention preserved. Funding/Cascade remain stopped. No manual provider calls, schema changes, replay, receipt retirement or other worker restart.",
+    "rollback_status": "NOT_REQUIRED; exact verified one-file preimage retained",
+    "limitations": "No malformed events injected. No claim of historical birth recovery or overall coverage improvement. Free disk fluctuated from ~5.54GB to ~2.78GB, remaining above 2GB floor at every observation.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE"
   }
 }

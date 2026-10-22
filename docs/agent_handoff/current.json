@@ -33700,8 +33700,8 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/lightweight-dev003a-safety",
-    "git_head": "ace3e5178b816fba9c68dfdbbf08ddd828c03237",
+    "branch": "codex/lightweight-dev003b-safety",
+    "git_head": "262d82802e019196e4f18042c7bbdc6ee1b4786f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-22T21:15:22.167656+00:00",
@@ -41141,5 +41141,36 @@
     "report": "docs/dev/lightweight_dev003a/REPORT.md",
     "ready_for_deployment_preflight": false,
     "next_action": "Qualify pre-commit transaction WAL/spill and lock budgets; then resume installation and ordered rollback qualification. Do not deploy or backfill production."
+  },
+  "flex_lightweight_dev003b_transaction_safety": {
+    "observed_at_utc": "2026-10-22T21:47:26.165728+00:00",
+    "engineering_revision": "262d82802e019196e4f18042c7bbdc6ee1b4786f",
+    "executable_candidate": "fde478b7ef2b77b983b58d41f46d0de451d22dd3; unchanged, defect not corrected",
+    "status": "HOLD",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Test/evidence-only capability qualification; stopped at mandatory absolute-bound capability gap.",
+    "blocker": "No qualified pre-write WAL dirty-frame reservation or absolute writer-lock/commit cancellation deadline in current driver. Spill suppression enables rollback but does not cap commit; progress callbacks are cooperative. Original WAL overrun reproduced unchanged.",
+    "tests": {
+      "passed": 51,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "retained": 47,
+      "new_capability_probes": 4
+    },
+    "measurements": {
+      "original_wal_before": 67081872,
+      "original_wal_after": 67654552,
+      "threshold": 67108864,
+      "journal_limit_probe": 32768,
+      "probe_wal": 140112,
+      "pause_deadline_seconds": 0.01,
+      "observed_lock_held_seconds": 0.05398745904676616
+    },
+    "incomplete": "No runtime correction, adaptive backfill, full-flush hard-budget implementation, installation qualification or ordered rollback. Stop rule applied.",
+    "production_state": "No writes, schema changes, deployment, flags, service actions, providers, backfill, retirement or compaction.",
+    "report": "docs/dev/lightweight_dev003b/REPORT.md",
+    "ready_for_deployment_preflight": false,
+    "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback."
   }
 }

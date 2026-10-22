@@ -1,0 +1,280 @@
+{
+  "utc": "2026-10-22T20:20:48.847071+00:00",
+  "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+  "inode": 549513179,
+  "bytes": 35652194304,
+  "schema_version": [
+    {
+      "schema_version": 849
+    }
+  ],
+  "page_size": [
+    {
+      "page_size": 4096
+    }
+  ],
+  "freelist_count": [
+    {
+      "freelist_count": 783460
+    }
+  ],
+  "schema": [
+    {
+      "name": "rpc_metrics",
+      "type": "table",
+      "sql": "CREATE TABLE rpc_metrics (\n                id INTEGER PRIMARY KEY AUTOINCREMENT,\n                timestamp REAL NOT NULL,\n                section TEXT NOT NULL,\n                provider TEXT NOT NULL,\n                method TEXT NOT NULL,\n                status_code INTEGER,\n                latency_ms REAL,\n                credits INTEGER,\n                mode TEXT DEFAULT 'realtime',\n                retries INTEGER DEFAULT 0,\n                source_file TEXT DEFAULT 'unknown',\n                error TEXT,\n                process_pid INTEGER,\n                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n            , cache_action TEXT DEFAULT 'none', credits_saved INTEGER DEFAULT 0, optimization_layer TEXT DEFAULT 'none')"
+    },
+    {
+      "name": "rpc_metrics_state",
+      "type": "table",
+      "sql": "CREATE TABLE rpc_metrics_state (\n                key TEXT PRIMARY KEY,\n                value TEXT NOT NULL,\n                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n            )"
+    },
+    {
+      "name": "idx_rpc_metrics_timestamp",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_timestamp\n            ON rpc_metrics(timestamp DESC)\n        "
+    },
+    {
+      "name": "idx_rpc_metrics_source_file",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_source_file\n            ON rpc_metrics(source_file, timestamp DESC)\n        "
+    },
+    {
+      "name": "idx_rpc_metrics_method",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_method\n            ON rpc_metrics(method, timestamp DESC)\n        "
+    },
+    {
+      "name": "idx_rpc_metrics_cache",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_cache\nON rpc_metrics(cache_action, recorded_at DESC)"
+    },
+    {
+      "name": "idx_rpc_metrics_date_cache",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_date_cache\nON rpc_metrics(DATE(recorded_at), cache_action)"
+    },
+    {
+      "name": "idx_rpc_metrics_section_date",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_section_date\nON rpc_metrics(section, DATE(recorded_at))"
+    },
+    {
+      "name": "idx_rpc_metrics_cache_action",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_cache_action\nON rpc_metrics(cache_action, recorded_at DESC)"
+    },
+    {
+      "name": "idx_rpc_metrics_recorded_at",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_recorded_at\nON rpc_metrics(recorded_at DESC)"
+    },
+    {
+      "name": "idx_rpc_metrics_efficiency",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_efficiency\nON rpc_metrics(DATE(recorded_at), cache_action, credits, credits_saved)"
+    },
+    {
+      "name": "idx_rpc_metrics_optimization_layer",
+      "type": "index",
+      "sql": "CREATE INDEX idx_rpc_metrics_optimization_layer\n            ON rpc_metrics(optimization_layer, timestamp DESC)\n        "
+    },
+    {
+      "name": "v_rpc_daily_savings",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_daily_savings AS\nSELECT\n  DATE(recorded_at) AS day,\n\n  -- Actual RPC credits consumed\n  SUM(COALESCE(credits, 0)) AS credits_spent,\n\n  -- Credits avoided through caching\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved,\n\n  -- Baseline cost without optimizations (what we would have spent)\n  (SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))) AS credits_baseline,\n\n  -- Savings percentage: savings / (spent + saved) * 100\n  ROUND(\n    100.0 * SUM(COALESCE(credits_saved, 0)) /\n    NULLIF((SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))), 0),\n    1\n  ) AS savings_pct,\n\n  -- Total events by cache action\n  SUM(CASE WHEN cache_action = 'skip' THEN 1 ELSE 0 END) AS cache_skip_events,\n  SUM(CASE WHEN cache_action = 'refresh' THEN 1 ELSE 0 END) AS cache_refresh_events,\n  SUM(CASE WHEN cache_action = 'full_scan' THEN 1 ELSE 0 END) AS full_scan_events,\n  SUM(CASE WHEN cache_action = 'none' THEN 1 ELSE 0 END) AS no_cache_events,\n\n  -- Credits saved by cache type\n  SUM(CASE WHEN cache_action = 'skip' THEN credits_saved ELSE 0 END) AS credits_saved_skip,\n  SUM(CASE WHEN cache_action = 'refresh' THEN credits_saved ELSE 0 END) AS credits_saved_refresh,\n\n  -- Request counts\n  COUNT(*) AS total_requests,\n  SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) AS cache_hit_events,\n\n  -- Cache hit rate\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS cache_hit_rate_pct\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY DATE(recorded_at)\nORDER BY day DESC"
+    },
+    {
+      "name": "v_rpc_savings_by_section",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_savings_by_section AS\nSELECT\n  section,\n  DATE(recorded_at) AS day,\n\n  -- Credits\n  SUM(COALESCE(credits, 0)) AS credits_spent,\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved,\n  (SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))) AS credits_baseline,\n\n  -- Percentages\n  ROUND(\n    100.0 * SUM(COALESCE(credits_saved, 0)) /\n    NULLIF((SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))), 0),\n    1\n  ) AS savings_pct,\n\n  -- Cache types\n  SUM(CASE WHEN cache_action = 'skip' THEN 1 ELSE 0 END) AS cache_skip_events,\n  SUM(CASE WHEN cache_action = 'refresh' THEN 1 ELSE 0 END) AS cache_refresh_events,\n  COUNT(*) AS total_requests\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY section, DATE(recorded_at)\nORDER BY day DESC, credits_saved DESC"
+    },
+    {
+      "name": "v_rpc_cache_performance",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_cache_performance AS\nSELECT\n  cache_action,\n\n  COUNT(*) AS event_count,\n  SUM(COALESCE(credits_saved, 0)) AS total_credits_saved,\n  AVG(COALESCE(credits_saved, 0)) AS avg_credits_saved,\n  MIN(COALESCE(credits_saved, 0)) AS min_credits_saved,\n  MAX(COALESCE(credits_saved, 0)) AS max_credits_saved,\n\n  -- Efficiency: total savings / total events\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) / NULLIF(COUNT(*), 0),\n    1\n  ) AS efficiency_per_event,\n\n  -- Time period\n  MIN(DATE(recorded_at)) AS first_seen,\n  MAX(DATE(recorded_at)) AS last_seen\n\nFROM rpc_metrics\nWHERE cache_action != 'none' AND recorded_at IS NOT NULL\nGROUP BY cache_action\nORDER BY total_credits_saved DESC"
+    },
+    {
+      "name": "v_rpc_cumulative_savings",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_cumulative_savings AS\nSELECT\n  DATE(MIN(recorded_at)) AS period_start,\n  DATE(MAX(recorded_at)) AS period_end,\n\n  SUM(COALESCE(credits, 0)) AS total_credits_spent,\n  SUM(COALESCE(credits_saved, 0)) AS total_credits_saved,\n  (SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))) AS total_credits_baseline,\n\n  ROUND(\n    100.0 * SUM(COALESCE(credits_saved, 0)) /\n    NULLIF((SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))), 0),\n    1\n  ) AS overall_savings_pct,\n\n  COUNT(*) AS total_requests,\n  SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) AS total_cache_hits,\n\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS overall_hit_rate_pct,\n\n  -- Breakdown by cache type\n  SUM(CASE WHEN cache_action = 'skip' THEN credits_saved ELSE 0 END) AS skip_savings,\n  SUM(CASE WHEN cache_action = 'refresh' THEN credits_saved ELSE 0 END) AS refresh_savings,\n\n  SUM(CASE WHEN cache_action = 'skip' THEN 1 ELSE 0 END) AS skip_count,\n  SUM(CASE WHEN cache_action = 'refresh' THEN 1 ELSE 0 END) AS refresh_count\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL"
+    },
+    {
+      "name": "v_rpc_rolling_7day_average",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_rolling_7day_average AS\nSELECT\n  DATE(recorded_at) AS day,\n\n  ROUND(\n    AVG(SUM(COALESCE(credits, 0)))\n    OVER (ORDER BY DATE(recorded_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),\n    1\n  ) AS avg_daily_credits_spent_7d,\n\n  ROUND(\n    AVG(SUM(COALESCE(credits_saved, 0)))\n    OVER (ORDER BY DATE(recorded_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),\n    1\n  ) AS avg_daily_credits_saved_7d,\n\n  ROUND(\n    AVG(ROUND(\n      100.0 * SUM(COALESCE(credits_saved, 0)) /\n      NULLIF((SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))), 0),\n      1\n    ))\n    OVER (ORDER BY DATE(recorded_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),\n    1\n  ) AS avg_savings_pct_7d\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY DATE(recorded_at)\nORDER BY day DESC"
+    },
+    {
+      "name": "v_rpc_week_comparison",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_week_comparison AS\nWITH this_week AS (\n  SELECT\n    'this_week' AS period,\n    SUM(credits) AS credits_spent,\n    SUM(credits_saved) AS credits_saved,\n    COUNT(*) AS request_count\n  FROM rpc_metrics\n  WHERE recorded_at >= datetime('now', '-7 days')\n),\nlast_week AS (\n  SELECT\n    'last_week' AS period,\n    SUM(credits) AS credits_spent,\n    SUM(credits_saved) AS credits_saved,\n    COUNT(*) AS request_count\n  FROM rpc_metrics\n  WHERE recorded_at >= datetime('now', '-14 days')\n    AND recorded_at < datetime('now', '-7 days')\n)\nSELECT * FROM this_week\nUNION ALL\nSELECT * FROM last_week"
+    },
+    {
+      "name": "v_rpc_top_savings_sections",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_top_savings_sections AS\nSELECT\n  section,\n  SUM(credits) AS credits_spent,\n  SUM(credits_saved) AS credits_saved,\n  (SUM(credits) + SUM(credits_saved)) AS credits_baseline,\n  ROUND(\n    100.0 * SUM(credits_saved) /\n    NULLIF((SUM(credits) + SUM(credits_saved)), 0),\n    1\n  ) AS savings_pct,\n  COUNT(*) AS request_count\nFROM rpc_metrics\nWHERE recorded_at >= datetime('now', '-30 days')\nGROUP BY section\nORDER BY credits_saved DESC"
+    },
+    {
+      "name": "v_rpc_hit_rate_trend",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_hit_rate_trend AS\nSELECT\n  DATE(recorded_at) AS day,\n  section,\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS hit_rate_pct,\n  COUNT(*) AS total_requests\nFROM rpc_metrics\nWHERE recorded_at >= datetime('now', '-30 days')\nGROUP BY DATE(recorded_at), section\nORDER BY day DESC, hit_rate_pct DESC"
+    },
+    {
+      "name": "v_rpc_dashboard_24h",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_dashboard_24h AS\nSELECT\n  -- Time window\n  datetime('now') AS query_time,\n  datetime('now', '-24 hours') AS period_start,\n  datetime('now') AS period_end,\n\n  -- Costs\n  SUM(COALESCE(credits, 0)) AS credits_spent_24h,\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved_24h,\n  (SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))) AS credits_baseline_24h,\n\n  -- Savings percentage\n  ROUND(\n    100.0 * SUM(COALESCE(credits_saved, 0)) /\n    NULLIF((SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))), 0),\n    1\n  ) AS savings_pct_24h,\n\n  -- Cache performance\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS cache_hit_rate_24h,\n\n  -- Breakdown\n  SUM(CASE WHEN cache_action = 'skip' THEN credits_saved ELSE 0 END) AS skip_savings_24h,\n  SUM(CASE WHEN cache_action = 'refresh' THEN credits_saved ELSE 0 END) AS refresh_savings_24h,\n  SUM(CASE WHEN cache_action = 'skip' THEN 1 ELSE 0 END) AS skip_count_24h,\n  SUM(CASE WHEN cache_action = 'refresh' THEN 1 ELSE 0 END) AS refresh_count_24h,\n\n  COUNT(*) AS total_requests_24h\n\nFROM rpc_metrics\nWHERE recorded_at >= datetime('now', '-24 hours')"
+    },
+    {
+      "name": "v_rpc_efficiency_score",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_efficiency_score AS\nSELECT\n  DATE(recorded_at) AS day,\n\n  -- Credits consumed\n  SUM(COALESCE(credits, 0)) AS credits_spent,\n\n  -- Credits avoided through caching\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved,\n\n  -- Efficiency score: how many credits saved per credit spent\n  -- Protected against division by zero with NULLIF\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) /\n    NULLIF(SUM(COALESCE(credits, 0)), 0),\n    2\n  ) AS efficiency_score,\n\n  -- Baseline (what we would have spent without optimization)\n  (SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))) AS credits_baseline,\n\n  -- Request counts for context\n  COUNT(*) AS total_requests,\n  SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) AS cache_hits,\n\n  -- Cache hit rate percentage\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS cache_hit_rate_pct\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY DATE(recorded_at)\nORDER BY day DESC"
+    },
+    {
+      "name": "v_rpc_efficiency_24h",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_efficiency_24h AS\nSELECT\n  datetime('now') AS query_time,\n  datetime('now', '-24 hours') AS period_start,\n  datetime('now') AS period_end,\n\n  -- Last 24 hours metrics\n  SUM(COALESCE(credits, 0)) AS credits_spent_24h,\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved_24h,\n\n  -- Efficiency score (24h)\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) /\n    NULLIF(SUM(COALESCE(credits, 0)), 0),\n    2\n  ) AS efficiency_score_24h,\n\n  -- Additional context\n  (SUM(COALESCE(credits, 0)) + SUM(COALESCE(credits_saved, 0))) AS credits_baseline_24h,\n  COUNT(*) AS total_requests_24h,\n  SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) AS cache_hits_24h,\n\n  -- Cache hit rate\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS cache_hit_rate_pct_24h\n\nFROM rpc_metrics\nWHERE recorded_at >= datetime('now', '-24 hours')\n  AND recorded_at IS NOT NULL"
+    },
+    {
+      "name": "v_rpc_efficiency_all_time",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_efficiency_all_time AS\nSELECT\n  MIN(DATE(recorded_at)) AS period_start,\n  MAX(DATE(recorded_at)) AS period_end,\n  COUNT(DISTINCT DATE(recorded_at)) AS days_tracked,\n\n  -- All-time metrics\n  SUM(COALESCE(credits, 0)) AS total_credits_spent,\n  SUM(COALESCE(credits_saved, 0)) AS total_credits_saved,\n\n  -- All-time efficiency score\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) /\n    NULLIF(SUM(COALESCE(credits, 0)), 0),\n    2\n  ) AS efficiency_score_all_time,\n\n  -- Average daily metrics\n  ROUND(\n    SUM(COALESCE(credits, 0)) / NULLIF(COUNT(DISTINCT DATE(recorded_at)), 0),\n    1\n  ) AS avg_daily_credits_spent,\n\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) / NULLIF(COUNT(DISTINCT DATE(recorded_at)), 0),\n    1\n  ) AS avg_daily_credits_saved,\n\n  -- Overall statistics\n  COUNT(*) AS total_requests,\n  SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) AS total_cache_hits,\n\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS overall_cache_hit_rate_pct\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL"
+    },
+    {
+      "name": "v_rpc_efficiency_by_section",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_efficiency_by_section AS\nSELECT\n  section,\n  DATE(recorded_at) AS day,\n\n  SUM(COALESCE(credits, 0)) AS credits_spent,\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved,\n\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) /\n    NULLIF(SUM(COALESCE(credits, 0)), 0),\n    2\n  ) AS efficiency_score,\n\n  COUNT(*) AS request_count,\n\n  ROUND(\n    100.0 * SUM(CASE WHEN cache_action IN ('skip', 'refresh') THEN 1 ELSE 0 END) /\n    NULLIF(COUNT(*), 0),\n    1\n  ) AS cache_hit_rate_pct\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY section, DATE(recorded_at)\nORDER BY day DESC, efficiency_score DESC"
+    },
+    {
+      "name": "v_rpc_efficiency_trend_7day",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_efficiency_trend_7day AS\nSELECT\n  DATE(recorded_at) AS day,\n\n  ROUND(\n    AVG(SUM(COALESCE(credits, 0)))\n    OVER (ORDER BY DATE(recorded_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),\n    1\n  ) AS avg_daily_spent_7d,\n\n  ROUND(\n    AVG(SUM(COALESCE(credits_saved, 0)))\n    OVER (ORDER BY DATE(recorded_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),\n    1\n  ) AS avg_daily_saved_7d,\n\n  ROUND(\n    AVG(\n      SUM(COALESCE(credits_saved, 0)) /\n      NULLIF(SUM(COALESCE(credits, 0)), 0)\n    )\n    OVER (ORDER BY DATE(recorded_at) ROWS BETWEEN 6 PRECEDING AND CURRENT ROW),\n    2\n  ) AS efficiency_trend_7d\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY DATE(recorded_at)\nORDER BY day DESC"
+    },
+    {
+      "name": "v_rpc_efficiency_health",
+      "type": "view",
+      "sql": "CREATE VIEW v_rpc_efficiency_health AS\nSELECT\n  DATE(recorded_at) AS day,\n\n  ROUND(\n    SUM(COALESCE(credits_saved, 0)) /\n    NULLIF(SUM(COALESCE(credits, 0)), 0),\n    2\n  ) AS efficiency_score,\n\n  CASE\n    WHEN (SUM(COALESCE(credits_saved, 0)) / NULLIF(SUM(COALESCE(credits, 0)), 0)) < 1\n      THEN 'POOR'\n    WHEN (SUM(COALESCE(credits_saved, 0)) / NULLIF(SUM(COALESCE(credits, 0)), 0)) < 3\n      THEN 'WEAK'\n    WHEN (SUM(COALESCE(credits_saved, 0)) / NULLIF(SUM(COALESCE(credits, 0)), 0)) < 5\n      THEN 'GOOD'\n    WHEN (SUM(COALESCE(credits_saved, 0)) / NULLIF(SUM(COALESCE(credits, 0)), 0)) < 10\n      THEN 'EXCELLENT'\n    ELSE 'OUTSTANDING'\n  END AS health_status,\n\n  CASE\n    WHEN (SUM(COALESCE(credits_saved, 0)) / NULLIF(SUM(COALESCE(credits, 0)), 0)) < 3\n      THEN 'ALERT'\n    WHEN (SUM(COALESCE(credits_saved, 0)) / NULLIF(SUM(COALESCE(credits, 0)), 0)) < 5\n      THEN 'WARNING'\n    ELSE 'NORMAL'\n  END AS alert_level,\n\n  SUM(COALESCE(credits, 0)) AS credits_spent,\n  SUM(COALESCE(credits_saved, 0)) AS credits_saved,\n  COUNT(*) AS request_count\n\nFROM rpc_metrics\nWHERE recorded_at IS NOT NULL\nGROUP BY DATE(recorded_at)\nORDER BY day DESC"
+    }
+  ],
+  "state": {
+    "comparison_reset_timestamp": [
+      {
+        "value": "1792623600.0"
+      }
+    ],
+    "comparison_reset_time": [
+      {
+        "value": "2026-10-22T00:02:04.005754+01:00"
+      }
+    ],
+    "baseline_helius_credits_today": [
+      {
+        "value": "757471"
+      }
+    ],
+    "manual_monitoring_reset_at": [],
+    "rpc_metrics_last_reset_day": [
+      {
+        "value": "2026-10-22"
+      }
+    ]
+  },
+  "endpoints": {
+    "first_id": [
+      {
+        "id": 4055803
+      }
+    ],
+    "last_id": [
+      {
+        "id": 20443602
+      }
+    ],
+    "first_time": [
+      {
+        "timestamp": 1781741576.121121
+      }
+    ],
+    "last_time": [
+      {
+        "timestamp": 1792700409.176086
+      }
+    ]
+  },
+  "sample": {
+    "query_plan": [
+      {
+        "id": 5,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)"
+      },
+      {
+        "id": 5,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)"
+      },
+      {
+        "id": 5,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)"
+      },
+      {
+        "id": 5,
+        "parent": 0,
+        "notused": 0,
+        "detail": "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)"
+      }
+    ],
+    "rows_read": 128,
+    "distinct_ids": 128,
+    "clock_date_mismatches": 0,
+    "negative_latency": 0,
+    "null_latency": 0
+  },
+  "installed_hashes": {
+    "src/metrics/rpc_metrics_recorder.py": {
+      "flex-listener": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "flex-main-workers": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "flex-walkback-dev002": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e"
+    },
+    "src/apis/rpc_metrics_api.py": {
+      "flex-listener": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "flex-main-workers": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "flex-walkback-dev002": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9"
+    },
+    "src/apis/rpc_savings_api.py": {
+      "flex-listener": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "flex-main-workers": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "flex-walkback-dev002": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838"
+    },
+    "src/apis/rpc_efficiency_api.py": {
+      "flex-listener": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "flex-main-workers": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "flex-walkback-dev002": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408"
+    }
+  },
+  "storage_estimate": {
+    "utc": "2026-10-22T20:23:27.898207+00:00",
+    "sample_design": "64 deterministic evenly spaced rowid anchor clusters x LIMIT 16; not random or exact census",
+    "sample_rows": 1024,
+    "sample_older_than_7d": 976,
+    "mean_field_content_bytes": 171.26953125,
+    "rowid_span_upper_bound": 16387800,
+    "row_estimate_assuming_dense_span": 16387800,
+    "old_row_estimate_assuming_representative_clusters": 15619621.875,
+    "old_field_content_byte_proxy": 2675165316.833496,
+    "neighborhood_rows_min": 16,
+    "neighborhood_rows_max": 16,
+    "plan": [
+      [
+        4,
+        0,
+        196,
+        "SEARCH rpc_metrics USING INTEGER PRIMARY KEY (rowid>?)"
+      ]
+    ],
+    "warning": "Text-encoded field lengths exclude SQLite records/pages/indexes and are not reclaimable allocation; rowid gaps and clustered ages make extrapolation uncertain."
+  }
+}

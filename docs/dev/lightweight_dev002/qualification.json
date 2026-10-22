@@ -1,0 +1,51 @@
+{
+  "fixture": {
+    "rows": 24,
+    "compact_cells": 8,
+    "exact_checks": [
+      "v_rpc_daily_savings",
+      "v_rpc_savings_by_section",
+      "v_rpc_cache_performance",
+      "v_rpc_cumulative_savings",
+      "v_rpc_efficiency_score",
+      "v_rpc_efficiency_all_time",
+      "v_rpc_efficiency_by_section",
+      "v_rpc_efficiency_health",
+      "v_rpc_efficiency_trend_7day",
+      "v_rpc_rolling_7day_average",
+      "database_api_group_inputs"
+    ],
+    "scope": "whole observed days/all-time only; no arbitrary sub-day claim"
+  },
+  "counterexamples": [
+    "arbitrary sub-day boundary requires within-bucket ordering",
+    "p95 not reconstructible from count/sum/min/max",
+    "timestamp and recorded_at cannot be substituted"
+  ],
+  "production_writes": 0,
+  "persistent_fixture_bytes": 0,
+  "bounded_sample": {
+    "rows": 128,
+    "compact_cells": 4,
+    "exact_checks": [
+      "v_rpc_daily_savings",
+      "v_rpc_savings_by_section",
+      "v_rpc_cache_performance",
+      "v_rpc_cumulative_savings",
+      "v_rpc_efficiency_score",
+      "v_rpc_efficiency_all_time",
+      "v_rpc_efficiency_by_section",
+      "v_rpc_efficiency_health",
+      "v_rpc_efficiency_trend_7day",
+      "v_rpc_rolling_7day_average",
+      "database_api_group_inputs"
+    ],
+    "scope": "whole observed days/all-time only; no arbitrary sub-day claim"
+  },
+  "selection_plans": [
+    "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)",
+    "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)",
+    "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)",
+    "SEARCH rpc_metrics USING INDEX idx_rpc_metrics_timestamp (timestamp<?)"
+  ]
+}

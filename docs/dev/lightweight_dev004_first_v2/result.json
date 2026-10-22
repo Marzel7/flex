@@ -1,0 +1,1231 @@
+{
+  "status": "HOLD",
+  "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+  "rows": {
+    "core.transfer_index": 0,
+    "core.token_analysis": 1,
+    "core.tracked_tokens": 1,
+    "core.token_market_cap_peaks": 0,
+    "core.metadata_cache": 1,
+    "core.token_pool_accounts": 1,
+    "core.creator_resolution_queue": 0,
+    "core.creator_funding_queue": 1,
+    "core.migration_walkback_handoff": 1,
+    "core.creator_funders": 0,
+    "ops.wt_walkback_queue": 1,
+    "ops.wt_provisioning_sessions": 1,
+    "ops.wt_walkback_edge_candidates": 3,
+    "ops.wt_attribution_outcomes": 1,
+    "ops.wt_launch_audit": 1,
+    "ops.wt_watchtower_launches": 1,
+    "ops.operator_launch_membership": 1,
+    "ops.operator_launch_assignment_history": 0,
+    "ops.watchtower_token_attribution": 1,
+    "ops.operators": 1,
+    "ops.operator_identity_state": 1,
+    "ops.operator_evidence": 5,
+    "ops.operator_reviews": 1,
+    "ops.operator_entities": 0,
+    "ops.operator_identity_assets": 0,
+    "ops.monitor_admission_outbox": 0,
+    "ops.wt_confirmed_treasuries": 0,
+    "ops.wt_discovered_subprovs": 0,
+    "ops.wt_ops_v2_wallets": 0,
+    "ops.wt_ops_v2": 0,
+    "ops.wt_wrap_close_candidates": 1,
+    "ops.wt_creator_birth_launch": 0,
+    "ops.wt_candidate_websocket_watches": 0,
+    "ops.wt_lineage_quarantine": 0,
+    "ops.wt_walkback_atomic_flows": 0,
+    "ops.operation_monitor_facts": 1,
+    "ops.operation_monitor_observations": 11,
+    "ops.operation_monitor_entry_provenance": 0
+  },
+  "selectors": [
+    {
+      "database": "ops",
+      "table": "wt_walkback_queue",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_provisioning_sessions",
+      "predicate": "source_mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_edge_candidates",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 3,
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_attribution_outcomes",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_launch_audit",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_launch_audit USING INDEX sqlite_autoindex_wt_launch_audit_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_watchtower_launches",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_launch_membership",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_launch_assignment_history",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_launch_assignment_history USING INDEX ix_operator_launch_history_mint (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "watchtower_token_attribution",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operators",
+      "predicate": "operator_id=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH operators USING INDEX sqlite_autoindex_operators_1 (operator_id=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_identity_state",
+      "predicate": "operator_id=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH operator_identity_state USING INDEX sqlite_autoindex_operator_identity_state_1 (operator_id=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_evidence",
+      "predicate": "operator_id=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "rows": 5,
+      "plan": [
+        "SEARCH operator_evidence USING INDEX ix_oe_operator (operator_id=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_reviews",
+      "predicate": "operator_id=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH operator_reviews USING INDEX ix_or_operator (operator_id=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_entities",
+      "predicate": "operator_id=? AND entity_address=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_identity_assets",
+      "predicate": "asset_value=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_identity_assets USING INDEX ix_operator_identity_assets_value (asset_value=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_entities",
+      "predicate": "operator_id=? AND entity_address=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_identity_assets",
+      "predicate": "asset_value=?",
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_identity_assets USING INDEX ix_operator_identity_assets_value (asset_value=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_entities",
+      "predicate": "operator_id=? AND entity_address=?",
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operator_identity_assets",
+      "predicate": "asset_value=?",
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operator_identity_assets USING INDEX ix_operator_identity_assets_value (asset_value=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_confirmed_treasuries",
+      "predicate": "treasury=?",
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_discovered_subprovs",
+      "predicate": "subprov=?",
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_ops_v2_wallets",
+      "predicate": "wallet=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_ops_v2_wallets",
+      "predicate": "wallet=?",
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_ops_v2",
+      "predicate": "operation_uuid=?",
+      "arguments": [
+        ""
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_ops_v2 USING INDEX sqlite_autoindex_wt_ops_v2_1 (operation_uuid=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_wrap_close_candidates",
+      "predicate": "creator=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_wrap_close_candidates USING INDEX sqlite_autoindex_wt_wrap_close_candidates_1 (creator=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_creator_birth_launch",
+      "predicate": "creator=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_creator_birth_launch USING INDEX sqlite_autoindex_wt_creator_birth_launch_1 (creator=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_candidate_websocket_watches",
+      "predicate": "candidate_wallet=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_candidate_detected (candidate_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_watchtower_launches",
+      "predicate": "creator_wallet=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_creator (creator_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_lineage_quarantine",
+      "predicate": "subject_wallet=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_lineage_quarantine",
+      "predicate": "subject_wallet=?",
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_lineage_quarantine",
+      "predicate": "subject_wallet=?",
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_lineage_quarantine",
+      "predicate": "subject_wallet=?",
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_lineage_quarantine",
+      "predicate": "subject_wallet=?",
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_lineage_quarantine",
+      "predicate": "subject_wallet=?",
+      "arguments": [
+        "88WRP6x2xuu36qyGUgrCYD1CV1jV1LuunSu6GkrsQUqe"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_atomic_flows",
+      "predicate": "signature=?",
+      "arguments": [
+        "rk5GWsahGKzBkWRbM9TiJaQnzhY62kEWa19qfYfP1sj6tNVALkj1kY7vAYznnER3jMxCKbonGJaN9mrb1E2zEh9"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX ix_wwaf_signature (signature=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "transfer_index",
+      "predicate": "signature=?",
+      "arguments": [
+        "rk5GWsahGKzBkWRbM9TiJaQnzhY62kEWa19qfYfP1sj6tNVALkj1kY7vAYznnER3jMxCKbonGJaN9mrb1E2zEh9"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH transfer_index USING INDEX idx_transfer_signature (signature=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_atomic_flows",
+      "predicate": "signature=?",
+      "arguments": [
+        "2UxcQEw5d5bzoLQLdYc4KtZo2NLi4MTPrrno48RF5Uzr4EqsvZYNpWbiL6HpYoFvzxHTeJgSfvMkkGUUSF1UjQu"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX ix_wwaf_signature (signature=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "transfer_index",
+      "predicate": "signature=?",
+      "arguments": [
+        "2UxcQEw5d5bzoLQLdYc4KtZo2NLi4MTPrrno48RF5Uzr4EqsvZYNpWbiL6HpYoFvzxHTeJgSfvMkkGUUSF1UjQu"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH transfer_index USING INDEX idx_transfer_signature (signature=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_atomic_flows",
+      "predicate": "signature=?",
+      "arguments": [
+        "5pB3cvfxi7cJroPYKbRXNeur1sfK2NGbGQwUnECQbc8B2UWr6QigDRsb7VmS3B5AQ1GT6GbXfMDBHovnxwMzgVTJ"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX ix_wwaf_signature (signature=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "transfer_index",
+      "predicate": "signature=?",
+      "arguments": [
+        "5pB3cvfxi7cJroPYKbRXNeur1sfK2NGbGQwUnECQbc8B2UWr6QigDRsb7VmS3B5AQ1GT6GbXfMDBHovnxwMzgVTJ"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH transfer_index USING INDEX idx_transfer_signature (signature=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_facts",
+      "predicate": "operation_id=? AND mint=?",
+      "arguments": [
+        "watchtower",
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH operation_monitor_facts USING INDEX sqlite_autoindex_operation_monitor_facts_1 (operation_id=? AND mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "predicate": "operation_id=? AND mint=?",
+      "arguments": [
+        "watchtower",
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 11,
+      "plan": [
+        "SEARCH operation_monitor_observations USING INDEX ix_operation_monitor_observation_path (operation_id=? AND mint=?)"
+      ]
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_entry_provenance",
+      "predicate": "operation_id=? AND mint=?",
+      "arguments": [
+        "watchtower",
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH operation_monitor_entry_provenance USING INDEX sqlite_autoindex_operation_monitor_entry_provenance_1 (operation_id=? AND mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "token_analysis",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "tracked_tokens",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH tracked_tokens USING INDEX sqlite_autoindex_tracked_tokens_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "token_market_cap_peaks",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH token_market_cap_peaks USING INDEX sqlite_autoindex_token_market_cap_peaks_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "metadata_cache",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH metadata_cache USING INDEX sqlite_autoindex_metadata_cache_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "token_pool_accounts",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH token_pool_accounts USING INDEX idx_pool_primary (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "creator_resolution_queue",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "creator_funding_queue",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "migration_walkback_handoff",
+      "predicate": "mint=?",
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "rows": 1,
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ]
+    },
+    {
+      "database": "core",
+      "table": "creator_funders",
+      "predicate": "creator_address=?",
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "rows": 0,
+      "plan": [
+        "SEARCH creator_funders USING INDEX idx_creator_funders_creator (creator_address=?)"
+      ]
+    }
+  ],
+  "comparisons": {
+    "known_treasury": {
+      "equal": true,
+      "v1_digest": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa",
+      "v2_digest": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+    },
+    "known_subprovider": {
+      "equal": true,
+      "v1_digest": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa",
+      "v2_digest": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+    },
+    "watchtower_route": {
+      "equal": true,
+      "v1_digest": "c5d5c66405fa1937fdfe0fe1ea699258e7c771ff26db3400ce568ec1647d149a",
+      "v2_digest": "c5d5c66405fa1937fdfe0fe1ea699258e7c771ff26db3400ce568ec1647d149a"
+    },
+    "creator_classification": {
+      "equal": true,
+      "v1_digest": "7b22d1144ee513e48283e2ab3c7949e2f4aa1a03aaf936de43455af1bf2ff4e4",
+      "v2_digest": "7b22d1144ee513e48283e2ab3c7949e2f4aa1a03aaf936de43455af1bf2ff4e4"
+    },
+    "retained_outcome": {
+      "equal": true,
+      "v1_digest": "e6c47ddbdc43a8b177cf51e08ac45571fc1af0491063a038c700d71e22b6eff9",
+      "v2_digest": "e6c47ddbdc43a8b177cf51e08ac45571fc1af0491063a038c700d71e22b6eff9"
+    },
+    "parent_candidates": {
+      "equal": true,
+      "v1_digest": "ceda45982c7f9b449ee79af6d1263f2bb18396a639ae665f6fd82eeb4ed3bf11",
+      "v2_digest": "ceda45982c7f9b449ee79af6d1263f2bb18396a639ae665f6fd82eeb4ed3bf11"
+    },
+    "quarantine": {
+      "equal": true,
+      "v1_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "v2_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "price_fact": {
+      "equal": true,
+      "v1_digest": "c34baa314d70e88b8ca9b01e1a0c84b675a7fe01cff250dc681a08123eaf4d96",
+      "v2_digest": "c34baa314d70e88b8ca9b01e1a0c84b675a7fe01cff250dc681a08123eaf4d96"
+    },
+    "price_observations": {
+      "equal": true,
+      "v1_digest": "46c9995f499a213c3dad7046d1cc9ef0a4fd6ba824740469d0ec50edf791364a",
+      "v2_digest": "46c9995f499a213c3dad7046d1cc9ef0a4fd6ba824740469d0ec50edf791364a"
+    },
+    "ohlc_reduction": {
+      "equal": true,
+      "v1_digest": "34d5d101eb31cc58f46fa8f42f6978a95abe056270b2711a4a6f83947a9c297c",
+      "v2_digest": "34d5d101eb31cc58f46fa8f42f6978a95abe056270b2711a4a6f83947a9c297c"
+    },
+    "creator_funding_history": {
+      "equal": true,
+      "v1_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "v2_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "holds": [
+    "UNQUALIFIED_SELECTOR:ops.monitor_admission_outbox:operation_id=? AND mint=?",
+    "No acquisition checkpoint or restartable acquisition envelope has been located for this selected mint in the retained manifest. last_observation_at and finalized price facts are not substituted for a checkpoint.",
+    "Full canonical CREATE transaction/role payload closure and accepted baseline input window are not established merely by matching anchor signatures.",
+    "No independently verified distinct Funding Account exists in this retained route: direct funder equals SubProvider; no additional identity invented.",
+    "Potential Operations discovery/promotion and post-Walkback publisher need full candidate populations, assessment bindings and lineage; this one-token subset cannot qualify those global consumers.",
+    "Completed queue reopen is not a pending/retry/lease crash-recovery qualification or live cutover reconciliation.",
+    "Retained candle reduction peak differs from accepted stored ATH; copying the final fact does not prove historical calculation equivalence.",
+    "Retained Watchtower membership/route coexist with unknown treasury/SubProvider dictionaries and UNKNOWN_INFRASTRUCTURE materialized outcome. Preserve distinct authority states."
+  ],
+  "sources": {
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/watchtower_registry_promotion.py": "cd5508da7d20b76a0770eaa44aaa4d694d715e3612c7426a4f850d9b20d28370",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_queue.py": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/watchtower_price_fact_contract.py": "4603cd20653b7243d723e14d05123020bf869c8bdb0164915c99ec3362268f16"
+  },
+  "storage_bound": 16000000,
+  "production_writes": 0,
+  "provider_calls": 0,
+  "frozen_values": {
+    "known_treasury": false,
+    "known_subprovider": false,
+    "route": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "creator_classification": [
+      "LINK_ONLY",
+      "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v",
+      "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o",
+      "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+      "wt_watchtower_launches"
+    ],
+    "outcome_type": "UNKNOWN_INFRASTRUCTURE",
+    "entry_mc_usd": 124188.60986679113,
+    "final_proven_ath_mc": 1015607.2718995338,
+    "final_ath_multiple": 8.17794218800668,
+    "monitor_state": "PRICE_MONITOR_COMPLETE_COLLAPSED",
+    "ohlc_reduction": {
+      "peak": {
+        "value": 124188.60986679113,
+        "timestamp": 1789574067,
+        "evidence": "ENTRY_REFERENCE"
+      },
+      "crossings": {
+        "2": null,
+        "5": null,
+        "10": null
+      },
+      "current_close": 2040.2058817781672,
+      "peak_multiple": 1.0,
+      "drawdown_percent": 98.357171495867
+    },
+    "selected_parents": 2,
+    "alternative_parents": 1
+  },
+  "completed_queue_reopen": "PASS; retained business state only; no cutover lease authority asserted",
+  "price_recompute_matches_retained_ath": false,
+  "fixtures": {
+    "ops_v2.sqlite": {
+      "bytes": 479232,
+      "sha256": "e39f7bb6283c87ee0c90ebe5f129fc8301b4480f8f31de38cdfd1323f31ec47d"
+    },
+    "core_v2.sqlite": {
+      "bytes": 294912,
+      "sha256": "2d8dc0b01f6b8c42540010084a7c81692174e0ee8a886b4e88f409914a5aa366"
+    }
+  },
+  "selected_rows": 37,
+  "row_dependency_manifest": [
+    {
+      "database": "core",
+      "table": "token_analysis",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "9dfefb1b2008b28822f54bb24606a8851e523409a0a710ce684bc34e860f509f",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "core",
+      "table": "tracked_tokens",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "c9d486321ddef6dadbdd6e70a84e58a0f6a6e20c25fd5146a3810c0dbaf90ca1",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "core",
+      "table": "metadata_cache",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "903670f85b98f029c0ee3c61628501592a7b7329088784967297212e389c2d56",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "core",
+      "table": "token_pool_accounts",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "base_account": "GZk3DrS9eT1YiQJ6PNQ9etaLqdsVJ8pJQWV21vEMMABy"
+      },
+      "row_sha256": "8e5cffc1ddec4241893b202199f13176bbc83661fbf3c663bdd2cfabbe7c6c78",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "core",
+      "table": "creator_funding_queue",
+      "key": {
+        "creator_address": "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "93b95f3827f8f417ba41e4ba58c62aad1a39154379155c9da0d5314952dc280e",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "core",
+      "table": "migration_walkback_handoff",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "0bdfa14222e81a0c213c89f8160f031fdec80ed3498675eb63e13e06d87a7794",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_queue",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "2abd2b33016be6a3b0353b962a6535f9a4a9afb96a0d5d6f9bf7e75cc8b46f46",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_provisioning_sessions",
+      "key": {
+        "session_id": "session_a03d900914bf50aee6f52dc3c022b12a"
+      },
+      "row_sha256": "f7f5994a378814105b0ab141bcdab7b12abe8f0378700cbe3bd3d72bf6b79616",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_edge_candidates",
+      "key": {
+        "evidence_key": "893c105f491239947e687175b0ba395af1cef2304f15d13e03a9fc8d012e75cf"
+      },
+      "row_sha256": "5c62a7ee15f9d9aecd7228d0ae300c831f811cd071a264f3c2884fa5d58cad4a",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_edge_candidates",
+      "key": {
+        "evidence_key": "12ad88589bea73b15c2b11072af0b9056b5ac95a0b11e539e2a2c5e3c507e2e9"
+      },
+      "row_sha256": "3be89da0df5ef8ee1777536a0aef61c883108717e3c245319dfd02dfeab5b366",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_walkback_edge_candidates",
+      "key": {
+        "evidence_key": "bd8ce1d18a03cd02a2a58ce46a8f24d0b121f54c051594baf34c38c9932866f9"
+      },
+      "row_sha256": "372a5fd9991b40936e2f4b7bfa254a9461b3e4129ff088205a20b02020af287b",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_attribution_outcomes",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "e6c47ddbdc43a8b177cf51e08ac45571fc1af0491063a038c700d71e22b6eff9",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_launch_audit",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "fd89ff695f92fe7e6f9d1e4c94a8e9b8cf8530c4999e6c0b18354b249418e70b",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_watchtower_launches",
+      "key": {
+        "id": 1305
+      },
+      "row_sha256": "5346f9d016192162fe343b1120fc7adf3693136b74ac83faf171a7aceec44f52",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_launch_membership",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "2457724d4d6d48e72eba0cded1f98c12ffcbe246b130babbe61b04a3b99d622b",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "watchtower_token_attribution",
+      "key": {
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "6ba6266aafa9aeff2c6c44ca369fa88eed93cd4ebf1435edae5674d9c1f8cafc",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operators",
+      "key": {
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      },
+      "row_sha256": "a003e7767a8171145cf1f161f21c781562f82eb4dfbf5144c2f6ba3f270123f8",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_identity_state",
+      "key": {
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      },
+      "row_sha256": "106ec5dec0321024369d7445dc229cda24cba99b281054a4186c0ba5135623a5",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_evidence",
+      "key": {
+        "evidence_id": "76a5cf4c-427c-56a2-8198-9cdb99406651"
+      },
+      "row_sha256": "8835ae11766155438f9ecb67b367dc91daa6528b6a8860c9c5f964fcc6ae6cdc",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_evidence",
+      "key": {
+        "evidence_id": "5cad1b48-df39-50d0-a7b1-b168a93c9127"
+      },
+      "row_sha256": "2a12a009562cb4349ee76aee641f5cf0f86d34ceba42f8889f8d0d747473b694",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_evidence",
+      "key": {
+        "evidence_id": "62a4384e-b8e3-595b-b010-b3b79de3fc6b"
+      },
+      "row_sha256": "579caeaac33419194bdbb015b9c499baf8d5666cff4568330cfecf3ce714d465",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_evidence",
+      "key": {
+        "evidence_id": "cea5be77-8c5e-5c0e-9a6b-061b0887413d"
+      },
+      "row_sha256": "a420b4615f6448a5383cbd5756b66f9a0beed845de001c08a1d8d59b47062179",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_evidence",
+      "key": {
+        "evidence_id": "c98539cb-6af0-5b10-9a32-0227bc9ae00f"
+      },
+      "row_sha256": "5b6379e41d8bc36bb4e1125cefad2750c42f8c220fe8a7a8ccc600e98019f308",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operator_reviews",
+      "key": {
+        "review_id": "3c3d20be-ec30-532e-921b-ce6393ae86ba"
+      },
+      "row_sha256": "c1b7070bfbfb4eba240edab7ec17c78e1688f80829e23402d6eddc77eff9a183",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "wt_wrap_close_candidates",
+      "key": {
+        "creator": "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      },
+      "row_sha256": "6974c62d8eb1e555ad96341523b4f9f9b414b6bf7ad05898ba6ea18ae39ef8ca",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_facts",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      },
+      "row_sha256": "c34baa314d70e88b8ca9b01e1a0c84b675a7fe01cff250dc681a08123eaf4d96",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789574400,
+        "resolution": "15m"
+      },
+      "row_sha256": "c73e2098e726bc9069a0b3cef3d4bfed65269505ede42ac6aa349e66335f157d",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789575300,
+        "resolution": "15m"
+      },
+      "row_sha256": "80bb24c2601754252fe1e82f898fb9c3c1bc8af7868a10556de72d78fb758c7f",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789576200,
+        "resolution": "15m"
+      },
+      "row_sha256": "c0491afeccbcfe1640008ce76976a8d5a768049789c32f5438c9dc9d4bee43f7",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789577100,
+        "resolution": "15m"
+      },
+      "row_sha256": "c92fcdc9ae5141a0fa1527b990ee3c7beb5d6d0b51a0f9135781f77f6c6d2cc6",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789578000,
+        "resolution": "15m"
+      },
+      "row_sha256": "b07fd3e6df74eab56043baa65e87b1607225876f545da81cc28cb3738724f01c",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789578900,
+        "resolution": "15m"
+      },
+      "row_sha256": "42b05cd76638210d4db8aa607ac10e4964e2f70c39f18cb72a923023dd012e28",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789579800,
+        "resolution": "15m"
+      },
+      "row_sha256": "0fad4d370bc8a30a5f0270695a5b8947d7a55df53fea0dea5f2628639b201d7b",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789580700,
+        "resolution": "15m"
+      },
+      "row_sha256": "9e9f0d75b5a9fa2345b6f24d2c9ecba6c60efaa84a1b21bab0e74c5770724692",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789581600,
+        "resolution": "15m"
+      },
+      "row_sha256": "5a51f5f46ea9a764b07da8cd4736b14d08aa3c61f7bd9a34817034ebceae97f9",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789582500,
+        "resolution": "15m"
+      },
+      "row_sha256": "73732c395cf249375ecbaee3a6b1030ca2b94c0d03676775ffa30bdbd0f614d3",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    },
+    {
+      "database": "ops",
+      "table": "operation_monitor_observations",
+      "key": {
+        "operation_id": "watchtower",
+        "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+        "observation_timestamp": 1789584300,
+        "resolution": "15m"
+      },
+      "row_sha256": "06055820c0d90cde9be77d1d32a07e24364b9a0e295aaf247bf6e229d219e517",
+      "inclusion_reason": "selected retained operation case and exact installed-reader lookup closure; completeness not asserted"
+    }
+  ],
+  "installed_completed_queue_recovery": {
+    "source": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/deep_walkback.py",
+    "sha256": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+    "checks": [
+      {
+        "restart_iteration": 1,
+        "claim": false,
+        "row_unchanged": true
+      },
+      {
+        "restart_iteration": 2,
+        "claim": false,
+        "row_unchanged": true
+      }
+    ],
+    "scope": "Completed retained work is not reclaimed on connection restart. No pending/in-flight case certified."
+  },
+  "credential_checks": [
+    {
+      "source": "/Users/kevinkeaveney/Production/flex-listener/src/utils/birdeye_credentials.py",
+      "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148",
+      "paid_selection": true,
+      "blank_rejected": true,
+      "legacy_only_rejected": true,
+      "secrets": "synthetic only; actual credential files not read"
+    },
+    {
+      "source": "/Users/kevinkeaveney/Production/flex-main-workers/src/utils/birdeye_credentials.py",
+      "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148",
+      "paid_selection": true,
+      "blank_rejected": true,
+      "legacy_only_rejected": true,
+      "secrets": "synthetic only; actual credential files not read"
+    },
+    {
+      "source": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/birdeye_credentials.py",
+      "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148",
+      "paid_selection": true,
+      "blank_rejected": true,
+      "legacy_only_rejected": true,
+      "secrets": "synthetic only; actual credential files not read"
+    }
+  ],
+  "provider_controls": {
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/birdeye_rate_limit.py": "db200b02f702c8b98057e74c6745130b90711308fc163c1fd8621460d0ee75ac",
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/operation_monitor_worker.py": "c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f"
+  },
+  "recovery_fixture_bytes": 544768,
+  "prior_contract_identities": {
+    "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md": "a8d168bab81a37eaecab4af38f0bf0527231d76dd40dbac4fbf86e3a796dad5a",
+    "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/row_dependency_manifest.json": "831d35ae6be5010d212c4125a01dcb24b99e8c2004a6f9c52582bb4e3baa5b47",
+    "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/supplemental_manifest.json": "b30fc32aa2c3174bba00a9e56bd76727ea54a4e6bed9a161594784707e5591fe"
+  }
+}

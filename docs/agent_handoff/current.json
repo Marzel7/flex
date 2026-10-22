@@ -33704,8 +33704,8 @@
     "git_head": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T21:15:22.167656+00:00",
-    "working_tree": "Isolated DEV003 compact RPC telemetry candidate qualified, disabled and not deployed; clean worktree. Source/fixture commits local, engineering branch not published."
+    "updated_at_utc": "2026-10-22T22:48:20.881740+00:00",
+    "working_tree": "DEV004 nine-file Birdeye authority payload deployed to three existing production packages; underlying installed corrections preserved. Dormant monitor/API roots remain absent and stopped."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41247,5 +41247,78 @@
       "blocker": null,
       "next_action": "Separately authorized narrow runtime deployment preflight; do not deploy entire candidate tree or activate services."
     }
+  },
+  "dev004_birdeye_three_package_deployment_20261022": {
+    "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
+    "status": "PASS_DEPLOYED_THREE_EXISTING_PACKAGES_ONLY",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "scope": "Nine approved source files only; helper-first installation, sequential creator-resolution/Walkback/listener restarts. No schema/configuration changes, dormant runtime restoration or deliberate test provider requests.",
+    "production_state": {
+      "listener": {
+        "before_pid": 63796,
+        "after_pid": 94632,
+        "root": "/Users/kevinkeaveney/Production/flex-listener"
+      },
+      "creator_resolution": {
+        "before_pid": 76942,
+        "after_pid": 94541,
+        "root": "/Users/kevinkeaveney/Production/flex-main-workers"
+      },
+      "walkback": {
+        "before_pid": 13612,
+        "after_pid": 94577,
+        "root": "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+      },
+      "dormant": "watchtower_api, operation_monitor_worker, operation_monitor_bridge, Funding and Cascade remain STOPPED; broad price tracking remains disabled"
+    },
+    "verification": "86 provider-free tests passed; installed helper smoke tests passed on all three roots with synthetic environment and mocked dotenv only; all nine installed hashes/owners/modes verified. PumpPortal/PumpSwap connected/subscribed; two fresh canonical births and one migration verified via bounded indexed Core lookups. Creator-resolution fresh cycle processed=1 failed=0; Walkback resumed idle polling. Schema versions Core849/OPS766 unchanged; WAL0/0; waiters empty; disk10987270144bytes free at postcheck. Quarantine samples and pending retry state retained; no manual database/queue mutation.",
+    "existing_warnings": "CORE_AUTHORITY_CONFLICT for historical birth retries predates deployment and remains durably retried; stopped API SSE refusals remain. PumpPortal startup seed read hit its bounded two-second deadline; main newToken/migration subscriptions confirmed and fresh canonical persistence passed. No unrelated repair attempted.",
+    "rollback": {
+      "status": "VERIFIED_AVAILABLE_NOT_EXECUTED",
+      "manifest": "/private/tmp/dev004-birdeye-deployment-20261022/manifest.json",
+      "contract": "Stop only affected services; restore six exact original consumers preserving owner/mode; verify hashes; remove the three newly added helpers only after dependent originals restored and helper identity verified; restart only affected services. No database/schema rollback."
+    },
+    "installed_file_hashes": [
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/utils/birdeye_credentials.py",
+        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/price_service.py",
+        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/ops/token_data_provider_bindings.py",
+        "sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/utils/birdeye_credentials.py",
+        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/price_service.py",
+        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/token_data_provider_bindings.py",
+        "sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/early_buyer_bundle_real_pilot.py",
+        "sha256": "8885485764c485ce03cd7106d8e3901bf4df79d5b9854d93a57e4a0b77574415"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/birdeye_credentials.py",
+        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/price_service.py",
+        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
+      }
+    ],
+    "blocker": null,
+    "next_action": "NONE \u2014 authorized three-package credential deployment complete. Dormant monitor/API composition recovery remains separate and unauthorized.",
+    "updated_at_utc": "2026-10-22T22:48:20.881740+00:00"
   }
 }

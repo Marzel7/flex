@@ -41180,7 +41180,7 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
     "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
-    "report_sha256": "324196f9bd80dc39965a4d1ba01b92501832b28381e5bdace39d3329ad8f1c29",
+    "report_sha256": "30a43fc0167bf0734cf25064a5e52335d9d2d5dcaf6e8515713afe6def35a5f5",
     "inventory": {
       "registry_identities": 10,
       "canonical_assignment_rows_observed": 1165,

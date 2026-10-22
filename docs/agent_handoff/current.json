@@ -33701,11 +33701,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "db92fc2fd9a5bec4899343860506ae0b670da985",
+    "git_head": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T23:39:49.539945+00:00",
-    "working_tree": "DEV004 end-to-end provider-free qualification:20 checks pass/2 hold, original11 comparisons retained; cutover NOT_READY; production unchanged."
+    "updated_at_utc": "2026-10-22T23:47:11.323752+00:00",
+    "working_tree": "DEV004 opening provenance correction PASS in isolated DEV; original11 retained. Overall DEV004 HOLD; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41386,5 +41386,38 @@
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/end_to_end/REPORT.md",
     "fixtures": "/private/tmp/dev004-e2e/qualified",
     "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized."
+  },
+  "dev004_price_provenance_correction": {
+    "status": "PASS_SCOPED_DEV_ONLY",
+    "overall_dev004": "HOLD",
+    "engineering_source_revision": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex",
+    "accepted_price_worker": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "cause": "Old monitor composition and harness wiring lost accepted fallback absence flags and baseline labels; no V2 schema limitation.",
+    "delta": "DEV-only pure accepted normalizer/reducer, opening fallback policy and fact exactness; harness selects DEV monitor. No production source/schema changes.",
+    "tests": {
+      "intake_recovery_pass": 8,
+      "price_and_controls_pass": 12,
+      "existing_potential_operations_hold": 1,
+      "opening_oracle_cases": 8,
+      "persisted_baseline_cases": 3,
+      "original_frozen_comparisons_pass": 11,
+      "ath_numerical_tolerance": "PASS;0.002561652223589094 percent relative difference",
+      "installed_credential_hashes_unchanged": 9,
+      "provider_calls": 0
+    },
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated DEV prototype correction; production deployment not authorized.",
+    "production_activation": "UNCHANGED; no service actions, provider calls or cutover",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/price_provenance/REPORT.md",
+    "remaining_blockers": [
+      "Potential Operations discovery",
+      "full Watchtower behavioural reconstruction",
+      "missing reference-seed populations",
+      "live queue/budget reconciliation",
+      "API runtime availability"
+    ],
+    "next_action": "Scoped correction complete. Continue existing DEV004 unresolved requirements; no deployment/cutover.",
+    "updated_at_utc": "2026-10-22T23:47:11.323752+00:00"
   }
 }

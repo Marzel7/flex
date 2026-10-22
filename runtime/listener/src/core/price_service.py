@@ -28,6 +28,7 @@ from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 import json
 from src.utils.db_locking import db_connect
+from src.utils.birdeye_credentials import birdeye_credential
 
 logger = logging.getLogger(__name__)
 
@@ -219,12 +220,13 @@ class BirdeyeClient:
     @staticmethod
     async def get_price(mint: str) -> Optional[TokenPrice]:
         """Fetch token price from Birdeye API."""
+        credential = birdeye_credential()  # fail before transport or generic error handling
         try:
             url = f"{BirdeyeClient.BASE_URL}/token_price"
             params = {'address': mint}
 
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=1.0)) as resp:
+                async with session.get(url, params=params, headers={"X-API-KEY": credential, "x-chain": "solana"}, timeout=aiohttp.ClientTimeout(total=1.0)) as resp:
                     if resp.status == 404:
                         logger.debug(f"Birdeye 404 for {mint}")
                         return None
@@ -584,6 +586,7 @@ class TokenPriceService:
         
         Called via run_in_executor from get_token_price() to avoid blocking the event loop.
         """
+        credential = birdeye_credential()  # do not swallow configuration errors
         try:
             # Get or create a shared session for this thread
             if not hasattr(self._birdeye_local, 'session'):
@@ -593,6 +596,7 @@ class TokenPriceService:
             resp = self._birdeye_local.session.get(
                 f"{BirdeyeClient.BASE_URL}/token_price",
                 params={'address': mint},
+                headers={'X-API-KEY': credential, 'x-chain': 'solana'},
                 timeout=1.0
             )
             

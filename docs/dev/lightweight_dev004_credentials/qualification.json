@@ -1,0 +1,13 @@
+{
+  "passed": 86,
+  "failed": 0,
+  "skipped": 0,
+  "exit_code": 0,
+  "network": "DENIED",
+  "database_access": "DENIED",
+  "credential_values": "SYNTHETIC_ONLY; env -i and mocked dotenv",
+  "production_writes": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "runtime_deployment": "NOT_AUTHORIZED_NOT_ATTEMPTED"
+}

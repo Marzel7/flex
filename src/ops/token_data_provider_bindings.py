@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import json
 import os
-from pathlib import Path
 from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from src.utils.birdeye_credentials import birdeye_credential, validated_birdeye_credential
 
 PROVIDER_BINDING_CONTRACT_VERSION = "TOKEN_DATA_PROVIDER_BINDING_CONTRACT_V1"
 PROVIDER_TIMEOUT_SECONDS = 45
@@ -21,29 +21,6 @@ def build_birdeye_ohlcv_request(*, address: str, interval: str, time_from: int, 
     params={"address":address,"chart_type":"mcap","currency":"usd","mode":"range","padding":"false","time_from":int(time_from),"time_to":int(time_to),"type":interval}
     query=urlencode(params)
     return {"endpoint":"/defi/v3/ohlcv","request_parameters":params,"encoded_query":query,"header_names":["accept","X-API-KEY","x-chain"],"url":"https://public-api.birdeye.so/defi/v3/ohlcv?"+query}
-
-
-def birdeye_credential() -> str:
-    """Resolve the sole approved Birdeye credential; never logs its value."""
-    # Runtime price acquisition has one credential identity.  Do not fall
-    # through to historical aliases: an inherited old-plan key must fail
-    # closed rather than silently consume the wrong account's quota.
-    configured = os.environ.get("BIRDEYE")
-    if configured:
-        return configured.strip().strip("'\"")
-    env_file = Path(__file__).resolve().parents[2] / ".env"
-    values: dict[str, str] = {}
-    try:
-        for line in env_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if line.startswith("export "):
-                line = line[7:].lstrip()
-            if line.startswith("BIRDEYE="):
-                name, value = line.split("=", 1)
-                values[name] = value.split("#", 1)[0].strip().strip("'\"")
-    except OSError:
-        pass
-    return values.get("BIRDEYE", "")
 
 
 @dataclass(frozen=True)
@@ -102,7 +79,7 @@ class HeliusProductionBinding:
 class BirdeyeProductionBinding:
     """Single Birdeye attempt; it deliberately contains no retry loop."""
     def __init__(self, api_key: str | None = None, endpoint: str = "https://public-api.birdeye.so/defi/v3/ohlcv", transport: Callable = _urlopen_transport, account_gate: Any | None = None, account_context: Mapping[str, Any] | None = None):
-        self.api_key = api_key or birdeye_credential()
+        self.api_key = validated_birdeye_credential(api_key)
         # Safe to retain and audit: this is an environment-variable identity,
         # never credential material.  All runtime callers must report it.
         self.credential_alias = "BIRDEYE"

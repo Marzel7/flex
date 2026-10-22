@@ -9,6 +9,7 @@ from typing import Any, Callable, Mapping
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from src.utils.birdeye_credentials import birdeye_credential, validated_birdeye_credential
 
 PROVIDER_BINDING_CONTRACT_VERSION = "TOKEN_DATA_PROVIDER_BINDING_CONTRACT_V1"
 PROVIDER_TIMEOUT_SECONDS = 45
@@ -23,24 +24,6 @@ def build_birdeye_ohlcv_request(*, address: str, interval: str, time_from: int, 
     return {"endpoint":"/defi/v3/ohlcv","request_parameters":params,"encoded_query":query,"header_names":["accept","X-API-KEY","x-chain"],"url":"https://public-api.birdeye.so/defi/v3/ohlcv?"+query}
 
 
-def birdeye_credential() -> str:
-    """Repository-standard local configuration resolution; never logs a value."""
-    configured = os.environ.get("BIRDEYE_KK") or os.environ.get("BIRDEYE")
-    if configured:
-        return configured.strip().strip("'\"")
-    env_file = Path(__file__).resolve().parents[2] / ".env"
-    values: dict[str, str] = {}
-    try:
-        for line in env_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if line.startswith("export "):
-                line = line[7:].lstrip()
-            if line.startswith("BIRDEYE_KK=") or line.startswith("BIRDEYE="):
-                name, value = line.split("=", 1)
-                values[name] = value.split("#", 1)[0].strip().strip("'\"")
-    except OSError:
-        pass
-    return values.get("BIRDEYE_KK") or values.get("BIRDEYE", "")
 
 
 @dataclass(frozen=True)
@@ -99,7 +82,7 @@ class HeliusProductionBinding:
 class BirdeyeProductionBinding:
     """Single Birdeye attempt; it deliberately contains no retry loop."""
     def __init__(self, api_key: str | None = None, endpoint: str = "https://public-api.birdeye.so/defi/v3/ohlcv", transport: Callable = _urlopen_transport):
-        self.api_key = api_key or birdeye_credential()
+        self.api_key = validated_birdeye_credential(api_key)
         self.endpoint = endpoint
         self.transport = transport
 

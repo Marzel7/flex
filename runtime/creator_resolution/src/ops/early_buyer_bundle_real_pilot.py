@@ -14,6 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from src.utils.birdeye_credentials import validated_birdeye_credential
 
 from .early_buyer_bundle_history import (
     OfflineStore, PILOT_DURABLE_MAX, PILOT_NETWORK_MAX, build_v2, digest,
@@ -42,16 +43,17 @@ def atomic_json(path: Path, value: dict) -> None:
 
 class RealProviderTransport:
     """Explicit real network boundary.  Tests pass an injected opener instead."""
-    def __init__(self, birdeye_key: str, helius_url: str, opener=urllib.request.urlopen,
+    def __init__(self, birdeye_key: str | None, helius_url: str, opener=urllib.request.urlopen,
                  sleeper=time.sleep, timeout: int = 30, status_hook=None):
-        if not birdeye_key or not helius_url:
+        approved = validated_birdeye_credential(birdeye_key)
+        if not helius_url:
             raise RuntimeError("PROVIDER_CREDENTIAL_UNAVAILABLE")
-        self.birdeye_key, self.helius_url = birdeye_key, helius_url
+        self.birdeye_key, self.helius_url = approved, helius_url
         self.opener, self.sleeper, self.timeout, self.status_hook = opener, sleeper, timeout, status_hook
 
     @classmethod
     def from_environment(cls, **kwargs):
-        return cls(os.environ.get("BIRDEYE", ""), os.environ.get("HELIUS_RPC_URL", ""), **kwargs)
+        return cls(None, os.environ.get("HELIUS_RPC_URL", ""), **kwargs)
 
     def birdeye(self, request):
         params = urllib.parse.urlencode(request["params"])

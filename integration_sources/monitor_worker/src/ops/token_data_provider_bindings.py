@@ -8,6 +8,7 @@ from typing import Any, Callable, Mapping
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+from src.utils.birdeye_credentials import BirdeyeConfigurationError
 
 PROVIDER_BINDING_CONTRACT_VERSION = "TOKEN_DATA_PROVIDER_BINDING_CONTRACT_V1"
 PROVIDER_TIMEOUT_SECONDS = 45
@@ -40,7 +41,7 @@ def birdeye_credential(environ: Mapping[str, str] | None = None) -> str:
     """Resolve only the authority-approved Birdeye credential, or fail closed."""
     values = os.environ if environ is None else environ
     configured = values.get(AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL, "")
-    credential = configured.strip().strip("'\"")
+    credential = configured.strip().strip("'\"").strip()
     if not credential:
         raise RuntimeError("MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL")
     return credential
@@ -103,7 +104,10 @@ class BirdeyeProductionBinding:
     """Single Birdeye attempt; it deliberately contains no retry loop."""
     def __init__(self, api_key: str | None = None, endpoint: str = "https://public-api.birdeye.so/defi/v3/ohlcv", transport: Callable = _urlopen_transport, account_gate: Any | None = None, account_context: Mapping[str, Any] | None = None, credential_label: str = AUTHORITATIVE_BIRDEYE_CREDENTIAL_LABEL):
         validate_birdeye_credential_label(credential_label)
-        self.api_key = api_key or birdeye_credential()
+        approved = birdeye_credential()
+        if api_key is not None and api_key != approved:
+            raise BirdeyeConfigurationError("BIRDEYE_CREDENTIAL_OVERRIDE_FORBIDDEN")
+        self.api_key = approved
         self.endpoint = endpoint
         self.transport = transport
         # The gate is injected by an explicitly configured runtime.  Leaving

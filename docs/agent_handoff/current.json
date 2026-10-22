@@ -41172,5 +41172,24 @@
     "report": "docs/dev/lightweight_dev003b/REPORT.md",
     "ready_for_deployment_preflight": false,
     "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback."
+  },
+  "flex_lightweight_dev004_reference_seed_correction": {
+    "observed_at_utc": "2026-10-22T22:01:18.723939+00:00",
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; documentation-only, pre-existing checkout changes preserved",
+    "status": "PARTIAL_DESIGN_CORRECTED_SEED_UNQUALIFIED",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
+    "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
+    "report_sha256": "324196f9bd80dc39965a4d1ba01b92501832b28381e5bdace39d3329ad8f1c29",
+    "inventory": {
+      "registry_identities": 10,
+      "canonical_assignment_rows_observed": 1165,
+      "assignments_missing_event_id": 762,
+      "measurement_scope": "bounded indexed read-only observations; not a cutover snapshot or row dependency manifest"
+    },
+    "acceptance": "Required report sections and arithmetic checked; seed size UNKNOWN, attribution equivalence NOT RUN.",
+    "blocker": "Existing DEV004 design/schema-audit artifact not located; exact seed dependency closure, historical-query populations and file-size/functional qualification unresolved.",
+    "production_state": "V1 remains authoritative. No source changes, database writes/build, service actions, provider calls, deletion or cutover. Installed corrections and budgets unchanged.",
+    "next_action": "Continue same DEV004 with bounded row-key dependency manifest, preserve unresolved populations, then provider-free seed fixture and frozen known/unseen attribution comparison. Do not duplicate schema audit or start another DEV."
   }
 }

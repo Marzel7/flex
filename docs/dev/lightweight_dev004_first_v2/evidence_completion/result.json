@@ -1,0 +1,159 @@
+{
+  "status": "HOLD_PARTIAL_EVIDENCE_RECOVERED",
+  "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+  "extension_records": 15,
+  "accepted_ath": {
+    "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+    "entry_mc_usd": 124188.60986679113,
+    "entry_timestamp": 1789574067,
+    "entry_exactness": "ADAPTER_FROZEN",
+    "evidence_status": "QUALIFIED",
+    "final_proven_ath_mc": 1015607.2718995338,
+    "final_ath_multiple": 8.17794218800668,
+    "final_ath_evidence": "BIRDEYE_15M_OHLC_HIGH",
+    "final_ath_resolution": "15m",
+    "final_ath_bucket_start": 1789581600,
+    "final_ath_bucket_end": 1789582500,
+    "ath_finalized_at": 1789592654,
+    "ath_finalization_request_id": "70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4",
+    "ath_finalization_provenance_digest": "8593a819efe46cdd76cd277435740a2afebf93ef4d4844efe8bf16874e729031"
+  },
+  "lifecycle_window_rule_bounds": [
+    1789574067,
+    1789584375
+  ],
+  "accepted_original_15m_request_and_input_window": "NOT_RECOVERED; rule bounds do not establish original successful provider response",
+  "later_retained_reference_window": [
+    {
+      "duplicate_provider_row_count": 0,
+      "invalid_provider_row_count": 0,
+      "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+      "no_provider_candle_count": 1,
+      "operation_id": "watchtower",
+      "provenance_digest": "1ef738f271b5ad7e3f8ea610fb5985b442d67491926d8018ea48e600e71a8e7c",
+      "request_count": 1,
+      "requested_bucket_count": 12,
+      "resolution": "15m",
+      "returned_valid_candle_count": 11,
+      "updated_at": 1790233732,
+      "window_end": 1789585200,
+      "window_start": 1789574400
+    }
+  ],
+  "narrow_completed_pilot_window": [
+    {
+      "duplicate_provider_row_count": 0,
+      "invalid_provider_row_count": 0,
+      "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+      "no_provider_candle_count": 0,
+      "operation_id": "watchtower",
+      "provenance_digest": "32594b73294986cd9916d6b20dd5163cafd78b4e903f977ff88c0d552d2d3a2f",
+      "request_count": 1,
+      "requested_bucket_count": 4,
+      "resolution": "15m",
+      "returned_valid_candle_count": 4,
+      "updated_at": 1790369248,
+      "window_end": 1789578000,
+      "window_start": 1789574400
+    }
+  ],
+  "later_reference_reduction": {
+    "peak": {
+      "value": 1015581.2555732703,
+      "timestamp": 1789581600,
+      "evidence": "15M_OHLC_HIGH"
+    },
+    "crossings": {
+      "2": 1789575300,
+      "5": 1789577100,
+      "10": null
+    },
+    "current_close": 2058.5933938096755,
+    "peak_multiple": 8.177732697568777,
+    "drawdown_percent": 99.79729899675556
+  },
+  "ath_recomputed_exactly": false,
+  "absolute_ath_difference": 26.016326263546944,
+  "v1_v2_comparisons": {
+    "known_treasury": true,
+    "known_subprovider": true,
+    "watchtower_route": true,
+    "creator_classification": true,
+    "retained_outcome": true,
+    "parent_candidates": true,
+    "quarantine": true,
+    "price_fact": true,
+    "price_observations": true,
+    "ohlc_reduction": true,
+    "creator_funding_history": true
+  },
+  "previous_frozen_v1_unchanged": true,
+  "terminal_finalizer_restarts": [
+    {
+      "source": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "iteration": 1,
+      "state": "ALREADY_FINALIZED",
+      "provider_calls": 0,
+      "request_identity": "70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4",
+      "ath": 1015607.2718995338
+    },
+    {
+      "source": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "iteration": 2,
+      "state": "ALREADY_FINALIZED",
+      "provider_calls": 0,
+      "request_identity": "70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4",
+      "ath": 1015607.2718995338
+    },
+    {
+      "source": "/private/tmp/dev004-first-v2-build/reproducibility-run/ops_v2.sqlite",
+      "iteration": 1,
+      "state": "ALREADY_FINALIZED",
+      "provider_calls": 0,
+      "request_identity": "70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4",
+      "ath": 1015607.2718995338
+    },
+    {
+      "source": "/private/tmp/dev004-first-v2-build/reproducibility-run/ops_v2.sqlite",
+      "iteration": 2,
+      "state": "ALREADY_FINALIZED",
+      "provider_calls": 0,
+      "request_identity": "70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4",
+      "ath": 1015607.2718995338
+    }
+  ],
+  "installed_finalizer_source_sha256": "0d3f91cf9fdbe18bb0dc492998fb55a027dcaafae5c68a09fba8b35a4520816f",
+  "unfinished_acquisition_cursor": "NOT_LOCATED; no source-verified pending/retry envelope, per-window completion cursor or consumed-budget ledger for unfinished acquisition recovered",
+  "provider_budget_authority": "BIRDEYE exclusively. Pilot audit: run-specific base budget1, actual base1/retry0/attempts1; account-wide allowance not inferred or reconstructed. Existing limits unchanged.",
+  "fixture_sizes": {
+    "core_v2.sqlite": 294912,
+    "ops_v2.sqlite": 503808
+  },
+  "fixture_sha256": {
+    "core_v2.sqlite": "2d8dc0b01f6b8c42540010084a7c81692174e0ee8a886b4e88f409914a5aa366",
+    "ops_v2.sqlite": "b8df7d2ae93ece7679f0d4f647251147084363eb40d9543f8597323f9542db88"
+  },
+  "before_ops_sha256": "e39f7bb6283c87ee0c90ebe5f129fc8301b4480f8f31de38cdfd1323f31ec47d",
+  "reference_schema_scope": "Fixture-only evidence attachments; sources labelled separately; no canonical observation replaced. Not a new production consumer table.",
+  "production_writes": 0,
+  "provider_calls": 0,
+  "source_changes": 0,
+  "remaining_separate_holds": [
+    "CREATE/atomic evidence",
+    "admission linkage",
+    "pending/retry recovery",
+    "Potential Operations discovery",
+    "full Watchtower behavioural reconstruction"
+  ],
+  "next_action": "Keep unfinished acquisition on HOLD until original cursor/queue envelope, completion identity and consumed-budget state are recovered. Preserve accepted ATH; original-window recomputation unqualified.",
+  "lookup_scope": {
+    "retained_audits": "Exact selected mint/request searches under docs/audits; relevant matching price/coverage/pilot audits only inspected. No generic schema/dependency inventory.",
+    "databases": [
+      "canonical OPS selected fact/observations via installed readers",
+      ".dev_runtime/monitor/wt_ops_v2.dev.db selected indexed rows",
+      ".dev_runtime/historical_pilots/dev_022_phase3a_historical_15m.db selected indexed rows",
+      ".dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db selected observation/checkpoint lookups returned no matching rows"
+    ],
+    "checkpoint_lookup": "Exact completed pilot job identity search in retained DEV JSON/JSONL <=2MB found no job envelope. This is bounded lookup evidence, not proof of global absence."
+  }
+}

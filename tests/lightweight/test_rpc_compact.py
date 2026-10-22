@@ -342,4 +342,34 @@ class Tests(unittest.TestCase):
   c.execute("UPDATE rpc_metrics_state SET value='20' WHERE key='baseline_helius_credits_today'")
   self.expect('RESET_GENERATION_NOT_CERTIFIED',lambda:s.reset_report('recorder_active',NOW,30))
 
+ def test_detail_guard_runs_after_current_auto_reset_refresh(self):
+  import ast,types,threading,typing
+  from unittest.mock import patch
+  self.api();tree=ast.parse((ROOT/'src/metrics/rpc_metrics_recorder.py').read_text())
+  cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='RPCMetricsRecorder')
+  class StopAfterGuard(Exception):pass
+  for method in ('get_top_methods','get_optimization_savings','get_component_breakdown'):
+   node=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name==method)
+   ns={'Dict':typing.Dict,'List':typing.List};exec(compile(ast.Module(body=[node],type_ignores=[]),'isolated-recorder-method','exec'),ns)
+   obj=types.SimpleNamespace(_lock=threading.RLock(),_comparison_reset_timestamp=NOW-30*86400)
+   obj._maybe_auto_reset_at_uk_midnight=lambda:setattr(obj,'_comparison_reset_timestamp',NOW)
+   obj._refresh_reset_state_from_db=lambda:None
+   def guard(hours,cutoff):
+    self.assertEqual(cutoff,NOW);raise StopAfterGuard()
+   with patch.object(m,'require_detail_window',guard),self.assertRaises(StopAfterGuard):ns[method](obj)
+ def test_public_recorder_wrappers_preserve_delegation(self):
+  import ast,typing,types
+  tree=ast.parse((ROOT/'src/metrics/rpc_metrics_recorder.py').read_text())
+  for method in ('get_optimization_savings','get_component_breakdown'):
+   n=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==method)
+   recorder=types.SimpleNamespace(**{method:lambda hours:{'hours':hours}})
+   ns={'Dict':typing.Dict,'get_recorder':lambda:recorder};exec(compile(ast.Module(body=[n],type_ignores=[]),'isolated-public-wrapper','exec'),ns)
+   self.assertEqual(ns[method](24),{'hours':24})
+
+ def test_actual_bounded_reset_projection_is_index_ordered(self):
+  c,s=self.db([self.row(1)])
+  sql=f'SELECT {m.SOURCE_SELECT} FROM rpc_metrics WHERE timestamp>? AND timestamp<? ORDER BY rpc_metrics.timestamp DESC,rpc_metrics.id ASC LIMIT ?'
+  plan=c.execute('EXPLAIN QUERY PLAN '+sql,(0,NOW+1,128)).fetchall()
+  self.assertIn('idx_rpc_metrics_timestamp',str(plan));self.assertNotIn('TEMP B-TREE',str(plan))
+
 if __name__=='__main__':unittest.main()

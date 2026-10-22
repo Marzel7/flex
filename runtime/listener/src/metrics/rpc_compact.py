@@ -363,7 +363,8 @@ class CompactTelemetry:
         if self.conn.execute('SELECT 1 FROM rpc_compact_resets WHERE name=?',(name,)).fetchone():raise Hold('RESET_ID_EXISTS')
         if self.conn.execute('SELECT COUNT(*) FROM rpc_compact_resets').fetchone()[0]>=MAX_RESETS:raise Hold('RESET_CAPACITY')
         upper=self.meta()['cursor']
-        top=self.conn.execute('SELECT timestamp FROM rpc_metrics ORDER BY timestamp DESC LIMIT 1').fetchone()
+        highest=self.totals('timestamp')['stats']['last_timestamp']
+        top=(highest,) if highest is not None else None
         p=dict(timestamp=timestamp,elapsed_origin=elapsed_origin,provider_baseline=provider_baseline,watermark=upper,stats=empty(),
                bootstrap=dict(last_timestamp=top[0] if top else timestamp,last_id=-1,done=not bool(top)))
         self.conn.execute('INSERT INTO rpc_compact_resets VALUES(?,?)',(name,dumps(p)))
@@ -397,12 +398,13 @@ class CompactTelemetry:
             names=SOURCE_NAMES
             rows=[]
             if b['last_timestamp']>p['timestamp']:
-                rows=self._bounded_source(f'SELECT {select} FROM rpc_metrics WHERE timestamp=? AND id>? AND id<=? ORDER BY id LIMIT ?',
-                    (b['last_timestamp'],b['last_id'],p['watermark'],limit))
+                rows=self._bounded_source(f'SELECT {select} FROM rpc_metrics WHERE timestamp=? AND id>? ORDER BY id LIMIT ?',
+                    (b['last_timestamp'],b['last_id'],limit))
                 if len(rows)<limit:
-                    rows+=self._bounded_source(f'SELECT {select} FROM rpc_metrics WHERE timestamp>? AND timestamp<? AND id<=? ORDER BY timestamp DESC,id ASC LIMIT ?',
-                        (p['timestamp'],b['last_timestamp'],p['watermark'],limit-len(rows)))
-            for values in rows:p['stats']=merge(p['stats'],statistics(dict(zip(names,values))))
+                    rows+=self._bounded_source(f'SELECT {select} FROM rpc_metrics WHERE timestamp>? AND timestamp<? ORDER BY rpc_metrics.timestamp DESC,rpc_metrics.id ASC LIMIT ?',
+                        (p['timestamp'],b['last_timestamp'],limit-len(rows)))
+            for values in rows:
+                if values[0]<=p['watermark']:p['stats']=merge(p['stats'],statistics(dict(zip(names,values))))
             if rows:b['last_timestamp'],b['last_id']=rows[-1][1],rows[-1][0]
             if len(rows)<limit:b['done']=True
             self.conn.execute('UPDATE rpc_compact_resets SET payload=? WHERE name=?',(dumps(p),name))

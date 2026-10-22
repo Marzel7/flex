@@ -1403,10 +1403,10 @@ class RPCMetricsRecorder:
     def get_top_methods(self, limit: int = 10, hours: int = 24) -> List[Dict]:
         """Get top methods by credits across all processes (DB-backed)"""
         from src.metrics.rpc_compact import require_detail_window
-        require_detail_window(hours, self._comparison_reset_timestamp)
         with self._lock:
             self._maybe_auto_reset_at_uk_midnight()
             self._refresh_reset_state_from_db()
+            require_detail_window(hours, self._comparison_reset_timestamp)
 
         try:
             # Try database first (cross-process, accurate)
@@ -1602,10 +1602,10 @@ class RPCMetricsRecorder:
             }
         """
         from src.metrics.rpc_compact import require_detail_window
-        require_detail_window(hours, self._comparison_reset_timestamp)
         with self._lock:
             self._maybe_auto_reset_at_uk_midnight()
             self._refresh_reset_state_from_db()
+            require_detail_window(hours, self._comparison_reset_timestamp)
         
         try:
             import sqlite3
@@ -1725,10 +1725,10 @@ class RPCMetricsRecorder:
             }
         """
         from src.metrics.rpc_compact import require_detail_window
-        require_detail_window(hours, self._comparison_reset_timestamp)
         with self._lock:
             self._maybe_auto_reset_at_uk_midnight()
             self._refresh_reset_state_from_db()
+            require_detail_window(hours, self._comparison_reset_timestamp)
         
         try:
             import sqlite3
@@ -1902,15 +1902,11 @@ def record_stream_bytes(
 
 def get_optimization_savings(hours: int = 24) -> Dict:
     """Convenience function to get optimization savings with global instance"""
-    from src.metrics.rpc_compact import require_detail_window
-    require_detail_window(hours, self._comparison_reset_timestamp)
     return get_recorder().get_optimization_savings(hours)
 
 
 def get_component_breakdown(hours: int = 24) -> Dict:
     """Convenience function to get component breakdown with global instance"""
-    from src.metrics.rpc_compact import require_detail_window
-    require_detail_window(hours, self._comparison_reset_timestamp)
     return get_recorder().get_component_breakdown(hours)
 
 

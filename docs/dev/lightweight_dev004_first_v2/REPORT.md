@@ -57,3 +57,15 @@ HOLD for evidence-complete V2 acceptance. Partial read equivalence and small fix
 Perform one bounded retained-artifact lookup for this mint's accepted ATH finalization request70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4 and its acquisition checkpoint/envelope; add only recovered evidence to this same prototype and rerun the price/recovery comparisons. If those artifacts cannot be recovered, keep this case HOLD rather than inventing inputs or weakening acceptance.
 
 RUNTIME_DEPLOYMENT_REQUIRED=false — DEV-only fixtures and tests; no executable production behaviour changed.
+
+## ATH Numerical Equivalence Acceptance — 23 October 2026
+
+User-approved DEV004 contract amendment: ATH market-capitalization comparisons pass when `abs(reconstructed_ath - accepted_historical_ath) / abs(accepted_historical_ath) <= 0.001` (0.1%), using the accepted historical ATH as denominator. A non-positive or unavailable accepted ATH cannot qualify under this relative comparison.
+
+Preserve the original canonical ATH, timestamps, provenance, confidence and finalization identity unchanged. Record numerical valuation equivalence separately from exact historical candle reproducibility. Missing original candles do not block ATH numerical acceptance when this tolerance passes, and their recovery is not required for that gate. Do not overwrite or recalculate historical canonical results.
+
+This tolerance applies exclusively to ATH valuation comparisons. Creator identities, funding relationships, attribution decisions, timestamps, provenance, finalization identities and other canonical evidence retain their existing exact preservation and qualification requirements.
+
+Current selected HXpDLpo…pump case: accepted ATH MC 1015607.2718995338; retained reconstructed ATH MC 1015581.2555732703; relative difference 0.002561652223584472%. ATH_NUMERICAL_EQUIVALENCE=PASS. EXACT_HISTORICAL_CANDLE_REPRODUCIBILITY=UNQUALIFIED, recorded separately and not an ATH numerical gate blocker.
+
+Overall DEV004 remains HOLD for its other unresolved requirements. Continue prospective provider-free Birdeye acquisition, checkpoint and restart-recovery qualification using the existing DEV004 prototype. This policy does not authorize provider calls, production changes, cutover or historical recalculation.

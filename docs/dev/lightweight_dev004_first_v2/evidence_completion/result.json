@@ -145,7 +145,7 @@
     "Potential Operations discovery",
     "full Watchtower behavioural reconstruction"
   ],
-  "next_action": "Keep unfinished acquisition on HOLD until original cursor/queue envelope, completion identity and consumed-budget state are recovered. Preserve accepted ATH; original-window recomputation unqualified.",
+  "next_action": "Continue prospective provider-free Birdeye acquisition, checkpoint and restart-recovery qualification in existing DEV004. Overall HOLD for other requirements; missing original ATH candles are not a blocker when numerical tolerance passes.",
   "lookup_scope": {
     "retained_audits": "Exact selected mint/request searches under docs/audits; relevant matching price/coverage/pilot audits only inspected. No generic schema/dependency inventory.",
     "databases": [
@@ -155,5 +155,21 @@
       ".dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db selected observation/checkpoint lookups returned no matching rows"
     ],
     "checkpoint_lookup": "Exact completed pilot job identity search in retained DEV JSON/JSONL <=2MB found no job envelope. This is bounded lookup evidence, not proof of global absence."
+  },
+  "ath_numerical_equivalence": {
+    "status": "PASS",
+    "relative_difference": "0.00002561652223584471798292797435",
+    "relative_difference_percent": "0.002561652223584471798292797435",
+    "maximum_relative_difference": "0.001",
+    "maximum_relative_difference_percent": "0.1",
+    "denominator": "accepted historical ATH",
+    "scope": "ATH valuation comparisons exclusively; other canonical evidence retains existing exact requirements",
+    "canonical_ath_changed": false
+  },
+  "exact_historical_candle_reproducibility": {
+    "status": "UNQUALIFIED",
+    "separate_from_numerical_equivalence": true,
+    "blocks_ath_numerical_acceptance": false,
+    "original_candle_recovery_required_for_ath_numerical_pass": false
   }
 }

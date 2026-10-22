@@ -41174,22 +41174,30 @@
     "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback."
   },
   "flex_lightweight_dev004_reference_seed_correction": {
-    "observed_at_utc": "2026-10-22T22:01:18.723939+00:00",
+    "observed_at_utc": "2026-10-22T22:04:53.413864+00:00",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; documentation-only, pre-existing checkout changes preserved",
     "status": "PARTIAL_DESIGN_CORRECTED_SEED_UNQUALIFIED",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
     "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
-    "report_sha256": "30a43fc0167bf0734cf25064a5e52335d9d2d5dcaf6e8515713afe6def35a5f5",
+    "report_sha256": "a9b0f02e515f3dce4386fedbbed4287d419a4748169078156b00c01127fb2dca",
     "inventory": {
       "registry_identities": 10,
       "canonical_assignment_rows_observed": 1165,
       "assignments_missing_event_id": 762,
       "measurement_scope": "bounded indexed read-only observations; not a cutover snapshot or row dependency manifest"
     },
-    "acceptance": "Required report sections and arithmetic checked; seed size UNKNOWN, attribution equivalence NOT RUN.",
+    "acceptance": "Design append/readback and seven gate presence verified. Price, attribution and V2 functional equivalence NOT RUN; seed size UNKNOWN.",
     "blocker": "Existing DEV004 design/schema-audit artifact not located; exact seed dependency closure, historical-query populations and file-size/functional qualification unresolved.",
     "production_state": "V1 remains authoritative. No source changes, database writes/build, service actions, provider calls, deletion or cutover. Installed corrections and budgets unchanged.",
-    "next_action": "Continue same DEV004 with bounded row-key dependency manifest, preserve unresolved populations, then provider-free seed fixture and frozen known/unseen attribution comparison. Do not duplicate schema audit or start another DEV."
+    "next_action": "Continue same DEV004 dependency manifest including Birdeye price/lifecycle evidence, then provider-free frozen V1/V2 attribution and all seven price gates. HOLD on any unresolved required functionality or evidence. No live activation or cutover.",
+    "birdeye_price_pipeline": {
+      "contract": "Mandatory accepted acquisition, valuation, ATH/drawdown/lifecycle, monitoring/refresh, checkpoint/retry, provenance/insufficiency and API/UI preservation.",
+      "credential_authority": "BIRDEYE; no legacy fallback; unchanged budgets and request limits",
+      "seed": "Preserve accepted price/lifecycle evidence for assigned tokens, monitoring and restart recovery, with exact values/clocks/units/baseline types/provenance.",
+      "minimization": "Exclude candles/observations only after every accepted consumer and research dependency is proven equivalent. Unknown dependencies remain protected.",
+      "acceptance": "Seven mandatory provider-free gates appended; NOT RUN; V2 acceptance HOLD pending qualification.",
+      "test_safety": "Mock providers and disposable restart fixtures only; no stopped service activation or actual provider calls."
+    }
   }
 }

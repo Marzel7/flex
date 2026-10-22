@@ -33701,11 +33701,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "4da575c26517e94091d36b72d6770cfd36ab1f56",
+    "git_head": "db92fc2fd9a5bec4899343860506ae0b670da985",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T23:18:26.206241+00:00",
-    "working_tree": "DEV004 ATH valuation numerical acceptance PASS by user policy; overall HOLD for other requirements; fixtures and production unchanged."
+    "updated_at_utc": "2026-10-22T23:39:49.539945+00:00",
+    "working_tree": "DEV004 end-to-end provider-free qualification:20 checks pass/2 hold, original11 comparisons retained; cutover NOT_READY; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41334,9 +41334,10 @@
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/REPORT.md",
     "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
     "storage": "Per-file RLIMIT16000000bytes, SQLite construction max2048pages, per-selectorLIMIT129/200000VM/1second, pass2048rows. No raw RPC/provider payload retention; zero per-run unbounded growth paths.",
-    "next_action": "One bounded retained-artifact lookup for the selected case accepted ATH finalization request and acquisition checkpoint/envelope; extend same fixture only with recovered evidence and rerun price/recovery comparisons. Keep HOLD if unavailable.",
+    "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized.",
     "evidence_completion": "See dev004_bounded_evidence_completion; existing OPS fixture extended with source-separated references, canonical comparisons unchanged; overall HOLD preserved.",
-    "ath_numerical_acceptance": "PASS under explicit user0.1% policy; exact candle reproducibility separately unqualified, no longer a numerical acceptance blocker. Overall HOLD for remaining requirements."
+    "ath_numerical_acceptance": "PASS under explicit user0.1% policy; exact candle reproducibility separately unqualified, no longer a numerical acceptance blocker. Overall HOLD for remaining requirements.",
+    "latest_qualification": "See dev004_end_to_end_operational_qualification; original fixtures retained; latest working copies /private/tmp/dev004-e2e/qualified; overall HOLD."
   },
   "dev004_bounded_evidence_completion": {
     "engineering_revision": "4da575c26517e94091d36b72d6770cfd36ab1f56",
@@ -41368,5 +41369,22 @@
       "runtime_deployment_required": false,
       "reason": "Acceptance-contract and documentation amendment only; no production changes or historical recalculation."
     }
+  },
+  "dev004_end_to_end_operational_qualification": {
+    "engineering_revision": "db92fc2fd9a5bec4899343860506ae0b670da985",
+    "status": "HOLD_NOT_READY_FOR_CUTOVER",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated DEV fixtures, provider-free tests and documentation only; no production executable change.",
+    "objective": "Existing DEV004 lightweight end-to-end operational qualification; no new workstream.",
+    "verification": "20 synthetic installed-interface checks PASS;2 checks HOLD. All11 prior frozen outputs remain EXACT_MATCH.27 keyed registry/identity/profile/qualification records match. Existing ATH numerical tolerance PASS preserved.",
+    "qualified_scope": "CREATE handler/canonical birth/compact receipt; duplicate delivery; migration detector/store and creator admission; atomic qualified proof staging; Core\u2192OPS post-commit/ACK recovery; distinct funding-account topology storage; conflict quarantine; bounded queue attempts; synthetic price/lifecycle persistence, terminal finalization/reopen; credential/header and429 controls. Test adapters replace production writer/bootstrap and noncanonical side effects.",
+    "blocker": "Installed main-worker opening transport omits the accepted worker71b6e338 fallback-provenance flags for the same synthetic response. Potential Operations identity/state and candidate populations absent. Full reference memberships/behavioural/funding populations, creator RPC recovery, accepted API/UI composition, live queue/account-budget reconciliation and long-term storage limits remain unqualified.",
+    "external_request_limitation": "Commit-before-ACK ambiguity repeats mock transport execution; observations deduplicate and finalization identity persists. Existing bounded retry contract preserved; exactly-once external execution not claimed.",
+    "storage": "Working Core335872bytes/OPS671744bytes; original294912/503808 fixtures hash-unchanged. Schema-only335872/569344bytes; observed price WAL119512bytes. Per-file test cap16000000bytes, writable SQLite2048pages. Raw retention=false; no per-run unbounded growth. At least3 runtime growth surfaces remain unqualified; no linear1000-birth/100-migration estimate from one sample.",
+    "known_operations": "All10 established registry roots present with original statuses; full operation attribution equivalence is not implied.",
+    "production_state": "V1 authoritative; no production database/source/config changes, service actions, real provider calls, live WebSockets, historical deletion or cutover. Prior credential deployment remains closed.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/end_to_end/REPORT.md",
+    "fixtures": "/private/tmp/dev004-e2e/qualified",
+    "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized."
   }
 }

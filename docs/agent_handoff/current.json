@@ -33700,8 +33700,8 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/lightweight-dev003b-safety",
-    "git_head": "262d82802e019196e4f18042c7bbdc6ee1b4786f",
+    "branch": "codex/dev004-birdeye-authority",
+    "git_head": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-22T21:15:22.167656+00:00",
@@ -41174,13 +41174,13 @@
     "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback."
   },
   "flex_lightweight_dev004_reference_seed_correction": {
-    "observed_at_utc": "2026-10-22T22:17:03.128701+00:00",
-    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; documentation-only, pre-existing checkout changes preserved",
+    "observed_at_utc": "2026-10-22T22:31:11.872042+00:00",
+    "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369; isolated DEV004 credential correction only",
     "status": "HOLD_MINIMUM_OPERATIONAL_SEED_NOT_CLOSED",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
     "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
-    "report_sha256": "aaec0efb82c22c8f36fea55060242b86315e08af46099431a8a37466f6f8a4ea",
+    "report_sha256": "a8d168bab81a37eaecab4af38f0bf0527231d76dd40dbac4fbf86e3a796dad5a",
     "inventory": {
       "registry_identities": 10,
       "canonical_assignment_rows_observed": 1165,
@@ -41188,9 +41188,9 @@
       "measurement_scope": "bounded indexed read-only observations; not a cutover snapshot or row dependency manifest"
     },
     "acceptance": "Bounded row-manifest audit complete with HOLD. Seed construction and frozen functional/Birdeye equivalence NOT RUN.",
-    "blocker": "Minimum evidence closure incomplete; concrete BIRDEYE-only credential contract mismatch; protected role/history/quarantine/recovery dependencies and consistent freeze unresolved.",
+    "blocker": "Overall DEV004 minimum-seed closure remains HOLD for protected role/history/reference/recovery populations and full Birdeye/V2 equivalence. Credential selection is corrected and qualified only in DEV; production binding remains unchanged.",
     "production_state": "V1 remains authoritative. No source changes, database writes/build, service actions, provider calls, deletion or cutover. Installed corrections and budgets unchanged.",
-    "next_action": "Within DEV004 resolve protected reference/role/credential contract gaps and qualify one compact provider-free route/price/recovery fixture with frozen V1 outputs, not historical bulk. Implementation/deployment/cutover remain unauthorized.",
+    "next_action": "Retain overall DEV004 seed HOLD. Credential subtask is QUALIFIED_NOT_DEPLOYED; separately authorize narrow deployment preflight, while preserving the unresolved seed and seven price-pipeline acceptance gates.",
     "birdeye_price_pipeline": {
       "contract": "Mandatory accepted acquisition, valuation, ATH/drawdown/lifecycle, monitoring/refresh, checkpoint/retry, provenance/insufficiency and API/UI preservation.",
       "credential_authority": "BIRDEYE; no legacy fallback; unchanged budgets and request limits",
@@ -41220,7 +41220,32 @@
       "v2_databases_created": 0,
       "provider_calls": 0,
       "service_actions": 0,
-      "artifact_validation": "JSON/key/byte/digest arithmetic passed; all new audit files below10MB. Not functional equivalence."
+      "artifact_validation": "JSON/key/byte/digest arithmetic passed; all new audit files below10MB. Not functional equivalence.",
+      "credential_resolution_note": "Original production mismatch remains. Isolated DEV correction dd481183 qualified with86 provider-free checks; no production deployment or secret change."
+    },
+    "credential_authority_correction": {
+      "status": "QUALIFIED_NOT_DEPLOYED",
+      "candidate_sha": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
+      "branch": "codex/dev004-birdeye-authority",
+      "parent": "fde478b7ef2b77b983b58d41f46d0de451d22dd3",
+      "scope": "One approved-name resolver, override guards, token-price auth headers, preserved integration label guards and pilot credential validation; canonical/frozen/integration copies.",
+      "tests": {
+        "passed": 86,
+        "failed": 0,
+        "skipped": 0,
+        "synthetic_credentials_only": true,
+        "network_and_database_access": "DENIED"
+      },
+      "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+      "production_deployment_authorized": false,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "report_local_path": "/Users/kevinkeaveney/.codex/worktrees/dev004-birdeye-authority/flex/docs/dev/lightweight_dev004_credentials/REPORT.md",
+      "report_sha256": "2c378cbf7573131af568e40a4578a5baf95bd2eea0f96db7a8461bc9368849e2",
+      "preservation": "Request builders, endpoints, timeout constants, retry bodies and other pre-existing function bodies unchanged by AST checks; installed credential binding matches earlier audit hash.",
+      "blocker": null,
+      "next_action": "Separately authorized narrow runtime deployment preflight; do not deploy entire candidate tree or activate services."
     }
   }
 }

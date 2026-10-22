@@ -11,6 +11,7 @@ from src.evidence.queue import EvidenceIntakeQueue
 from src.ops.operation_price_research_orchestrator import adapter_for
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding,build_birdeye_ohlcv_request
 from src.ops.birdeye_rate_limit import wait_seconds
+from src.ops.dev004_opening_policy import normalize_opening_ohlcv, reduce_policy as reduce_opening_policy
 from src.ops.byzantine_monitor_entry import derive_monitor_entry
 from src.ops.watchtower_terminal_ath_finalizer import ProviderCapacityBackoff, WatchtowerTerminalAthFinalizer
 CONTRACT='operation-monitor.v1'; CONCURRENCY=1; MAX_BYTES=10_000_000
@@ -161,16 +162,27 @@ class MonitorBirdeyeTransport:
   candles=[{'timestamp':int(x.get('unixTime',x.get('unix_time',x.get('timestamp',0)))),'open':float(x.get('o',x.get('open',x.get('c',0))) or 0),'high':float(x.get('h',x.get('high',x.get('c',0))) or 0),'low':float(x.get('l',x.get('low',x.get('c',0))) or 0),'mc':float(x.get('c',x.get('close',x.get('value',0))) or 0)} for x in items]
   return {'candles':[x for x in candles if x['timestamp'] and x['mc']>0],'resolution':params['type'],'http_status':200,'request':params,'request_manifest':built}
  def acquire_watchtower_entry(self,p,plan):
-  """Acquire only the frozen two-second entry window after retained evidence is audited."""
+  """Accepted opening order and absence evidence; one existing bounded request."""
   built=build_birdeye_ohlcv_request(address=p['mint'],interval='1s',time_from=plan['time_from'],time_to=plan['time_to'])
   result=self.binding(built)
   if result.status_code != 200:
+   # Preserve this composition's existing bounded queue retry/error contract.
    raise ConnectionError('ENTRY_ACQUISITION_'+str(result.error_state or result.status_code))
-  items=((result.payload or {}).get('data') or {}).get('items') or []
-  candles=sorted(({'timestamp':int(x.get('unixTime',x.get('unix_time',0))),'mc':float(x.get('c',x.get('close',0)) or 0)} for x in items),key=lambda x:x['timestamp'])
-  first=next((x for x in candles if x['timestamp']>plan['migration_timestamp'] and x['mc']>0),None)
-  if not first: raise ValueError('INSUFFICIENT_EVIDENCE:FIRST_FULL_POST_MIGRATION_SECOND_MC_NOT_RETURNED')
-  return first,built
+  payload=result.payload if isinstance(result.payload,dict) else {}
+  items=(payload.get('data') or {}).get('items')
+  if not isinstance(items,list): raise ValueError('NORMALIZATION_FAILED')
+  candles=normalize_opening_ohlcv(payload)
+  migration=int(plan['migration_timestamp'])
+  groups={offset:[{'timestamp':int(x['timestamp']),'mc':float(x['close'])} for x in candles if int(x['timestamp'])==migration+offset] for offset in (1,0,2)}
+  for offset in (1,0,2):
+   candidates=groups[offset]
+   if not candidates: continue
+   if len(candidates)!=1: raise ValueError('NORMALIZATION_FAILED')
+   entry=candidates[0]
+   if offset!=1: entry['plus_one_absent']=True
+   if offset==2: entry['migration_absent']=True
+   return entry,built
+  raise ValueError('TARGET_SECOND_ABSENT' if items else 'NO_PROVIDER_ITEMS')
 
 def _watchtower_entry_inventory(db_path: str, mint: str) -> dict[str,Any]:
  """Read-only retained-evidence inventory; this function never owns a write transaction."""
@@ -266,7 +278,11 @@ class MonitorWorker:
      evaluation=_entry_inventory(self.db_path,p); p['entry_evaluation_last_run']=int(time.time());p['entry_evaluation_result']=evaluation['result'];p['missing_entry_evidence']=evaluation.get('missing_evidence',[]);p['next_entry_evaluation_at']=evaluation.get('next_entry_evaluation_at');p['monitor_state']=evaluation['result'];p['entry_acquisition_request']=evaluation.get('entry_acquisition')
      if evaluation['result']=='ENTRY_EVIDENCE_ACQUISITION_DUE':
       first,manifest=self.transport.acquire_watchtower_entry(p,evaluation['entry_acquisition'])
-      p.update({'entry_timestamp':first['timestamp'],'entry_mc_usd':first['mc'],'entry_exactness':'FIRST_FULL_POST_MIGRATION_SECOND_MC','entry_provenance':_h({'entry_acquisition':evaluation['entry_acquisition'],'request':manifest['request_parameters'],'entry':first}),'entry_evaluation_result':'ENTRY_REFERENCE_QUALIFIED','monitor_state':'ENTRY_REFERENCE_QUALIFIED','entry_acquisition_request_identity':_h(manifest['request_parameters'])})
+      policy=reduce_opening_policy(migration_timestamp=int(evaluation['entry_acquisition']['migration_timestamp']),entry=first)
+      if policy['state']!='QUALIFIED': raise ValueError(policy['reason'])
+      offset=policy['entry_timestamp']-int(evaluation['entry_acquisition']['migration_timestamp'])
+      p.update({k:policy[k] for k in ('entry_timestamp','entry_mc_usd','entry_method','entry_exactness')})
+      p.update({'entry_offset_seconds':offset,'entry_provenance':_h({'entry_acquisition':evaluation['entry_acquisition'],'request':manifest['request_parameters'],'entry':first,'entry_offset_seconds':offset}),'entry_evaluation_result':'ENTRY_REFERENCE_QUALIFIED','monitor_state':'ENTRY_REFERENCE_QUALIFIED','entry_acquisition_request_identity':_h(manifest['request_parameters'])})
      elif evaluation['result']=='ENTRY_REFERENCE_QUALIFIED':
       p.update({k:evaluation[k] for k in ('entry_timestamp','entry_mc_usd','entry_exactness','entry_provenance')})
       p.update({'entry_method':evaluation['entry_method'],'entry_evaluation_result':'ENTRY_REFERENCE_QUALIFIED','monitor_state':'ENTRY_REFERENCE_QUALIFIED'})
@@ -302,7 +318,7 @@ class MonitorWorker:
     candidates=[(entry,int(p.get('entry_timestamp') or ts)),(float(old[0]),int(old[1] or ts))] if old else [(entry,int(p.get('entry_timestamp') or ts))]
     candidates += [(float(x.get('high') or x['mc']),int(x['timestamp'])) for x in candles]
     peak,peak_ts=max(candidates,key=lambda x:(x[0],-x[1]));dd=(peak-mc)*100/peak if peak else 0;terminal=p['operation_id'].lower()=='watchtower' and dd>=85;now=int(time.time());assignment=p.get('assignment') or {'digest':p.get('assignment_digest')}
-    f={'operation_id':p['operation_id'],'mint':p['mint'],'cohort_class':p['cohort'],'assignment_timestamp':assignment.get('assigned_at',now),'assignment_provenance':_h(assignment),'entry_method':p['entry_method'],'entry_timestamp':p.get('entry_timestamp',ts),'entry_mc_usd':entry,'entry_status':'QUALIFIED','entry_exactness':'ADAPTER_FROZEN','latest_mc_usd':mc,'latest_mc_timestamp':ts,'current_multiple':mc/entry if entry else None,'running_peak_mc_usd':peak,'running_peak_timestamp':peak_ts,'running_peak_multiple':peak/entry if entry else None,'drawdown_percent':dd,'reached_2x':int(peak>=entry*2),'reached_5x':int(peak>=entry*5),'reached_10x':int(peak>=entry*10),'monitor_state':'PRICE_MONITOR_COMPLETE_COLLAPSED' if terminal else 'MONITORING_ACTIVE','monitor_started_at':now,'last_observation_at':ts,'next_observation_at':None if terminal else ts+60,'monitor_completed_at':now if terminal else None,'provider_call_count':1,'candles_retained':len(candles),'candle_resolution':response.get('resolution'),'evidence_status':'QUALIFIED','provenance_digest':_h({'request':response.get('request'),'response':response})}
+    f={'operation_id':p['operation_id'],'mint':p['mint'],'cohort_class':p['cohort'],'assignment_timestamp':assignment.get('assigned_at',now),'assignment_provenance':_h(assignment),'entry_method':p['entry_method'],'entry_timestamp':p.get('entry_timestamp',ts),'entry_mc_usd':entry,'entry_status':'QUALIFIED','entry_exactness':p.get('entry_exactness','ADAPTER_FROZEN'),'latest_mc_usd':mc,'latest_mc_timestamp':ts,'current_multiple':mc/entry if entry else None,'running_peak_mc_usd':peak,'running_peak_timestamp':peak_ts,'running_peak_multiple':peak/entry if entry else None,'drawdown_percent':dd,'reached_2x':int(peak>=entry*2),'reached_5x':int(peak>=entry*5),'reached_10x':int(peak>=entry*10),'monitor_state':'PRICE_MONITOR_COMPLETE_COLLAPSED' if terminal else 'MONITORING_ACTIVE','monitor_started_at':now,'last_observation_at':ts,'next_observation_at':None if terminal else ts+60,'monitor_completed_at':now if terminal else None,'provider_call_count':1,'candles_retained':len(candles),'candle_resolution':response.get('resolution'),'evidence_status':'QUALIFIED','provenance_digest':_h({'request':response.get('request'),'response':response})}
     cols=list(f)+['created_at','updated_at'];vals=tuple(f[x] for x in f)+(now,now);updates=','.join(f'{x}=excluded.{x}' for x in cols if x not in {'operation_id','mint','created_at','assignment_timestamp','assignment_provenance','entry_method','entry_timestamp','entry_mc_usd','entry_status','entry_exactness'})
     sql=f"INSERT INTO operation_monitor_facts({','.join(cols)}) VALUES({','.join('?' for _ in cols)}) ON CONFLICT(operation_id,mint) DO UPDATE SET {updates},running_peak_mc_usd=MAX(operation_monitor_facts.running_peak_mc_usd,excluded.running_peak_mc_usd),provider_call_count=operation_monitor_facts.provider_call_count+1"
     request_id=_h(response.get('request_manifest') or p.get('request_manifest') or response.get('request'))

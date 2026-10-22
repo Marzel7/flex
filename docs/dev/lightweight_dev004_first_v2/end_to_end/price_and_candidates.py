@@ -4,7 +4,7 @@ import ast,contextlib,dataclasses,hashlib,importlib.util,json,os,resource,socket
 from pathlib import Path
 from typing import Any,Optional,Callable,Mapping
 resource.setrlimit(resource.RLIMIT_FSIZE,(16_000_000,16_000_000))
-OUT=Path('/private/tmp/dev004-e2e/qualified');OPS=OUT/'ops_v2.sqlite';P=Path('/Users/kevinkeaveney/Production/flex-main-workers');W=Path('/Users/kevinkeaveney/Production/flex-walkback-dev002')
+OUT=Path(sys.argv[1]) if len(sys.argv)>1 else Path('/private/tmp/dev004-e2e/qualified');OPS=OUT/'ops_v2.sqlite';P=Path('/Users/kevinkeaveney/Production/flex-main-workers');W=Path('/Users/kevinkeaveney/Production/flex-walkback-dev002')
 result={'tests':[],'sources':{},'mock_transport_calls':0,'real_provider_calls':0,'writer_boundary':'Existing offline injection uses synchronous fixture SQLite transactions; production shared writer/worker wiring not qualified.'}
 def deny(*a,**k):raise AssertionError('REAL_NETWORK_FORBIDDEN')
 socket.socket.connect=deny;socket.create_connection=deny
@@ -34,7 +34,9 @@ def commit(path,item):
  finally:c.close()
 stub.commit_write_and_wait=commit;sys.modules['src.core.db_writer']=stub
 locking=types.ModuleType('src.utils.db_locking');locking.db_connect=connect;sys.modules['src.utils.db_locking']=locking
-monitor=load('src.ops.operation_monitor_worker',P/'src/ops/operation_monitor_worker.py')
+DEV=Path(__file__).resolve().parents[4]/'runtime/creator_resolution'
+sys.modules['src.ops'].__path__.insert(0,str(DEV/'src/ops'))
+monitor=load('src.ops.operation_monitor_worker',DEV/'src/ops/operation_monitor_worker.py')
 binding=load('src.ops.token_data_provider_bindings',P/'src/ops/token_data_provider_bindings.py')
 rate=load('src.ops.birdeye_rate_limit',P/'src/ops/birdeye_rate_limit.py')
 queue_mod=load('src.evidence.queue',P/'src/evidence/queue.py')
@@ -64,6 +66,29 @@ def missing_target():
  assert installed==accepted,'Installed opening omits accepted plus_one_absent/migration_absent fallback provenance'
  return result['opening_comparison']
 test('opening_fallback_provenance_matches_accepted',missing_target)
+def opening_matrix():
+ from src.ops.dev004_opening_policy import reduce_policy
+ revision='71b6e338cfb54057ec4984d41bfbe02477c90dba'
+ def retained(path):return subprocess.check_output(['git','-C',str(DEV),'show',revision+':'+path],text=True)
+ policy_ns={};exec(retained('src/ops/strict_migration_window.py'),policy_ns)
+ tree=ast.parse(retained('src/ops/operation_monitor_worker.py'));error=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='StrictEntryNormalizationError');cl=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='MonitorBirdeyeTransport');fn=next(n for n in cl.body if getattr(n,'name',None)=='acquire_watchtower_entry')
+ ns={'normalize_opening_ohlcv':policy_ns['normalize_opening_ohlcv'],'build_birdeye_ohlcv_request':binding.build_birdeye_ohlcv_request};exec(compile(ast.fix_missing_locations(ast.Module(body=[error,fn],type_ignores=[])),revision,'exec'),ns)
+ cases={'priority':[0,2,1],'migration_fallback':[0,2],'plus_two':[2],'outside_window':[3],'empty':[],'duplicate_target':[1,1],'duplicate_fallback':[0,0],'malformed':[1]}
+ evidence=[]
+ for name,offsets in cases.items():
+  items=[{'unixTime':NOW+x,'o':100,'h':100,'l':100,'c':100} for x in offsets]
+  if name=='malformed':items[0].pop('o')
+  def reply(req):return binding.ProviderTransportOutcome(200,{'data':{'items':items}},{},None)
+  accepted_self=types.SimpleNamespace(binding=reply,_capture_shadow_opening_response=lambda *a:None)
+  plan={'migration_timestamp':NOW,'time_from':NOW,'time_to':NOW+2}
+  def invoke(call):
+   try:return ('VALUE',call({'mint':M},plan)[0])
+   except ValueError:return ('MISSING_OR_INVALID',None)
+  a=invoke(lambda p,w:ns['acquire_watchtower_entry'](accepted_self,p,w));b=invoke(monitor.MonitorBirdeyeTransport(reply).acquire_watchtower_entry);assert a==b,(name,a,b)
+  if a[0]=='VALUE':assert policy_ns['reduce_policy'](migration_timestamp=NOW,entry=a[1])==reduce_policy(migration_timestamp=NOW,entry=b[1])
+  evidence.append({'case':name,'result':a})
+ return evidence
+test('accepted_opening_selection_and_policy_matrix',opening_matrix)
 q=monitor.MonitorQueue(OUT/'monitor_queue_final',enabled=True)
 def admission():
  a=q.enqueue_after_assignment(mint=M,operation_id='watchtower',assignment={'assigned_at':NOW,'identity':'DEV004_SYNTHETIC'},canonical_birth={'entry_timestamp':NOW+1,'entry_mc_usd':100});b=q.enqueue_after_assignment(mint=M,operation_id='watchtower',assignment={'assigned_at':NOW,'identity':'DEV004_SYNTHETIC'},canonical_birth={'entry_timestamp':NOW+1,'entry_mc_usd':100});assert a['job_id']==b['job_id'];return {'stable_identity':a['job_id'],'depth':q.queue.depth()}
@@ -71,8 +96,24 @@ test('new_price_assignment_and_dedup',admission)
 keep=connect(OPS);keep.execute('pragma journal_mode=WAL')
 def worker_cycle():
  w=monitor.MonitorWorker(q,transport,db_path=str(OPS),persist=lambda item:commit(OPS,item));assert w.process_once()==1
- c=connect(OPS);r=c.execute('select entry_mc_usd,running_peak_mc_usd,current_multiple,monitor_state from operation_monitor_facts where operation_id=? and mint=?',('watchtower',M)).fetchone();c.close();assert r==(100.0,250.0,1.5,'MONITORING_ACTIVE'),(r,q.queue.depth());return {'fact':r,'depth':q.queue.depth(),'wal_bytes':Path(str(OPS)+'-wal').stat().st_size}
+ c=connect(OPS);r=c.execute('select entry_mc_usd,running_peak_mc_usd,current_multiple,monitor_state from operation_monitor_facts where operation_id=? and mint=?',('watchtower',M)).fetchone();c.close();assert r==(100.0,250.0,1.5,'MONITORING_ACTIVE'),(r,q.queue.depth());return {'fact':r,'depth':q.queue.depth(),'wal_bytes':Path(str(OPS)+'-wal').stat().st_size if Path(str(OPS)+'-wal').exists() else 0}
 test('installed_price_worker_candles_lifecycle_projection',worker_cycle)
+def stored_opening_fallbacks():
+ from unittest.mock import patch
+ evidence=[]
+ for offset,method,exactness in [(1,'FIRST_FULL_POST_MIGRATION_SECOND_MC','FIRST_FULL_POST_MIGRATION_SECOND_MC'),(0,'MIGRATION_SECOND_MC_FALLBACK','MIGRATION_SECOND_MC_FALLBACK'),(2,'BOUNDED_POST_MIGRATION_MC_FALLBACK','POST_MIGRATION_OFFSET_2S_OBSERVED_MC')]:
+  mint='DEV004_PROVENANCE_OFFSET_'+str(offset);mq=monitor.MonitorQueue(OUT/('opening_'+str(offset)),enabled=True)
+  mq.enqueue_after_assignment(mint=mint,operation_id='watchtower',assignment={'assigned_at':NOW},canonical_birth={})
+  def provider(req):
+   if req['request_parameters']['type']=='1s':return binding.ProviderTransportOutcome(200,{'data':{'items':[{'unixTime':NOW+offset,'o':100,'h':100,'l':100,'c':100}]}},{},None)
+   return fake_provider(req)
+  evaluation={'result':'ENTRY_EVIDENCE_ACQUISITION_DUE','entry_acquisition':{'migration_timestamp':NOW,'time_from':NOW,'time_to':NOW+2}}
+  with patch.object(monitor,'_entry_inventory',return_value=evaluation):assert monitor.MonitorWorker(mq,monitor.MonitorBirdeyeTransport(provider),db_path=str(OPS),persist=lambda item:commit(OPS,item)).process_once()==1
+  c=connect(OPS);row=c.execute('select entry_method,entry_exactness,entry_timestamp,entry_mc_usd from operation_monitor_facts where mint=?',(mint,)).fetchone();c.close()
+  assert row==(method,exactness,NOW+offset,100.0),(row,mq.queue.depth());evidence.append(row)
+ return evidence
+test('opening_baseline_labels_and_timestamps_persist',stored_opening_fallbacks)
+
 def recovery():
  r=queue_mod.EvidenceIntakeQueue(OUT/'recovery_queue_final',enabled=True,max_messages=10,max_bytes=100000,max_attempts=3);r.enqueue({'mint':M,'test':'recovery'},message_id='DEV004_RESTART');claimed=r.claim(1);assert len(claimed)==1
  reopened=queue_mod.EvidenceIntakeQueue(OUT/'recovery_queue_final',enabled=True,max_messages=10,max_bytes=100000,max_attempts=3);assert reopened.recover()==1;again=reopened.claim(1);assert again[0].message_id==claimed[0].message_id;reopened.nack(again[0],'SYNTHETIC_RETRY');assert reopened.recover()==1;again=reopened.claim(1);assert again[0].payload['attempts']==1;reopened.ack(again[0]);assert not any(reopened.depth().values())

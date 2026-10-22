@@ -41174,23 +41174,23 @@
     "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback."
   },
   "flex_lightweight_dev004_reference_seed_correction": {
-    "observed_at_utc": "2026-10-22T22:04:53.413864+00:00",
+    "observed_at_utc": "2026-10-22T22:17:03.128701+00:00",
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa; documentation-only, pre-existing checkout changes preserved",
-    "status": "PARTIAL_DESIGN_CORRECTED_SEED_UNQUALIFIED",
+    "status": "HOLD_MINIMUM_OPERATIONAL_SEED_NOT_CLOSED",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
     "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
-    "report_sha256": "a9b0f02e515f3dce4386fedbbed4287d419a4748169078156b00c01127fb2dca",
+    "report_sha256": "aaec0efb82c22c8f36fea55060242b86315e08af46099431a8a37466f6f8a4ea",
     "inventory": {
       "registry_identities": 10,
       "canonical_assignment_rows_observed": 1165,
       "assignments_missing_event_id": 762,
       "measurement_scope": "bounded indexed read-only observations; not a cutover snapshot or row dependency manifest"
     },
-    "acceptance": "Design append/readback and seven gate presence verified. Price, attribution and V2 functional equivalence NOT RUN; seed size UNKNOWN.",
-    "blocker": "Existing DEV004 design/schema-audit artifact not located; exact seed dependency closure, historical-query populations and file-size/functional qualification unresolved.",
+    "acceptance": "Bounded row-manifest audit complete with HOLD. Seed construction and frozen functional/Birdeye equivalence NOT RUN.",
+    "blocker": "Minimum evidence closure incomplete; concrete BIRDEYE-only credential contract mismatch; protected role/history/quarantine/recovery dependencies and consistent freeze unresolved.",
     "production_state": "V1 remains authoritative. No source changes, database writes/build, service actions, provider calls, deletion or cutover. Installed corrections and budgets unchanged.",
-    "next_action": "Continue same DEV004 dependency manifest including Birdeye price/lifecycle evidence, then provider-free frozen V1/V2 attribution and all seven price gates. HOLD on any unresolved required functionality or evidence. No live activation or cutover.",
+    "next_action": "Within DEV004 resolve protected reference/role/credential contract gaps and qualify one compact provider-free route/price/recovery fixture with frozen V1 outputs, not historical bulk. Implementation/deployment/cutover remain unauthorized.",
     "birdeye_price_pipeline": {
       "contract": "Mandatory accepted acquisition, valuation, ATH/drawdown/lifecycle, monitoring/refresh, checkpoint/retry, provenance/insufficiency and API/UI preservation.",
       "credential_authority": "BIRDEYE; no legacy fallback; unchanged budgets and request limits",
@@ -41198,6 +41198,29 @@
       "minimization": "Exclude candles/observations only after every accepted consumer and research dependency is proven equivalent. Unknown dependencies remain protected.",
       "acceptance": "Seven mandatory provider-free gates appended; NOT RUN; V2 acceptance HOLD pending qualification.",
       "test_safety": "Mock providers and disposable restart fixtures only; no stopped service activation or actual provider calls."
+    },
+    "minimum_seed_qualification": {
+      "status": "HOLD",
+      "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/REPORT.md",
+      "report_sha256": "069fa27fb1c4d04c6b5104210e6397f253310a72e8995529c3ffd744b1be4568",
+      "validation_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/validation.json",
+      "manifest_rows_identified": 22235,
+      "logical_field_bytes_identified": 10315609,
+      "certified_minimum_size": "UNKNOWN",
+      "operation_identities": 10,
+      "assignments": 1165,
+      "null_event_assignments": 762,
+      "null_event_handling": "All preserved and source-tag mapped. 348 Watchtower predicate-compatible;155 role-edge dependencies unqualified;195 P3R feature witnesses;64 retained profile memberships. Not assignment-time provenance certification.",
+      "additional_reference_gap": "188 non-null event identifiers unresolved after governance/admission namespaces.",
+      "credential_blocker": "Inspected installed price binding prefers legacy BIRDEYE_KK over BIRDEYE. Values/effective key not inspected; no source fix.",
+      "other_blockers": "SubProvider/history/quarantine/route/queue/price closure and consistent cross-database freeze incomplete; no certified physical seed size.",
+      "cases_defined_not_run": 14,
+      "production_writes": 0,
+      "source_changes": 0,
+      "v2_databases_created": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "artifact_validation": "JSON/key/byte/digest arithmetic passed; all new audit files below10MB. Not functional equivalence."
     }
   }
 }

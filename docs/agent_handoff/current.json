@@ -33700,12 +33700,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev004-birdeye-authority",
-    "git_head": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
+    "branch": "codex/dev004-first-v2-prototype",
+    "git_head": "d5cad529a66116842a329adfe3d376c2f8237c3f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T22:48:20.881740+00:00",
-    "working_tree": "DEV004 nine-file Birdeye authority payload deployed to three existing production packages; underlying installed corrections preserved. Dormant monitor/API roots remain absent and stopped."
+    "updated_at_utc": "2026-10-22T23:01:36.335946+00:00",
+    "working_tree": "DEV004 isolated first V2 fixture qualification HOLD; production unchanged; credential deployment remains complete."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41320,5 +41320,20 @@
     "blocker": null,
     "next_action": "NONE \u2014 authorized three-package credential deployment complete. Dormant monitor/API composition recovery remains separate and unauthorized.",
     "updated_at_utc": "2026-10-22T22:48:20.881740+00:00"
+  },
+  "dev004_first_v2_prototype": {
+    "engineering_revision": "d5cad529a66116842a329adfe3d376c2f8237c3f",
+    "status": "HOLD_EVIDENCE_COMPLETE_ACCEPTANCE_NOT_ESTABLISHED",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "DEV-only compact fixtures and provider-free tests; production runtime unchanged.",
+    "objective": "Resume existing DEV004 first V2 prototype without cutover or provider acquisition.",
+    "implementation": "Dedicated codex/dev004-first-v2-prototype branch based on deployed credential candidate dd481183. Bounded indexed row selector, two schema/subset SQLite fixtures, frozen installed-function comparisons and Potential Operations dependency contract. No classifier changes.",
+    "verification": "37 source rows; Core294912bytes, OPS479232bytes; separate recovery clone544768bytes. Two builds yielded identical fixture hashes. Eleven V1/V2 projections equal; two installed completed-queue reopen/claim checks preserve rows; nine synthetic credential assertions passed. Production credential payload hashes unchanged; FLEX_STABLE_V2 and manifest verified.",
+    "production_state": "V1 authoritative; no production DB/source/config changes, restarts, provider calls, live queue mutation or cutover. Previously completed credential deployment remains closed.",
+    "blocker": "Retained price input window cannot reproduce accepted stored ATH; acquisition checkpoint/retry envelope not located for selected case; canonical transaction-role closure incomplete; dictionary/membership/outcome authorities differ in retained V1. Candidate-wide Potential Operations populations and source high-water identities remain unqualified. Admission-outbox selector refused without safe index.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/REPORT.md",
+    "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
+    "storage": "Per-file RLIMIT16000000bytes, SQLite construction max2048pages, per-selectorLIMIT129/200000VM/1second, pass2048rows. No raw RPC/provider payload retention; zero per-run unbounded growth paths.",
+    "next_action": "One bounded retained-artifact lookup for the selected case accepted ATH finalization request and acquisition checkpoint/envelope; extend same fixture only with recovered evidence and rerun price/recovery comparisons. Keep HOLD if unavailable."
   }
 }

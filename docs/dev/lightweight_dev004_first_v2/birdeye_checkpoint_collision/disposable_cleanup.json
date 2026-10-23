@@ -1,0 +1,10 @@
+{
+  "only_generated_test_database_copies_removed": 68,
+  "retained_fixture_cases": [
+    "normal",
+    "prior_bucket_overlap"
+  ],
+  "source_reference_databases_untouched": true,
+  "free_bytes_before": 2318561280,
+  "free_bytes_after": 3096133632
+}

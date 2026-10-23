@@ -1,0 +1,35 @@
+{
+  "starting_candidate": "5b72bb26c8eed08a19bf77a061caceefe80d959e",
+  "status": "PASS_ISOLATED_DEV",
+  "groups": 15,
+  "runtime_delta": {
+    "runtime/creator_resolution/src/ops/dev004_checkpoint_completion.py": "f9bbc1c1750c0c889946757d83cdae6773cd59fca6e24155969b4598bf07190c",
+    "runtime/creator_resolution/src/ops/watchtower_terminal_ath_finalizer.py": "775597d96cfdb576ee6e2a811726f2a76fbd83edc6d2edd2a208a9bdaeeef480"
+  },
+  "unchanged_budget_sha256": "461a8cf99f0e1ca33bdb540fa1d60d54e08890bf8c031af7db36e8f741d69d65",
+  "new_schema": "operation_monitor_window_completion; one WITHOUT ROWID composite-primary-key metadata table in existing disposable OPS",
+  "schema_owner": "src.ops.dev004_checkpoint_completion.ensure_schema, inside existing shared-writer transaction",
+  "retained_fixtures": {
+    "normal": {
+      "core.sqlite": 8970240,
+      "ops.sqlite": 13766656
+    },
+    "prior_bucket_overlap": {
+      "core.sqlite": 8970240,
+      "ops.sqlite": 13766656
+    }
+  },
+  "bounds": {
+    "required_os_file_limit_bytes": 67108864,
+    "actual_qualification_os_file_limit_bytes": 16000000,
+    "max_completion_rows": 4096,
+    "max_total_reference_bytes": 4194304,
+    "max_reference_bytes_per_window": 65536,
+    "max_candles_per_window": 512
+  },
+  "canonical_preservation": "Existing row equivalence verified before completion, all original values/provenance preserved through finalization, mixed-conflict inserts rolled back",
+  "raw_retention": false,
+  "new_unbounded_growth_paths": 0,
+  "production_changes": false,
+  "real_provider_calls": 0
+}

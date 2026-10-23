@@ -17,6 +17,7 @@ from src.core.db_write_queue import WriteItem
 from src.core.db_writer import commit_write_and_wait
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding, build_birdeye_ohlcv_request
 from src.ops.watchtower_price_fact_contract import reduce_watchtower_price_facts
+from src.ops import dev004_checkpoint_completion as completion
 
 
 TERMINAL_STATE = "PRICE_MONITOR_COMPLETE_COLLAPSED"
@@ -103,18 +104,6 @@ class WatchtowerTerminalAthFinalizer:
             return []
         return candles
 
-    def _completed_chunk_ids(self, mint: str) -> set[str]:
-        """Durable evidence is the completion authority; no retry history."""
-        with sqlite3.connect(f"file:{Path(self.db_path).resolve()}?mode=ro", uri=True) as conn:
-            return {str(row[0]) for row in conn.execute(
-                "SELECT DISTINCT request_identity FROM operation_monitor_observations "
-                "WHERE operation_id='watchtower' AND mint=? AND source='BIRDEYE_TERMINAL_ATH_CHUNK'", (mint,))}
-
-    def _completed_chunk_candles(self, mint: str, chunk_ids: set[str], interval: str) -> list[dict[str, float | int]]:
-        with sqlite3.connect(f"file:{Path(self.db_path).resolve()}?mode=ro", uri=True) as conn:
-            rows=conn.execute("SELECT observation_timestamp,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd,request_identity,resolution FROM operation_monitor_observations WHERE operation_id='watchtower' AND mint=? AND source='BIRDEYE_TERMINAL_ATH_CHUNK'",(mint,)).fetchall()
-        return [{'timestamp':int(x[0]),'open':float(x[1]),'high':float(x[2]),'low':float(x[3]),'close':float(x[4])} for x in rows if x[5] in chunk_ids and x[6] == interval]
-
     def finalize(self, mint: str, *, interval: str = "1m", chunk_seconds: int | None = None, watchtower_price_fact_contract: bool = False) -> dict[str, Any]:
         fact = self.freeze(mint)
         if fact.get("ath_finalization_request_id") and fact.get("final_proven_ath_mc") is not None:
@@ -127,13 +116,13 @@ class WatchtowerTerminalAthFinalizer:
         windows = [(left, min(left + (chunk_seconds or end-start), end)) for left in range(start, end, chunk_seconds or end-start)]
         retained = self._retained_15m_ohlc(mint, start, end) if watchtower_price_fact_contract and interval == '15m' else []
         planned = [(left, right, _digest({"version":FINALIZER_VERSION,"mint":mint,"resolution":interval,"time_from":left,"time_to":right})) for left,right in windows]
-        completed = self._completed_chunk_ids(mint)
+        completed = completion.read_completed(self.db_path,mint,interval,planned)
         remaining = [(left,right,chunk_id) for left,right,chunk_id in planned if chunk_id not in completed]
         full_requests = [] if retained else [build_birdeye_ohlcv_request(address=mint, interval=interval, time_from=left, time_to=right) for left,right in windows]
         requests = [] if retained else [build_birdeye_ohlcv_request(address=mint, interval=interval, time_from=left, time_to=right) for left,right,_ in remaining]
         # Freeze identity over the original plan, never the post-restart remainder.
         request_id = _digest({"version": FINALIZER_VERSION, "operation_id": "watchtower", "mint": mint, "terminal": end, "requests": [r["request_parameters"] for r in full_requests]})
-        candles=list(retained) if retained else self._completed_chunk_candles(mint, {x[2] for x in planned}, interval)
+        candles=list(retained) if retained else [candle for group in completed.values() for candle in group]
         checkpoint_at=int(self.now())
         for request,(left,right,chunk_id) in zip(requests,remaining):
             # Provider work is outside DB connections/transactions.
@@ -148,9 +137,7 @@ class WatchtowerTerminalAthFinalizer:
             part=_candles(outcome.payload or {})
             if not part or (not watchtower_price_fact_contract and (int(part[0]["timestamp"]) > left or int(part[-1]["timestamp"]) + seconds < right or any(int(b["timestamp"])-int(a["timestamp"])>seconds for a,b in zip(part,part[1:])))):
                 raise ValueError("CHUNK_COVERAGE_INCOMPLETE:"+json.dumps({"time_from":left,"time_to":right,"first_bucket":int(part[0]["timestamp"]) if part else None,"last_bucket":int(part[-1]["timestamp"]) if part else None,"candle_count":len(part)},sort_keys=True,separators=(",",":")))
-            checkpoint_sql='INSERT OR IGNORE INTO operation_monitor_observations(operation_id,mint,observation_timestamp,mc_usd,resolution,source,request_identity,provenance_digest,created_at,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
-            checkpoint=[(checkpoint_sql,("watchtower",mint,int(x['timestamp']),float(x['close']),interval,"BIRDEYE_TERMINAL_ATH_CHUNK",chunk_id,_digest(x),checkpoint_at,float(x['open']),float(x['high']),float(x['low']),float(x['close']))) for x in part]
-            receipt=commit_write_and_wait(self.db_path,WriteItem('enrichment','watchtower-terminal-ath-chunk',checkpoint,chunk_id))
+            receipt=completion.commit_window(self.db_path,mint,interval,left,right,chunk_id,part,checkpoint_at)
             if not receipt.committed: raise RuntimeError('ATH_CHUNK_CHECKPOINT_UNCOMMITTED')
             candles.extend(part)
         candles=sorted({int(x['timestamp']):x for x in candles}.values(),key=lambda x:int(x['timestamp']))
@@ -169,14 +156,9 @@ class WatchtowerTerminalAthFinalizer:
             raise ValueError("TERMINAL_DRAWDOWN_INVARIANT_FAILED")
         now = int(self.now())
         provenance = _digest({"requests": [r["request_parameters"] for r in full_requests], "request_id": request_id, "candles": candles, "before": fact["before_finalization_digest"]})
-        # Historical Monitor close-only rows share this compact primary key.  A
-        # terminal finalizer response is the authoritative OHLC enrichment for
-        # that bucket, so it upgrades rather than silently losing h/l/o fields.
-        obs_sql = "INSERT INTO operation_monitor_observations(operation_id,mint,observation_timestamp,mc_usd,resolution,source,request_identity,provenance_digest,created_at,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(operation_id,mint,observation_timestamp,resolution) DO UPDATE SET mc_usd=excluded.mc_usd,source=excluded.source,request_identity=excluded.request_identity,provenance_digest=excluded.provenance_digest,created_at=excluded.created_at,open_mc_usd=excluded.open_mc_usd,high_mc_usd=excluded.high_mc_usd,low_mc_usd=excluded.low_mc_usd,close_mc_usd=excluded.close_mc_usd"
-        observations = [(obs_sql, ("watchtower", mint, int(row["timestamp"]), float(row["close"]), interval, "BIRDEYE_TERMINAL_ATH_FINALIZATION", request_id, _digest(row), now, float(row["open"]), float(row["high"]), float(row["low"]), float(row["close"]))) for row in candles]
         update = ("UPDATE operation_monitor_facts SET retained_monitor_peak_mc_usd=COALESCE(retained_monitor_peak_mc_usd,running_peak_mc_usd),retained_monitor_peak_evidence=COALESCE(retained_monitor_peak_evidence,'CLOSE_ONLY_LOWER_BOUND'),final_proven_ath_mc=?,final_ath_multiple=?,final_ath_evidence=?,final_ath_resolution=?,final_ath_bucket_start=?,final_ath_bucket_end=?,ath_finalized_at=?,ath_finalization_request_id=?,ath_finalization_provenance_digest=?,reached_2x=?,reached_5x=?,reached_10x=?,first_2x_timestamp=?,first_5x_timestamp=?,first_10x_timestamp=?,drawdown_percent=?,updated_at=? WHERE operation_id='watchtower' AND mint=? AND monitor_state=? AND next_observation_at IS NULL")
         params = (ath, ath / entry, evidence, interval, bucket_start, bucket_start + seconds, now, request_id, provenance, int(crossings[2] is not None), int(crossings[5] is not None), int(crossings[10] is not None), crossings[2], crossings[5], crossings[10], drawdown, now, mint, TERMINAL_STATE)
-        receipt = commit_write_and_wait(self.db_path, WriteItem("enrichment", "watchtower-terminal-ath-finalizer", observations + [(update, params)], request_id))
+        receipt = completion.commit_finalization(self.db_path,mint,interval,candles,request_id,now,update,params)
         if not receipt.committed:
             raise RuntimeError("ATH_FINALIZATION_WRITE_UNCOMMITTED")
         return {"state": "FINALIZED", "provider_calls": len(requests), "retained_ohlc_reused": bool(retained), "request_id": request_id, "requests": requests, "chunks_planned": len(windows), "candle_count": len(candles), "resolution": interval, "first_bucket": candles[0]["timestamp"], "last_bucket": candles[-1]["timestamp"], "final_proven_ath_mc": ath, "final_ath_multiple": ath / entry, "final_ath_evidence": evidence, "ath_bucket_start": bucket_start, "ath_bucket_end": bucket_start + seconds, "final_drawdown_percent": drawdown, "crossings": crossings, "provenance_digest": provenance, "bytes_added": len(json.dumps(candles, separators=(",", ":")))}

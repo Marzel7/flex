@@ -1,0 +1,120 @@
+{
+  "status": "PASS",
+  "groups": [
+    {
+      "case": "normal",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "before_dispatch",
+      "status": "PASS",
+      "budget_debits": 4,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "after_response",
+      "status": "PASS",
+      "budget_debits": 4,
+      "synthetic_requests": 4,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "after_checkpoint",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "between_windows",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "before_ack",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "before_checkpoint",
+      "status": "PASS",
+      "budget_debits": 4,
+      "synthetic_requests": 4,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "prior_bucket_overlap",
+      "status": "PASS",
+      "completed_window_reacquired": false,
+      "requests": [
+        {
+          "from": 1800000000,
+          "kind": "synthetic_response",
+          "to": 1800000900
+        },
+        {
+          "from": 1800000900,
+          "kind": "synthetic_response",
+          "to": 1800001800
+        },
+        {
+          "from": 1800001800,
+          "kind": "synthetic_response",
+          "to": 1800002700
+        }
+      ]
+    },
+    {
+      "case": "identical_existing",
+      "status": "PASS",
+      "window_decision": "PASS",
+      "canonical_rows_unchanged": true
+    },
+    {
+      "case": "compatible_distinct_identity",
+      "status": "PASS",
+      "window_decision": "PASS",
+      "canonical_rows_unchanged": true
+    },
+    {
+      "case": "conflicting_value",
+      "status": "PASS",
+      "window_decision": "HOLD",
+      "canonical_rows_unchanged": true
+    },
+    {
+      "case": "ambiguous_missing_ohlc",
+      "status": "PASS",
+      "window_decision": "HOLD",
+      "canonical_rows_unchanged": true
+    },
+    {
+      "case": "unknown_provenance",
+      "status": "PASS",
+      "window_decision": "HOLD",
+      "canonical_rows_unchanged": true
+    },
+    {
+      "case": "atomic_mixed_conflict",
+      "status": "PASS",
+      "window_decision": "HOLD",
+      "new_rows_rolled_back": true
+    },
+    {
+      "case": "original_collision_reproduced",
+      "status": "PASS",
+      "old_requests": 4,
+      "fixed_requests": 3
+    }
+  ],
+  "output_root": "/private/tmp/dev004-collision-recovery-kvnfr1dd",
+  "real_provider_calls": 0
+}

@@ -1,0 +1,142 @@
+{
+  "tests": [
+    {
+      "name": "retained_candidate_identity_associations_history_review",
+      "status": "PASS",
+      "evidence": [
+        {
+          "candidate": "potential-wsol-provision-close-100-sol-minus-15k",
+          "status": "PAUSED",
+          "history_count": 3,
+          "associations": {
+            "CONTRADICTORY": 1,
+            "EXCLUDED": 1,
+            "INCLUDED": 72,
+            "UNRESOLVED": 52
+          },
+          "promotion": "NO"
+        },
+        {
+          "candidate": "potential-eight-hop-plain-transfer-sequence",
+          "status": "PAUSED",
+          "history_count": 2,
+          "associations": {
+            "CONTRADICTORY": 1,
+            "INCLUDED": 27,
+            "UNRESOLVED": 29
+          },
+          "promotion": "NO"
+        }
+      ]
+    },
+    {
+      "name": "persisted_source_context_equivalence",
+      "status": "HOLD",
+      "error": "AssertionError:Source rows/global rowid generations differ; assessment copies alone cannot preserve accumulation"
+    },
+    {
+      "name": "retained_candidate_reverse_resolution_and_unseen_control",
+      "status": "PASS",
+      "evidence": {
+        "retained_mint_events": 98,
+        "unseen_unrelated_not_promoted": true,
+        "limitation": "Resolver only matches retained associations; global candidate discovery is not this component."
+      }
+    },
+    {
+      "name": "installed_candidate_evidence_accumulation_and_restart",
+      "status": "PASS",
+      "evidence": {
+        "unseen_input_assessment": true,
+        "two_immutable_versions": true,
+        "duplicate_idempotent": true,
+        "failed_publication_atomic": true,
+        "contradictory_evidence_preserved": true,
+        "restart_current_preserved": true,
+        "automatic_promotion": "NO",
+        "scope": "Installed generic pipeline/publisher with synthetic evidence; not a global discovery proof."
+      }
+    },
+    {
+      "name": "installed_conditional_post_Walkback_boundary",
+      "status": "PASS",
+      "evidence": {
+        "post_commit_callback_invoked": true,
+        "failure_preserves_queue": true,
+        "no_scheduler_activated": true,
+        "boundary": "handler mocked to prevent unqualified full legacy recomputation"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "candidate": "p3r-v2-c357da9d0d4d560311e4",
+      "membership_rows": 71
+    },
+    {
+      "candidate": "p3r-v2-dc4953db7adb853337c4",
+      "membership_rows": 27
+    }
+  ],
+  "source_hashes": {
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/living_potential_operations.py": "922fe66b3fafe86b1f2eb606e70e63ff8efd795beda2de48f44f41cc19d4c95a",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/generic_living_active_components.py": "f56e97ff72a73cd746e91905184e8a4909ad32753ab48a4d733aa916ed452298",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/generic_living_persisted_source_reader.py": "36deafc03d2ded93909538707a714bd02606810aa6147f12f9fb6af0357014c1",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/generic_living_pipeline_v2.py": "394edafe77f5a4eba9f12f9c4e743a13c9dce398aa4743b8ed36d5558ab3242a"
+  },
+  "provider_calls": 0,
+  "production_writes": 0,
+  "source_comparisons": [
+    {
+      "candidate": "p3r-v2-c357da9d0d4d560311e4",
+      "v1_source_rows": {
+        "queue": 71,
+        "edges": 159,
+        "atomic": 71
+      },
+      "v2_source_rows": {
+        "queue": 71,
+        "edges": 159,
+        "atomic": 71
+      },
+      "v1_highwaters": {
+        "queue": 95347,
+        "edges": 206259,
+        "atomic": 20221
+      },
+      "v2_highwaters": {
+        "queue": 1195,
+        "edges": 4172,
+        "atomic": 784
+      },
+      "members_equal": true,
+      "funders_equal": true
+    },
+    {
+      "candidate": "p3r-v2-dc4953db7adb853337c4",
+      "v1_source_rows": {
+        "queue": 27,
+        "edges": 675,
+        "atomic": 0
+      },
+      "v2_source_rows": {
+        "queue": 27,
+        "edges": 675,
+        "atomic": 0
+      },
+      "v1_highwaters": {
+        "queue": 95347,
+        "edges": 206259,
+        "atomic": 20221
+      },
+      "v2_highwaters": {
+        "queue": 1195,
+        "edges": 4172,
+        "atomic": 784
+      },
+      "members_equal": true,
+      "funders_equal": true
+    }
+  ],
+  "status": "PARTIAL_HOLD"
+}

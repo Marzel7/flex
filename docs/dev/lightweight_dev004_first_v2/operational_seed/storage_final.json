@@ -1,0 +1,296 @@
+{
+  "core": {
+    "rows": 12490,
+    "encoded_logical_bytes": 8301158,
+    "bytes": 8970240,
+    "allocated_bytes": 8970240,
+    "sha256": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "tables": {
+      "transfer_index": {
+        "rows": 2326,
+        "encoded_logical_bytes": 890623
+      },
+      "token_analysis": {
+        "rows": 1154,
+        "encoded_logical_bytes": 2909235
+      },
+      "tracked_tokens": {
+        "rows": 1129,
+        "encoded_logical_bytes": 401360
+      },
+      "token_market_cap_peaks": {
+        "rows": 216,
+        "encoded_logical_bytes": 54427
+      },
+      "metadata_cache": {
+        "rows": 1143,
+        "encoded_logical_bytes": 170337
+      },
+      "token_pool_accounts": {
+        "rows": 1138,
+        "encoded_logical_bytes": 1318936
+      },
+      "creator_resolution_queue": {
+        "rows": 28,
+        "encoded_logical_bytes": 16818
+      },
+      "creator_funding_queue": {
+        "rows": 1467,
+        "encoded_logical_bytes": 989467
+      },
+      "migration_walkback_handoff": {
+        "rows": 343,
+        "encoded_logical_bytes": 154440
+      },
+      "creator_funders": {
+        "rows": 3543,
+        "encoded_logical_bytes": 1394236
+      },
+      "wb_create_control": {
+        "rows": 1,
+        "encoded_logical_bytes": 185
+      },
+      "wb_create_delivery": {
+        "rows": 1,
+        "encoded_logical_bytes": 533
+      },
+      "birth_persist_queue": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "webhook_birth_queue": {
+        "rows": 1,
+        "encoded_logical_bytes": 561
+      }
+    }
+  },
+  "ops": {
+    "rows": 15964,
+    "encoded_logical_bytes": 16284971,
+    "bytes": 13742080,
+    "allocated_bytes": 13742080,
+    "sha256": "81c07162f4a29b41e24932ec3f41a560e409a11f778b889c0a61162e67f475ea",
+    "tables": {
+      "wt_walkback_queue": {
+        "rows": 1195,
+        "encoded_logical_bytes": 1741416
+      },
+      "wt_provisioning_sessions": {
+        "rows": 1001,
+        "encoded_logical_bytes": 714900
+      },
+      "wt_walkback_edge_candidates": {
+        "rows": 4172,
+        "encoded_logical_bytes": 4044311
+      },
+      "wt_attribution_outcomes": {
+        "rows": 1164,
+        "encoded_logical_bytes": 3385264
+      },
+      "wt_launch_audit": {
+        "rows": 600,
+        "encoded_logical_bytes": 1513158
+      },
+      "wt_watchtower_launches": {
+        "rows": 605,
+        "encoded_logical_bytes": 571100
+      },
+      "operator_launch_membership": {
+        "rows": 1165,
+        "encoded_logical_bytes": 266779
+      },
+      "operator_launch_assignment_history": {
+        "rows": 27,
+        "encoded_logical_bytes": 11180
+      },
+      "watchtower_token_attribution": {
+        "rows": 975,
+        "encoded_logical_bytes": 437932
+      },
+      "operators": {
+        "rows": 10,
+        "encoded_logical_bytes": 3601
+      },
+      "operator_identity_state": {
+        "rows": 5,
+        "encoded_logical_bytes": 2061
+      },
+      "operator_evidence": {
+        "rows": 5,
+        "encoded_logical_bytes": 6156
+      },
+      "operator_reviews": {
+        "rows": 2,
+        "encoded_logical_bytes": 610
+      },
+      "operator_entities": {
+        "rows": 153,
+        "encoded_logical_bytes": 38200
+      },
+      "operator_identity_assets": {
+        "rows": 122,
+        "encoded_logical_bytes": 40509
+      },
+      "monitor_admission_outbox": {
+        "rows": 104,
+        "encoded_logical_bytes": 45778
+      },
+      "wt_confirmed_treasuries": {
+        "rows": 115,
+        "encoded_logical_bytes": 29708
+      },
+      "wt_discovered_subprovs": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_ops_v2_wallets": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_ops_v2": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_wrap_close_candidates": {
+        "rows": 945,
+        "encoded_logical_bytes": 599069
+      },
+      "wt_creator_birth_launch": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_candidate_websocket_watches": {
+        "rows": 19,
+        "encoded_logical_bytes": 19097
+      },
+      "wt_lineage_quarantine": {
+        "rows": 129,
+        "encoded_logical_bytes": 92306
+      },
+      "wt_walkback_atomic_flows": {
+        "rows": 784,
+        "encoded_logical_bytes": 781888
+      },
+      "operation_monitor_facts": {
+        "rows": 24,
+        "encoded_logical_bytes": 40583
+      },
+      "operation_monitor_observations": {
+        "rows": 47,
+        "encoded_logical_bytes": 22496
+      },
+      "operation_monitor_entry_provenance": {
+        "rows": 71,
+        "encoded_logical_bytes": 89035
+      },
+      "dev004_retained_reference_evidence": {
+        "rows": 15,
+        "encoded_logical_bytes": 16998
+      },
+      "wt_wallet_lifecycle_evidence": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_infrastructure_candidates": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_infrastructure_candidate_descendants": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_infrastructure_candidate_evidence": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_infrastructure_candidate_reviews": {
+        "rows": 0,
+        "encoded_logical_bytes": 0
+      },
+      "wt_walkback_transaction_roles": {
+        "rows": 73,
+        "encoded_logical_bytes": 91947
+      },
+      "operator_identity_events": {
+        "rows": 136,
+        "encoded_logical_bytes": 64055
+      },
+      "operation_registry_dispositions": {
+        "rows": 10,
+        "encoded_logical_bytes": 2779
+      },
+      "operation_behavioural_profiles": {
+        "rows": 6,
+        "encoded_logical_bytes": 55762
+      },
+      "operation_qualification_contracts": {
+        "rows": 6,
+        "encoded_logical_bytes": 6207
+      },
+      "confirmed_operation_matches": {
+        "rows": 318,
+        "encoded_logical_bytes": 353528
+      },
+      "operator_promotion_reviews": {
+        "rows": 1,
+        "encoded_logical_bytes": 8297
+      },
+      "operator_identity_merges": {
+        "rows": 1,
+        "encoded_logical_bytes": 199
+      },
+      "operation_monitor_mode_transitions": {
+        "rows": 2,
+        "encoded_logical_bytes": 839
+      },
+      "wt_treasury_review": {
+        "rows": 50,
+        "encoded_logical_bytes": 61130
+      },
+      "wt_lineage_root_policies": {
+        "rows": 1,
+        "encoded_logical_bytes": 287
+      },
+      "wt_lineage_verified_session_edges": {
+        "rows": 129,
+        "encoded_logical_bytes": 45676
+      },
+      "potential_operation_identity": {
+        "rows": 2,
+        "encoded_logical_bytes": 712
+      },
+      "potential_operation_evidence_association": {
+        "rows": 183,
+        "encoded_logical_bytes": 63405
+      },
+      "potential_operation_assessment_version": {
+        "rows": 5,
+        "encoded_logical_bytes": 9813
+      },
+      "potential_operation_current": {
+        "rows": 2,
+        "encoded_logical_bytes": 421
+      },
+      "potential_operation_assessment_lineage": {
+        "rows": 5,
+        "encoded_logical_bytes": 1741
+      },
+      "potential_operation_assessment_association_binding": {
+        "rows": 183,
+        "encoded_logical_bytes": 31293
+      },
+      "potential_operation_workflows": {
+        "rows": 63,
+        "encoded_logical_bytes": 143035
+      },
+      "potential_operation_child_candidates": {
+        "rows": 2,
+        "encoded_logical_bytes": 2890
+      },
+      "p3r_v2_candidate_membership": {
+        "rows": 1332,
+        "encoded_logical_bytes": 826820
+      }
+    }
+  }
+}

@@ -1,0 +1,2156 @@
+[
+  {
+    "mint": "2NjuvDtoj4HqSNGqMYBs4wBotq1e92gyHCCyEPKZpump",
+    "sender": "FkccGTEh6tJe7FGg3hk1dMsz67FDKr5aMh6CWYnTu1f8",
+    "recipient": "A8XXFTWEsyt7VLy3YNpPPixyNBpbzMHwYesDAcUQhhro",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "error": "interrupted"
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2Nu94jFVHUE7MWVsS6V9zfqYi9js8UYd93yydkbvpump",
+    "sender": "FkccGTEh6tJe7FGg3hk1dMsz67FDKr5aMh6CWYnTu1f8",
+    "recipient": "CAFTSzpkDc3x7W3dRc3ByRhY4q4aR2u5ZJSCXNUTfyHC",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "error": "interrupted"
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2RDV1zyUpJ9RG9Q4aqoB5gSHrT6goM149b95ktCTpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "error": "interrupted"
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2UKkazisyXfWUyLT4eqCgvEV6KNaxqwkHU49htQppump",
+    "sender": "FkccGTEh6tJe7FGg3hk1dMsz67FDKr5aMh6CWYnTu1f8",
+    "recipient": "CAFTSzpkDc3x7W3dRc3ByRhY4q4aR2u5ZJSCXNUTfyHC",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "error": "interrupted"
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2YGcLWQ5NZ5qijs9UNBoFcAWREYa1Hpc6QwouAPPpump",
+    "sender": "FkccGTEh6tJe7FGg3hk1dMsz67FDKr5aMh6CWYnTu1f8",
+    "recipient": "6qYNKjptyBMWiEDApkrJsZeft7qQXQ8hNYrhJyVQoVqo",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "error": "interrupted"
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2t4qqVMLkXwWiiCs2ou8UmVWZLe6BRXZkLMB2nmSpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "3XDZgqz5ZKWiL5dRofKfZe5FRTWzAkntqxWWzVhYpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "46MM4JJyXzQ1y12T8VuPf351UPkJQkrH9C7isNiupump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "4JsLM7iY8R87kjdgHADjxRJYG8HgoNHa2VrVxCDvpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "4aN426Gw1h2Kn5GFnJ62Fr43MjNY9TD8JH5dj96Wpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "64xwhN5Rshirb1rB6KAC5Qw26zhYhPEXGPxLkpNmpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7nHnamto7wnrHLnZPHNHb6HKzbVbptgTsR1z8TBMpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7vGyP5iCqm6Z9JwMW4wQPVNe1NSpNrM7qej6E8B9pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "8K5tbzsAJx1JYj9yvZdtJbFqbf1A3uKGejpw59wNpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "9AkECi9GYrKTrXtvSXBqNJvcgoVFdffofNVUfsCnpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "B5pXX5vFbMNuX2aLNq5KArX62dwqsMvb2FNhLoiRpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Bh6rDJTsyKGknuZM6XXvE8EHQcP48wiQFCke5UQXpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "BzZvaeoitoXoVUuaWDZVLZAKY392Xw2ihNjg4Ka4pump",
+    "sender": "2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz",
+    "recipient": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "D8aHDLTQtDqMLAghU6KKVGtgFEDvJU1NAkn6vbKVpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "EHY56TBNQ1jX6zUQx7gTPwbdGo7zfKMUH6kvXLbSpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "ENRibY7Rszd83h4jegkCynAvCRcHosKRhr2tWuBipump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FB6gcsYM4oK5X8TBi3A8xx9Pd5Y4ndRsW21Rk93Rpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FDumYKfbqDnMxWCa9N2eW1Y2wGUiPU9ci6rb22pEpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FUhLM3YpvJDvNdAjhgx6r25w529vAwSo7yUNsNDxpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Gv5fG8pWw7RAxjiYzyxWMbwSg38iYKuXKwCN4Huopump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HNxwU4tZ7urNGnjbjUc7f1jXUfqwhNC3VaAUJhpPpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "JA2GsWfRHF59aaxCy7wyp54VYc1eidNgV4MRMFZdpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2eGwstcrSRY2TzRWwe5T58giqURuSdPxvLaHHhZtpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "B9C7Ehd2Ute3fuDQSzbv6QzECHUsEp1yqQ795sTdpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "ETD6SpD4XiRYKq3uDQ5uKbkFLjyMtYH7X6hrHtHZpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "BfmahFa45CrMJf45yzkmUgREr9CQubfcowtnuUncpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "DMNtou2ANqxevM4UngRzTdxVrRgfR1ZLzJyCT5sCpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Avj4EGfqEsMt8ZrDtFJXWj5mtx2xJ6r64zdBZcJppump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Fdn88g1A3kDY5sys2pY7jMNNKHs49AkpBWTiGdj9pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Gs8f8yPJbkBmwU1QqwNrdSoC5XQWqJs5kCk74YmKpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FcPXx5qUKBxsyGFV3d4t9WvG7d5sKJYUFKoJq4mypump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HwX9f6NUQypHQ4S4U8UDKT6ECvbKABkrnsneFec5pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "G9hMFbN4akTeh9ojDRr3e4NUWGoZhkfX38fvLUB2pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FMjZpnuNAtkDAyHg5SKBb6Pc3gbJQ7qHx47JF35mpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "EtD32XKDQiwC7uBSvuqWNx7FUcHYCejah1vj2M5Upump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "9p1mjutXmGgb3X7XZWBVHreMPWRzFG5odELTG7dapump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "BRN8PquhscNmq7kvarpFtoup7cZVxh65RQcXRyPppump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "4dBsoKgo7XypAQjKH8MYiddJ2VEhdK9kJpLYHJ6zpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "3B84bg2kvqzPLhczcXoALdxUBeUs6GU823rd5hP8pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "BULbQ4j9WU6r63idgdQVsjt6i3nKSTXgyj7Qqcdpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "BvnqdYwuFrvi9ds63EtwQLYME89ikJkULnJPAd83pump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "B5yWXR3PZeRuEDs7P55SBgyZEiVu3Ak7k3uWmYLdpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "5PmsmHC6aqCuBzECBLX5Mv9FA8Pgd9rfrX9bT4kzpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7rnZdzwZMkrviU1S6r74e1gGfMnnDzmMSXTgrXKSpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7mqDrCDrw7zxqQs3KiRWmx3bns7uy3mMSiAKgDotpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FCoXFnRQsHtb2rPReJUrtkPD8qBm8UVbXNdHx49spump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "9DPUFzAMZfbh4ie5RLJ1C7Zhes5eEayPsTU91tSzpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "A8MBwPZwR6msXrDBRzg8b1W7BpjjPch1WsTELQJzpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2n3bPZcfbcUNgaP6Ktw8E1wYoycAhuR1sSHa7uB6pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "8xySnQGLve5959cr4QiJxpNGW5wkBWPh4VxgJVycpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "3KdoU8X1DJBvmmxYYttJWQ1KiMfarg3bFAdeCAmspump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "H8biQnEVHDM1foz22p8jAyRh4CDpytq22DurHCHvpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "BiFfzEETEN4wG1vCQLmKk7nBcAcDzVrTEgX3fDiLpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "8nh9t5MHFRyEWn5K9oUqx3LJayLMMHhE4BPdgno5pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "CbVTvRQY7aRpXfUKVMW2BZ53mtaUtWgo3KqjU6oYpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "E2ujjsdFjh5yiM8jbVc1HeXEeuaQ7q4prNM6RGVppump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HPHkPvCdGjBV5kaYT4ZeV1Rc27fHMN4Qr4YuG2vzpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FaujeXeSkDLJpvji5puUmKChScoVaxYxoTbhDYjopump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "EteLE6zPKPPXtkU1NDqi5Hw2QePE3pWsYMaxnY9Dpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "FYRTpigBfveFzFy3JsaX1fSuGHXXn3ddg9zSw9ZDpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "4uTHA7hUfZD1PKWQBVtuCEWnBjgB6xaL7GfJrPRDpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "6RufsEXSv9Nd4YUmUGah8MeMXZT2rxn3kriGiBcSpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "77y75KuYp27zk59C4fwUGmo85Ui2RmmFouEQY4ynpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "J7f73YkRJQ6ntd8GbGA6uZBEShAmsACxPFqxX6wFpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "AvWsebmjNAYqqdzjsRd6uvzqjZJPmmsD9xmuNyaapump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7ymYkLjTxCg4PExwFXpWMYixmAgRdePjM5UpJA25pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "9zu66qTLKCEzsfifm7woEoVJzw82Recitu5S4i2Npump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "F94bbEHfPkHGBKNBAQqbGksvUrxXcCYdNF4BFTMupump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Dkt6WZ3aMEU2Az5zwg2UmZv9U1UAnUJkNQA5y5ppump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HVTyrR8fgesuVUajoXjUgHK7tAeQqeN7hJepu8Vtpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Bisax95YjE3ykTH3JJL46P1GaLyUf7LDFfqRPCgqpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HRkvXsdfmYBJU2vFcHUPz5paZ7MNdzjvAwXeQJ8Gpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2YB13v6vJ1HTmuzbwujYsahAng1XPbjfT6kMNrFYpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "J4t6XRyTSCxtGqfxq4tnVG3vdGzE9wgPcuQ1e4DTpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2trQcQbEiSsNCGhjUKZ7cNtcREgjFdGeTHndet2kpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "DCPHkFepQeetS5pytaDgkcktQ5M8XL4y2v3dojkWpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HVEyhCnbmSLWYmxmYC9gc2tvUDmWSm1ayeai4LVTpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "4nn2hUuWxReUxBRAuXzhG3A556U6pjbecHBgwRt2pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "41GZ77b5v1ak2jujpaU2AAQFWFj4wszunihUJG4epump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "CQP3cfwbUCfBJ6UUY6GS2pozcn6uNJv6WYYVAW2fpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "CNWXKgcbotCfhjSNgKPmqEcpCKZA19mvpmk5PHjRpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "HRinFbhZjrb2xoqSzxYCYKX7LqJ3H6pn42CURb2cpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "B8S7WGQYteNSBz4rU4Xs1hkr1seGpxYgUuV2wgtbpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7iXZi55AyKbJv5e9XTQuVcywdT2ejHjGBf3NKuCLpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "42iYbRaVhj4dy6WXTWFMZ45rWVUxW3UdBPndaNRdpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "3yvK6WWww1moF3qx3UvHngZCHy9kRCVd9Jva8tRrpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "CsCPttDSDsKxhCiVrYvCpFHtT9A3Uni8tbSfqpDXpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "7mFXERtY2FJDVi2SbYHQw5ctt3kSLLrUgSANK78apump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "GfBwZAaRLdarL7mmUce8wkFc2xALuTSzyrREVKixpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2GE5VekSBFzLBXfNYTJ58bnEyCepqSPLpzA9JZjJpump",
+    "sender": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "recipient": "2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "9JtPfLbN32CszHmstoXYdWaazFLaoxhfqf9mKgQMpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "DNtZMNDZ65hAJbJXRiP9NnV98ZTrwLTEJZ78fWKCpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "EHFJLG7CbNnnuPHXHNtdeWfRQ3UFwBfBZRe11hnppump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2fDAjAjyvCFATm5ERrJnyqqcqiZ9akV9vEFZLLGfpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "E8bCunY5FYCtpmCeL1oCWgKLeFxA9z4oMNBe9MLVpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "Pw6rr8jEdq9Uump9xfx7UpiCdMmwNJp83YBbTu8pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "2MB4vqatMHRgiqLiNU7vpCbDRnfZyt3LV856pvycpump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "h87aexUtFKuxZKmfyPhc6cA8x898FeXYhKWSZFupump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  },
+  {
+    "mint": "gv6djnjnaZgwdyc7LfNUAs1pRu5qvLLeHCdBt24pump",
+    "sender": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "recipient": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "required_relationship_type": "DIRECT_SOL_TRANSFER",
+    "source_result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "fixture_result": {
+      "eligible": false,
+      "reason": "TREASURY_EVIDENCE_CONFLICT"
+    },
+    "required_table": "wt_lineage_verified_session_edges",
+    "source_lookup_plan": "SCAN; no sender/recipient index; further broad lookup not performed"
+  }
+]

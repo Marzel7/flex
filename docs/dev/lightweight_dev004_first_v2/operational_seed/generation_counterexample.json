@@ -1,0 +1,12 @@
+{
+  "status": "DEMONSTRATED_CUTOVER_BLOCKER",
+  "new_retained_candidate_edge_rowid": 4173,
+  "preserved_v1_generation": "000000095347:000000206259:000000020221",
+  "installed_reader_relevant_new_evidence": false,
+  "v2_highwaters": {
+    "queue": 1195,
+    "edges": 4173,
+    "atomic": 784
+  },
+  "scope": "Disposable fixture only; no production counter reset or source change."
+}

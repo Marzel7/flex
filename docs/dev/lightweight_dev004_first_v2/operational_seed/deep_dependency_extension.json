@@ -1,0 +1,465 @@
+{
+  "added": {
+    "wt_walkback_transaction_roles": 73,
+    "wt_walkback_edge_candidates": 0
+  },
+  "required_keys": [
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "01168a9431979ff4c21011457578ce0a23f912caccac09dfaea9af1d7377e9c7"
+      }
+    },
+    {
+      "table": "wt_walkback_edge_candidates",
+      "key": {
+        "evidence_key": "8c36163d4d340174f04279f4cb456db98c53797e2486e39fe1baaeedd0485284"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "468b9951dcf586f6f32296059d2c2d502df22c5afeda6c6f7953028fdc9f866c"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "bb86d86bae5559f1b9d700f67aa13e0136e7b40d217cd41f2378ad7fe38ba64b"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "c0758b76108f4d168cb3ebf13fceac909f51efd69893faf4ed0b7d67be22d8b9"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "671fd6a8b5803d5692d1a15ba6c30be4dd8bd77d8a71b5c91d6eb3f1d400684f"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "62076e4506f4be29cf0d825ae7ad0015b11c985af0fcafe17e6bb856e0f5f236"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "f6c9e89ffe08c9b0d84241259ca6b7b82a7663c5910c930048e4f58c10ec59b6"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "9764eee9d139a4fbb23d8832926cd191be39e8d81300bfd5d300757b6a43014c"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "6d3abaf993582b5e63e29e6b14bb27c2d9486cd8dceeee57b0f0b82c9c499d16"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "207290eb43ca38dd641bf1228047f3e903c3d9a305a6b02ee1468a9d6c3545c2"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "ad4162c8f180d1237e433bf70d5869c089babca3dd298138d3e9427be4e0a0c4"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "0fbb7a3cf1e10fdf97fc8499475723e883bcf44a6bf296e6c21dd9b73830e55b"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "1d1eacb306d7e3556be3cfea3a06351630cd4db256376be6540b957abfd57abf"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "0a4e7917718ed86fbd52402fcbc1ed44f4213076f03c7231b11de7ca6fb67142"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "f0314650141be72da3c38cad343642f0a781670b325091c0dd1d5175523a6697"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "53aab5c7deae2e516541a6ec950a3f355af109f4fcf7d61a080e65c08819996e"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "1bc1d50bcea26944612f6f672a0e5a073042e5f62b9746b324ec61276a0ae6a2"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "3ff9e699eef93e4228c55b153265fe4664920fc9a1e7b4df36c63829c62c70d4"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "c7ac1ee4ca1933e19dc3b62572cfdbc1e56640a810c3e0de58eed8f8a581cbe9"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "99c86afc22232a7896233b6c123aff5048b8e3d1d8f8e6021dc24d57a267040d"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "b53c90f5c04ea805cfbf19a3d4f41fc1c994faa7d7e529a2449bd6458462e8f0"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "dbb1e51c15719f77c698d4de7fd82ebd436e515ba675281da53e07a54c0d0b9d"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "a78b10c737cacd5d31b7b4e439d1a58959eba56047716b23cabf8e78f685e340"
+      }
+    },
+    {
+      "table": "wt_walkback_edge_candidates",
+      "key": {
+        "evidence_key": "8da4e008e1dd634cf0b5c1be4121e124458f0de57919b3b14737187aca2b2ca6"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "7a9c1cb4071d0cfdbcb5fd97e635cbd854d0a1afd4b0fab24e151dbe1786229d"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "7b0555d3bda862efe1b02929788fae48c8267bfec9f74a3999f8657b1451445e"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "cccaf9d2a8c16aac273fc1335bddd86efee4286a42b8b9e3a91c284564da8bf4"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "8d40ce6972f8f7c61757e3eea2782e6a726b8ce70c92259bf916d401515ddb11"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "a9c1795337cadc2f63cccb221558451ce020d3300bd13ece8e5af3af24489829"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "ec5ac53ea7c6882831ff30f90a06418fafe6387624cdfd3c9199e1a8a602178f"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "b489b19ebfb374ccd5748079ddcb302bd4a5ca3993871b28a34f4df8461c1efd"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "3761c713a6bf25d4fe88318ebcbf3840d1b12272caec85c9569d6d70ff901a6f"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "0a7bd37dc075a2d4e51071c96b55331fcdcf30eb4bca3879989e1fcaba8e3ba7"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "cd98079c1b1ba55fa58c11bdeddf151486878a44008b39039aef50ecb1ca8862"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "beab49114624afed1b608bcb674d6c9aabb07ea43144bc1bab10f71f071f534a"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "2c4aad7af72c36f5a2345efa79d280f0215079781e0b86fda3f1f67c7f28c830"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "60b9f918e1bbcd457a227421245195b8840a3e8b2c1c7673dbc0b3b6b11e1c57"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "e486c4f24c9f011b99f603b4c5fc365e8077b1fd56b20bae147706d0ae679350"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "abfc498d550cd05369f135bea7bdc77b2fa841196dea443a6152b1ba735e4bd2"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "5b48f2b4b1cfa8505d159a59bec26b876142e9703b6dc200fa53952d26a1d401"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "f3b07fc0db2302e8dfafd7e944d4c46a38cf44aaa9503c7f46985b5313218433"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "4f81ff2afd6c0cfb1443af0c45e4bb487bc1490a2daf4102dffb8179537ef5f6"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "fa8d639ad17968231ac5c71b93cc7d3e634c3fc42b4be76870f52e87b8bf7e16"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "6870851234307a4c4a43de7ae825d4444baa6ee5da4cd338409aaa80dc5237ec"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "27325bb537ba164a46cfb83d6d707a53ee38bbbe01e4ec66241ee94aa7f4fa0d"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "f0654350d9947dd4ad9981ca904f0c6c8027283660c2768f9a9258ca10a61a53"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "6983ba0d91b9e393e1f7e8390fb5b5d94ebe582ffe2e75801c153fc017ed27bf"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "918b1dd3132af74681cdc4f4b35bd87212dc3c43abd0ddd30e7e5296b0799cf2"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "73964dbafd342a305eae5b209b0ac967d388728961e328c7271bc45b69fb396c"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "98c7e61906f0770dbeb66816e0c1ee86d5f4bd8fdef3a44bf0dd72a80d918d70"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "e587d8e161a8754ba4ba2ef9cbe7042ee45d8367707b7088cf8b7085acf0ecfa"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "ebb0ba0736f9c19eaa32d32ec6aa41ede7ce639eeb688a38b1ade201a9bd833f"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "6ae0a2f6d6910159518743abd134fb789a8d37ddbc4b3ff02bd4d38bceef49a7"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "a7fdf3fc4e0879efdba142aff611a0ba6c782d219057d03c7407e9806d543baf"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "a42f3c7b480ac302951b57d25c521bb6dd5314a3311b603dea5753f0a85eb8cf"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "ffb8414a7030f65797354beb5678499004534587eae18b1a2b8cb047b21e57a0"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "18dec6c8a7730ba130cbe6a365d5b371c866d2f7cb44bb9a86a439c9bc45b543"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "db4ecbe13cc3611569f5343cf356084b7ab38d4214bf73266ed9c7ab5c5b4e2c"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "5f57227645681052d20e8de1ea5e3e6720f9a5bd2016d62722daa69ba6014b4e"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "b3054e87df572cf65234a0c2f3c3566fb99c76e850fe630b4c579cfd7966e9a6"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "34edc9ad08679218eaa982fd64c448528838b3e841a2a4e438e9c5b67e78f12b"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "0c806248977a09520030f729bb257953ca30497782e131c72ee7a086bb43757c"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "38dfb2bc4c91f76841e4f705e16d4b0ff0897ccd382a089e177b9e36bb891394"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "f539dff1a6a2286a3eaabcc04807a4ff30b8c2c70ba5e0629a79cd9bdc56adce"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "8a9daee93f4ece1bc71391c9b0e400aa03c11034842df9105c7c9c7f983849c3"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "78d25129a76927d3cf761b014fc57d9f9fe5d42cd92e39a0f535401f8747cb70"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "07eb78d532d01e85b5149d4b738b4593f80bba4a9f492efa1da2abcd78f47160"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "abc66bbc52f2690671a275b1901b6225819d890806f19357364f54fb3bb01450"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "b0ca90ef76834dc13684e4572817ede90a68d375c4dfd8055cec0de3703aba25"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "d237d3e0b6e82111f866a1a58daf21c9e00b241ce356d8135c41a280bd06efe0"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "9f1477144782d24a4653857d681c54d855b706889b19fe3a814697c02cc835c1"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "79a9b1084e2334c791846696dde33664a1a6a247c7815c232fc994db6f9e1dcc"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "9d66fb1b808b723e122ceb47fe34ec0cb6d3d992bc5144594ef7fbcd693ca4c3"
+      }
+    },
+    {
+      "table": "wt_walkback_edge_candidates",
+      "key": {
+        "evidence_key": "fc6b80850996587d958f21b51f6f1758540e112d61dd35e211269423007f3fef"
+      }
+    },
+    {
+      "table": "wt_walkback_transaction_roles",
+      "key": {
+        "evidence_key": "ccbba2c4a8eb854ec709125e6fc1fd8f4a9284f3b4059dfa9fad1f4f212e4dcb"
+      }
+    }
+  ],
+  "holds": []
+}

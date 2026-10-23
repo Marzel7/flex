@@ -1,0 +1,50 @@
+{
+  "inspection_revision": "f94a8e59e8f7a9a2d5b95f19bf3f59dff58d465d",
+  "runtime_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+  "supervisor_config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+  "active": {
+    "watchtower_listener": 94632,
+    "creator_resolution_worker": 52248,
+    "walkback_worker": 94577
+  },
+  "stopped": [
+    "watchtower_api",
+    "watchtower_ngrok",
+    "operation_scheduler",
+    "intelligence_snapshot_scheduler",
+    "infra_sync_scheduler",
+    "ws_cascade",
+    "creator_funding_worker",
+    "evidence_writer",
+    "operation_monitor_worker",
+    "operation_monitor_bridge",
+    "alert_evaluator",
+    "webhook_worker"
+  ],
+  "free_space_observations_bytes": [
+    319201280,
+    327204864,
+    323252224
+  ],
+  "swap": {
+    "total_MiB": 9728,
+    "used_MiB": 9094.44,
+    "free_MiB": 633.56
+  },
+  "v1": {
+    "core_bytes": 35652194304,
+    "ops_bytes": 16194387968,
+    "observed_ops_wal_bytes": 0,
+    "ops_shm_bytes": 32768
+  },
+  "source_differences": {
+    "src/core/pumpfun_curve_listener.py": {
+      "dev_sha256": "10969164f4400f3f052af4a121b576bbe4336c05ee34abfb1977eb90bf5e7018",
+      "installed_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f"
+    },
+    "src/core/pumpportal_birth_audit.py": {
+      "dev_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c",
+      "installed_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b"
+    }
+  }
+}

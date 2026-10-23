@@ -1,5 +1,7 @@
 # DEV004 Post-Startup Cutover Gate
 
+> CONTRACT UPDATE — P3R scope superseded: see [revised non-P3R cutover contract](../non_p3r_cutover_contract/REPORT.md). The M1/P3R-related prerequisite and older M2 status below are historical; use the revised M1–M5 gates and later accepted recovery evidence. No production authorization is implied.
+
 DEV004_POST_STARTUP_CUTOVER_STATUS: HOLD — startup compatibility is closed; five mandatory acceptance packages remain. No unresolved demonstrated regression was identified in the accepted fixed populations. Missing mandatory acceptance is identified below; historical uncertainty alone is not treated as a failure.
 
 Candidate: `889f2399914ca5e0a79924fb8ea45bcfd096d32d`. This is read-only consolidation: no tests rerun, fixtures changed, providers/WebSockets used, production writes/deployment/restarts or cutover. RUNTIME_DEPLOYMENT_REQUIRED=false (documentation and read-only evidence only).

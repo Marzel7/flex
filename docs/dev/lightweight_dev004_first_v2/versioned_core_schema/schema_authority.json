@@ -1,0 +1,133 @@
+{
+  "source": "authoritative V1 Core metadata only; no data selected",
+  "columns": {
+    "create_tx_signature": [
+      "TEXT",
+      0,
+      null,
+      0,
+      0
+    ],
+    "first_observed_at": [
+      "INTEGER",
+      0,
+      null,
+      0,
+      0
+    ]
+  },
+  "peak_sql": "CREATE TABLE token_market_cap_peaks (\n  mint TEXT PRIMARY KEY,\n  peak_market_cap REAL DEFAULT 0,\n  peak_market_cap_at INTEGER DEFAULT 0, raw_peak_mc REAL DEFAULT 0, effective_peak_mc REAL DEFAULT 0, candidate_peak_mc REAL, candidate_peak_count INTEGER DEFAULT 0, raw_peak_mc_at INTEGER,\n  FOREIGN KEY(mint) REFERENCES tracked_tokens(mint)\n)",
+  "peak_columns": [
+    [
+      0,
+      "mint",
+      "TEXT",
+      0,
+      null,
+      1,
+      0
+    ],
+    [
+      1,
+      "peak_market_cap",
+      "REAL",
+      0,
+      "0",
+      0,
+      0
+    ],
+    [
+      2,
+      "peak_market_cap_at",
+      "INTEGER",
+      0,
+      "0",
+      0,
+      0
+    ],
+    [
+      3,
+      "raw_peak_mc",
+      "REAL",
+      0,
+      "0",
+      0,
+      0
+    ],
+    [
+      4,
+      "effective_peak_mc",
+      "REAL",
+      0,
+      "0",
+      0,
+      0
+    ],
+    [
+      5,
+      "candidate_peak_mc",
+      "REAL",
+      0,
+      null,
+      0,
+      0
+    ],
+    [
+      6,
+      "candidate_peak_count",
+      "INTEGER",
+      0,
+      "0",
+      0,
+      0
+    ],
+    [
+      7,
+      "raw_peak_mc_at",
+      "INTEGER",
+      0,
+      null,
+      0,
+      0
+    ]
+  ],
+  "peak_foreign_keys": [
+    [
+      0,
+      0,
+      "tracked_tokens",
+      "mint",
+      "mint",
+      "NO ACTION",
+      "NO ACTION",
+      "NONE"
+    ]
+  ],
+  "peak_indexes": [
+    [
+      0,
+      "sqlite_autoindex_token_market_cap_peaks_1",
+      1,
+      "pk",
+      0
+    ]
+  ],
+  "peak_index_xinfo": [
+    [
+      0,
+      0,
+      "mint",
+      0,
+      "BINARY",
+      1
+    ],
+    [
+      1,
+      -1,
+      null,
+      0,
+      "BINARY",
+      0
+    ]
+  ]
+}

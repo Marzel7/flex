@@ -2699,6 +2699,7 @@
       "qualification_single_file_cap_bytes": 16000000,
       "raw_provider_retention": false
     },
+    "subsequent_resolution": "Three exact schema gaps now implemented and qualified by explicit disposable-only versioned step ac37ec07. Fresh timestamp/canonical CREATE/peak schema failures closed. Fresh compact reader subsequently stops at its existing missing pf_ws_creator index; see dev004_versioned_core_base_schema. No V1 changes.",
     "updated_at_utc": "2026-10-23T11:16:40.688197+00:00"
   },
   "dev004_creator_classification_closure": {
@@ -3078,6 +3079,44 @@
       "Original11 read-only comparisons and26Deep cases PASS",
       "Prior20functional results and installed qualified source hashes preserved; mutating harnesses not rerun",
       "Nine deployed credential correction hashes match; no actual credentials read"
+    ]
+  },
+  "dev004_versioned_core_base_schema": {
+    "completion_record": "Bounded4096-byte fsync/atomic-replace sidecar with contract digest and DB file identity, published after commit. No user_version override. Post-commit/pre-marker crash converges through revalidation; valid repeat no DDL/marker rewrite.",
+    "dev_runtime_gate": "Scoped three-gap bootstrap PASS in actual explicit CLI and disposable fixtures; full requested fresh compact-reader startup HOLD at lookup index.",
+    "engineering_source_revision": "907136e56f2e687984d85769f6b93a17d5c43118",
+    "exact_schema_delta": "Nullable first_observed_at INTEGER and create_tx_signature TEXT with no defaults/constraints; verbatim token_market_cap_peaks SQL with eight columns, automatic mint PK index and tracked_tokens(mint) FK. No explicit index/version table or historical data added.",
+    "executable_candidate": "ac37ec070e40014b5e61d456b225712c357fafe1",
+    "next_action": "Separately qualify the accepted idx_ta_pf_ws_creator bootstrap dependency; do not expand this three-gap module scope, change classifiers, deploy or cut over.",
+    "preserved_scope": "No lineage repeat-safety or quarantine packaging changes. Prior creator/Watchtower/Deep/freshness/recovery/Birdeye provenance/ATH qualifications reused by unchanged source/evidence.",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED; no production authorization",
+    "production_state": "No production DB/source/config changes, services, providers, live WebSockets, historical deletion or cutover. New module has no production default/hook. V1 authoritative.",
+    "remaining_exact_blocker": {
+      "accepted_reference_definition": "CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator)",
+      "error": "COMPACT_HISTORY_UNINDEXED_DETAIL",
+      "fresh_plan": "SCAN token_analysis",
+      "scope_decision": "Not created; outside the three expressly authorized schema gaps. Classifier semantics/bounds unchanged."
+    },
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/versioned_core_schema/REPORT.md",
+    "schema_contract": "dev004.core-base.v1. Explicit opt-in and regular single-link file under explicitly selected /private/tmp/dev004-* root. Existing token_analysis and accepted tracked_tokens owner required. BEGIN IMMEDIATE validates/creates missing metadata and commits atomically; incompatible definitions fail closed. No historical row scans.",
+    "source_delta": "New stdlib-only runtime/creator_resolution/src/ops/dev004_core_base_schema.py; no existing initialization/runtime hooks changed. Exact V1 metadata authority recorded and reverified in one read-only snapshot.",
+    "status": "PARTIAL_THREE_GAPS_PASS_FRESH_COMPACT_READER_HOLD",
+    "storage": {
+      "marker_and_fixed_temp_each_max_bytes": 4096,
+      "max_main_input_bytes": 33554432,
+      "maximum_design_single_file_bytes": 67108864,
+      "new_unbounded_growth_paths": 0,
+      "production_future_growth": "Existing G5 unchanged; no absolute WAL or lock-duration claim.",
+      "qualification_os_file_cap_bytes": 16000000,
+      "raw_retention": false
+    },
+    "updated_at_utc": "2026-10-23T11:32:53.642462+00:00",
+    "verification": [
+      "20 focused groups PASS: fresh/repeat/partial/compatible/incompatible definitions, constraints, data preservation, failed commit, authorization, identity/version guards and SQL/FK checks.",
+      "Four physical process exits after column/before commit/after commit/before marker replacement recover correctly.",
+      "Standalone CLI INITIALIZED then ALREADY_INITIALIZED; affected resolver/Walkback startup boundaries PASS and stop before first work cycle.",
+      "Canonical CREATE named-column persistence/readback and actual accepted price writer with synthetic Birdeye-labelled observations PASS; first observation/monotonic peak preserved.",
+      "Accepted lightweight reference Core is byte-identical after adoption; actual compact reader PASS; no large equivalence matrices repeated."
     ]
   },
   "dev004_walkback_end_to_end_qualification": {
@@ -34595,11 +34634,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "4dec2c9c1c783c77d5a48429527839c65a6f2452",
+    "git_head": "907136e56f2e687984d85769f6b93a17d5c43118",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T11:16:40.688197+00:00",
-    "working_tree": "DEV004 Core owner qualification HOLD: accepted procedures repeat-safe but fresh Core lacks first_observed_at, canonical create_tx_signature and peak base schema. Runtime source remains 712f1840; no production changes."
+    "updated_at_utc": "2026-10-23T11:32:53.642462+00:00",
+    "working_tree": "DEV004 versioned Core three-gap bootstrap PASS at ac37ec07; full fresh compact-reader startup HOLD at existing missing idx_ta_pf_ws_creator. Explicit disposable-only module, no production hook or changes. V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

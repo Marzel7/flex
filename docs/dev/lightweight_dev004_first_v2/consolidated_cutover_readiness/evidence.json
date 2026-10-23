@@ -1,0 +1,75 @@
+{
+  "status": "HOLD",
+  "engineering_candidate": "54ece3ebc77471a85acac2b7b282b3b184cc7da4",
+  "observed_at_utc": "2026-10-23T10:39:34.735969+00:00",
+  "mode": "read-only consolidation;no tests repeated",
+  "source_composition": {
+    "freshness": {
+      "revision": "ace58aba292a7183cfef39e853a114ebbcbe8712",
+      "ancestor_of_candidate": true
+    },
+    "treasury_roles": {
+      "revision": "4ff48a00ade1114f899e88e977e256ae8e4b485a",
+      "ancestor_of_candidate": true
+    },
+    "compact_creator": {
+      "revision": "87d331478bf780004bb5abd2af394ff8b7508685",
+      "ancestor_of_candidate": true
+    },
+    "creator_graph_closure": {
+      "revision": "968432da10446b9c658e9eeaa004b3e22c1f5b1f",
+      "ancestor_of_candidate": true
+    },
+    "price_provenance": {
+      "revision": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+      "ancestor_of_candidate": true
+    },
+    "projection_recovery": {
+      "revision": "09ae13947ca8be84732692c7cb9a3800c8363549",
+      "ancestor_of_candidate": true
+    },
+    "provider_outage": {
+      "revision": "54ece3ebc77471a85acac2b7b282b3b184cc7da4",
+      "ancestor_of_candidate": true
+    },
+    "birdeye_authority": {
+      "revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
+      "ancestor_of_candidate": true
+    }
+  },
+  "artifacts": [
+    {
+      "path": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/manifests/flex_stable_v2_runtime_manifest.json",
+      "bytes": 105497,
+      "sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/core_v2.sqlite",
+      "bytes": 8970240,
+      "sha256": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/ops_v2.sqlite",
+      "bytes": 13754368,
+      "sha256": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/history.json",
+      "bytes": 1218041,
+      "sha256": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb"
+    }
+  ],
+  "mandatory_gates": [
+    "G1 executable composition/daemon/API/UI",
+    "G2 reference authority/four role cases",
+    "G3 global Potential Operations",
+    "G4 unfinished Birdeye acquisition/budgets",
+    "G5 enforceable storage safety",
+    "G6 consistent reconciliation/cutover/rollback"
+  ],
+  "runtime_deployment_required": false,
+  "runtime_deployment_reason": "Documentation/read-only acceptance consolidation only",
+  "production_changes": 0,
+  "provider_calls": 0,
+  "minimum_next_action": "One bounded DEV004 executable-composition qualification;freeze manifest and qualify observed cross-package compact evaluator/flags/bootstrap gap,without full matrix repetition."
+}

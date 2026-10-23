@@ -1,0 +1,37 @@
+{
+  "checks": {
+    "known_signature": true,
+    "unseen_signature_not_discovered": true,
+    "empty_registry_does_not_discover": true,
+    "insufficient_input": true,
+    "conflicting_registry": true,
+    "unqualified_not_promoted": true,
+    "deterministic_identity": true,
+    "distinct_identity": true
+  },
+  "passed": 8,
+  "new_fingerprint_id": "p3r-v2-c7e8bff748aafc42110f",
+  "candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+  "head": "4470b89dfede6ff043a6245f8ca9be4101648d50",
+  "candidate_is_ancestor": true,
+  "source_hashes": {
+    "src/ops/potential_candidate_matcher.py": {
+      "dev": "958a23e3b3df089b9e7bb1145e6f7325df24f2e1f51a7d618a3b59548f166e69",
+      "installed": "958a23e3b3df089b9e7bb1145e6f7325df24f2e1f51a7d618a3b59548f166e69"
+    },
+    "src/ops/living_potential_operations.py": {
+      "dev": "12f718a2fc9b9a8cce67bc842368736c98d73eacfbf02448835e1d70cb62b687",
+      "installed": "922fe66b3fafe86b1f2eb606e70e63ff8efd795beda2de48f44f41cc19d4c95a"
+    },
+    "src/ops/potential_operations.py": {
+      "dev": "7c0054ce55c94868df112b7250cb75901d6a0a94f339b366347bb63dafba37e7",
+      "installed": "7c0054ce55c94868df112b7250cb75901d6a0a94f339b366347bb63dafba37e7"
+    }
+  },
+  "safety": {
+    "production_writes": 0,
+    "provider_calls": 0,
+    "database_connections": 0,
+    "runtime_deployment_required": false
+  }
+}

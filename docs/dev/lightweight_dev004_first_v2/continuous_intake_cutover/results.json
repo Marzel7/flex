@@ -1,0 +1,20 @@
+{
+  "checks": {
+    "existing_connection_keeps_V1_after_path_replace": true,
+    "separate_core_ops_replacements_have_mixed_boundary": true,
+    "fixture_under_file_limit": true
+  },
+  "scope": "SQLite path/connection semantics only; not actual service hot-switch, queue replay or cutover acceptance",
+  "fixture_file_bytes_before_close": {
+    "wal-probe.sqlite": 4096,
+    "core.sqlite": 8192,
+    "wal-probe.sqlite-shm": 32768,
+    "wal-probe.sqlite-wal": 12392,
+    "ops.sqlite": 8192,
+    "ops-new.sqlite": 8192
+  },
+  "maximum_file_bytes": 32768,
+  "provider_calls": 0,
+  "production_database_connections": 0,
+  "production_writes": 0
+}

@@ -288,16 +288,27 @@ def evaluate_launcher_profile(
         conditions = (("pf_ws_creator=?", (creator,), "1"),)
     else:
         conditions = ((f"{creator_expr}=?", (creator,), "1"),)
-    launch_count = 0
-    measured_conditions = []
-    for where, args, include in conditions:
-        row = core_conn.execute(
-            f"SELECT COALESCE(SUM({include}),0) launch_count FROM token_analysis WHERE {where}",
-            args,
-        ).fetchone()
-        measured_conditions.append((where, args, include))
-        if row:
-            launch_count += int(row["launch_count"] or 0)
+    # Explicit DEV-only compact baseline; default installed path is unchanged.
+    import os
+    compact_path = os.environ.get("DEV004_CREATOR_HISTORY_PATH")
+    compact_span = None
+    if compact_path:
+        from src.ops.dev004_compact_creator_history import compact_history
+        launch_count, valid, first, last = compact_history(
+            core_conn, creator, time_columns, _normalize_timestamp, compact_path)
+        compact_span = (valid, first, last)
+        measured_conditions = []
+    else:
+        launch_count = 0
+        measured_conditions = []
+        for where, args, include in conditions:
+            row = core_conn.execute(
+                f"SELECT COALESCE(SUM({include}),0) launch_count FROM token_analysis WHERE {where}",
+                args,
+            ).fetchone()
+            measured_conditions.append((where, args, include))
+            if row:
+                launch_count += int(row["launch_count"] or 0)
     profile["launch_count"] = launch_count
 
     # X27.9 — funders is retained ONLY for historical_funder_count and
@@ -329,7 +340,9 @@ def evaluate_launcher_profile(
     # ceiling: qualification must not depend on creator size (a creator
     # with 1001 launches must not be less classifiable than one with 999).
     valid_ts_count = first_seen = last_seen = None
-    if launch_count:
+    if compact_span is not None:
+        valid_ts_count, first_seen, last_seen = compact_span
+    elif launch_count:
         valid_ts_count, first_seen, last_seen = _creator_launch_history_span(
             core_conn, creator, measured_conditions, time_columns)
     if first_seen is not None and last_seen is not None:

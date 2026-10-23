@@ -3043,19 +3043,19 @@
       "resolver": "RUNNING pid52248",
       "walkback": "RUNNING pid94577"
     },
-    "blocker": "Mandatory acceptance M1-M5 incomplete, not closed startup or historical uncertainty alone.",
+    "blocker": "Use revised non-P3R operational gates; older P3R admission policy decisions no longer block cutover.",
     "closed_gate": "Fresh Core/OPS schema, index, lineage repeat safety, quarantine packaging and accepted isolated startup boundaries remain PASS.",
     "dormant_components": "Activation/restoration not required for initial three-service cutover; accepted source/data/dependencies/bindings and required offline projections must remain preserved. Do not start dormant services.",
     "engineering_source_revision": "27a6662868363969067749a35eda4f02e81a9349",
     "executable_candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
     "mandatory_gates": [
-      "M1 One accepted genuinely new Potential Operations discovery/publication path",
-      "M2 Unfinished Birdeye multi-window checkpoint/retry/consumed-budget recovery",
-      "M3 Final deployment bindings/artifact manifest and preserved offline dormant contracts",
-      "M4 Enforceable ongoing Core/OPS/WAL/receipt/log/transient single-file safety",
-      "M5 Consistent final state reconciliation, paired authority switch and post-write rollback rehearsal"
+      "M1 Existing non-P3R operational discovery/review V2 continuity",
+      "M2 Remaining directly relevant Birdeye retry/recovery compatibility; reuse passed window/budget/collision evidence",
+      "M3 Final reproducible bindings/reference and dormant contract preservation",
+      "M4 Enforceable ongoing file/WAL/receipt/log/transient bounds",
+      "M5 Consistent state reconciliation/paired cutover and post-write rollback feasibility"
     ],
-    "next_action": "One bounded DEV004 provider-free unfinished Birdeye multi-window acquisition crash/reopen qualification through existing accepted interfaces: preserve completed windows, retry ceilings and consumed budget; no fresh allowance, provider calls or activation. Stop at exact missing persisted contract.",
+    "next_action": "One bounded provider-free X78.4 Walkback-to-discovery-only-review V2 case via actual upstream owners/readers, with duplicate/reopen/conflict/rejection/known-operation controls; no new engine or P3R prerequisite.",
     "production_state": "Unchanged; no writes/deployment/service actions/providers/live WebSockets/history deletion/cutover.",
     "report": "docs/dev/lightweight_dev004_first_v2/post_startup_cutover_gate/REPORT.md",
     "runtime_deployment_reason": "Read-only acceptance consolidation/documentation only; no executable or fixture changes.",
@@ -3063,7 +3063,8 @@
     "status": "HOLD_FIVE_MANDATORY_ACCEPTANCE_PACKAGES",
     "subsequent_m2_result": "HOLD at exact missing selected completed-window resume and consumed-budget admission composition; see dev004_birdeye_multi_window_recovery. Stop rule applied; no acquisition/runtime tests executed.",
     "verification": "Accepted correction ancestry and six startup-source hashes match. Nine installed Birdeye payload hashes match. Supervisor config hash matches accepted authority. No functional tests rerun.",
-    "watchtower_four_cases": "Historical insufficient-proof cases are not demonstrated regressions. May remain explicitly unqualified; preserve protected evidence/canonical outcomes/uncertainty and fail-closed future role admission. No new historical proof search required absent a demonstrated dependency. This narrows older blanket four-case HOLD."
+    "watchtower_four_cases": "Historical insufficient-proof cases are not demonstrated regressions. May remain explicitly unqualified; preserve protected evidence/canonical outcomes/uncertainty and fail-closed future role admission. No new historical proof search required absent a demonstrated dependency. This narrows older blanket four-case HOLD.",
+    "superseded_cutover_contract": "docs/dev/lightweight_dev004_first_v2/non_p3r_cutover_contract/REPORT.md"
   },
   "dev004_potential_operations_freshness_correction": {
     "dev_runtime_gate": "PASS: qualified modules imported/executed on disposable data; source hashes and functional evidence recorded; no daemon restart required",
@@ -34780,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "60ef02b3db1c88a858205eb64bb5e3ef4811eb17",
+    "git_head": "d759341e1a3b62968b77df9755e2be9531271e3c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42207,7 +42208,9 @@
     "report": "docs/dev/lightweight_dev004_first_v2/potential_discovery_publication/REPORT.md",
     "production": "unchanged; no services, flags, database connections, providers or live WebSockets",
     "runtime_deployment_required": false,
-    "next_action": "Qualify accepted bounded unseen-pattern candidate admission/publication owner; if absent, narrowly authorize that DEV bridge before end-to-end discovery/crash qualification. No redesign or scheduler activation."
+    "next_action": "Qualify accepted bounded unseen-pattern candidate admission/publication owner; if absent, narrowly authorize that DEV bridge before end-to-end discovery/crash qualification. No redesign or scheduler activation.",
+    "cutover_scope_superseded_by": "dev004_non_p3r_cutover_contract",
+    "p3r_qualification_mandatory_for_cutover": false
   },
   "dev004_potential_operations_admission_authority": {
     "status": "ACCEPTED_OWNER_INCOMPLETE",
@@ -42219,7 +42222,9 @@
     "report": "docs/dev/lightweight_dev004_first_v2/potential_admission_authority/REPORT.md",
     "runtime_deployment_required": false,
     "production": "unchanged; no source/configuration/provider/service/WebSocket/database changes",
-    "next_action": "Authorize narrowly bounded DEV admission/publication bridge contract reusing accepted P3R predicates and review authority; no new detector or scheduler."
+    "next_action": "Authorize narrowly bounded DEV admission/publication bridge contract reusing accepted P3R predicates and review authority; no new detector or scheduler.",
+    "cutover_scope_superseded_by": "dev004_non_p3r_cutover_contract",
+    "p3r_qualification_mandatory_for_cutover": false
   },
   "dev004_potential_admission_bridge": {
     "status": "HOLD",
@@ -42231,6 +42236,27 @@
     "report": "docs/dev/lightweight_dev004_first_v2/potential_admission_bridge/REPORT.md",
     "runtime_deployment_required": false,
     "production": "unchanged; no database connections, provider calls, services, source deployment or fixtures",
-    "next_action": "Specify whether P3R-qualified families independently enter review-only Potential publication with explicit conflict/insufficiency/known-operation gates, or name an accepted additional mandatory qualification; then implement bounded DEV bridge."
+    "next_action": "Specify whether P3R-qualified families independently enter review-only Potential publication with explicit conflict/insufficiency/known-operation gates, or name an accepted additional mandatory qualification; then implement bounded DEV bridge.",
+    "cutover_scope_superseded_by": "dev004_non_p3r_cutover_contract",
+    "p3r_qualification_mandatory_for_cutover": false
+  },
+  "dev004_non_p3r_cutover_contract": {
+    "status": "PASS_CONTRACT_REVISED",
+    "cutover_decision": "HOLD_MANDATORY_OPERATIONAL_ACCEPTANCE_REMAINS",
+    "engineering_revision": "d759341e1a3b62968b77df9755e2be9531271e3c",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "p3r_policy": "No P3R family/global bridge qualification prerequisite. Legacy dependency review only; no disposal authorization. Preserve accepted intelligence and any still-used historical references.",
+    "accepted_non_p3r_owner": "X78.4 EmergingOperatorService discovery-only review projection from treasury-review/selected Walkback/provisioning evidence; separate Core funding corpus/Analyst Queue intake. Generic automatic new Living admission remains unestablished and is not a newly required replacement engine.",
+    "mandatory_gates": [
+      "M1 Existing non-P3R operational discovery/review V2 continuity",
+      "M2 Remaining directly relevant Birdeye retry/recovery compatibility; reuse passed window/budget/collision evidence",
+      "M3 Final reproducible bindings/reference and dormant contract preservation",
+      "M4 Enforceable ongoing file/WAL/receipt/log/transient bounds",
+      "M5 Consistent state reconciliation/paired cutover and post-write rollback feasibility"
+    ],
+    "report": "docs/dev/lightweight_dev004_first_v2/non_p3r_cutover_contract/REPORT.md",
+    "runtime_deployment_required": false,
+    "production": "unchanged; documentation/source-read only; no providers, database connections, source/runtime actions or historical deletion",
+    "next_action": "One bounded provider-free X78.4 Walkback-to-discovery-only-review V2 case via actual upstream owners/readers, with duplicate/reopen/conflict/rejection/known-operation controls; no new engine or P3R prerequisite."
   }
 }

@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "d8ff8f9d2a4604018b3e997b556ff5a9e46506a9",
+    "git_head": "f94a8e59e8f7a9a2d5b95f19bf3f59dff58d465d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42313,5 +42313,17 @@
     "runtime_deployment_required": false,
     "production": "unchanged; only disposable /private/tmp DB writes, zero providers/services/WebSockets/deployment/cutover",
     "next_action": "Qualify one narrowly scoped writer-coordinated generation-capture/publication epoch on disposable stores through existing owners, with restart invalidation and complete source closure; HOLD if broader infrastructure required."
+  },
+  "dev004_writer_coordinated_discovery_epoch": {
+    "status": "HOLD_EXISTING_OWNER_ONLY_EPOCH_NOT_QUALIFIED",
+    "engineering_revision": "f94a8e59e8f7a9a2d5b95f19bf3f59dff58d465d",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "tests": "8/8 accepted-owner diagnostics pass;15 continuation and14 capture controls reused. Cross-DB nesting explicitly rejected; OPS lease succeeds while Core held; same-Core waiter times out; acquisition timeout is not holder deadline.",
+    "decision": "Existing owners expose per-database advisory/transaction ownership only, no durable paired generation completion or source-to-filesystem publication fence. Do not add a coordinator or distributed transaction protocol under this task.",
+    "resource_observations": "Disposable DBs12288bytes each; OPS acquire/release1.123ms; same-Core waiter56.687ms; observed Core hold58.871ms. No absolute hold/WAL bound claimed.",
+    "report": "docs/dev/lightweight_dev004_first_v2/writer_coordinated_discovery_epoch/REPORT.md",
+    "runtime_deployment_required": false,
+    "production": "unchanged; no providers/services/WebSockets/global publication/deployment/cutover; synthetic disposable writes only",
+    "next_action": "Stop existing-owner-only online epoch work. Separately scope a writer-quiesced generation-capture boundary within the controlled cutover maintenance plan; no execution authorized."
   }
 }

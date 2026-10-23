@@ -2662,6 +2662,7 @@
     "runtime_deployment_reason": "Read-only acceptance consolidation and documentation;no executable source,fixture orproductionchanges",
     "runtime_deployment_required": false,
     "status": "HOLD_SIX_MANDATORY_GATES",
+    "subsequent_composition_resolution": "CompactWalkbackpackagingboundaryclosedinDEVby712f1840. Frozenpartialmanifest/runtimequalification at3d5570ed;G1stillHOLDat exactstartup/schema/isolation/dormantdependencies. See dev004_reproducible_runtime_composition. RemainingG2-G6unchanged.",
     "updated_at_utc": "2026-10-23T10:40:12.569641+00:00"
   },
   "dev004_creator_classification_closure": {
@@ -2920,6 +2921,44 @@
       "provider_calls": 0
     },
     "updated_at_utc": "2026-10-22T23:47:11.323752+00:00",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_reproducible_runtime_composition": {
+    "base_candidate": "54ece3ebc77471a85acac2b7b282b3b184cc7da4",
+    "dev_runtime_gate": "Compactpackaging/import/profilePASS;fullruntime startupHOLD",
+    "engineering_source_revision": "3d5570edd8d688fd2f7f0a287ea9a85732b10926",
+    "executable_candidate": "712f18400508a7681e3cea78e79cf84c0be8b666",
+    "manifest": "docs/dev/lightweight_dev004_first_v2/runtime_composition/runtime_manifest.json",
+    "manifest_status": "FROZEN_PARTIAL_HOLD_NOT_GOLDEN;immutablecorrectedsourceandcontentaddressedinputs;unresolvedfieldsnotinvented",
+    "next_action": "Qualifyonlyexisting schema-ownerstartupbootstrap ondisposableV2pair for4enumeratedremainingcontracts,preservereferencerows. Keepgloballistenerlock/secondaryDBanddormantcomposition gapsseparate. Donotdeploy,restorehistoricalruntimes orlabelpartialmanifest golden.",
+    "original_boundary": "WorkerimportitselfdidnothaveaModuleNotFoundError;directcompacthelperimportfailedandtheordinaryevaluatorlackedcompactpath. Previousharnessinjectedcreator evaluator. Missingpackaging/hook,notcircularimport.",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED;notauthorized",
+    "production_state": "NoV1/productionDB/source/configchanges,serviceactions,providers,liveWebSockets,historydeletionorcutover. Originalseed/historyhashesunchanged. OnlydisposablefixtureDDL/heartbeatwrites.",
+    "qualification": [
+      "18/18 selectedimports over2fresh-processrounds againstoneshareddisposableCore/OPSpair;processesexitcleanly",
+      "OneordinaryWalkbackpackagecreatorprofileandactualclassificationexactto frozenV1;acceptedhelperbytes/evaluatorASTexact. Nolargematricesrerun.",
+      "Resolveractualstartup-readyandstopbeforefirstcyclePASS;fullworkercycle/productiondaemonnotclaimed",
+      "PotentialOperationsandavailableprice/monitor/APIimportsPASS;fullglobaldiscoveryanddormantapplicationcompositionnotclaimed",
+      "urllib3localIPv6capabilitybindprobeblocked;notprovideracquisitionorservicebind.Noactualtransportorproductionwrites.Onlyexistingdbreaper/watchdogimportthreadsallowed"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/runtime_composition/REPORT.md",
+    "source_delta": "TwoWalkbackfiles only:exactaccepted compact helper plus evaluate_launcher_profile copied fromqualifiedcreatorpackage. ExistingWalkbackschema/outcome/recovery/RPCfunctionsunchanged. Noevaluatorinjectionneeded.",
+    "startup_holds": [
+      "Originalfixturemissingunknown-infrastructure/candidate tablesandindexes;twoexistingownerinitializersclearfirstmetadata boundaryindisposablecopyonly",
+      "Furtheracceptedstartupcontracts missing:wt_confirmed_treasury_webhooks,wt_anchor_reconciliation_log,wt_create_event_ledger,operation_fingerprint_drift_evidence",
+      "Listenerusesglobal/tmp/pumpfun_curve_listener.lock;guardblocksoutsidefixturemutationbeforelocktouch",
+      "CREATOR_DB_PATHdefaultsseparatepumpswap_tokens.db;V2authoritynotqualified;neveropenedorsilentlymappedintoCore",
+      "Completeaccepteddormantbridge/API/UIentrypoint/dependencyclosure notpinned;nohistoricalruntime restoration"
+    ],
+    "status": "PARTIAL_COMPACT_PACKAGING_PASS_FULL_STARTUP_HOLD",
+    "storage": {
+      "largest_observed_file_bytes": 13783040,
+      "new_unbounded_growth_paths": 0,
+      "qualification_single_file_cap_bytes": 16000000,
+      "raw_provider_retention": false,
+      "runtime_wide_bounds": "G5unchanged/unqualified"
+    },
+    "updated_at_utc": "2026-10-23T10:52:44.398303+00:00",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
   },
   "dev004_seed_minimization_audit": {
@@ -34485,11 +34524,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "e3008e8fe2de11cbbb0e8e5e17463d673231834d",
+    "git_head": "3d5570edd8d688fd2f7f0a287ea9a85732b10926",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T10:40:12.569641+00:00",
-    "working_tree": "DEV004 read-only consolidated readiness HOLD;executable candidate54ece3eb unchanged;all accepted scoped corrections retained;no tests repeated. Six remaining gates;next one bounded executable-composition qualification. V1 authoritative."
+    "updated_at_utc": "2026-10-23T10:52:44.398303+00:00",
+    "working_tree": "DEV004 compact-history packaging PASS at712f1840;runtimecomposition PARTIAL/HOLD with frozenpartialmanifest at3d5570ed. Exactfixturestartup/isolatedlistener/dormantcomposition gaps remain. V1 authoritative;production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -2498,6 +2498,7 @@
     "source_module": "runtime/creator_resolution/src/ops/dev_provider_budget.py",
     "source_sha256": "461a8cf99f0e1ca33bdb540fa1d60d54e08890bf8c031af7db36e8f741d69d65",
     "status": "PASS_ISOLATED_DEV_BUDGET_OWNER",
+    "subsequent_integration": "See dev004_birdeye_multi_window_recovery_integration: budget binding works in five new-bucket crash tests; independent retained-observation checkpoint collision keeps full M2 HOLD. Owner PASS remains closed.",
     "tests": "30 provider-free groups PASS: original reset reproduced; valid/missing/malformed/truncated/version/read/shape/size state; partial write and physical exits before/after rename/publication/dispatch; file/guard/directory sync errors and unsupported directory sync; concurrent32 token attempts4success and32distinct attempts20success; unchanged60second expiry."
   },
   "dev004_birdeye_multi_window_recovery": {
@@ -2514,6 +2515,23 @@
     "status": "HOLD_AUTHORITY_PRECONDITION_STOP_RULE",
     "subsequent_composition_result": "See dev004_birdeye_recovery_composition_correction: retained accepted budget itself fails required durability/fail-closed prerequisite; stop rule applied before integration.",
     "tests": "AST/source comparisons verified exact candidate gap. Baseline/ten accepted correction ancestors verified. Retained Core/OPS reference hashes match. Five acquisition interruption cases NOT RUN under stop rule; no substitute counters/checkpoints or fake PASS. Prior finalized suppression, opening provenance/ATH0.1%, startup/classifier/routes/recovery acceptance reused unchanged."
+  },
+  "dev004_birdeye_multi_window_recovery_integration": {
+    "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "blocker": "Accepted checkpoint INSERT OR IGNORE collides with existing operation_monitor_observations PK(operation_id,mint,observation_timestamp,resolution); transaction commits without new chunk identity. Retained15m row at1800000000 causes window[1800000000,1800000900) to be reacquired after checkpoint crash. Cannot certify completed-window preservation or overwrite retained provenance/add ad hoc store under stop rule.",
+    "budget_prerequisite": "Qualified owner remains byte-identical/PASS; no fresh budget or free ambiguous request.",
+    "engineering_source_revision": "11c77967f5c36df51e000244f4fa07bf81c2592e",
+    "executable_candidate": "5b72bb26c8eed08a19bf77a061caceefe80d959e",
+    "implementation": "Two DEV price-package files: completed chunk read/skip and current-plan filtering; stable full-plan finalization identity; qualified durable budget callback with explicit DEV scope and no budget-less factory fallback. Owner/default20global4token60s, reducer, endpoints, opening and schema unchanged.",
+    "next_action": "One bounded collision-safe checkpoint correction preserving occupied observation values/source/provenance and exact request boundaries. Qualify demonstrated overlap/crash case; do not silently overwrite evidence, infer unsupported completion or add new checkpoint schema within stopped integration.",
+    "production_deployment": "NOT_AUTHORIZED_NOT_PERFORMED",
+    "remaining_acceptance": "M2 retained-bucket completion collision and wider retry integration unqualified; other M1/M3/M4/M5 unchanged. Prior startup/classifier/routes/freshness/Walkback/frozen/Deep qualifications reused.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birdeye_recovery_integration/REPORT.md",
+    "runtime_deployment_gate": "PARTIAL_HOLD_ACTUAL_DEV_SHARED_WRITER_TESTS",
+    "safety": "No production writes/source/config/services/providers/live WebSockets/history deletion/cutover. Disposable accepted DEV fixture copies only; per-process file cap16000000, no new unbounded path, raw retention false.",
+    "starting_candidate": "aabf24c137ab764a574909c6d097af167b21cb84",
+    "status": "HOLD_CHECKPOINT_PRIMARY_KEY_COLLISION",
+    "tests": "Normal plus all five physical crash cases PASS for new buckets; budgetdebits3 normally,4 after before-dispatch/lost-response crash; requests3 except lost-response4. Exactly one committed finalization/three unique observation rows; duplicate finalized admission causes no request/debit/write. Retained historical facts unchanged. Real shared writer, audited disposable Core/OPS, blocked networks."
   },
   "dev004_birdeye_recovery_composition_correction": {
     "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
@@ -34743,11 +34761,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "e9a3c27c588b9dc05312d67a30067ce27ad0b6f8",
+    "git_head": "11c77967f5c36df51e000244f4fa07bf81c2592e",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T12:19:44.725332+00:00",
-    "working_tree": "DEV004 Birdeye budget durability PASS in isolated DEV; candidateaabf24c1. Recovery callbacks not integrated, production unchanged, broader V2 cutover HOLD."
+    "updated_at_utc": "2026-10-23T12:32:17.117343+00:00",
+    "working_tree": "DEV004 Birdeye recovery integration HOLD: five crash boundaries PASS for new buckets; retained-bucket INSERT OR IGNORE collision loses completion identity and repeats request. V1/production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -33701,11 +33701,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "git_head": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-22T23:47:11.323752+00:00",
-    "working_tree": "DEV004 opening provenance correction PASS in isolated DEV; original11 retained. Overall DEV004 HOLD; production unchanged."
+    "updated_at_utc": "2026-10-23T00:02:34.722759+00:00",
+    "working_tree": "DEV004 operational seed PARTIAL/HOLD: compact identities/candidate state and Deep cases qualified; generation/route/history gaps remain; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41419,5 +41419,39 @@
     ],
     "next_action": "Scoped correction complete. Continue existing DEV004 unresolved requirements; no deployment/cutover.",
     "updated_at_utc": "2026-10-22T23:47:11.323752+00:00"
+  },
+  "dev004_operational_seed_potential_qualification": {
+    "status": "PARTIAL_HOLD_CUTOVER",
+    "engineering_source_revision": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex",
+    "price_correction_preserved": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated fixture/test qualification only; production deployment not authorized.",
+    "completed": [
+      "Ten operation identities/status/confidence/review/lifecycle match installed reader",
+      "1165 memberships including762 NULL event_id retained without promotion",
+      "63 workflow populations1332 memberships;2 Living identities183 associations5 versions retained",
+      "26 Deep diagnostic route cases exact after73 role records; authority REVIEW_ONLY",
+      "Two Living source populations match; reverse resolution98 events and atomic publication/reopen pass",
+      "20 previous functional checks preserved plus former missing-identity test now passes; original11 frozen outputs exact; ATH/BIRDEYE/provenance preserved"
+    ],
+    "storage": {
+      "core_rows": 12490,
+      "ops_rows": 15964,
+      "encoded_logical_bytes": 24586129,
+      "core_file_bytes": 8970240,
+      "ops_file_bytes": 13742080,
+      "classification": "Conservative partial candidate fixtures incl qualification controls; not certified minimum or final-size forecast"
+    },
+    "blockers": [
+      "Demonstrated rowid-generation discontinuity: new V2 edge4173 ignored against retained V1 edge cursor206259",
+      "99 Watchtower route-link cases missing required verified sender/recipient relationships;5 bounded source-read limitations",
+      "100 creator-launch history populations incomplete:3315 missing mints within bound;12 capped",
+      "Global new-operation discovery builder/frozen-case closure, remaining quarantine/reference/monitoring populations and live cutover reconciliation unqualified"
+    ],
+    "production_state": "V1 authoritative; zero production writes/source changes/providers/service actions/live WebSockets/deletion/cutover",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/operational_seed/REPORT.md",
+    "next_action": "DEV-only generation-preserving seed/cursor mapping for two Living candidates, tested against retained new-edge counterexample. Keep exact remaining record gaps separate.",
+    "updated_at_utc": "2026-10-23T00:02:34.722759+00:00"
   }
 }

@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "d28e683780ce49a53f1925d3b2d06253ee3e9cd3",
+    "git_head": "26f8a8c78a529fd90e3477964e62c4a46087a84a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T17:10:21.644653+00:00",
+    "updated_at_utc": "2026-10-23T17:13:31.918744+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42422,5 +42422,17 @@
     "production_state": "Unchanged; zero production DB opens/writes, providers, service actions, deployment or cutover.",
     "report": "docs/dev/lightweight_dev004_first_v2/durable_admission_transfer/REPORT.md",
     "next_action": "Explicit authorization for bounded existing-journal admission contract/correction: durable-before-dispatch, strict storage limits and exclusive generation-bound drain/transfer. No new generic queue. If outside scope, retain V1 and stop."
+  },
+  "dev004_durable_journal_replay_gate": {
+    "status": "HOLD_EXISTING_POST_RESOLUTION_RECORD_UNSAFE_FOR_EARLY_ADMISSION",
+    "engineering_revision": "26f8a8c78a529fd90e3477964e62c4a46087a84a",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "finding": "Existing migration journal imports resolved mint/signature retry. PumpSwap before dispatch has signature/logs before mint resolution. Null-mint proposal alone is retained but mixed with valid entry is filtered then entire file removed. This is unsafe proposed early-admission composition, NOT evidence production contains invalid records or lost events.",
+    "tests": "Four actual helper/importer + accepted disposable queue DDL diagnostics PASS. Maximum DB16384bytes; no application correction. Full fsync/owner/transfer/crash matrix NOT qualified; explicit replay-insufficiency stop rule applied.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Test/documentation-only replay gate; no runtime delta.",
+    "production_state": "Unchanged; no production DB writes, providers, WebSockets, service changes or deployment.",
+    "report": "docs/dev/lightweight_dev004_first_v2/durable_journal_replay_gate/REPORT.md",
+    "next_action": "Define minimal versioned unresolved signature-first journal/replay contract using existing handle_migration. Retain every event until individual resolved/transfer/quarantine acknowledgement; then implement bounded publication/path/owner transfer together. No second acquisition system."
   }
 }

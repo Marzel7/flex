@@ -2633,6 +2633,30 @@
     ],
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
   },
+  "dev004_complete_fresh_database_startup_integration": {
+    "blocker": null,
+    "engineering_source_revision": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+    "implementation": [
+      "Accepted creator index plus exact V1 bonding_curve_pda declaration in explicit disposable-only bootstrap",
+      "Repeat-safe validated lineage owners in three packages",
+      "Exact installed birth-quarantine package plus existing queue schema-owner call"
+    ],
+    "next_action": "Return to consolidated cutover gate list; separately qualify next mandatory operational gate. No further startup-schema investigation required by this bounded milestone.",
+    "production_deployment": "NOT_AUTHORIZED_NOT_PERFORMED",
+    "remaining_cutover_gates": "Existing discovery/publication, reference authority, final queue/handoff reconciliation, Birdeye checkpoint/budget recovery, dormant API/monitor, sustained storage, cutover/rollback gates unchanged.",
+    "report": "docs/dev/lightweight_dev004_first_v2/startup_integration/REPORT.md",
+    "runtime_deployment_gate": "PASS_ISOLATED_DEV_INTERFACES",
+    "safety": "V1 and production unchanged. No providers/live WebSockets, historical deletion or cutover. Global listener singleton lock not acquired; constructor/listen directly exercised. Qualification per-file OS cap16000000; Core286720 bytes OPS438272 bytes. Raw retention false; new unbounded growth paths zero.",
+    "status": "PASS_ISOLATED_DEV_STARTUP",
+    "tests": [
+      "Fresh/repeated Core/OPS owners and index bootstrap PASS; six OPS validators VALID",
+      "Actual compact creator reader PASS",
+      "Listener actual constructor/listen to gather boundary PASS with tasks held; explicit disposable secondary CreatorRepository",
+      "Resolver zero-cycle startup PASS; Walkback startup PASS before first processing cycle",
+      "Canonical CREATE/migration schema persistence and actual price snapshot persistence PASS",
+      "Six focused regression groups PASS; accepted source ancestry verified; no broad matrices repeated"
+    ]
+  },
   "dev004_consolidated_cutover_readiness": {
     "accepted_composition": "All8corrections ancestral to54ece3eb inoneimmutablecommit;existingmanifest isprovisionalFLEX_STABLE_V2,notDEV004launch/configurationbaseline. No goldenbaselineclaimed.",
     "accepted_equivalence": "100creators,616Watchtower,26Deep,11frozen,freshness,priceprovenance/ATH0.1%,freshinterfaces,normalWalkback,projectionrecovery,outagerecovery retained. Resolveddefectsclosed;9deployedcredentialhashesstillmatch. No functionaltestsrepeated.",
@@ -34634,11 +34658,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "907136e56f2e687984d85769f6b93a17d5c43118",
+    "git_head": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T11:32:53.642462+00:00",
-    "working_tree": "DEV004 versioned Core three-gap bootstrap PASS at ac37ec07; full fresh compact-reader startup HOLD at existing missing idx_ta_pf_ws_creator. Explicit disposable-only module, no production hook or changes. V1 authoritative."
+    "updated_at_utc": "2026-10-23T11:44:17.463051+00:00",
+    "working_tree": "DEV004 bounded fresh database startup integration PASS at isolated startup boundaries; production unchanged; broader cutover HOLD."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

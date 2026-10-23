@@ -1,0 +1,57 @@
+{
+  "status": "HOLD_NO_DURABLE_CROSS_OWNER_MUTATION_PUBLICATION_AUTHORITY",
+  "checks": {
+    "independent_snapshots_can_skew": true,
+    "quiet_bounded_capture_complete": true,
+    "core_only_mutation_invalidated": true,
+    "ops_only_mutation_invalidated": true,
+    "invalidated_capture_preserves_last_good": true,
+    "existing_identity_update_detected_while_connection_alive": true,
+    "data_version_not_durable_restart_token": true,
+    "restart_capture_requires_invalidation": true,
+    "exact_source_identity_coverage": true,
+    "duplicate_identity_dedup_control": true,
+    "missing_identity_rejected_against_frozen_manifest": true,
+    "validation_publication_gap_exists": true,
+    "gap_invalidates_no_publication": true,
+    "quiet_fixture_capture_serialization": true
+  },
+  "observations": {
+    "quiet_capture": {
+      "pages": 6,
+      "rows": 16,
+      "maximum_page_bytes": 113,
+      "encoded_bytes": 428,
+      "digest": "0773fd6cc612e39e67299ec24d2371e596d9922b425998156d5f7ac1024a260d"
+    },
+    "reopen_tokens": {
+      "before": [
+        2,
+        2
+      ],
+      "after": [
+        2,
+        2
+      ]
+    }
+  },
+  "fixture": "/private/tmp/dev004-generation-capture-8q2upq63",
+  "files": {
+    "checkpoint.json": 123,
+    "complete-fixture.json": 589,
+    "last-good.json": 24,
+    "core.sqlite": 12288,
+    "ops.sqlite-wal": 4152,
+    "ops.sqlite-shm": 32768,
+    "ops.sqlite": 12288,
+    "core.sqlite-shm": 32768,
+    "core.sqlite-wal": 12392
+  },
+  "scope": "Synthetic mutations to disposable accepted token_analysis and wt_treasury_review schemas only. No claim of complete accepted discovery source closure.",
+  "safety": {
+    "production_writes": 0,
+    "provider_calls": 0,
+    "live_service_actions": 0,
+    "large_files": 0
+  }
+}

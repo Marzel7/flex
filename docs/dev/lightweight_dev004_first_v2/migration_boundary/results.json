@@ -1,0 +1,24 @@
+{
+  "status": "HOLD_EXISTING_QUEUES_NOT_INTAKE_PRESERVING_REBIND_BUFFER",
+  "source_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+  "checks": {
+    "canonical_only_fence_still_commits_retry_to_V1": true,
+    "duplicate_retry_has_one_queue_row": true,
+    "all_V1_write_fence_leaves_second_birth_without_retry_row": true,
+    "blocked_birth_never_claims_COMMITTED": true,
+    "received_migration_only_scheduled_in_memory": true
+  },
+  "queue_rows": [
+    [
+      "synthetic-birth-1",
+      0
+    ]
+  ],
+  "blocked_birth_outcomes": [
+    "UNRECOVERABLE"
+  ],
+  "scope": "Actual AST method/branch with synthetic canonical failure and audit/census sinks; actual disposable SQLite retry. Not real receipt fsync, full canonical persistence, daemon restart or migration investigation acceptance. Storage guard stubbed, not bypassed in production.",
+  "provider_calls": 0,
+  "production_writes": 0,
+  "maximum_file_bytes": 16384
+}

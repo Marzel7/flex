@@ -1,0 +1,67 @@
+{
+  "candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+  "observed_at_utc": "2026-10-23T11:52:48.173414+00:00",
+  "accepted_correction_ancestry": {
+    "ace58aba": true,
+    "4ff48a00": true,
+    "87d33147": true,
+    "968432da": true,
+    "20d1025e": true,
+    "09ae1394": true,
+    "54ece3eb": true,
+    "dd481183": true,
+    "712f1840": true,
+    "ac37ec07": true
+  },
+  "startup_source_hash_checks": {
+    "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": true,
+    "runtime/creator_resolution/src/ops/generic_living_lineage_metadata.py": true,
+    "runtime/listener/src/core/pumpfun_curve_listener.py": true,
+    "runtime/listener/src/ops/generic_living_lineage_metadata.py": true,
+    "runtime/walkback/src/ops/generic_living_lineage_metadata.py": true,
+    "runtime/listener/src/core/birth_retry_quarantine.py": true
+  },
+  "runtime_trees": {
+    "listener": "ed4e48eba2f81111fa3e790f75f7568af54ba3c3",
+    "creator_resolution": "62895176f74fa4eb1657c6be46de6334f0170403",
+    "walkback": "197534c5b26e9ed2a67f2a2f625aaf209a1e347b"
+  },
+  "installed_birdeye_payload_checks": {
+    "listener:src/utils/birdeye_credentials.py": true,
+    "listener:src/core/price_service.py": true,
+    "listener:src/ops/token_data_provider_bindings.py": true,
+    "creator_resolution:src/utils/birdeye_credentials.py": true,
+    "creator_resolution:src/core/price_service.py": true,
+    "creator_resolution:src/ops/token_data_provider_bindings.py": true,
+    "creator_resolution:src/ops/early_buyer_bundle_real_pilot.py": true,
+    "walkback:src/utils/birdeye_credentials.py": true,
+    "walkback:src/core/price_service.py": true
+  },
+  "supervisor_config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+  "supervisor_config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+  "supervisor_status_snapshot": {
+    "watchtower_listener": {
+      "state": "RUNNING",
+      "pid": 94632
+    },
+    "creator_resolution_worker": {
+      "state": "RUNNING",
+      "pid": 52248
+    },
+    "walkback_worker": {
+      "state": "RUNNING",
+      "pid": 94577
+    },
+    "watchtower_api": "STOPPED",
+    "operation_monitor_worker": "STOPPED",
+    "operation_monitor_bridge": "STOPPED",
+    "creator_funding_worker": "STOPPED",
+    "ws_cascade": "STOPPED",
+    "operation_scheduler": "STOPPED"
+  },
+  "available_filesystem_bytes": 4411957248,
+  "tests_rerun": 0,
+  "production_changes": false,
+  "runtime_deployment_required": false,
+  "reason": "Read-only acceptance consolidation and documentation only. No executable changes or fixture writes."
+}

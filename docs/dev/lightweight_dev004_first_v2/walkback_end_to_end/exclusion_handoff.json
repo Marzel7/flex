@@ -1,0 +1,173 @@
+{
+  "spam_exclusion": {
+    "status": "PASS",
+    "state": {
+      "queue": {
+        "mint": "6rsaDFLdVxEKdu9vfPjmd3wDGiVHeU5iD69Mr9q8EkZS",
+        "creator": "9QJsoZtKoVMsnpp6yANyite47JEoyDhZTmKRaywTYviw",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 2,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792748107,
+        "started_at": 1792748107,
+        "completed_at": 1792748107,
+        "updated_at": 1792748107,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-34416",
+        "claimed_at": 1792748107,
+        "lease_expires_at": 1792748407,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "32D2eavSir2uX8azfNjSCwqgPQqRVoaEcBbXbti1bu3yqfWsvJ9uce3SuBfRdNwzEjFbobHe2icaw2DBRp4AqU3g",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": {
+        "mint": "6rsaDFLdVxEKdu9vfPjmd3wDGiVHeU5iD69Mr9q8EkZS",
+        "outcome_type": "INSUFFICIENT_EVIDENCE",
+        "stop_reason": "Walkback stopped because the persisted evidence is insufficient for attribution.",
+        "terminal_entity": "9QJsoZtKoVMsnpp6yANyite47JEoyDhZTmKRaywTYviw",
+        "terminal_entity_type": "CREATOR",
+        "confidence": "INSUFFICIENT",
+        "evidence_json": "{\"attribution_source\":\"unknown\",\"creator\":\"9QJsoZtKoVMsnpp6yANyite47JEoyDhZTmKRaywTYviw\",\"funder_wallet\":null,\"legacy_queue_outcome\":\"NO_ATTRIBUTION_FOUND\",\"retry_condition\":null,\"subprovisioners\":[],\"treasuries\":[],\"walkback_class\":\"FULL_WALKBACK\"}",
+        "operator_id": null,
+        "should_seed_emerging_operator": 0,
+        "should_retry": 1,
+        "completed_at": 1792748107,
+        "source_queue_updated_at": 1792748107,
+        "materialized_at": 1792748107
+      },
+      "memberships": 0
+    },
+    "quality": {
+      "wallet": "9QJsoZtKoVMsnpp6yANyite47JEoyDhZTmKRaywTYviw",
+      "spam_sender": 0,
+      "spam_recipient": 1,
+      "dust_marker": 0,
+      "dust_recipient": 0,
+      "high_unsolicited_inbound": 0,
+      "confidence": null,
+      "first_seen": 1792748107,
+      "last_seen": 1792748107,
+      "metadata": null,
+      "created_at": 1792748107,
+      "updated_at": 1792748107
+    },
+    "registry": "exact installed static seed;no inferred spam or production mutation"
+  },
+  "real_rpc_adapter_outage": {
+    "status": "HOLD_AUTOMATIC_RETRY_NOT_DEMONSTRATED",
+    "state": {
+      "queue": {
+        "mint": "HLE8hfvZchENcnzheQSGGXbfgV1T9WiW4DkaCRaUApqT",
+        "creator": "EbrnKvx21C4P17qPoYqMk6hcht9V3KkK9Fw3srEiehSE",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 1,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792748107,
+        "started_at": 1792748107,
+        "completed_at": 1792748107,
+        "updated_at": 1792748107,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-34416",
+        "claimed_at": 1792748107,
+        "lease_expires_at": 1792748407,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "24QMQBQj1BTb16gjfgiXCzaZeR1221QZwmFdMixYewdJidALBvxGgsuEXy4Ju6GhgHRZw3YRCenf65fYxxTjFavp",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": {
+        "mint": "HLE8hfvZchENcnzheQSGGXbfgV1T9WiW4DkaCRaUApqT",
+        "outcome_type": "INSUFFICIENT_EVIDENCE",
+        "stop_reason": "Walkback stopped because the persisted evidence is insufficient for attribution.",
+        "terminal_entity": "EbrnKvx21C4P17qPoYqMk6hcht9V3KkK9Fw3srEiehSE",
+        "terminal_entity_type": "CREATOR",
+        "confidence": "INSUFFICIENT",
+        "evidence_json": "{\"attribution_source\":\"unknown\",\"creator\":\"EbrnKvx21C4P17qPoYqMk6hcht9V3KkK9Fw3srEiehSE\",\"funder_wallet\":null,\"legacy_queue_outcome\":\"NO_ATTRIBUTION_FOUND\",\"retry_condition\":null,\"subprovisioners\":[],\"treasuries\":[],\"walkback_class\":\"FULL_WALKBACK\"}",
+        "operator_id": null,
+        "should_seed_emerging_operator": 0,
+        "should_retry": 1,
+        "completed_at": 1792748107,
+        "source_queue_updated_at": 1792748107,
+        "materialized_at": 1792748107
+      },
+      "memberships": 0
+    },
+    "reason": "Installed _rpc swallows transport exception to None; signature helper maps None to empty history; worker commits complete NO_ATTRIBUTION_FOUND rather than pending retry. should_retry remains outcome metadata."
+  },
+  "create_handoff": {
+    "status": "PASS",
+    "stage": "PENDING",
+    "first": [
+      [
+        "9boXZNW13fFNN4negf8CYD6Sv47BXGcQssm8DN6Jtk6R",
+        "RuntimeError"
+      ]
+    ],
+    "restart": [
+      [
+        "9boXZNW13fFNN4negf8CYD6Sv47BXGcQssm8DN6Jtk6R",
+        "ALREADY_COMMITTED"
+      ]
+    ],
+    "state": "ACK",
+    "tries": 1
+  },
+  "quarantine": {
+    "status": "PASS",
+    "record": {
+      "quarantine_reason": "CORE_AUTHORITY_CONFLICT",
+      "consumed": 0
+    },
+    "repeat_idempotent": true,
+    "authority_unchanged": true
+  }
+}

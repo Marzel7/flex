@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "creator": true,
+    "subprov": true,
+    "treasury": true,
+    "walkback_class": true,
+    "attribution_source": true,
+    "status": true,
+    "rpc_used": true,
+    "attempts": true,
+    "intelligence_outcome": true,
+    "funder_wallet": true,
+    "funding_mechanism": true,
+    "funder_amount_sol": true,
+    "funder_sig": true,
+    "funder_slot": true,
+    "funder_block_time": true,
+    "create_anchor_signature": true,
+    "create_anchor_slot": true,
+    "create_anchor_block_time": true,
+    "create_anchor_source": true,
+    "create_anchor_audit_state": true,
+    "outcome_kind": true,
+    "confidence": true,
+    "evidence": true,
+    "membership_identity": true,
+    "birth_authority": true,
+    "provider_params": true,
+    "all_selected_alternative_evidence": true
+  },
+  "oracle": "Actual installed V1 worker/evaluator on bounded retained-reference fixture plus frozen synthetic responses;not production DB clone or live replay.",
+  "volatile_fields_excluded": [
+    "wall clock admission/materialization/assignment times",
+    "process lease owner"
+  ]
+}

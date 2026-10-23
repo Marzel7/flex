@@ -1,0 +1,583 @@
+[
+  {
+    "name": "no attribution",
+    "mode": "empty",
+    "state": {
+      "queue": {
+        "mint": "4FCSsb23yygSBfJVenpZxAUJCoGTTik4jm4yfeCogWnR",
+        "creator": "GA8cjnzQAonQrwAc6z2TEmgDRGpZuYUyvhvJHSEMeYuz",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 1,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792747825,
+        "started_at": 1792747825,
+        "completed_at": 1792747825,
+        "updated_at": 1792747825,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-33585",
+        "claimed_at": 1792747825,
+        "lease_expires_at": 1792748125,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "42x8iz5wwd9P72fZFKXABwBEVmjBWHyHvqYJFpT9t2Tv7yoBiTLfa1NjnbvLgCsb8WVK8iPJp7vZkGxteAMfat5z",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": {
+        "mint": "4FCSsb23yygSBfJVenpZxAUJCoGTTik4jm4yfeCogWnR",
+        "outcome_type": "INSUFFICIENT_EVIDENCE",
+        "stop_reason": "Walkback stopped because the persisted evidence is insufficient for attribution.",
+        "terminal_entity": "GA8cjnzQAonQrwAc6z2TEmgDRGpZuYUyvhvJHSEMeYuz",
+        "terminal_entity_type": "CREATOR",
+        "confidence": "INSUFFICIENT",
+        "evidence_json": "{\"attribution_source\":\"unknown\",\"creator\":\"GA8cjnzQAonQrwAc6z2TEmgDRGpZuYUyvhvJHSEMeYuz\",\"funder_wallet\":null,\"legacy_queue_outcome\":\"NO_ATTRIBUTION_FOUND\",\"retry_condition\":null,\"subprovisioners\":[],\"treasuries\":[],\"walkback_class\":\"FULL_WALKBACK\"}",
+        "operator_id": null,
+        "should_seed_emerging_operator": 0,
+        "should_retry": 1,
+        "completed_at": 1792747825,
+        "source_queue_updated_at": 1792747825,
+        "materialized_at": 1792747825
+      },
+      "memberships": 0
+    },
+    "calls": [
+      [
+        "getSignaturesForAddress",
+        [
+          "GA8cjnzQAonQrwAc6z2TEmgDRGpZuYUyvhvJHSEMeYuz",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "42x8iz5wwd9P72fZFKXABwBEVmjBWHyHvqYJFpT9t2Tv7yoBiTLfa1NjnbvLgCsb8WVK8iPJp7vZkGxteAMfat5z"
+          }
+        ]
+      ]
+    ]
+  },
+  {
+    "name": "unknown disposable lineage",
+    "mode": "gap",
+    "state": {
+      "queue": {
+        "mint": "6ctHMsgeFAmwBD8oZrADQRELQftPGsbM6dqJUcXL92B7",
+        "creator": "BansNXKYi5itaXUmZ9jM5AG4jqU1sxk33HbnUUFjcUhX",
+        "subprov": "C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH",
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 5,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792747825,
+        "started_at": 1792747825,
+        "completed_at": 1792747825,
+        "updated_at": 1792747825,
+        "intelligence_outcome": "LINEAGE_GAP",
+        "funder_wallet": "C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH",
+        "funding_mechanism": "WSOL_WRAP_CLOSE",
+        "funder_amount_sol": 2.122039,
+        "funder_sig": "2VxyfE2JHTyKDp74tf3rgFMLjeZvXTM4enXW7cNMfU2va7cm2bN78NQtvQFTBTSTZ448QW7KSn3GJYVHCPCFUaxA",
+        "funder_slot": 990,
+        "funder_block_time": 1792746990,
+        "claimed_by": "walkback-33585",
+        "claimed_at": 1792747825,
+        "lease_expires_at": 1792748125,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "3mrmNgwPDqLcjBXSfcGbDjqzrywvQdz2M3Ni2hYMyfBNChtoKcGZbLP887oMAp72CfMs4a1ca12XyLDRzGzCRz51",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": {
+        "mint": "6ctHMsgeFAmwBD8oZrADQRELQftPGsbM6dqJUcXL92B7",
+        "outcome_type": "LINEAGE_GAP",
+        "stop_reason": "Walkback stopped at a lineage gap. Retry only when new evidence arrives.",
+        "terminal_entity": "C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH",
+        "terminal_entity_type": "INFRASTRUCTURE",
+        "confidence": "LOW",
+        "evidence_json": "{\"attribution_source\":\"unknown\",\"creator\":\"BansNXKYi5itaXUmZ9jM5AG4jqU1sxk33HbnUUFjcUhX\",\"funder_wallet\":\"C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH\",\"legacy_queue_outcome\":\"LINEAGE_GAP\",\"retry_condition\":\"NEW_EVIDENCE_ONLY\",\"subprovisioners\":[\"C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH\"],\"treasuries\":[],\"walkback_class\":\"FULL_WALKBACK\"}",
+        "operator_id": null,
+        "should_seed_emerging_operator": 0,
+        "should_retry": 1,
+        "completed_at": 1792747825,
+        "source_queue_updated_at": 1792747825,
+        "materialized_at": 1792747825
+      },
+      "memberships": 0
+    },
+    "calls": [
+      [
+        "getSignaturesForAddress",
+        [
+          "BansNXKYi5itaXUmZ9jM5AG4jqU1sxk33HbnUUFjcUhX",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "3mrmNgwPDqLcjBXSfcGbDjqzrywvQdz2M3Ni2hYMyfBNChtoKcGZbLP887oMAp72CfMs4a1ca12XyLDRzGzCRz51"
+          }
+        ]
+      ],
+      [
+        "getTransaction",
+        [
+          "2VxyfE2JHTyKDp74tf3rgFMLjeZvXTM4enXW7cNMfU2va7cm2bN78NQtvQFTBTSTZ448QW7KSn3GJYVHCPCFUaxA",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      ],
+      [
+        "getAccountInfo",
+        [
+          "C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH",
+          {
+            "encoding": "base64",
+            "commitment": "confirmed"
+          }
+        ]
+      ],
+      [
+        "getSignaturesForAddress",
+        [
+          "C99xVfBPNVTqUYfuAoRoM3kEhuBJMtJ9myRjV2mKDzgH",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "2VxyfE2JHTyKDp74tf3rgFMLjeZvXTM4enXW7cNMfU2va7cm2bN78NQtvQFTBTSTZ448QW7KSn3GJYVHCPCFUaxA"
+          }
+        ]
+      ],
+      [
+        "getTransaction",
+        [
+          "2VxyfE2JHTyKDp74tf3rgFMLjeZvXTM4enXW7cNMfU2va7cm2bN78NQtvQFTBTSTZ448QW7KSn3GJYVHCPCFUaxA",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      ]
+    ]
+  },
+  {
+    "name": "provider raised retry",
+    "mode": "raised_failure",
+    "state": {
+      "queue": {
+        "mint": "G2TLMcSdG8BFi7ek8DatadvLp3CbXSWUZaP1SqXmbSnm",
+        "creator": "83gq4JzTF88Z4kCFAP3aoaWPTeva8LXLj9pHEdgG7tGQ",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "pending",
+        "rpc_used": 0,
+        "attempts": 1,
+        "last_error": "SYNTHETIC_TRANSPORT_FAILURE",
+        "enqueued_at": 1792747826,
+        "started_at": 1792747826,
+        "completed_at": null,
+        "updated_at": 1792747826,
+        "intelligence_outcome": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-33585",
+        "claimed_at": 1792747826,
+        "lease_expires_at": 1792748126,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "4D12bRBT21xopMasFadvpG3iLeXRwwEfAQztQWUooMG2d1ePHVJMejS2v6eaWtBS3jteLivWg2AMRvBSrjYDbWwy",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": null,
+      "memberships": 0
+    },
+    "calls": [
+      [
+        "getSignaturesForAddress",
+        [
+          "83gq4JzTF88Z4kCFAP3aoaWPTeva8LXLj9pHEdgG7tGQ",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "4D12bRBT21xopMasFadvpG3iLeXRwwEfAQztQWUooMG2d1ePHVJMejS2v6eaWtBS3jteLivWg2AMRvBSrjYDbWwy"
+          }
+        ]
+      ]
+    ],
+    "after_bounded_retry": {
+      "status": "complete",
+      "attempts": 2,
+      "intelligence_outcome": "NO_ATTRIBUTION_FOUND"
+    }
+  },
+  {
+    "name": "provider returns None",
+    "mode": "none_failure",
+    "state": {
+      "queue": {
+        "mint": "E6QYkyvpugWgDB2sy6KZELqefJ3Nki3VwH716arCddTL",
+        "creator": "86A7YKNqzx1thBG5haHipuip8cAbtNNEMqTKFHCTux3W",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "complete",
+        "rpc_used": 1,
+        "attempts": 1,
+        "last_error": null,
+        "enqueued_at": 1792747826,
+        "started_at": 1792747826,
+        "completed_at": 1792747826,
+        "updated_at": 1792747826,
+        "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-33585",
+        "claimed_at": 1792747826,
+        "lease_expires_at": 1792748126,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "4DXaeq6rcrkmv5piMJZdguUZnekA7qVonokQBFSo2U8HrpQVjoVaa9d62grbnyXPmNrZZ551pio97Kjke1dRzUVF",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": {
+        "mint": "E6QYkyvpugWgDB2sy6KZELqefJ3Nki3VwH716arCddTL",
+        "outcome_type": "INSUFFICIENT_EVIDENCE",
+        "stop_reason": "Walkback stopped because the persisted evidence is insufficient for attribution.",
+        "terminal_entity": "86A7YKNqzx1thBG5haHipuip8cAbtNNEMqTKFHCTux3W",
+        "terminal_entity_type": "CREATOR",
+        "confidence": "INSUFFICIENT",
+        "evidence_json": "{\"attribution_source\":\"unknown\",\"creator\":\"86A7YKNqzx1thBG5haHipuip8cAbtNNEMqTKFHCTux3W\",\"funder_wallet\":null,\"legacy_queue_outcome\":\"NO_ATTRIBUTION_FOUND\",\"retry_condition\":null,\"subprovisioners\":[],\"treasuries\":[],\"walkback_class\":\"FULL_WALKBACK\"}",
+        "operator_id": null,
+        "should_seed_emerging_operator": 0,
+        "should_retry": 1,
+        "completed_at": 1792747826,
+        "source_queue_updated_at": 1792747826,
+        "materialized_at": 1792747826
+      },
+      "memberships": 0
+    },
+    "calls": [
+      [
+        "getSignaturesForAddress",
+        [
+          "86A7YKNqzx1thBG5haHipuip8cAbtNNEMqTKFHCTux3W",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "4DXaeq6rcrkmv5piMJZdguUZnekA7qVonokQBFSo2U8HrpQVjoVaa9d62grbnyXPmNrZZ551pio97Kjke1dRzUVF"
+          }
+        ]
+      ]
+    ]
+  },
+  {
+    "name": "conflicting transaction roles",
+    "mode": "conflict",
+    "state": {
+      "queue": {
+        "mint": "2YGVa3FseKp7fuugxDu6zMLEH8neZ5aydBe1xZFKU5sf",
+        "creator": "FHLs8qVg9c9toMtC9PwLRm59xuMJxEKbPkCMf6FRGz8A",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "pending",
+        "rpc_used": 3,
+        "attempts": 1,
+        "last_error": "conflicting authoritative transaction-role projection",
+        "enqueued_at": 1792747826,
+        "started_at": 1792747826,
+        "completed_at": null,
+        "updated_at": 1792747826,
+        "intelligence_outcome": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-33585",
+        "claimed_at": 1792747826,
+        "lease_expires_at": 1792748126,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "2LHnrmm8HXprLY3cCApUQNSPZSz4BrktSExACbChKbJrJ2Am3hdKopetoDc8YTkMhGh13GuhUnSCdCQgUgaNfqC4",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": null,
+      "memberships": 0
+    },
+    "calls": [
+      [
+        "getSignaturesForAddress",
+        [
+          "FHLs8qVg9c9toMtC9PwLRm59xuMJxEKbPkCMf6FRGz8A",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "2LHnrmm8HXprLY3cCApUQNSPZSz4BrktSExACbChKbJrJ2Am3hdKopetoDc8YTkMhGh13GuhUnSCdCQgUgaNfqC4"
+          }
+        ]
+      ],
+      [
+        "getTransaction",
+        [
+          "2m1ubFmWfqswMLrVs7Q2NS46SYEvnXn5y4E76xCksV6RNLbqDBaxwQGRTuszvVjeLvDZn3q8iWsXehTmhd6W1pgh",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      ],
+      [
+        "getAccountInfo",
+        [
+          "ALMjw7YDP3XqegzUagf7KYdXPtwXR9YrDWD1Xj7FsQ3i",
+          {
+            "encoding": "base64",
+            "commitment": "confirmed"
+          }
+        ]
+      ]
+    ]
+  },
+  {
+    "name": "missing CREATE waits without attribution",
+    "state": {
+      "queue": {
+        "mint": "CgrKJkdPC7UrU2BDgLsQaMELULRtqYcKuSDeHStJzYFa",
+        "creator": "7mrtwZXsoLbVcd5yuVTEjyJHSLAkyc82UQJTF8hSVBMq",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "waiting",
+        "rpc_used": 0,
+        "attempts": 0,
+        "last_error": null,
+        "enqueued_at": 1792747826,
+        "started_at": null,
+        "completed_at": null,
+        "updated_at": 1792747826,
+        "intelligence_outcome": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": null,
+        "claimed_at": null,
+        "lease_expires_at": null,
+        "next_retry_at": null,
+        "path_state": "WAITING_FOR_CREATE_ANCHOR",
+        "termination_reason_json": null,
+        "create_anchor_signature": null,
+        "create_anchor_slot": null,
+        "create_anchor_block_time": null,
+        "create_anchor_source": null,
+        "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": null,
+      "memberships": 0
+    }
+  },
+  {
+    "name": "duplicate migration unchanged",
+    "state": {
+      "queue": {
+        "mint": "8Br5SbJzV2pmh7sFftYAnPfMEdaiJEbnk7z9Uj8T24jN",
+        "creator": "GA9hEUYCDz4C2MXvkaMNCXEdXXX6rUgMRsB11z8nqm6g",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "pending",
+        "rpc_used": 0,
+        "attempts": 0,
+        "last_error": null,
+        "enqueued_at": 1792747826,
+        "started_at": null,
+        "completed_at": null,
+        "updated_at": 1792747826,
+        "intelligence_outcome": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": null,
+        "claimed_at": null,
+        "lease_expires_at": null,
+        "next_retry_at": null,
+        "path_state": "CREATE_ANCHORED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "5pQRHScHTQDN7WLP6C48NtUcmuvFmfXGEAiMAjj6eRiqjp8C8JkNUPHfoTDUCmafCSF69AFdRjM1pHLsikyk7xTi",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": null,
+      "memberships": 0
+    }
+  },
+  {
+    "name": "expired lease reclaim",
+    "state": {
+      "queue": {
+        "mint": "8Br5SbJzV2pmh7sFftYAnPfMEdaiJEbnk7z9Uj8T24jN",
+        "creator": "GA9hEUYCDz4C2MXvkaMNCXEdXXX6rUgMRsB11z8nqm6g",
+        "subprov": null,
+        "treasury": null,
+        "walkback_class": "FULL_WALKBACK",
+        "attribution_source": "unknown",
+        "status": "running",
+        "rpc_used": 0,
+        "attempts": 2,
+        "last_error": null,
+        "enqueued_at": 1792747826,
+        "started_at": 1792747826,
+        "completed_at": null,
+        "updated_at": 1792747826,
+        "intelligence_outcome": null,
+        "funder_wallet": null,
+        "funding_mechanism": null,
+        "funder_amount_sol": null,
+        "funder_sig": null,
+        "funder_slot": null,
+        "funder_block_time": null,
+        "claimed_by": "walkback-33585",
+        "claimed_at": 1792747826,
+        "lease_expires_at": 1792748126,
+        "next_retry_at": null,
+        "path_state": "CLAIMED",
+        "termination_reason_json": null,
+        "create_anchor_signature": "5pQRHScHTQDN7WLP6C48NtUcmuvFmfXGEAiMAjj6eRiqjp8C8JkNUPHfoTDUCmafCSF69AFdRjM1pHLsikyk7xTi",
+        "create_anchor_slot": null,
+        "create_anchor_block_time": 1792747000,
+        "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+        "create_anchor_audit_state": "VALID",
+        "priority": 0,
+        "priority_reason": null,
+        "anchor_lookup_attempts": 0,
+        "last_anchor_lookup_at": null,
+        "anchor_recovered_at": null,
+        "anchor_recovery_source": null,
+        "anchor_lookup_state": null,
+        "infrastructure_retry_count": 0,
+        "last_infrastructure_error": null
+      },
+      "outcome": null,
+      "memberships": 0
+    }
+  }
+]

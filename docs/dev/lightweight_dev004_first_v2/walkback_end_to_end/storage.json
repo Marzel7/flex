@@ -1,0 +1,44 @@
+{
+  "max_single_file_qualification_bytes": 16000000,
+  "sqlite_max_pages": 3840,
+  "new_unbounded_growth_paths": 0,
+  "new_raw_retention": "NONE;finite synthetic fixture responses and compact test receipts only",
+  "production_connections": "All functional connections guarded to disposable root;socket and urllib transport blocked",
+  "fixtures": {
+    "core": {
+      "bytes": 8990720,
+      "sha256": "cfefdf560a814e33f59bbcea0dc8fa2c89d0518be4bc10be58bb3ed908a1b7bf",
+      "new_tables_from_existing_initializers_or_test_schema": [
+        "wt_detected_creates"
+      ]
+    },
+    "ops": {
+      "bytes": 13754368,
+      "sha256": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a",
+      "new_tables_from_existing_initializers_or_test_schema": [
+        "operation_activity_snapshots",
+        "operation_behavioural_components",
+        "operation_detector_results",
+        "wt_canonical_predicate_comparisons",
+        "wt_known_spam_wallets",
+        "wt_provisioning_edges",
+        "wt_provisioning_wallet_edges",
+        "wt_provisioning_wallets",
+        "wt_unknown_infrastructure_registry",
+        "wt_wallet_quality",
+        "wt_watchtower_candidates",
+        "wt_watchtower_promotion_outcomes"
+      ]
+    }
+  },
+  "added_empty_runtime_schema_before_execution": [
+    "Core wt_detected_creates from installed create_interceptor DDL",
+    "OPS operation_activity_snapshots via installed manual_registry.DDL"
+  ],
+  "test_only_exclusion_schema": "Installed known_spam_wallets/wallet_quality schemas and one exact static reviewed spam seed",
+  "source_fixture_hashes": {
+    "core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "ops_v2.sqlite": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a"
+  },
+  "largest_observed_file": 13914112
+}

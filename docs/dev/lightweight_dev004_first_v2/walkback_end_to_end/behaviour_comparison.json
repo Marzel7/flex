@@ -1,0 +1,16 @@
+{
+  "v1": {
+    "observed_handoff_gate": true,
+    "plain_transfer_not_behavioural_match": true,
+    "unknown_amount_not_match": true,
+    "treasury_recognized": true,
+    "retained_subprovider_recognized": true
+  },
+  "v2": {
+    "observed_handoff_gate": true,
+    "plain_transfer_not_behavioural_match": true,
+    "unknown_amount_not_match": true,
+    "treasury_recognized": true,
+    "retained_subprovider_recognized": true
+  }
+}

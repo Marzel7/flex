@@ -1,0 +1,39 @@
+{
+  "core": {
+    "bytes": 233472,
+    "allocated_bytes": 233472,
+    "page_size": 4096,
+    "page_count": 57,
+    "freelist_count": 0,
+    "foreign_key_check": [],
+    "object_counts": {
+      "table": 16,
+      "index": 19,
+      "trigger": 0,
+      "view": 0
+    },
+    "triggers": []
+  },
+  "ops": {
+    "bytes": 655360,
+    "allocated_bytes": 655360,
+    "page_size": 4096,
+    "page_count": 160,
+    "freelist_count": 0,
+    "foreign_key_check": [],
+    "object_counts": {
+      "table": 50,
+      "index": 39,
+      "trigger": 6,
+      "view": 1
+    },
+    "triggers": [
+      "operator_identity_events_immutable_delete",
+      "operator_identity_events_immutable_update",
+      "operator_launch_history_immutable_delete",
+      "operator_launch_history_immutable_update",
+      "operator_promotion_reviews_immutable_delete",
+      "operator_promotion_reviews_immutable_update"
+    ]
+  }
+}

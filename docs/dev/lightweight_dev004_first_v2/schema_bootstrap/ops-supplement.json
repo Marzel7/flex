@@ -1,0 +1,37 @@
+{
+  "owners": [
+    "OperatorWriter.initialize_schema",
+    "living_potential_operations.ensure_schema",
+    "generic_living_lineage_metadata.ensure_lineage_schema"
+  ],
+  "status": "HOLD",
+  "error": "table potential_operation_assessment_lineage already exists",
+  "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/dev004-schema-supplement.py\", line 18, in <module>\n    operator_writer.initialize_operator_schema(str(out/'ops.sqlite'));living_potential_operations.ensure_schema(c);generic_living_lineage_metadata.ensure_lineage_schema(c);c.commit()\n                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_lineage_metadata.py\", line 23, in ensure_lineage_schema\n    def ensure_lineage_schema(conn): conn.executescript(LINEAGE_DDL)\n                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/utils/db_locking.py\", line 1007, in executescript\n    return super().executescript(sql_script)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsqlite3.OperationalError: table potential_operation_assessment_lineage already exists\n",
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "sizes": {
+    "core.sqlite.write.lock.waiters": 2,
+    "ops.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 868,
+    "core.sqlite": 225280,
+    "ops.sqlite.write.lock.owner.guard": 0,
+    "ops.sqlite": 634880,
+    "ops.sqlite.write.lock": 865
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "status": "PARTIAL_OPS_STARTUP_PASS_CORE_READER_AND_COMPLETE_BOOTSTRAP_HOLD",
+  "executable_candidate": "712f18400508a7681e3cea78e79cf84c0be8b666",
+  "runtime_source_changes": 0,
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "partial_runtime_manifest": {
+    "path": "docs/dev/lightweight_dev004_first_v2/runtime_composition/runtime_manifest.json",
+    "sha256": "43b2b447aa05da02743931bd6c8e207f8c7c6e5ae99be5da5f4aeea0f44c63ff"
+  },
+  "owner_hashes": {
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+    "runtime/listener/src/core/schema_init.py": "d274043be0258d3c957a262e71bf1223cbd8a837f2b141d3bc96d097917c6ffc",
+    "runtime/listener/src/core/creator_resolution_queue.py": "0b364cf1e5becfa020c866c1f063ed8d8e5a632a2d0c28b165b2411ad1a9d071",
+    "runtime/listener/src/ops/migration_walkback_handoff_retry.py": "00deb45981bcc17c58a58e1b0f553a46f30a627fdda19848a8b22d580fdca3ae",
+    "runtime/walkback/src/core/walkback_queue.py": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+    "runtime/walkback/src/ops/watchtower_candidates.py": "07432985281145996fe40d3d8de8caf6e67a3624809227ee5269c687c327b958",
+    "runtime/walkback/src/core/treasury_bank.py": "a959b16f666f3dab911beebf32e954bd8a0e22aec5e083169929f71f81dabea0",
+    "runtime/walkback/src/ops/attribution_outcome.py": "39e45fafe580ec54f49928b8034f74a7222dc3502ccd94557d8d938b9c5fa4d7",
+    "runtime/walkback/src/ops/anchor_reconciliation.py": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+    "runtime/walkback/src/ops/create_event_ledger.py": "64780f0d9724153581fec2a2182eb71d2dccf53b1be7abfd23b1062360249dc4",
+    "runtime/walkback/src/ops/operation_fingerprint_drift.py": "cf0345ccec1f8a4578d09fede013ad59634adc10f9efdf6f9bfede25adc6ba55",
+    "runtime/walkback/src/core/deep_walkback.py": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+    "runtime/walkback/src/ops/lineage_quarantine.py": "bbe118bfe5365f34a25cd8705baf33b38b11aef23c47cc8b931ad2f74d2511d2",
+    "runtime/creator_resolution/src/ops/operator_writer.py": "63f26cab7dcabd09d6b112ef6097ffd93c834f9fdd9391c6d8b5d0a6524be036",
+    "runtime/creator_resolution/src/ops/living_potential_operations.py": "12f718a2fc9b9a8cce67bc842368736c98d73eacfbf02448835e1d70cb62b687",
+    "runtime/creator_resolution/src/ops/generic_living_lineage_metadata.py": "4098153f8b2f56ad2785d3d3fc321a1443eb1208dcb863fd9d11269bbc928e13"
+  },
+  "tested_bindings": {
+    "DB_PATH": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+    "WT_OPS_DB_PATH": "/private/tmp/dev004-schema-bootstrap-guarded-empty/ops.sqlite",
+    "RPC_METRICS_DB": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite"
+  },
+  "empty_bootstrap_allocation": {
+    "core_bytes": 225280,
+    "ops_active_walkback_schema_bytes": 348160,
+    "ops_after_operator_potential_first_pass_bytes": 634880
+  },
+  "observed_wal_peak": {
+    "core_bytes": 605672,
+    "ops_bytes": 1100072
+  },
+  "startup": {
+    "listener_schema_owner": "PASS_RETURNED_IN_DISPOSABLE_FIXTURE;full_core_reader_HOLD",
+    "resolver": "PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE",
+    "walkback": "PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE",
+    "compact_creator_history": "HOLD_COMPACT_HISTORY_TIMESTAMP_SCHEMA;missing token_analysis.first_observed_at",
+    "full_Potential_bootstrap": "HOLD_NON_IDEMPOTENT_QUALIFICATION_LINEAGE_OWNER",
+    "birth_quarantine": "HOLD_INSTALLED_OWNER_MISSING_FROM_FROZEN_PACKAGE"
+  },
+  "storage": {
+    "single_file_cap_bytes": 16000000,
+    "sqlite_page_cap": 3840,
+    "raw_provider_retention": false,
+    "new_unbounded_growth_paths": 0,
+    "wal_bound_claim": "Observed only;OS file cap is a qualification safety guard,not production transaction/WAL certification"
+  },
+  "production_changes": 0,
+  "provider_calls": 0,
+  "large_matrices_repeated": 0,
+  "next_action": "IdentifyandqualifyexistingCorebase-schema owner forfirst_observed_atandcanonicalprice tables;donotmanufactureDDL. Keepone-shotlineage/quarantinepackagingexplicit. OPSsixvalidatorgapclosed."
+}

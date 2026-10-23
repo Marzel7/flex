@@ -1,0 +1,508 @@
+{
+  "status": "PASS",
+  "kind": "core",
+  "owners": [
+    {
+      "owner": "listener.PumpFunCurveListener._ensure_db_with_connection",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_birth_persist_queue_status"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funders_analyzed"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funders_creator"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funders_funder"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funding_queue_created_at"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funding_queue_status"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_watchlist_active"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_watchlist_group"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_webhook_events_block_time"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_webhook_events_funder"
+        },
+        {
+          "type": "table",
+          "name": "birth_persist_queue"
+        },
+        {
+          "type": "table",
+          "name": "creator_funders"
+        },
+        {
+          "type": "table",
+          "name": "creator_funding_queue"
+        },
+        {
+          "type": "table",
+          "name": "creator_sol_transfers"
+        },
+        {
+          "type": "table",
+          "name": "funder_watchlist"
+        },
+        {
+          "type": "table",
+          "name": "funder_webhook_events"
+        },
+        {
+          "type": "table",
+          "name": "funder_webhook_groups"
+        },
+        {
+          "type": "table",
+          "name": "migration_persist_queue"
+        },
+        {
+          "type": "table",
+          "name": "pumpfun_migration_verification"
+        },
+        {
+          "type": "table",
+          "name": "token_analysis"
+        }
+      ],
+      "seconds": 0.08662,
+      "wal_bytes": 461472
+    },
+    {
+      "owner": "schema_init.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "table",
+          "name": "token_analysis"
+        }
+      ],
+      "seconds": 0.07777,
+      "wal_bytes": 486192
+    },
+    {
+      "owner": "creator_resolution_queue.initialize_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_creator_funding_queue_mint"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_resolution_queue_status"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_resolution_queue_updated"
+        },
+        {
+          "type": "table",
+          "name": "creator_resolution_queue"
+        }
+      ],
+      "seconds": 0.02423,
+      "wal_bytes": 576832
+    },
+    {
+      "owner": "migration_walkback_handoff_retry.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_migration_walkback_handoff_due"
+        },
+        {
+          "type": "table",
+          "name": "migration_walkback_handoff"
+        }
+      ],
+      "seconds": 0.00246,
+      "wal_bytes": 605672
+    }
+  ],
+  "idempotent_schema": true,
+  "foreign_key_check": [],
+  "validators": {},
+  "objects": [
+    {
+      "type": "index",
+      "name": "idx_birth_persist_queue_status",
+      "table": "birth_persist_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funders_analyzed",
+      "table": "creator_funders"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funders_creator",
+      "table": "creator_funders"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funders_funder",
+      "table": "creator_funders"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funding_queue_created_at",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funding_queue_mint",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funding_queue_status",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_resolution_queue_status",
+      "table": "creator_resolution_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_resolution_queue_updated",
+      "table": "creator_resolution_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_watchlist_active",
+      "table": "funder_watchlist"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_watchlist_group",
+      "table": "funder_watchlist"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_webhook_events_block_time",
+      "table": "funder_webhook_events"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_webhook_events_funder",
+      "table": "funder_webhook_events"
+    },
+    {
+      "type": "index",
+      "name": "idx_migration_walkback_handoff_due",
+      "table": "migration_walkback_handoff"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_cache_action",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_method",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_optimization_layer",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_source_file",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_timestamp",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "table",
+      "name": "birth_persist_queue",
+      "table": "birth_persist_queue"
+    },
+    {
+      "type": "table",
+      "name": "creator_funders",
+      "table": "creator_funders"
+    },
+    {
+      "type": "table",
+      "name": "creator_funding_queue",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "table",
+      "name": "creator_resolution_queue",
+      "table": "creator_resolution_queue"
+    },
+    {
+      "type": "table",
+      "name": "creator_sol_transfers",
+      "table": "creator_sol_transfers"
+    },
+    {
+      "type": "table",
+      "name": "funder_watchlist",
+      "table": "funder_watchlist"
+    },
+    {
+      "type": "table",
+      "name": "funder_webhook_events",
+      "table": "funder_webhook_events"
+    },
+    {
+      "type": "table",
+      "name": "funder_webhook_groups",
+      "table": "funder_webhook_groups"
+    },
+    {
+      "type": "table",
+      "name": "migration_persist_queue",
+      "table": "migration_persist_queue"
+    },
+    {
+      "type": "table",
+      "name": "migration_walkback_handoff",
+      "table": "migration_walkback_handoff"
+    },
+    {
+      "type": "table",
+      "name": "pumpfun_migration_verification",
+      "table": "pumpfun_migration_verification"
+    },
+    {
+      "type": "table",
+      "name": "rpc_metrics",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "table",
+      "name": "rpc_metrics_state",
+      "table": "rpc_metrics_state"
+    },
+    {
+      "type": "table",
+      "name": "rpc_response_cache",
+      "table": "rpc_response_cache"
+    },
+    {
+      "type": "table",
+      "name": "token_analysis",
+      "table": "token_analysis"
+    }
+  ],
+  "empty_user_rows": {
+    "birth_persist_queue": 0,
+    "creator_funders": 0,
+    "creator_funding_queue": 0,
+    "creator_resolution_queue": 0,
+    "creator_sol_transfers": 0,
+    "funder_watchlist": 0,
+    "funder_webhook_events": 0,
+    "funder_webhook_groups": 0,
+    "migration_persist_queue": 0,
+    "migration_walkback_handoff": 0,
+    "pumpfun_migration_verification": 0,
+    "rpc_metrics": 0,
+    "rpc_metrics_state": 0,
+    "rpc_response_cache": 0,
+    "token_analysis": 0
+  },
+  "peak_observed_wal_bytes": 605672,
+  "sizes_open": {
+    "core.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 868,
+    "core.sqlite": 49152,
+    "core.sqlite-shm": 32768,
+    "core.sqlite-wal": 605672
+  },
+  "blocked": [
+    "bind"
+  ],
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/core.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "sizes_closed": {
+    "core.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 868,
+    "core.sqlite": 225280
+  }
+}

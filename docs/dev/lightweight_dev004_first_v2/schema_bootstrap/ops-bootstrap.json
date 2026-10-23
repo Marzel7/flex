@@ -1,0 +1,604 @@
+{
+  "status": "PASS",
+  "kind": "ops",
+  "owners": [
+    {
+      "owner": "walkback_queue.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "ix_wao_completed_at"
+        },
+        {
+          "type": "index",
+          "name": "ix_wao_terminal"
+        },
+        {
+          "type": "index",
+          "name": "ix_wao_type_time"
+        },
+        {
+          "type": "index",
+          "name": "ix_wbq_class"
+        },
+        {
+          "type": "index",
+          "name": "ix_wbq_funder"
+        },
+        {
+          "type": "index",
+          "name": "ix_wbq_outcome"
+        },
+        {
+          "type": "index",
+          "name": "ix_wbq_priority"
+        },
+        {
+          "type": "index",
+          "name": "ix_wbq_status"
+        },
+        {
+          "type": "index",
+          "name": "ix_wt_candidates_status_created"
+        },
+        {
+          "type": "index",
+          "name": "ix_wuir_eligible"
+        },
+        {
+          "type": "index",
+          "name": "ix_wwaf_signature"
+        },
+        {
+          "type": "index",
+          "name": "ix_wwec_mint_hop"
+        },
+        {
+          "type": "index",
+          "name": "ix_wwec_parent"
+        },
+        {
+          "type": "index",
+          "name": "ix_wwtr_mint"
+        },
+        {
+          "type": "table",
+          "name": "wt_attribution_outcomes"
+        },
+        {
+          "type": "table",
+          "name": "wt_infrastructure_candidate_descendants"
+        },
+        {
+          "type": "table",
+          "name": "wt_infrastructure_candidate_evidence"
+        },
+        {
+          "type": "table",
+          "name": "wt_infrastructure_candidate_reviews"
+        },
+        {
+          "type": "table",
+          "name": "wt_infrastructure_candidates"
+        },
+        {
+          "type": "table",
+          "name": "wt_unknown_infrastructure_registry"
+        },
+        {
+          "type": "table",
+          "name": "wt_walkback_atomic_flows"
+        },
+        {
+          "type": "table",
+          "name": "wt_walkback_edge_candidates"
+        },
+        {
+          "type": "table",
+          "name": "wt_walkback_queue"
+        },
+        {
+          "type": "table",
+          "name": "wt_walkback_transaction_roles"
+        },
+        {
+          "type": "table",
+          "name": "wt_wallet_lifecycle_evidence"
+        },
+        {
+          "type": "table",
+          "name": "wt_watchtower_candidates"
+        }
+      ],
+      "seconds": 0.06539,
+      "wal_bytes": 490312
+    },
+    {
+      "owner": "watchtower_candidates.ensure_schema",
+      "status": "PASS",
+      "created_objects": [],
+      "seconds": 0.01772,
+      "wal_bytes": 490312
+    },
+    {
+      "owner": "treasury_bank.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "ix_tfd_decision"
+        },
+        {
+          "type": "index",
+          "name": "ix_tfd_wallet"
+        },
+        {
+          "type": "table",
+          "name": "wt_confirmed_treasuries"
+        },
+        {
+          "type": "table",
+          "name": "wt_confirmed_treasury_webhooks"
+        },
+        {
+          "type": "table",
+          "name": "wt_treasury_fingerprint_decisions"
+        },
+        {
+          "type": "table",
+          "name": "wt_treasury_review"
+        }
+      ],
+      "seconds": 0.05287,
+      "wal_bytes": 712792
+    },
+    {
+      "owner": "attribution_outcome.ensure_schema",
+      "status": "PASS",
+      "created_objects": [],
+      "seconds": 0.01467,
+      "wal_bytes": 712792
+    },
+    {
+      "owner": "anchor_reconciliation.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "ix_anchor_recon_mint"
+        },
+        {
+          "type": "table",
+          "name": "wt_anchor_reconciliation_log"
+        },
+        {
+          "type": "table",
+          "name": "wt_walkback_queue"
+        }
+      ],
+      "seconds": 0.03158,
+      "wal_bytes": 811672
+    },
+    {
+      "owner": "create_event_ledger.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_wt_create_event_ledger_creator"
+        },
+        {
+          "type": "index",
+          "name": "idx_wt_create_event_ledger_mint"
+        },
+        {
+          "type": "index",
+          "name": "idx_wt_create_event_ledger_mint_signature"
+        },
+        {
+          "type": "index",
+          "name": "idx_wt_create_ledger_conflicts_sig"
+        },
+        {
+          "type": "index",
+          "name": "idx_wt_create_ledger_pending_retry"
+        },
+        {
+          "type": "table",
+          "name": "wt_create_event_ledger"
+        },
+        {
+          "type": "table",
+          "name": "wt_create_ledger_conflicts"
+        },
+        {
+          "type": "table",
+          "name": "wt_create_ledger_pending"
+        }
+      ],
+      "seconds": 0.0215,
+      "wal_bytes": 939392
+    },
+    {
+      "owner": "operation_fingerprint_drift.ensure_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "table",
+          "name": "operation_fingerprint_drift_clusters"
+        },
+        {
+          "type": "table",
+          "name": "operation_fingerprint_drift_evidence"
+        },
+        {
+          "type": "table",
+          "name": "operation_fingerprint_health_snapshots"
+        }
+      ],
+      "seconds": 0.00257,
+      "wal_bytes": 1009432
+    },
+    {
+      "owner": "deep_walkback.ensure_schema",
+      "status": "PASS",
+      "created_objects": [],
+      "seconds": 0.00298,
+      "wal_bytes": 1009432
+    },
+    {
+      "owner": "lineage_quarantine.ensure_lineage_quarantine_schema",
+      "status": "PASS",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "ix_lineage_quarantine_subject"
+        },
+        {
+          "type": "table",
+          "name": "wt_lineage_quarantine"
+        },
+        {
+          "type": "table",
+          "name": "wt_lineage_root_policies"
+        },
+        {
+          "type": "table",
+          "name": "wt_lineage_verified_session_edges"
+        },
+        {
+          "type": "view",
+          "name": "wt_lineage_eligible_sessions"
+        }
+      ],
+      "seconds": 0.01474,
+      "wal_bytes": 1100072
+    }
+  ],
+  "idempotent_schema": true,
+  "foreign_key_check": [],
+  "validators": {
+    "walkback": {
+      "valid": true,
+      "code": "VALID",
+      "mismatch": null
+    },
+    "treasury": "VALID",
+    "outcome": "VALID",
+    "anchor": "VALID",
+    "ledger": "VALID",
+    "fingerprint": "VALID"
+  },
+  "objects": [
+    {
+      "type": "index",
+      "name": "idx_wt_create_event_ledger_creator",
+      "table": "wt_create_event_ledger"
+    },
+    {
+      "type": "index",
+      "name": "idx_wt_create_event_ledger_mint",
+      "table": "wt_create_event_ledger"
+    },
+    {
+      "type": "index",
+      "name": "idx_wt_create_event_ledger_mint_signature",
+      "table": "wt_create_event_ledger"
+    },
+    {
+      "type": "index",
+      "name": "idx_wt_create_ledger_conflicts_sig",
+      "table": "wt_create_ledger_conflicts"
+    },
+    {
+      "type": "index",
+      "name": "idx_wt_create_ledger_pending_retry",
+      "table": "wt_create_ledger_pending"
+    },
+    {
+      "type": "index",
+      "name": "ix_anchor_recon_mint",
+      "table": "wt_anchor_reconciliation_log"
+    },
+    {
+      "type": "index",
+      "name": "ix_lineage_quarantine_subject",
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "type": "index",
+      "name": "ix_tfd_decision",
+      "table": "wt_treasury_fingerprint_decisions"
+    },
+    {
+      "type": "index",
+      "name": "ix_tfd_wallet",
+      "table": "wt_treasury_fingerprint_decisions"
+    },
+    {
+      "type": "index",
+      "name": "ix_wao_completed_at",
+      "table": "wt_attribution_outcomes"
+    },
+    {
+      "type": "index",
+      "name": "ix_wao_terminal",
+      "table": "wt_attribution_outcomes"
+    },
+    {
+      "type": "index",
+      "name": "ix_wao_type_time",
+      "table": "wt_attribution_outcomes"
+    },
+    {
+      "type": "index",
+      "name": "ix_wbq_class",
+      "table": "wt_walkback_queue"
+    },
+    {
+      "type": "index",
+      "name": "ix_wbq_funder",
+      "table": "wt_walkback_queue"
+    },
+    {
+      "type": "index",
+      "name": "ix_wbq_outcome",
+      "table": "wt_walkback_queue"
+    },
+    {
+      "type": "index",
+      "name": "ix_wbq_priority",
+      "table": "wt_walkback_queue"
+    },
+    {
+      "type": "index",
+      "name": "ix_wbq_status",
+      "table": "wt_walkback_queue"
+    },
+    {
+      "type": "index",
+      "name": "ix_wt_candidates_status_created",
+      "table": "wt_watchtower_candidates"
+    },
+    {
+      "type": "index",
+      "name": "ix_wuir_eligible",
+      "table": "wt_unknown_infrastructure_registry"
+    },
+    {
+      "type": "index",
+      "name": "ix_wwaf_signature",
+      "table": "wt_walkback_atomic_flows"
+    },
+    {
+      "type": "index",
+      "name": "ix_wwec_mint_hop",
+      "table": "wt_walkback_edge_candidates"
+    },
+    {
+      "type": "index",
+      "name": "ix_wwec_parent",
+      "table": "wt_walkback_edge_candidates"
+    },
+    {
+      "type": "index",
+      "name": "ix_wwtr_mint",
+      "table": "wt_walkback_transaction_roles"
+    },
+    {
+      "type": "table",
+      "name": "operation_fingerprint_drift_clusters",
+      "table": "operation_fingerprint_drift_clusters"
+    },
+    {
+      "type": "table",
+      "name": "operation_fingerprint_drift_evidence",
+      "table": "operation_fingerprint_drift_evidence"
+    },
+    {
+      "type": "table",
+      "name": "operation_fingerprint_health_snapshots",
+      "table": "operation_fingerprint_health_snapshots"
+    },
+    {
+      "type": "table",
+      "name": "wt_anchor_reconciliation_log",
+      "table": "wt_anchor_reconciliation_log"
+    },
+    {
+      "type": "table",
+      "name": "wt_attribution_outcomes",
+      "table": "wt_attribution_outcomes"
+    },
+    {
+      "type": "table",
+      "name": "wt_confirmed_treasuries",
+      "table": "wt_confirmed_treasuries"
+    },
+    {
+      "type": "table",
+      "name": "wt_confirmed_treasury_webhooks",
+      "table": "wt_confirmed_treasury_webhooks"
+    },
+    {
+      "type": "table",
+      "name": "wt_create_event_ledger",
+      "table": "wt_create_event_ledger"
+    },
+    {
+      "type": "table",
+      "name": "wt_create_ledger_conflicts",
+      "table": "wt_create_ledger_conflicts"
+    },
+    {
+      "type": "table",
+      "name": "wt_create_ledger_pending",
+      "table": "wt_create_ledger_pending"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidate_descendants",
+      "table": "wt_infrastructure_candidate_descendants"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidate_evidence",
+      "table": "wt_infrastructure_candidate_evidence"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidate_reviews",
+      "table": "wt_infrastructure_candidate_reviews"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidates",
+      "table": "wt_infrastructure_candidates"
+    },
+    {
+      "type": "table",
+      "name": "wt_lineage_quarantine",
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "type": "table",
+      "name": "wt_lineage_root_policies",
+      "table": "wt_lineage_root_policies"
+    },
+    {
+      "type": "table",
+      "name": "wt_lineage_verified_session_edges",
+      "table": "wt_lineage_verified_session_edges"
+    },
+    {
+      "type": "table",
+      "name": "wt_treasury_fingerprint_decisions",
+      "table": "wt_treasury_fingerprint_decisions"
+    },
+    {
+      "type": "table",
+      "name": "wt_treasury_review",
+      "table": "wt_treasury_review"
+    },
+    {
+      "type": "table",
+      "name": "wt_unknown_infrastructure_registry",
+      "table": "wt_unknown_infrastructure_registry"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_atomic_flows",
+      "table": "wt_walkback_atomic_flows"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_edge_candidates",
+      "table": "wt_walkback_edge_candidates"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_queue",
+      "table": "wt_walkback_queue"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_transaction_roles",
+      "table": "wt_walkback_transaction_roles"
+    },
+    {
+      "type": "table",
+      "name": "wt_wallet_lifecycle_evidence",
+      "table": "wt_wallet_lifecycle_evidence"
+    },
+    {
+      "type": "table",
+      "name": "wt_watchtower_candidates",
+      "table": "wt_watchtower_candidates"
+    },
+    {
+      "type": "view",
+      "name": "wt_lineage_eligible_sessions",
+      "table": "wt_lineage_eligible_sessions"
+    }
+  ],
+  "empty_user_rows": {
+    "operation_fingerprint_drift_clusters": 0,
+    "operation_fingerprint_drift_evidence": 0,
+    "operation_fingerprint_health_snapshots": 0,
+    "wt_anchor_reconciliation_log": 0,
+    "wt_attribution_outcomes": 0,
+    "wt_confirmed_treasuries": 0,
+    "wt_confirmed_treasury_webhooks": 0,
+    "wt_create_event_ledger": 0,
+    "wt_create_ledger_conflicts": 0,
+    "wt_create_ledger_pending": 0,
+    "wt_infrastructure_candidate_descendants": 0,
+    "wt_infrastructure_candidate_evidence": 0,
+    "wt_infrastructure_candidate_reviews": 0,
+    "wt_infrastructure_candidates": 0,
+    "wt_lineage_quarantine": 0,
+    "wt_lineage_root_policies": 0,
+    "wt_lineage_verified_session_edges": 0,
+    "wt_treasury_fingerprint_decisions": 0,
+    "wt_treasury_review": 0,
+    "wt_unknown_infrastructure_registry": 0,
+    "wt_walkback_atomic_flows": 0,
+    "wt_walkback_edge_candidates": 0,
+    "wt_walkback_queue": 0,
+    "wt_walkback_transaction_roles": 0,
+    "wt_wallet_lifecycle_evidence": 0,
+    "wt_watchtower_candidates": 0
+  },
+  "peak_observed_wal_bytes": 1100072,
+  "sizes_open": {
+    "core.sqlite.write.lock.waiters": 2,
+    "ops.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 868,
+    "core.sqlite": 225280,
+    "ops.sqlite-wal": 1116552,
+    "ops.sqlite.write.lock.owner.guard": 0,
+    "ops.sqlite-shm": 32768,
+    "ops.sqlite": 4096,
+    "ops.sqlite.write.lock": 868
+  },
+  "blocked": [],
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-schema-bootstrap-guarded-empty/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "sizes_closed": {
+    "core.sqlite.write.lock.waiters": 2,
+    "ops.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 868,
+    "core.sqlite": 225280,
+    "ops.sqlite.write.lock.owner.guard": 0,
+    "ops.sqlite": 348160,
+    "ops.sqlite.write.lock": 868
+  }
+}

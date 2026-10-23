@@ -1,0 +1,101 @@
+{
+  "status": "HOLD_CUTOVER",
+  "scope": "Read-only prioritization; no implementation or seed expansion",
+  "gates": [
+    {
+      "id": "G1",
+      "priority": 1,
+      "name": "Potential Operations freshness and discovery continuity",
+      "type": "DEMONSTRATED_REGRESSION plus unqualified discovery coverage",
+      "mandatory": "Before claiming discovery continuity or full operational replacement",
+      "evidence": [
+        "operational_seed/generation_counterexample.json",
+        "operational_seed/potential_results.json"
+      ],
+      "failure": "Preserved V1 edge cursor206259 suppresses new V2 edge4173; installed reader returns relevant_new_evidence=false.",
+      "exit": "A deterministic cutover generation/cursor contract passes new relevant events for both configured candidates, duplicate/unrelated/no-event controls and crash/reopen without replaying history, resetting budgets or changing review/promotion. Separately pin one accepted new-operation discovery path; the two-candidate bridge is not global discovery."
+    },
+    {
+      "id": "G2",
+      "priority": 2,
+      "name": "Attribution decision dependency closure",
+      "type": "99 DEMONSTRATED_ROUTE_REGRESSIONS; remaining classification coverage UNQUALIFIED",
+      "mandatory": "Before routing creator/Walkback attribution to V2",
+      "evidence": [
+        "operational_seed/missing_verified_route_pairs.json",
+        "operational_seed/watchtower_route_results.json",
+        "operational_seed/creator_launch_history_gaps.json",
+        "operational_seed/operation_results.json"
+      ],
+      "failure": "99 V1 ROLE_NORMALIZED_ROUTE_VERIFIED cases become V2 TREASURY_EVIDENCE_CONFLICT. Five source reads interrupted, so those five are unknown.",
+      "exit": "Preserve required verified direct-transfer role links and consumer decisions; resolve each affected creator count/span/funder predicate using retained rows or an independently qualified equivalent existing source. No blanket3315-row import or full historic reconstruction. Cover accepted live/future classifiers and negative evidence; do not invent detectors for merged/dormant identities."
+    },
+    {
+      "id": "G3",
+      "priority": 3,
+      "name": "Complete installed intake, creator recovery and Walkback investigation",
+      "type": "UNQUALIFIED_FUNCTIONALITY, not a demonstrated active-service defect",
+      "mandatory": "Before enabling V2 writers for listener/resolver/Walkback",
+      "evidence": [
+        "end_to_end/REPORT.md",
+        "operational_seed/intake_regression.json"
+      ],
+      "failure": "Current tests qualify selected bodies, synthetic CREATE proof and three edge persistence, not complete transaction parsing, strict creator recovery, funding investigation or full writer/bootstrap composition.",
+      "exit": "Provider-free retained/synthetic CREATE and migration frames through installed parsing/recovery, durable writer and complete bounded investigation for a genuinely new launch. Match known treasury/route/outcome, ambiguous/no-evidence/negative cases, atomic commit and recovery. No live socket or provider required for DEV qualification."
+    },
+    {
+      "id": "G4",
+      "priority": 4,
+      "name": "Birdeye unfinished acquisition, budgets and executable price composition",
+      "type": "UNQUALIFIED_FUNCTIONALITY; finalized restart and price provenance already PASS",
+      "mandatory": "Before full replacement is certified to retain acquisition/monitoring capability",
+      "evidence": [
+        "evidence_completion/REPORT.md",
+        "price_provenance/REPORT.md",
+        "end_to_end/REPORT.md"
+      ],
+      "failure": "Unfinished window cursor, request completion map, pending/retry envelope and consumed account-budget continuity are not qualified. Dormant accepted price composition is not proven by an older installed monitor or source revision alone.",
+      "exit": "On disposable data, interrupt a bounded multi-window acquisition and reopen with stable request/window identity, checkpoint, retry and consumed-budget state; preserve completed windows and existing bounded at-least-once transport policy. Use accepted source plus20d1025e and BIRDEYE-only authority. Qualify a complete executable composition offline; no requirement to restore old paths or start dormant services."
+    },
+    {
+      "id": "G5",
+      "priority": 5,
+      "name": "Accepted API/UI and monitoring projections",
+      "type": "UNQUALIFIED_FUNCTIONALITY, not proof that V2 broke a running API",
+      "mandatory": "Before declaring full accepted product behaviour preserved; activation itself remains separately authorized",
+      "evidence": [
+        "end_to_end/REPORT.md",
+        "seed_minimization/REPORT.md"
+      ],
+      "failure": "Stored values and selected reader outputs are tested; complete accepted API/UI composition and V2 response shapes/error/insufficiency states are not.",
+      "exit": "Offline/test-client checks of required operation, candidate/review, queue/health and opening/ATH/lifecycle/price projections for known and new cases. Preserve missing-evidence behaviour and source units/time. Keep API/monitor/bridge stopped unless separately authorized. No general UI restoration project or arbitrary historic chart reconstruction."
+    },
+    {
+      "id": "G6",
+      "priority": 6,
+      "name": "Bounded operational storage and persistence compatibility",
+      "type": "UNQUALIFIED_MANDATORY_SAFETY, not seed-size optimization",
+      "mandatory": "Before sustained production V2 writes",
+      "evidence": [
+        "end_to_end/REPORT.md",
+        "operational_seed/REPORT.md"
+      ],
+      "failure": "Small fixture limits and observed WAL sizes do not prove deployed transaction/WAL/file bounds or complete schema/trigger/shared-writer compatibility.",
+      "exit": "Verify required installed writer/schema paths and existing enforceable per-file/transient limits below500000000bytes, resource failure handling, and finite provider/queue growth controls. Use compact tests of affected paths. No physical compaction, new infrastructure or broad retention engineering; hold if the existing bounded mechanisms cannot qualify."
+    },
+    {
+      "id": "G7",
+      "priority": 7,
+      "name": "Consistent cutover boundary, queue reconciliation and rollback",
+      "type": "UNQUALIFIED_CUTOVER_EXECUTION_SAFETY",
+      "mandatory": "Final gate before any database-pointer switch; production authorization still required",
+      "evidence": [
+        "end_to_end/REPORT.md",
+        "operational_seed/REPORT.md",
+        "end_to_end/runtime_authority.json"
+      ],
+      "failure": "Independent snapshot fixtures are not a coherent live cutover image. V1 may have advanced; leases/admissions/receipts/retries/handoffs and budget counters cannot be blindly copied. Runtime targets/pointers are not deployed V2.",
+      "exit": "Define a consistent bounded source boundary/delta reconciliation with one writer authority and no dual consumption. Preserve CREATE/migration anchors, dedup, pending/retry/quarantine, completed investigation suppression, receipt admission, price/budget state and component generations. Dry-run controlled stop/resume and rollback on disposable copies; verify target package/DB identities. Rollback must reconcile any post-cutover V2 writes, not just flip a path. Preserve stopped-service flags and require separate production authorization."
+    }
+  ]
+}

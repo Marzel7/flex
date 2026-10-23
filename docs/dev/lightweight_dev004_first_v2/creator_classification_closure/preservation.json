@@ -1,0 +1,14 @@
+{
+  "unchanged_original_rows": true,
+  "only_new_rows": {
+    "wt_ops_v2_wallets": 6,
+    "wt_ops_v2": 3
+  },
+  "core_byte_identical": true,
+  "watchtower_routes_exact": 616,
+  "fixture_hashes": {
+    "core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "ops_v2.sqlite": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a"
+  },
+  "no_executable_source_change": true
+}

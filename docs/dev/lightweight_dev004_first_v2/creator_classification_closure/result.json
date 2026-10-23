@@ -1,0 +1,2247 @@
+{
+  "status": "PASS",
+  "added_reference_rows": [
+    {
+      "table": "wt_ops_v2",
+      "row": {
+        "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+        "treasury_root": "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+        "family_uuid": null,
+        "status": "FORMING",
+        "confidence": 0.4,
+        "first_seen": 1788321073,
+        "last_seen": 1788321073,
+        "created_at": 1788321073,
+        "updated_at": 1788321073,
+        "source": "watch_migration",
+        "notes": "{\"seed_creator\": \"45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF\"}",
+        "op_type": "MICRO_DEPLOYER"
+      }
+    },
+    {
+      "table": "wt_ops_v2_wallets",
+      "row": {
+        "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+        "wallet": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+        "role": "CREATOR",
+        "first_seen": 1788321073,
+        "last_seen": 1788321073,
+        "evidence_json": null
+      }
+    },
+    {
+      "table": "wt_ops_v2_wallets",
+      "row": {
+        "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+        "wallet": "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+        "role": "PASS_THROUGH",
+        "first_seen": 1788321073,
+        "last_seen": 1788321073,
+        "evidence_json": "{\"fanin\": 1, \"fanout\": 1, \"sol_in\": 6.3, \"sol_out\": 8.69}"
+      }
+    },
+    {
+      "table": "wt_ops_v2",
+      "row": {
+        "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+        "treasury_root": "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+        "family_uuid": null,
+        "status": "FORMING",
+        "confidence": 0.4,
+        "first_seen": 1787258776,
+        "last_seen": 1787258776,
+        "created_at": 1787258776,
+        "updated_at": 1787258776,
+        "source": "watch_migration",
+        "notes": "{\"seed_creator\": \"ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11\"}",
+        "op_type": "MICRO_DEPLOYER"
+      }
+    },
+    {
+      "table": "wt_ops_v2_wallets",
+      "row": {
+        "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+        "wallet": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+        "role": "CREATOR",
+        "first_seen": 1787258776,
+        "last_seen": 1787258776,
+        "evidence_json": null
+      }
+    },
+    {
+      "table": "wt_ops_v2_wallets",
+      "row": {
+        "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+        "wallet": "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+        "role": "PASS_THROUGH",
+        "first_seen": 1787258776,
+        "last_seen": 1787258776,
+        "evidence_json": "{\"fanin\": 1, \"fanout\": 1, \"sol_in\": 1.96, \"sol_out\": 193.67}"
+      }
+    },
+    {
+      "table": "wt_ops_v2",
+      "row": {
+        "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+        "treasury_root": "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+        "family_uuid": null,
+        "status": "FORMING",
+        "confidence": 0.4,
+        "first_seen": 1790120903,
+        "last_seen": 1790120903,
+        "created_at": 1790120903,
+        "updated_at": 1790120903,
+        "source": "watch_migration",
+        "notes": "{\"seed_creator\": \"8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT\"}",
+        "op_type": "MICRO_DEPLOYER"
+      }
+    },
+    {
+      "table": "wt_ops_v2_wallets",
+      "row": {
+        "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+        "wallet": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+        "role": "CREATOR",
+        "first_seen": 1790120903,
+        "last_seen": 1790120903,
+        "evidence_json": null
+      }
+    },
+    {
+      "table": "wt_ops_v2_wallets",
+      "row": {
+        "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+        "wallet": "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+        "role": "PASS_THROUGH",
+        "first_seen": 1790120903,
+        "last_seen": 1790120903,
+        "evidence_json": "{\"fanin\": 1, \"fanout\": 1, \"sol_in\": 7.23, \"sol_out\": 11.59}"
+      }
+    }
+  ],
+  "source_indexed_reads": [
+    {
+      "sql": "select * from wt_ops_v2_wallets where wallet=? limit 65",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ],
+      "args": [
+        "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+          "wallet": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+          "role": "CREATOR",
+          "first_seen": 1788321073,
+          "last_seen": 1788321073,
+          "evidence_json": null
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2 where operation_uuid=?",
+      "plan": [
+        "SEARCH wt_ops_v2 USING INDEX sqlite_autoindex_wt_ops_v2_1 (operation_uuid=?)"
+      ],
+      "args": [
+        "7d00966e-aa04-4451-bd36-49b072631741"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+          "treasury_root": "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+          "family_uuid": null,
+          "status": "FORMING",
+          "confidence": 0.4,
+          "first_seen": 1788321073,
+          "last_seen": 1788321073,
+          "created_at": 1788321073,
+          "updated_at": 1788321073,
+          "source": "watch_migration",
+          "notes": "{\"seed_creator\": \"45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF\"}",
+          "op_type": "MICRO_DEPLOYER"
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2_wallets where operation_uuid=? and wallet=?",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX sqlite_autoindex_wt_ops_v2_wallets_1 (operation_uuid=? AND wallet=?)"
+      ],
+      "args": [
+        "7d00966e-aa04-4451-bd36-49b072631741",
+        "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+          "wallet": "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+          "role": "PASS_THROUGH",
+          "first_seen": 1788321073,
+          "last_seen": 1788321073,
+          "evidence_json": "{\"fanin\": 1, \"fanout\": 1, \"sol_in\": 6.3, \"sol_out\": 8.69}"
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2_wallets where wallet=? limit 65",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ],
+      "args": [
+        "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+          "wallet": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+          "role": "CREATOR",
+          "first_seen": 1787258776,
+          "last_seen": 1787258776,
+          "evidence_json": null
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2 where operation_uuid=?",
+      "plan": [
+        "SEARCH wt_ops_v2 USING INDEX sqlite_autoindex_wt_ops_v2_1 (operation_uuid=?)"
+      ],
+      "args": [
+        "38debf67-1588-4465-ba0b-be7d912c21b7"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+          "treasury_root": "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+          "family_uuid": null,
+          "status": "FORMING",
+          "confidence": 0.4,
+          "first_seen": 1787258776,
+          "last_seen": 1787258776,
+          "created_at": 1787258776,
+          "updated_at": 1787258776,
+          "source": "watch_migration",
+          "notes": "{\"seed_creator\": \"ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11\"}",
+          "op_type": "MICRO_DEPLOYER"
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2_wallets where operation_uuid=? and wallet=?",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX sqlite_autoindex_wt_ops_v2_wallets_1 (operation_uuid=? AND wallet=?)"
+      ],
+      "args": [
+        "38debf67-1588-4465-ba0b-be7d912c21b7",
+        "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+          "wallet": "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+          "role": "PASS_THROUGH",
+          "first_seen": 1787258776,
+          "last_seen": 1787258776,
+          "evidence_json": "{\"fanin\": 1, \"fanout\": 1, \"sol_in\": 1.96, \"sol_out\": 193.67}"
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2_wallets where wallet=? limit 65",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ],
+      "args": [
+        "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+          "wallet": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+          "role": "CREATOR",
+          "first_seen": 1790120903,
+          "last_seen": 1790120903,
+          "evidence_json": null
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2 where operation_uuid=?",
+      "plan": [
+        "SEARCH wt_ops_v2 USING INDEX sqlite_autoindex_wt_ops_v2_1 (operation_uuid=?)"
+      ],
+      "args": [
+        "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+          "treasury_root": "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+          "family_uuid": null,
+          "status": "FORMING",
+          "confidence": 0.4,
+          "first_seen": 1790120903,
+          "last_seen": 1790120903,
+          "created_at": 1790120903,
+          "updated_at": 1790120903,
+          "source": "watch_migration",
+          "notes": "{\"seed_creator\": \"8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT\"}",
+          "op_type": "MICRO_DEPLOYER"
+        }
+      ]
+    },
+    {
+      "sql": "select * from wt_ops_v2_wallets where operation_uuid=? and wallet=?",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX sqlite_autoindex_wt_ops_v2_wallets_1 (operation_uuid=? AND wallet=?)"
+      ],
+      "args": [
+        "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+        "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN"
+      ],
+      "rows": [
+        {
+          "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+          "wallet": "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+          "role": "PASS_THROUGH",
+          "first_seen": 1790120903,
+          "last_seen": 1790120903,
+          "evidence_json": "{\"fanin\": 1, \"fanout\": 1, \"sol_in\": 7.23, \"sol_out\": 11.59}"
+        }
+      ]
+    }
+  ],
+  "oracle": {
+    "creator": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+    "classification": [
+      "FULL_WALKBACK",
+      "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+      null,
+      null,
+      "unknown"
+    ],
+    "status": "PASS_BOUNDED_EXACT_INSTALLED_QUERY",
+    "budget": {
+      "max_vm_instructions": 100000,
+      "callback_granularity": 100,
+      "max_seconds": 0.5,
+      "instructions_at_last_callback": 72800
+    }
+  },
+  "comparisons": [
+    {
+      "creator": "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "241nHsSEqUQnZLNN5Pwak1pKFZkUcfpdDWK5fyqjBny2",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "26MEpv6dtUkJDyiTnCVGuH12QTR7bkoGi64T1Aaz2qzr",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "2KPYNw95NqWvjwTxxvQppbRt25vz5ojMpp8XDu8r1DZr",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "2KPYNw95NqWvjwTxxvQppbRt25vz5ojMpp8XDu8r1DZr",
+        "ApYHSxoNKFzQXxj8C6YV7chdtg8ipRe3DVUvEQ8VTFni",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "2KPYNw95NqWvjwTxxvQppbRt25vz5ojMpp8XDu8r1DZr",
+        "ApYHSxoNKFzQXxj8C6YV7chdtg8ipRe3DVUvEQ8VTFni",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+        "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+        "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "33mpJDnkt5cQyF4teZijP69SHkcV9M54MLDk8FnXtD8J",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "33mpJDnkt5cQyF4teZijP69SHkcV9M54MLDk8FnXtD8J",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "33mpJDnkt5cQyF4teZijP69SHkcV9M54MLDk8FnXtD8J",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+        "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "3kamQ5cB2fo46pDyGnUkHYmnuDZQJWFxmntxRKvDBhY1",
+        "FuvCB7gEhmNyWkKycLkgptrmLRxTDY7aBKrYmRSvsgaD",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+        "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+        "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+      "v1_class": [
+        "LINK_ONLY",
+        "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+        null,
+        "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+        "wt_ops_v2_wallets"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+        null,
+        "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+        "wt_ops_v2_wallets"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "46bFhL2ZxppLTyUtPDdkdcUDhnpxb3ht52PCbcb4VzvK",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "4Akqpa8imwrZeAsuTZBix7CqVqYYCsDJcTUyMxrFmvPc",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "4Akqpa8imwrZeAsuTZBix7CqVqYYCsDJcTUyMxrFmvPc",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "4Akqpa8imwrZeAsuTZBix7CqVqYYCsDJcTUyMxrFmvPc",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+        "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+        "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "4V9rPaF6poBdoMgczEtG9a9TJUj3FkrhgLLhWeusGQok",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "4a7XiutQp7spcV14sLw1uMw3GijUchp7oW5TVKJbkc52",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "4a7XiutQp7spcV14sLw1uMw3GijUchp7oW5TVKJbkc52",
+        "8YbwFkFnkm43kvp9tP71Cj6qcSKFNe2bS3FqAdJdjs7F",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "4a7XiutQp7spcV14sLw1uMw3GijUchp7oW5TVKJbkc52",
+        "8YbwFkFnkm43kvp9tP71Cj6qcSKFNe2bS3FqAdJdjs7F",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5FbJU5sNmpkyz9ZMLM6i8m5yzGC8bMdhidW4NagSXynY",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5FbJU5sNmpkyz9ZMLM6i8m5yzGC8bMdhidW4NagSXynY",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5FbJU5sNmpkyz9ZMLM6i8m5yzGC8bMdhidW4NagSXynY",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5RCd5gjghzEJkjfHj4DLwpbMsjFb7SMqWkdLwRdbHmzd",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5RCd5gjghzEJkjfHj4DLwpbMsjFb7SMqWkdLwRdbHmzd",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5RCd5gjghzEJkjfHj4DLwpbMsjFb7SMqWkdLwRdbHmzd",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5RQ1UWATaMjjXC34BW6UusEUdEoCuNRECBW8nnHPiCGH",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5RQ1UWATaMjjXC34BW6UusEUdEoCuNRECBW8nnHPiCGH",
+        "54nKRUiLwHFKFa3tnxwwMijQ7uDngaUX8U1ne5MgJSpS",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5RQ1UWATaMjjXC34BW6UusEUdEoCuNRECBW8nnHPiCGH",
+        "54nKRUiLwHFKFa3tnxwwMijQ7uDngaUX8U1ne5MgJSpS",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5YQfFTVxYcmF3pRwXauihThKeX7CYLPPxSvqhRsvw5uZ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5YQfFTVxYcmF3pRwXauihThKeX7CYLPPxSvqhRsvw5uZ",
+        "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5YQfFTVxYcmF3pRwXauihThKeX7CYLPPxSvqhRsvw5uZ",
+        "6nVVHkresDde2BHRw6b6Qfg9UqAJStUQoXv94kopSNBC",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5mhjT56sYttc4JBjbEQ86eST7cj9Nxno1pvPTovdrzhR",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+        "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+        "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "5zSUPCnZvEmqafwndBSwrWZrdZAQQBXsBqaGjmiuNLqt",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "5zSUPCnZvEmqafwndBSwrWZrdZAQQBXsBqaGjmiuNLqt",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "5zSUPCnZvEmqafwndBSwrWZrdZAQQBXsBqaGjmiuNLqt",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "619QYUNBw8XCqN7trCFujsBSaW3CUithJKbbSPrbCyUk",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "619QYUNBw8XCqN7trCFujsBSaW3CUithJKbbSPrbCyUk",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "619QYUNBw8XCqN7trCFujsBSaW3CUithJKbbSPrbCyUk",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "62JTugo7hbRktrJpsxK8ppp9DPYymjUwDpKzbKn5L9T9",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+        "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "67VT8Cb6aoH4UeuFW5T1yFP2ToxLpAeh3VRiXp8Rt4nQ",
+        "G9XSZDgMk8x51uHvFUumZK5AFWJLp3GJCV7VZSkL3uGP",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6GZ1r7o1xL3PUVJySRY8pin62xUUTjm3Zh2p6ZZbQxSK",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6GhRwpKLscT3hjy6Dx6g3pX65grQfYxCLMsekQF6TLLS",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6GhRwpKLscT3hjy6Dx6g3pX65grQfYxCLMsekQF6TLLS",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6GhRwpKLscT3hjy6Dx6g3pX65grQfYxCLMsekQF6TLLS",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+        "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6GjoAJjEExghzo5AsiJyTV8Txxp9FGSnWsg3qnwn4oyh",
+        "7DifG8cHrQBAAKjqoLCnfzj8khtnYLPE39GnWgEnLP8d",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6HUfTCBn6zHpzHJUjAKArzoBaVG32PXPwyUff1LGzsoN",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+        "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+        "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6NRXqMh5CNCN5bnxUG14rGZrEMb1MrALZ1YtR2HaMdH7",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6NRXqMh5CNCN5bnxUG14rGZrEMb1MrALZ1YtR2HaMdH7",
+        "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6NRXqMh5CNCN5bnxUG14rGZrEMb1MrALZ1YtR2HaMdH7",
+        "BPyiY3kaT1QefRwaU6we5CoxvWL8LAMPDRTm7YVbPRHH",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6mTrH2GAQhmmiLkkAvPWcZvP7rdvVSAXH4N6zSjeayaj",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6mTrH2GAQhmmiLkkAvPWcZvP7rdvVSAXH4N6zSjeayaj",
+        "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6mTrH2GAQhmmiLkkAvPWcZvP7rdvVSAXH4N6zSjeayaj",
+        "C55hxeJepPLMKi4xuKjAFLWmxoSfVrqn2LELi67ixQfe",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+        "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "6vJXHimFNCDp1fMY4vuJfNQdbm8cbXrYQGxdzzPz31gt",
+        "9W5ypNQiv3Jdw3FnvS7CHQXBu5Ake8sqW2DkGWe7affp",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "7RBc6dowD2LCkRqpeJFWwcZCcnwppoLdpyuUhEyyQZBg",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "7RBc6dowD2LCkRqpeJFWwcZCcnwppoLdpyuUhEyyQZBg",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "7RBc6dowD2LCkRqpeJFWwcZCcnwppoLdpyuUhEyyQZBg",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "7ejoyL1FmREqijuBmUF9AkhgSAU3tSVNfMMoMF6drp5E",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "7gcvcAN55Lds4qHVva7Q6iqdTpQzLFRmJhWNU2HuMVge",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "7n7D4khVHNqDGFLWxmGrqPk1Qm5QQMNFR7NZCvJAU85U",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "7n7D4khVHNqDGFLWxmGrqPk1Qm5QQMNFR7NZCvJAU85U",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "7n7D4khVHNqDGFLWxmGrqPk1Qm5QQMNFR7NZCvJAU85U",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+      "v1_class": [
+        "LINK_ONLY",
+        "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+        null,
+        "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+        "wt_ops_v2_wallets"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+        null,
+        "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+        "wt_ops_v2_wallets"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "8Sx2uKViNFriE4b7Z7bXX6UgVAP65bWZDCJjfePdunP8",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "8Sx2uKViNFriE4b7Z7bXX6UgVAP65bWZDCJjfePdunP8",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "8Sx2uKViNFriE4b7Z7bXX6UgVAP65bWZDCJjfePdunP8",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+        "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+        "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+        "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+        "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "8rx3h89wAVM8NejS9t3CLiomLxuWz1QuYAUZD5PEKF3i",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "9G9A74hp66cq9heZt3dtUTuaJ2mPna3mhGGs25rj9kAw",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9UYKG26DZaeZueRx97VCruY7upKS9j3sSH4Qqw6DXysA",
+      "v1_class": [
+        "LINK_ONLY",
+        "9UYKG26DZaeZueRx97VCruY7upKS9j3sSH4Qqw6DXysA",
+        "8e11Wtqzx8HC2biupCWZhVp3zgoxREhpUJgFbLhmu85u",
+        "7A9wo3rcn349R3uY9SUABxcbJX9otF3kVpsFx5Hbqwpz",
+        "wt_watchtower_launches"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "9UYKG26DZaeZueRx97VCruY7upKS9j3sSH4Qqw6DXysA",
+        "8e11Wtqzx8HC2biupCWZhVp3zgoxREhpUJgFbLhmu85u",
+        "7A9wo3rcn349R3uY9SUABxcbJX9otF3kVpsFx5Hbqwpz",
+        "wt_watchtower_launches"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+        "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+        "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+        "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+        "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+        "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+        "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+        "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+        "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "9uCrBdvyFgCJ6hZorPwYB3a57GXiJq5dKTNdPRC8c5qC",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+        "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+        "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "AM9pbMrmyxj5jibiHbjKomEWYmMcPdTHxmGp6r9kDMfZ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "AM9pbMrmyxj5jibiHbjKomEWYmMcPdTHxmGp6r9kDMfZ",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "AM9pbMrmyxj5jibiHbjKomEWYmMcPdTHxmGp6r9kDMfZ",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "AMGHRLLGCBi5XKygAuRxwQ9hjpdeqcYz3pPskHvCAiFV",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+        "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+        "Ao9D9xuKxhHfTGCd3ZeBPJ3aBRUAicKKnXZ3feH6uuGC",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+        "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+        "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+        "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+        "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+        "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "BHqs7btMbN3iFsndATfadrZogMdtEiqTzFc6qqe6bjQx",
+        "5PkFFC9FCmm2EUQHMqbF9cwMviSXjgAjeqKEoPoYejuG",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "BSRVNXtJCheRxG1DVhh9H86w7qfCcB1bySJ8hj6voebp",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "BSRVNXtJCheRxG1DVhh9H86w7qfCcB1bySJ8hj6voebp",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "BSRVNXtJCheRxG1DVhh9H86w7qfCcB1bySJ8hj6voebp",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "BTRmFDWDr27ypRWYZW552ajvd35Db9wq641tT4rrNPEN",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "BTRmFDWDr27ypRWYZW552ajvd35Db9wq641tT4rrNPEN",
+        "9Lvk2Gx4VDYe3AbeohQDN9uNJ8fBsNk8Ljb7aqQjqiuJ",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "BTRmFDWDr27ypRWYZW552ajvd35Db9wq641tT4rrNPEN",
+        "9Lvk2Gx4VDYe3AbeohQDN9uNJ8fBsNk8Ljb7aqQjqiuJ",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+        "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+        "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "BVKwFxtR8TiBnxsRx3t5CMKu9Jd94xP1C7BoUqQv3EsJ",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+        "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "Bo9vgoTpWBsRD1U3jwPRuSh2cZAAZSzSDJgcw1Ah2mCT",
+        "HXufNWTdtH1oq2SscHQsfGpXLv1P8Givsz7mBqqYrive",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "BuxKVxRNrfUXXgkM96Cajn67ZcpkRGczp3BQBaWbJJPF",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+        "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "CZk5uZdVfPUMzmCCDVbWUnom7gSZSbgFJKb37vGwTAt8",
+        "54xTpcBEr48Cuis8m2SdeymdQcwvmDR4aegxCPQzUANG",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+        "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+        "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "CgNwZQcSyaeU6vuafjXebXhNm4tVCH59iNv3fhosjsQv",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "CgNwZQcSyaeU6vuafjXebXhNm4tVCH59iNv3fhosjsQv",
+        "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "CgNwZQcSyaeU6vuafjXebXhNm4tVCH59iNv3fhosjsQv",
+        "3BeSWamt3Lvj4cP9MopXgPb9CxjZ29UkZ6qPAc8kskec",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "CgwrhDkZtNGXPLciWNGYUZRQQmfkVd4UbDtsk21f6AGN",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "CgwrhDkZtNGXPLciWNGYUZRQQmfkVd4UbDtsk21f6AGN",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "CgwrhDkZtNGXPLciWNGYUZRQQmfkVd4UbDtsk21f6AGN",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "CiyizcdxuuoywJYcvHgs5u9LWhG7NDD1CnHn3aeWjKxX",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "DA1PsfLySKxwVzWhNzey53Y6VwGxjcVAHUULLvHa1TNk",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "DA1PsfLySKxwVzWhNzey53Y6VwGxjcVAHUULLvHa1TNk",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "DA1PsfLySKxwVzWhNzey53Y6VwGxjcVAHUULLvHa1TNk",
+        "9wz6MgFDjFia8H7Y9hYAKErevs8CAZb5vMWxLKgoNrrm",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "DKHCeeU88hWGo3U5nL51Skfz4e7Vg8xuQBUWC8keVFPi",
+      "v1_class": [
+        "LINK_ONLY",
+        "DKHCeeU88hWGo3U5nL51Skfz4e7Vg8xuQBUWC8keVFPi",
+        "BJ2N6KAMBGXx87c5YiTnFu5qH7TE3qnD8WQd6FujSyZ5",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+        "wt_watchtower_launches"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "DKHCeeU88hWGo3U5nL51Skfz4e7Vg8xuQBUWC8keVFPi",
+        "BJ2N6KAMBGXx87c5YiTnFu5qH7TE3qnD8WQd6FujSyZ5",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+        "wt_watchtower_launches"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+        "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+        "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+      "v1_class": [
+        "LINK_ONLY",
+        "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+        null,
+        "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+        "wt_ops_v2_wallets"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+        null,
+        "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+        "wt_ops_v2_wallets"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "EVUncLirCK8Syw2oPaA2MQsxNGCq22GYBF2vyv6tsKhQ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "EVUncLirCK8Syw2oPaA2MQsxNGCq22GYBF2vyv6tsKhQ",
+        "BB3M3R4RzrpXYaip1sP8ho1zRVCeA8tsSTZ8jajqJEcM",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "EVUncLirCK8Syw2oPaA2MQsxNGCq22GYBF2vyv6tsKhQ",
+        "BB3M3R4RzrpXYaip1sP8ho1zRVCeA8tsSTZ8jajqJEcM",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "EiwpFhN3LmoSTEbygYnpweUJDaHNfXX3Uho2PGRVPmr3",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "EjB3A3YLZTqNEgkyE96ctH7AeRpLyWXWYhtRuKZgUbWx",
+      "v1_class": [
+        "LINK_ONLY",
+        "EjB3A3YLZTqNEgkyE96ctH7AeRpLyWXWYhtRuKZgUbWx",
+        "6CrL1SDqa8CuvDw91Admgy4GzMgjobFyhJ94EGPT2AS",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+        "wt_watchtower_launches"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "EjB3A3YLZTqNEgkyE96ctH7AeRpLyWXWYhtRuKZgUbWx",
+        "6CrL1SDqa8CuvDw91Admgy4GzMgjobFyhJ94EGPT2AS",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+        "wt_watchtower_launches"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "Em61cCvAK7WcY7X3vdDg7BvPNyRW9guwjTMvfSbBASJa",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "Em61cCvAK7WcY7X3vdDg7BvPNyRW9guwjTMvfSbBASJa",
+        "D927oLotUteUeS62zvLLWZXziJy59RaKFQyuhPTGvp9s",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "Em61cCvAK7WcY7X3vdDg7BvPNyRW9guwjTMvfSbBASJa",
+        "D927oLotUteUeS62zvLLWZXziJy59RaKFQyuhPTGvp9s",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+        "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+        "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "Ep3Y9xHaRn8t6B3X6W1o2cztnkMFv5VypwPwDq4rdJX6",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "F11DPSHnWXkd7WuAf8xZRHXvpDt8M695ZvuApdaD4wj6",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+      "v1_class": [
+        "SKIP",
+        "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+        null,
+        null,
+        "known_multi_token_creator"
+      ],
+      "v2_class": [
+        "SKIP",
+        "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+        null,
+        null,
+        "known_multi_token_creator"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FH9qNMWwD3vYszQNGQPXkikr2RVnjqSTYZEZVR1E3c7C",
+      "v1_class": [
+        "LINK_ONLY",
+        "FH9qNMWwD3vYszQNGQPXkikr2RVnjqSTYZEZVR1E3c7C",
+        "828QMunUQzdmHxWe9qqQiUu1BxtcjJmrrT9u8qeNCKz5",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+        "wt_watchtower_launches"
+      ],
+      "v2_class": [
+        "LINK_ONLY",
+        "FH9qNMWwD3vYszQNGQPXkikr2RVnjqSTYZEZVR1E3c7C",
+        "828QMunUQzdmHxWe9qqQiUu1BxtcjJmrrT9u8qeNCKz5",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe",
+        "wt_watchtower_launches"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+        "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "FK9wLKizAtRtfNH57Y4J1wmQxpwpZ2EMYNZ1kME2V7hM",
+        "5iDYsDLugMXh1LTRVDmFH8PfQ6ueG5pE9UcfefrnztB6",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+        "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+        "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+        "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+        "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+        "96w1sRfxGAB95Uf4kTvjRjjo3q4aTYF5oX6DqhKPbSxQ",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+        "96w1sRfxGAB95Uf4kTvjRjjo3q4aTYF5oX6DqhKPbSxQ",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "FjNePRYiEbaWWaFuMXFqeGsGWtn5fpndNVy2i2Y69cQ9",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "FpA39vmAVdmXbkk4XvL1gppQoQ7dzQbP5oFc4dMWhAZv",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+        "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+        "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+        "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+        "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "H1NNcTBHhoQixmddnHNaNUcqqCpvhNAW4pbAChfTV3Na",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "HADJKqJN9xWAnNAm45KFCKXaNdixxcSHJnd1GegooY9Q",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "HADJKqJN9xWAnNAm45KFCKXaNdixxcSHJnd1GegooY9Q",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "HADJKqJN9xWAnNAm45KFCKXaNdixxcSHJnd1GegooY9Q",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "HCBQjnixpBcqBz8jr3kJqgWPJA517w5gz6XxA53H13DY",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "HfBJnWC6AEDeqyK8Jp5DNmuD5jsM6cjeKQzEY3ajMifn",
+        "ByZc7RNeYowEg2jKo2giytWb9WmNyZPrQ1hXhnGSzHTY",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+      "v1_class": [
+        "FULL_WALKBACK",
+        "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+        null,
+        null,
+        "unknown"
+      ],
+      "v2_class": [
+        "FULL_WALKBACK",
+        "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+        null,
+        null,
+        "unknown"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+        "F91R9XfkXUweZ1dc4urY9N4N7q1Z5vnC5g7uRcGi5mgn",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+        "F91R9XfkXUweZ1dc4urY9N4N7q1Z5vnC5g7uRcGi5mgn",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+        "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "REetZZ7KnkkXYqSZAe9B6BdN91E8McDVeSC4RZJQmGa",
+        "7pHurTyd2m3xM8aZDKD1RwCgStWuvzRvacsFoHf3zxJv",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+        "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+        "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+        "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+        "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+        "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+        "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT",
+        null,
+        "watchtower_token_attribution"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    },
+    {
+      "creator": "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ",
+      "v1_class": [
+        "PARTIAL_TREASURY",
+        "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ",
+        "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "v2_class": [
+        "PARTIAL_TREASURY",
+        "xkRXakyCtZyurxF28kUserYZ7ws9NqqTxaEJjSkVaiJ",
+        "CrncHWgsMzg9M3gWrVEQr4w93bqzyUdPUkqbXKMfDht5",
+        null,
+        "wt_wrap_close_candidates"
+      ],
+      "classification_exact": true,
+      "history_profile_exact": true
+    }
+  ],
+  "exact_classifications": 100,
+  "exact_profiles": 100,
+  "source_seed_hashes": {
+    "core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "ops_v2.sqlite": "4d01a2ab27f11e99e5d497e809b992e95ebca6179936935d3271fad59ca611e4"
+  },
+  "sizes": {
+    "core_v2.sqlite": 8970240,
+    "ops_v2.sqlite": 13754368
+  },
+  "added_logical_json_bytes": 2606,
+  "total_fixture_rows": 28473
+}

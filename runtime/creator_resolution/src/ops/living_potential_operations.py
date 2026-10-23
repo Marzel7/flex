@@ -91,7 +91,15 @@ def _generic_living_registry():
  cfg={'run_id':WSOL_RUN,'highwater_tables':{'queue':'wt_walkback_queue','edges':'wt_walkback_edge_candidates','atomic':'wt_walkback_atomic_flows'},'evidence_tables':{'queue':'wt_walkback_queue','edges':'wt_walkback_edge_candidates','atomic':'wt_walkback_atomic_flows'},'funder_column':{'queue':'funder_wallet'}}
  return {x['source_candidate_id']:x for x in ({'potential_operation_id':WSOL_POTENTIAL_OPERATION_ID,'source_candidate_id':WSOL_CANDIDATE_ID,'workflow_status':'PAUSED','freshness_sources':['queue','edges','atomic'],'association_rules':[{'source':'members','prefix':'mint','type':'GENERIC_MEMBER','state':'INCLUDED'},{'source':'funders','prefix':'funder','type':'GENERIC_FUNDER','state':'UNRESOLVED'}],'metrics':{'members':{'source':'members','op':'distinct','label':'Members'},'funders':{'source':'funders','op':'distinct','label':'Funders'}},'persisted_source':cfg},{'potential_operation_id':TRANSFER_POTENTIAL_OPERATION_ID,'source_candidate_id':TRANSFER_CANDIDATE_ID,'workflow_status':'PAUSED','freshness_sources':['queue','edges','atomic'],'association_rules':[{'source':'members','prefix':'mint','type':'GENERIC_MEMBER','state':'INCLUDED'},{'source':'funders','prefix':'funder','type':'GENERIC_FUNDER','state':'UNRESOLVED'}],'metrics':{'members':{'source':'members','op':'distinct','label':'Members'},'funders':{'source':'funders','op':'distinct','label':'Funders'}},'persisted_source':cfg})}
 def _generic_runtime(path,context,dry_run=False,test_failure_injector=None):
- registry=_generic_living_registry(); index=LivingCandidateReverseIndex.from_association_ledger(registry,path); resolved=index.resolve(context); out=[]
+ registry=_generic_living_registry()
+ # Explicit DEV004 immutable cutover manifest; absent keeps the installed path.
+ import os
+ mapping_path=os.environ.get('LIVING_V2_FRESHNESS_MAPPING_PATH')
+ if mapping_path:
+  from src.ops.dev004_freshness_mapping import load_mapping,bind_mapping
+  mapping=load_mapping(mapping_path)
+  registry={key:bind_mapping(spec,mapping) for key,spec in registry.items()}
+ index=LivingCandidateReverseIndex.from_association_ledger(registry,path); resolved=index.resolve(context); out=[]
  for spec in registry.values():
   if spec['potential_operation_id'] not in resolved: continue
   c=db_connect(path,timeout=30,row_factory=sqlite3.Row); row=c.execute('SELECT freshness_key FROM potential_operation_current WHERE potential_operation_id=?',(spec['potential_operation_id'],)).fetchone(); c.close(); evidence=read_generic_living_source_context(spec,path,{**context,'current_generation':row[0] if row else None}); classification=classify_relevance(spec,context,lambda s,e:evidence); item={'potential_operation_id':spec['potential_operation_id'],'relevance':classification,'published':False}

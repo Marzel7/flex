@@ -1,0 +1,139 @@
+{
+  "status": "HOLD",
+  "tests": [
+    {
+      "name": "fresh_CREATE_canonical_and_compact_receipt",
+      "status": "PASS",
+      "evidence": {
+        "canonical": true,
+        "receipt_outcome": "COMMITTED",
+        "receipt_bytes": 562
+      }
+    },
+    {
+      "name": "duplicate_CREATE",
+      "status": "PASS",
+      "evidence": {
+        "canonical": true,
+        "receipt_outcome": "COMMITTED",
+        "receipt_bytes": 562
+      }
+    },
+    {
+      "name": "migration_detection_persistence_creator_admission",
+      "status": "PASS",
+      "evidence": {
+        "migration_persisted": true,
+        "creator_queue": "pending",
+        "scope": "installed detector and persistence closure; full daemon/transaction parsing not executed"
+      }
+    },
+    {
+      "name": "CREATE_proof_atomic_rollback_and_dedup",
+      "status": "PASS",
+      "evidence": {
+        "rollback_before_commit": true,
+        "committed": "PENDING",
+        "duplicate": "DUPLICATE"
+      }
+    },
+    {
+      "name": "Core_OPS_commit_then_crash_restart",
+      "status": "PASS",
+      "evidence": {
+        "first": [
+          [
+            "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU",
+            "RuntimeError"
+          ]
+        ],
+        "restart": [
+          [
+            "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU",
+            "ALREADY_COMMITTED"
+          ]
+        ],
+        "state": [
+          "ACK",
+          1
+        ],
+        "ops_anchor_unchanged": true
+      }
+    },
+    {
+      "name": "distinct_funding_account_topology",
+      "status": "PASS",
+      "evidence": {
+        "distinct_roles_preserved": true,
+        "edges": 3,
+        "classification": "synthetic persistence control; funding investigation and historical recognition not proved"
+      }
+    },
+    {
+      "name": "permanent_conflict_quarantine",
+      "status": "PASS",
+      "evidence": {
+        "quarantined": true,
+        "restart_idempotent": true,
+        "canonical_unchanged": true
+      }
+    },
+    {
+      "name": "completed_Walkback_not_reopened",
+      "status": "PASS",
+      "evidence": "completed job not reopened"
+    }
+  ],
+  "sources": {
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_birth_audit.py": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/birth_retry_quarantine.py": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/deep_walkback.py": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f"
+  },
+  "storage": [
+    {
+      "stage": "original_seed",
+      "core_bytes": 294912,
+      "ops_bytes": 503808,
+      "core_wal": 0,
+      "ops_wal": 0
+    },
+    {
+      "stage": "required_fixture_schema",
+      "core_bytes": 335872,
+      "ops_bytes": 503808,
+      "core_wal": 0,
+      "ops_wal": 0
+    },
+    {
+      "stage": "one_synthetic_birth",
+      "core_bytes": 335872,
+      "ops_bytes": 503808,
+      "core_wal": 0,
+      "ops_wal": 0
+    },
+    {
+      "stage": "one_synthetic_migration",
+      "core_bytes": 335872,
+      "ops_bytes": 503808,
+      "core_wal": 0,
+      "ops_wal": 0
+    },
+    {
+      "stage": "synthetic_Walkback_edges",
+      "core_bytes": 335872,
+      "ops_bytes": 569344,
+      "core_wal": 0,
+      "ops_wal": 0
+    },
+    {
+      "stage": "end_intake_recovery",
+      "core_bytes": 335872,
+      "ops_bytes": 569344,
+      "core_wal": 0,
+      "ops_wal": 0
+    }
+  ],
+  "boundary": "SQLite write adapters and noncanonical metadata/SSE/symbol side effects are test doubles; installed decision/receipt/queue bodies unchanged. No full daemon startup qualification."
+}

@@ -11,6 +11,10 @@ def read_generic_living_source_context(spec, db_path, event_context=None):
     """Config-driven, bounded reader.  It issues SELECT statements only."""
     cfg=spec['persisted_source']; c=_ro(db_path)
     try:
+        if cfg.get('generation_mapping') is not None:
+            from src.ops.dev004_freshness_mapping import mapped_context
+            c.execute('BEGIN')
+            return mapped_context(c, spec, event_context or {})
         mints=[r[0] for r in c.execute('SELECT mint FROM p3r_v2_candidate_membership WHERE run_id=? AND candidate_id=? ORDER BY mint',(cfg['run_id'],spec['source_candidate_id']))]
         if not mints: raise ValueError('configured candidate has no persisted membership')
         marks={k:c.execute('SELECT COALESCE(MAX(rowid),0) FROM '+table).fetchone()[0] for k,table in cfg['highwater_tables'].items()}

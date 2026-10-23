@@ -2480,6 +2480,20 @@
     "safety": "No production caller change/restart/schema mutation/provider call. Listener hot path unchanged. Heartbeat SQLITE_BUSY remains unresolved and separate.",
     "status": "QUALIFIED_NO_CALLER_CUTOVER"
   },
+  "dev004_birdeye_multi_window_recovery": {
+    "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "accepted_source_distinction": "Retained71b6e338 has completed-chunk readers/remaining selection and pre-dispatch hook plus MonitorQueue/DevProviderBudget. It is not the selected candidate composition. Its DEV-only rolling60second20global/4token default model is not an account-wide/lifetime ledger; no scope or limit changes authorized.",
+    "activation": "No production/fixture/database/source changes, providers/live WebSockets, service actions, history deletion or cutover. No actual credentials or budget values read. New databases0; executable changes0.",
+    "blocker": "Selected finalizer writes chunk observations but does not read completed chunk identities/filter remaining windows; selected finalizer has no before_dispatch hook and selected MonitorQueue has no admit_provider_dispatch/consumed-budget owner binding. Shared429backoff is not consumed allowance.",
+    "engineering_source_revision": "a874ed7bd93364635fc828e9e6ed4dd034534eea",
+    "executable_candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+    "next_action": "Separately authorize smallest DEV004 composition correction connecting accepted completed-window skip/readback and pre-dispatch consumed-budget owner/binding, preserving existing budget scope/failure semantics. Do not transplant entire later Monitor runtime. Then qualify five synthetic interruption boundaries; no provider calls or deployment.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birdeye_multi_window_recovery/REPORT.md",
+    "runtime_deployment_reason": "Bounded static source-contract/AST qualification and documentation only; no executable change.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_AUTHORITY_PRECONDITION_STOP_RULE",
+    "tests": "AST/source comparisons verified exact candidate gap. Baseline/ten accepted correction ancestors verified. Retained Core/OPS reference hashes match. Five acquisition interruption cases NOT RUN under stop rule; no substitute counters/checkpoints or fake PASS. Prior finalized suppression, opening provenance/ATH0.1%, startup/classifier/routes/recovery acceptance reused unchanged."
+  },
   "dev004_birdeye_three_package_deployment_20261022": {
     "blocker": null,
     "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
@@ -2969,6 +2983,7 @@
     "runtime_deployment_reason": "Read-only acceptance consolidation/documentation only; no executable or fixture changes.",
     "runtime_deployment_required": false,
     "status": "HOLD_FIVE_MANDATORY_ACCEPTANCE_PACKAGES",
+    "subsequent_m2_result": "HOLD at exact missing selected completed-window resume and consumed-budget admission composition; see dev004_birdeye_multi_window_recovery. Stop rule applied; no acquisition/runtime tests executed.",
     "verification": "Accepted correction ancestry and six startup-source hashes match. Nine installed Birdeye payload hashes match. Supervisor config hash matches accepted authority. No functional tests rerun.",
     "watchtower_four_cases": "Historical insufficient-proof cases are not demonstrated regressions. May remain explicitly unqualified; preserve protected evidence/canonical outcomes/uncertainty and fail-closed future role admission. No new historical proof search required absent a demonstrated dependency. This narrows older blanket four-case HOLD."
   },
@@ -34687,11 +34702,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "27a6662868363969067749a35eda4f02e81a9349",
+    "git_head": "a874ed7bd93364635fc828e9e6ed4dd034534eea",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T11:53:32.726464+00:00",
-    "working_tree": "DEV004 post-startup cutover gate HOLD for five remaining acceptance packages. Executable candidate889f2399 unchanged; docs-only consolidation. V1 authoritative."
+    "updated_at_utc": "2026-10-23T11:58:00.766618+00:00",
+    "working_tree": "DEV004 Birdeye multi-window recovery HOLD at mandatory authority precondition. Executable candidate889f2399 unchanged. Docs/static qualification only; V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -1,0 +1,26 @@
+{
+  "status": "HOLD_EXISTING_RECORD_IS_POST_RESOLUTION_RETRY_NOT_UNIVERSAL_ADMISSION",
+  "checks": {
+    "existing_resolved_migration_replay_works": true,
+    "unresolved_predispatch_identity_not_importable": true,
+    "mixed_resolved_unresolved_would_remove_untransferred_record": true,
+    "partial_json_blocks_import_and_keeps_file": true
+  },
+  "scope": "Actual writer/importer and accepted queue DDL on disposable DB. Null mint models a proposed pre-dispatch notification, not normal accepted production journal use. No evidence that such records exist in production. Import-priority argument stripped only for standard disposable SQLite.",
+  "source_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+  "queue_rows": [
+    [
+      "known-signature",
+      "known-mint",
+      "PENDING"
+    ],
+    [
+      "second-known-signature",
+      "second-known-mint",
+      "PENDING"
+    ]
+  ],
+  "provider_calls": 0,
+  "production_writes": 0,
+  "maximum_fixture_file_bytes": 16384
+}

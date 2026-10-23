@@ -1,0 +1,106 @@
+{
+  "status": "PASS_CAPPED_GROUPING_MERGE_RANK_CONTINUATION_FEASIBILITY",
+  "checks": {
+    "cross_batch_exact_revision_and_rank": true,
+    "case256_exact_full_oracle": true,
+    "pair_step_cap": true,
+    "restart_each_step": true,
+    "duplicate_source_identity": true,
+    "exclusion_and_competing_evidence_preserved": true,
+    "canonical_merge_oracle": true,
+    "canonical_rejected_guard": true,
+    "incomplete_fence_and_last_good": true,
+    "source_change_fence": true,
+    "storage_pressure_last_good": true,
+    "repeated_finalization_deterministic": true,
+    "total_population_cap_fail_closed": true,
+    "conflicting_duplicate_hold": true,
+    "content_change_fence": true
+  },
+  "runs": {
+    "cross_batch": {
+      "profiles": 3,
+      "steps": 3,
+      "pair_count": 3,
+      "peak_step_pair_evaluations": 2,
+      "groups": 1,
+      "input_bytes": 2180,
+      "checkpoint_bytes": 159,
+      "publication_bytes": 7801
+    },
+    "case256": {
+      "profiles": 256,
+      "steps": 257,
+      "pair_count": 32640,
+      "peak_step_pair_evaluations": 128,
+      "groups": 256,
+      "input_bytes": 166618,
+      "checkpoint_bytes": 1585,
+      "publication_bytes": 1593221
+    },
+    "duplicate": {
+      "profiles": 2,
+      "steps": 1,
+      "pair_count": 1,
+      "peak_step_pair_evaluations": 1,
+      "groups": 1,
+      "input_bytes": 1526,
+      "checkpoint_bytes": 157,
+      "publication_bytes": 7167
+    },
+    "conflicting_parents": {
+      "profiles": 2,
+      "steps": 1,
+      "pair_count": 1,
+      "peak_step_pair_evaluations": 1,
+      "groups": 2,
+      "input_bytes": 1547,
+      "checkpoint_bytes": 159,
+      "publication_bytes": 12642
+    },
+    "canonical_merge": {
+      "profiles": 3,
+      "steps": 1,
+      "pair_count": 3,
+      "peak_step_pair_evaluations": 3,
+      "groups": 2,
+      "input_bytes": 9776,
+      "checkpoint_bytes": 159,
+      "publication_bytes": 16064
+    },
+    "canonical_rejected": {
+      "profiles": 3,
+      "steps": 1,
+      "pair_count": 3,
+      "peak_step_pair_evaluations": 3,
+      "groups": 2,
+      "input_bytes": 9789,
+      "checkpoint_bytes": 159,
+      "publication_bytes": 15900
+    }
+  },
+  "fixture_dir": "/private/tmp/dev004-continuation-4zgq9kyh",
+  "scope": "Test-only normalized frozen-generation interpreter, not runtime source extraction or deployment. Accepted builder oracle, adapter, merge and rank stages reused.",
+  "max_files": [
+    [
+      "case256-publication.json",
+      1593221
+    ],
+    [
+      "input.json",
+      166618
+    ],
+    [
+      "canonical_merge-publication.json",
+      16064
+    ],
+    [
+      "canonical_rejected-publication.json",
+      15900
+    ],
+    [
+      "last-good.json",
+      13066
+    ]
+  ]
+}

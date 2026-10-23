@@ -2480,6 +2480,388 @@
     "safety": "No production caller change/restart/schema mutation/provider call. Listener hot path unchanged. Heartbeat SQLITE_BUSY remains unresolved and separate.",
     "status": "QUALIFIED_NO_CALLER_CUTOVER"
   },
+  "dev004_birdeye_three_package_deployment_20261022": {
+    "blocker": null,
+    "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
+    "existing_warnings": "CORE_AUTHORITY_CONFLICT for historical birth retries predates deployment and remains durably retried; stopped API SSE refusals remain. PumpPortal startup seed read hit its bounded two-second deadline; main newToken/migration subscriptions confirmed and fresh canonical persistence passed. No unrelated repair attempted.",
+    "installed_file_hashes": [
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/utils/birdeye_credentials.py",
+        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/price_service.py",
+        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-listener/src/ops/token_data_provider_bindings.py",
+        "sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/utils/birdeye_credentials.py",
+        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/price_service.py",
+        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/token_data_provider_bindings.py",
+        "sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/early_buyer_bundle_real_pilot.py",
+        "sha256": "8885485764c485ce03cd7106d8e3901bf4df79d5b9854d93a57e4a0b77574415"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/birdeye_credentials.py",
+        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      },
+      {
+        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/price_service.py",
+        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
+      }
+    ],
+    "next_action": "NONE \u2014 authorized three-package credential deployment complete. Dormant monitor/API composition recovery remains separate and unauthorized.",
+    "production_state": {
+      "creator_resolution": {
+        "after_pid": 94541,
+        "before_pid": 76942,
+        "root": "/Users/kevinkeaveney/Production/flex-main-workers"
+      },
+      "dormant": "watchtower_api, operation_monitor_worker, operation_monitor_bridge, Funding and Cascade remain STOPPED; broad price tracking remains disabled",
+      "listener": {
+        "after_pid": 94632,
+        "before_pid": 63796,
+        "root": "/Users/kevinkeaveney/Production/flex-listener"
+      },
+      "walkback": {
+        "after_pid": 94577,
+        "before_pid": 13612,
+        "root": "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+      }
+    },
+    "rollback": {
+      "contract": "Stop only affected services; restore six exact original consumers preserving owner/mode; verify hashes; remove the three newly added helpers only after dependent originals restored and helper identity verified; restart only affected services. No database/schema rollback.",
+      "manifest": "/private/tmp/dev004-birdeye-deployment-20261022/manifest.json",
+      "status": "VERIFIED_AVAILABLE_NOT_EXECUTED"
+    },
+    "runtime_deployment_gate": "PASS",
+    "runtime_deployment_required": true,
+    "scope": "Nine approved source files only; helper-first installation, sequential creator-resolution/Walkback/listener restarts. No schema/configuration changes, dormant runtime restoration or deliberate test provider requests.",
+    "status": "PASS_DEPLOYED_THREE_EXISTING_PACKAGES_ONLY",
+    "updated_at_utc": "2026-10-22T22:48:20.881740+00:00",
+    "verification": "86 provider-free tests passed; installed helper smoke tests passed on all three roots with synthetic environment and mocked dotenv only; all nine installed hashes/owners/modes verified. PumpPortal/PumpSwap connected/subscribed; two fresh canonical births and one migration verified via bounded indexed Core lookups. Creator-resolution fresh cycle processed=1 failed=0; Walkback resumed idle polling. Schema versions Core849/OPS766 unchanged; WAL0/0; waiters empty; disk10987270144bytes free at postcheck. Quarantine samples and pending retry state retained; no manual database/queue mutation."
+  },
+  "dev004_bounded_evidence_completion": {
+    "ath_acceptance_contract": {
+      "canonical_values_timestamps_provenance_finalization_identity": "UNCHANGED",
+      "exact_historical_candle_reproducibility": "UNQUALIFIED; separately recorded; original candle recovery not required when numerical tolerance passes",
+      "maximum_relative_difference_percent": "0.1",
+      "observed_relative_difference_percent": "0.002561652223584472",
+      "reason": "Acceptance-contract and documentation amendment only; no production changes or historical recalculation.",
+      "runtime_deployment_required": false,
+      "scope": "ATH market-capitalization valuations only; all other canonical evidence retains existing exact requirements",
+      "status": "PASS_USER_APPROVED_NUMERICAL_TOLERANCE"
+    },
+    "blocker": "Unfinished acquisition per-window completion cursor, pending/retry envelope and consumed-budget recovery state remain unqualified. Missing original ATH candles no longer block numerical acceptance.",
+    "engineering_revision": "4da575c26517e94091d36b72d6770cfd36ab1f56",
+    "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
+    "next_action": "Continue prospective provider-free Birdeye acquisition, checkpoint and restart-recovery qualification in existing DEV004; do not require original ATH candles after numerical PASS. Other separate HOLDs remain unchanged.",
+    "production_state": "V1 authoritative. No production writes, source/config changes, service actions, provider calls, live queue mutations or cutover.",
+    "remaining_separate_holds": [
+      "CREATE/atomic evidence",
+      "admission linkage",
+      "pending/retry recovery",
+      "Potential Operations discovery",
+      "full Watchtower behavioural reconstruction"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/evidence_completion/REPORT.md",
+    "result": "ATH numerical equivalence PASS under user-approved0.1% relative tolerance; original canonical evidence unchanged. Exact candle reproducibility separately unqualified and not a numerical-gate blocker. Finalized-request suppression qualified; unfinished acquisition recovery remains HOLD.",
+    "runtime_deployment_reason": "Read-only retained-evidence lookup, existing disposable fixture extension and provider-free tests; no executable source changes.",
+    "runtime_deployment_required": false,
+    "scope": "Only selected DEV004 case ATH-finalization and acquisition checkpoint evidence. Previous credential deployment remains closed.",
+    "status": "HOLD_PARTIAL_EVIDENCE_RECOVERED",
+    "verification": "15 separately labelled reference attachments added; canonical fixture rows unchanged. All11 original V1/V2 outputs still equal, including prior frozen values. Installed finalizer reopened twice against V1 and twice against V2: all4 returned ALREADY_FINALIZED with0 provider calls. Core294912bytes; OPS503808bytes. All artifacts below16MB."
+  },
+  "dev004_cutover_blocker_prioritization": {
+    "demonstrated_failures": [
+      "New V2 candidate edge4173 ignored against retained V1 cursor206259",
+      "99 Watchtower routes change verified role distinction to treasury conflict; five other source cases unknown, not proven failures"
+    ],
+    "engineering_source_revision": "4028e7eb15da92837c5e7228ca6485f6fcafe90f",
+    "gate_order": [
+      "G1 Potential Operations freshness/discovery continuity",
+      "G2 Attribution decision closure",
+      "G3 Installed intake/creator recovery/Walkback integration",
+      "G4 Price acquisition/restart/composition",
+      "G5 API/UI/monitoring projections",
+      "G6 Existing persistence/resource safety",
+      "G7 Consistent cutover state and rollback then production authorization"
+    ],
+    "historical_nonblockers": [
+      "Missing original ATH candles after approved numerical PASS",
+      "762 NULL event_id assignments alone with preserved authority",
+      "Deep capital continuity remains unqualified with unchanged REVIEW_ONLY result",
+      "19115 unknown disposal classifications are not automatic operational blockers",
+      "Old worktree paths need not be recreated or dormant services activated to qualify equivalent accepted composition"
+    ],
+    "next_action": "Separate authorization for one focused DEV-only freshness-boundary correction/qualification for two existing Living candidates: relevant new evidence, duplicate/unrelated/no-event, crash/reopen, all three source families. No seed expansion or arbitrary reset. Then address exact Watchtower role links.",
+    "production_and_activation": "V1 authoritative, existing flags unchanged; no database/source changes, providers, services, deletion or cutover. No database handles opened in this task.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/cutover_blocker_prioritization/REPORT.md",
+    "runtime_deployment_reason": "Read-only decision and documentation; no executable change.",
+    "runtime_deployment_required": false,
+    "scope": "Stop seed-size optimization; focus only operational replacement blockers.",
+    "status": "DECISION_COMPLETE_HOLD_CUTOVER",
+    "supersedes_previous_next_action": "Shared-evidence deduplication/seed minimization is deferred; do not pursue it.",
+    "unqualified_functions": [
+      "Creator count/span/funder decision inputs",
+      "Accepted new-operation discovery path beyond two-candidate bridge",
+      "Complete installed parsing/creator recovery/Walkback investigation and durable writer integration",
+      "Unfinished Birdeye checkpoint/retry/consumed-budget recovery and complete accepted executable composition",
+      "Accepted API/UI/monitoring projections",
+      "Affected persistence/resource bounds and reconciled cutover/rollback"
+    ],
+    "updated_at_utc": "2026-10-23T07:29:29.121900+00:00"
+  },
+  "dev004_end_to_end_operational_qualification": {
+    "blocker": "Installed main-worker opening transport omits the accepted worker71b6e338 fallback-provenance flags for the same synthetic response. Potential Operations identity/state and candidate populations absent. Full reference memberships/behavioural/funding populations, creator RPC recovery, accepted API/UI composition, live queue/account-budget reconciliation and long-term storage limits remain unqualified.",
+    "engineering_revision": "db92fc2fd9a5bec4899343860506ae0b670da985",
+    "external_request_limitation": "Commit-before-ACK ambiguity repeats mock transport execution; observations deduplicate and finalization identity persists. Existing bounded retry contract preserved; exactly-once external execution not claimed.",
+    "fixtures": "/private/tmp/dev004-e2e/qualified",
+    "known_operations": "All10 established registry roots present with original statuses; full operation attribution equivalence is not implied.",
+    "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized.",
+    "objective": "Existing DEV004 lightweight end-to-end operational qualification; no new workstream.",
+    "production_state": "V1 authoritative; no production database/source/config changes, service actions, real provider calls, live WebSockets, historical deletion or cutover. Prior credential deployment remains closed.",
+    "qualified_scope": "CREATE handler/canonical birth/compact receipt; duplicate delivery; migration detector/store and creator admission; atomic qualified proof staging; Core\u2192OPS post-commit/ACK recovery; distinct funding-account topology storage; conflict quarantine; bounded queue attempts; synthetic price/lifecycle persistence, terminal finalization/reopen; credential/header and429 controls. Test adapters replace production writer/bootstrap and noncanonical side effects.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/end_to_end/REPORT.md",
+    "runtime_deployment_reason": "Isolated DEV fixtures, provider-free tests and documentation only; no production executable change.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_NOT_READY_FOR_CUTOVER",
+    "storage": "Working Core335872bytes/OPS671744bytes; original294912/503808 fixtures hash-unchanged. Schema-only335872/569344bytes; observed price WAL119512bytes. Per-file test cap16000000bytes, writable SQLite2048pages. Raw retention=false; no per-run unbounded growth. At least3 runtime growth surfaces remain unqualified; no linear1000-birth/100-migration estimate from one sample.",
+    "verification": "20 synthetic installed-interface checks PASS;2 checks HOLD. All11 prior frozen outputs remain EXACT_MATCH.27 keyed registry/identity/profile/qualification records match. Existing ATH numerical tolerance PASS preserved."
+  },
+  "dev004_first_v2_prototype": {
+    "ath_numerical_acceptance": "PASS under explicit user0.1% policy; exact candle reproducibility separately unqualified, no longer a numerical acceptance blocker. Overall HOLD for remaining requirements.",
+    "blocker": "Retained price input window cannot reproduce accepted stored ATH; acquisition checkpoint/retry envelope not located for selected case; canonical transaction-role closure incomplete; dictionary/membership/outcome authorities differ in retained V1. Candidate-wide Potential Operations populations and source high-water identities remain unqualified. Admission-outbox selector refused without safe index.",
+    "engineering_revision": "d5cad529a66116842a329adfe3d376c2f8237c3f",
+    "evidence_completion": "See dev004_bounded_evidence_completion; existing OPS fixture extended with source-separated references, canonical comparisons unchanged; overall HOLD preserved.",
+    "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
+    "implementation": "Dedicated codex/dev004-first-v2-prototype branch based on deployed credential candidate dd481183. Bounded indexed row selector, two schema/subset SQLite fixtures, frozen installed-function comparisons and Potential Operations dependency contract. No classifier changes.",
+    "latest_qualification": "See dev004_end_to_end_operational_qualification; original fixtures retained; latest working copies /private/tmp/dev004-e2e/qualified; overall HOLD.",
+    "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized.",
+    "objective": "Resume existing DEV004 first V2 prototype without cutover or provider acquisition.",
+    "production_state": "V1 authoritative; no production DB/source/config changes, restarts, provider calls, live queue mutation or cutover. Previously completed credential deployment remains closed.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/REPORT.md",
+    "runtime_deployment_reason": "DEV-only compact fixtures and provider-free tests; production runtime unchanged.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_EVIDENCE_COMPLETE_ACCEPTANCE_NOT_ESTABLISHED",
+    "storage": "Per-file RLIMIT16000000bytes, SQLite construction max2048pages, per-selectorLIMIT129/200000VM/1second, pass2048rows. No raw RPC/provider payload retention; zero per-run unbounded growth paths.",
+    "verification": "37 source rows; Core294912bytes, OPS479232bytes; separate recovery clone544768bytes. Two builds yielded identical fixture hashes. Eleven V1/V2 projections equal; two installed completed-queue reopen/claim checks preserve rows; nine synthetic credential assertions passed. Production credential payload hashes unchanged; FLEX_STABLE_V2 and manifest verified."
+  },
+  "dev004_operational_seed_potential_qualification": {
+    "blockers": [
+      "Demonstrated rowid-generation discontinuity: new V2 edge4173 ignored against retained V1 edge cursor206259",
+      "99 Watchtower route-link cases missing required verified sender/recipient relationships;5 bounded source-read limitations",
+      "100 creator-launch history populations incomplete:3315 missing mints within bound;12 capped",
+      "Global new-operation discovery builder/frozen-case closure, remaining quarantine/reference/monitoring populations and live cutover reconciliation unqualified"
+    ],
+    "completed": [
+      "Ten operation identities/status/confidence/review/lifecycle match installed reader",
+      "1165 memberships including762 NULL event_id retained without promotion",
+      "63 workflow populations1332 memberships;2 Living identities183 associations5 versions retained",
+      "26 Deep diagnostic route cases exact after73 role records; authority REVIEW_ONLY",
+      "Two Living source populations match; reverse resolution98 events and atomic publication/reopen pass",
+      "20 previous functional checks preserved plus former missing-identity test now passes; original11 frozen outputs exact; ATH/BIRDEYE/provenance preserved"
+    ],
+    "engineering_source_revision": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
+    "next_action": "DEV-only generation-preserving seed/cursor mapping for two Living candidates, tested against retained new-edge counterexample. Keep exact remaining record gaps separate.",
+    "price_correction_preserved": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "production_state": "V1 authoritative; zero production writes/source changes/providers/service actions/live WebSockets/deletion/cutover",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/operational_seed/REPORT.md",
+    "runtime_deployment_reason": "Isolated fixture/test qualification only; production deployment not authorized.",
+    "runtime_deployment_required": false,
+    "status": "PARTIAL_HOLD_CUTOVER",
+    "storage": {
+      "classification": "Conservative partial candidate fixtures incl qualification controls; not certified minimum or final-size forecast",
+      "core_file_bytes": 8970240,
+      "core_rows": 12490,
+      "encoded_logical_bytes": 24586129,
+      "ops_file_bytes": 13742080,
+      "ops_rows": 15964
+    },
+    "updated_at_utc": "2026-10-23T00:02:34.722759+00:00",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_potential_operations_freshness_correction": {
+    "dev_runtime_gate": "PASS: qualified modules imported/executed on disposable data; source hashes and functional evidence recorded; no daemon restart required",
+    "engineering_source_revision": "ace58aba292a7183cfef39e853a114ebbcbe8712",
+    "exact_counterexample": {
+      "forward_generation": "000000095347:000000206260:000000020221",
+      "legacy_export_cursor": "000000095347:000000206259:000000020221",
+      "new_local_edge_rowid": 4173,
+      "replay_duplicates": 0,
+      "versions_added": 1
+    },
+    "limits": [
+      "Mapping must be built once from an agreed immutable cutover boundary; do not regenerate at restart",
+      "Qualified stable-key append admissions and bounded membership additions; no invented in-place-update clock or global discovery producer",
+      "Fixture metadata is not a production cutover manifest"
+    ],
+    "mapping_contract": "dev004-forward-freshness.v1; candidate base-assessment authority, export logical floor, seed physical origin and inherited primary-key identities remain distinct. No cursor reset or initial publication.",
+    "next_action": "No deployment. Continue only separately authorized Watchtower treasury-role dependency qualification; keep V1 authoritative and optimization paused.",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED; production deployment not authorized",
+    "production_state": "V1 authoritative; no production writes/source/config changes, provider calls, services, live sockets, historical deletion, seed expansion or cutover. Explicit DEV mapping option only.",
+    "remaining_blockers": [
+      "99 Watchtower treasury-role cases and five source limitations",
+      "Creator-history decision closure and full unseen-operation discovery",
+      "Complete creator/Walkback investigation integration",
+      "Unfinished Birdeye recovery/budget continuity and accepted projections",
+      "Runtime persistence bounds and consistent queue/cutover/rollback"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/freshness_correction/REPORT.md",
+    "runtime_target": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution",
+    "source_delta": "One bounded immutable mapping helper; optional read-only source-reader branch and explicit mapping-path binding in DEV Living runtime. No schema delta.",
+    "status": "PASS_SCOPED_DEV_QUALIFIED_NOT_DEPLOYED",
+    "storage": "Fixed mapping below500000bytes; max128members/candidate,2048source rows/family;16MB qualification file cap and3840SQLite pages; no new unbounded growth path/raw retention. Existing assessment retention not changed.",
+    "updated_at_utc": "2026-10-23T07:46:56.590572+00:00",
+    "verification": [
+      "12 focused test groups PASS; two candidates and queue/edge/atomic families",
+      "Historical/new duplicate suppression; inherited baseline no replay",
+      "Prospective member/new queue; conflicting/insufficient metadata and competing-parent controls; review/promotion unchanged",
+      "Pre-commit rollback; commit/reopen and fresh-interpreter replay no new assessments",
+      "8 intake and13 price/control checks PASS; original11 frozen comparisons and26Deep cases PASS",
+      "Seed, memberships, Watchtower evidence and original counterexample hashes unchanged;9deployed credential hashes preserved; ATH tolerance PASS"
+    ],
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_price_provenance_correction": {
+    "accepted_price_worker": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "cause": "Old monitor composition and harness wiring lost accepted fallback absence flags and baseline labels; no V2 schema limitation.",
+    "delta": "DEV-only pure accepted normalizer/reducer, opening fallback policy and fact exactness; harness selects DEV monitor. No production source/schema changes.",
+    "engineering_source_revision": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "next_action": "Scoped correction complete. Continue existing DEV004 unresolved requirements; no deployment/cutover.",
+    "overall_dev004": "HOLD",
+    "production_activation": "UNCHANGED; no service actions, provider calls or cutover",
+    "remaining_blockers": [
+      "Potential Operations discovery",
+      "full Watchtower behavioural reconstruction",
+      "missing reference-seed populations",
+      "live queue/budget reconciliation",
+      "API runtime availability"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/price_provenance/REPORT.md",
+    "runtime_deployment_reason": "Isolated DEV prototype correction; production deployment not authorized.",
+    "runtime_deployment_required": false,
+    "status": "PASS_SCOPED_DEV_ONLY",
+    "tests": {
+      "ath_numerical_tolerance": "PASS;0.002561652223589094 percent relative difference",
+      "existing_potential_operations_hold": 1,
+      "installed_credential_hashes_unchanged": 9,
+      "intake_recovery_pass": 8,
+      "opening_oracle_cases": 8,
+      "original_frozen_comparisons_pass": 11,
+      "persisted_baseline_cases": 3,
+      "price_and_controls_pass": 12,
+      "provider_calls": 0
+    },
+    "updated_at_utc": "2026-10-22T23:47:11.323752+00:00",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_seed_minimization_audit": {
+    "accepted_price_correction_preserved": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "code_baseline_unchanged": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
+    "engineering_source_revision": "ce5dbfc14b85fa3faae0b3775107e4643bb8f440",
+    "existing_blockers_preserved": [
+      "V1-generation-specific candidate cursors",
+      "Missing verified treasury-role links",
+      "Incomplete creator launch-span populations",
+      "Global discovery/reference/recovery closure"
+    ],
+    "inventory": {
+      "compactable_conditional_rows": 4306,
+      "core_file_bytes": 8970240,
+      "current_rows": 28454,
+      "encoded_logical_bytes": 24586129,
+      "essential_preserve_now_rows": 5004,
+      "ops_file_bytes": 13742080,
+      "synthetic_historical_only_rows": 29,
+      "tables": 69,
+      "unknown_rows": 19115
+    },
+    "minimum_seed": "UNDETERMINED;5004preserve-now rows are not a complete deployable minimum. Unknowns are not disposable.",
+    "next_action": "Keep expansion paused. Subject to separate authorization, qualify five-value shared-infrastructure evidence representation against265frozen outcomes and negative-evidence consumers. No implementation in this audit.",
+    "production_state": "UNCHANGED; no production/fixture writes, source changes, providers, service actions, deletion, cutover or cursor reset.",
+    "reduction_evidence": {
+      "distinct_exact_values": 5,
+      "genuine_v1_rows_independently_cleared_for_retirement": 0,
+      "gross_duplicate_canonical_component_bytes": 2131007,
+      "limitation": "Conditional information-preserving representation opportunity; no structures created, no rows deleted, no guaranteed physical recovery. Synthetic controls remain in current acceptance fixtures.",
+      "repeated_infrastructure_value_occurrences": 265,
+      "synthetic_controls_encoded_bytes": 24363,
+      "synthetic_controls_for_future_initializer_omission": 29
+    },
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/seed_minimization/REPORT.md",
+    "rows_by_table": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/seed_minimization/ROWS_BY_TABLE.md",
+    "runtime_deployment_reason": "Read-only audit and documentation only; no implementation.",
+    "runtime_deployment_required": false,
+    "seed_expansion_paused_by_user": true,
+    "status": "AUDIT_COMPLETE_PARTIAL_HOLD_REDUCTION",
+    "updated_at_utc": "2026-10-23T00:20:23.167557+00:00",
+    "verification": [
+      "Exact28454row reconciliation; all rows classified once",
+      "Core/OPS and stale-cursor counterexample hashes unchanged",
+      "Original11 read-only comparisons and26Deep cases PASS",
+      "Prior20functional results and installed qualified source hashes preserved; mutating harnesses not rerun",
+      "Nine deployed credential correction hashes match; no actual credentials read"
+    ]
+  },
+  "dev004_watchtower_treasury_role_equivalence": {
+    "added_rows": {
+      "wt_active_subprov_sessions": 4,
+      "wt_discovered_subprovs": 2,
+      "wt_lineage_verified_session_edges": 4
+    },
+    "engineering_source_revision": "4ff48a00ade1114f899e88e977e256ae8e4b485a",
+    "evidence_boundary": "Four indexed pair witnesses recovered via integer active-session IDs and verified-edge PKs;no unindexed production edge scans. Four separate cases have no bounded indexed witness;global absence not asserted.",
+    "exact_qualified_routes": 616,
+    "fixed_99": 99,
+    "fixture": "/private/tmp/dev004-watchtower-roles-qualified",
+    "next_action": "Keep four evidence-limited cases HOLD. Next separately authorized bounded objective: creator-history classification equivalence using explicit decisions and minimum retained inputs;no broad seed audit or RPC acquisition.",
+    "production_state": "No production DB/source/config changes,providers,sockets,services,deletion or cutover. V1 authoritative. No activation flags changed.",
+    "remaining_blockers": [
+      "Four separate unqualified role cases",
+      "Creator-history decision closure",
+      "Full investigation and queue cutover reconciliation",
+      "Unfinished acquisition/restart and accepted dormant composition/projections",
+      "Final persistence bounds and cutover/rollback acceptance"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/watchtower_roles/REPORT.md",
+    "runtime_deployment_reason": "Test/data qualification only; no executable source changes.",
+    "runtime_deployment_required": false,
+    "separate_five": {
+      "insufficient_retained_evidence": 4,
+      "verified_shared_proof": 1
+    },
+    "status": "PASS_SCOPED_99; HOLD_FOUR_SEPARATE_CASES; CUTOVER_HOLD",
+    "storage": {
+      "added_logical_json_bytes": 5848,
+      "core_bytes": 8970240,
+      "new_unbounded_paths": 0,
+      "ops_bytes": 13754368,
+      "qualification_file_cap_bytes": 16000000,
+      "total_rows": 28464
+    },
+    "updated_at_utc": "2026-10-23T08:33:36.997354+00:00",
+    "verification": [
+      "All616qualified frozen route results exact, including99regressions",
+      "Installed role recognition exact for219wallets;3negative proof controls;4future known-pattern role controls",
+      "Original11frozen comparisons;26Deep cases;8intake/recovery;13price/candidate;12freshness groups including fresh interpreter restart PASS",
+      "All55original OPS tables preserved;Core byte-identical;no memberships/review/quarantine/queue rewrites",
+      "Opening provenance exact;ATH0.0025616522%within0.1%;nine deployed Birdeye hashes unchanged"
+    ],
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
   "dev012_shared_priority_admission_review_20261010": {
     "blocking_finding": "HOLD: the active source has direct shared-budget callers that do not publish durable MonitorQueue demand before calling admit_provider_dispatch: dev_current_price_scheduler.py LIVE_CURRENT, watchtower_current_mc_overlay.py CURRENT_MC_OVERLAY, strict_migration_window.py OPENING, and generic_provider_work_scheduler.py provider families. Therefore a historical clear/debit can win while direct LIVE demand becomes ready, and the classifier cannot represent current-MC or generic-provider demand. 245192 is a queue-backed primitive, not yet the requested system-wide LIVE-priority admission contract.",
     "budget_compatibility": "PASS at the API-local level: the existing provider_budget.lock remains the sole fcntl lock; DevProviderBudget still applies the rolling 60-second 20-global/4-per-mint defaults and the existing BudgetDenied outcomes. Provider backoff remains checked before historical debit. No provider transport or second ledger is introduced.",
@@ -16001,6 +16383,135 @@
       "skipped": 0,
       "tests_passed": 46
     }
+  },
+  "flex_lightweight_dev003a_deployment_safety": {
+    "blocker": "128-row compact-only transaction passed 64MiB precheck then grew WAL from67081872 to67654552 bytes. Complete transaction hard WAL/lock bounds not established.",
+    "engineering_revision": "ace3e5178b816fba9c68dfdbbf08ddd828c03237",
+    "executable_candidate": "fde478b7ef2b77b983b58d41f46d0de451d22dd3",
+    "handoff_warning": "HANDOFF_IDENTITY observed before any DEV003 installation; impact unknown. Kept separate from independent telemetry WAL HOLD.",
+    "incomplete": "Contended installation, complete transaction bounds and ordered schema rollback remain unqualified; no runtime fixes implemented after stop boundary.",
+    "next_action": "Qualify pre-commit transaction WAL/spill and lock budgets; then resume installation and ordered rollback qualification. Do not deploy or backfill production.",
+    "observed_at_utc": "2026-10-22T21:41:36.540704+00:00",
+    "production_state": "No writes, schema changes, deployment, flag changes, restarts, provider calls, backfill, retirement or compaction.",
+    "ready_for_deployment_preflight": false,
+    "report": "docs/dev/lightweight_dev003a/REPORT.md",
+    "runtime_deployment_reason": "Test and evidence only; stopped at demonstrated WAL-bound blocker.",
+    "runtime_deployment_required": false,
+    "status": "HOLD",
+    "tests": {
+      "counterexample": 1,
+      "errors": 0,
+      "failures": 0,
+      "original": 46,
+      "passed": 47,
+      "skipped": 0
+    }
+  },
+  "flex_lightweight_dev003b_transaction_safety": {
+    "blocker": "No qualified pre-write WAL dirty-frame reservation or absolute writer-lock/commit cancellation deadline in current driver. Spill suppression enables rollback but does not cap commit; progress callbacks are cooperative. Original WAL overrun reproduced unchanged.",
+    "engineering_revision": "262d82802e019196e4f18042c7bbdc6ee1b4786f",
+    "executable_candidate": "fde478b7ef2b77b983b58d41f46d0de451d22dd3; unchanged, defect not corrected",
+    "incomplete": "No runtime correction, adaptive backfill, full-flush hard-budget implementation, installation qualification or ordered rollback. Stop rule applied.",
+    "measurements": {
+      "journal_limit_probe": 32768,
+      "observed_lock_held_seconds": 0.05398745904676616,
+      "original_wal_after": 67654552,
+      "original_wal_before": 67081872,
+      "pause_deadline_seconds": 0.01,
+      "probe_wal": 140112,
+      "threshold": 67108864
+    },
+    "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback.",
+    "observed_at_utc": "2026-10-22T21:47:26.165728+00:00",
+    "production_state": "No writes, schema changes, deployment, flags, service actions, providers, backfill, retirement or compaction.",
+    "ready_for_deployment_preflight": false,
+    "report": "docs/dev/lightweight_dev003b/REPORT.md",
+    "runtime_deployment_reason": "Test/evidence-only capability qualification; stopped at mandatory absolute-bound capability gap.",
+    "runtime_deployment_required": false,
+    "status": "HOLD",
+    "tests": {
+      "errors": 0,
+      "failures": 0,
+      "new_capability_probes": 4,
+      "passed": 51,
+      "retained": 47,
+      "skipped": 0
+    }
+  },
+  "flex_lightweight_dev004_reference_seed_correction": {
+    "acceptance": "Bounded row-manifest audit complete with HOLD. Seed construction and frozen functional/Birdeye equivalence NOT RUN.",
+    "birdeye_price_pipeline": {
+      "acceptance": "Seven mandatory provider-free gates appended; NOT RUN; V2 acceptance HOLD pending qualification.",
+      "contract": "Mandatory accepted acquisition, valuation, ATH/drawdown/lifecycle, monitoring/refresh, checkpoint/retry, provenance/insufficiency and API/UI preservation.",
+      "credential_authority": "BIRDEYE; no legacy fallback; unchanged budgets and request limits",
+      "minimization": "Exclude candles/observations only after every accepted consumer and research dependency is proven equivalent. Unknown dependencies remain protected.",
+      "seed": "Preserve accepted price/lifecycle evidence for assigned tokens, monitoring and restart recovery, with exact values/clocks/units/baseline types/provenance.",
+      "test_safety": "Mock providers and disposable restart fixtures only; no stopped service activation or actual provider calls."
+    },
+    "blocker": "Overall DEV004 minimum-seed closure remains HOLD for protected role/history/reference/recovery populations and full Birdeye/V2 equivalence. Credential selection is corrected and qualified only in DEV; production binding remains unchanged.",
+    "credential_authority_correction": {
+      "blocker": null,
+      "branch": "codex/dev004-birdeye-authority",
+      "candidate_sha": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
+      "next_action": "Separately authorized narrow runtime deployment preflight; do not deploy entire candidate tree or activate services.",
+      "parent": "fde478b7ef2b77b983b58d41f46d0de451d22dd3",
+      "preservation": "Request builders, endpoints, timeout constants, retry bodies and other pre-existing function bodies unchanged by AST checks; installed credential binding matches earlier audit hash.",
+      "production_changes": 0,
+      "production_deployment_authorized": false,
+      "provider_calls": 0,
+      "report_local_path": "/Users/kevinkeaveney/.codex/worktrees/dev004-birdeye-authority/flex/docs/dev/lightweight_dev004_credentials/REPORT.md",
+      "report_sha256": "2c378cbf7573131af568e40a4578a5baf95bd2eea0f96db7a8461bc9368849e2",
+      "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+      "scope": "One approved-name resolver, override guards, token-price auth headers, preserved integration label guards and pilot credential validation; canonical/frozen/integration copies.",
+      "service_actions": 0,
+      "status": "QUALIFIED_NOT_DEPLOYED",
+      "tests": {
+        "failed": 0,
+        "network_and_database_access": "DENIED",
+        "passed": 86,
+        "skipped": 0,
+        "synthetic_credentials_only": true
+      }
+    },
+    "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369; isolated DEV004 credential correction only",
+    "inventory": {
+      "assignments_missing_event_id": 762,
+      "canonical_assignment_rows_observed": 1165,
+      "measurement_scope": "bounded indexed read-only observations; not a cutover snapshot or row dependency manifest",
+      "registry_identities": 10
+    },
+    "minimum_seed_qualification": {
+      "additional_reference_gap": "188 non-null event identifiers unresolved after governance/admission namespaces.",
+      "artifact_validation": "JSON/key/byte/digest arithmetic passed; all new audit files below10MB. Not functional equivalence.",
+      "assignments": 1165,
+      "cases_defined_not_run": 14,
+      "certified_minimum_size": "UNKNOWN",
+      "credential_blocker": "Inspected installed price binding prefers legacy BIRDEYE_KK over BIRDEYE. Values/effective key not inspected; no source fix.",
+      "credential_resolution_note": "Original production mismatch remains. Isolated DEV correction dd481183 qualified with86 provider-free checks; no production deployment or secret change.",
+      "logical_field_bytes_identified": 10315609,
+      "manifest_rows_identified": 22235,
+      "null_event_assignments": 762,
+      "null_event_handling": "All preserved and source-tag mapped. 348 Watchtower predicate-compatible;155 role-edge dependencies unqualified;195 P3R feature witnesses;64 retained profile memberships. Not assignment-time provenance certification.",
+      "operation_identities": 10,
+      "other_blockers": "SubProvider/history/quarantine/route/queue/price closure and consistent cross-database freeze incomplete; no certified physical seed size.",
+      "production_writes": 0,
+      "provider_calls": 0,
+      "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/REPORT.md",
+      "report_sha256": "069fa27fb1c4d04c6b5104210e6397f253310a72e8995529c3ffd744b1be4568",
+      "service_actions": 0,
+      "source_changes": 0,
+      "status": "HOLD",
+      "v2_databases_created": 0,
+      "validation_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/validation.json"
+    },
+    "next_action": "Retain overall DEV004 seed HOLD. Credential subtask is QUALIFIED_NOT_DEPLOYED; separately authorize narrow deployment preflight, while preserving the unresolved seed and seven price-pipeline acceptance gates.",
+    "observed_at_utc": "2026-10-22T22:31:11.872042+00:00",
+    "production_state": "V1 remains authoritative. No source changes, database writes/build, service actions, provider calls, deletion or cutover. Installed corrections and budgets unchanged.",
+    "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
+    "report_sha256": "a8d168bab81a37eaecab4af38f0bf0527231d76dd40dbac4fbf86e3a796dad5a",
+    "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_MINIMUM_OPERATIONAL_SEED_NOT_CLOSED"
   },
   "flex_original_dev_objectives_reconciliation_20261008": {
     "admission": "For DEV-008 and DEV-007, proposed start authority is the clean frozen operational-baseline tag -> 4c1549718d3b711912dacdfb8c990dc5767267c5. Each future DEV requires its own codex/ branch, isolated worktree, V2 admission guard, unique temporary paths, clean status, named source ownership, and provider-free acceptance. They may run in parallel only after admission confirms no overlapping owned files; expected scopes are DEV-008 walkback/deep prospective logic and DEV-007 audit/fixtures. Respect the maximum two active implementation DEV limit. DEV-022 cannot pass admission with the currently recorded provenance.",
@@ -33701,11 +34212,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "ace58aba292a7183cfef39e853a114ebbcbe8712",
+    "git_head": "4ff48a00ade1114f899e88e977e256ae8e4b485a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T07:46:56.590572+00:00",
-    "working_tree": "DEV004 two-candidate freshness correction PASS in isolated DEV, not deployed. Exact stale counterexample fixed; prior acceptance preserved; overall cutover HOLD."
+    "updated_at_utc": "2026-10-23T08:33:36.997354+00:00",
+    "working_tree": "DEV004 Watchtower role qualification PASS for99 demonstrated regressions. Four separately unqualified role cases remain HOLD; V1 authoritative; overall cutover HOLD."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41118,470 +41629,5 @@
     "source_authority": "Local X78 branch commits exist: WAL holder provenance 4f7821a09cb586ccfc30c3a4b2ecf82f767384ef, checkpoint-execution bound 2f5c8116af59867220e98e6cf9841d9e926df94b, and SQLite lifecycle serialization cb441a2899bb6f1de80dbdf08674d2dd2148acfc. Subsequent origin check remotely verified only codex/operations-sqlite-lifecycle-provenance at cb441a2899bb6f1de80dbdf08674d2dd2148acfc; the two WAL branches were not listed remotely, so they remain local qualified historical authority and must not be deployed without requalification/remote publication.",
     "status": "X78_ACCEPTED_DIAGNOSIS_COMPLETE_REMEDIATION_NOT_AUTHORIZED",
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
-  },
-  "flex_lightweight_dev003a_deployment_safety": {
-    "observed_at_utc": "2026-10-22T21:41:36.540704+00:00",
-    "engineering_revision": "ace3e5178b816fba9c68dfdbbf08ddd828c03237",
-    "executable_candidate": "fde478b7ef2b77b983b58d41f46d0de451d22dd3",
-    "status": "HOLD",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Test and evidence only; stopped at demonstrated WAL-bound blocker.",
-    "blocker": "128-row compact-only transaction passed 64MiB precheck then grew WAL from67081872 to67654552 bytes. Complete transaction hard WAL/lock bounds not established.",
-    "tests": {
-      "passed": 47,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "original": 46,
-      "counterexample": 1
-    },
-    "incomplete": "Contended installation, complete transaction bounds and ordered schema rollback remain unqualified; no runtime fixes implemented after stop boundary.",
-    "production_state": "No writes, schema changes, deployment, flag changes, restarts, provider calls, backfill, retirement or compaction.",
-    "handoff_warning": "HANDOFF_IDENTITY observed before any DEV003 installation; impact unknown. Kept separate from independent telemetry WAL HOLD.",
-    "report": "docs/dev/lightweight_dev003a/REPORT.md",
-    "ready_for_deployment_preflight": false,
-    "next_action": "Qualify pre-commit transaction WAL/spill and lock budgets; then resume installation and ordered rollback qualification. Do not deploy or backfill production."
-  },
-  "flex_lightweight_dev003b_transaction_safety": {
-    "observed_at_utc": "2026-10-22T21:47:26.165728+00:00",
-    "engineering_revision": "262d82802e019196e4f18042c7bbdc6ee1b4786f",
-    "executable_candidate": "fde478b7ef2b77b983b58d41f46d0de451d22dd3; unchanged, defect not corrected",
-    "status": "HOLD",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Test/evidence-only capability qualification; stopped at mandatory absolute-bound capability gap.",
-    "blocker": "No qualified pre-write WAL dirty-frame reservation or absolute writer-lock/commit cancellation deadline in current driver. Spill suppression enables rollback but does not cap commit; progress callbacks are cooperative. Original WAL overrun reproduced unchanged.",
-    "tests": {
-      "passed": 51,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "retained": 47,
-      "new_capability_probes": 4
-    },
-    "measurements": {
-      "original_wal_before": 67081872,
-      "original_wal_after": 67654552,
-      "threshold": 67108864,
-      "journal_limit_probe": 32768,
-      "probe_wal": 140112,
-      "pause_deadline_seconds": 0.01,
-      "observed_lock_held_seconds": 0.05398745904676616
-    },
-    "incomplete": "No runtime correction, adaptive backfill, full-flush hard-budget implementation, installation qualification or ordered rollback. Stop rule applied.",
-    "production_state": "No writes, schema changes, deployment, flags, service actions, providers, backfill, retirement or compaction.",
-    "report": "docs/dev/lightweight_dev003b/REPORT.md",
-    "ready_for_deployment_preflight": false,
-    "next_action": "Keep HOLD; explicit acceptance decision needed on absolute wall-clock guarantee versus work budgets/cooperative cancellation. Do not expand into SQLite infrastructure or proceed to installation/rollback."
-  },
-  "flex_lightweight_dev004_reference_seed_correction": {
-    "observed_at_utc": "2026-10-22T22:31:11.872042+00:00",
-    "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369; isolated DEV004 credential correction only",
-    "status": "HOLD_MINIMUM_OPERATIONAL_SEED_NOT_CLOSED",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Reference-seed design amendment only; no executable change or V2 build.",
-    "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/design/DEV004_REFERENCE_SEED_CORRECTION.md",
-    "report_sha256": "a8d168bab81a37eaecab4af38f0bf0527231d76dd40dbac4fbf86e3a796dad5a",
-    "inventory": {
-      "registry_identities": 10,
-      "canonical_assignment_rows_observed": 1165,
-      "assignments_missing_event_id": 762,
-      "measurement_scope": "bounded indexed read-only observations; not a cutover snapshot or row dependency manifest"
-    },
-    "acceptance": "Bounded row-manifest audit complete with HOLD. Seed construction and frozen functional/Birdeye equivalence NOT RUN.",
-    "blocker": "Overall DEV004 minimum-seed closure remains HOLD for protected role/history/reference/recovery populations and full Birdeye/V2 equivalence. Credential selection is corrected and qualified only in DEV; production binding remains unchanged.",
-    "production_state": "V1 remains authoritative. No source changes, database writes/build, service actions, provider calls, deletion or cutover. Installed corrections and budgets unchanged.",
-    "next_action": "Retain overall DEV004 seed HOLD. Credential subtask is QUALIFIED_NOT_DEPLOYED; separately authorize narrow deployment preflight, while preserving the unresolved seed and seven price-pipeline acceptance gates.",
-    "birdeye_price_pipeline": {
-      "contract": "Mandatory accepted acquisition, valuation, ATH/drawdown/lifecycle, monitoring/refresh, checkpoint/retry, provenance/insufficiency and API/UI preservation.",
-      "credential_authority": "BIRDEYE; no legacy fallback; unchanged budgets and request limits",
-      "seed": "Preserve accepted price/lifecycle evidence for assigned tokens, monitoring and restart recovery, with exact values/clocks/units/baseline types/provenance.",
-      "minimization": "Exclude candles/observations only after every accepted consumer and research dependency is proven equivalent. Unknown dependencies remain protected.",
-      "acceptance": "Seven mandatory provider-free gates appended; NOT RUN; V2 acceptance HOLD pending qualification.",
-      "test_safety": "Mock providers and disposable restart fixtures only; no stopped service activation or actual provider calls."
-    },
-    "minimum_seed_qualification": {
-      "status": "HOLD",
-      "report_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/REPORT.md",
-      "report_sha256": "069fa27fb1c4d04c6b5104210e6397f253310a72e8995529c3ffd744b1be4568",
-      "validation_local_path": "/Users/kevinkeaveney/Dev/claude/flex/docs/audits/dev004_minimum_seed/validation.json",
-      "manifest_rows_identified": 22235,
-      "logical_field_bytes_identified": 10315609,
-      "certified_minimum_size": "UNKNOWN",
-      "operation_identities": 10,
-      "assignments": 1165,
-      "null_event_assignments": 762,
-      "null_event_handling": "All preserved and source-tag mapped. 348 Watchtower predicate-compatible;155 role-edge dependencies unqualified;195 P3R feature witnesses;64 retained profile memberships. Not assignment-time provenance certification.",
-      "additional_reference_gap": "188 non-null event identifiers unresolved after governance/admission namespaces.",
-      "credential_blocker": "Inspected installed price binding prefers legacy BIRDEYE_KK over BIRDEYE. Values/effective key not inspected; no source fix.",
-      "other_blockers": "SubProvider/history/quarantine/route/queue/price closure and consistent cross-database freeze incomplete; no certified physical seed size.",
-      "cases_defined_not_run": 14,
-      "production_writes": 0,
-      "source_changes": 0,
-      "v2_databases_created": 0,
-      "provider_calls": 0,
-      "service_actions": 0,
-      "artifact_validation": "JSON/key/byte/digest arithmetic passed; all new audit files below10MB. Not functional equivalence.",
-      "credential_resolution_note": "Original production mismatch remains. Isolated DEV correction dd481183 qualified with86 provider-free checks; no production deployment or secret change."
-    },
-    "credential_authority_correction": {
-      "status": "QUALIFIED_NOT_DEPLOYED",
-      "candidate_sha": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
-      "branch": "codex/dev004-birdeye-authority",
-      "parent": "fde478b7ef2b77b983b58d41f46d0de451d22dd3",
-      "scope": "One approved-name resolver, override guards, token-price auth headers, preserved integration label guards and pilot credential validation; canonical/frozen/integration copies.",
-      "tests": {
-        "passed": 86,
-        "failed": 0,
-        "skipped": 0,
-        "synthetic_credentials_only": true,
-        "network_and_database_access": "DENIED"
-      },
-      "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-      "production_deployment_authorized": false,
-      "production_changes": 0,
-      "provider_calls": 0,
-      "service_actions": 0,
-      "report_local_path": "/Users/kevinkeaveney/.codex/worktrees/dev004-birdeye-authority/flex/docs/dev/lightweight_dev004_credentials/REPORT.md",
-      "report_sha256": "2c378cbf7573131af568e40a4578a5baf95bd2eea0f96db7a8461bc9368849e2",
-      "preservation": "Request builders, endpoints, timeout constants, retry bodies and other pre-existing function bodies unchanged by AST checks; installed credential binding matches earlier audit hash.",
-      "blocker": null,
-      "next_action": "Separately authorized narrow runtime deployment preflight; do not deploy entire candidate tree or activate services."
-    }
-  },
-  "dev004_birdeye_three_package_deployment_20261022": {
-    "engineering_revision": "dd48118385b31fb9dbf7955f5b43a8bf82518369",
-    "status": "PASS_DEPLOYED_THREE_EXISTING_PACKAGES_ONLY",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "PASS",
-    "scope": "Nine approved source files only; helper-first installation, sequential creator-resolution/Walkback/listener restarts. No schema/configuration changes, dormant runtime restoration or deliberate test provider requests.",
-    "production_state": {
-      "listener": {
-        "before_pid": 63796,
-        "after_pid": 94632,
-        "root": "/Users/kevinkeaveney/Production/flex-listener"
-      },
-      "creator_resolution": {
-        "before_pid": 76942,
-        "after_pid": 94541,
-        "root": "/Users/kevinkeaveney/Production/flex-main-workers"
-      },
-      "walkback": {
-        "before_pid": 13612,
-        "after_pid": 94577,
-        "root": "/Users/kevinkeaveney/Production/flex-walkback-dev002"
-      },
-      "dormant": "watchtower_api, operation_monitor_worker, operation_monitor_bridge, Funding and Cascade remain STOPPED; broad price tracking remains disabled"
-    },
-    "verification": "86 provider-free tests passed; installed helper smoke tests passed on all three roots with synthetic environment and mocked dotenv only; all nine installed hashes/owners/modes verified. PumpPortal/PumpSwap connected/subscribed; two fresh canonical births and one migration verified via bounded indexed Core lookups. Creator-resolution fresh cycle processed=1 failed=0; Walkback resumed idle polling. Schema versions Core849/OPS766 unchanged; WAL0/0; waiters empty; disk10987270144bytes free at postcheck. Quarantine samples and pending retry state retained; no manual database/queue mutation.",
-    "existing_warnings": "CORE_AUTHORITY_CONFLICT for historical birth retries predates deployment and remains durably retried; stopped API SSE refusals remain. PumpPortal startup seed read hit its bounded two-second deadline; main newToken/migration subscriptions confirmed and fresh canonical persistence passed. No unrelated repair attempted.",
-    "rollback": {
-      "status": "VERIFIED_AVAILABLE_NOT_EXECUTED",
-      "manifest": "/private/tmp/dev004-birdeye-deployment-20261022/manifest.json",
-      "contract": "Stop only affected services; restore six exact original consumers preserving owner/mode; verify hashes; remove the three newly added helpers only after dependent originals restored and helper identity verified; restart only affected services. No database/schema rollback."
-    },
-    "installed_file_hashes": [
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-listener/src/utils/birdeye_credentials.py",
-        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/price_service.py",
-        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-listener/src/ops/token_data_provider_bindings.py",
-        "sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/utils/birdeye_credentials.py",
-        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/price_service.py",
-        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/token_data_provider_bindings.py",
-        "sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/early_buyer_bundle_real_pilot.py",
-        "sha256": "8885485764c485ce03cd7106d8e3901bf4df79d5b9854d93a57e4a0b77574415"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/birdeye_credentials.py",
-        "sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
-      },
-      {
-        "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/price_service.py",
-        "sha256": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28"
-      }
-    ],
-    "blocker": null,
-    "next_action": "NONE \u2014 authorized three-package credential deployment complete. Dormant monitor/API composition recovery remains separate and unauthorized.",
-    "updated_at_utc": "2026-10-22T22:48:20.881740+00:00"
-  },
-  "dev004_first_v2_prototype": {
-    "engineering_revision": "d5cad529a66116842a329adfe3d376c2f8237c3f",
-    "status": "HOLD_EVIDENCE_COMPLETE_ACCEPTANCE_NOT_ESTABLISHED",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "DEV-only compact fixtures and provider-free tests; production runtime unchanged.",
-    "objective": "Resume existing DEV004 first V2 prototype without cutover or provider acquisition.",
-    "implementation": "Dedicated codex/dev004-first-v2-prototype branch based on deployed credential candidate dd481183. Bounded indexed row selector, two schema/subset SQLite fixtures, frozen installed-function comparisons and Potential Operations dependency contract. No classifier changes.",
-    "verification": "37 source rows; Core294912bytes, OPS479232bytes; separate recovery clone544768bytes. Two builds yielded identical fixture hashes. Eleven V1/V2 projections equal; two installed completed-queue reopen/claim checks preserve rows; nine synthetic credential assertions passed. Production credential payload hashes unchanged; FLEX_STABLE_V2 and manifest verified.",
-    "production_state": "V1 authoritative; no production DB/source/config changes, restarts, provider calls, live queue mutation or cutover. Previously completed credential deployment remains closed.",
-    "blocker": "Retained price input window cannot reproduce accepted stored ATH; acquisition checkpoint/retry envelope not located for selected case; canonical transaction-role closure incomplete; dictionary/membership/outcome authorities differ in retained V1. Candidate-wide Potential Operations populations and source high-water identities remain unqualified. Admission-outbox selector refused without safe index.",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/REPORT.md",
-    "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
-    "storage": "Per-file RLIMIT16000000bytes, SQLite construction max2048pages, per-selectorLIMIT129/200000VM/1second, pass2048rows. No raw RPC/provider payload retention; zero per-run unbounded growth paths.",
-    "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized.",
-    "evidence_completion": "See dev004_bounded_evidence_completion; existing OPS fixture extended with source-separated references, canonical comparisons unchanged; overall HOLD preserved.",
-    "ath_numerical_acceptance": "PASS under explicit user0.1% policy; exact candle reproducibility separately unqualified, no longer a numerical acceptance blocker. Overall HOLD for remaining requirements.",
-    "latest_qualification": "See dev004_end_to_end_operational_qualification; original fixtures retained; latest working copies /private/tmp/dev004-e2e/qualified; overall HOLD."
-  },
-  "dev004_bounded_evidence_completion": {
-    "engineering_revision": "4da575c26517e94091d36b72d6770cfd36ab1f56",
-    "status": "HOLD_PARTIAL_EVIDENCE_RECOVERED",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only retained-evidence lookup, existing disposable fixture extension and provider-free tests; no executable source changes.",
-    "scope": "Only selected DEV004 case ATH-finalization and acquisition checkpoint evidence. Previous credential deployment remains closed.",
-    "result": "ATH numerical equivalence PASS under user-approved0.1% relative tolerance; original canonical evidence unchanged. Exact candle reproducibility separately unqualified and not a numerical-gate blocker. Finalized-request suppression qualified; unfinished acquisition recovery remains HOLD.",
-    "verification": "15 separately labelled reference attachments added; canonical fixture rows unchanged. All11 original V1/V2 outputs still equal, including prior frozen values. Installed finalizer reopened twice against V1 and twice against V2: all4 returned ALREADY_FINALIZED with0 provider calls. Core294912bytes; OPS503808bytes. All artifacts below16MB.",
-    "blocker": "Unfinished acquisition per-window completion cursor, pending/retry envelope and consumed-budget recovery state remain unqualified. Missing original ATH candles no longer block numerical acceptance.",
-    "remaining_separate_holds": [
-      "CREATE/atomic evidence",
-      "admission linkage",
-      "pending/retry recovery",
-      "Potential Operations discovery",
-      "full Watchtower behavioural reconstruction"
-    ],
-    "production_state": "V1 authoritative. No production writes, source/config changes, service actions, provider calls, live queue mutations or cutover.",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/evidence_completion/REPORT.md",
-    "fixtures": "/private/tmp/dev004-first-v2-build/reproducibility-run",
-    "next_action": "Continue prospective provider-free Birdeye acquisition, checkpoint and restart-recovery qualification in existing DEV004; do not require original ATH candles after numerical PASS. Other separate HOLDs remain unchanged.",
-    "ath_acceptance_contract": {
-      "status": "PASS_USER_APPROVED_NUMERICAL_TOLERANCE",
-      "maximum_relative_difference_percent": "0.1",
-      "observed_relative_difference_percent": "0.002561652223584472",
-      "scope": "ATH market-capitalization valuations only; all other canonical evidence retains existing exact requirements",
-      "canonical_values_timestamps_provenance_finalization_identity": "UNCHANGED",
-      "exact_historical_candle_reproducibility": "UNQUALIFIED; separately recorded; original candle recovery not required when numerical tolerance passes",
-      "runtime_deployment_required": false,
-      "reason": "Acceptance-contract and documentation amendment only; no production changes or historical recalculation."
-    }
-  },
-  "dev004_end_to_end_operational_qualification": {
-    "engineering_revision": "db92fc2fd9a5bec4899343860506ae0b670da985",
-    "status": "HOLD_NOT_READY_FOR_CUTOVER",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Isolated DEV fixtures, provider-free tests and documentation only; no production executable change.",
-    "objective": "Existing DEV004 lightweight end-to-end operational qualification; no new workstream.",
-    "verification": "20 synthetic installed-interface checks PASS;2 checks HOLD. All11 prior frozen outputs remain EXACT_MATCH.27 keyed registry/identity/profile/qualification records match. Existing ATH numerical tolerance PASS preserved.",
-    "qualified_scope": "CREATE handler/canonical birth/compact receipt; duplicate delivery; migration detector/store and creator admission; atomic qualified proof staging; Core\u2192OPS post-commit/ACK recovery; distinct funding-account topology storage; conflict quarantine; bounded queue attempts; synthetic price/lifecycle persistence, terminal finalization/reopen; credential/header and429 controls. Test adapters replace production writer/bootstrap and noncanonical side effects.",
-    "blocker": "Installed main-worker opening transport omits the accepted worker71b6e338 fallback-provenance flags for the same synthetic response. Potential Operations identity/state and candidate populations absent. Full reference memberships/behavioural/funding populations, creator RPC recovery, accepted API/UI composition, live queue/account-budget reconciliation and long-term storage limits remain unqualified.",
-    "external_request_limitation": "Commit-before-ACK ambiguity repeats mock transport execution; observations deduplicate and finalization identity persists. Existing bounded retry contract preserved; exactly-once external execution not claimed.",
-    "storage": "Working Core335872bytes/OPS671744bytes; original294912/503808 fixtures hash-unchanged. Schema-only335872/569344bytes; observed price WAL119512bytes. Per-file test cap16000000bytes, writable SQLite2048pages. Raw retention=false; no per-run unbounded growth. At least3 runtime growth surfaces remain unqualified; no linear1000-birth/100-migration estimate from one sample.",
-    "known_operations": "All10 established registry roots present with original statuses; full operation attribution equivalence is not implied.",
-    "production_state": "V1 authoritative; no production database/source/config changes, service actions, real provider calls, live WebSockets, historical deletion or cutover. Prior credential deployment remains closed.",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/end_to_end/REPORT.md",
-    "fixtures": "/private/tmp/dev004-e2e/qualified",
-    "next_action": "HOLD cutover. First qualify DEV004 price-runtime composition against accepted71b6e338, preserving fallback provenance and provider controls; rerun affected price tests. Remaining reference/Potential Operations/queue/storage gates stay separately HOLD. No production repair or dormant-service restoration authorized."
-  },
-  "dev004_price_provenance_correction": {
-    "status": "PASS_SCOPED_DEV_ONLY",
-    "overall_dev004": "HOLD",
-    "engineering_source_revision": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
-    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex",
-    "accepted_price_worker": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
-    "cause": "Old monitor composition and harness wiring lost accepted fallback absence flags and baseline labels; no V2 schema limitation.",
-    "delta": "DEV-only pure accepted normalizer/reducer, opening fallback policy and fact exactness; harness selects DEV monitor. No production source/schema changes.",
-    "tests": {
-      "intake_recovery_pass": 8,
-      "price_and_controls_pass": 12,
-      "existing_potential_operations_hold": 1,
-      "opening_oracle_cases": 8,
-      "persisted_baseline_cases": 3,
-      "original_frozen_comparisons_pass": 11,
-      "ath_numerical_tolerance": "PASS;0.002561652223589094 percent relative difference",
-      "installed_credential_hashes_unchanged": 9,
-      "provider_calls": 0
-    },
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Isolated DEV prototype correction; production deployment not authorized.",
-    "production_activation": "UNCHANGED; no service actions, provider calls or cutover",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/price_provenance/REPORT.md",
-    "remaining_blockers": [
-      "Potential Operations discovery",
-      "full Watchtower behavioural reconstruction",
-      "missing reference-seed populations",
-      "live queue/budget reconciliation",
-      "API runtime availability"
-    ],
-    "next_action": "Scoped correction complete. Continue existing DEV004 unresolved requirements; no deployment/cutover.",
-    "updated_at_utc": "2026-10-22T23:47:11.323752+00:00"
-  },
-  "dev004_operational_seed_potential_qualification": {
-    "status": "PARTIAL_HOLD_CUTOVER",
-    "engineering_source_revision": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
-    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex",
-    "price_correction_preserved": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Isolated fixture/test qualification only; production deployment not authorized.",
-    "completed": [
-      "Ten operation identities/status/confidence/review/lifecycle match installed reader",
-      "1165 memberships including762 NULL event_id retained without promotion",
-      "63 workflow populations1332 memberships;2 Living identities183 associations5 versions retained",
-      "26 Deep diagnostic route cases exact after73 role records; authority REVIEW_ONLY",
-      "Two Living source populations match; reverse resolution98 events and atomic publication/reopen pass",
-      "20 previous functional checks preserved plus former missing-identity test now passes; original11 frozen outputs exact; ATH/BIRDEYE/provenance preserved"
-    ],
-    "storage": {
-      "core_rows": 12490,
-      "ops_rows": 15964,
-      "encoded_logical_bytes": 24586129,
-      "core_file_bytes": 8970240,
-      "ops_file_bytes": 13742080,
-      "classification": "Conservative partial candidate fixtures incl qualification controls; not certified minimum or final-size forecast"
-    },
-    "blockers": [
-      "Demonstrated rowid-generation discontinuity: new V2 edge4173 ignored against retained V1 edge cursor206259",
-      "99 Watchtower route-link cases missing required verified sender/recipient relationships;5 bounded source-read limitations",
-      "100 creator-launch history populations incomplete:3315 missing mints within bound;12 capped",
-      "Global new-operation discovery builder/frozen-case closure, remaining quarantine/reference/monitoring populations and live cutover reconciliation unqualified"
-    ],
-    "production_state": "V1 authoritative; zero production writes/source changes/providers/service actions/live WebSockets/deletion/cutover",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/operational_seed/REPORT.md",
-    "next_action": "DEV-only generation-preserving seed/cursor mapping for two Living candidates, tested against retained new-edge counterexample. Keep exact remaining record gaps separate.",
-    "updated_at_utc": "2026-10-23T00:02:34.722759+00:00"
-  },
-  "dev004_seed_minimization_audit": {
-    "status": "AUDIT_COMPLETE_PARTIAL_HOLD_REDUCTION",
-    "engineering_source_revision": "ce5dbfc14b85fa3faae0b3775107e4643bb8f440",
-    "code_baseline_unchanged": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
-    "accepted_price_correction_preserved": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only audit and documentation only; no implementation.",
-    "seed_expansion_paused_by_user": true,
-    "inventory": {
-      "tables": 69,
-      "current_rows": 28454,
-      "essential_preserve_now_rows": 5004,
-      "compactable_conditional_rows": 4306,
-      "synthetic_historical_only_rows": 29,
-      "unknown_rows": 19115,
-      "encoded_logical_bytes": 24586129,
-      "core_file_bytes": 8970240,
-      "ops_file_bytes": 13742080
-    },
-    "reduction_evidence": {
-      "genuine_v1_rows_independently_cleared_for_retirement": 0,
-      "synthetic_controls_for_future_initializer_omission": 29,
-      "synthetic_controls_encoded_bytes": 24363,
-      "repeated_infrastructure_value_occurrences": 265,
-      "distinct_exact_values": 5,
-      "gross_duplicate_canonical_component_bytes": 2131007,
-      "limitation": "Conditional information-preserving representation opportunity; no structures created, no rows deleted, no guaranteed physical recovery. Synthetic controls remain in current acceptance fixtures."
-    },
-    "verification": [
-      "Exact28454row reconciliation; all rows classified once",
-      "Core/OPS and stale-cursor counterexample hashes unchanged",
-      "Original11 read-only comparisons and26Deep cases PASS",
-      "Prior20functional results and installed qualified source hashes preserved; mutating harnesses not rerun",
-      "Nine deployed credential correction hashes match; no actual credentials read"
-    ],
-    "minimum_seed": "UNDETERMINED;5004preserve-now rows are not a complete deployable minimum. Unknowns are not disposable.",
-    "existing_blockers_preserved": [
-      "V1-generation-specific candidate cursors",
-      "Missing verified treasury-role links",
-      "Incomplete creator launch-span populations",
-      "Global discovery/reference/recovery closure"
-    ],
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/seed_minimization/REPORT.md",
-    "rows_by_table": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/seed_minimization/ROWS_BY_TABLE.md",
-    "next_action": "Keep expansion paused. Subject to separate authorization, qualify five-value shared-infrastructure evidence representation against265frozen outcomes and negative-evidence consumers. No implementation in this audit.",
-    "production_state": "UNCHANGED; no production/fixture writes, source changes, providers, service actions, deletion, cutover or cursor reset.",
-    "updated_at_utc": "2026-10-23T00:20:23.167557+00:00"
-  },
-  "dev004_cutover_blocker_prioritization": {
-    "status": "DECISION_COMPLETE_HOLD_CUTOVER",
-    "engineering_source_revision": "4028e7eb15da92837c5e7228ca6485f6fcafe90f",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only decision and documentation; no executable change.",
-    "scope": "Stop seed-size optimization; focus only operational replacement blockers.",
-    "demonstrated_failures": [
-      "New V2 candidate edge4173 ignored against retained V1 cursor206259",
-      "99 Watchtower routes change verified role distinction to treasury conflict; five other source cases unknown, not proven failures"
-    ],
-    "unqualified_functions": [
-      "Creator count/span/funder decision inputs",
-      "Accepted new-operation discovery path beyond two-candidate bridge",
-      "Complete installed parsing/creator recovery/Walkback investigation and durable writer integration",
-      "Unfinished Birdeye checkpoint/retry/consumed-budget recovery and complete accepted executable composition",
-      "Accepted API/UI/monitoring projections",
-      "Affected persistence/resource bounds and reconciled cutover/rollback"
-    ],
-    "gate_order": [
-      "G1 Potential Operations freshness/discovery continuity",
-      "G2 Attribution decision closure",
-      "G3 Installed intake/creator recovery/Walkback integration",
-      "G4 Price acquisition/restart/composition",
-      "G5 API/UI/monitoring projections",
-      "G6 Existing persistence/resource safety",
-      "G7 Consistent cutover state and rollback then production authorization"
-    ],
-    "historical_nonblockers": [
-      "Missing original ATH candles after approved numerical PASS",
-      "762 NULL event_id assignments alone with preserved authority",
-      "Deep capital continuity remains unqualified with unchanged REVIEW_ONLY result",
-      "19115 unknown disposal classifications are not automatic operational blockers",
-      "Old worktree paths need not be recreated or dormant services activated to qualify equivalent accepted composition"
-    ],
-    "next_action": "Separate authorization for one focused DEV-only freshness-boundary correction/qualification for two existing Living candidates: relevant new evidence, duplicate/unrelated/no-event, crash/reopen, all three source families. No seed expansion or arbitrary reset. Then address exact Watchtower role links.",
-    "supersedes_previous_next_action": "Shared-evidence deduplication/seed minimization is deferred; do not pursue it.",
-    "production_and_activation": "V1 authoritative, existing flags unchanged; no database/source changes, providers, services, deletion or cutover. No database handles opened in this task.",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/cutover_blocker_prioritization/REPORT.md",
-    "updated_at_utc": "2026-10-23T07:29:29.121900+00:00"
-  },
-  "dev004_potential_operations_freshness_correction": {
-    "status": "PASS_SCOPED_DEV_QUALIFIED_NOT_DEPLOYED",
-    "engineering_source_revision": "ace58aba292a7183cfef39e853a114ebbcbe8712",
-    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex",
-    "runtime_target": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution",
-    "dev_runtime_gate": "PASS: qualified modules imported/executed on disposable data; source hashes and functional evidence recorded; no daemon restart required",
-    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED; production deployment not authorized",
-    "source_delta": "One bounded immutable mapping helper; optional read-only source-reader branch and explicit mapping-path binding in DEV Living runtime. No schema delta.",
-    "mapping_contract": "dev004-forward-freshness.v1; candidate base-assessment authority, export logical floor, seed physical origin and inherited primary-key identities remain distinct. No cursor reset or initial publication.",
-    "exact_counterexample": {
-      "legacy_export_cursor": "000000095347:000000206259:000000020221",
-      "new_local_edge_rowid": 4173,
-      "forward_generation": "000000095347:000000206260:000000020221",
-      "versions_added": 1,
-      "replay_duplicates": 0
-    },
-    "verification": [
-      "12 focused test groups PASS; two candidates and queue/edge/atomic families",
-      "Historical/new duplicate suppression; inherited baseline no replay",
-      "Prospective member/new queue; conflicting/insufficient metadata and competing-parent controls; review/promotion unchanged",
-      "Pre-commit rollback; commit/reopen and fresh-interpreter replay no new assessments",
-      "8 intake and13 price/control checks PASS; original11 frozen comparisons and26Deep cases PASS",
-      "Seed, memberships, Watchtower evidence and original counterexample hashes unchanged;9deployed credential hashes preserved; ATH tolerance PASS"
-    ],
-    "storage": "Fixed mapping below500000bytes; max128members/candidate,2048source rows/family;16MB qualification file cap and3840SQLite pages; no new unbounded growth path/raw retention. Existing assessment retention not changed.",
-    "production_state": "V1 authoritative; no production writes/source/config changes, provider calls, services, live sockets, historical deletion, seed expansion or cutover. Explicit DEV mapping option only.",
-    "limits": [
-      "Mapping must be built once from an agreed immutable cutover boundary; do not regenerate at restart",
-      "Qualified stable-key append admissions and bounded membership additions; no invented in-place-update clock or global discovery producer",
-      "Fixture metadata is not a production cutover manifest"
-    ],
-    "remaining_blockers": [
-      "99 Watchtower treasury-role cases and five source limitations",
-      "Creator-history decision closure and full unseen-operation discovery",
-      "Complete creator/Walkback investigation integration",
-      "Unfinished Birdeye recovery/budget continuity and accepted projections",
-      "Runtime persistence bounds and consistent queue/cutover/rollback"
-    ],
-    "next_action": "No deployment. Continue only separately authorized Watchtower treasury-role dependency qualification; keep V1 authoritative and optimization paused.",
-    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/freshness_correction/REPORT.md",
-    "updated_at_utc": "2026-10-23T07:46:56.590572+00:00"
   }
 }

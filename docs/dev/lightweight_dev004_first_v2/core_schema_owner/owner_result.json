@@ -1,0 +1,1253 @@
+{
+  "status": "HOLD_FRESH_BASE_CONTRACT",
+  "owners": [
+    {
+      "pass": 1,
+      "owner": "PumpFunCurveListener._ensure_db_with_connection",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_birth_persist_queue_status"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funders_analyzed"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funders_creator"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funders_funder"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funding_queue_created_at"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_funding_queue_status"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_watchlist_active"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_watchlist_group"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_webhook_events_block_time"
+        },
+        {
+          "type": "index",
+          "name": "idx_funder_webhook_events_funder"
+        },
+        {
+          "type": "table",
+          "name": "birth_persist_queue"
+        },
+        {
+          "type": "table",
+          "name": "creator_funders"
+        },
+        {
+          "type": "table",
+          "name": "creator_funding_queue"
+        },
+        {
+          "type": "table",
+          "name": "creator_sol_transfers"
+        },
+        {
+          "type": "table",
+          "name": "funder_watchlist"
+        },
+        {
+          "type": "table",
+          "name": "funder_webhook_events"
+        },
+        {
+          "type": "table",
+          "name": "funder_webhook_groups"
+        },
+        {
+          "type": "table",
+          "name": "migration_persist_queue"
+        },
+        {
+          "type": "table",
+          "name": "pumpfun_migration_verification"
+        },
+        {
+          "type": "table",
+          "name": "token_analysis"
+        }
+      ]
+    },
+    {
+      "pass": 1,
+      "owner": "TokenPriceService._ensure_tables_with_connection",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_cb_disabled"
+        },
+        {
+          "type": "index",
+          "name": "idx_tpa_mint_active"
+        },
+        {
+          "type": "index",
+          "name": "idx_tpa_vault_status"
+        },
+        {
+          "type": "table",
+          "name": "circuit_breaker_state"
+        },
+        {
+          "type": "table",
+          "name": "token_pool_accounts"
+        }
+      ]
+    },
+    {
+      "pass": 1,
+      "owner": "schema_init.ensure_schema",
+      "created_objects": [
+        {
+          "type": "table",
+          "name": "token_analysis"
+        }
+      ]
+    },
+    {
+      "pass": 1,
+      "owner": "creator_resolution_queue.initialize_schema",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_creator_funding_queue_mint"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_resolution_queue_status"
+        },
+        {
+          "type": "index",
+          "name": "idx_creator_resolution_queue_updated"
+        },
+        {
+          "type": "table",
+          "name": "creator_resolution_queue"
+        }
+      ]
+    },
+    {
+      "pass": 1,
+      "owner": "migration_walkback_handoff_retry.ensure_schema",
+      "created_objects": [
+        {
+          "type": "index",
+          "name": "idx_migration_walkback_handoff_due"
+        },
+        {
+          "type": "table",
+          "name": "migration_walkback_handoff"
+        }
+      ]
+    },
+    {
+      "pass": 2,
+      "owner": "PumpFunCurveListener._ensure_db_with_connection",
+      "created_objects": []
+    },
+    {
+      "pass": 2,
+      "owner": "TokenPriceService._ensure_tables_with_connection",
+      "created_objects": []
+    },
+    {
+      "pass": 2,
+      "owner": "schema_init.ensure_schema",
+      "created_objects": []
+    },
+    {
+      "pass": 2,
+      "owner": "creator_resolution_queue.initialize_schema",
+      "created_objects": []
+    },
+    {
+      "pass": 2,
+      "owner": "migration_walkback_handoff_retry.ensure_schema",
+      "created_objects": []
+    }
+  ],
+  "network_provider_calls": 0,
+  "repeat_safe_schema": true,
+  "columns": {
+    "token_analysis": [
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "analyzed_at",
+        "type": "REAL"
+      },
+      {
+        "name": "total_txs",
+        "type": "INTEGER"
+      },
+      {
+        "name": "total_events",
+        "type": "INTEGER"
+      },
+      {
+        "name": "events_parsed",
+        "type": "INTEGER"
+      },
+      {
+        "name": "mint_concentration",
+        "type": "REAL"
+      },
+      {
+        "name": "unique_minters_ratio",
+        "type": "REAL"
+      },
+      {
+        "name": "sell_suppression_ratio",
+        "type": "REAL"
+      },
+      {
+        "name": "mint_velocity_sec",
+        "type": "REAL"
+      },
+      {
+        "name": "buy_size_variance",
+        "type": "REAL"
+      },
+      {
+        "name": "sell_volume_concentration",
+        "type": "REAL"
+      },
+      {
+        "name": "creator_activity_ratio",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_mint_concentration",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_unique_minters_ratio",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_sell_suppression_ratio",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_mint_velocity_sec",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_buy_size_variance",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_sell_volume_concentration",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_creator_activity_ratio",
+        "type": "REAL"
+      },
+      {
+        "name": "post_migration_coverage",
+        "type": "REAL"
+      },
+      {
+        "name": "rug_probability",
+        "type": "REAL"
+      },
+      {
+        "name": "risk_level",
+        "type": "TEXT"
+      },
+      {
+        "name": "migration_tx",
+        "type": "TEXT"
+      },
+      {
+        "name": "price_current",
+        "type": "REAL"
+      },
+      {
+        "name": "price_highest",
+        "type": "REAL"
+      },
+      {
+        "name": "market_cap_current",
+        "type": "REAL"
+      },
+      {
+        "name": "market_cap_highest",
+        "type": "REAL"
+      },
+      {
+        "name": "market_cap_highest_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "price_updated_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "price_source",
+        "type": "TEXT"
+      },
+      {
+        "name": "pool_address",
+        "type": "TEXT"
+      },
+      {
+        "name": "creator_address",
+        "type": "TEXT"
+      },
+      {
+        "name": "creator_reputation",
+        "type": "TEXT"
+      },
+      {
+        "name": "earliest_tx_creator",
+        "type": "TEXT"
+      },
+      {
+        "name": "creator_is_blocked",
+        "type": "INTEGER"
+      },
+      {
+        "name": "network_risk",
+        "type": "INTEGER"
+      },
+      {
+        "name": "connected_malicious_count",
+        "type": "INTEGER"
+      },
+      {
+        "name": "is_about_to_migrate",
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "migration_progress_pct",
+        "type": "REAL"
+      },
+      {
+        "name": "migration_band",
+        "type": "TEXT"
+      },
+      {
+        "name": "migration_signal_updated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "first_pre_migration_signal_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "lifecycle_stage",
+        "type": "TEXT"
+      },
+      {
+        "name": "migrated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "dex",
+        "type": "TEXT"
+      },
+      {
+        "name": "pumpswap_pool_address",
+        "type": "TEXT"
+      },
+      {
+        "name": "source_platform",
+        "type": "TEXT"
+      },
+      {
+        "name": "is_new",
+        "type": "INTEGER"
+      },
+      {
+        "name": "rug_indicator",
+        "type": "TEXT"
+      },
+      {
+        "name": "created_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "name": "migration_source",
+        "type": "TEXT"
+      },
+      {
+        "name": "migration_signal_source",
+        "type": "TEXT"
+      },
+      {
+        "name": "curve_complete",
+        "type": "INTEGER"
+      },
+      {
+        "name": "curve_completed_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "curve_completed_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "curve_complete_source",
+        "type": "TEXT"
+      },
+      {
+        "name": "migration_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "creator_resolved_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "funding_job_enqueued_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "funding_extracted_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "market_cap_highest_at_ts",
+        "type": "INTEGER"
+      },
+      {
+        "name": "pf_ws_creator",
+        "type": "TEXT"
+      },
+      {
+        "name": "creator_mismatch",
+        "type": "INTEGER"
+      }
+    ],
+    "token_market_cap_peaks": [],
+    "creator_resolution_queue": [
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "status",
+        "type": "TEXT"
+      },
+      {
+        "name": "priority",
+        "type": "INTEGER"
+      },
+      {
+        "name": "reason",
+        "type": "TEXT"
+      },
+      {
+        "name": "source",
+        "type": "TEXT"
+      },
+      {
+        "name": "attempts",
+        "type": "INTEGER"
+      },
+      {
+        "name": "next_attempt_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "locked_until",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_error",
+        "type": "TEXT"
+      },
+      {
+        "name": "resolved_creator",
+        "type": "TEXT"
+      },
+      {
+        "name": "create_tx_signature",
+        "type": "TEXT"
+      },
+      {
+        "name": "migrated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "created_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "updated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "resolved_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "sigs_examined",
+        "type": "INTEGER"
+      },
+      {
+        "name": "pages_examined",
+        "type": "INTEGER"
+      },
+      {
+        "name": "runtime_secs",
+        "type": "REAL"
+      },
+      {
+        "name": "skip_reason",
+        "type": "TEXT"
+      },
+      {
+        "name": "resolution_tier",
+        "type": "TEXT"
+      }
+    ],
+    "creator_funding_queue": [
+      {
+        "name": "creator_address",
+        "type": "TEXT"
+      },
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "migration_timestamp",
+        "type": "TEXT"
+      },
+      {
+        "name": "create_tx_signature",
+        "type": "TEXT"
+      },
+      {
+        "name": "status",
+        "type": "TEXT"
+      },
+      {
+        "name": "source",
+        "type": "TEXT"
+      },
+      {
+        "name": "next_attempt_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "locked_until",
+        "type": "INTEGER"
+      },
+      {
+        "name": "attempts",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_error",
+        "type": "TEXT"
+      },
+      {
+        "name": "observation_required",
+        "type": "INTEGER"
+      },
+      {
+        "name": "created_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "updated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "funding_enqueued_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "funding_extracted_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "curve_completed_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "enqueued_slot",
+        "type": "INTEGER"
+      },
+      {
+        "name": "job_priority",
+        "type": "INTEGER"
+      },
+      {
+        "name": "priority_reason",
+        "type": "TEXT"
+      }
+    ],
+    "birth_persist_queue": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "creator",
+        "type": "TEXT"
+      },
+      {
+        "name": "created_at",
+        "type": "TEXT"
+      },
+      {
+        "name": "bonding_curve_pda",
+        "type": "TEXT"
+      },
+      {
+        "name": "create_tx_signature",
+        "type": "TEXT"
+      },
+      {
+        "name": "symbol",
+        "type": "TEXT"
+      },
+      {
+        "name": "name",
+        "type": "TEXT"
+      },
+      {
+        "name": "received_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "status",
+        "type": "TEXT"
+      },
+      {
+        "name": "retry_count",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_error",
+        "type": "TEXT"
+      },
+      {
+        "name": "last_attempt_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "processed_at",
+        "type": "INTEGER"
+      }
+    ],
+    "migration_persist_queue": [
+      {
+        "name": "id",
+        "type": "INTEGER"
+      },
+      {
+        "name": "signature",
+        "type": "TEXT"
+      },
+      {
+        "name": "source",
+        "type": "TEXT"
+      },
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "received_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "status",
+        "type": "TEXT"
+      },
+      {
+        "name": "retry_count",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_error",
+        "type": "TEXT"
+      },
+      {
+        "name": "last_attempt_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "processed_at",
+        "type": "INTEGER"
+      }
+    ],
+    "migration_walkback_handoff": [
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "creator",
+        "type": "TEXT"
+      },
+      {
+        "name": "migration_tx",
+        "type": "TEXT"
+      },
+      {
+        "name": "migrated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "state",
+        "type": "TEXT"
+      },
+      {
+        "name": "attempt_count",
+        "type": "INTEGER"
+      },
+      {
+        "name": "next_attempt_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_attempt_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_error_class",
+        "type": "TEXT"
+      },
+      {
+        "name": "last_error_message",
+        "type": "TEXT"
+      },
+      {
+        "name": "created_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "completed_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "terminal_at",
+        "type": "INTEGER"
+      }
+    ],
+    "circuit_breaker_state": [
+      {
+        "name": "source",
+        "type": "TEXT"
+      },
+      {
+        "name": "disabled",
+        "type": "INTEGER"
+      },
+      {
+        "name": "disabled_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "break_count",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_break_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "created_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "updated_at",
+        "type": "INTEGER"
+      }
+    ],
+    "token_pool_accounts": [
+      {
+        "name": "mint",
+        "type": "TEXT"
+      },
+      {
+        "name": "base_account",
+        "type": "TEXT"
+      },
+      {
+        "name": "quote_account",
+        "type": "TEXT"
+      },
+      {
+        "name": "pool_program",
+        "type": "TEXT"
+      },
+      {
+        "name": "base_token",
+        "type": "TEXT"
+      },
+      {
+        "name": "quote_token",
+        "type": "TEXT"
+      },
+      {
+        "name": "base_decimals",
+        "type": "INTEGER"
+      },
+      {
+        "name": "quote_decimals",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_reserve_fetch",
+        "type": "INTEGER"
+      },
+      {
+        "name": "vault_validation_status",
+        "type": "TEXT"
+      },
+      {
+        "name": "vault_validation_error",
+        "type": "TEXT"
+      },
+      {
+        "name": "vault_validation_attempts",
+        "type": "INTEGER"
+      },
+      {
+        "name": "last_vault_validation_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "discovery_method",
+        "type": "TEXT"
+      },
+      {
+        "name": "is_active",
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "created_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "updated_at",
+        "type": "INTEGER"
+      },
+      {
+        "name": "liquidity_removed",
+        "type": "BOOLEAN"
+      },
+      {
+        "name": "liquidity_removed_at",
+        "type": "INTEGER"
+      }
+    ]
+  },
+  "creator_queue_ready": true,
+  "foreign_key_check": [],
+  "missing_contracts": [
+    "token_analysis.first_observed_at",
+    "token_market_cap_peaks base table"
+  ],
+  "objects": [
+    {
+      "type": "index",
+      "name": "idx_birth_persist_queue_status",
+      "table": "birth_persist_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_cb_disabled",
+      "table": "circuit_breaker_state"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funders_analyzed",
+      "table": "creator_funders"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funders_creator",
+      "table": "creator_funders"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funders_funder",
+      "table": "creator_funders"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funding_queue_created_at",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funding_queue_mint",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_funding_queue_status",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_resolution_queue_status",
+      "table": "creator_resolution_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_creator_resolution_queue_updated",
+      "table": "creator_resolution_queue"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_watchlist_active",
+      "table": "funder_watchlist"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_watchlist_group",
+      "table": "funder_watchlist"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_webhook_events_block_time",
+      "table": "funder_webhook_events"
+    },
+    {
+      "type": "index",
+      "name": "idx_funder_webhook_events_funder",
+      "table": "funder_webhook_events"
+    },
+    {
+      "type": "index",
+      "name": "idx_migration_walkback_handoff_due",
+      "table": "migration_walkback_handoff"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_cache_action",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_method",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_optimization_layer",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_source_file",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_rpc_metrics_timestamp",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "index",
+      "name": "idx_tpa_mint_active",
+      "table": "token_pool_accounts"
+    },
+    {
+      "type": "index",
+      "name": "idx_tpa_vault_status",
+      "table": "token_pool_accounts"
+    },
+    {
+      "type": "table",
+      "name": "birth_persist_queue",
+      "table": "birth_persist_queue"
+    },
+    {
+      "type": "table",
+      "name": "circuit_breaker_state",
+      "table": "circuit_breaker_state"
+    },
+    {
+      "type": "table",
+      "name": "creator_funders",
+      "table": "creator_funders"
+    },
+    {
+      "type": "table",
+      "name": "creator_funding_queue",
+      "table": "creator_funding_queue"
+    },
+    {
+      "type": "table",
+      "name": "creator_resolution_queue",
+      "table": "creator_resolution_queue"
+    },
+    {
+      "type": "table",
+      "name": "creator_sol_transfers",
+      "table": "creator_sol_transfers"
+    },
+    {
+      "type": "table",
+      "name": "funder_watchlist",
+      "table": "funder_watchlist"
+    },
+    {
+      "type": "table",
+      "name": "funder_webhook_events",
+      "table": "funder_webhook_events"
+    },
+    {
+      "type": "table",
+      "name": "funder_webhook_groups",
+      "table": "funder_webhook_groups"
+    },
+    {
+      "type": "table",
+      "name": "migration_persist_queue",
+      "table": "migration_persist_queue"
+    },
+    {
+      "type": "table",
+      "name": "migration_walkback_handoff",
+      "table": "migration_walkback_handoff"
+    },
+    {
+      "type": "table",
+      "name": "pumpfun_migration_verification",
+      "table": "pumpfun_migration_verification"
+    },
+    {
+      "type": "table",
+      "name": "rpc_metrics",
+      "table": "rpc_metrics"
+    },
+    {
+      "type": "table",
+      "name": "rpc_metrics_state",
+      "table": "rpc_metrics_state"
+    },
+    {
+      "type": "table",
+      "name": "rpc_response_cache",
+      "table": "rpc_response_cache"
+    },
+    {
+      "type": "table",
+      "name": "token_analysis",
+      "table": "token_analysis"
+    },
+    {
+      "type": "table",
+      "name": "token_pool_accounts",
+      "table": "token_pool_accounts"
+    }
+  ],
+  "user_rows": {
+    "birth_persist_queue": 0,
+    "circuit_breaker_state": 0,
+    "creator_funders": 0,
+    "creator_funding_queue": 0,
+    "creator_resolution_queue": 0,
+    "creator_sol_transfers": 0,
+    "funder_watchlist": 0,
+    "funder_webhook_events": 0,
+    "funder_webhook_groups": 0,
+    "migration_persist_queue": 0,
+    "migration_walkback_handoff": 0,
+    "pumpfun_migration_verification": 0,
+    "rpc_metrics": 0,
+    "rpc_metrics_state": 0,
+    "rpc_response_cache": 0,
+    "token_analysis": 0,
+    "token_pool_accounts": 0
+  },
+  "peak_sampled_wal_bytes": 712792,
+  "core_bytes": 258048,
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "blocked": [
+    "bind"
+  ]
+}

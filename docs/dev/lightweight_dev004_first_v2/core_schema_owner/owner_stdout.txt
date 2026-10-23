@@ -1,0 +1,34 @@
+[DB] ✅ Added funding_enqueued_at column to creator_funding_queue
+[DB] ✅ Added funding_extracted_at column to creator_funding_queue
+[DB] ✅ Added curve_completed_slot column to creator_funding_queue
+[DB] ✅ Added enqueued_slot column to creator_funding_queue
+[DB] ✅ Added job_priority column to creator_funding_queue
+[DB] ✅ Added priority_reason column to creator_funding_queue
+[DB] ✅ Added migration_source column to token_analysis
+[DB] ✅ Added migration_signal_source column to token_analysis
+[DB] ✅ Added curve_complete column to token_analysis
+[DB] ✅ Added curve_completed_at column to token_analysis
+[DB] ✅ Added curve_completed_slot column to token_analysis
+[DB] ✅ Added curve_complete_source column to token_analysis
+[DB] ✅ Added migration_slot column to token_analysis
+[DB] ✅ Added creator_resolved_slot column to token_analysis
+[DB] ✅ Added funding_job_enqueued_slot column to token_analysis
+[DB] ✅ Added funding_extracted_slot column to token_analysis
+[DB] ✅ Funder webhook tables ensured
+[DB] ✅ Creator funder tables ensured
+[SCHEMA] note: no such table: token_market_cap_peaks
+[SCHEMA] note: no such table: token_market_cap_peaks
+[SCHEMA] note: no such table: token_market_cap_peaks
+[SCHEMA] note: no such table: token_market_cap_peaks
+[SCHEMA] note: no such table: wt_sub_provisioners
+[SCHEMA] note: no such table: wt_sub_provisioners
+[SCHEMA] note: no such table: wt_sub_provisioners
+[SCHEMA] note: no such table: wt_sub_provisioners
+[SCHEMA] note: no such table: wt_sub_provisioners
+[SCHEMA] note: no such table: watchtower_infra_events
+[SCHEMA] note: no such table: watchtower_infra_events
+[SCHEMA] note: no such table: watchtower_infra_events
+[DB] ✅ Funder webhook tables ensured
+[DB] ✅ Creator funder tables ensured
+[SCHEMA] All migrations already applied — skipping
+{"status": "HOLD_FRESH_BASE_CONTRACT", "repeat_safe_schema": true, "creator_queue_ready": true, "missing_contracts": ["token_analysis.first_observed_at", "token_market_cap_peaks base table"], "peak_sampled_wal_bytes": 712792, "core_bytes": 258048}

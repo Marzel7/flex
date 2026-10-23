@@ -1,0 +1,364 @@
+{
+  "status": "HOLD_BASE_SCHEMA",
+  "side_contracts": {
+    "webhook_birth_retry_schema": "PASS_IDEMPOTENT_EXISTING_OWNER"
+  },
+  "canonical_create_read_plan": {
+    "status": "HOLD",
+    "error": "no such column: create_tx_signature"
+  },
+  "foreign_key_check": [],
+  "all_user_rows": {
+    "rpc_metrics": 0,
+    "rpc_metrics_state": 0,
+    "rpc_response_cache": 0,
+    "token_analysis": 0,
+    "creator_sol_transfers": 0,
+    "creator_funders": 0,
+    "pumpfun_migration_verification": 0,
+    "creator_funding_queue": 0,
+    "funder_watchlist": 0,
+    "funder_webhook_groups": 0,
+    "funder_webhook_events": 0,
+    "migration_persist_queue": 0,
+    "birth_persist_queue": 0,
+    "circuit_breaker_state": 0,
+    "token_pool_accounts": 0,
+    "creator_resolution_queue": 0,
+    "migration_walkback_handoff": 0,
+    "webhook_birth_queue": 0
+  },
+  "objects": [
+    [
+      "index",
+      "idx_birth_persist_queue_status",
+      "birth_persist_queue"
+    ],
+    [
+      "index",
+      "idx_cb_disabled",
+      "circuit_breaker_state"
+    ],
+    [
+      "index",
+      "idx_creator_funders_analyzed",
+      "creator_funders"
+    ],
+    [
+      "index",
+      "idx_creator_funders_creator",
+      "creator_funders"
+    ],
+    [
+      "index",
+      "idx_creator_funders_funder",
+      "creator_funders"
+    ],
+    [
+      "index",
+      "idx_creator_funding_queue_created_at",
+      "creator_funding_queue"
+    ],
+    [
+      "index",
+      "idx_creator_funding_queue_mint",
+      "creator_funding_queue"
+    ],
+    [
+      "index",
+      "idx_creator_funding_queue_status",
+      "creator_funding_queue"
+    ],
+    [
+      "index",
+      "idx_creator_resolution_queue_status",
+      "creator_resolution_queue"
+    ],
+    [
+      "index",
+      "idx_creator_resolution_queue_updated",
+      "creator_resolution_queue"
+    ],
+    [
+      "index",
+      "idx_funder_watchlist_active",
+      "funder_watchlist"
+    ],
+    [
+      "index",
+      "idx_funder_watchlist_group",
+      "funder_watchlist"
+    ],
+    [
+      "index",
+      "idx_funder_webhook_events_block_time",
+      "funder_webhook_events"
+    ],
+    [
+      "index",
+      "idx_funder_webhook_events_funder",
+      "funder_webhook_events"
+    ],
+    [
+      "index",
+      "idx_migration_walkback_handoff_due",
+      "migration_walkback_handoff"
+    ],
+    [
+      "index",
+      "idx_rpc_metrics_cache_action",
+      "rpc_metrics"
+    ],
+    [
+      "index",
+      "idx_rpc_metrics_method",
+      "rpc_metrics"
+    ],
+    [
+      "index",
+      "idx_rpc_metrics_optimization_layer",
+      "rpc_metrics"
+    ],
+    [
+      "index",
+      "idx_rpc_metrics_source_file",
+      "rpc_metrics"
+    ],
+    [
+      "index",
+      "idx_rpc_metrics_timestamp",
+      "rpc_metrics"
+    ],
+    [
+      "index",
+      "idx_tpa_mint_active",
+      "token_pool_accounts"
+    ],
+    [
+      "index",
+      "idx_tpa_vault_status",
+      "token_pool_accounts"
+    ],
+    [
+      "table",
+      "birth_persist_queue",
+      "birth_persist_queue"
+    ],
+    [
+      "table",
+      "circuit_breaker_state",
+      "circuit_breaker_state"
+    ],
+    [
+      "table",
+      "creator_funders",
+      "creator_funders"
+    ],
+    [
+      "table",
+      "creator_funding_queue",
+      "creator_funding_queue"
+    ],
+    [
+      "table",
+      "creator_resolution_queue",
+      "creator_resolution_queue"
+    ],
+    [
+      "table",
+      "creator_sol_transfers",
+      "creator_sol_transfers"
+    ],
+    [
+      "table",
+      "funder_watchlist",
+      "funder_watchlist"
+    ],
+    [
+      "table",
+      "funder_webhook_events",
+      "funder_webhook_events"
+    ],
+    [
+      "table",
+      "funder_webhook_groups",
+      "funder_webhook_groups"
+    ],
+    [
+      "table",
+      "migration_persist_queue",
+      "migration_persist_queue"
+    ],
+    [
+      "table",
+      "migration_walkback_handoff",
+      "migration_walkback_handoff"
+    ],
+    [
+      "table",
+      "pumpfun_migration_verification",
+      "pumpfun_migration_verification"
+    ],
+    [
+      "table",
+      "rpc_metrics",
+      "rpc_metrics"
+    ],
+    [
+      "table",
+      "rpc_metrics_state",
+      "rpc_metrics_state"
+    ],
+    [
+      "table",
+      "rpc_response_cache",
+      "rpc_response_cache"
+    ],
+    [
+      "table",
+      "token_analysis",
+      "token_analysis"
+    ],
+    [
+      "table",
+      "token_pool_accounts",
+      "token_pool_accounts"
+    ],
+    [
+      "table",
+      "webhook_birth_queue",
+      "webhook_birth_queue"
+    ]
+  ],
+  "core_bytes": 266240,
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "blocked": [
+    "bind"
+  ]
+}

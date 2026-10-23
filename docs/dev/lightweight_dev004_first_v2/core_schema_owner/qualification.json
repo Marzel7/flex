@@ -1,0 +1,63 @@
+{
+  "status": "HOLD_MISSING_ACCEPTED_FRESH_CORE_BASE_CONTRACT",
+  "executable_candidate": "712f18400508a7681e3cea78e79cf84c0be8b666",
+  "observed_at_utc": "2026-10-23T11:15:30.139967+00:00",
+  "runtime_source_changes": 0,
+  "owners": {
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "6db4a1c8230ea233d26fd212bac5988437bb0b8f29d9dbed0f282ad10f39b634",
+    "runtime/listener/src/core/price_service.py": "3db95201731153ea7edb226575a7e93a2d9853e6e9a8a102a70a903552d69e28",
+    "runtime/listener/src/core/schema_init.py": "d274043be0258d3c957a262e71bf1223cbd8a837f2b141d3bc96d097917c6ffc",
+    "runtime/listener/src/core/creator_resolution_queue.py": "0b364cf1e5becfa020c866c1f063ed8d8e5a632a2d0c28b165b2411ad1a9d071",
+    "runtime/listener/src/ops/migration_walkback_handoff_retry.py": "00deb45981bcc17c58a58e1b0f553a46f30a627fdda19848a8b22d580fdca3ae",
+    "runtime/listener/src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+    "runtime/creator_resolution/src/ops/operator_lifecycle_projection.py": "ac9eb9baedcd4f2108fb617512e12e1621f663620c68781e934f1f404aac9c4e",
+    "runtime/creator_resolution/src/ops/operation_monitor_worker.py": "148e39b11f29ebbd5788fb49daf79b9cc83d4d905367765c80fa3d47799ca9dd",
+    "runtime/creator_resolution/src/evidence/queue.py": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87"
+  },
+  "reference_artifacts_unchanged": [
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/core_v2.sqlite",
+      "sha256": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+      "bytes": 8970240
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/ops_v2.sqlite",
+      "sha256": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a",
+      "bytes": 13754368
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/history.json",
+      "sha256": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb",
+      "bytes": 1218041
+    }
+  ],
+  "exact_missing_contracts": [
+    "token_analysis.first_observed_at at schema-only initialization",
+    "token_analysis.create_tx_signature at canonical-reader initialization",
+    "canonical token_market_cap_peaks base-table initializer"
+  ],
+  "qualified_parts": [
+    "Existing Core base/price/queue/handoff schemas repeat-safe",
+    "Existing webhook-birth retry owner repeat-safe",
+    "Empty foreign-key check passes;all user rows remain zero;only declared fixture DBs accessed"
+  ],
+  "independent_holds": [
+    "Potential Operations lineage repeat-safe bootstrap",
+    "Birth quarantine module missing from frozen listener package",
+    "Other prior runtime/cutover gates unchanged"
+  ],
+  "storage": {
+    "primary_core_bytes": 258048,
+    "after_birth_retry_bytes": 266240,
+    "peak_sampled_primary_wal_bytes": 712792,
+    "qualification_single_file_cap": 16000000,
+    "raw_acquisition_retention": false,
+    "new_unbounded_paths": 0
+  },
+  "provider_calls": 0,
+  "production_changes": 0,
+  "large_matrices_repeated": 0,
+  "runtime_deployment_required": false,
+  "runtime_deployment_reason": "Schema-owner qualification and documentation only;no executable changes",
+  "next_action": "Supply a versioned accepted Core base-schema initializer/artifact covering the three exact missing contracts,or separately authorize a minimal explicit bootstrap-owner correction. Do not infer DDL from V1,write synthetic price data to create columns,or change classifier semantics."
+}

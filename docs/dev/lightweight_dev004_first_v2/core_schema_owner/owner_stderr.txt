@@ -1,0 +1,1 @@
+[DB_CONNECT_FAIL] caller=rpc_metrics_recorder.py:178 in _rpc_metrics_schema_ready elapsed=0.00s error=unable to open database file

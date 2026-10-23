@@ -1,0 +1,35 @@
+{
+  "mode": "compact",
+  "blocked": [],
+  "retained_history_timestamp_columns": [
+    "first_observed_at",
+    "analyzed_at",
+    "created_at"
+  ],
+  "missing_core_timestamp_columns": [
+    "first_observed_at"
+  ],
+  "status": "HOLD_READER_CONTRACT",
+  "error": "COMPACT_HISTORY_TIMESTAMP_SCHEMA",
+  "core_required_tables": {
+    "token_market_cap_peaks": false,
+    "wt_sub_provisioners": false,
+    "watchtower_infra_events": false,
+    "creator_resolution_queue": true,
+    "creator_funding_queue": true,
+    "migration_walkback_handoff": true,
+    "birth_persist_queue": true
+  },
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-core-owner-qualification/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ]
+}

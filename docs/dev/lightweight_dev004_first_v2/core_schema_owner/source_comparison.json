@@ -1,0 +1,65 @@
+[
+  {
+    "revision": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "path": "src/core/price_service.py",
+    "function": "_ensure_tables",
+    "references_first_observed_at": false,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "path": "src/core/price_service.py",
+    "function": "_ensure_tables_with_connection",
+    "references_first_observed_at": false,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "path": "src/core/price_service.py",
+    "function": "_store_snapshot",
+    "references_first_observed_at": true,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "path": "src/core/price_service.py",
+    "function": "_ensure_tables",
+    "references_first_observed_at": false,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "path": "src/core/price_service.py",
+    "function": "_ensure_tables_with_connection",
+    "references_first_observed_at": false,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "path": "src/core/price_service.py",
+    "function": "_store_snapshot",
+    "references_first_observed_at": true,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "712f18400508a7681e3cea78e79cf84c0be8b666",
+    "path": "runtime/creator_resolution/src/core/price_service.py",
+    "function": "_ensure_tables",
+    "references_first_observed_at": false,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "712f18400508a7681e3cea78e79cf84c0be8b666",
+    "path": "runtime/creator_resolution/src/core/price_service.py",
+    "function": "_ensure_tables_with_connection",
+    "references_first_observed_at": false,
+    "creates_token_market_cap_peaks": false
+  },
+  {
+    "revision": "712f18400508a7681e3cea78e79cf84c0be8b666",
+    "path": "runtime/creator_resolution/src/core/price_service.py",
+    "function": "_store_snapshot",
+    "references_first_observed_at": true,
+    "creates_token_market_cap_peaks": false
+  }
+]

@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "2b13612ccc4a9ccef76b31d2c970ce486fbbda99",
+    "git_head": "2f76975b0521a0a4f83abbceae55a2a1b0c07db4",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42346,6 +42346,29 @@
     "report": "docs/dev/lightweight_dev004_first_v2/writer_quiesced_cutover/REPORT.md",
     "runtime_deployment_required": false,
     "production": "unchanged; read-only Supervisor/process/stat/source checks; no provider/WebSocket/stop/restart/schema/DB writes/deletion/cutover",
-    "next_action": "Resolve intake-interruption authority before any window: qualify existing complete birth+migration gap recovery or explicitly decide on bounded evidence-loss acceptance. No new capture service; disk and source reconciliation remain mandatory."
+    "next_action": "Resolve intake-interruption authority before any window: qualify existing complete birth+migration gap recovery or explicitly decide on bounded evidence-loss acceptance. No new capture service; disk and source reconciliation remain mandatory.",
+    "subsequent_disk_floor": "CLEARED at observation:5235367936bytes; full maintenance reserve not certified",
+    "subsequent_source_reconciliation": "Installed authority resolved to65da0e22; offline composition67testsPASS; runtime integration/sealing not performed",
+    "current_gap_recovery_status": "HOLD: demonstrated single-page/in-memory-anchor limits; see dev004_gap_recovery_listener_reconciliation"
+  },
+  "dev004_gap_recovery_listener_reconciliation": {
+    "status": "PARTIAL_DISK_FLOOR_AND_OFFLINE_COMPOSITION_PASS_GAP_RECOVERY_HOLD",
+    "engineering_revision": "2f76975b0521a0a4f83abbceae55a2a1b0c07db4",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "disk": {
+      "initial_available_bytes": 6309216256,
+      "final_available_bytes": 5235367936,
+      "final_available_GiB": 4.876,
+      "receipt_floor_bytes": 2000000000,
+      "receipt_floor_pass": true,
+      "full_cutover_budget": "not certified"
+    },
+    "installed_authority": "All5 listener-related files changed from golden to accepted65da0e22 match installed bytes. DEV004 lacks4contents; preserve them. Accepted numeric/quarantine/receipt correction chain resolved.",
+    "offline_prototype": "Installed accepted composition plus exact DEV004 startup function;67unique targeted tests pass, exact AST boundary checks pass. Review artifact only, not runtime integrated/deployed.",
+    "gap_blocker": "Actual accepted loops with synthetic150-event gap recover newest100birth/migration events and omit50; no pagination. Birth memory anchor advances before failed transaction acquisition and is not durable. Both reconcilers disabled in launcher. Received-event retries do not recover never-received events.",
+    "tests": "67reconciliation tests +5gap counterexample controls; zero provider requests/production writes/service actions",
+    "report": "docs/dev/lightweight_dev004_first_v2/gap_recovery_and_listener_reconciliation/REPORT.md",
+    "runtime_deployment_required": false,
+    "next_action": "Resolve explicit maintenance-gap acceptance: qualify complete bounded interval/restart recovery or explicitly accept bounded evidence loss. Do not pause intake, enable providers or deploy prototype."
   }
 }

@@ -133,6 +133,46 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
         raise
     finally:conn.close()
 
+def initialize_creator_index(core, *, disposable_root, allow_disposable_v2=False):
+    """Accepted startup column/index on a bounded disposable fixture.
+
+    v1 schema marker remains unchanged. Index identity is independently revalidated.
+    """
+    result = initialize(core, disposable_root=disposable_root,
+                        allow_disposable_v2=allow_disposable_v2)
+    conn = sqlite3.connect(Path(core).absolute().as_uri() + '?mode=rw', uri=True, timeout=1)
+    sql = 'CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator)'
+    try:
+        conn.execute('BEGIN IMMEDIATE')
+        columns = {r[1]: tuple(r[2:]) for r in conn.execute('PRAGMA table_xinfo(token_analysis)')}
+        if 'bonding_curve_pda' in columns:
+            if columns['bonding_curve_pda'] != ('TEXT', 0, None, 0, 0):
+                _hold('INCOMPATIBLE_BONDING_CURVE_COLUMN')
+            definition = conn.execute("SELECT sql FROM sqlite_schema WHERE name='token_analysis'").fetchone()[0]
+            if [part for part in _declarations(definition) if part and part[0]=='bonding_curve_pda'] != [['bonding_curve_pda','text']]:
+                _hold('INCOMPATIBLE_BONDING_CURVE_CONSTRAINT')
+        else:
+            conn.execute('ALTER TABLE token_analysis ADD COLUMN bonding_curve_pda TEXT')
+        row = conn.execute("SELECT type,sql FROM sqlite_schema WHERE name='idx_ta_pf_ws_creator'").fetchone()
+        if row:
+            if row[0] != 'index' or _sql(row[1]) != _sql(sql):
+                _hold('INCOMPATIBLE_CREATOR_INDEX')
+        else:
+            # Explicitly bound the index build; no historical database population.
+            rows = conn.execute('SELECT 1 FROM token_analysis LIMIT 10001').fetchall()
+            if len(rows) > 10000:
+                _hold('CREATOR_INDEX_FIXTURE_ROW_BUDGET')
+            conn.execute(sql)
+        if [r[2] for r in conn.execute('PRAGMA index_info(idx_ta_pf_ws_creator)')] != ['pf_ws_creator']:
+            _hold('INCOMPATIBLE_CREATOR_INDEX_COLUMNS')
+        conn.commit()
+        return dict(result, creator_index='VERIFIED')
+    except BaseException:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--core',required=True);parser.add_argument('--disposable-root',required=True)

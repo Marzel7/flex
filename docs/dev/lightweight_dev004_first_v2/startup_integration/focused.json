@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "groups": [
+    {
+      "case": "listener_lineage_repeat_preservation_partial_incompatible",
+      "status": "PASS"
+    },
+    {
+      "case": "creator_resolution_lineage_repeat_preservation_partial_incompatible",
+      "status": "PASS"
+    },
+    {
+      "case": "walkback_lineage_repeat_preservation_partial_incompatible",
+      "status": "PASS"
+    },
+    {
+      "case": "canonical_create_migration_schema_persistence_index_plan_fk",
+      "status": "PASS"
+    },
+    {
+      "case": "incompatible_index_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "case": "quarantine_exact_installed_bytes",
+      "status": "PASS"
+    }
+  ],
+  "sizes": {
+    "core.sqlite.write.lock.waiters": 2,
+    "core.sqlite.dev004.core-base.v1.json": 151,
+    "ops.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 876,
+    "core.sqlite": 286720,
+    "ops.sqlite.write.lock.owner.guard": 0,
+    "ops.sqlite": 438272,
+    "ops.sqlite.write.lock": 1089
+  },
+  "maximum_single_file_bytes": 16000000,
+  "provider_calls": 0
+}

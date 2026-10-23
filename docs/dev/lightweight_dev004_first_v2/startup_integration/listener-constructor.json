@@ -1,0 +1,170 @@
+{
+  "status": "PASS_LISTEN_GATHER_BEFORE_TASK_EXECUTION",
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/creator.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "blocked": [
+    "bind"
+  ],
+  "held_background_tasks": [
+    "_process_background_queue",
+    "_cleanup_tx_cache_periodic",
+    "_process_creator_resolution_queue_periodic",
+    "_flush_portal_vsol_periodic",
+    "_db_maintenance_periodic",
+    "_migration_reconciler_loop",
+    "update_live_prices_background",
+    "run",
+    "restore_creator_watches",
+    "_stale_reconcile_loop",
+    "listen_pumpswap_websocket",
+    "listen_pumpportal_websocket",
+    "drain_webhook_birth_queue",
+    "drain_migration_persist_queue",
+    "drain_birth_persist_queue",
+    "drain_migration_walkback_handoff_retry",
+    "_loop_lag_watchdog",
+    "_db_fd_watchdog",
+    "run",
+    "run",
+    "run",
+    "_birth_reconciler_loop"
+  ],
+  "held_threads": [
+    "db-metrics-snapshot"
+  ]
+}

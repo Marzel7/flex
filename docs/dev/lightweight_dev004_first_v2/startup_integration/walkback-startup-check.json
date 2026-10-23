@@ -1,0 +1,12 @@
+{
+  "mode": "walkback",
+  "blocked": [],
+  "status": "PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE",
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ]
+}

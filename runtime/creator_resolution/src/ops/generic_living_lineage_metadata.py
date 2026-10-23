@@ -20,7 +20,28 @@ CREATE TABLE potential_operation_assessment_association_binding(
 CREATE INDEX ix_poa_lineage_operation ON potential_operation_assessment_lineage(potential_operation_id,created_at DESC);
 '''
 
-def ensure_lineage_schema(conn): conn.executescript(LINEAGE_DDL)
+def ensure_lineage_schema(conn):
+    """Repeat-safe accepted DDL, validating existing definitions before changes."""
+    statements = [part.strip() for part in LINEAGE_DDL.split(';') if part.strip()]
+    expected = []
+    for statement in statements:
+        kind, name = statement.split()[1:3]
+        name = name.split('(')[0]
+        existing = conn.execute('SELECT type,sql FROM sqlite_schema WHERE name=?', (name,)).fetchone()
+        normalize = lambda sql: ''.join(sql.lower().split()).rstrip(';')
+        if existing and (existing[0] != kind.lower() or normalize(existing[1]) != normalize(statement)):
+            raise ValueError('INCOMPATIBLE_LINEAGE_SCHEMA:' + name)
+        expected.append((statement, existing))
+    conn.execute('SAVEPOINT dev004_lineage_schema')
+    try:
+        for statement, existing in expected:
+            if not existing:
+                conn.execute(statement)
+        conn.execute('RELEASE dev004_lineage_schema')
+    except BaseException:
+        conn.execute('ROLLBACK TO dev004_lineage_schema')
+        conn.execute('RELEASE dev004_lineage_schema')
+        raise
 
 def persist_lineage_tx(conn,assessment,lineage,pipeline_version,source_contract_version,association_contract_version,created_at):
     conn.execute('INSERT OR IGNORE INTO potential_operation_assessment_version VALUES(?,?,?,?,?,?)',(assessment['assessment_id'],assessment['potential_operation_id'],assessment['digest'],assessment['generation'],assessment['payload'],created_at))

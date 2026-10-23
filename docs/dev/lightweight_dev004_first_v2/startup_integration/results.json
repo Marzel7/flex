@@ -1,0 +1,80 @@
+[
+  {
+    "case": "core",
+    "exit": 0,
+    "tail": "CHEMA] note: no such table: wt_sub_provisioners\n[SCHEMA] note: no such table: watchtower_infra_events\n[SCHEMA] note: no such table: watchtower_infra_events\n[SCHEMA] note: no such table: watchtower_infra_events\n[DB] \u2705 Funder webhook tables ensured\n[DB] \u2705 Creator funder tables ensured\n[SCHEMA] All migrations already applied \u2014 skipping\n{\"status\": \"PASS\", \"kind\": \"core\", \"idempotent_schema\": true, \"validators\": {}, \"peak_observed_wal_bytes\": 605672, \"sizes_closed\": {\"core.sqlite.write.lock.waiters\": 2, \"core.sqlite.write.lock.owner.guard\": 0, \"core.sqlite.write.lock\": 856, \"core.sqlite\": 225280}}\n",
+    "error": null
+  },
+  {
+    "case": "ops",
+    "exit": 0,
+    "tail": "{\"status\": \"PASS\", \"kind\": \"ops\", \"idempotent_schema\": true, \"validators\": {\"walkback\": {\"valid\": true, \"code\": \"VALID\", \"mismatch\": null}, \"treasury\": \"VALID\", \"outcome\": \"VALID\", \"anchor\": \"VALID\", \"ledger\": \"VALID\", \"fingerprint\": \"VALID\"}, \"peak_observed_wal_bytes\": 1100072, \"sizes_closed\": {\"core.sqlite.write.lock.waiters\": 2, \"ops.sqlite.write.lock.waiters\": 2, \"core.sqlite.write.lock.owner.guard\": 0, \"core.sqlite.write.lock\": 856, \"core.sqlite\": 225280, \"ops.sqlite.write.lock.owner.guard\": 0, \"ops.sqlite\": 348160, \"ops.sqlite.write.lock\": 854}}\n",
+    "error": null
+  },
+  {
+    "case": "parent",
+    "exit": 0,
+    "tail": "Accepted tracked_tokens owner initialized;no worker activated\n",
+    "error": null
+  },
+  {
+    "case": "versioned_index_0",
+    "result": {
+      "status": "INITIALIZED",
+      "version": "dev004.core-base.v1",
+      "contract": "2a94ae0258ecb1ed856753d5f56204f6691ffdd11d620bb68d1693b78cd6589d",
+      "creator_index": "VERIFIED"
+    }
+  },
+  {
+    "case": "versioned_index_1",
+    "result": {
+      "status": "ALREADY_INITIALIZED",
+      "version": "dev004.core-base.v1",
+      "contract": "2a94ae0258ecb1ed856753d5f56204f6691ffdd11d620bb68d1693b78cd6589d",
+      "creator_index": "VERIFIED"
+    }
+  },
+  {
+    "case": "additional",
+    "exit": 0,
+    "tail": "PASS Potential Operations and repeated lineage initialization\n",
+    "error": null
+  },
+  {
+    "case": "quarantine",
+    "exit": 0,
+    "tail": "PASS exact installed quarantine package and repeat-safe queue owner\n",
+    "error": null
+  },
+  {
+    "case": "compact",
+    "exit": 0,
+    "tail": "{\"mode\": \"compact\", \"blocked\": [], \"retained_history_timestamp_columns\": [\"first_observed_at\", \"analyzed_at\", \"created_at\"], \"missing_core_timestamp_columns\": [], \"status\": \"PASS\", \"core_required_tables\": {\"token_market_cap_peaks\": true, \"wt_sub_provisioners\": false, \"watchtower_infra_events\": false, \"creator_resolution_queue\": true, \"creator_funding_queue\": true, \"migration_walkback_handoff\": true, \"birth_persist_queue\": true}}\n",
+    "error": null
+  },
+  {
+    "case": "resolver",
+    "exit": 0,
+    "tail": "[CRQ_WORKER] Starting pid=64403 batch_max=25 idle_batch=5 interval=5s idle=60s max_handles=10 max_uptime=6h wal_alert=64MB wal_busy_cycles=3\n[CRQ_WORKER] Stopped. total_processed=0 resolved=0 failed=0 cycles=0\n{\"mode\": \"resolver\", \"blocked\": [], \"status\": \"PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE\"}\n",
+    "error": null
+  },
+  {
+    "case": "walkback",
+    "exit": 0,
+    "tail": "[WALKBACK] worker starting: batch=8 interval=45s max_attempts=3 rpc_budget=80 recovered={'requeued': 0, 'failed': 0} exhausted=0\n{\"mode\": \"walkback\", \"blocked\": [], \"status\": \"PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE\"}\n",
+    "error": null
+  },
+  {
+    "case": "consumer",
+    "exit": 0,
+    "tail": "PASS canonical CREATE readback and actual synthetic Birdeye-labelled valuation persistence;first observation and peak locked\n",
+    "error": null
+  },
+  {
+    "case": "listener",
+    "exit": 0,
+    "tail": "es\": []}, {\"path\": \"/private/tmp/dev004-startup-integration-final/core.sqlite\", \"allowed\": true, \"frames\": []}, {\"path\": \"/private/tmp/dev004-startup-integration-final/core.sqlite\", \"allowed\": true, \"frames\": []}, {\"path\": \"/private/tmp/dev004-startup-integration-final/core.sqlite\", \"allowed\": true, \"frames\": []}], \"blocked\": [\"bind\"], \"held_background_tasks\": [\"_process_background_queue\", \"_cleanup_tx_cache_periodic\", \"_process_creator_resolution_queue_periodic\", \"_flush_portal_vsol_periodic\", \"_db_maintenance_periodic\", \"_migration_reconciler_loop\"], \"held_threads\": [\"db-metrics-snapshot\"]}\n",
+    "error": null
+  }
+]

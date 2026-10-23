@@ -1,0 +1,17 @@
+{
+  "mode": "resolver",
+  "blocked": [],
+  "status": "PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE",
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-startup-integration-final/core.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ]
+}

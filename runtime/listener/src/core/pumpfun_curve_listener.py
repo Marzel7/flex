@@ -1720,6 +1720,8 @@ def _ensure_webhook_birth_queue_schema(db_path: str) -> None:
                 conn.execute(f"ALTER TABLE webhook_birth_queue ADD COLUMN {_col} {_defn}")
             except Exception:
                 pass  # column already present — not an error
+        from src.core.birth_retry_quarantine import ensure_schema as _ensure_quarantine_schema
+        _ensure_quarantine_schema(conn)
     conn.close()
 
 

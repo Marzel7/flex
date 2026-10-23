@@ -1,0 +1,52 @@
+{
+  "candidate_sha": "a89cf9b6c899060d02a4fd88fc630241f01df746",
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "baseline_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+  "accepted_listener_authority": "65da0e227727da5fb19a75950cae8de1c05bc9ab",
+  "source_evidence_base": "26f8a8c78a529fd90e3477964e62c4a46087a84a",
+  "files": {
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "sha256": "ff42a8e51c802ecb884ad3abb4c86a6ab06e2d0f41a1ac5835e59f627eff42cc",
+      "bytes": 667417
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "sha256": "30a4f6b1d46d7ce4b0953517f89cea94373a34168792fa49927e83909f050c7f",
+      "bytes": 14110
+    },
+    "runtime/listener/src/core/pumpportal_birth_audit.py": {
+      "sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "bytes": 25025
+    },
+    "runtime/listener/src/core/pumpportal_receipt_maintenance.py": {
+      "sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce",
+      "bytes": 16147
+    },
+    "runtime/listener/scripts/maintain_pumpportal_compact_receipts.py": {
+      "sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364",
+      "bytes": 1527
+    },
+    "tests/dev004/test_signature_first_migration_journal.py": {
+      "sha256": "5ce40197530046eb7b730cbbeece158e3e7aa2b983178f1850db6f7dcc71b15e",
+      "bytes": 25361
+    }
+  },
+  "qualification": {
+    "unique_tests_passed": 63,
+    "release_suite_passed": 62,
+    "final_capacity_suite_passed": 2,
+    "overlap": 1,
+    "production_writes": 0,
+    "provider_calls": 0,
+    "live_websockets": 0
+  },
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "production_activation": false,
+  "golden_baseline": false,
+  "fixture_storage": {
+    "file_count": 128,
+    "maximum_file_bytes": 20480,
+    "total_bytes": 128941,
+    "qualification_rlimit_fsize_bytes": 16000000,
+    "fixture_sqlite_max_pages": 256
+  }
+}

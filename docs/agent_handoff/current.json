@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "2d530a6a9b6e1b3b92b718272d4b19f948d230e5",
+    "git_head": "d8ff8f9d2a4604018b3e997b556ff5a9e46506a9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42301,5 +42301,17 @@
     "runtime_deployment_required": false,
     "production": "unchanged; zero DB connections/provider calls/service actions/global snapshot writes/cutover",
     "next_action": "Qualify bounded complete-generation capture/fencing through accepted Core/OPS discovery/review owners including confirmation/reconciliation inputs; reuse proven grouping continuation, no new engine or broad indexing."
+  },
+  "dev004_discovery_generation_capture": {
+    "status": "PARTIAL_DIAGNOSTICS_PASS_DURABLE_EPOCH_HOLD",
+    "engineering_revision": "d8ff8f9d2a4604018b3e997b556ff5a9e46506a9",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "tests": "14/14 disposable actual-SQLite capture/fencing diagnostics pass; existing15 continuation controls reused. Core/OPS-only changes invalidate live capture; independent snapshots skew; reopened data_version tokens repeat despite mutation; last-good preserved.",
+    "blocker": "No established durable cross-owner capture/mutation/publication epoch and complete bounded source closure. Same-connection data_version works only while watchers survive, not durable restart authority; final validation/publication race remains.",
+    "qualified_scope": "8 synthetic rows/store,4/query,2KiB page,16KiB input; accepted token_analysis/treasury_review schemas. Not full application snapshot or finalization restart acceptance.",
+    "report": "docs/dev/lightweight_dev004_first_v2/discovery_generation_capture/REPORT.md",
+    "runtime_deployment_required": false,
+    "production": "unchanged; only disposable /private/tmp DB writes, zero providers/services/WebSockets/deployment/cutover",
+    "next_action": "Qualify one narrowly scoped writer-coordinated generation-capture/publication epoch on disposable stores through existing owners, with restart invalidation and complete source closure; HOLD if broader infrastructure required."
   }
 }

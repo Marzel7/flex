@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "f94a8e59e8f7a9a2d5b95f19bf3f59dff58d465d",
+    "git_head": "2b13612ccc4a9ccef76b31d2c970ce486fbbda99",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42325,5 +42325,27 @@
     "runtime_deployment_required": false,
     "production": "unchanged; no providers/services/WebSockets/global publication/deployment/cutover; synthetic disposable writes only",
     "next_action": "Stop existing-owner-only online epoch work. Separately scope a writer-quiesced generation-capture boundary within the controlled cutover maintenance plan; no execution authorized."
+  },
+  "dev004_writer_quiesced_cutover": {
+    "status": "HOLD_INTAKE_GAP_DISK_AND_SOURCE_COMPOSITION",
+    "engineering_revision": "2b13612ccc4a9ccef76b31d2c970ce486fbbda99",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "decision": "All-writer quiescence could fix DB generation in principle, but evidence-preserving cutover not qualified. Listener pause drops acquisition; no complete accepted birth+migration gap recovery established.",
+    "active_services": {
+      "listener": 94632,
+      "resolver": 52248,
+      "walkback": 94577
+    },
+    "other_selective_services": "STOPPED; no service action taken",
+    "blockers": [
+      "Available disk323252224bytes at last observation, below installed receipt floor2000000000bytes; swap used9094.44MiB",
+      "No accepted lossless listener interruption/recovery contract; reconnect has no resume cursor and wrappers disable Helius birth fallback/reconciler",
+      "Installed listener and receipt module differ from DEV004; preserve current sharded receipt/birth-queue corrections before any deployment",
+      "Final bounded reconciliation/capture, completion binding and post-write rollback rehearsal remain unqualified; secondary Supervisor authority unresolved"
+    ],
+    "report": "docs/dev/lightweight_dev004_first_v2/writer_quiesced_cutover/REPORT.md",
+    "runtime_deployment_required": false,
+    "production": "unchanged; read-only Supervisor/process/stat/source checks; no provider/WebSocket/stop/restart/schema/DB writes/deletion/cutover",
+    "next_action": "Resolve intake-interruption authority before any window: qualify existing complete birth+migration gap recovery or explicitly decide on bounded evidence-loss acceptance. No new capture service; disk and source reconciliation remain mandatory."
   }
 }

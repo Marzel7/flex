@@ -1,0 +1,47 @@
+{
+  "status": "HOLD_AUTHORITY_PRECONDITION",
+  "timestamp_utc": "2026-10-23T11:56:27.952288+00:00",
+  "candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+  "accepted_price_worker": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "checks": {
+    "candidate_finalizer_writes_chunk_evidence": true,
+    "candidate_finalizer_reads_completed_chunk_ids": false,
+    "accepted_finalizer_reads_completed_chunk_ids": true,
+    "candidate_finalizer_has_before_dispatch": false,
+    "accepted_finalizer_has_before_dispatch": true,
+    "candidate_queue_has_budget_admission": false,
+    "accepted_queue_has_budget_admission": true,
+    "candidate_has_finalized_suppression": true,
+    "candidate_has_durable_shared_backoff": true
+  },
+  "source_sha256": {
+    "finalizer": "0d3f91cf9fdbe18bb0dc492998fb55a027dcaafae5c68a09fba8b35a4520816f",
+    "worker": "148e39b11f29ebbd5788fb49daf79b9cc83d4d905367765c80fa3d47799ca9dd",
+    "rate": "db200b02f702c8b98057e74c6745130b90711308fc163c1fd8621460d0ee75ac",
+    "window_rules": "227cba1160d70df9ca4346d81ed4205f4b500602e091f2696af4e245eb3a36c1"
+  },
+  "accepted_source_sha256": {
+    "finalizer": "15f286c648e8445054fe0b3685b2f0a1145004b7be25b47c2c4b3bfafd2a4208",
+    "worker": "553cbdf96e2a1e25bf231694ca70ff0d91d513296789e0fed616b2999137a865"
+  },
+  "reference_fixtures": {
+    "core_v2.sqlite": {
+      "sha256_matches": true,
+      "bytes": 8970240
+    },
+    "ops_v2.sqlite": {
+      "sha256_matches": true,
+      "bytes": 13754368
+    }
+  },
+  "provider_calls": 0,
+  "runtime_acquisition_tests": "NOT_RUN_STOP_RULE",
+  "new_databases": 0,
+  "source_changes": 0,
+  "missing_state": [
+    "Bound completed-window identity/coverage readback and skip path in selected finalizer",
+    "Selected worker pre-dispatch durable consumed-budget owner and state-path binding; provider_backoff is not consumed allowance"
+  ],
+  "retained_budget_model": "Accepted DevProviderBudget is DEV-only rolling60second global/token admission state in provider_budget.json; not a lifetime/account-wide usage ledger."
+}

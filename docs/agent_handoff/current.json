@@ -2480,6 +2480,26 @@
     "safety": "No production caller change/restart/schema mutation/provider call. Listener hot path unchanged. Heartbeat SQLITE_BUSY remains unresolved and separate.",
     "status": "QUALIFIED_NO_CALLER_CUTOVER"
   },
+  "dev004_birdeye_budget_durability_correction": {
+    "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "activation": "No production writes/source/config changes/services/providers/live WebSockets/history deletion/cutover; no recovery callbacks connected. All prior accepted runtime bodies unchanged.",
+    "blocker": null,
+    "engineering_source_revision": "e9a3c27c588b9dc05312d67a30067ce27ad0b6f8",
+    "executable_candidate": "aabf24c137ab764a574909c6d097af167b21cb84",
+    "implementation": "Accepted owner ported/hardened only. Valid version1 ledger required; no automatic initialization/reset/repair. Pending marker in existing flock file blocks ambiguous restart. Temp file fsync, atomic replace and parent directory fsync precede ready guard fsync and permission return. No callbacks, schemas, endpoints, credential or price changes.",
+    "limits": "GLOBAL20/TOKEN4/WINDOW60 unchanged. Owner ledger/temp<=65536bytes, guard accepted<=64bytes, three fixed paths; test RLIMIT16000000. Raw retention false,new unbounded growth paths0.",
+    "next_action": "Continue bounded DEV004 composition: connect accepted completed-window selection and this qualified pre-dispatch owner using verified authority, then run five synthetic multi-window interruption cases. No deployment or activation.",
+    "original_candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED",
+    "ready_for_recovery_integration": true,
+    "recovery_rule": "A lost/ambiguous ledger or pending publication requires independently verified external authority; owner never invents counts or self-repairs. Valid independently provisioned state is prerequisite for next integration.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birdeye_budget_durability/REPORT.md",
+    "runtime_deployment_gate": "PASS_ISOLATED_DEV_REAL_MODULE_API_30_GROUPS",
+    "source_module": "runtime/creator_resolution/src/ops/dev_provider_budget.py",
+    "source_sha256": "461a8cf99f0e1ca33bdb540fa1d60d54e08890bf8c031af7db36e8f741d69d65",
+    "status": "PASS_ISOLATED_DEV_BUDGET_OWNER",
+    "tests": "30 provider-free groups PASS: original reset reproduced; valid/missing/malformed/truncated/version/read/shape/size state; partial write and physical exits before/after rename/publication/dispatch; file/guard/directory sync errors and unsupported directory sync; concurrent32 token attempts4success and32distinct attempts20success; unchanged60second expiry."
+  },
   "dev004_birdeye_multi_window_recovery": {
     "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
     "accepted_source_distinction": "Retained71b6e338 has completed-chunk readers/remaining selection and pre-dispatch hook plus MonitorQueue/DevProviderBudget. It is not the selected candidate composition. Its DEV-only rolling60second20global/4token default model is not an account-wide/lifetime ledger; no scope or limit changes authorized.",
@@ -2507,6 +2527,7 @@
     "runtime_deployment_required": false,
     "safety": "Synthetic ledgers/token only; no actual credentials/provider budget files/production DBs touched; no providers/live WebSockets/services/deletion/cutover. Single-file qualification cap16000000; raw retention false; new unbounded paths0. Prior accepted price/classifier/routes/freshness/Walkback/frozen/Deep evidence reused.",
     "status": "HOLD_ACCEPTED_BUDGET_DURABILITY_STOP_RULE",
+    "subsequent_budget_resolution": "Budget-owner defects corrected/qualified in aabf24c1; see dev004_birdeye_budget_durability_correction. Prior HOLD is superseded for budget-owner prerequisite only; callback integration and five acquisition cases remain outstanding.",
     "tests": [
       "Valid-ledger counts survive fresh interpreters1,2,3,4; next admission denied at existing token4 limit",
       "Separate synthetic exhausted ledger corrupted; fresh interpreter silently regrants global19/token3 remaining allowance because OSError/ValueError treated as empty state",
@@ -34722,11 +34743,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "e3408269e04c40cbc11abaa859b57ababfa11203",
+    "git_head": "e9a3c27c588b9dc05312d67a30067ce27ad0b6f8",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T12:07:27.528585+00:00",
-    "working_tree": "DEV004 Birdeye recovery composition HOLD: accepted budget fails closed-state recovery/durable publication prerequisite. No executable integration;889f2399 unchanged; V1 authoritative."
+    "updated_at_utc": "2026-10-23T12:19:44.725332+00:00",
+    "working_tree": "DEV004 Birdeye budget durability PASS in isolated DEV; candidateaabf24c1. Recovery callbacks not integrated, production unchanged, broader V2 cutover HOLD."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

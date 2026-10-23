@@ -2982,7 +2982,7 @@
       "raw_retention": "NONE;finite synthetic responses/compact receipts only",
       "sqlite_max_pages": 3840
     },
-    "subsequent_resolution": "Postcommit missing-membership recovery closed in isolatedDEV by09ae1394;provider-outage HOLD unchanged. See dev004_walkback_projection_recovery_correction.",
+    "subsequent_resolution": "Postcommit projection recovery closed in DEV by09ae1394;provider-outage evidence misclassification closed inDEV by54ece3eb. Both qualified notdeployed. See scoped correction entries.",
     "updated_at_utc": "2026-10-23T09:41:09.540068+00:00",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
   },
@@ -2993,6 +2993,7 @@
     "next_action": "NONE \u2014 scoped membership projection recovery complete inDEV. Keepdisabled/notdeployed. Provider-outage retry is the next separately scoped existing defect;do not bundle.",
     "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED;not authorized",
     "production_state": "No production DB/source/config writes,providers,live sockets,services,historydeletion,seed expansion orcutover.V1authoritative.",
+    "provider_outage_followup": "Closed separately inDEV by54ece3eb;see dev004_walkback_provider_outage_recovery. Original projection qualification remains accepted.",
     "qualified_dev_runtime": "runtime/walkback/src/core/walkback_worker.py and src/ops/dev004_walkback_projection_recovery.py",
     "remaining_blockers": [
       "Provider-outage retry remains unchanged and separatelyHOLD",
@@ -3022,6 +3023,38 @@
       "VM/database/outboxpressure rollback and subsequent retry converge to1member/1event",
       "Canonical queue/outcome/selected-alternative/transaction/provisioning facts unchanged;allrecoveryCore files byte-identical",
       "Complete normalinvestigation9syntheticcalls;recoveryadds0;100creators,616Watchtower,12freshness,11frozen,26Deep,13pricecontrolsPASS;ATH0.1%tolerance/9credentialhashespreserved"
+    ],
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_walkback_provider_outage_recovery": {
+    "dev_runtime_gate": "PASS:actual changed worker/RPC adapter and installed interfaces in fresh processes;provider-free outage/crash/restart recovery converges to one canonical attribution and one membership.",
+    "engineering_source_revision": "54ece3ebc77471a85acac2b7b282b3b184cc7da4",
+    "failure_boundary": "Installed RPC swallowed provider failures to None,signature adapter converted None to empty and falsely completed insufficient evidence. Typed failure now propagates to explicit ACQUISITION_UNAVAILABLE queue error;no evidence outcome is materialized.",
+    "next_action": "NONE \u2014 scoped provider-outage correction complete inDEV. No production deployment. Continue only separately authorized deploymentpreflight or remainingcutoverqualification.",
+    "parent": "09ae13947ca8be84732692c7cb9a3800c8363549",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED;not authorized",
+    "production_state": "No production source/config/DB writes,provider calls,live sockets,services,historical deletion orcutover. V1 authoritative.",
+    "remaining_cutover_blockers": [
+      "Existing fourrole-evidence cases andunfinished acquisition/restart,dormant price-runtime/API/UI/monitoring,andlivecutover reconciliation gates remain separate andunchanged"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/walkback_provider_outage/REPORT.md",
+    "retry_contract": "Existing MAX_ATTEMPTS,timeout,pagination,batch budget and scheduling preserved. Failed attempted request consumes one credit. Durable attempts,not stale preclaim snapshot,decide pending/failed. No adapter retries or unbounded loops.",
+    "source_delta": "One executable file runtime/walkback/src/core/walkback_worker.py,59 insertions/7 deletions;typed acquisition failure,RPC shape validation,existing queue bounded retry handling and exhaustion recovery. No schema,seed,provider contract or attribution predicate changes.",
+    "status": "PASS_SCOPED_DEV_QUALIFIED_NOT_DEPLOYED",
+    "storage": {
+      "largest_observed_suite_file_bytes": 13893632,
+      "new_schema_objects": 0,
+      "new_unbounded_paths": 0,
+      "qualification_file_cap_bytes": 16000000,
+      "raw_retention": "NONE",
+      "runtime_growth": "bounded existing queue error field only;no new rows/artifact writers"
+    },
+    "updated_at_utc": "2026-10-23T10:24:35.152404+00:00",
+    "verification": [
+      "11 outage groups and5 fresh-process/partial-request recovery groups PASS",
+      "Timeout,429,503,connection,malformed JSON/envelope/history/transaction/account,error envelopes,successful empty and valid null,exhaustion,duplicate admission,restart covered",
+      "24 projection recovery groups,100 creator classifications,616 Watchtower routes,12 freshness groups plus interpreterrestart,11 frozen,26 Deep,13 price controls and3 queue/handoff/quarantine controls PASS",
+      "Normal investigation remains9 synthetic requests;ATH0.1% tolerance,openingprovenance and9 deployedcredentialhashes preserved;real provider calls0"
     ],
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
   },
@@ -34421,11 +34454,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "09ae13947ca8be84732692c7cb9a3800c8363549",
+    "git_head": "54ece3ebc77471a85acac2b7b282b3b184cc7da4",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T10:13:25.185098+00:00",
-    "working_tree": "DEV004 projection recovery PASS in isolated DEV,opt-in not deployed.24focused groups;canonical evidence immutable. Provider-outage HOLD remains separate;V1 authoritative."
+    "updated_at_utc": "2026-10-23T10:24:35.152404+00:00",
+    "working_tree": "DEV004 provider-outage recovery PASS in isolated DEV; qualified not deployed. Typed acquisition failures preserve bounded retries and never create false evidence outcomes. V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

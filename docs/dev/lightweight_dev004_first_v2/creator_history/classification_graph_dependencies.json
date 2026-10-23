@@ -1,0 +1,89 @@
+[
+  {
+    "creator": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+    "source_graph_rows": [
+      {
+        "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+        "wallet": "45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF",
+        "role": "CREATOR",
+        "first_seen": 1788321073,
+        "last_seen": 1788321073,
+        "evidence_json": null
+      }
+    ],
+    "source_operations": [
+      {
+        "operation_uuid": "7d00966e-aa04-4451-bd36-49b072631741",
+        "treasury_root": "4gkVaeS374RoU641ApZBzit4zVjJcPay1BpB3teye3yJ",
+        "family_uuid": null,
+        "status": "FORMING",
+        "confidence": 0.4,
+        "first_seen": 1788321073,
+        "last_seen": 1788321073,
+        "created_at": 1788321073,
+        "updated_at": 1788321073,
+        "source": "watch_migration",
+        "notes": "{\"seed_creator\": \"45RfMKfRZeN8yY1SxwuRVQptSshEMgs1Gw5GuYFDCzDF\"}",
+        "op_type": "MICRO_DEPLOYER"
+      }
+    ]
+  },
+  {
+    "creator": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+    "source_graph_rows": [
+      {
+        "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+        "wallet": "ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11",
+        "role": "CREATOR",
+        "first_seen": 1787258776,
+        "last_seen": 1787258776,
+        "evidence_json": null
+      }
+    ],
+    "source_operations": [
+      {
+        "operation_uuid": "38debf67-1588-4465-ba0b-be7d912c21b7",
+        "treasury_root": "FDHJ7abYeY4CcuindutZ8kwwpLjfhTV87b5MmXtBNf5b",
+        "family_uuid": null,
+        "status": "FORMING",
+        "confidence": 0.4,
+        "first_seen": 1787258776,
+        "last_seen": 1787258776,
+        "created_at": 1787258776,
+        "updated_at": 1787258776,
+        "source": "watch_migration",
+        "notes": "{\"seed_creator\": \"ENPmszWSZ3RNUFTwB2cRHYPdgbwocXNqJgWuXSpN7b11\"}",
+        "op_type": "MICRO_DEPLOYER"
+      }
+    ]
+  },
+  {
+    "creator": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+    "source_graph_rows": [
+      {
+        "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+        "wallet": "8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT",
+        "role": "CREATOR",
+        "first_seen": 1790120903,
+        "last_seen": 1790120903,
+        "evidence_json": null
+      }
+    ],
+    "source_operations": [
+      {
+        "operation_uuid": "b79dc2bd-291a-4d3e-916e-e5cefb1e39fc",
+        "treasury_root": "H79Mg49SGiQgEXgi39XqmoS4aa1TRpoF53h4HquyVtmN",
+        "family_uuid": null,
+        "status": "FORMING",
+        "confidence": 0.4,
+        "first_seen": 1790120903,
+        "last_seen": 1790120903,
+        "created_at": 1790120903,
+        "updated_at": 1790120903,
+        "source": "watch_migration",
+        "notes": "{\"seed_creator\": \"8CeAfjjG6v8xaexLM86sxAr3wWA1qJyhawHsvyz3TQdT\"}",
+        "op_type": "MICRO_DEPLOYER"
+      }
+    ]
+  }
+]

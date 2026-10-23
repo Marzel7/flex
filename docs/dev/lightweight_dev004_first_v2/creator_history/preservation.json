@@ -1,0 +1,43 @@
+{
+  "watchtower_routes_rerun": 616,
+  "original_11_rerun": {
+    "original_11": {
+      "known_treasury": true,
+      "known_subprovider": true,
+      "watchtower_route": true,
+      "creator_classification": true,
+      "retained_outcome": true,
+      "parent_candidates": true,
+      "quarantine": true,
+      "price_fact": true,
+      "price_observations": true,
+      "ohlc_reduction": true,
+      "creator_funding_history": true
+    },
+    "installed_nine_credential_files_unchanged": true,
+    "ath_relative_difference": 2.561652223589094e-05,
+    "ath_numerical": "PASS",
+    "canonical_fact_and_observations_unchanged": true,
+    "fixtures": {
+      "core_v2.sqlite": 8970240,
+      "ops_v2.sqlite": 13754368
+    },
+    "production_changes": 0,
+    "provider_calls": 0
+  },
+  "deep_26_rerun": true,
+  "freshness_12_groups": "prior PASS preserved; fixture and source hashes unchanged; no repeated suite",
+  "freshness_source_hashes": {
+    "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/living_potential_operations.py": true,
+    "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_persisted_source_reader.py": true,
+    "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/dev004_freshness_mapping.py": true,
+    "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_active_components.py": true,
+    "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_pipeline_v2.py": true
+  },
+  "previous_8_intake_13_price_checks": "prior PASS preserved; fixture and executable sources unchanged",
+  "fixture_hashes": {
+    "core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "ops_v2.sqlite": "4d01a2ab27f11e99e5d497e809b992e95ebca6179936935d3271fad59ca611e4"
+  },
+  "no_production_changes": true
+}

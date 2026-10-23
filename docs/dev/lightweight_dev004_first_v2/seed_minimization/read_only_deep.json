@@ -1,0 +1,1042 @@
+[
+  {
+    "mint": "3677Aqo8U5HEbAWL7B8gNQoDtRdjQCY2QU6nCD13pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "4ffcz9n3Cao8jVEnb3CxHQUKqCqU5cPrJBtaYryRpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "517rxvXe7boSjeTYvHY34r33EoHeL4paDyNuqdwDpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "5Q6MaQLUVHzQvT9xfcm7zHL6Ak1N9bK8dnp8N91npump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "5Tn3ofbzsHU15LxTxc6dWdCFo1NQ9TediyrTTnM6pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "6vn3Jpg4f2oY21ZmKYnYFfvZh1mTKuyhQBNTbfw8pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "J9ia5WUWFHZBcQGTi8btFcu3BJggnwxyaiMEx5aJWbsF",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4iPj9R8rmufCNojvDP6ynqMiLyCnUQnb52TPeTF5ifbRURK66WvtCNe4xZFhqnc29X1Li65hhTfpsmho9QFz6hei",
+        "pool_time": 1789534162,
+        "upper_time": 1789539394,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 991250000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "J9ia5WUWFHZBcQGTi8btFcu3BJggnwxyaiMEx5aJWbsF",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4iPj9R8rmufCNojvDP6ynqMiLyCnUQnb52TPeTF5ifbRURK66WvtCNe4xZFhqnc29X1Li65hhTfpsmho9QFz6hei",
+        "pool_time": 1789534162,
+        "upper_time": 1789539394,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 991250000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "6yoxC1xf1sdQCWdpQTPDgbEQmdAeSj4AM1QPh1WCpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "73nBoTeEAJAWaNP8ayTDUZbx6ag3JcHm4CPxGi8Tpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "7D7rXxvG7cifp4FJXKx9jMqhUzQXoTPr6C4ygyFHpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "7ecXbJWyEoieJtGiGuq5yDmkrWogo6wAzZHVteg2pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "8qWryFQqAdisFQMdHcMUdK5ipfdZkb36k2vTkrAkpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "99wkUqrEX5jQsoidGPzeinXctDwMvJiLrei596bNpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "9LLgjKxF9vmzthfbFLUZtXpdxaXPaV684GEeSM4Kpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "AZ3rVyLvWFAF9tYVY9n6LeSuvAhfCGKr1tcGux3spump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "BLQM2YfYn86p8n8yFViAZj11QJ5qFRpSbk91XqVopump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "J9ia5WUWFHZBcQGTi8btFcu3BJggnwxyaiMEx5aJWbsF",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4iPj9R8rmufCNojvDP6ynqMiLyCnUQnb52TPeTF5ifbRURK66WvtCNe4xZFhqnc29X1Li65hhTfpsmho9QFz6hei",
+        "pool_time": 1789534162,
+        "upper_time": 1789539394,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 991250000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "J9ia5WUWFHZBcQGTi8btFcu3BJggnwxyaiMEx5aJWbsF",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4iPj9R8rmufCNojvDP6ynqMiLyCnUQnb52TPeTF5ifbRURK66WvtCNe4xZFhqnc29X1Li65hhTfpsmho9QFz6hei",
+        "pool_time": 1789534162,
+        "upper_time": 1789539394,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 991250000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "BmkJ2GHnYz1tk3tKKq12yx62KxRPCxnqb3GUoaPipump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "C6xE1BHycRdhEzAtgGGSj7Pof6sdaP4QiUsdZt3hpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "DYhWaSmpX46eeUMvkTRvQD3C6UH6ipjy4ELrppqkpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "DjDWoEdEPeaRS4RQm73TK8Q6HvNM6miFwRuUX2H3pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "DnHypA2k5WoWS5rVWhPmYubdC63VnoDk9A68bno8pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "Dv23QJNxDgJvmeqzD8P2bHNLoGgTCmv6Y8dK5FJ2pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "EgJzfXEGnuP5w2h2GVMBAU9oG8T7suSaMQthQtyGpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "GUUWV2sTCJzJqvDNuBF7H5WYFZLFubfKHNVE69SYpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "GXfzoeFSYsrYtfeoCbAfs5kfmzTZc11vAHgXV96opump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "Heik5FodUg5dXm5hmpspPzpSNKV69WQJbagisnwVpump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  },
+  {
+    "mint": "JAprY5wmpGsmef5tKu8VkGGvMFuKQvfSYVuGrJV6pump",
+    "equal": true,
+    "v1": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    },
+    "v2": {
+      "state": "REVIEW_CANDIDATE",
+      "reason": "address_independent_route_shape",
+      "authority": "REVIEW_ONLY",
+      "route": {
+        "pool": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+        "coordinator": "HHJRGmusxxRx4TgjoAaje6rqLi9SKthUy7WKd5iogTUY",
+        "distribution": "AENyQd6A9QDa2EwtnqscuNschQ5BUKoLFPKCSqJ1znwq",
+        "pool_signature": "3rYRed8fkX2HCs6K6ERXD8nBa3gDKyGDvnjgzioiDy9mV8X9ymLphS14daALeiF1h1gHKkMpftQ9kzcLUqa9SP2n",
+        "upper_signature": "4Taet6sSgTNx2UHz6zGNtxDWgELAo89evTJaZDQDSRFjZEqmd3vu22kzYzkyYcUestPprhggNzS5URMCY5yKJzfe",
+        "pool_time": 1789534162,
+        "upper_time": 1789534792,
+        "pool_lamports": 2745268370240,
+        "upper_lamports": 1750000000000
+      },
+      "capital_continuity": "UNQUALIFIED",
+      "automatic_membership_allowed": false
+    }
+  }
+]

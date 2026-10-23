@@ -1,0 +1,91 @@
+{
+  "retained_functional_results": [
+    {
+      "file": "intake_regression.json",
+      "pass": 8,
+      "hold": 0,
+      "sha256": "805e1d10136b3ff1a0131e7dae6c6b76ab98cf43a491a180e489b441dcd359db"
+    },
+    {
+      "file": "expanded_price_regression.json",
+      "pass": 13,
+      "hold": 0,
+      "sha256": "2306981beef2d7124594cecb5c8c4da3cbd2f4bb0cefdde4cdc39c13af4bf1b2"
+    }
+  ],
+  "source_identity_checks": [
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/walkback_create_handoff.py",
+      "expected_sha256": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+      "current_sha256": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_birth_audit.py",
+      "expected_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "current_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/birth_retry_quarantine.py",
+      "expected_sha256": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+      "current_sha256": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/deep_walkback.py",
+      "expected_sha256": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+      "current_sha256": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "expected_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+      "current_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/db_write_queue.py",
+      "expected_sha256": "eff1e13d2a9f79d87f0178a6979b7e48b48236d4f08b25c83fd24a288a3c38fe",
+      "current_sha256": "eff1e13d2a9f79d87f0178a6979b7e48b48236d4f08b25c83fd24a288a3c38fe",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/operation_monitor_worker.py",
+      "expected_sha256": "148e39b11f29ebbd5788fb49daf79b9cc83d4d905367765c80fa3d47799ca9dd",
+      "current_sha256": "148e39b11f29ebbd5788fb49daf79b9cc83d4d905367765c80fa3d47799ca9dd",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/token_data_provider_bindings.py",
+      "expected_sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4",
+      "current_sha256": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/birdeye_rate_limit.py",
+      "expected_sha256": "db200b02f702c8b98057e74c6745130b90711308fc163c1fd8621460d0ee75ac",
+      "current_sha256": "db200b02f702c8b98057e74c6745130b90711308fc163c1fd8621460d0ee75ac",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/evidence/queue.py",
+      "expected_sha256": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87",
+      "current_sha256": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87",
+      "match": true
+    },
+    {
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/potential_candidate_matcher.py",
+      "expected_sha256": "958a23e3b3df089b9e7bb1145e6f7325df24f2e1f51a7d618a3b59548f166e69",
+      "current_sha256": "958a23e3b3df089b9e7bb1145e6f7325df24f2e1f51a7d618a3b59548f166e69",
+      "match": true
+    }
+  ],
+  "deployed_credential_payload_hashes_match": 9,
+  "actual_secrets_read": false,
+  "providers": 0,
+  "mutation_harness_rerun": false,
+  "read_only_frozen_comparisons": 11,
+  "read_only_deep_cases": 26,
+  "reason": "Audit makes no source/fixture changes; preserve qualified functional corpus by source/fixture hashes and rerun only read-only projections."
+}

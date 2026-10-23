@@ -1,0 +1,506 @@
+[
+  {
+    "candidate_id": "p3r-v2-900b89587c6987d582df",
+    "stored_status": "ACTIVE_PROVISIONAL",
+    "read_side_status": "ACTIVE_PROVISIONAL",
+    "related_operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+    "promotion_guard": "Residual false positives prevent automatic attribution.",
+    "declared_rpc_requirement": "PAUSED"
+  },
+  {
+    "candidate_id": "p3r-v2-c357da9d0d4d560311e4",
+    "stored_status": "RESOLVED_AS_LEVIATHAN_BEHAVIOUR",
+    "read_side_status": "RESOLVED_AS_LEVIATHAN_BEHAVIOUR",
+    "related_operator_id": "777211c3-211e-551b-9310-ff9301570627",
+    "promotion_guard": "105 compatible launches remain unresolved and automatic attribution remains off.",
+    "declared_rpc_requirement": "NOT_CURRENTLY"
+  },
+  {
+    "candidate_id": "p3r-v2-063e24a2def354f23ec5",
+    "stored_status": "DECOMPOSED_PARENT",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": "Alternative recurrence and address blindness not proven.",
+    "declared_rpc_requirement": "LIKELY"
+  },
+  {
+    "candidate_id": "p3r-v2-8b51ef3055e63a4122ea",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-d3de29c88fe0ce5fa309",
+    "stored_status": "ACTIVE_CONFIRMED",
+    "read_side_status": "PROMOTED_CONFIRMED",
+    "related_operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+    "promotion_guard": "None retained.",
+    "declared_rpc_requirement": "NO"
+  },
+  {
+    "candidate_id": "p3r-v2-b55dad3b9958cfb69cbc",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-067dc9bbc54650d49ee0",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-a026d58c103a32233b3d",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-be7fa4d6954d52d60bd3",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-53e48b44fcc08bf9d29b",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-6437acd385e566e301a7",
+    "stored_status": "QUEUED",
+    "read_side_status": "PROMOTED_CONFIRMED",
+    "related_operator_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+    "promotion_guard": "Prospective strict dispatch remains held pending genuine retained transaction-role evidence.",
+    "declared_rpc_requirement": "HOLD_RETAINED_ROLE_EVIDENCE_REQUIRED"
+  },
+  {
+    "candidate_id": "p3r-v2-9121fbe9e224ed2e42e8",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-dc4953db7adb853337c4",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-e6462dd56f2e695fcb6c",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-6f7738e9702395ba8ad3",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-e216132639f1adcc3e6c",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-5a23bde39497a50696cf",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-1f6727de9b454636f25d",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-b6dd1a66d2211681e8d0",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-3769f52ee84b9ee34c09",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-20f7d4056f9a44e9304d",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-f35489c6284c60873835",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-0d71bea4eaa5a67ffb47",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-2a99f24a0cbd1b1906e8",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-bbe80289e6b889103a94",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-d305f6271ab7d64321d7",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-56003df78c4783df67e7",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-32aa0d5125ef777cfd1e",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-6e48109132b69890bd6b",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-2ec628744afcb6c23007",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-fd279eef1235edd96ba5",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-e84bbea930130be3208b",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-8f3e805e1c94eabe77d4",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-e88e260d301257b3b8e0",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-5e897ac3fce9452dab26",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-70a238399aebef5b72dd",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-70c8d3a711cb5b34c795",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-03db4da5752899df4cfe",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-dd92327f72519e579ca6",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-ea4f673412819493513f",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-d94eaea53c788cd520bc",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-e4e8184c063efd245ae2",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-22703d3753f9c6df48b0",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-eee8d016af070a17af02",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-d6919b6f33dd87174456",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-32ed99f7595a2a46fe71",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-3af3f42197d1681c6933",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-8094ac7ee7989318639b",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-d441fde74eef19f00f5b",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-073c6d6b539829776a7e",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-e8186e82444a13d718d6",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-ecf7d68639b67310be42",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-eecac338295fc52242dc",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-711c64846cb08429936f",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-5d61141f96fd1493acf1",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-4b5f957111bcd255e12d",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-dcc7e137eebfbc0afa58",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-654b6bcf35e1d5a4ad8b",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-08842a46a1f5b44e9790",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-1fca884a1f8d8329eb33",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-56fb2e33e3bc61766551",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": null,
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-7a791b87d44687dbf407",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  },
+  {
+    "candidate_id": "p3r-v2-84551ddfa7b82847ba0f",
+    "stored_status": "QUEUED",
+    "read_side_status": "QUEUED",
+    "related_operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+    "promotion_guard": null,
+    "declared_rpc_requirement": null
+  }
+]

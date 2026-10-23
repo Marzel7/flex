@@ -1,0 +1,60 @@
+{
+  "status": "PARTIAL_HOLD_REDUCTION",
+  "current_seed_rows": 28454,
+  "fixture_hashes_before_after_match": true,
+  "stale_cursor_counterexample_unchanged": true,
+  "fixture_hashes": {
+    "core": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "ops": "81c07162f4a29b41e24932ec3f41a560e409a11f778b889c0a61162e67f475ea"
+  },
+  "encoded_logical_bytes": 24586129,
+  "field_value_bytes": 12324307,
+  "rows_by_class": {
+    "ESSENTIAL_OPERATIONAL": {
+      "rows": 196,
+      "encoded_logical_bytes": 133390
+    },
+    "ESSENTIAL_OPERATION_INTELLIGENCE": {
+      "rows": 1900,
+      "encoded_logical_bytes": 712979
+    },
+    "ESSENTIAL_DISCOVERY": {
+      "rows": 1540,
+      "encoded_logical_bytes": 1332761
+    },
+    "ESSENTIAL_PRICE": {
+      "rows": 1368,
+      "encoded_logical_bytes": 551301
+    },
+    "COMPACTABLE": {
+      "rows": 4306,
+      "encoded_logical_bytes": 7375808
+    },
+    "HISTORICAL_ONLY": {
+      "rows": 29,
+      "encoded_logical_bytes": 24363
+    },
+    "UNKNOWN": {
+      "rows": 19115,
+      "encoded_logical_bytes": 14455527
+    }
+  },
+  "proven_essential_rows": 5004,
+  "proven_historical_only_rows": 29,
+  "compactable_rows": 4306,
+  "unknown_rows": 19115,
+  "proven_full_row_duplicates": [],
+  "important_limit": "Essential is proven under retained identity/lookup/acceptance contracts, not a claim of globally minimal normalization. Compactable is conditional information-preserving representation work, not permission to drop rows. Historical-only here identifies explicit synthetic controls, which must remain in external qualification fixtures.",
+  "source_bytes_scanned": 33840733,
+  "dbstat_cost_qualification": "Query-only finite DEV fixtures only; combined22,712,320bytes,1.5s progress budget per database,2MiB page cache. No production dbstat or data scan.",
+  "engineering_baseline_revision": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
+  "accepted_price_correction": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+  "runtime_deployment_required": false,
+  "reason": "Read-only seed audit; no implementation or runtime source changes.",
+  "seed_expansion_paused": true,
+  "per_table_pages": "Unavailable: no dbstat virtual table in available SQLite build. Database page totals verified.",
+  "immediate_physical_recovery_bytes": 0,
+  "genuine_v1_rows_qualified_disposable": 0,
+  "conditional_duplicate_component_bytes": 2131007,
+  "next_action": "No expansion or implementation. Separately authorize a provider-free shared-evidence equivalence prototype for five repeated infrastructure values across265outcomes."
+}

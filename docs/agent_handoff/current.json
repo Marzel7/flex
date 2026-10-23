@@ -2584,6 +2584,43 @@
     "status": "HOLD_PARTIAL_EVIDENCE_RECOVERED",
     "verification": "15 separately labelled reference attachments added; canonical fixture rows unchanged. All11 original V1/V2 outputs still equal, including prior frozen values. Installed finalizer reopened twice against V1 and twice against V2: all4 returned ALREADY_FINALIZED with0 provider calls. Core294912bytes; OPS503808bytes. All artifacts below16MB."
   },
+  "dev004_creator_history_classification_equivalence": {
+    "additional_reference_rows": 0,
+    "blocker": "Installed evaluator derives count and normalized span from actual token_analysis rows; existing compact records are not consumed. No summary/semantics change authorized. Three current operation-graph authority differences;32fallback creator lookups unindexed;5profile reads exceeded bound.",
+    "classification": {
+      "different": 3,
+      "exact": 65,
+      "unqualified_unindexed_fallback": 32
+    },
+    "counts": {
+      "count_deficit": 20448,
+      "exact_missing_mints_within_completed_selections": 4936,
+      "v1_launch_rows": 20676,
+      "v2_launch_rows": 228
+    },
+    "engineering_source_revision": "2670bd69045b63eb7db0e7b80b18a52e6b009cdf",
+    "fixed_population": 100,
+    "history_profiles": {
+      "exact": 0,
+      "measured_different": 95,
+      "unqualified_read_bound": 5
+    },
+    "next_action": "Separately authorize either exact minimal existing launch input retention or compact-reader contract;do not default to bulk migration. Resolve3recorded graph authority rows and provide indexed/frozen oracle for32fallback cases before100creator PASS.",
+    "production_state": "V1 authoritative;no production source/config/database writes,providers,sockets,services,history deletion or cutover.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/creator_history/REPORT.md",
+    "runtime_deployment_reason": "Read-only/test-only qualification; no executable changes.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_EXACT_HISTORY_INPUTS_AND_ORACLE",
+    "storage": "One disposable prospective Core fixture8974336bytes;16MB file cap;3840pages;no new unbounded growth path",
+    "updated_at_utc": "2026-10-23T08:44:02.622928+00:00",
+    "verification": [
+      "Five prospective input update/dedup/reopen/creator-authority controls PASS",
+      "616qualified Watchtower routes,11original frozen comparisons,26Deep cases rerun PASS",
+      "Canonical price/provenance,ATH0.1%tolerance and9installed credential hashes PASS",
+      "Previous freshness/intake/price suites preserved by unchanged source and seed identities;not rerun"
+    ],
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
   "dev004_cutover_blocker_prioritization": {
     "demonstrated_failures": [
       "New V2 candidate edge4173 ignored against retained V1 cursor206259",
@@ -34212,11 +34249,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "4ff48a00ade1114f899e88e977e256ae8e4b485a",
+    "git_head": "2670bd69045b63eb7db0e7b80b18a52e6b009cdf",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T08:33:36.997354+00:00",
-    "working_tree": "DEV004 Watchtower role qualification PASS for99 demonstrated regressions. Four separately unqualified role cases remain HOLD; V1 authoritative; overall cutover HOLD."
+    "updated_at_utc": "2026-10-23T08:44:02.622928+00:00",
+    "working_tree": "DEV004 creator-history bounded qualification HOLD; no implementation or migration; V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

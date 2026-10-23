@@ -2622,6 +2622,7 @@
       "qualification_file_cap": 16000000,
       "seed_rows_added": 0
     },
+    "subsequent_resolution": "Fixed100classification gaps closed by dev004_creator_classification_closure at968432da;original snapshot statistics retained below.",
     "updated_at_utc": "2026-10-23T08:59:28.148450+00:00",
     "verification": [
       "100full V1/V2 profile dictionaries exact;100default-flag profile checks exact",
@@ -2629,6 +2630,43 @@
       "32fallback cases bounded PK probes then fixed20000/100000VM and0.1second first-match budgets;31certified,1time-bound HOLD",
       "616Watchtower,12freshness incl actual interpreter restart,11frozen,26Deep,8intake/recovery,13price/candidate rerun PASS",
       "Canonical price/provenance unchanged;ATH0.0025616522%within0.1%;nine Birdeye hashes preserved"
+    ],
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_creator_classification_closure": {
+    "blocker": "NONE for fixed100creator equivalence. Separate existing role/investigation/recovery/projection/persistence/cutover gates remain.",
+    "engineering_source_revision": "968432da10446b9c658e9eeaa004b3e22c1f5b1f",
+    "exact_classifications": 100,
+    "exact_history_profiles": 100,
+    "executable_candidate": "87d331478bf780004bb5abd2af394ff8b7508685;unchanged and not deployed",
+    "fixture": "/private/tmp/dev004-compact-creator-qualified/classification_closure",
+    "next_action": "NONE \u2014 scoped creator equivalence complete. Next separately scoped gate: provider-free full Walkback investigation and queue/recovery qualification. No token bulk migration/deployment.",
+    "preserved_confidence": "FORMING/0.4/MICRO_DEPLOYER;no promotion or invented confidence",
+    "production_state": "No production DB/source/config writes,provider calls,sockets,services,deletion or cutover.V1 authoritative.",
+    "reference_rows_added": {
+      "wt_ops_v2": 3,
+      "wt_ops_v2_wallets": 6
+    },
+    "remaining_oracle": "Exact installed query completed within100000VM/.5second bound at72800callback instructions;FULL_WALKBACK/unknown matchesV2",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/creator_classification_closure/REPORT.md",
+    "runtime_deployment_reason": "Fixture/reference and bounded oracle qualification only;no executable changes in this closure.",
+    "runtime_deployment_required": false,
+    "status": "PASS_SCOPED_CREATOR_HISTORY_AND_CLASSIFICATION; CUTOVER_HOLD",
+    "storage": {
+      "added_logical_json_bytes": 2606,
+      "core_bytes": 8970240,
+      "file_cap": 16000000,
+      "new_tables": 0,
+      "new_unbounded_paths": 0,
+      "ops_bytes": 13754368,
+      "total_rows": 28473
+    },
+    "updated_at_utc": "2026-10-23T09:09:17.248811+00:00",
+    "verification": [
+      "All100V2classifiers and profiles re-executed against retained V1 oracle",
+      "All original OPS rows unchanged;only9graph reference rows added;Core byte-identical",
+      "616Watchtower routes,11frozen comparisons,26Deep cases rerun PASS;price/provenance/ATH and9credential hashes preserved",
+      "Unchanged source families/queues/candidate state retain previous freshness/prospective/intake/price acceptance"
     ],
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
   },
@@ -34297,11 +34335,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "87d331478bf780004bb5abd2af394ff8b7508685",
+    "git_head": "968432da10446b9c658e9eeaa004b3e22c1f5b1f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T08:59:28.148450+00:00",
-    "working_tree": "DEV004 compact creator history:100profile statistics exact;96classifications exact,3graph differences,1bounded oracle HOLD. DEV opt-in qualified,not deployed;V1 authoritative."
+    "updated_at_utc": "2026-10-23T09:09:17.248811+00:00",
+    "working_tree": "DEV004 fixed100creator classification and compact history PASS.9exact graph reference rows plus final bounded oracle close remaining creator gaps.Overall cutover HOLD;V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

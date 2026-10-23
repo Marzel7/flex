@@ -1,0 +1,17 @@
+{
+  "component": "src.ops.attribution_outcome",
+  "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback",
+  "stage": "import",
+  "blocked": [],
+  "boundary_traces": [],
+  "status": "IMPORT_PASS",
+  "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback/src/ops/attribution_outcome.py",
+  "threads": [
+    "MainThread",
+    "db-conn-reaper",
+    "db-wal-watchdog"
+  ],
+  "db_bindings": {},
+  "compact_profile_exact": true,
+  "compact_classification_exact": true
+}

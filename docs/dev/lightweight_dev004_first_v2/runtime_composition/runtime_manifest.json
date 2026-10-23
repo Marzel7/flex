@@ -1,0 +1,219 @@
+{
+  "format": "DEV004_RUNTIME_COMPOSITION_V1",
+  "status": "FROZEN_PARTIAL_HOLD_NOT_GOLDEN",
+  "source_commit": "712f18400508a7681e3cea78e79cf84c0be8b666",
+  "base_executable_candidate": "54ece3ebc77471a85acac2b7b282b3b184cc7da4",
+  "baseline_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "manifest_source_binding": "Commit containing this manifest retains the identical runtime trees of source_commit;no self-referential commit hash required. External seed artifacts are content-addressed below.",
+  "components": {
+    "listener": {
+      "package": "runtime/listener",
+      "entrypoint": "src.core.pumpfun_curve_listener:run_listener_entrypoint",
+      "import": "PASS",
+      "startup": "HOLD_GLOBAL_LOCK_BOUNDARY",
+      "intended_service_state": "RUNNING_AFTER_SEPARATE_AUTHORIZATION",
+      "git_tree": "86d2d81fc3570fd485f59451cb2df88b276dd7b2"
+    },
+    "creator_resolution": {
+      "package": "runtime/creator_resolution",
+      "entrypoint": "src.core.creator_resolution_worker:run_loop",
+      "import": "PASS",
+      "startup": "PASS_STARTUP_READY_STOP_BEFORE_FIRST_CYCLE",
+      "intended_service_state": "RUNNING_AFTER_SEPARATE_AUTHORIZATION",
+      "git_tree": "15f62f73f7373751382417e1f72d2a8a3ea1f2e7"
+    },
+    "walkback": {
+      "package": "runtime/walkback",
+      "entrypoint": "src.core.walkback_worker:run_loop",
+      "import": "PASS",
+      "startup": "HOLD_FIXTURE_SCHEMA_CONTRACT",
+      "intended_service_state": "RUNNING_AFTER_SEPARATE_AUTHORIZATION",
+      "git_tree": "45abd036a4021ff6399d0217a66c5c77bee2470c"
+    },
+    "potential_operations": {
+      "package": "runtime/creator_resolution",
+      "entrypoint": "src.ops.living_potential_operations",
+      "freshness_binding": "LIVING_V2_FRESHNESS_MAPPING_PATH",
+      "startup": "IMPORTS_PASS_GLOBAL_DISCOVERY_UNQUALIFIED",
+      "intended_service_state": "NO_SCHEDULER_ACTIVATION",
+      "git_tree": "15f62f73f7373751382417e1f72d2a8a3ea1f2e7"
+    },
+    "watchtower_deep": {
+      "package": "runtime/walkback",
+      "entrypoint": "src.core.deep_walkback",
+      "startup": "EXISTING_ACCEPTED_IMPLEMENTATION_REFERENCED_NO_MATRIX_RERUN",
+      "intended_service_state": "EXISTING_CONDITIONAL_WORK_ONLY",
+      "git_tree": "45abd036a4021ff6399d0217a66c5c77bee2470c"
+    },
+    "price_acquisition_lifecycle": {
+      "package": "runtime/creator_resolution",
+      "entrypoints": [
+        "src.core.price_service",
+        "src.ops.operation_monitor_service",
+        "src.ops.operation_monitor_worker"
+      ],
+      "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "startup": "IMPORTS_PASS_COMPLETE_ACCEPTED_DORMANT_COMPOSITION_UNQUALIFIED",
+      "intended_service_state": "STOPPED",
+      "git_tree": "15f62f73f7373751382417e1f72d2a8a3ea1f2e7"
+    },
+    "api_ui": {
+      "package": "runtime/creator_resolution",
+      "entrypoints": [
+        "src.apis.price_api",
+        "src.core.internal_api"
+      ],
+      "startup": "IMPORTS_PASS_FULL_APPLICATION_TEMPLATE_ROUTE_COMPOSITION_UNQUALIFIED",
+      "intended_service_state": "STOPPED",
+      "git_tree": "15f62f73f7373751382417e1f72d2a8a3ea1f2e7"
+    },
+    "monitor_bridge": {
+      "package": null,
+      "entrypoint": null,
+      "startup": "HOLD_ACCEPTED_COMPLETE_ENTRYPOINT_NOT_PINNED",
+      "intended_service_state": "STOPPED"
+    }
+  },
+  "dependency_authority": {
+    "python": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+    "version": "3.11.5",
+    "base_lock": {
+      "path": "manifests/flex_stable_v2_runtime_python311_macos_arm64.lock",
+      "sha256": "58bd43d469351f1d16a01e82a5fc4e3f07ed95c6dd6d7a5f21b19842c25bb676",
+      "scope": "existing 18-artifact base service closure;complete API/UI/monitor closure not independently artifact-locked here"
+    },
+    "test_environment": "minimal environment;dotenv disabled;synthetic credentials only;no downloads/installations"
+  },
+  "artifacts": [
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/core_v2.sqlite",
+      "bytes": 8970240,
+      "sha256": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+      "authority": "retained accepted DEV artifact;not live cutover image"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/ops_v2.sqlite",
+      "bytes": 13754368,
+      "sha256": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a",
+      "authority": "retained accepted DEV artifact;not live cutover image"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/history.json",
+      "bytes": 1218041,
+      "sha256": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb",
+      "authority": "retained accepted DEV artifact;not live cutover image"
+    },
+    {
+      "path": "/private/tmp/dev004-outage-freshness/freshness_mapping.json",
+      "bytes": 151878,
+      "sha256": "87c995c633841adaaeffa3114ceacbed0441bf0c00e004036b8dd120d844026d",
+      "authority": "retained accepted DEV artifact;not live cutover image"
+    }
+  ],
+  "database_bindings": {
+    "qualification_core": "/private/tmp/dev004-runtime-composition/shared-session/core.sqlite",
+    "qualification_ops": "/private/tmp/dev004-runtime-composition/shared-session/ops.sqlite",
+    "environment": {
+      "DB_PATH": "qualification_core",
+      "WT_OPS_DB_PATH": "qualification_ops"
+    },
+    "secondary_creator_pipeline_db": {
+      "variable": "CREATOR_DB_PATH",
+      "observed_default": "runtime/listener/pumpswap_tokens.db",
+      "status": "NOT_OPENED;explicit V2 authority not qualified;do not redirect into Core without schema authority"
+    },
+    "production": "V1 bindings unchanged;no V2 deployment"
+  },
+  "feature_flags": {
+    "DEV004_CREATOR_HISTORY_PATH": "/private/tmp/dev004-compact-creator-qualified/history.json",
+    "DEV004_WALKBACK_PROJECTION_RECOVERY_ENABLED": "1 in isolated probes only",
+    "LIVING_V2_FRESHNESS_MAPPING_PATH": {
+      "artifact": "/private/tmp/dev004-outage-freshness/freshness_mapping.json",
+      "status": "accepted binding reference;not activated as a scheduler in startup probes"
+    },
+    "LISTENER_RPC_METRICS_API_START_ENABLED": "0 in probes",
+    "TOKEN_PREDICTION_RUNTIME_ENABLED": "False in accepted source",
+    "remaining_production_flags": "Not changed or inferred;full V2 activation manifest remains HOLD"
+  },
+  "provider_credential_names": {
+    "birdeye": "BIRDEYE",
+    "forbidden_birdeye_fallbacks": [
+      "BIRDEYE_KK",
+      "legacy credentials"
+    ],
+    "rpc_endpoint": "HELIUS_RPC_URL",
+    "values": "NONE retained;probes use synthetic values"
+  },
+  "provider_budgets": {
+    "walkback_defaults": {
+      "batch_rows": 8,
+      "batch_rpc_credits": 80,
+      "max_attempts": 3,
+      "timeout_seconds": 8,
+      "signature_limit": 20,
+      "transaction_fetch_limit": 5,
+      "signature_page_limit": 100,
+      "signature_pages": 3,
+      "watchtower_signature_pages": 10
+    },
+    "birdeye_rate_limit": {
+      "retries_per_logical_window": 8,
+      "maximum_individual_wait_seconds": 60,
+      "authority": "runtime/creator_resolution/src/ops/birdeye_rate_limit.py"
+    },
+    "account_wide_consumed_budget_recovery": "UNQUALIFIED;no reset or new allowance;existing separate G4",
+    "changes": "NONE"
+  },
+  "queue_handoff_authority": {
+    "core": [
+      "creator_resolution_queue",
+      "creator_funding_queue",
+      "migration_walkback_handoff",
+      "birth retry/quarantine and receipt admission"
+    ],
+    "ops": [
+      "wt_walkback_queue",
+      "wt_attribution_outcomes",
+      "operator_launch_membership",
+      "monitor admission outbox and Potential Operations assessment history"
+    ],
+    "cutover_state": "reference rows inert;live leases/retries/ACK reconciliation remains separate G6"
+  },
+  "receipt_quarantine_storage": {
+    "intended_relative_receipts": "state/receipts;unactivated",
+    "existing_compact_receipt_bounds": {
+      "per_record_bytes": 4096,
+      "max_files": 4096,
+      "disk_floor_bytes": 2000000000
+    },
+    "production_raw_vs_compact_configuration": "NOT_CHANGED;complete V2 receipt binding not certified by import-only probes",
+    "quarantine": "Core birth quarantine and OPS lineage quarantine remain their existing canonical schemas"
+  },
+  "storage_log_bounds": {
+    "qualification_single_file_bytes": 16000000,
+    "qualification_sqlite_max_pages": 3840,
+    "raw_acquisition": "NONE",
+    "new_unbounded_paths": 0,
+    "existing_ws_trace_rotation": {
+      "single_file_bytes": 52428800,
+      "backups": 2,
+      "qualification_path": "shared-session/logs/ws_price_trace.log"
+    },
+    "production_db_wal_receipt_log_total_growth": "UNQUALIFIED existing G5;fixture limits are not production bounds"
+  },
+  "expected_states": {
+    "production": "unchanged;V1 authoritative",
+    "qualification": "short-lived isolated interpreter imports;only existing db-conn-reaper/db-wal-watchdog daemon threads allowed;process exits checked",
+    "funding": "STOPPED",
+    "cascade": "STOPPED",
+    "dormant_api_monitor_bridge": "STOPPED"
+  },
+  "startup_blockers": [
+    "Original fixture lacks wt_unknown_infrastructure_registry/wt_watchtower_candidates and their required indexes;schema-only disposable initialization clears first validator only",
+    "Further missing accepted startup contracts:wt_confirmed_treasury_webhooks,wt_anchor_reconciliation_log,wt_create_event_ledger,operation_fingerprint_drift_evidence",
+    "Listener hardcoded /tmp/pumpfun_curve_listener.lock is outside disposable authority;startup blocked before mutation",
+    "Secondary creator-pipeline database authority and complete accepted dormant bridge/API/UI composition not frozen"
+  ],
+  "golden_baseline": false,
+  "production_deployment_authorized": false
+}

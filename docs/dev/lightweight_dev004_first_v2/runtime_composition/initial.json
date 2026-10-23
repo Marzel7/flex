@@ -1,0 +1,50 @@
+[
+  {
+    "component": "src.ops.dev004_compact_creator_history",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback",
+    "stage": "import",
+    "blocked": [],
+    "status": "HOLD",
+    "error_type": "ModuleNotFoundError",
+    "error": "No module named 'src.ops.dev004_compact_creator_history'",
+    "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/dev004-runtime-probe.py\", line 39, in <module>\n    m=importlib.import_module(component);result.update(status='IMPORT_PASS',module_file=m.__file__,threads=[t.name for t in threading.enumerate()],db_bindings={k:getattr(m,k) for k in ['DB_PATH','OPS_DB_PATH','LIVE_DB_PATH'] if hasattr(m,k)})\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/__init__.py\", line 126, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1204, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1140, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'src.ops.dev004_compact_creator_history'\n"
+  },
+  {
+    "component": "src.core.walkback_worker",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback",
+    "stage": "import",
+    "blocked": [
+      "thread"
+    ],
+    "status": "HOLD",
+    "error_type": "RuntimeError",
+    "error": "STARTUP_BOUNDARY:thread",
+    "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/dev004-runtime-probe.py\", line 39, in <module>\n    m=importlib.import_module(component);result.update(status='IMPORT_PASS',module_file=m.__file__,threads=[t.name for t in threading.enumerate()],db_bindings={k:getattr(m,k) for k in ['DB_PATH','OPS_DB_PATH','LIVE_DB_PATH'] if hasattr(m,k)})\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/__init__.py\", line 126, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1204, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\nRuntimeError: STARTUP_BOUNDARY:thread\n"
+  },
+  {
+    "component": "src.core.creator_resolution_worker",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution",
+    "stage": "import",
+    "blocked": [],
+    "status": "IMPORT_PASS",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/core/creator_resolution_worker.py",
+    "threads": [
+      "MainThread"
+    ],
+    "db_bindings": {
+      "DB_PATH": "/private/tmp/dev004-runtime-composition/creator_resolution-creator_resolution_worker/core.sqlite"
+    }
+  },
+  {
+    "component": "src.core.pumpfun_curve_listener",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener",
+    "stage": "import",
+    "blocked": [
+      "thread"
+    ],
+    "status": "HOLD",
+    "error_type": "RuntimeError",
+    "error": "STARTUP_BOUNDARY:thread",
+    "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/dev004-runtime-probe.py\", line 39, in <module>\n    m=importlib.import_module(component);result.update(status='IMPORT_PASS',module_file=m.__file__,threads=[t.name for t in threading.enumerate()],db_bindings={k:getattr(m,k) for k in ['DB_PATH','OPS_DB_PATH','LIVE_DB_PATH'] if hasattr(m,k)})\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/importlib/__init__.py\", line 126, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1204, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1176, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1147, in _find_and_load_unlocked\nRuntimeError: STARTUP_BOUNDARY:thread\n"
+  }
+]

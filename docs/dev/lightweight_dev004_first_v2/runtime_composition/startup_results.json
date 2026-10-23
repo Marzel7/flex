@@ -1,0 +1,85 @@
+{
+  "round3-walkback-walkback_worker": {
+    "component": "src.core.walkback_worker",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback",
+    "stage": "startup",
+    "blocked": [],
+    "status": "HOLD",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback/src/core/walkback_worker.py",
+    "threads": [
+      "MainThread",
+      "db-conn-reaper",
+      "db-wal-watchdog"
+    ],
+    "db_bindings": {
+      "OPS_DB_PATH": "/private/tmp/dev004-runtime-composition/round3-walkback-walkback_worker/ops.sqlite",
+      "LIVE_DB_PATH": "/private/tmp/dev004-runtime-composition/round3-walkback-walkback_worker/core.sqlite"
+    },
+    "error_type": "RuntimeError",
+    "error": "SCHEMA_MIGRATION_REQUIRED: {'missing_tables': ['wt_unknown_infrastructure_registry', 'wt_watchtower_candidates'], 'missing_indexes': ['ix_wt_candidates_status_created', 'ix_wuir_eligible'], 'expected_manifest_digest': 'cc38e5ffbc638db17b2908b6d346fc0bcefd35c0e399e7fe9a3b2da449ac9cad', 'actual_manife",
+    "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/dev004-runtime-probe.py\", line 50, in <module>\n    m.run_loop()\n  File \"/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback/src/core/walkback_worker.py\", line 1929, in run_loop\n    raise RuntimeError(f\"{_schema.code}: {_schema.mismatch}\")\nRuntimeError: SCHEMA_MIGRATION_REQUIRED: {'missing_tables': ['wt_unknown_infrastructure_registry', 'wt_watchtower_candidates'], 'missing_indexes': ['ix_wt_candidates_status_created', 'ix_wuir_eligible'], 'expected_manifest_digest': 'cc38e5ffbc638db17b2908b6d346fc0bcefd35c0e399e7fe9a3b2da449ac9cad', 'actual_manifest_digest': '151e322f56979a8d9ecb91b5e134f174c1ac5b0aa32deedda12ac52376612109', 'structural_mismatch': True}\n"
+  },
+  "round3-creator_resolution-creator_resolution_worker": {
+    "component": "src.core.creator_resolution_worker",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution",
+    "stage": "startup",
+    "blocked": [],
+    "status": "IMPORT_PASS",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/core/creator_resolution_worker.py",
+    "threads": [
+      "MainThread"
+    ],
+    "db_bindings": {
+      "DB_PATH": "/private/tmp/dev004-runtime-composition/round3-creator_resolution-creator_resolution_worker/core.sqlite"
+    },
+    "startup": "PASS_STOP_BEFORE_FIRST_CYCLE"
+  },
+  "round4-listener-pumpfun_curve_listener": {
+    "component": "src.core.pumpfun_curve_listener",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener",
+    "stage": "startup",
+    "blocked": [
+      "bind"
+    ],
+    "status": "HOLD",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener/src/core/pumpfun_curve_listener.py",
+    "threads": [
+      "MainThread",
+      "db-conn-reaper",
+      "db-wal-watchdog"
+    ],
+    "db_bindings": {
+      "DB_PATH": "/private/tmp/dev004-runtime-composition/round4-listener-pumpfun_curve_listener/core.sqlite"
+    },
+    "error_type": "RuntimeError",
+    "error": "MUTATION_OUTSIDE_FIXTURE:/tmp",
+    "traceback": "Traceback (most recent call last):\n  File \"/private/tmp/dev004-runtime-probe.py\", line 61, in <module>\n    asyncio.run(m.main())\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/runners.py\", line 190, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/asyncio/base_events.py\", line 653, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener/src/core/pumpfun_curve_listener.py\", line 12623, in main\n    lock_file.parent.mkdir(parents=True, exist_ok=True)\n  File \"/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/pathlib.py\", line 1116, in mkdir\n    os.mkdir(self, mode)\n  File \"/private/tmp/dev004-runtime-probe.py\", line 40, in audit\n    if isinstance(p,(str,bytes)) and not Path(os.fsdecode(p)).resolve().is_relative_to(out):raise RuntimeError('MUTATION_OUTSIDE_FIXTURE:'+str(p))\n                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: MUTATION_OUTSIDE_FIXTURE:/tmp\n"
+  },
+  "walkback-schema-only": {
+    "component": "src.core.walkback_worker",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback",
+    "stage": "startup",
+    "blocked": [],
+    "boundary_traces": [],
+    "status": "IMPORT_PASS",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback/src/core/walkback_worker.py",
+    "threads": [
+      "MainThread",
+      "db-conn-reaper",
+      "db-wal-watchdog"
+    ],
+    "db_bindings": {
+      "OPS_DB_PATH": "/private/tmp/dev004-runtime-composition/walkback-schema-only/ops.sqlite",
+      "LIVE_DB_PATH": "/private/tmp/dev004-runtime-composition/walkback-schema-only/core.sqlite"
+    },
+    "metadata_validators": {
+      "walkback": "SchemaValidationResult(valid=True, code='VALID', mismatch=None)",
+      "treasury": "SCHEMA_MIGRATION_REQUIRED:missing_table:wt_confirmed_treasury_webhooks",
+      "outcome": "VALID",
+      "anchor": "ANCHOR_RECONCILIATION_SCHEMA_MISMATCH:wt_anchor_reconciliation_log:missing=mint,recovered_signature,recovery_source,recovery_timestamp",
+      "ledger": "CREATE_EVENT_LEDGER_SCHEMA_MISMATCH:wt_create_event_ledger:missing=creator,mint,signature,source",
+      "fingerprint": "FINGERPRINT_SCHEMA_MISSING:operation_fingerprint_drift_evidence"
+    },
+    "startup": "HOLD_METADATA_ONLY_NOT_DAEMON"
+  }
+}

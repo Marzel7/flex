@@ -1,0 +1,194 @@
+[
+  {
+    "component": "src.core.pumpfun_curve_listener",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener",
+    "stage": "import",
+    "blocked": [
+      "bind"
+    ],
+    "boundary_traces": [
+      {
+        "kind": "bind",
+        "frames": [
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 1176,
+            "function": "_find_and_load"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 1147,
+            "function": "_find_and_load_unlocked"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 690,
+            "function": "_load_unlocked"
+          },
+          {
+            "file": "<frozen importlib._bootstrap_external>",
+            "line": 940,
+            "function": "exec_module"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 241,
+            "function": "_call_with_frames_removed"
+          },
+          {
+            "file": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py",
+            "line": 137,
+            "function": "<module>"
+          },
+          {
+            "file": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py",
+            "line": 127,
+            "function": "_has_ipv6"
+          },
+          {
+            "file": "/private/tmp/dev004-runtime-probe.py",
+            "line": 14,
+            "function": "denied"
+          }
+        ]
+      }
+    ],
+    "status": "IMPORT_PASS",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener/src/core/pumpfun_curve_listener.py",
+    "threads": [
+      "MainThread",
+      "db-conn-reaper",
+      "db-wal-watchdog"
+    ],
+    "db_bindings": {
+      "DB_PATH": "/private/tmp/dev004-runtime-composition/shared-session/core.sqlite",
+      "CREATOR_DB_PATH": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/listener/pumpswap_tokens.db"
+    }
+  },
+  {
+    "component": "src.core.price_service",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution",
+    "stage": "import",
+    "blocked": [
+      "bind"
+    ],
+    "boundary_traces": [
+      {
+        "kind": "bind",
+        "frames": [
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 1176,
+            "function": "_find_and_load"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 1147,
+            "function": "_find_and_load_unlocked"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 690,
+            "function": "_load_unlocked"
+          },
+          {
+            "file": "<frozen importlib._bootstrap_external>",
+            "line": 940,
+            "function": "exec_module"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 241,
+            "function": "_call_with_frames_removed"
+          },
+          {
+            "file": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py",
+            "line": 137,
+            "function": "<module>"
+          },
+          {
+            "file": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py",
+            "line": 127,
+            "function": "_has_ipv6"
+          },
+          {
+            "file": "/private/tmp/dev004-runtime-probe.py",
+            "line": 14,
+            "function": "denied"
+          }
+        ]
+      }
+    ],
+    "status": "IMPORT_PASS",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/core/price_service.py",
+    "threads": [
+      "MainThread",
+      "db-conn-reaper",
+      "db-wal-watchdog"
+    ],
+    "db_bindings": {}
+  },
+  {
+    "component": "src.apis.price_api",
+    "source_root": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution",
+    "stage": "import",
+    "blocked": [
+      "bind"
+    ],
+    "boundary_traces": [
+      {
+        "kind": "bind",
+        "frames": [
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 1176,
+            "function": "_find_and_load"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 1147,
+            "function": "_find_and_load_unlocked"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 690,
+            "function": "_load_unlocked"
+          },
+          {
+            "file": "<frozen importlib._bootstrap_external>",
+            "line": 940,
+            "function": "exec_module"
+          },
+          {
+            "file": "<frozen importlib._bootstrap>",
+            "line": 241,
+            "function": "_call_with_frames_removed"
+          },
+          {
+            "file": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py",
+            "line": 137,
+            "function": "<module>"
+          },
+          {
+            "file": "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/site-packages/urllib3/util/connection.py",
+            "line": 127,
+            "function": "_has_ipv6"
+          },
+          {
+            "file": "/private/tmp/dev004-runtime-probe.py",
+            "line": 14,
+            "function": "denied"
+          }
+        ]
+      }
+    ],
+    "status": "IMPORT_PASS",
+    "module_file": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/apis/price_api.py",
+    "threads": [
+      "MainThread",
+      "db-conn-reaper",
+      "db-wal-watchdog"
+    ],
+    "db_bindings": {}
+  }
+]

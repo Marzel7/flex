@@ -1,0 +1,7 @@
+{
+  "largest_observed_file_bytes": 13783040,
+  "qualification_file_cap_bytes": 16000000,
+  "new_unbounded_growth_paths": 0,
+  "raw_provider_retention": false,
+  "production_growth_gate": "UNQUALIFIED unchanged"
+}

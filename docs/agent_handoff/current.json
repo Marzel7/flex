@@ -2584,6 +2584,54 @@
     "status": "HOLD_PARTIAL_EVIDENCE_RECOVERED",
     "verification": "15 separately labelled reference attachments added; canonical fixture rows unchanged. All11 original V1/V2 outputs still equal, including prior frozen values. Installed finalizer reopened twice against V1 and twice against V2: all4 returned ALREADY_FINALIZED with0 provider calls. Core294912bytes; OPS503808bytes. All artifacts below16MB."
   },
+  "dev004_compact_creator_history_equivalence": {
+    "activation": "DEV004_CREATOR_HISTORY_PATH explicit opt-in only;default path unchanged;no production flag/source/config/service changes",
+    "blockers": [
+      "Three previously recorded operation-graph authority gaps",
+      "One bounded installed fallback oracle incomplete",
+      "Four separate role evidence cases and previous investigation/acquisition/projection/persistence/cutover gates unchanged"
+    ],
+    "classifications": {
+      "bounded_oracle_hold": 1,
+      "exact": 96,
+      "graph_authority_different": 3,
+      "hold_creator": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp"
+    },
+    "dev_runtime_gate": "PASS: actual changed evaluator/helper executed on disposable fixtures;100profile/100V2classification calls;no daemon reload required",
+    "engineering_source_revision": "87d331478bf780004bb5abd2af394ff8b7508685",
+    "next_action": "Qualify only the3recorded graph-authority dependencies;obtain retained/frozen first-match oracle forJ6ad without unrestricted reads. No token bulk migration/deployment. Pin immutable baseline at separately qualified cutover boundary;never regenerate at restart.",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED;production deployment not authorized",
+    "production_state": "V1 authoritative;no production writes,providers,live sockets,service actions,history deletion or cutover",
+    "qualified_dev_runtime": "runtime/creator_resolution/src/ops/attribution_outcome.py plus dev004_compact_creator_history.py",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_creator_history/REPORT.md",
+    "representation": "Immutable100creator statistics with20677mint/timestamp identities;baseline plus novel committed detail;historical PK conflicts fail closed;no mutable counter dual-write",
+    "statistics": {
+      "exact_full_profiles": 100,
+      "fixed_creators": 100,
+      "unqualified_profiles": 0
+    },
+    "status": "PARTIAL_COMPACT_STATS_PASS; FULL_CLASSIFICATION_HOLD",
+    "storage": {
+      "baseline_bytes": 1218041,
+      "max_baseline_bytes": 8000000,
+      "max_baseline_identities": 25000,
+      "max_creators": 100,
+      "max_local_rows_per_creator": 10000,
+      "new_schema_tables": 0,
+      "new_unbounded_file_write_paths": 0,
+      "qualification_file_cap": 16000000,
+      "seed_rows_added": 0
+    },
+    "updated_at_utc": "2026-10-23T08:59:28.148450+00:00",
+    "verification": [
+      "100full V1/V2 profile dictionaries exact;100default-flag profile checks exact",
+      "15prospective controls including historical replay,new/unseen creator,duplicates,late arrival,crash/restart,conflicts forbothowners,corruption failclosed",
+      "32fallback cases bounded PK probes then fixed20000/100000VM and0.1second first-match budgets;31certified,1time-bound HOLD",
+      "616Watchtower,12freshness incl actual interpreter restart,11frozen,26Deep,8intake/recovery,13price/candidate rerun PASS",
+      "Canonical price/provenance unchanged;ATH0.0025616522%within0.1%;nine Birdeye hashes preserved"
+    ],
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
   "dev004_creator_history_classification_equivalence": {
     "additional_reference_rows": 0,
     "blocker": "Installed evaluator derives count and normalized span from actual token_analysis rows; existing compact records are not consumed. No summary/semantics change authorized. Three current operation-graph authority differences;32fallback creator lookups unindexed;5profile reads exceeded bound.",
@@ -34249,11 +34297,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "2670bd69045b63eb7db0e7b80b18a52e6b009cdf",
+    "git_head": "87d331478bf780004bb5abd2af394ff8b7508685",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T08:44:02.622928+00:00",
-    "working_tree": "DEV004 creator-history bounded qualification HOLD; no implementation or migration; V1 authoritative."
+    "updated_at_utc": "2026-10-23T08:59:28.148450+00:00",
+    "working_tree": "DEV004 compact creator history:100profile statistics exact;96classifications exact,3graph differences,1bounded oracle HOLD. DEV opt-in qualified,not deployed;V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

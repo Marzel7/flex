@@ -1,0 +1,60 @@
+{
+  "status": "HOLD_EXISTING_OWNER_HAS_NO_PAIRED_DURABLE_PUBLICATION_EPOCH",
+  "checks": {
+    "core_existing_lease_acquired": true,
+    "supported_cross_database_nesting_rejected": true,
+    "core_lease_does_not_fence_ops_owner": true,
+    "same_database_other_owner_times_out": true,
+    "acquisition_timeout_not_holder_deadline": true,
+    "advisory_lease_is_not_sqlite_engine_fence": true,
+    "release_allows_next_core_owner": true,
+    "reacquisition_token_is_new_process_local_authority": true
+  },
+  "details": {
+    "ops_while_core_held": {
+      "acquired": true,
+      "elapsed_ms": 1.123
+    },
+    "core_while_core_held": {
+      "acquired": false,
+      "error": "CrossProcessDatabaseWriteTimeout",
+      "elapsed_ms": 56.687
+    },
+    "observed_core_hold_ms": 58.871,
+    "completion_authority": "Owner diagnostic metadata is explicitly not lock or durable epoch authority; no paired commit/completion journal exists in this tested owner contract."
+  },
+  "blocked": [],
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-epoch-owner-pez6jy0h/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-epoch-owner-pez6jy0h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-epoch-owner-pez6jy0h/core.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "sizes": {
+    "core.sqlite.write.lock.waiters": 2,
+    "ops.sqlite.write.lock.waiters": 2,
+    "core.sqlite.write.lock.owner.guard": 0,
+    "core.sqlite.write.lock": 440,
+    "core.sqlite": 12288,
+    "ops.sqlite.write.lock.owner.guard": 0,
+    "ops.sqlite": 12288,
+    "ops.sqlite.write.lock": 447
+  },
+  "source_hashes": {
+    "src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "src/utils/db_locking.py": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+    "src/ops/intelligence_snapshots.py": "5cdb683748c9e0008830e17dd07526da7ae61354397d8b9907602428a79864f8"
+  },
+  "source_matches_installed_walkback": true
+}

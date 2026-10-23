@@ -2982,7 +2982,47 @@
       "raw_retention": "NONE;finite synthetic responses/compact receipts only",
       "sqlite_max_pages": 3840
     },
+    "subsequent_resolution": "Postcommit missing-membership recovery closed in isolatedDEV by09ae1394;provider-outage HOLD unchanged. See dev004_walkback_projection_recovery_correction.",
     "updated_at_utc": "2026-10-23T09:41:09.540068+00:00",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_walkback_projection_recovery_correction": {
+    "activation": "DEV004_WALKBACK_PROJECTION_RECOVERY_ENABLED=1 explicit DEV-only opt-in;production flag/config/source unchanged",
+    "dev_runtime_gate": "PASS:actual changed worker wrapper/helper and installed connection adapter executed in fresh isolated processes;normal full investigation and real process-crash recovery verified",
+    "engineering_source_revision": "09ae13947ca8be84732692c7cb9a3800c8363549",
+    "next_action": "NONE \u2014 scoped membership projection recovery complete inDEV. Keepdisabled/notdeployed. Provider-outage retry is the next separately scoped existing defect;do not bundle.",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED;not authorized",
+    "production_state": "No production DB/source/config writes,providers,live sockets,services,historydeletion,seed expansion orcutover.V1authoritative.",
+    "qualified_dev_runtime": "runtime/walkback/src/core/walkback_worker.py and src/ops/dev004_walkback_projection_recovery.py",
+    "remaining_blockers": [
+      "Provider-outage retry remains unchanged and separatelyHOLD",
+      "Fourrole-evidence cases and prior unfinishedacquisition/restart,dormant/API/UI/monitoring,persistence/cutover reconciliation gates unchanged"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/walkback_projection_recovery/REPORT.md",
+    "selection": "ix_wbq_outcome keyset pages<=32;single CHECK-constrained cursor row;empty page wraps for a later bounded pass;19fresh-process pages reach retained counterexample from0",
+    "source_delta": "Existing worker startup/cycle hooks plus bounded canonical-evidence gate and existing membership projector. No RPC/attribution decision changes.",
+    "status": "PASS_SCOPED_DEV_QUALIFIED_NOT_DEPLOYED",
+    "storage": {
+      "max_canonical_json_bytes": 8192,
+      "max_main_connection_bytes": 67108864,
+      "max_rows_per_invocation": 32,
+      "max_vm_steps_per_row": 100000,
+      "new_schema": "one fixed single-row cursor table;no new index",
+      "new_unbounded_storage_paths": 0,
+      "qualification_file_cap": 16000000,
+      "raw_retention": "NONE;existing projector retention unchanged",
+      "sql_progress_deadline_seconds": 0.25,
+      "wal_admission_pressure_bytes": 16777216
+    },
+    "transaction_contract": "Canonical OPS outcome already committed;existing membership/outbox transaction commits before separate OPS cursor ACK. Correct membership is immutable completion identity;Core never written by recovery.",
+    "updated_at_utc": "2026-10-23T10:13:25.185098+00:00",
+    "verification": [
+      "24focused groupsPASS including originalcounterexample,actual exits81/82/83aroundmembership/ACK,repeatedfreshprocesses,actualworkerconnectionadapter",
+      "Missing/conflicting/stale canonical,quarantine,insufficiency,missingCREATE/role,othermembership,malformed/oversized evidence failclosed",
+      "VM/database/outboxpressure rollback and subsequent retry converge to1member/1event",
+      "Canonical queue/outcome/selected-alternative/transaction/provisioning facts unchanged;allrecoveryCore files byte-identical",
+      "Complete normalinvestigation9syntheticcalls;recoveryadds0;100creators,616Watchtower,12freshness,11frozen,26Deep,13pricecontrolsPASS;ATH0.1%tolerance/9credentialhashespreserved"
+    ],
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
   },
   "dev004_watchtower_treasury_role_equivalence": {
@@ -34381,11 +34421,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "6f8f4d6efc8a8b9fdb5eb2b8068d52a527c493b5",
+    "git_head": "09ae13947ca8be84732692c7cb9a3800c8363549",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T09:41:09.540068+00:00",
-    "working_tree": "DEV004 complete Walkback qualification HOLD:normal investigation/projection PASS;real postcommit crash loses projection replay;RPC outage retry not demonstrated.V1 unchanged."
+    "updated_at_utc": "2026-10-23T10:13:25.185098+00:00",
+    "working_tree": "DEV004 projection recovery PASS in isolated DEV,opt-in not deployed.24focused groups;canonical evidence immutable. Provider-outage HOLD remains separate;V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

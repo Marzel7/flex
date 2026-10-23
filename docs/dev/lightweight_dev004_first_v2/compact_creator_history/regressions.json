@@ -1,0 +1,610 @@
+{
+  "watchtower_routes": 616,
+  "freshness_groups": 12,
+  "price_tests": {
+    "tests": [
+      {
+        "name": "Birdeye_synthetic_strict_target_opening",
+        "status": "PASS",
+        "evidence": {
+          "entry": {
+            "timestamp": 1792743806,
+            "mc": 100.0
+          },
+          "window": [
+            1792743805,
+            1792743807
+          ]
+        }
+      },
+      {
+        "name": "opening_fallback_provenance_matches_accepted",
+        "status": "PASS",
+        "evidence": {
+          "accepted_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+          "accepted": {
+            "timestamp": 1792743807,
+            "mc": 100.0,
+            "plus_one_absent": true,
+            "migration_absent": true
+          },
+          "installed": {
+            "timestamp": 1792743807,
+            "mc": 100.0,
+            "plus_one_absent": true,
+            "migration_absent": true
+          },
+          "classification": "EXACT_MATCH"
+        }
+      },
+      {
+        "name": "accepted_opening_selection_and_policy_matrix",
+        "status": "PASS",
+        "evidence": [
+          {
+            "case": "priority",
+            "result": [
+              "VALUE",
+              {
+                "timestamp": 1792743806,
+                "mc": 100.0
+              }
+            ]
+          },
+          {
+            "case": "migration_fallback",
+            "result": [
+              "VALUE",
+              {
+                "timestamp": 1792743805,
+                "mc": 100.0,
+                "plus_one_absent": true
+              }
+            ]
+          },
+          {
+            "case": "plus_two",
+            "result": [
+              "VALUE",
+              {
+                "timestamp": 1792743807,
+                "mc": 100.0,
+                "plus_one_absent": true,
+                "migration_absent": true
+              }
+            ]
+          },
+          {
+            "case": "outside_window",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "empty",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "duplicate_target",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "duplicate_fallback",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "malformed",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          }
+        ]
+      },
+      {
+        "name": "new_price_assignment_and_dedup",
+        "status": "PASS",
+        "evidence": {
+          "stable_identity": "c957ff6f2e3b5431eafb2117141e148e22c8916a4ae7f2437c47055508f12bcf",
+          "depth": {
+            "pending": 1,
+            "processing": 0,
+            "retry": 0,
+            "dead_letter": 0
+          }
+        }
+      },
+      {
+        "name": "installed_price_worker_candles_lifecycle_projection",
+        "status": "PASS",
+        "evidence": {
+          "fact": [
+            100.0,
+            250.0,
+            1.5,
+            "MONITORING_ACTIVE"
+          ],
+          "depth": {
+            "pending": 0,
+            "processing": 0,
+            "retry": 0,
+            "dead_letter": 0
+          },
+          "wal_bytes": 41232
+        }
+      },
+      {
+        "name": "opening_baseline_labels_and_timestamps_persist",
+        "status": "PASS",
+        "evidence": [
+          [
+            "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+            "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+            1792743806,
+            100.0
+          ],
+          [
+            "MIGRATION_SECOND_MC_FALLBACK",
+            "MIGRATION_SECOND_MC_FALLBACK",
+            1792743805,
+            100.0
+          ],
+          [
+            "BOUNDED_POST_MIGRATION_MC_FALLBACK",
+            "POST_MIGRATION_OFFSET_2S_OBSERVED_MC",
+            1792743807,
+            100.0
+          ]
+        ]
+      },
+      {
+        "name": "durable_processing_queue_identity",
+        "status": "PASS",
+        "evidence": {
+          "identity_preserved": true,
+          "attempts_preserved": true,
+          "retry_recovered": true,
+          "completed_not_reopened": true
+        }
+      },
+      {
+        "name": "price_commit_ACK_crash_bounded_replay",
+        "status": "PASS",
+        "evidence": {
+          "observations_deduplicated": true,
+          "mock_transport_executions": 2,
+          "limitation": "External execution is at-least-once across commit/ACK ambiguity; existing bounded queue attempts retained. No exactly-once external-call guarantee claimed."
+        }
+      },
+      {
+        "name": "synthetic_terminal_finalization_and_reopen",
+        "status": "PASS",
+        "evidence": {
+          "ATH": 250,
+          "multiple": 2.5,
+          "reopen_finalization_identity_stable": true,
+          "additional_provider_calls": 0
+        }
+      },
+      {
+        "name": "existing_Birdeye_429_retry_bound",
+        "status": "PASS",
+        "evidence": {
+          "mock_attempts": 9,
+          "max_retry_limit": 8,
+          "waits": [
+            2,
+            5,
+            10,
+            30,
+            60,
+            60,
+            60,
+            60
+          ]
+        }
+      },
+      {
+        "name": "credential_authority_and_authorization",
+        "status": "PASS",
+        "evidence": {
+          "authority": "BIRDEYE",
+          "blank_rejected": true,
+          "authorization_header": true,
+          "credentials": "synthetic only"
+        }
+      },
+      {
+        "name": "Potential_candidate_match_and_collision_controls",
+        "status": "PASS",
+        "evidence": {
+          "exact_signature": true,
+          "insufficient_input": true,
+          "collision_not_promoted": true,
+          "scope": "pure matcher controls; candidate creation/review/global discovery not qualified"
+        }
+      },
+      {
+        "name": "Potential_persisted_identity_dependency",
+        "status": "PASS",
+        "evidence": {
+          "rows": 1
+        }
+      }
+    ],
+    "sources": {
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/core/db_write_queue.py": "eff1e13d2a9f79d87f0178a6979b7e48b48236d4f08b25c83fd24a288a3c38fe",
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/operation_monitor_worker.py": "148e39b11f29ebbd5788fb49daf79b9cc83d4d905367765c80fa3d47799ca9dd",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/token_data_provider_bindings.py": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/birdeye_rate_limit.py": "db200b02f702c8b98057e74c6745130b90711308fc163c1fd8621460d0ee75ac",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/evidence/queue.py": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/potential_candidate_matcher.py": "958a23e3b3df089b9e7bb1145e6f7325df24f2e1f51a7d618a3b59548f166e69"
+    },
+    "mock_transport_calls": 8,
+    "real_provider_calls": 0,
+    "writer_boundary": "Existing offline injection uses synchronous fixture SQLite transactions; production shared writer/worker wiring not qualified.",
+    "opening_comparison": {
+      "accepted_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "accepted": {
+        "timestamp": 1792743807,
+        "mc": 100.0,
+        "plus_one_absent": true,
+        "migration_absent": true
+      },
+      "installed": {
+        "timestamp": 1792743807,
+        "mc": 100.0,
+        "plus_one_absent": true,
+        "migration_absent": true
+      },
+      "classification": "EXACT_MATCH"
+    },
+    "storage": {
+      "ops_bytes": 13754368,
+      "observed_wal_bytes": 218392
+    },
+    "transport_requests": [
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743805,
+          "time_to": 1792743807,
+          "type": "1s"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743805&time_to=1792743807&type=1s",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743805&time_to=1792743807&type=1s"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743806,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PROVENANCE_OFFSET_1",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743806,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_1&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_1&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PROVENANCE_OFFSET_0",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743805,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_0&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743805&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_0&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743805&time_to=1792745605&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PROVENANCE_OFFSET_2",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743807,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_2&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743807&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_2&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743807&time_to=1792745605&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743806,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743806,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_TERMINAL_SYNTHETIC_FINAL",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792743806,
+          "time_to": 1792745605,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_TERMINAL_SYNTHETIC_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_TERMINAL_SYNTHETIC_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792743806&time_to=1792745605&type=15m"
+      }
+    ]
+  },
+  "intake_tests": {
+    "status": "HOLD",
+    "tests": [
+      {
+        "name": "fresh_CREATE_canonical_and_compact_receipt",
+        "status": "PASS",
+        "evidence": {
+          "canonical": true,
+          "receipt_outcome": "COMMITTED",
+          "receipt_bytes": 562
+        }
+      },
+      {
+        "name": "duplicate_CREATE",
+        "status": "PASS",
+        "evidence": {
+          "canonical": true,
+          "receipt_outcome": "COMMITTED",
+          "receipt_bytes": 562
+        }
+      },
+      {
+        "name": "migration_detection_persistence_creator_admission",
+        "status": "PASS",
+        "evidence": {
+          "migration_persisted": true,
+          "creator_queue": "pending",
+          "scope": "installed detector and persistence closure; full daemon/transaction parsing not executed"
+        }
+      },
+      {
+        "name": "CREATE_proof_atomic_rollback_and_dedup",
+        "status": "PASS",
+        "evidence": {
+          "rollback_before_commit": true,
+          "committed": "PENDING",
+          "duplicate": "DUPLICATE"
+        }
+      },
+      {
+        "name": "Core_OPS_commit_then_crash_restart",
+        "status": "PASS",
+        "evidence": {
+          "first": [
+            [
+              "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU",
+              "RuntimeError"
+            ]
+          ],
+          "restart": [
+            [
+              "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU",
+              "ALREADY_COMMITTED"
+            ]
+          ],
+          "state": [
+            "ACK",
+            1
+          ],
+          "ops_anchor_unchanged": true
+        }
+      },
+      {
+        "name": "distinct_funding_account_topology",
+        "status": "PASS",
+        "evidence": {
+          "distinct_roles_preserved": true,
+          "edges": 3,
+          "classification": "synthetic persistence control; funding investigation and historical recognition not proved"
+        }
+      },
+      {
+        "name": "permanent_conflict_quarantine",
+        "status": "PASS",
+        "evidence": {
+          "quarantined": true,
+          "restart_idempotent": true,
+          "canonical_unchanged": true
+        }
+      },
+      {
+        "name": "completed_Walkback_not_reopened",
+        "status": "PASS",
+        "evidence": "completed job not reopened"
+      }
+    ],
+    "sources": {
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/walkback_create_handoff.py": "00543c3a7d1ac2d8630af687809f0379f89bcf594934d7d9e6471980f78f0363",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_birth_audit.py": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/birth_retry_quarantine.py": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/deep_walkback.py": "9913a0db3e056a301b88e60308b00657e513c1fd8c14c7f3f21b0079739a468f",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f"
+    },
+    "storage": [
+      {
+        "stage": "original_seed",
+        "core_bytes": 294912,
+        "ops_bytes": 503808,
+        "core_wal": 0,
+        "ops_wal": 0
+      },
+      {
+        "stage": "required_fixture_schema",
+        "core_bytes": 335872,
+        "ops_bytes": 503808,
+        "core_wal": 0,
+        "ops_wal": 0
+      },
+      {
+        "stage": "one_synthetic_birth",
+        "core_bytes": 335872,
+        "ops_bytes": 503808,
+        "core_wal": 0,
+        "ops_wal": 0
+      },
+      {
+        "stage": "one_synthetic_migration",
+        "core_bytes": 335872,
+        "ops_bytes": 503808,
+        "core_wal": 0,
+        "ops_wal": 0
+      },
+      {
+        "stage": "synthetic_Walkback_edges",
+        "core_bytes": 335872,
+        "ops_bytes": 569344,
+        "core_wal": 0,
+        "ops_wal": 0
+      },
+      {
+        "stage": "end_intake_recovery",
+        "core_bytes": 335872,
+        "ops_bytes": 569344,
+        "core_wal": 0,
+        "ops_wal": 0
+      }
+    ],
+    "boundary": "SQLite write adapters and noncanonical metadata/SSE/symbol side effects are test doubles; installed decision/receipt/queue bodies unchanged. No full daemon startup qualification."
+  },
+  "original_11": {
+    "original_11": {
+      "known_treasury": true,
+      "known_subprovider": true,
+      "watchtower_route": true,
+      "creator_classification": true,
+      "retained_outcome": true,
+      "parent_candidates": true,
+      "quarantine": true,
+      "price_fact": true,
+      "price_observations": true,
+      "ohlc_reduction": true,
+      "creator_funding_history": true
+    },
+    "installed_nine_credential_files_unchanged": true,
+    "ath_relative_difference": 2.561652223589094e-05,
+    "ath_numerical": "PASS",
+    "canonical_fact_and_observations_unchanged": true,
+    "fixtures": {
+      "core_v2.sqlite": 8970240,
+      "ops_v2.sqlite": 13754368
+    },
+    "production_changes": 0,
+    "provider_calls": 0
+  },
+  "deep_cases": 26,
+  "deep_exact": true,
+  "source_sha256": {},
+  "source_fixture_hashes": {
+    "core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+    "ops_v2.sqlite": "4d01a2ab27f11e99e5d497e809b992e95ebca6179936935d3271fad59ca611e4"
+  }
+}

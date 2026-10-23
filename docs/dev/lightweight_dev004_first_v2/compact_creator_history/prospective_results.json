@@ -1,0 +1,68 @@
+{
+  "tests": [
+    {
+      "name": "existing_creator_increment",
+      "status": "PASS"
+    },
+    {
+      "name": "duplicate_new_birth",
+      "status": "PASS"
+    },
+    {
+      "name": "historical_replay_not_counted_twice",
+      "status": "PASS"
+    },
+    {
+      "name": "restart_baseline_plus_detail",
+      "status": "PASS"
+    },
+    {
+      "name": "restart_duplicate",
+      "status": "PASS"
+    },
+    {
+      "name": "uncommitted_crash_rolls_back",
+      "status": "PASS"
+    },
+    {
+      "name": "unseen_initial_zero",
+      "status": "PASS"
+    },
+    {
+      "name": "unseen_first_launch",
+      "status": "PASS"
+    },
+    {
+      "name": "authoritative_creator_not_recovery_hint",
+      "status": "PASS"
+    },
+    {
+      "name": "late_arrival_extrema",
+      "status": "PASS"
+    },
+    {
+      "name": "retained_timestamp_conflict",
+      "status": "PASS"
+    },
+    {
+      "name": "historical_identity_reassigned",
+      "status": "PASS"
+    },
+    {
+      "name": "historical_reassignment_old_owner_also_fails",
+      "status": "PASS"
+    },
+    {
+      "name": "corrupt_statistics_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "failed_reads_preserve_database",
+      "status": "PASS"
+    }
+  ],
+  "fixture_bytes": 8974336,
+  "provider_calls": 0,
+  "production_writes": 0,
+  "scope": "Actual changed DEV evaluator and helper; source-shaped synthetic admissions and one exact retained row; no listener/provider execution."
+}

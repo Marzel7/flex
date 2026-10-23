@@ -1,0 +1,21 @@
+{
+  "manifest_bytes": 1218041,
+  "manifest_sha256": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb",
+  "maximum_manifest_bytes": 8000000,
+  "maximum_creators": 100,
+  "maximum_baseline_mint_identities": 25000,
+  "actual_identities": 20677,
+  "maximum_local_detail_rows_per_creator": 10000,
+  "new_schema_tables": 0,
+  "new_database_reference_rows": 0,
+  "raw_acquisition_retention": "NONE",
+  "new_unbounded_file_growth_paths": 0,
+  "runtime_writes": "NONE; immutable baseline plus existing committed detail computed at read time",
+  "qualification_max_file_bytes": 16000000,
+  "baseline_core_bytes": 8970240,
+  "baseline_ops_bytes": 13754368,
+  "source_delta_sha256": {
+    "runtime/creator_resolution/src/ops/attribution_outcome.py": "0331a9f7d8ba0dbe202f32cc4a2456185633122c6076fc507c220818f2b11d6e",
+    "runtime/creator_resolution/src/ops/dev004_compact_creator_history.py": "a4aea1fc52078ad6b510d73a02daa69f0a0e878a842923b6d568b567e4b8b3f7"
+  }
+}

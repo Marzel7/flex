@@ -1,0 +1,17 @@
+{
+  "verified_creators": 100,
+  "errors": [],
+  "plans": {
+    "select rowid from token_analysis where pf_ws_creator=? order by rowid desc limit 1": [
+      "SEARCH token_analysis USING COVERING INDEX idx_ta_pf_ws_creator (pf_ws_creator=?)"
+    ],
+    "select rowid,mint,first_observed_at,analyzed_at,created_at from token_analysis where pf_ws_creator=? and rowid>? and rowid<=? order by rowid limit 128": [
+      "SEARCH token_analysis USING INDEX idx_ta_pf_ws_creator (pf_ws_creator=? AND rowid>? AND rowid<?)"
+    ],
+    "select count(*) from token_analysis where pf_ws_creator=? and rowid<=?": [
+      "SEARCH token_analysis USING COVERING INDEX idx_ta_pf_ws_creator (pf_ws_creator=? AND rowid<?)"
+    ]
+  },
+  "history_bytes": 1218041,
+  "launch_identities": 20677
+}

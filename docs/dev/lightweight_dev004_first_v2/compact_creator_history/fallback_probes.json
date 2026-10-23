@@ -1,0 +1,830 @@
+[
+  {
+    "creator": "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+    "probed_mint_count": 16,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "C7narw5LL8LLPgUuosa1nKQwdtxEizumTPzfKYVkpump",
+        "creator": "2M1wm7dXxoAzsgeEu2Vxr8XCLXd8mXwiWi7qmSWBSxSS",
+        "matched_subprov": "gEham4pvb2xWeSuSRCxfkwHKB737y7ADRWagwLbPfQA",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "gBA6YuiJaMGPbSZ8X6Y7LBz9fd2fmtsAivr5QQnpump",
+        "creator": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+        "matched_subprov": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "oFpZUV8889B88w6BGUJbz4tquFiffkS2ov6c8afpump",
+        "creator": "3rtn6iSjwkwPDKtMNe2rvmhFEJNPoAeXcaDf31qz1jha",
+        "matched_subprov": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+    "probed_mint_count": 45,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "95kkhtKXgRNfEMry5sv7MTpMmQoduR7adTiegdHjpump",
+        "creator": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+        "matched_subprov": "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "J8fqEnjTyhHhj21VrGQS8SPb3A3ectA3EcrPC8Sspump",
+        "creator": "4V21x3wW4uuYQk6EtzmJsBvq92Qb23Rwa1dga6ebn95A",
+        "matched_subprov": "3srcryfrBubA2B17EocRyZmk8phbttJPR6QvMr8owAo3",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+    "probed_mint_count": 24,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "3S8KLrbumricFFVXzK1qiee67ux7TVpZvJgJfn4Gpump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "64u6ck5Rpn88YpFdALXaoQVY3fF2cneoSWD4sf2epump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "Cey8dYAaH8apRV95RsDnCcNcjWZRrXiv9tEvRchQpump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "CrkmdYUwu2tiktmkumdNfNpf4cukihhMcJdMigUVpump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "D5ioQinxBjJnfhjEFgyNy6Bb1qMHDchxg3G7tSEupump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "FYap8ee8dPZPxzvL5vHTbqHVtKTfdKfrWqJw9MWEpump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "FZDAKhq4vjEqXaNajPccd9h9sWMRFNBpQgkNkrADpump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "FxQwrPqURasnJCX8Tkh9iZYtukquX7teJAHHEvEUpump",
+        "creator": "4e52v4UbKLQ2tiBadEV4uwQ1B6w7aEfkxBMXxvmbbKM8",
+        "matched_subprov": "GcuZeV6SgaYcuQB9mTjppNm1vV7rdQxycrVarwEtZTUY",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+    "probed_mint_count": 32,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "413TDa7gFmfSSS3KYPLmapiByvAeXuf9eGrzzZ28pump",
+        "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "AcnBcR3WxMoinjrVZnvKhaZeEYzxCSvTuBunnzxspump",
+        "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": "GyFLTJn6wFLvjCmbWiJrPN4aUSjCzfJiCCvYQoA8SoKv",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "CWZvhxSx4nMpmUM34t6D1pe7BdkrsB5zjJZ9ET1apump",
+        "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": "CPeYr3UeevjWWwPaVimMGLqebfXJCY396TH5wEPvoPqg",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "GR3pRwGN34RWwQyE5Xw1exBPzCZ7HhKftMMrzsbspump",
+        "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "Lt4vu8eTqMi9nMLunahGtGurRtj6SRCLD5veZ7ppump",
+        "creator": "4wwGjJeSsepdewUgiJAMieBn1ydobFdqZHwpo7uvq4JD",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": "4Ts6c7zFoa9CBpaHoyFUhR8ypQTX2KCSMbWsLkR4v1LS",
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "8XHE3K3NH35KxjLc4P1VF9vrYTutE8N1aqcj3APnpump",
+        "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+        "matched_subprov": "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+        "matched_treasury": "3E2Bsfk7NArdzirqP7WPnMVrLEdaGzBd55NYJNFEE5Fd",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "Adz98PoSxH9bqhyUAxvHaRNe1oXis7Dab3AEZHRApump",
+        "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+        "matched_subprov": "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "FuWiHaX7DmgF8j3TF5Qg45cua3nvsUnGHtmWkgGkpump",
+        "creator": "5yh7CQnyiRV2MnocgWJRLq8w8kpdB7p7HbutxC9Eieqn",
+        "matched_subprov": "HYSqUrKXTF9XgGA8KLGVEDZYTXBmfGSn4885e8ZjoNhb",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+    "probed_mint_count": 82,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "2JXieeC5qDj3Zd2xZ6sbKdhS8knz2HuSqoRRiXztpump",
+        "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+        "matched_subprov": "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+        "matched_treasury": "HJp4t3baMnY5kvF3Tmm1i2e3Nqp8CpE2GfTb7CnL51L1",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "69Hxdqmu5Q7f6Hkn5FdVWo9JeL2omWPEdZ5wfEZSpump",
+        "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+        "matched_subprov": "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "8Swq29KoyDHzu211XsgoJQkNrDLMQx6VXDrXSPfVpump",
+        "creator": "6KJBbAypiJVmwtbeV5VLp97KWwHKM1uEPQKALzqUaDe9",
+        "matched_subprov": "65WCzqasz8KLddHvKKHLgny52ZeeGtnvYhMRJJ2Qq6bP",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "3xpZ38num2VYWuRxrF6fqoUE9a35QJeEcQggnmNrTTjK",
+        "creator": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+        "matched_subprov": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "7VsSXqbwyaMsaqb13Q3zfQtUwCmzkvNRwWtfaYqfqy5K",
+        "creator": "8WjM6rCwAGsduGyHxkzRfkcphJyzSGS1hA4g5bomc15a",
+        "matched_subprov": "2uPFEpvFHq5xwDeftjvEPXq5b1t48UqDDJeSN9TsRE9Y",
+        "matched_treasury": "Fp27Bypi9z4PhkC6ydLkh8TTb53zjPC52eRJPUmPti5N",
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+    "probed_mint_count": 34,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "norm8mXDK6ndyav2cYriwkDtS2Ti3QScYgTPaavn4Ay",
+        "creator": "8jdzW4sZirzgz3KoNR2b1pzwpghAessxsHGeqcYtx9VW",
+        "matched_subprov": "4Pu8i9hnwmYaMaDLCaXrTmB6SXJJnUXxtF6HbzeJdycZ",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "EdGY7F3uVW3LD1485o2CU84agMbJkFahbzJEEyMpump",
+        "creator": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+        "matched_subprov": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "PPtzjVyDAMWiH52zbyzPgtg6ZhAhkt3rjj5mfcXpump",
+        "creator": "9WK4DPiVvcXDFYvZdeabU5hZ2cLxtoax4EacMSyg4tLE",
+        "matched_subprov": "Bvrc31ZYRAPeuhnkWY8wzUSt57N5CtHCQrxJqaCPAuqN",
+        "matched_treasury": "AC25XBUGmvcNwK4ii4hVMkfN34qCUMytGYRi2dd4u2Xs",
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+    "probed_mint_count": 37,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "89LQmLpgxM53SMaNCeX1KuNjUQCTqdqvyt1rzmR1pump",
+        "creator": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+        "matched_subprov": "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "F7CSGA21nJy353izpLituszodFnY5QE2dD9TLMNApump",
+        "creator": "9c122cW38DQjCCHwswWyQoWrdZMH8fYfAm5Ee21aq5ZY",
+        "matched_subprov": "HKRhboQqHSv5qkrJZSXPyaadqLbjTCpEaDMyZrGG7Nnz",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "68Z6fpmPM7R6T4uGWrFqg82v1iryBfSN4vcoyzZ4pump",
+        "creator": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+        "matched_subprov": "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "9wKKrJAXHwmHNvrCCYg4UhE2TqfSapnexNzHxCH4pump",
+        "creator": "9iLW5FRnZrnEtfri9BHJfcF9S2gnZtTF4bDi7ZKwybLx",
+        "matched_subprov": "BrEcnDRpnZchsUzPjKrXmhA9P63KNy4tbge43dk3yRRc",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "DNFUP9tDaaHSLGkRfypf4t1u1uNYnFiPKUWFivBWpump",
+        "creator": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+        "matched_subprov": "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "EGkqSQDT7MYJNhf17vR2JZn5pc4sbUDeN2gFCP6Ppump",
+        "creator": "9qt661UBRaZWSnmq8VWxRAdKyvxtv3BVQKhHApRAksLe",
+        "matched_subprov": "9wQtSxk145qfEPnmHEzv7PHRoBDbELyWGst8T2Umrh7C",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+    "probed_mint_count": 30,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "6e5a3xFpZBuv41EJTGwKh9ki2zQ7xAcqg6y1cMRmpump",
+        "creator": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "6xMGBwVuw2ggWKLYXPUF1h5dCT7PEEPxte77i7Gmpump",
+        "creator": "A9jjN1i5tgYX8i88BmX5zF8HPjuduU28PRjksTMkQUow",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": "GyFLTJn6wFLvjCmbWiJrPN4aUSjCzfJiCCvYQoA8SoKv",
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "247aEWkHmrna4JTYftxLyRw7Yt2jQ2M4zsGGecoNpump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "3N3CuhPeTYFmmmjAvyPrHeUgmtPc7NdpFstUNQEgpump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "3rv6wR2zMpjPuoLn9DKDrmQDRym6fhSPJP6PchuZpump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "5QCv5Xru5HqsqBpV4bNeXWbMRPctD8pPSJh1AKiSpump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "6x4Z2dr5DgHUBCKvta8T8GNsFTxJhsBZxNrycWQ8pump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "8sCAmeMX2kWp1VcWMiWjU6PEJsptt6vpsuJJDET2pump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "BzTVTbyu2w4UJVFob77vTMR9mjpC2r1T2pX51FoP9mtm",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "CBvSaiC2yNoXNmwLnvejAa8rEZHYp7L9d8Me8Sevpump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": "EQaUD1m1LtLsxY7eRcjkFpfmb36mV9ycivZ34jBtNjbF",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "CG8YntxS8egYsuZX2mFB9eExBvLZazYWvBo2Mrpupump",
+        "creator": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+        "matched_subprov": "QXrQp7xWw4ENvcCcbxuDt7UH5iNsu5P3RcfxuZJaH4w",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "2A6sLqrw8WN6KkgnCsN4xJkyAowBZHr2H9xQ4u3Mpump",
+        "creator": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+        "matched_subprov": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+        "matched_treasury": "9Shc9iJbioWWisiPcMmpe7SXJD4fsentGBFba4Mvua23",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "2MWNkT7gb31jsiwHx6FsubgvpqQPZj2GuXUCMqXc74oN",
+        "creator": "AufH68UFBGSVVRL9D7u5W6NySCrukL4fWfSRTxDcJC6u",
+        "matched_subprov": "gangSXcffiVZntzVGYs7kajjVrPkFcTk6AKADCw91RV",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "2ETcrKGqn3hZ3SCeQPaNua5V8aMcHeS22yoQPC1bpump",
+        "creator": "B1g4Nyyu7zJzVv2fQwUdHLfvdjX5p6Uw2V9KxVLxKSmG",
+        "matched_subprov": "G76tucLinYTwz8KkV4NXroEZweBS5gb4ZRinbQd1Wjoz",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "26MGRzYaCX55Nbqc1aNtMRCB6r7E7aLqr8Cwfks2pump",
+        "creator": "BTdjaPaor31yqs1mggv6eaRJbEox8sE3MbyBCMEjHPbq",
+        "matched_subprov": "Eyb9j2G42H65XD4o6z8jf8rgcUqqG8kpbcK4y7gysYc5",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+    "probed_mint_count": 5,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "79mFmvFew2GzzBmbghw1U2nEoqcEJMaBJ2CNM6gkpump",
+        "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+        "matched_subprov": "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "7HHnAe89GzdeFj5PgRcuGmDsaRtbFz16RSgcke83pump",
+        "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+        "matched_subprov": "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+        "matched_treasury": "HowkKdAxWwibNm5SMPHtW9vKYyznLStko6DT4pxdx5Mi",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "FU6uVm6YqEEaNuEtde8txgEkzqt9pA43ZLTBuMc1pump",
+        "creator": "CfQ1p2Nz2UywqP21J9QFwaTwRbxxdHq9BcAB4gjii928",
+        "matched_subprov": "Gh4wnpFwhDub7cFkDDDapRDuhsFa4EjtDLzBVoNhxxpd",
+        "matched_treasury": "HowkKdAxWwibNm5SMPHtW9vKYyznLStko6DT4pxdx5Mi",
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "VBrCaWDTRPyW5BvRoTph5BR8KZNstSNzrTdYEgipump",
+        "creator": "EHdfboiMiyEcyxpcyXFeimAqaVTG1wdL6aRHKHvZrWKU",
+        "matched_subprov": "C3axbh1LCBvg1KuKYgyEQWm11kAhyDGBoUnP5uVkp1kc",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "3KQbMB8SUYRkEXq8nhuqUaYj2tQS2v5mSuSGDRFEpump",
+        "creator": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+        "matched_subprov": "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ",
+        "matched_treasury": "CWnfjiNFJKSG4TimLjDxEsqQicjeqQXmqRGaUSMvhLxa",
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "oxsBtVM2ph6TWDZjKeLxuq77kQLBNBmdTcZDXcGpump",
+        "creator": "Enkp596LAUTZrKxjXMtN8Suhbu16fB8qb3bSyCDtV5L4",
+        "matched_subprov": "H3mywHLmjvfdTp8Yd14dEeKbECgQdDTpEUTomw2odKwQ",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "F4NLCXmMKpasHCZEpXddGbnN2zJxLQ3xiRgagWjstkZw",
+    "probed_mint_count": 68,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+    "probed_mint_count": 9,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "HVXsnbGyNR7cXdj5LhHqLVxNsmGsyH2VwJuD5fHCpump",
+        "creator": "FLYbyPss3iBMpo7J4gTYuJVx9JwNJNXQzobtFPeZR8Y7",
+        "matched_subprov": "GcuZg6tjLCRjyAnv1kXPnQYr67Lp9Druo7xoAdg8E77Y",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+    "probed_mint_count": 12,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "BQfvAu9gRQ61mBAKmd6L2J6j9fpUCLbXkjHs4fXUpump",
+        "creator": "FTroG4aeMrXEVejLYgcwYHB88tbS8os3dDZCzh18MeRh",
+        "matched_subprov": "7eTU7wGK8mdZ9bu5A1Aa358XUhJmsuCXm7zxHPtkHrEL",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "FTuqW6J148wdknkPvm2EVSJ1EFt4aDhjAYzv6rdjuCRi",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+    "probed_mint_count": 2,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "EUfkzeNzSQ67zHP2oKNKhRFMDgytCCu8DqDPYfBxpump",
+        "creator": "G8oU5DhkSvd2GTVHRDdaoQoF8esXNfJdSFdsV3rvRxVZ",
+        "matched_subprov": "93Go6XduRaVrMrSVrmu6ANbAFb6FVUHa1UWoL967EHxr",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "3pZt8USPo3VUzzS7AkpM3QrFqdss7R8dX4QpurPtgrcy",
+        "creator": "GguKCgLYxwtWgpXzubxkq7E3ZzAYQFbda71DvfbkrKPh",
+        "matched_subprov": "G2mg9C9EL8zrxGvR4RSc9tzgraY7jMPmVyDxsFhPCvR4",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "J6adEwik4yfjjKqbWAMt9GqkhzwcwLBcvaTqD3TJmeYp",
+    "probed_mint_count": 7,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "N9SyhAXDckG4y2B911paJPpwS7cvxWSxcng53mebXGf",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "3VPoXaRcXxju8qgkVRN87UuXZxbdBD7zyaXPDqqmpump",
+        "creator": "TffSohsKbZF1WDFfLEGJV4JE4dWf8yETfQuer8cxU6k",
+        "matched_subprov": "ApRnYo6eSxdUnghbas6SFcAVh4ro47Vqr95g8MLrHdz1",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+    "probed_mint_count": 53,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "8eCkYMmEmQ4VmTLzcQCQyguRbYPC6NCp5ByRvfDwpump",
+        "creator": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      },
+      {
+        "mint": "DZkxhWCvKE3iuDGfoQcz4akiuBDisvtJ3G9eEpSmpump",
+        "creator": "kjcByyimgefWuVutf9e7VK1dsJM9AYoa4EYRHy67dDu",
+        "matched_subprov": "7kJcoBav4yDccZw7YQTiYeiHjz23E9BZ4jojnU5VAVHH",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  },
+  {
+    "creator": "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+    "probed_mint_count": 128,
+    "plan": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "retained_matches": [
+      {
+        "mint": "2666VMweJW2iDmeLy4sDqbEpvXkiRK9oHnyFMpJnLVKv",
+        "creator": "timeworn2X1EwMLSzeVhdVTbVSzSCKuibKd2kQ2Lsyn",
+        "matched_subprov": "9Es4rPu4fhWoMGok1Ts95gBgfJEUG83NKW8XYKVubZwT",
+        "matched_treasury": null,
+        "reviewed_status": "AUTO"
+      }
+    ],
+    "error": null,
+    "verdict": "HOLD_NO_COMPLETE_CREATOR_INDEX_OR_FROZEN_FIRST_MATCH_ORACLE",
+    "reason": "Known-mint PK probes do not prove absence of other legacy creator rows or installed LIMIT1 first-match identity."
+  }
+]

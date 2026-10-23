@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "63f93b4ce383556e01a9da77ba5699fdd88ed25b",
+    "git_head": "85ccc144b151db37b79fe8fe43c4d3594a26b967",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T16:33:13.716354+00:00",
+    "updated_at_utc": "2026-10-23T17:02:09.380003+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42382,5 +42382,20 @@
     "runtime_deployment_reason": "Test/documentation-only feasibility stop; no executable runtime change.",
     "report": "docs/dev/lightweight_dev004_first_v2/bounded_cutover_gap_recovery/REPORT.md",
     "next_action": "Establish retained provider bounded-history completeness/unavailable-history contract and pre-gap boundary without acquisition. If unavailable, remain HOLD and do not stop intake. Then qualify minimal durable existing-reconciler continuation."
+  },
+  "dev004_continuous_intake_cutover": {
+    "status": "HOLD_NO_ACCEPTED_INTAKE_PRESERVING_PAIRED_SWITCH",
+    "engineering_revision": "85ccc144b151db37b79fe8fe43c4d3594a26b967",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "result": "Continuous V1 intake during V2 preparation feasible. Paused cutover has unproven event-gap recovery. Receipts are identity/outcome proofs; failure queues/journals are not complete replay/change logs. No accepted database-only fence/drain/rebind across listener Core/OPS.",
+    "tests": "Three small SQLite controls: open connection remains V1 after pathname replacement; separate Core/OPS replacements expose mixed generation; maximum fixture32768bytes. No actual hot-switch acceptance claimed.",
+    "disk_available_bytes": 5131051008,
+    "fixture_core_ops_bytes": 22724608,
+    "blocker": "No supported durable intake-preserving write fence and paired authority transfer using existing mechanisms; no complete live delta/reverse reconciliation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only architecture plus disposable SQLite semantics controls; no runtime changes.",
+    "production_state": "Unchanged; no production DB opens/writes, providers, live WebSockets, restarts or deployment.",
+    "report": "docs/dev/lightweight_dev004_first_v2/continuous_intake_cutover/REPORT.md",
+    "next_action": "Authorize bounded DEV feasibility of listener-local writer fencing/rebinding using existing queues only, proving every admitted birth/migration is durable while fenced. If new buffer required, retain HOLD; V1 remains authoritative."
   }
 }

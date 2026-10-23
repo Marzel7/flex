@@ -1,0 +1,15 @@
+{
+  "status": "HOLD_NO_COMPLETE_INDEPENDENT_ADMISSION_AUTHORITY",
+  "source_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+  "checks": {
+    "existing_file_stores_write_without_Core_or_OPS_connection": true,
+    "birth_helper_has_no_fsync_publication": true,
+    "migration_helper_fsyncs_file": true,
+    "journal_append_does_not_deduplicate_migrations": true,
+    "DB_rebind_changes_journal_lookup_and_leaves_V1_records_behind": true
+  },
+  "scope": "Actual file helpers only. File reopen is not power-loss certification. No DB/provider calls; no admission-hook or transfer implementation. Migration helper file fsync does not certify parent-directory publication or total file bounds.",
+  "maximum_file_bytes": 312,
+  "production_writes": 0,
+  "provider_calls": 0
+}

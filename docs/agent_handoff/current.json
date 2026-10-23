@@ -2501,6 +2501,24 @@
     "subsequent_integration": "See dev004_birdeye_multi_window_recovery_integration: budget binding works in five new-bucket crash tests; independent retained-observation checkpoint collision keeps full M2 HOLD. Owner PASS remains closed.",
     "tests": "30 provider-free groups PASS: original reset reproduced; valid/missing/malformed/truncated/version/read/shape/size state; partial write and physical exits before/after rename/publication/dispatch; file/guard/directory sync errors and unsupported directory sync; concurrent32 token attempts4success and32distinct attempts20success; unchanged60second expiry."
   },
+  "dev004_birdeye_checkpoint_collision_correction": {
+    "blocker": null,
+    "bounds": "Disposable private/tmp/dev004 profile and pre-enforced<=64MiB per-file OS cap; actual16M. Completion4096rows,64KiB references/window,4MiB total refs,512candles/window; overflowHOLD. Raw retention false,new unbounded paths0. Existing M4 production storage still separate.",
+    "engineering_source_revision": "4470b89dfede6ff043a6245f8ca9be4101648d50",
+    "equivalence": "Exact key/time/resolution and finite complete equal OHLC/close with accepted Birdeye source and retained provenance; distinct request identities compatible. Conflicts/ambiguity raise CheckpointHold, no completion, rollback all tentative rows.",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "implementation": "One bounded OPS-local operation_monitor_window_completion table; window identity/boundaries plus canonical row key/fingerprint references. Shared writer atomically verifies/inserts observations and records completion. Finalization preserves occupied observations. No replacement/observation update, new database/service, or raw response storage.",
+    "next_action": "Scoped collision task COMPLETE. Continue existing bounded integrated acquisition retry/backoff/exhaustion qualification before closing full Birdeye recovery gate; reuse accepted crash/collision results. No deployment.",
+    "price_and_budget": "Opening/provenance preserved; synthetic ATH1000/multiple10/drawdown99 exact; historical facts unchanged. Owner hash unchanged;20global/4token/60s unchanged; reservations remain charged across failures. BIRDEYE-only/helper/endpoints/reducer unchanged; no real providers or credentials inspected.",
+    "production_runtime_gate": "QUALIFIED_NOT_DEPLOYED",
+    "remaining_gates": "Collision blocker closed; prior wider integrated retry/backoff/exhaustion scope and existing M1/M3/M4/M5 remain unchanged. Include completion schema/profile in final manifest gate.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birdeye_checkpoint_collision/REPORT.md",
+    "runtime_deployment_gate": "PASS_ACTUAL_DEV_MODULES_AND_SHARED_WRITER",
+    "safety": "No production DB/source/config writes,services/providers/live WebSockets/history retirement/cutover. Only generated superseded test DB copies cleaned; immutable references and latest normal/overlap fixtures preserved; free3096133632 bytes after cleanup.",
+    "starting_candidate": "5b72bb26c8eed08a19bf77a061caceefe80d959e",
+    "status": "PASS_ISOLATED_DEV_CHECKPOINT_COLLISION",
+    "tests": "15 groups PASS: normal; five prior physical crash boundaries; before-commit crash; retained overlap; identical/distinct identity; conflicting/missing OHLC/unknown provenance HOLD; atomic mixed conflict rollback; exact old counterexample reproduced. Fixed overlap3requests vsold4; original row remains unchanged through finalization. Duplicate/restart finalization one commit/3unique rows."
+  },
   "dev004_birdeye_multi_window_recovery": {
     "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
     "accepted_source_distinction": "Retained71b6e338 has completed-chunk readers/remaining selection and pre-dispatch hook plus MonitorQueue/DevProviderBudget. It is not the selected candidate composition. Its DEV-only rolling60second20global/4token default model is not an account-wide/lifetime ledger; no scope or limit changes authorized.",
@@ -2531,6 +2549,7 @@
     "safety": "No production writes/source/config/services/providers/live WebSockets/history deletion/cutover. Disposable accepted DEV fixture copies only; per-process file cap16000000, no new unbounded path, raw retention false.",
     "starting_candidate": "aabf24c137ab764a574909c6d097af167b21cb84",
     "status": "HOLD_CHECKPOINT_PRIMARY_KEY_COLLISION",
+    "subsequent_collision_resolution": "Retained-bucket collision closed in506fe25c with insert-only canonical evidence and independent same-transaction completion metadata. See dev004_birdeye_checkpoint_collision_correction. Other earlier scopes unchanged.",
     "tests": "Normal plus all five physical crash cases PASS for new buckets; budgetdebits3 normally,4 after before-dispatch/lost-response crash; requests3 except lost-response4. Exactly one committed finalization/three unique observation rows; duplicate finalized admission causes no request/debit/write. Retained historical facts unchanged. Real shared writer, audited disposable Core/OPS, blocked networks."
   },
   "dev004_birdeye_recovery_composition_correction": {
@@ -34761,11 +34780,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "11c77967f5c36df51e000244f4fa07bf81c2592e",
+    "git_head": "4470b89dfede6ff043a6245f8ca9be4101648d50",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T12:32:17.117343+00:00",
-    "working_tree": "DEV004 Birdeye recovery integration HOLD: five crash boundaries PASS for new buckets; retained-bucket INSERT OR IGNORE collision loses completion identity and repeats request. V1/production unchanged."
+    "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
+    "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -2665,6 +2665,42 @@
     "subsequent_composition_resolution": "CompactWalkbackpackagingboundaryclosedinDEVby712f1840. Frozenpartialmanifest/runtimequalification at3d5570ed;G1stillHOLDat exactstartup/schema/isolation/dormantdependencies. See dev004_reproducible_runtime_composition. RemainingG2-G6unchanged.",
     "updated_at_utc": "2026-10-23T10:40:12.569641+00:00"
   },
+  "dev004_core_base_schema_owner_qualification": {
+    "authority_check": "Accepted Supervisor configuration hash still matches retained authority artifact. V1 Core/OPS paths resolve as before; no database contents queried.",
+    "engineering_source_revision": "4dec2c9c1c783c77d5a48429527839c65a6f2452",
+    "exact_missing_contracts": [
+      "token_analysis.first_observed_at before compact history readers run",
+      "token_analysis.create_tx_signature before canonical CREATE readers run",
+      "canonical token_market_cap_peaks base-table initialization before price writes/migrations"
+    ],
+    "executable_candidate": "712f18400508a7681e3cea78e79cf84c0be8b666",
+    "first_observation_finding": "Accepted TokenPriceService._store_snapshot adds first-observation fields only while persisting a qualifying price observation. Schema-only owner does not. Same in FLEX_STABLE_V2, accepted price-worker71b6e338 and current712f1840. Observation writer was not invoked merely to create columns.",
+    "independent_holds": "Lineage repeat-safety and absent birth-quarantine packaging did not block this Core procedure and remain separate. Monitor lifecycle facts belong to OPS; acquisition envelopes belong to the existing filesystem queue. Other cutover gates unchanged.",
+    "next_action": "Supply a versioned accepted Core base initializer/artifact covering the three exact contracts, or separately authorize a minimal explicit bootstrap-owner correction. Stop here: no inferred V1 DDL, synthetic observation writes, classifier change or unrelated restoration.",
+    "owner_authority": "Listener base owner, price-support schema owner, Core migration helper, creator-resolution initializer, migration-handoff retry and webhook-birth retry owners executed unchanged against fresh disposable Core. No handwritten DDL or V1 schema copy.",
+    "preserved_acceptance": "Runtime source unchanged versus712f1840; original reference Core/OPS/history hashes exact. Existing100creator/616Watchtower/freshness/recovery/price evidence reused, no large matrix rerun.",
+    "production_state": "V1 authoritative and unchanged. No production source/config/DB changes, service actions, providers, live WebSockets, history deletion or cutover.",
+    "qualification": [
+      "Selected owner sequence repeated with identical schema definitions; standalone webhook birth retry schema also repeat-safe",
+      "Creator-resolution schema_ready true; foreign-key check clean; all Core user rows zero",
+      "Actual compact reader fails COMPACT_HISTORY_TIMESTAMP_SCHEMA; canonical CREATE query preparation fails no such column:create_tx_signature",
+      "Price support owner creates circuit-breaker/pool support schema but not peak base table",
+      "Only declared disposable Core/OPS connections allowed; RPC_METRICS_DB explicitly shares Core; no production DB access or providers"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/core_schema_owner/REPORT.md",
+    "runtime_deployment_reason": "Isolated schema-owner qualification and documentation only; no runtime source change or deployment.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_MISSING_ACCEPTED_FRESH_CORE_BASE_CONTRACT",
+    "storage": {
+      "core_after_webhook_retry_schema_bytes": 266240,
+      "new_unbounded_growth_paths": 0,
+      "peak_sampled_wal_bytes": 712792,
+      "primary_core_bytes": 258048,
+      "qualification_single_file_cap_bytes": 16000000,
+      "raw_provider_retention": false
+    },
+    "updated_at_utc": "2026-10-23T11:16:40.688197+00:00"
+  },
   "dev004_creator_classification_closure": {
     "blocker": "NONE for fixed100creator equivalence. Separate existing role/investigation/recovery/projection/persistence/cutover gates remain.",
     "engineering_source_revision": "968432da10446b9c658e9eeaa004b3e22c1f5b1f",
@@ -2816,6 +2852,7 @@
   },
   "dev004_fresh_schema_bootstrap_qualification": {
     "binding_contract": "DB_PATH and RPC_METRICS_DB point to the same disposable Core; WT_OPS_DB_PATH points to disposable OPS. Independent SQLite audit guard verifies only these bindings. Early scratch probe revealed a relative recorder alias; final qualification uses existing explicit RPC_METRICS_DB configuration.",
+    "core_owner_followup": "Core ownership traced and current schema-only procedures tested at4dec2c9c. First-observation column is lazy observation-writer DDL, not fresh bootstrap; canonical token CREATE signature and peak base table also absent. See dev004_core_base_schema_owner_qualification. OPS startup qualification remains closed.",
     "core_result": "Listener base owner, existing migrations, creator queue and migration handoff owners run, but fresh Core lacks token_analysis.first_observed_at. Actual compact reader fails COMPACT_HISTORY_TIMESTAMP_SCHEMA. Canonical token_market_cap_peaks base table also absent; migration helper assumes it already exists and logs missing-table errors.",
     "engineering_source_revision": "6fac4c62c237f21cf40c06ff22fe06dbf433061c",
     "executable_candidate": "712f18400508a7681e3cea78e79cf84c0be8b666",
@@ -34558,11 +34595,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "6fac4c62c237f21cf40c06ff22fe06dbf433061c",
+    "git_head": "4dec2c9c1c783c77d5a48429527839c65a6f2452",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T11:06:22.209658+00:00",
-    "working_tree": "DEV004 schema bootstrap PARTIAL: six OPS startup contracts and bounded resolver/Walkback startup PASS; fresh Core compact-reader contract HOLD. Runtime source remains 712f1840. No production changes; V1 authoritative."
+    "updated_at_utc": "2026-10-23T11:16:40.688197+00:00",
+    "working_tree": "DEV004 Core owner qualification HOLD: accepted procedures repeat-safe but fresh Core lacks first_observed_at, canonical create_tx_signature and peak base schema. Runtime source remains 712f1840; no production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "10716e65248d7cffdbaf4c715e78c27ca5b56bcd",
+    "git_head": "d28e683780ce49a53f1925d3b2d06253ee3e9cd3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T17:06:24.558934+00:00",
+    "updated_at_utc": "2026-10-23T17:10:21.644653+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42410,5 +42410,17 @@
     "production_state": "Unchanged; zero provider calls, production DB opens/writes, services, WebSockets or deployment.",
     "report": "docs/dev/lightweight_dev004_first_v2/migration_boundary/REPORT.md",
     "next_action": "Authorize narrowly scoped DEV existing-listener durable admission/queue-authority transfer contract; prove reuse of bounded existing queues before implementation. If new buffer needed, retain HOLD and V1 authority."
+  },
+  "dev004_durable_admission_transfer": {
+    "status": "HOLD_NO_LOSSLESS_BOUNDARY_WITHOUT_INDEPENDENT_DURABLE_STORAGE",
+    "engineering_revision": "d28e683780ce49a53f1925d3b2d06253ee3e9cd3",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "finding": "Existing file journals write independently of Core/OPS, but no accepted complete universal admission owner exists. Birth append lacks fsync; compact retry path has no file fallback. Migration fsync journal occurs after downstream failure, not before task dispatch; lacks total cap/transfer ownership. DB_PATH rebind changes journal lookup.",
+    "tests": "Five actual-helper diagnostics pass; prior fence/dedup and SQLite stale-handle controls reused. Full transfer/rebind/rollback matrix NOT qualified; durable-owner stop rule applied.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only source authority plus disposable helper tests; no application changes.",
+    "production_state": "Unchanged; zero production DB opens/writes, providers, service actions, deployment or cutover.",
+    "report": "docs/dev/lightweight_dev004_first_v2/durable_admission_transfer/REPORT.md",
+    "next_action": "Explicit authorization for bounded existing-journal admission contract/correction: durable-before-dispatch, strict storage limits and exclusive generation-bound drain/transfer. No new generic queue. If outside scope, retain V1 and stop."
   }
 }

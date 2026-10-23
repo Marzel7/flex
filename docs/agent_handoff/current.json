@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "85ccc144b151db37b79fe8fe43c4d3594a26b967",
+    "git_head": "10716e65248d7cffdbaf4c715e78c27ca5b56bcd",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T17:02:09.380003+00:00",
+    "updated_at_utc": "2026-10-23T17:06:24.558934+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42397,5 +42397,18 @@
     "production_state": "Unchanged; no production DB opens/writes, providers, live WebSockets, restarts or deployment.",
     "report": "docs/dev/lightweight_dev004_first_v2/continuous_intake_cutover/REPORT.md",
     "next_action": "Authorize bounded DEV feasibility of listener-local writer fencing/rebinding using existing queues only, proving every admitted birth/migration is durable while fenced. If new buffer required, retain HOLD; V1 remains authoritative."
+  },
+  "dev004_migration_boundary": {
+    "status": "HOLD_EXISTING_QUEUES_CANNOT_BRIDGE_FULL_V1_WRITE_FENCE",
+    "engineering_revision": "10716e65248d7cffdbaf4c715e78c27ca5b56bcd",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "tests": "Five focused installed-AST/disposable-SQLite controls pass: canonical-only fence still commits retry to V1; duplicate row dedup; full V1 fence leaves second birth without retry; explicit UNRECOVERABLE not COMMITTED; migration dispatch task remains memory-only before execution.",
+    "blocker": "No durable-before-dispatch universal admission/queue authority independent of final V1 commits. Existing retry queues cannot both continue V1 admission and establish final V1 boundary.",
+    "stop_rule": "Applied before paired rebind/restart/rollback matrix; those acceptance results not claimed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Test/documentation only; no executable source integration.",
+    "production_state": "Unchanged; zero provider calls, production DB opens/writes, services, WebSockets or deployment.",
+    "report": "docs/dev/lightweight_dev004_first_v2/migration_boundary/REPORT.md",
+    "next_action": "Authorize narrowly scoped DEV existing-listener durable admission/queue-authority transfer contract; prove reuse of bounded existing queues before implementation. If new buffer needed, retain HOLD and V1 authority."
   }
 }

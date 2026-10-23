@@ -1,0 +1,19 @@
+{
+  "main_connection_cap_bytes": 67108864,
+  "wal_admission_pressure_bytes": 16777216,
+  "max_evidence_bytes": 8192,
+  "max_rows_examined_per_invocation": 32,
+  "max_VM_instructions_per_row": 100000,
+  "SQL_progress_deadline_seconds": 0.25,
+  "deadline_limitations": "Progress cancellation is not an absolute busy-wait/fsync duration guarantee;existing connection busy timeout unchanged.",
+  "new_schema": "one cursor table,one CHECK-constrained row;no new source index",
+  "retention": "No raw acquisition,canonical retirement or evidence deletion;cursor never grows in row count;existing projector retention unchanged",
+  "qualification_max_single_file_bytes": 16000000,
+  "largest_observed_fixture_file": 13893632,
+  "new_unbounded_storage_paths": 0,
+  "source_hashes": {
+    "runtime/walkback/src/core/walkback_worker.py": "14c210d0179750fe12b25995395a13543b372920ea60368e6bcb3c13d80bebbe",
+    "runtime/walkback/src/ops/dev004_walkback_projection_recovery.py": "9980458452c664701be17c32e3e7396264ade29208e6af5b1622994c3d603294"
+  },
+  "projection_code_preimage_matches_installed": true
+}

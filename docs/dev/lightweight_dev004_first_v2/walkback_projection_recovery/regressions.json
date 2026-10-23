@@ -1,0 +1,950 @@
+{
+  "watchtower_routes": 616,
+  "creator_classifications_profiles": 100,
+  "frozen_11": {
+    "original_11": {
+      "known_treasury": true,
+      "known_subprovider": true,
+      "watchtower_route": true,
+      "creator_classification": true,
+      "retained_outcome": true,
+      "parent_candidates": true,
+      "quarantine": true,
+      "price_fact": true,
+      "price_observations": true,
+      "ohlc_reduction": true,
+      "creator_funding_history": true
+    },
+    "installed_nine_credential_files_unchanged": true,
+    "ath_relative_difference": 2.561652223589094e-05,
+    "ath_numerical": "PASS",
+    "canonical_fact_and_observations_unchanged": true,
+    "fixtures": {
+      "core.sqlite": 8978432,
+      "ops.sqlite": 13754368
+    },
+    "production_changes": 0,
+    "provider_calls": 0
+  },
+  "deep_26": true,
+  "freshness": {
+    "tests": [
+      {
+        "name": "original_counterexample_and_restart",
+        "status": "PASS",
+        "evidence": {
+          "legacy_suppressed": true,
+          "mapped_admitted": true,
+          "base_assessment_generation": "000000037922:000000073534:000000008354",
+          "exact_recorded_counterexample_generation": "000000095347:000000206259:000000020221",
+          "new_generation": "000000095347:000000206260:000000020221",
+          "versions_added": 1,
+          "restart_replay_versions": 4
+        }
+      },
+      {
+        "name": "inherited_baseline_and_unrelated",
+        "status": "PASS",
+        "evidence": {
+          "unchanged_baselines": 2,
+          "no_historical_replay": true,
+          "unrelated_no_assessment": true
+        }
+      },
+      {
+        "name": "new_edges_both_candidates",
+        "status": "PASS",
+        "evidence": [
+          {
+            "candidate": "p3r-v2-c357da9d0d4d560311e4",
+            "generation": "000000095347:000000206260:000000020221",
+            "one_new_version": true,
+            "duplicate_suppressed": true
+          },
+          {
+            "candidate": "p3r-v2-dc4953db7adb853337c4",
+            "generation": "000000095347:000000206260:000000020221",
+            "one_new_version": true,
+            "duplicate_suppressed": true
+          }
+        ]
+      },
+      {
+        "name": "new_atomic_both_candidates",
+        "status": "PASS",
+        "evidence": [
+          {
+            "candidate": "p3r-v2-c357da9d0d4d560311e4",
+            "generation": "000000095347:000000206259:000000020222",
+            "one_new_version": true,
+            "duplicate_suppressed": true
+          },
+          {
+            "candidate": "p3r-v2-dc4953db7adb853337c4",
+            "generation": "000000095347:000000206259:000000020222",
+            "one_new_version": true,
+            "duplicate_suppressed": true
+          }
+        ]
+      },
+      {
+        "name": "new_queue_both_candidates_no_historical_delete",
+        "status": "PASS",
+        "evidence": [
+          {
+            "candidate": "p3r-v2-c357da9d0d4d560311e4",
+            "new_queue_admitted": true
+          },
+          {
+            "candidate": "p3r-v2-dc4953db7adb853337c4",
+            "new_queue_admitted": true
+          }
+        ]
+      },
+      {
+        "name": "crash_and_commit_reopen",
+        "status": "PASS",
+        "evidence": {
+          "precommit_rolled_back": true,
+          "reopen_committed_once": true,
+          "postcommit_replay_no_duplicate": true
+        }
+      },
+      {
+        "name": "conflicting_and_insufficient_mapping",
+        "status": "PASS",
+        "evidence": {
+          "inconsistent_origin_fail_closed": true,
+          "insufficient_membership_mapping_fail_closed": true,
+          "no_promotion_or_history_changes": true
+        }
+      },
+      {
+        "name": "historical_duplicates_all_families",
+        "status": "PASS",
+        "evidence": {
+          "historical_duplicate_deliveries": 6,
+          "new_assessments": 0
+        }
+      },
+      {
+        "name": "prospective_member_with_new_queue_evidence",
+        "status": "PASS",
+        "evidence": {
+          "prospective_member_via_existing_funder_resolver": true,
+          "inherited_memberships_preserved": true,
+          "canonical_operation_membership_changes": 0
+        }
+      },
+      {
+        "name": "review_rejection_and_competing_evidence_safeguards",
+        "status": "PASS",
+        "evidence": {
+          "alternative_evidence_retained": true,
+          "promotion": "NO",
+          "status": "PAUSED",
+          "old_confidence_provenance_and_all_associations_unchanged": true,
+          "base_assessment_reference_retained": true,
+          "scope": "Existing generic inference unchanged; no new conflict detector claimed."
+        }
+      },
+      {
+        "name": "flag_off_and_invalid_manifest",
+        "status": "PASS",
+        "evidence": {
+          "generic_flag_off_legacy_compatible": true,
+          "corrupt_mapping_fail_closed": true,
+          "no_assessment_changes": true
+        }
+      },
+      {
+        "name": "fresh_interpreter_restart",
+        "status": "PASS",
+        "evidence": {
+          "status": "PASS",
+          "fresh_interpreter_restart": true,
+          "versions_before": 6,
+          "versions_after": 6,
+          "new_assessments": 0
+        }
+      }
+    ],
+    "mapping_bytes": 151878,
+    "real_provider_calls": 0,
+    "production_writes": 0,
+    "schema_delta": 0,
+    "source_module_hashes": {
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/living_potential_operations.py": "12f718a2fc9b9a8cce67bc842368736c98d73eacfbf02448835e1d70cb62b687",
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_persisted_source_reader.py": "6f11dd35a8ae372ccd55c00f1d5bc67b0315a47f4ae0f8f7d887882052800bd6",
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/dev004_freshness_mapping.py": "5554c178238e7e83d933e150f66340ab5e89c05d9a4396715f61a2415c342c5e",
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_active_components.py": "f56e97ff72a73cd746e91905184e8a4909ad32753ab48a4d733aa916ed452298",
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/generic_living_pipeline_v2.py": "394edafe77f5a4eba9f12f9c4e743a13c9dce398aa4743b8ed36d5558ab3242a"
+    },
+    "original_hashes_unchanged": {
+      "/private/tmp/dev004-watchtower-roles-qualified/ops_v2.sqlite": "4d01a2ab27f11e99e5d497e809b992e95ebca6179936935d3271fad59ca611e4",
+      "/private/tmp/dev004-watchtower-roles-qualified/core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+      "/private/tmp/dev004-watchtower-roles-qualified/generation_counterexample.sqlite": "7e05ee2a8bcac9e931fc55fc45191c22099a1aa5d3c01d5d642b0a365b387a2b"
+    },
+    "files": {
+      "counterexample.sqlite-shm": 32768,
+      "baseline.sqlite-shm": 32768,
+      "baseline.sqlite-wal": 0,
+      "counterexample.sqlite-wal": 0,
+      "guards.sqlite-wal": 0,
+      "guards.sqlite-shm": 32768,
+      "edges0.sqlite": 13832192,
+      "historical_duplicates.sqlite-shm": 32768,
+      "queue1.sqlite": 12107776,
+      "edges0.sqlite-wal": 0,
+      "atomic0.sqlite-wal": 0,
+      "broken_mapping.json": 140523,
+      "crash.sqlite": 13832192,
+      "atomic0.sqlite": 13828096,
+      "historical_duplicates.sqlite-wal": 0,
+      "edges0.sqlite-shm": 32768,
+      "atomic0.sqlite-shm": 32768,
+      "counterexample.sqlite": 13819904,
+      "queue0.json": 140403,
+      "prospective_member.sqlite": 13828096,
+      "historical_duplicates.sqlite": 13754368,
+      "conflicting_evidence.sqlite-wal": 0,
+      "queue1.json": 140402,
+      "freshness_mapping.json": 151878,
+      "conflicting_evidence.sqlite-shm": 32768,
+      "edges1.sqlite": 13803520,
+      "atomic1.sqlite-wal": 0,
+      "edges1.sqlite-wal": 0,
+      "atomic1.sqlite-shm": 32768,
+      "edges1.sqlite-shm": 32768,
+      "flags.sqlite": 13754368,
+      "prospective_member.sqlite-wal": 0,
+      "crash.sqlite-wal": 0,
+      "atomic1.sqlite": 13803520,
+      "flags.sqlite-wal": 0,
+      "crash.sqlite-shm": 32768,
+      "prospective_member.sqlite-shm": 32768,
+      "queue0.sqlite": 12132352,
+      "guards.sqlite": 13754368,
+      "flags.sqlite-shm": 32768,
+      "baseline.sqlite": 13754368,
+      "conflicting_evidence.sqlite": 13832192
+    },
+    "status": "PASS"
+  },
+  "price": {
+    "tests": [
+      {
+        "name": "Birdeye_synthetic_strict_target_opening",
+        "status": "PASS",
+        "evidence": {
+          "entry": {
+            "timestamp": 1792748317,
+            "mc": 100.0
+          },
+          "window": [
+            1792748316,
+            1792748318
+          ]
+        }
+      },
+      {
+        "name": "opening_fallback_provenance_matches_accepted",
+        "status": "PASS",
+        "evidence": {
+          "accepted_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+          "accepted": {
+            "timestamp": 1792748318,
+            "mc": 100.0,
+            "plus_one_absent": true,
+            "migration_absent": true
+          },
+          "installed": {
+            "timestamp": 1792748318,
+            "mc": 100.0,
+            "plus_one_absent": true,
+            "migration_absent": true
+          },
+          "classification": "EXACT_MATCH"
+        }
+      },
+      {
+        "name": "accepted_opening_selection_and_policy_matrix",
+        "status": "PASS",
+        "evidence": [
+          {
+            "case": "priority",
+            "result": [
+              "VALUE",
+              {
+                "timestamp": 1792748317,
+                "mc": 100.0
+              }
+            ]
+          },
+          {
+            "case": "migration_fallback",
+            "result": [
+              "VALUE",
+              {
+                "timestamp": 1792748316,
+                "mc": 100.0,
+                "plus_one_absent": true
+              }
+            ]
+          },
+          {
+            "case": "plus_two",
+            "result": [
+              "VALUE",
+              {
+                "timestamp": 1792748318,
+                "mc": 100.0,
+                "plus_one_absent": true,
+                "migration_absent": true
+              }
+            ]
+          },
+          {
+            "case": "outside_window",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "empty",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "duplicate_target",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "duplicate_fallback",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          },
+          {
+            "case": "malformed",
+            "result": [
+              "MISSING_OR_INVALID",
+              null
+            ]
+          }
+        ]
+      },
+      {
+        "name": "new_price_assignment_and_dedup",
+        "status": "PASS",
+        "evidence": {
+          "stable_identity": "82d1c13ada87bdec31c6d91105bbb6428e89b8d3cf54bf855e7a06301a55b34b",
+          "depth": {
+            "pending": 1,
+            "processing": 0,
+            "retry": 0,
+            "dead_letter": 0
+          }
+        }
+      },
+      {
+        "name": "installed_price_worker_candles_lifecycle_projection",
+        "status": "PASS",
+        "evidence": {
+          "fact": [
+            100.0,
+            250.0,
+            1.5,
+            "MONITORING_ACTIVE"
+          ],
+          "depth": {
+            "pending": 0,
+            "processing": 0,
+            "retry": 0,
+            "dead_letter": 0
+          },
+          "wal_bytes": 41232
+        }
+      },
+      {
+        "name": "opening_baseline_labels_and_timestamps_persist",
+        "status": "PASS",
+        "evidence": [
+          [
+            "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+            "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+            1792748317,
+            100.0
+          ],
+          [
+            "MIGRATION_SECOND_MC_FALLBACK",
+            "MIGRATION_SECOND_MC_FALLBACK",
+            1792748316,
+            100.0
+          ],
+          [
+            "BOUNDED_POST_MIGRATION_MC_FALLBACK",
+            "POST_MIGRATION_OFFSET_2S_OBSERVED_MC",
+            1792748318,
+            100.0
+          ]
+        ]
+      },
+      {
+        "name": "durable_processing_queue_identity",
+        "status": "PASS",
+        "evidence": {
+          "identity_preserved": true,
+          "attempts_preserved": true,
+          "retry_recovered": true,
+          "completed_not_reopened": true
+        }
+      },
+      {
+        "name": "price_commit_ACK_crash_bounded_replay",
+        "status": "PASS",
+        "evidence": {
+          "observations_deduplicated": true,
+          "mock_transport_executions": 2,
+          "limitation": "External execution is at-least-once across commit/ACK ambiguity; existing bounded queue attempts retained. No exactly-once external-call guarantee claimed."
+        }
+      },
+      {
+        "name": "synthetic_terminal_finalization_and_reopen",
+        "status": "PASS",
+        "evidence": {
+          "ATH": 250,
+          "multiple": 2.5,
+          "reopen_finalization_identity_stable": true,
+          "additional_provider_calls": 0
+        }
+      },
+      {
+        "name": "existing_Birdeye_429_retry_bound",
+        "status": "PASS",
+        "evidence": {
+          "mock_attempts": 9,
+          "max_retry_limit": 8,
+          "waits": [
+            2,
+            5,
+            10,
+            30,
+            60,
+            60,
+            60,
+            60
+          ]
+        }
+      },
+      {
+        "name": "credential_authority_and_authorization",
+        "status": "PASS",
+        "evidence": {
+          "authority": "BIRDEYE",
+          "blank_rejected": true,
+          "authorization_header": true,
+          "credentials": "synthetic only"
+        }
+      },
+      {
+        "name": "Potential_candidate_match_and_collision_controls",
+        "status": "PASS",
+        "evidence": {
+          "exact_signature": true,
+          "insufficient_input": true,
+          "collision_not_promoted": true,
+          "scope": "pure matcher controls; candidate creation/review/global discovery not qualified"
+        }
+      },
+      {
+        "name": "Potential_persisted_identity_dependency",
+        "status": "PASS",
+        "evidence": {
+          "rows": 1
+        }
+      }
+    ],
+    "sources": {
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/core/db_write_queue.py": "eff1e13d2a9f79d87f0178a6979b7e48b48236d4f08b25c83fd24a288a3c38fe",
+      "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/operation_monitor_worker.py": "148e39b11f29ebbd5788fb49daf79b9cc83d4d905367765c80fa3d47799ca9dd",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/token_data_provider_bindings.py": "89956a8aaa3a1bb4cee638387976ed0f713a3000b9023005c448c72a8ccbc9a4",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/birdeye_rate_limit.py": "db200b02f702c8b98057e74c6745130b90711308fc163c1fd8621460d0ee75ac",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/evidence/queue.py": "da6412a3495fbca11bf317136a82d91382b27642302438981a71bfc0f4c62c87",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/potential_candidate_matcher.py": "958a23e3b3df089b9e7bb1145e6f7325df24f2e1f51a7d618a3b59548f166e69"
+    },
+    "mock_transport_calls": 8,
+    "real_provider_calls": 0,
+    "writer_boundary": "Existing offline injection uses synchronous fixture SQLite transactions; production shared writer/worker wiring not qualified.",
+    "opening_comparison": {
+      "accepted_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+      "accepted": {
+        "timestamp": 1792748318,
+        "mc": 100.0,
+        "plus_one_absent": true,
+        "migration_absent": true
+      },
+      "installed": {
+        "timestamp": 1792748318,
+        "mc": 100.0,
+        "plus_one_absent": true,
+        "migration_absent": true
+      },
+      "classification": "EXACT_MATCH"
+    },
+    "storage": {
+      "ops_bytes": 13754368,
+      "observed_wal_bytes": 218392
+    },
+    "transport_requests": [
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748316,
+          "time_to": 1792748318,
+          "type": "1s"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748316&time_to=1792748318&type=1s",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748316&time_to=1792748318&type=1s"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748317,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_SYNTHETIC_PRICE_TOKEN&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PROVENANCE_OFFSET_1",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748317,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_1&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_1&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PROVENANCE_OFFSET_0",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748316,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_0&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748316&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_0&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748316&time_to=1792750116&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PROVENANCE_OFFSET_2",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748318,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_2&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748318&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PROVENANCE_OFFSET_2&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748318&time_to=1792750116&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748317,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748317,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_PRICE_COMMIT_CRASH_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m"
+      },
+      {
+        "endpoint": "/defi/v3/ohlcv",
+        "request_parameters": {
+          "address": "DEV004_OPERATIONAL_TERMINAL_SYNTHETIC_FINAL",
+          "chart_type": "mcap",
+          "currency": "usd",
+          "mode": "range",
+          "padding": "false",
+          "time_from": 1792748317,
+          "time_to": 1792750116,
+          "type": "15m"
+        },
+        "encoded_query": "address=DEV004_OPERATIONAL_TERMINAL_SYNTHETIC_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m",
+        "header_names": [
+          "accept",
+          "X-API-KEY",
+          "x-chain"
+        ],
+        "url": "https://public-api.birdeye.so/defi/v3/ohlcv?address=DEV004_OPERATIONAL_TERMINAL_SYNTHETIC_FINAL&chart_type=mcap&currency=usd&mode=range&padding=false&time_from=1792748317&time_to=1792750116&type=15m"
+      }
+    ]
+  },
+  "normal_investigation": {
+    "birth": {
+      "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+      "pf_ws_creator": "3yiS9GSjLiRfqswaCZbwFEsQ6Eg2Xtr6U89rx2yPMA2w",
+      "create_tx_signature": "QMJ15TbTya8qCpJvEL72zNDqtARRLV4QajsdRDYQcSXhEU8Cn8w3RDgCZXmKuo413BH1LpmPLyUR4K15aEhSvPn"
+    },
+    "admitted_class": "FULL_WALKBACK",
+    "queue": {
+      "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+      "creator": "3yiS9GSjLiRfqswaCZbwFEsQ6Eg2Xtr6U89rx2yPMA2w",
+      "subprov": "2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy",
+      "treasury": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+      "walkback_class": "FULL_WALKBACK",
+      "attribution_source": "unknown",
+      "status": "complete",
+      "rpc_used": 9,
+      "attempts": 1,
+      "last_error": null,
+      "enqueued_at": 1792749963,
+      "started_at": 1792749963,
+      "completed_at": 1792749963,
+      "updated_at": 1792749963,
+      "intelligence_outcome": "WATCHTOWER_CONFIRMED",
+      "funder_wallet": "2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy",
+      "funding_mechanism": "WSOL_WRAP_CLOSE",
+      "funder_amount_sol": 2.122039,
+      "funder_sig": "n9uY3jWn3ovXfkHM6xZQRMFgRTVyCAh7Dayq1xa1RcwX2XHujwoyXQcdq2aDGqkEMjHsmVB5SDuXKvZdW98U1kw",
+      "funder_slot": 990,
+      "funder_block_time": 1792746990,
+      "claimed_by": "walkback-42117",
+      "claimed_at": 1792749963,
+      "lease_expires_at": 1792750263,
+      "next_retry_at": null,
+      "path_state": "CLAIMED",
+      "termination_reason_json": null,
+      "create_anchor_signature": "QMJ15TbTya8qCpJvEL72zNDqtARRLV4QajsdRDYQcSXhEU8Cn8w3RDgCZXmKuo413BH1LpmPLyUR4K15aEhSvPn",
+      "create_anchor_slot": 1000,
+      "create_anchor_block_time": 1792747000,
+      "create_anchor_source": "PUMPPORTAL_NEW_TOKEN",
+      "create_anchor_audit_state": "VALID",
+      "priority": 0,
+      "priority_reason": null,
+      "anchor_lookup_attempts": 0,
+      "last_anchor_lookup_at": null,
+      "anchor_recovered_at": null,
+      "anchor_recovery_source": null,
+      "anchor_lookup_state": null,
+      "infrastructure_retry_count": 0,
+      "last_infrastructure_error": null
+    },
+    "outcome": {
+      "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+      "outcome_type": "CANONICAL_OPERATOR_REACHED",
+      "stop_reason": "Attribution complete. Canonical operator: WATCHTOWER.",
+      "terminal_entity": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "terminal_entity_type": "CANONICAL_OPERATOR",
+      "confidence": "HIGH",
+      "evidence_json": "{\"attribution_source\":\"unknown\",\"branch_convergence\":false,\"creator\":\"3yiS9GSjLiRfqswaCZbwFEsQ6Eg2Xtr6U89rx2yPMA2w\",\"funder_wallet\":\"2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy\",\"legacy_queue_outcome\":\"WATCHTOWER_CONFIRMED\",\"retry_condition\":null,\"subprovisioners\":[\"2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy\"],\"treasuries\":[\"2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry\"],\"walkback_class\":\"FULL_WALKBACK\"}",
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "should_seed_emerging_operator": 0,
+      "should_retry": 0,
+      "completed_at": 1792749963,
+      "source_queue_updated_at": 1792749963,
+      "materialized_at": 1792749963
+    },
+    "edges": [
+      {
+        "evidence_key": "e364106e895999b6db6c4f130055fc8cbd89c0de5975dbf8f8c2de22c6dfb58d",
+        "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+        "wallet": "3yiS9GSjLiRfqswaCZbwFEsQ6Eg2Xtr6U89rx2yPMA2w",
+        "candidate_parent": "9PYqhjYvfZ6yg5XnkQr2NPxVUnEG2MN6gsDcenAXVYvE",
+        "signature": "KtzJBGPu7g87P1uuiRavWGBWNiAhehKpnyQmJW8QXTbagLmw76u8rh6bs51sRapjtsyy1Z3ZGfmfC7XbALp8aN4",
+        "block_time": 1792746995,
+        "amount_lamports": 1000000,
+        "mechanism": "PLAIN_XFER",
+        "instruction_index": -1,
+        "inner_instruction_index": -1,
+        "pre_balance": null,
+        "post_balance": null,
+        "net_balance_change": null,
+        "anchor_signature": "QMJ15TbTya8qCpJvEL72zNDqtARRLV4QajsdRDYQcSXhEU8Cn8w3RDgCZXmKuo413BH1LpmPLyUR4K15aEhSvPn",
+        "anchor_block_time": null,
+        "hop_depth": 1,
+        "owner": "",
+        "close_authority": "",
+        "close_destination": "",
+        "temporary_account": "",
+        "evidence_strength": "TRANSACTION_DERIVED",
+        "selection_status": "ALTERNATIVE",
+        "rejection_reason": "LOWER_RANKED_BUT_RETAINED",
+        "first_observed_at": 1792749963,
+        "last_observed_at": 1792749963,
+        "observation_count": 1
+      },
+      {
+        "evidence_key": "ea89e25c1f30ddfd4290cb7e7d0279d9a1b7269e3792c7ec3bb59bf5fd8f465c",
+        "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+        "wallet": "3yiS9GSjLiRfqswaCZbwFEsQ6Eg2Xtr6U89rx2yPMA2w",
+        "candidate_parent": "2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy",
+        "signature": "n9uY3jWn3ovXfkHM6xZQRMFgRTVyCAh7Dayq1xa1RcwX2XHujwoyXQcdq2aDGqkEMjHsmVB5SDuXKvZdW98U1kw",
+        "block_time": 1792746990,
+        "amount_lamports": 2122039000,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "instruction_index": -1,
+        "inner_instruction_index": -1,
+        "pre_balance": null,
+        "post_balance": null,
+        "net_balance_change": null,
+        "anchor_signature": "QMJ15TbTya8qCpJvEL72zNDqtARRLV4QajsdRDYQcSXhEU8Cn8w3RDgCZXmKuo413BH1LpmPLyUR4K15aEhSvPn",
+        "anchor_block_time": null,
+        "hop_depth": 1,
+        "owner": "",
+        "close_authority": "",
+        "close_destination": "",
+        "temporary_account": "",
+        "evidence_strength": "TRANSACTION_DERIVED",
+        "selection_status": "SELECTED",
+        "rejection_reason": "",
+        "first_observed_at": 1792749963,
+        "last_observed_at": 1792749963,
+        "observation_count": 1
+      },
+      {
+        "evidence_key": "adabd085a5aa82bb3e70d1249896378a869b355462dfb215d51c1966ef76987c",
+        "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+        "wallet": "2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy",
+        "candidate_parent": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+        "signature": "5oCWNyNea2G9nqR4zpk3ntpAy94mUm7NtdcBzQQThGfoS9R3YCiJy81L58MYYAFtjsdePLxHDaVMoezQnn7m213X",
+        "block_time": 1792746980,
+        "amount_lamports": 430000000000,
+        "mechanism": "WSOL_WRAP_CLOSE",
+        "instruction_index": -1,
+        "inner_instruction_index": -1,
+        "pre_balance": null,
+        "post_balance": null,
+        "net_balance_change": null,
+        "anchor_signature": "n9uY3jWn3ovXfkHM6xZQRMFgRTVyCAh7Dayq1xa1RcwX2XHujwoyXQcdq2aDGqkEMjHsmVB5SDuXKvZdW98U1kw",
+        "anchor_block_time": null,
+        "hop_depth": 2,
+        "owner": "",
+        "close_authority": "",
+        "close_destination": "",
+        "temporary_account": "",
+        "evidence_strength": "TRANSACTION_DERIVED",
+        "selection_status": "SELECTED",
+        "rejection_reason": "",
+        "first_observed_at": 1792749963,
+        "last_observed_at": 1792749963,
+        "observation_count": 1
+      }
+    ],
+    "rpc_used": 9,
+    "synthetic_calls": [
+      {
+        "method": "getSignaturesForAddress",
+        "params": [
+          "3yiS9GSjLiRfqswaCZbwFEsQ6Eg2Xtr6U89rx2yPMA2w",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "QMJ15TbTya8qCpJvEL72zNDqtARRLV4QajsdRDYQcSXhEU8Cn8w3RDgCZXmKuo413BH1LpmPLyUR4K15aEhSvPn"
+          }
+        ]
+      },
+      {
+        "method": "getTransaction",
+        "params": [
+          "KtzJBGPu7g87P1uuiRavWGBWNiAhehKpnyQmJW8QXTbagLmw76u8rh6bs51sRapjtsyy1Z3ZGfmfC7XbALp8aN4",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      },
+      {
+        "method": "getAccountInfo",
+        "params": [
+          "9PYqhjYvfZ6yg5XnkQr2NPxVUnEG2MN6gsDcenAXVYvE",
+          {
+            "encoding": "base64",
+            "commitment": "confirmed"
+          }
+        ]
+      },
+      {
+        "method": "getTransaction",
+        "params": [
+          "n9uY3jWn3ovXfkHM6xZQRMFgRTVyCAh7Dayq1xa1RcwX2XHujwoyXQcdq2aDGqkEMjHsmVB5SDuXKvZdW98U1kw",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      },
+      {
+        "method": "getAccountInfo",
+        "params": [
+          "2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy",
+          {
+            "encoding": "base64",
+            "commitment": "confirmed"
+          }
+        ]
+      },
+      {
+        "method": "getSignaturesForAddress",
+        "params": [
+          "2zEqSzWdpM2W4hTqzfCxmRdECU6aKx6hYZWQatVNREYy",
+          {
+            "limit": 100,
+            "commitment": "confirmed",
+            "before": "n9uY3jWn3ovXfkHM6xZQRMFgRTVyCAh7Dayq1xa1RcwX2XHujwoyXQcdq2aDGqkEMjHsmVB5SDuXKvZdW98U1kw"
+          }
+        ]
+      },
+      {
+        "method": "getTransaction",
+        "params": [
+          "5oCWNyNea2G9nqR4zpk3ntpAy94mUm7NtdcBzQQThGfoS9R3YCiJy81L58MYYAFtjsdePLxHDaVMoezQnn7m213X",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      },
+      {
+        "method": "getAccountInfo",
+        "params": [
+          "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+          {
+            "encoding": "base64",
+            "commitment": "confirmed"
+          }
+        ]
+      },
+      {
+        "method": "getTransaction",
+        "params": [
+          "n9uY3jWn3ovXfkHM6xZQRMFgRTVyCAh7Dayq1xa1RcwX2XHujwoyXQcdq2aDGqkEMjHsmVB5SDuXKvZdW98U1kw",
+          {
+            "encoding": "jsonParsed",
+            "maxSupportedTransactionVersion": 1,
+            "commitment": "confirmed"
+          }
+        ]
+      }
+    ],
+    "membership": [
+      {
+        "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "source_population_id": "walkback_watchtower_confirmed_projection_v1",
+        "assigned_at": 1792749963,
+        "event_id": "WATCHTOWER_CONFIRMED:BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq:1792749963"
+      }
+    ]
+  },
+  "normal_recovery": {
+    "status": "PASS",
+    "result": {
+      "status": "PASS",
+      "examined": 1,
+      "results": [
+        {
+          "mint": "BXsmjrkR35ncUkfYMbhmYzhLAFN6txuC2Jon5H5uadvq",
+          "action": "ALREADY_PRESENT"
+        }
+      ],
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+      ]
+    },
+    "provider_calls_before_after": [
+      9,
+      9
+    ]
+  },
+  "all_recovery_Core_fixtures_byte_unchanged": true
+}

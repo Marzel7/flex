@@ -1,0 +1,178 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "name": "original_postcanonical_crash_repaired",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "projected"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "repeated_actual_worker_process_restart",
+      "status": "PASS",
+      "memberships": 1,
+      "outbox": 1
+    },
+    {
+      "name": "before_membership_commit",
+      "status": "PASS",
+      "actual_exit": 81,
+      "membership_at_crash": 0,
+      "membership_after_restart": 1
+    },
+    {
+      "name": "after_membership_commit",
+      "status": "PASS",
+      "actual_exit": 82,
+      "membership_at_crash": 1,
+      "membership_after_restart": 1
+    },
+    {
+      "name": "after_ack",
+      "status": "PASS",
+      "actual_exit": 83,
+      "membership_at_crash": 1,
+      "membership_after_restart": 1
+    },
+    {
+      "name": "missing_canonical",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_AUTHORITY_MISSING_OR_CONFLICTING"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "conflicting_operator",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_AUTHORITY_MISSING_OR_CONFLICTING"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "conflicting_terminal",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_TERMINAL_CONFLICT"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "insufficient_evidence",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_AUTHORITY_MISSING_OR_CONFLICTING"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "quarantined_queue",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "NOT_COMPLETED_CONFIRMED"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "stale_canonical_version",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_QUEUE_VERSION_CONFLICT"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "missing_CREATE",
+      "status": "PASS",
+      "evidence": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CREATE_AUTHORITY_INCOMPLETE"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "flag_off_compatibility",
+      "status": "PASS"
+    }
+  ],
+  "original_counterexample_unchanged": {
+    "core.sqlite": "679e14a1aa366d47a3e863927904ddb80afe75bf09398c9c9aafd938a5d184ae",
+    "ops.sqlite": "a830beef2b5c36155ca8567a4ba8e63a84020c7af25d6f8c25e0f0d4b359fd28"
+  },
+  "max_file_bytes": 13893632,
+  "real_provider_calls": 0
+}

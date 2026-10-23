@@ -1850,6 +1850,17 @@ def _check_stuck_lease() -> None:
         os._exit(1)
 
 
+def _recover_committed_projections(ops: sqlite3.Connection) -> dict:
+    """DEV-only bounded projection recovery; no job claim or acquisition."""
+    if os.environ.get("DEV004_WALKBACK_PROJECTION_RECOVERY_ENABLED") != "1":
+        return {"status": "DISABLED", "examined": 0}
+    from src.ops.dev004_walkback_projection_recovery import recover_batch
+    result = recover_batch(ops, core_db_path=LIVE_DB_PATH)
+    if result.get("status") == "HOLD":
+        print(f"[WALKBACK] projection recovery HOLD: {result.get('reason')}", flush=True)
+    return result
+
+
 def run_loop() -> None:
     from src.core.walkback_queue import validate_schema as _validate_walkback_schema
     from src.core import treasury_bank
@@ -1929,6 +1940,7 @@ def run_loop() -> None:
             if not _is_lock_error(e):
                 raise
             print(f"[WALKBACK] startup maintenance skipped (finalize_exhausted_pending): {e}", flush=True)
+        _recover_committed_projections(startup)
     finally:
         startup.close()
     print(f"[WALKBACK] worker starting: batch={BATCH_SIZE} interval={INTERVAL_SEC}s "
@@ -2029,6 +2041,7 @@ def run_loop() -> None:
                     _write_heartbeat(ops)
                 else:
                     print(f"[WALKBACK] queue empty (pending=0), sleeping {INTERVAL_SEC}s", flush=True)
+                _recover_committed_projections(ops)
                 _review_deep_routes_after_commit(ops)
             finally:
                 ops.close()

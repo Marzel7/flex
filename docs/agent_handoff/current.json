@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "26f8a8c78a529fd90e3477964e62c4a46087a84a",
+    "git_head": "a7a0523d0d021277ecad618eac68446739940bee",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T17:13:31.918744+00:00",
+    "updated_at_utc": "2026-10-23T17:37:07.458935+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42434,5 +42434,31 @@
     "production_state": "Unchanged; no production DB writes, providers, WebSockets, service changes or deployment.",
     "report": "docs/dev/lightweight_dev004_first_v2/durable_journal_replay_gate/REPORT.md",
     "next_action": "Define minimal versioned unresolved signature-first journal/replay contract using existing handle_migration. Retain every event until individual resolved/transfer/quarantine acknowledgement; then implement bounded publication/path/owner transfer together. No second acquisition system."
+  },
+  "dev004_signature_first_journal": {
+    "status": "QUALIFIED_NOT_DEPLOYED_PROVIDER_FREE_DEV_PASS",
+    "engineering_revision": "a7a0523d0d021277ecad618eac68446739940bee",
+    "executable_candidate": "a89cf9b6c899060d02a4fd88fc630241f01df746",
+    "source_composition": "Versioned existing migration journal + pre-dispatch PumpSwap/PumpPortal hooks, per-record replay/readback ACK and stable explicit path. Includes previously qualified installed65da listener/receipt composition with DEV004 startup preserved; unchanged receipt bytes and unrelated ASTs verified. No golden baseline/cutover readiness claim.",
+    "contract": "v2 signature identity; optional observed mint/slot; legacy evidence preserved; ACK/quarantine/exhaustion retained. Atomic fixed staging/file+directory fsync, flock, missing/partial state fail closed. No whole-file partial-import deletion. Capacity cannot spill into legacy unbounded risk file.",
+    "tests": "63 unique provider-free controls PASS (62 release + new spill guard; affected composition check repeated). Actual method/readback adapters and disposable SQLite; real child-process exit/reopen and cross-process file lock. No provider calls/production writes.",
+    "storage": {
+      "record_max_bytes": 4096,
+      "journal_max_bytes": 2000000,
+      "record_count_max": 512,
+      "replay_batch_max": 20,
+      "journal_dispatch_attempts_max": 3,
+      "floor_bytes": 2000000000,
+      "staging_max_bytes": 2000000,
+      "maximum_fixture_file_bytes": 20480,
+      "new_unbounded_growth_paths": 0
+    },
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_scope": "No daemon/runtime activation performed; only isolated DEV module and actual-interface qualification. Production deployment expressly unauthorized; no DEV_COMPLETE deployment claim.",
+    "production_state": "Unchanged; feature not enabled, no source/config/credential/database/service changes, no WebSockets/provider requests. BIRDEYE-only and accepted provider controls preserved.",
+    "remaining_scope": "Stable journal access across DB_PATH rebind qualified. flock is not an exclusive paired canonical-writer fence; global generation/transfer/rollback gate remains separate. No full cutover implemented.",
+    "report": "docs/dev/lightweight_dev004_first_v2/signature_first_journal/REPORT.md",
+    "next_action": "Qualify controlled writer fence and paired Core/OPS authority transfer using the new stable admission journal. Keep V1 authoritative. Do not deploy/initialize production journal/activate flags or switch databases."
   }
 }

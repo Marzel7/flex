@@ -2814,6 +2814,39 @@
     "storage": "Per-file RLIMIT16000000bytes, SQLite construction max2048pages, per-selectorLIMIT129/200000VM/1second, pass2048rows. No raw RPC/provider payload retention; zero per-run unbounded growth paths.",
     "verification": "37 source rows; Core294912bytes, OPS479232bytes; separate recovery clone544768bytes. Two builds yielded identical fixture hashes. Eleven V1/V2 projections equal; two installed completed-queue reopen/claim checks preserve rows; nine synthetic credential assertions passed. Production credential payload hashes unchanged; FLEX_STABLE_V2 and manifest verified."
   },
+  "dev004_fresh_schema_bootstrap_qualification": {
+    "binding_contract": "DB_PATH and RPC_METRICS_DB point to the same disposable Core; WT_OPS_DB_PATH points to disposable OPS. Independent SQLite audit guard verifies only these bindings. Early scratch probe revealed a relative recorder alias; final qualification uses existing explicit RPC_METRICS_DB configuration.",
+    "core_result": "Listener base owner, existing migrations, creator queue and migration handoff owners run, but fresh Core lacks token_analysis.first_observed_at. Actual compact reader fails COMPACT_HISTORY_TIMESTAMP_SCHEMA. Canonical token_market_cap_peaks base table also absent; migration helper assumes it already exists and logs missing-table errors.",
+    "engineering_source_revision": "6fac4c62c237f21cf40c06ff22fe06dbf433061c",
+    "executable_candidate": "712f18400508a7681e3cea78e79cf84c0be8b666",
+    "next_action": "Identify and qualify the existing accepted Core base-schema owner or versioned bootstrap artifact supplying first_observed_at and canonical price-peak schema. Do not manufacture DDL or change classifier semantics. Preserve exact lineage/quarantine holds. Do not repeat the completed OPS startup-schema qualification.",
+    "ops_result": "Existing queue/candidate/treasury/outcome/anchor/CREATE/fingerprint/Deep/lineage owners bootstrap empty OPS. All six Walkback startup validators VALID; primary schema sequence idempotent.",
+    "other_exact_holds": [
+      "Qualification-only generic_living_lineage_metadata.ensure_lineage_schema succeeds once then fails on existing potential_operation_assessment_lineage; no repeat-safe complete runtime bootstrap established.",
+      "Installed birth_retry_quarantine.ensure_schema exists but its module is absent from frozen runtime/listener package; no source or ad hoc DDL substitute used.",
+      "Listener global lock/secondary DB and complete dormant composition remain the existing separate G1 boundaries."
+    ],
+    "preserved_acceptance": "No runtime source changes versus 712f1840; original reference Core/OPS/history hashes unchanged. Retained 100 creator,616 Watchtower,11 frozen,26 Deep,freshness,recovery and price evidence reused; no large matrix repeated. New failure is fresh-schema incompatibility, not a change to accepted reference-fixture outputs.",
+    "production_state": "V1 authoritative and unchanged. No production source/config/database writes, service actions, providers, live WebSockets, history deletion or cutover.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/schema_bootstrap/REPORT.md",
+    "runtime_deployment_reason": "Provider-free schema-owner qualification and documentation only; no executable or production changes.",
+    "runtime_deployment_required": false,
+    "schema_safety": "Only actual owner procedures invoked. No handwritten tables/columns, provider acquisition, V1 database access or historical population import. Empty DB foreign-key checks have no violations; owned indexes/triggers/view inventoried. Stop at exact missing contracts.",
+    "startup_results": "Resolver actual startup-ready and Walkback actual initialization/maintenance PASS, stopped before their first processing cycle. Listener schema phase runs; full listener readiness not claimed.",
+    "status": "PARTIAL_OPS_STARTUP_PASS_COMPLETE_BOOTSTRAP_HOLD",
+    "storage": {
+      "core_peak_sampled_wal_bytes": 605672,
+      "empty_core_bytes": 225280,
+      "empty_ops_primary_schema_bytes": 348160,
+      "new_unbounded_growth_paths": 0,
+      "ops_operator_potential_first_pass_bytes": 634880,
+      "ops_peak_sampled_wal_bytes": 1100072,
+      "production_growth_bound": "Unqualified existing G5; observations are not guaranteed WAL maxima.",
+      "qualification_file_cap_bytes": 16000000,
+      "raw_provider_retention": false
+    },
+    "updated_at_utc": "2026-10-23T11:06:22.209658+00:00"
+  },
   "dev004_operational_seed_potential_qualification": {
     "blockers": [
       "Demonstrated rowid-generation discontinuity: new V2 edge4173 ignored against retained V1 edge cursor206259",
@@ -2942,6 +2975,7 @@
       "urllib3localIPv6capabilitybindprobeblocked;notprovideracquisitionorservicebind.Noactualtransportorproductionwrites.Onlyexistingdbreaper/watchdogimportthreadsallowed"
     ],
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/runtime_composition/REPORT.md",
+    "schema_bootstrap_followup": "Existing OPS schema owners and bounded resolver/Walkback startup qualify at 6fac4c62. Previous missing OPS object gap is closed. Fresh Core reader/base-schema, one-shot lineage bootstrap and birth-quarantine packaging remain exact holds; see dev004_fresh_schema_bootstrap_qualification. Other composition limitations unchanged.",
     "source_delta": "TwoWalkbackfiles only:exactaccepted compact helper plus evaluate_launcher_profile copied fromqualifiedcreatorpackage. ExistingWalkbackschema/outcome/recovery/RPCfunctionsunchanged. Noevaluatorinjectionneeded.",
     "startup_holds": [
       "Originalfixturemissingunknown-infrastructure/candidate tablesandindexes;twoexistingownerinitializersclearfirstmetadata boundaryindisposablecopyonly",
@@ -34524,11 +34558,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "3d5570edd8d688fd2f7f0a287ea9a85732b10926",
+    "git_head": "6fac4c62c237f21cf40c06ff22fe06dbf433061c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T10:52:44.398303+00:00",
-    "working_tree": "DEV004 compact-history packaging PASS at712f1840;runtimecomposition PARTIAL/HOLD with frozenpartialmanifest at3d5570ed. Exactfixturestartup/isolatedlistener/dormantcomposition gaps remain. V1 authoritative;production unchanged."
+    "updated_at_utc": "2026-10-23T11:06:22.209658+00:00",
+    "working_tree": "DEV004 schema bootstrap PARTIAL: six OPS startup contracts and bounded resolver/Walkback startup PASS; fresh Core compact-reader contract HOLD. Runtime source remains 712f1840. No production changes; V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

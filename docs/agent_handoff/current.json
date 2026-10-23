@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "4d55ff7ba658ecfb3b6839d792d9274384e7379a",
+    "git_head": "2d530a6a9b6e1b3b92b718272d4b19f948d230e5",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42287,6 +42287,19 @@
     "report": "docs/dev/lightweight_dev004_first_v2/bounded_non_p3r_projection/REPORT.md",
     "runtime_deployment_required": false,
     "production": "unchanged; zero DB connections/providers/service actions/WebSockets/history deletion/cutover",
-    "next_action": "Define/qualify narrowly scoped consistent-generation resumable grouping/ranking and complete-generation publication fencing for existing owner, with bounded state/output. No broad indexing or new engine."
+    "next_action": "Define/qualify narrowly scoped consistent-generation resumable grouping/ranking and complete-generation publication fencing for existing owner, with bounded state/output. No broad indexing or new engine.",
+    "subsequent_result": "Capped normalized-input grouping continuation is feasible; prior independent-batch mismatch is resolved in test protocol. End-to-end source capture/full finalization remains HOLD; see dev004_consistent_generation_continuation."
+  },
+  "dev004_consistent_generation_continuation": {
+    "status": "PARTIAL_CAPPED_FEASIBILITY_PASS_END_TO_END_HOLD",
+    "engineering_revision": "2d530a6a9b6e1b3b92b718272d4b19f948d230e5",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "tests": "15/15 test-only normalized frozen-generation controls pass. Exact accepted builder revisions and extracted accepted merge/rank stages match full oracle. 256 profiles:257 reopened steps,32640 total grouping comparisons,max128/step. Cross-batch coherent case uses3 checkpoints.",
+    "qualified_scope": "Capped normalized immutable inputs,256 profiles,4MiB input,32KiB checkpoint,8MiB fixture output. Restart-state protocol feasibility only; no runtime correction.",
+    "blocker": "Actual bounded complete Core/OPS source capture/generation fencing and full confirmation/reconciliation/finalization continuation remain unqualified. Synthetic source revision is not a DB mutation fence. Finalization/oracle is not128 comparisons per step.",
+    "report": "docs/dev/lightweight_dev004_first_v2/consistent_generation_continuation/REPORT.md",
+    "runtime_deployment_required": false,
+    "production": "unchanged; zero DB connections/provider calls/service actions/global snapshot writes/cutover",
+    "next_action": "Qualify bounded complete-generation capture/fencing through accepted Core/OPS discovery/review owners including confirmation/reconciliation inputs; reuse proven grouping continuation, no new engine or broad indexing."
   }
 }

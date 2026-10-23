@@ -1,0 +1,35 @@
+{
+  "status": "HOLD",
+  "candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+  "authority_evidence": "57155f3fc378d7d92b14f963fb6bc09525abb260",
+  "method": "Execute unchanged pure accepted _classify_family function extracted with AST; compare metadata contract minima. No production or fixture reads. Synthetic diagnostic populations, not historical claims. Distinct pipeline outputs are not asserted to share a classifier.",
+  "cases": [
+    {
+      "case": "minimum_only",
+      "p3r_family_minimum_pass": true,
+      "analyst_family_classification": "AMBIGUOUS_FUNDING_CLUSTER"
+    },
+    {
+      "case": "shared_infrastructure",
+      "p3r_family_minimum_pass": true,
+      "analyst_family_classification": "SERVICE_DISTRIBUTION_CLUSTER"
+    },
+    {
+      "case": "conflicting_upstream",
+      "p3r_family_minimum_pass": true,
+      "analyst_family_classification": "AMBIGUOUS_FUNDING_CLUSTER"
+    },
+    {
+      "case": "strong_funding_structure",
+      "p3r_family_minimum_pass": true,
+      "analyst_family_classification": "STRONG_CANDIDATE_FAMILY"
+    }
+  ],
+  "conclusion": "Discovery minima alone cannot substitute for a new-Living admission eligibility rule or Analyst intake authority. No authorized precedence/cross-lineage mapping was established.",
+  "safety": {
+    "database_connections": 0,
+    "provider_calls": 0,
+    "runtime_source_changes": 0
+  },
+  "classifier_sha256": "f478103f4408b3ed0922d33d3b3924c6bb38ec8a591247c0422091337f368138"
+}

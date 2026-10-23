@@ -89,6 +89,10 @@ MAX_LEASE_STUCK_SECONDS = int(os.environ.get("WALKBACK_MAX_LEASE_STUCK_SECONDS",
 
 # ── RPC helpers (blocking, for use in worker thread — never on asyncio loop) ──
 
+class AcquisitionUnavailable(RuntimeError):
+    """A request failed; absence of evidence has not been established."""
+
+
 def _rpc(method: str, params: list) -> Optional[object]:
     try:
         body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method,
@@ -96,10 +100,35 @@ def _rpc(method: str, params: list) -> Optional[object]:
         req = urllib.request.Request(
             RPC_URL, data=body,
             headers={"Content-Type": "application/json", "User-Agent": "walkback-worker/1.0"})
-        return json.loads(urllib.request.urlopen(req, timeout=RPC_TIMEOUT).read()).get("result")
-    except Exception as e:
-        print(f"[WALKBACK] rpc {method} failed: {e}", flush=True)
-        return None
+        envelope = json.loads(urllib.request.urlopen(req, timeout=RPC_TIMEOUT).read())
+        if not isinstance(envelope, dict) or envelope.get("error") is not None or "result" not in envelope:
+            raise ValueError("invalid RPC envelope")
+        result = envelope["result"]
+        if method == "getSignaturesForAddress":
+            if not isinstance(result, list) or any(
+                not isinstance(item, dict) or not isinstance(item.get("signature"), str)
+                for item in result
+            ):
+                raise ValueError("invalid signature history")
+        elif method == "getTransaction":
+            # A valid null result is retained-evidence insufficiency, not an outage.
+            if result is not None:
+                transaction = result.get("transaction") if isinstance(result, dict) else None
+                if (not isinstance(transaction, dict) or not isinstance(transaction.get("signatures"), list)
+                        or transaction["signatures"][0:1] != params[0:1]
+                        or not isinstance(transaction.get("message"), dict)
+                        or not isinstance(result.get("meta"), dict)):
+                    raise ValueError("invalid transaction identity")
+        elif method == "getAccountInfo":
+            if not isinstance(result, dict) or "value" not in result or (
+                result["value"] is not None and (not isinstance(result["value"], dict)
+                    or not isinstance(result["value"].get("owner"), str))
+            ):
+                raise ValueError("invalid account response")
+        return result
+    except Exception as exc:
+        # Never retain URL, credentials, response bodies or provider exception text.
+        raise AcquisitionUnavailable(f"{method}:{type(exc).__name__}") from None
 
 
 RpcTransport = Callable[[str, list], Optional[object]]
@@ -113,7 +142,9 @@ def _get_sigs(wallet: str, limit: int = SIG_LIMIT,
     if before:
         options["before"] = before
     result = (rpc_transport or _rpc)("getSignaturesForAddress", [wallet, options])
-    return result or []
+    if not isinstance(result, list):
+        raise AcquisitionUnavailable("getSignaturesForAddress:invalid history")
+    return result
 
 
 def _collect_signature_window(wallet: str, rpc_counter: list, *,
@@ -1004,14 +1035,29 @@ def _mark_exhausted(ops: sqlite3.Connection, mint: str, rpc_used: int) -> None:
     _promote_if_canonical_watchtower(ops, mint, materialized)
 
 
+def _mark_acquisition_unavailable(ops: sqlite3.Connection, mint: str, rpc_used: int,
+                                  reason: str) -> None:
+    """Bounded retry exhaustion is an acquisition failure, never an evidence verdict."""
+    now = int(time.time())
+    ops.execute(
+        "UPDATE wt_walkback_queue SET status=CASE WHEN attempts>=? THEN 'failed' ELSE 'pending' END, "
+        "last_error=?, rpc_used=rpc_used+?, updated_at=? "
+        "WHERE mint=? AND status IN ('running','pending')",
+        (MAX_ATTEMPTS, "ACQUISITION_UNAVAILABLE:" + reason[:180], rpc_used, now, mint))
+    ops.commit()
+
+
 def finalize_exhausted_pending(ops: sqlite3.Connection, max_attempts: int = MAX_ATTEMPTS) -> int:
     """Close legacy/recovered rows that exhausted attempts but remained pending."""
     rows = ops.execute(
-        "SELECT mint FROM wt_walkback_queue WHERE status='pending' AND attempts>=?",
+        "SELECT mint,last_error FROM wt_walkback_queue WHERE status='pending' AND attempts>=?",
         (max_attempts,),
     ).fetchall()
     for row in rows:
-        _mark_exhausted(ops, row["mint"], 0)
+        if (row["last_error"] or "").startswith("ACQUISITION_UNAVAILABLE:"):
+            _mark_acquisition_unavailable(ops, row["mint"], 0, "retry ceiling recovered")
+        else:
+            _mark_exhausted(ops, row["mint"], 0)
     return len(rows)
 
 
@@ -1591,6 +1637,12 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
 
         else:
             _mark_failed(ops, mint, f"unexpected class {wclass} in worker", 0)
+
+    except AcquisitionUnavailable as exc:
+        # Successful calls increment after return; the failed attempted call must
+        # also consume a credit. No adapter-level retry or extra request is added.
+        rpc[0] += 1
+        _mark_acquisition_unavailable(ops, mint, rpc[0], str(exc))
 
     except Exception as e:
         err = str(e)

@@ -1,0 +1,37 @@
+{
+  "status": "PASS_SCOPED_DEV",
+  "parent": "09ae13947ca8be84732692c7cb9a3800c8363549",
+  "source_sha256": "69006376163723ae1fc6efe339ffb8113d128fc4e9dcb8db388de3074fc7d211",
+  "baseline_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+  "accepted_ancestry": {
+    "09ae1394": true,
+    "ace58aba": true,
+    "4ff48a00": true,
+    "87d33147": true,
+    "968432da": true,
+    "20d1025e": true
+  },
+  "focused_outage_groups": 11,
+  "fresh_process_recovery_groups": 5,
+  "projection_recovery_groups": 24,
+  "creator_classifications": 100,
+  "watchtower_routes": 616,
+  "deep_cases": 26,
+  "frozen_comparisons": 11,
+  "price_controls": 13,
+  "freshness_groups": 12,
+  "queue_handoff_quarantine_controls": 3,
+  "real_provider_calls": 0,
+  "production_changes": 0,
+  "max_observed_file_by_suite": {
+    "dev004-provider-outage-final": 13840384,
+    "dev004-provider-outage-normal": 13754368,
+    "dev004-outage-projection-regression": 13893632,
+    "dev004-outage-freshness": 13832192,
+    "dev004-outage-price-regression": 13762560,
+    "dev004-outage-queue-controls": 13754368
+  },
+  "qualification_file_cap_bytes": 16000000,
+  "new_runtime_schema_objects": 0,
+  "new_unbounded_growth_paths": 0
+}

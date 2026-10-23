@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "name": "actual_worker_connection_adapter",
+      "status": "PASS"
+    },
+    {
+      "name": "correct_existing_membership_is_noop",
+      "status": "PASS"
+    },
+    {
+      "name": "different_membership_never_moved",
+      "status": "PASS"
+    },
+    {
+      "name": "durable_indexed_paging_from_zero",
+      "status": "PASS",
+      "invocations": 19,
+      "rows_per_invocation": [
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ]
+    }
+  ]
+}

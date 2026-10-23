@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "case": "timeout",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "rate_limit",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "server_error",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "connection",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "malformed_envelope",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "malformed_history",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "rpc_error",
+      "status": "PASS",
+      "unavailable_then_genuine_empty": true,
+      "credits": 2
+    },
+    {
+      "case": "retry_ceiling",
+      "status": "PASS",
+      "attempts": 3,
+      "evidence_outcome": null
+    },
+    {
+      "case": "restart_exhausted_pending",
+      "status": "PASS"
+    },
+    {
+      "case": "transaction_null_vs_malformed",
+      "status": "PASS"
+    },
+    {
+      "case": "malformed_method_payloads_and_json",
+      "status": "PASS"
+    }
+  ],
+  "real_provider_calls": 0
+}

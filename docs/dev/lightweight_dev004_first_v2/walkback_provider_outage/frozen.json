@@ -1,0 +1,25 @@
+{
+  "original_11": {
+    "known_treasury": true,
+    "known_subprovider": true,
+    "watchtower_route": true,
+    "creator_classification": true,
+    "retained_outcome": true,
+    "parent_candidates": true,
+    "quarantine": true,
+    "price_fact": true,
+    "price_observations": true,
+    "ohlc_reduction": true,
+    "creator_funding_history": true
+  },
+  "installed_nine_credential_files_unchanged": true,
+  "ath_relative_difference": 2.561652223589094e-05,
+  "ath_numerical": "PASS",
+  "canonical_fact_and_observations_unchanged": true,
+  "fixtures": {
+    "core.sqlite": 8978432,
+    "ops.sqlite": 13754368
+  },
+  "production_changes": 0,
+  "provider_calls": 0
+}

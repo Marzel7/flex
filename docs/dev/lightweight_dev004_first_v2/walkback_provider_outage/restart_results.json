@@ -1,0 +1,18 @@
+[
+  {
+    "case": "outage",
+    "status": "PASS",
+    "restart_confirmed_attribution": true,
+    "memberships": 1,
+    "successful_requests": 9,
+    "attempts": 2
+  },
+  {
+    "case": "crash_before_outage_commit",
+    "status": "PASS",
+    "restart_confirmed_attribution": true,
+    "memberships": 1,
+    "successful_requests": 9,
+    "attempts": 2
+  }
+]

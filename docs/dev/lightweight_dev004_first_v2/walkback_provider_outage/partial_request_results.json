@@ -1,0 +1,26 @@
+[
+  {
+    "case": "outage_at_2",
+    "status": "PASS",
+    "restart_confirmed_attribution": true,
+    "memberships": 1,
+    "successful_requests": 9,
+    "attempts": 2
+  },
+  {
+    "case": "outage_at_4",
+    "status": "PASS",
+    "restart_confirmed_attribution": true,
+    "memberships": 1,
+    "successful_requests": 9,
+    "attempts": 2
+  },
+  {
+    "case": "outage_at_8",
+    "status": "PASS",
+    "restart_confirmed_attribution": true,
+    "memberships": 1,
+    "successful_requests": 9,
+    "attempts": 2
+  }
+]

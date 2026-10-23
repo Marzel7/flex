@@ -1,0 +1,112 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "name": "missing_role_proof",
+      "status": "PASS",
+      "result": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "missing_verified_route"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "conflicting_route_json",
+      "status": "PASS",
+      "result": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_ROUTE_CONFLICT"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "malformed_identity",
+      "status": "PASS",
+      "result": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_IDENTITY_MALFORMED"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "oversized_canonical_evidence",
+      "status": "PASS",
+      "result": {
+        "status": "PASS",
+        "examined": 1,
+        "results": [
+          {
+            "mint": "6APQFDLhixi4ApNfqCWm3vZ47h9wm4ydXoRYsTAynuyT",
+            "action": "CANONICAL_EVIDENCE_BUDGET"
+          }
+        ],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ]
+      }
+    },
+    {
+      "name": "vm_budget",
+      "status": "PASS",
+      "hold": {
+        "status": "HOLD",
+        "examined": 0,
+        "results": [],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ],
+        "reason": "OperationalError:interrupted"
+      },
+      "retry_repaired": true
+    },
+    {
+      "name": "database_budget",
+      "status": "PASS",
+      "hold": {
+        "status": "HOLD",
+        "examined": 0,
+        "results": [],
+        "reason": "ValueError:RECOVERY_DATABASE_BUDGET"
+      },
+      "retry_repaired": true
+    },
+    {
+      "name": "outbox_capacity",
+      "status": "PASS",
+      "hold": {
+        "status": "HOLD",
+        "examined": 0,
+        "results": [],
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_outcome (intelligence_outcome=? AND rowid>?)"
+        ],
+        "reason": "RuntimeError:OUTBOX_STORAGE_LIMIT"
+      },
+      "retry_repaired": true
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "status": "PARTIAL_THREE_GAPS_PASS_FRESH_COMPACT_READER_HOLD",
+  "candidate": "ac37ec070e40014b5e61d456b225712c357fafe1",
+  "module_sha256": "5a7abb9df92866e911da38110d18c666236c102a265ccdfcff40081f29f98e67",
+  "schema_authority_sha256": "6cbb016d1419189169df5b3f945278c9d07677af5b082bfa78342f4da2a3105c",
+  "test_groups": 20,
+  "crash_process_exits": 4,
+  "cli": "PASS_INITIALIZE_REPEAT",
+  "startup": "PASS_EXISTING_RESOLVER_WALKBACK_BOUNDARIES_STOP_BEFORE_FIRST_CYCLE",
+  "canonical_create_persistence": "PASS_SYNTHETIC_NAMED_COLUMNS_READBACK",
+  "price_persistence": "PASS_ACTUAL_ACCEPTED_STORE_SNAPSHOT_WITH_SYNTHETIC_PRICES",
+  "accepted_reference_core_byte_identical": true,
+  "fresh_creator_index_hold": {
+    "error": "COMPACT_HISTORY_UNINDEXED_DETAIL",
+    "query_plan": "SCAN token_analysis",
+    "accepted_reference_index": "CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator)",
+    "action": "Not created;outside three-gap authorization"
+  },
+  "schema_delta": {
+    "token_analysis_columns": [
+      "first_observed_at INTEGER NULL, no default",
+      "create_tx_signature TEXT NULL, no default"
+    ],
+    "new_table": "token_market_cap_peaks (exact V1 SQL/PK/FK/defaults)",
+    "new_explicit_indexes": 0,
+    "new_implicit_indexes": [
+      "sqlite_autoindex_token_market_cap_peaks_1"
+    ],
+    "new_version_tables": 0,
+    "completion": "bounded post-commit sidecar;no user_version override"
+  },
+  "storage": {
+    "maximum_design_file_bytes": 67108864,
+    "max_main_input_bytes": 33554432,
+    "version_marker_bytes_cap": 4096,
+    "qualification_os_cap_bytes": 16000000,
+    "raw_retention": false,
+    "new_unbounded_paths": 0
+  },
+  "production_changes": 0,
+  "provider_calls": 0,
+  "large_matrices_repeated": 0,
+  "remaining_blocker": "Fresh Core lacks accepted pf_ws_creator lookup index;qualify separately without changing classifier semantics."
+}

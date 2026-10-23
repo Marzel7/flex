@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "canonical_create_readback": {
+    "pf_ws_creator": "DEV004_SYNTHETIC_CREATOR",
+    "create_tx_signature": "DEV004_SYNTHETIC_CREATE",
+    "first_observed_at": 1792747001,
+    "first_observed_mc": 250.0
+  },
+  "actual_price_store_snapshot": {
+    "mint": "DEV004_SYNTHETIC_VALUATION",
+    "peak_market_cap": 250.0,
+    "peak_market_cap_at": 1792747001,
+    "raw_peak_mc": 250.0,
+    "effective_peak_mc": 250.0,
+    "candidate_peak_mc": 250.0,
+    "candidate_peak_count": 1,
+    "raw_peak_mc_at": 1792747001
+  },
+  "provider_calls": 0,
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-vcore-fresh-1dyxkpbl/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-vcore-fresh-1dyxkpbl/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-vcore-fresh-1dyxkpbl/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-vcore-fresh-1dyxkpbl/core.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "blocked": [
+    "bind"
+  ]
+}

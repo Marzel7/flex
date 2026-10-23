@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "case": "INCOMPATIBLE_COLUMN_CONSTRAINT",
+      "status": "PASS"
+    },
+    {
+      "case": "INCOMPATIBLE_COLUMN_UNIQUENESS",
+      "status": "PASS"
+    },
+    {
+      "case": "failed_commit_rolls_back_and_retry_converges",
+      "status": "PASS"
+    },
+    {
+      "case": "existing_user_version_preserved",
+      "status": "PASS"
+    },
+    {
+      "case": "INCOMPATIBLE_VERSION_MARKER",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "startup": [
+    {
+      "mode": "resolver",
+      "status": "PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE"
+    },
+    {
+      "mode": "walkback",
+      "status": "PASS_STARTUP_STOP_BEFORE_FIRST_CYCLE"
+    }
+  ],
+  "standalone_cli": "PASS_INITIALIZED_THEN_ALREADY_INITIALIZED"
+}

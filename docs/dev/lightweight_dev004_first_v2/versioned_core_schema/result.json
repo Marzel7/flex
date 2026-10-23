@@ -1,0 +1,88 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "case": "fresh_exact_delta_repeat_no_history",
+      "status": "PASS",
+      "user_version": 0
+    },
+    {
+      "case": "compatible_unmarked_schema_adopted_without_ddl",
+      "status": "PASS"
+    },
+    {
+      "case": "compatible_partial_schema_completed",
+      "status": "PASS"
+    },
+    {
+      "case": "INCOMPATIBLE_COLUMN",
+      "status": "PASS"
+    },
+    {
+      "case": "INCOMPATIBLE_COLUMN",
+      "status": "PASS"
+    },
+    {
+      "case": "INCOMPATIBLE_PEAK",
+      "status": "PASS"
+    },
+    {
+      "case": "TRACKED_TOKENS_OWNER_REQUIRED",
+      "status": "PASS"
+    },
+    {
+      "case": "explicit_opt_in_required",
+      "status": "PASS"
+    },
+    {
+      "case": "process_crash_after_column:first_observed_at",
+      "status": "PASS"
+    },
+    {
+      "case": "process_crash_before_commit",
+      "status": "PASS"
+    },
+    {
+      "case": "process_crash_after_commit",
+      "status": "PASS"
+    },
+    {
+      "case": "process_crash_before_marker_replace",
+      "status": "PASS"
+    },
+    {
+      "case": "existing_data_preserved_no_backfill",
+      "status": "PASS"
+    },
+    {
+      "case": "canonical_create_price_sql_and_foreign_key",
+      "status": "PASS",
+      "creator_detail_plan": [
+        "SCAN token_analysis"
+      ]
+    },
+    {
+      "case": "DISPOSABLE_FILE_IDENTITY",
+      "status": "PASS"
+    }
+  ],
+  "roots": [
+    "/private/tmp/dev004-vcore-fresh-1dyxkpbl",
+    "/private/tmp/dev004-vcore-compatible-n55ntdde",
+    "/private/tmp/dev004-vcore-partial-zuu5k7pd",
+    "/private/tmp/dev004-vcore-wrongtype-a306wjek",
+    "/private/tmp/dev004-vcore-default-v3yhdod2",
+    "/private/tmp/dev004-vcore-wrongpeak-1spod95e",
+    "/private/tmp/dev004-vcore-missingparent-68k6j367",
+    "/private/tmp/dev004-vcore-authorization-x8j1qoqg",
+    "/private/tmp/dev004-vcore-crash-v4lmos_h",
+    "/private/tmp/dev004-vcore-crash-nrii6crv",
+    "/private/tmp/dev004-vcore-crash-s4hdwvb1",
+    "/private/tmp/dev004-vcore-crash-3k85odjm",
+    "/private/tmp/dev004-vcore-preserve-a9fal1jr",
+    "/private/tmp/dev004-vcore-hardlink-dq_817uh"
+  ],
+  "canonical_fixture": "/private/tmp/dev004-vcore-fresh-1dyxkpbl",
+  "largest_file_bytes": 286720,
+  "real_provider_calls": 0
+}

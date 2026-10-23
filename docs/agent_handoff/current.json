@@ -2939,6 +2939,52 @@
       "Nine deployed credential correction hashes match; no actual credentials read"
     ]
   },
+  "dev004_walkback_end_to_end_qualification": {
+    "acceptance_preserved": [
+      "100creator classifications/profiles,616Watchtower routes,11frozen,26Deep rerunPASS on extendedfixture",
+      "12freshness groups including freshinterpreter replay on immutablequalifiedreference",
+      "13price/candidate checks;opening provenance,canonicalATH/finalization,0.1%tolerance and9credential hashes preserved"
+    ],
+    "engineering_source_revision": "6f8f4d6efc8a8b9fdb5eb2b8068d52a527c493b5",
+    "executable_candidate": "87d33147 compact history remains qualified DEV-only;installed runtime unchanged",
+    "fixture_only_dependencies": "Existing empty runtime DDL needed forwt_detected_creates andoperation_activity_snapshots;other installed initializers reused;no historicalseedbulk or new runtime schema design.",
+    "mandatory_blockers": [
+      {
+        "boundary": "AFTER_TERMINAL_COMMIT_BEFORE_PROJECTION",
+        "evidence": "Actual child process os._exit72;queuecomplete/canonical outcome durable,membership0;fresh ordinary worker will not claim completed row and leavesmembership0. Existing reconciliation helper not wired in installed startup/cycle."
+      },
+      {
+        "boundary": "REAL_RPC_ADAPTER_OUTAGE",
+        "evidence": "Synthetic urlopen exception normalized toNone/empty signature history;worker commitscomplete/NO_ATTRIBUTION_FOUND,materializesINSUFFICIENT_EVIDENCE/should_retry1;ordinary drain excludes complete rows.No automatic retry demonstrated."
+      }
+    ],
+    "next_action": "Separately scoped minimal DEV004 restart-safe bounded projection completion using existing persistedterminal evidence/projectors;no providerreacquisition or historicalreplay. Keep realRPCoutage retry limitation separate.No implementation/deploymentauthorized.",
+    "normal_path": "PASS:accepted synthetic CREATE,actual migration admission/lease,real installed decoder/selection,distinct treasury->SubProvider->funding account->creator->launch,canonical HIGH attribution and membership",
+    "passing_recovery": [
+      "Actual process exit71beforeterminalcommit;lease expiry/reclaim leads complete membership1",
+      "Propagated transport exception pending then bounded retry attempts2",
+      "Duplicate migration,concurrent lease exclusion,expired lease reclaim,missingCREATEwait",
+      "Reviewed spam exclusion,conflicting transaction-role failclosed,birth quarantine idempotent",
+      "Accepted Core->OPS CREATE commit/ACK seam convergesACK/ALREADY_COMMITTED"
+    ],
+    "production_state": "No production writes/source/config changes,provider calls,live sockets,services,history deletion orcutover.V1authoritative.",
+    "reference_equivalence": "27exact V1/V2 checks using installed interfaces and frozen synthetic responses;no production DB clone",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/walkback_end_to_end/REPORT.md",
+    "runtime_deployment_reason": "Qualification/test-only;no executable or production source changed.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_RECOVERY_BOUNDARIES",
+    "storage": {
+      "largest_observed_file_bytes": 13914112,
+      "new_unbounded_paths": 0,
+      "primary_core_bytes": 8990720,
+      "primary_ops_bytes": 13754368,
+      "qualification_file_cap_bytes": 16000000,
+      "raw_retention": "NONE;finite synthetic responses/compact receipts only",
+      "sqlite_max_pages": 3840
+    },
+    "updated_at_utc": "2026-10-23T09:41:09.540068+00:00",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
   "dev004_watchtower_treasury_role_equivalence": {
     "added_rows": {
       "wt_active_subprov_sessions": 4,
@@ -34335,11 +34381,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "968432da10446b9c658e9eeaa004b3e22c1f5b1f",
+    "git_head": "6f8f4d6efc8a8b9fdb5eb2b8068d52a527c493b5",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T09:09:17.248811+00:00",
-    "working_tree": "DEV004 fixed100creator classification and compact history PASS.9exact graph reference rows plus final bounded oracle close remaining creator gaps.Overall cutover HOLD;V1 authoritative."
+    "updated_at_utc": "2026-10-23T09:41:09.540068+00:00",
+    "working_tree": "DEV004 complete Walkback qualification HOLD:normal investigation/projection PASS;real postcommit crash loses projection replay;RPC outage retry not demonstrated.V1 unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

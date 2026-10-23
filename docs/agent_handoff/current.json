@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "dc3472b601bb945b9fb939743f75c973b36eb502",
+    "git_head": "4d55ff7ba658ecfb3b6839d792d9274384e7379a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42275,5 +42275,18 @@
     "runtime_deployment_required": false,
     "production": "unchanged; no providers, WebSockets, service actions, deployment or historical deletion",
     "next_action": "Authorize bounded DEV correction only at existing non-P3R projection/snapshot input/work/output boundary, with fail-closed preservation of last good publication; reuse predicates and rerun focused controls."
+  },
+  "dev004_bounded_non_p3r_projection": {
+    "status": "HOLD_EXACT_RANKING_CONTINUATION_CONTRACT",
+    "engineering_revision": "4d55ff7ba658ecfb3b6839d792d9274384e7379a",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "tests": "3 focused pure accepted-function diagnostics pass; 19 prior non-P3R functional controls reused. Three cross-batch profiles produce one full family versus two independently batched families; 256 profiles require32640 pair checks; count70/100 passes existing sanity.",
+    "blocker": "No accepted consistent source-generation, resumable all-member grouping/canonical-merge/global-ranking retrieval and bounded checkpoint/completion contract. Existing indexes address source lookup only. Exact partial-independent pagination changes identity/population.",
+    "runtime_source_delta": "NONE; requested stop rule before implementation",
+    "last_good_publication": "unchanged; no snapshot writes",
+    "report": "docs/dev/lightweight_dev004_first_v2/bounded_non_p3r_projection/REPORT.md",
+    "runtime_deployment_required": false,
+    "production": "unchanged; zero DB connections/providers/service actions/WebSockets/history deletion/cutover",
+    "next_action": "Define/qualify narrowly scoped consistent-generation resumable grouping/ranking and complete-generation publication fencing for existing owner, with bounded state/output. No broad indexing or new engine."
   }
 }

@@ -1,0 +1,169 @@
+{
+  "status": "PASS",
+  "source_module": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/creator_resolution/src/ops/dev_provider_budget.py",
+  "source_sha256": "461a8cf99f0e1ca33bdb540fa1d60d54e08890bf8c031af7db36e8f741d69d65",
+  "groups": [
+    {
+      "case": "valid_state_fresh_interpreter_restart_and_token_ceiling",
+      "status": "PASS"
+    },
+    {
+      "case": "denial_preserves_authority",
+      "status": "PASS"
+    },
+    {
+      "case": "missing_established_authority_blocks_restart",
+      "status": "PASS",
+      "error": "PROVIDER_BUDGET_AUTHORITY_UNAVAILABLE"
+    },
+    {
+      "case": "malformed_established_authority_blocks_restart",
+      "status": "PASS",
+      "error": "PROVIDER_BUDGET_AUTHORITY_UNAVAILABLE"
+    },
+    {
+      "case": "truncated_established_authority_blocks_restart",
+      "status": "PASS",
+      "error": "PROVIDER_BUDGET_AUTHORITY_UNAVAILABLE"
+    },
+    {
+      "case": "unsupported_version_established_authority_blocks_restart",
+      "status": "PASS",
+      "error": "PROVIDER_BUDGET_STATE_INVALID"
+    },
+    {
+      "case": "no_silent_first_initialization",
+      "status": "PASS"
+    },
+    {
+      "case": "unreadable_state_blocks_dispatch",
+      "status": "PASS"
+    },
+    {
+      "case": "incompatible_duplicate_key_denied",
+      "status": "PASS"
+    },
+    {
+      "case": "incompatible_wrong_shape_denied",
+      "status": "PASS"
+    },
+    {
+      "case": "incompatible_oversize_denied",
+      "status": "PASS"
+    },
+    {
+      "case": "actual_file_and_parent_directory_sync_before_permission",
+      "status": "PASS",
+      "events": [
+        "write:guard",
+        "sync:guard",
+        "sync:directory",
+        "write:temp",
+        "sync:temp",
+        "replace",
+        "sync:directory",
+        "write:guard",
+        "sync:guard",
+        "permission_returned",
+        "synthetic_dispatch"
+      ]
+    },
+    {
+      "case": "partial_write_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 0
+    },
+    {
+      "case": "before_rename_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 0
+    },
+    {
+      "case": "after_rename_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 1
+    },
+    {
+      "case": "crash_after_publication_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 1
+    },
+    {
+      "case": "write_failure_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 0
+    },
+    {
+      "case": "rename_failure_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 0
+    },
+    {
+      "case": "file_sync_failure_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 0
+    },
+    {
+      "case": "directory_sync_failure_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 1
+    },
+    {
+      "case": "unsupported_directory_sync_blocks_unverified_restart",
+      "status": "PASS",
+      "retained_reservations": 0
+    },
+    {
+      "case": "guard_sync_failure_denies_and_blocks_ambiguity",
+      "status": "PASS"
+    },
+    {
+      "case": "ready_marker_sync_failure_denies_and_keeps_durable_debit",
+      "status": "PASS"
+    },
+    {
+      "case": "nonregular_fifo_denied_without_blocking",
+      "status": "PASS"
+    },
+    {
+      "case": "original_four_consumed_malformed_fresh_allowance_reproduced",
+      "status": "PASS"
+    },
+    {
+      "case": "crash_after_durable_reservation_before_dispatch_remains_charged",
+      "status": "PASS"
+    },
+    {
+      "case": "unchanged_60_second_window_expiry",
+      "status": "PASS"
+    },
+    {
+      "case": "clock_regression_denied",
+      "status": "PASS"
+    },
+    {
+      "case": "concurrent_token",
+      "status": "PASS",
+      "successful": 4,
+      "denied": 28
+    },
+    {
+      "case": "concurrent_global",
+      "status": "PASS",
+      "successful": 20,
+      "denied": 12
+    }
+  ],
+  "group_count": 30,
+  "provider_calls": 0,
+  "file_cap": 16000000,
+  "maximum_observed_fixture_file_bytes": 65537,
+  "output_root": "/private/tmp/dev004-budget-durability-0mn_vnf9",
+  "raw_retention": false,
+  "new_unbounded_growth_paths": 0,
+  "multi_window_callbacks_integrated": false,
+  "accepted_owner_sha256": "a9c8f10cc4af8d153a0ba1e8140c0fa83dc7d4c75412b1d2aa01ba1f8b9f3edb",
+  "accepted_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "original_candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d"
+}

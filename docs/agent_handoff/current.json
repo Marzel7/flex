@@ -2687,6 +2687,7 @@
     "runtime_deployment_required": false,
     "status": "HOLD_SIX_MANDATORY_GATES",
     "subsequent_composition_resolution": "CompactWalkbackpackagingboundaryclosedinDEVby712f1840. Frozenpartialmanifest/runtimequalification at3d5570ed;G1stillHOLDat exactstartup/schema/isolation/dormantdependencies. See dev004_reproducible_runtime_composition. RemainingG2-G6unchanged.",
+    "subsequent_post_startup_resolution": "Startup/package/schema boundaries closed at889f2399. Superseded remaining-gate interpretation: see dev004_post_startup_cutover_gate. Historical four-case uncertainty alone no longer blanket cutover blocker; protected-state preservation remains mandatory.",
     "updated_at_utc": "2026-10-23T10:40:12.569641+00:00"
   },
   "dev004_core_base_schema_owner_qualification": {
@@ -2942,6 +2943,34 @@
     },
     "updated_at_utc": "2026-10-23T00:02:34.722759+00:00",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex"
+  },
+  "dev004_post_startup_cutover_gate": {
+    "active_states": {
+      "API_monitor_bridge_funding_Cascade": "STOPPED",
+      "listener": "RUNNING pid94632",
+      "resolver": "RUNNING pid52248",
+      "walkback": "RUNNING pid94577"
+    },
+    "blocker": "Mandatory acceptance M1-M5 incomplete, not closed startup or historical uncertainty alone.",
+    "closed_gate": "Fresh Core/OPS schema, index, lineage repeat safety, quarantine packaging and accepted isolated startup boundaries remain PASS.",
+    "dormant_components": "Activation/restoration not required for initial three-service cutover; accepted source/data/dependencies/bindings and required offline projections must remain preserved. Do not start dormant services.",
+    "engineering_source_revision": "27a6662868363969067749a35eda4f02e81a9349",
+    "executable_candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+    "mandatory_gates": [
+      "M1 One accepted genuinely new Potential Operations discovery/publication path",
+      "M2 Unfinished Birdeye multi-window checkpoint/retry/consumed-budget recovery",
+      "M3 Final deployment bindings/artifact manifest and preserved offline dormant contracts",
+      "M4 Enforceable ongoing Core/OPS/WAL/receipt/log/transient single-file safety",
+      "M5 Consistent final state reconciliation, paired authority switch and post-write rollback rehearsal"
+    ],
+    "next_action": "One bounded DEV004 provider-free unfinished Birdeye multi-window acquisition crash/reopen qualification through existing accepted interfaces: preserve completed windows, retry ceilings and consumed budget; no fresh allowance, provider calls or activation. Stop at exact missing persisted contract.",
+    "production_state": "Unchanged; no writes/deployment/service actions/providers/live WebSockets/history deletion/cutover.",
+    "report": "docs/dev/lightweight_dev004_first_v2/post_startup_cutover_gate/REPORT.md",
+    "runtime_deployment_reason": "Read-only acceptance consolidation/documentation only; no executable or fixture changes.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_FIVE_MANDATORY_ACCEPTANCE_PACKAGES",
+    "verification": "Accepted correction ancestry and six startup-source hashes match. Nine installed Birdeye payload hashes match. Supervisor config hash matches accepted authority. No functional tests rerun.",
+    "watchtower_four_cases": "Historical insufficient-proof cases are not demonstrated regressions. May remain explicitly unqualified; preserve protected evidence/canonical outcomes/uncertainty and fail-closed future role admission. No new historical proof search required absent a demonstrated dependency. This narrows older blanket four-case HOLD."
   },
   "dev004_potential_operations_freshness_correction": {
     "dev_runtime_gate": "PASS: qualified modules imported/executed on disposable data; source hashes and functional evidence recorded; no daemon restart required",
@@ -34658,11 +34687,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+    "git_head": "27a6662868363969067749a35eda4f02e81a9349",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T11:44:17.463051+00:00",
-    "working_tree": "DEV004 bounded fresh database startup integration PASS at isolated startup boundaries; production unchanged; broader cutover HOLD."
+    "updated_at_utc": "2026-10-23T11:53:32.726464+00:00",
+    "working_tree": "DEV004 post-startup cutover gate HOLD for five remaining acceptance packages. Executable candidate889f2399 unchanged; docs-only consolidation. V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

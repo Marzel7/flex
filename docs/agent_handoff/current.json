@@ -2492,7 +2492,27 @@
     "runtime_deployment_reason": "Bounded static source-contract/AST qualification and documentation only; no executable change.",
     "runtime_deployment_required": false,
     "status": "HOLD_AUTHORITY_PRECONDITION_STOP_RULE",
+    "subsequent_composition_result": "See dev004_birdeye_recovery_composition_correction: retained accepted budget itself fails required durability/fail-closed prerequisite; stop rule applied before integration.",
     "tests": "AST/source comparisons verified exact candidate gap. Baseline/ten accepted correction ancestors verified. Retained Core/OPS reference hashes match. Five acquisition interruption cases NOT RUN under stop rule; no substitute counters/checkpoints or fake PASS. Prior finalized suppression, opening provenance/ATH0.1%, startup/classifier/routes/recovery acceptance reused unchanged."
+  },
+  "dev004_birdeye_recovery_composition_correction": {
+    "accepted_price_worker_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+    "blocker": "Accepted budget resets unknown consumption on malformed/unreadable state and has no file/directory fsync before dispatch return. User explicitly requires HOLD if accepted source lacks durable authority; no new ledger or speculative partial composition supplied.",
+    "engineering_source_revision": "e3408269e04c40cbc11abaa859b57ababfa11203",
+    "executable_candidate": "889f2399914ca5e0a79924fb8ea45bcfd096d32d",
+    "implementation": "NONE; accepted completed-window mechanisms identified but not partly installed after budget prerequisite failed. Executable candidate889f2399 unchanged.",
+    "next_action": "Separately authorize bounded DEV-only hardening of existing budget owner: fail closed on lost/malformed/unreadable established authority and durable debit publication, preserving rolling60second20global/4token scope/default limits and controls. Qualify it first, then minimal chunk-resume/budget composition plus five interruption cases. No production deployment.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birdeye_recovery_composition/REPORT.md",
+    "runtime_deployment_reason": "Provider-free accepted-source qualification and documentation only; no executable integration.",
+    "runtime_deployment_required": false,
+    "safety": "Synthetic ledgers/token only; no actual credentials/provider budget files/production DBs touched; no providers/live WebSockets/services/deletion/cutover. Single-file qualification cap16000000; raw retention false; new unbounded paths0. Prior accepted price/classifier/routes/freshness/Walkback/frozen/Deep evidence reused.",
+    "status": "HOLD_ACCEPTED_BUDGET_DURABILITY_STOP_RULE",
+    "tests": [
+      "Valid-ledger counts survive fresh interpreters1,2,3,4; next admission denied at existing token4 limit",
+      "Separate synthetic exhausted ledger corrupted; fresh interpreter silently regrants global19/token3 remaining allowance because OSError/ValueError treated as empty state",
+      "Accepted real admission traced zero fsync calls; write_text+replace lacks demonstrated power-loss durable pre-dispatch barrier",
+      "Baseline/immutable manifest and ten accepted ancestors verified; five acquisition interruption tests NOT RUN because prerequisite fails"
+    ]
   },
   "dev004_birdeye_three_package_deployment_20261022": {
     "blocker": null,
@@ -34702,11 +34722,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "a874ed7bd93364635fc828e9e6ed4dd034534eea",
+    "git_head": "e3408269e04c40cbc11abaa859b57ababfa11203",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T11:58:00.766618+00:00",
-    "working_tree": "DEV004 Birdeye multi-window recovery HOLD at mandatory authority precondition. Executable candidate889f2399 unchanged. Docs/static qualification only; V1 authoritative."
+    "updated_at_utc": "2026-10-23T12:07:27.528585+00:00",
+    "working_tree": "DEV004 Birdeye recovery composition HOLD: accepted budget fails closed-state recovery/durable publication prerequisite. No executable integration;889f2399 unchanged; V1 authoritative."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

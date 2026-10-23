@@ -33701,11 +33701,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
+    "git_head": "ce5dbfc14b85fa3faae0b3775107e4643bb8f440",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T00:02:34.722759+00:00",
-    "working_tree": "DEV004 operational seed PARTIAL/HOLD: compact identities/candidate state and Deep cases qualified; generation/route/history gaps remain; production unchanged."
+    "updated_at_utc": "2026-10-23T00:20:23.167557+00:00",
+    "working_tree": "DEV004 seed minimization audit complete; reduction HOLD.28454rows unchanged; expansion paused;29test controls and conditional2.13MB duplicated evidence identified. No source/fixture changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41453,5 +41453,53 @@
     "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/operational_seed/REPORT.md",
     "next_action": "DEV-only generation-preserving seed/cursor mapping for two Living candidates, tested against retained new-edge counterexample. Keep exact remaining record gaps separate.",
     "updated_at_utc": "2026-10-23T00:02:34.722759+00:00"
+  },
+  "dev004_seed_minimization_audit": {
+    "status": "AUDIT_COMPLETE_PARTIAL_HOLD_REDUCTION",
+    "engineering_source_revision": "ce5dbfc14b85fa3faae0b3775107e4643bb8f440",
+    "code_baseline_unchanged": "578f2aa3ad7429b42e72ccd8b5f1f2c9b2be3829",
+    "accepted_price_correction_preserved": "20d1025e59d82a6479ba84c8371611ed5b6307f1",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only audit and documentation only; no implementation.",
+    "seed_expansion_paused_by_user": true,
+    "inventory": {
+      "tables": 69,
+      "current_rows": 28454,
+      "essential_preserve_now_rows": 5004,
+      "compactable_conditional_rows": 4306,
+      "synthetic_historical_only_rows": 29,
+      "unknown_rows": 19115,
+      "encoded_logical_bytes": 24586129,
+      "core_file_bytes": 8970240,
+      "ops_file_bytes": 13742080
+    },
+    "reduction_evidence": {
+      "genuine_v1_rows_independently_cleared_for_retirement": 0,
+      "synthetic_controls_for_future_initializer_omission": 29,
+      "synthetic_controls_encoded_bytes": 24363,
+      "repeated_infrastructure_value_occurrences": 265,
+      "distinct_exact_values": 5,
+      "gross_duplicate_canonical_component_bytes": 2131007,
+      "limitation": "Conditional information-preserving representation opportunity; no structures created, no rows deleted, no guaranteed physical recovery. Synthetic controls remain in current acceptance fixtures."
+    },
+    "verification": [
+      "Exact28454row reconciliation; all rows classified once",
+      "Core/OPS and stale-cursor counterexample hashes unchanged",
+      "Original11 read-only comparisons and26Deep cases PASS",
+      "Prior20functional results and installed qualified source hashes preserved; mutating harnesses not rerun",
+      "Nine deployed credential correction hashes match; no actual credentials read"
+    ],
+    "minimum_seed": "UNDETERMINED;5004preserve-now rows are not a complete deployable minimum. Unknowns are not disposable.",
+    "existing_blockers_preserved": [
+      "V1-generation-specific candidate cursors",
+      "Missing verified treasury-role links",
+      "Incomplete creator launch-span populations",
+      "Global discovery/reference/recovery closure"
+    ],
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/seed_minimization/REPORT.md",
+    "rows_by_table": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/seed_minimization/ROWS_BY_TABLE.md",
+    "next_action": "Keep expansion paused. Subject to separate authorization, qualify five-value shared-infrastructure evidence representation against265frozen outcomes and negative-evidence consumers. No implementation in this audit.",
+    "production_state": "UNCHANGED; no production/fixture writes, source changes, providers, service actions, deletion, cutover or cursor reset.",
+    "updated_at_utc": "2026-10-23T00:20:23.167557+00:00"
   }
 }

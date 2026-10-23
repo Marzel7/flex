@@ -1,0 +1,2411 @@
+[
+  {
+    "wallet": "1yCAnTgyzP8ha917WkeEepTUijUFTnL5josu5RCtQRf",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "22sDkwunCvUHJzSqQ4cRg6S6Q8Vgrp5ducgqKd8cUTCx",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "252GvLJqPEaQ5v4S5LWwnwUWkdpkFW4uaKH3Uqb3QHA7",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "28ghCFrvTTRdMS88f9j4bpRE8CSoe3BrBWLtKR3KqJHu",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2FzHJxtCLuUfpWxGNuJc8ZZyt4j1HCYNVyHjwcFtxkfw",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2HF8121mrLKsSiHh5RJqcaLJNRq5EL2nu5UcKqYyeYNg",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2PWzH9xUqtcTrTtsnHSiV6cUxmr48sxUWgd6FPmsdgHw",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2Tuxz7MNNUqPhTxa4rZVfQtjzmeajhtcCakKNcsjyQ2h",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2UDkpKQQ6EUQgueH3wWy1kTWdqFX4h9i2GQhA7JRXrsK",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2ULpCCDYW9NMNzaifZP3N8Svbbad6MXgnFS1EXEmaxde",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2ZxQz1LQeinRsNini79UvtnR2ceUiSAVVZY9DMX7wU3B",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2atAXFgjC4g6BFArvA73nTrFHoJ6Rk821R4GaMgrwEcr",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2b6FSoRWU2TwR8gH86ZTipf1LayqXfvdxGtBuiFAJhaN",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2bC7MxgERFU9PH4AN41XngHgWPEcxZeVnJtByEHA9nfS",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2efrMwh952mjpwVmDYyXSEeeCpadGxtrYJKWkAWeaQAi",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2fPVssr3x49pr1E9rf5dH1X3wz5BnTUDSCovbmqMBPNX",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2ghjbHVHi6pTUTapmjgq1WkdnEuPJMMp9dhEL2ffHDry",
+    "_is_known_treasury": {
+      "v1": true,
+      "v2": true
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2nAH8G5NoDtd1W5AKgvSbaykPWwfPrPcSNwttif6Jdd1",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2o1tfFQBK4mNrQrxipZSwiU8Go6CMGKhvXfv5BDJWeDn",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2rCxq59PGYVqap8V6E6wBhARuMvXJEr33wiPADb4oMtc",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2rPGjuT4eWTvxqW8nVVRRd6tVHyP45ZQvBFhLBu3WgUc",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "2vBd5o7ppBLVXo2TyTfSXhWgK9LMKxEszuNFLU7ZKnUz",
+    "_is_known_treasury": {
+      "v1": true,
+      "v2": true
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3AJzJV1abfBvVh5QVNwuRW3udfc4x39gUyXsxkvAhvk5",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3Ka7vaqbntXtTGgqeLZdDswBzGcnYqiBQJFnXYpz3pVy",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3RYpMnbmemUuR6idoaDsN4LNH52KeMrNDKXGKHEL4mQs",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3S3g28hjuQdzWJxhF3bdrosB6BUuuHKcAbdAoWuxRWp3",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3XmdkNWjjxMT3w14fjqcGKEwRk5KqgkQErRbkZJX4Kii",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3a6Xyng5LkXVSXK5BxD3dugbrP5hb3vvGzmJrHvkha2m",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3cVbhyacah56mZnag3jKJfekWPoFKeCXqmpiYDMEG4Qj",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3khayg1ARnDkFkDtkdrL44MgiTFHndaaBzsmqou5BspL",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3qiCXEgw4QdfrjNiVofiwtCus5Dr55nrSQidcnYgAr4h",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "3xhzsQFghpzfVcE4NbhpcqnHzPP1J8dxx6X19jLmeQrs",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "46dJyrgC6VyuswePgHRPgy6QFTJWd7jsa1MDpKNNnbsw",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "49xFjfw1px94NfPi3PdaC2YY2RfqMP7ioS9mqu34hDr8",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4PsXHHUwMgyUMjavvdXVAZfH1mCAAMGdDAEsyHe36Csr",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4SL7WycdeYJus8Mtigs3ubdskUg5hJGXBMAfki1JyeLF",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4UE35iSiNGMaZnEdVCHMRNjko1Jm2MJH3idjDG9MVhCX",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4fqtPnpB5GYme5i2hUkLypDbY8ybXXyZAAR7eQUN5J7f",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4hV2v8cQ7tSPjMJ9LK1PxEnx2KHnxgBtX2gqa5d5UvKy",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4iqEeCXNgseVkxiHttjgFsXsSEqm3DqzatY2ApdDQrdG",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4jZw8YtDthBfLcurVrJto4tK6KtgP5jXd1BarGVyBi1R",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4oUxdf1KXmT5LJjjsePCYLpYW3LhrURY7tcEVrvDhWMp",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "4qfkET3aZxd8kSu93Zw3eRutH3fMz4DXQMTHufsHUMRe",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "58VSAZVhz2cWRK4KteTbpnMUUJLUmUswxZf6iG9NAMH4",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "59cCyzDgiAQUbMi4ZSGD5gGuowXTSJG5PnduFszCZtbZ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5FbRGk5cUkPsYQsCcJuLuFihckZcsSj5Yh9P6XNPQPtT",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5KJ4cRktwQRnJCkYS9fgsYCHSoZnjTALjDYQcHXC19iH",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5R2H7eG9Gy5DHeRngU95N4vsijij6jSh83PzAjRV7n11",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5W4Fi7EaeCCNCN73yjyrWSsZGh8AgJoUZocN1hzYze8Z",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5YHEUe1M5qK8DBXpi2vHKqABbmKhjX3tivBpWJo2c5FX",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5YYzc8YKwARFApWagDLKHKA1yuSL49FqaX9arQEb7k5R",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5Zhwog3Wa1aaTEZMSTqZ5uMBGBDRBSTsy5rZ8eJUgPHt",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5agJqLjFEM1ovweWgCeTvBrsUsynjFahFNd2jGzCURUp",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5gD1m1D9iqDx7AJtBvotbEFogjndADC4Mn3nv7nGAEjA",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5m21774DzThng2oj7RWjrCxkNnmedAz29y2wLCay8oFR",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5nmSYJ4bgaez8VoAXJU4xiX6XiA8ySuDozyzT4LAGQQo",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5oUCRnqDQptHp1ByeWSc6Lx3Y1att8Gv39nqrfdDNFzC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "5rjKoU1aajtz6MUKUumRupioTQJLR2qyPEhi6yJYfCHd",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "623UPQzSVfBeXMZLon7W9yZckYR5UYHUJpRqxBVoZzx9",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "65kJreSe73xeWKb4b867r1fiipkdYtF4wdTzFjjcWgoa",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "6Muxk6cE42WH5m7aHK69sp9ooCVgShB4CuJ9MB21WQsZ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "6W498PV8GgsiesLhJTbEudJhByiMtUuvxC7LpNXrUPoW",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "6cX3VriPX4ajRece7iv2DDHp4P9vanRqBeXDKJ3iY5Se",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "6qYNKjptyBMWiEDApkrJsZeft7qQXQ8hNYrhJyVQoVqo",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "6yR1pVeeZxTTsSAhpNNXfFVH8HcLrP6d4JyCMDEQ3QfV",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "73aviqHvvH16LYg28UmQv4pqmkt7KdFoZZxFppMtYjor",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "79pCpCL4oLw6QmkqYdCgWNFCr22h8GCTUmeUd2H9yXbF",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "7Emarr964cTZV2HSHJ2XjsrKGaKCr8ah55a3TvDtJfj4",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "7H8PPKztJKHnRotkHaYCcxiUKwzUhgAWRL8w6dvMdaem",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "7QKY23BYgTUAwzCLKYZ48BMUEtcEtnzUXjyNNZ1rBkgM",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "7UgrYB5HCf98KPSi84qt7ckcj9KJtX8pzYrWabQAxDvx",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "7ytHDV7xCzo1qEVQLj114Vf5ZVcPiRzTq86JaLBa7ect",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "81ZqzZLUeZ6usmRBB7AzgWvNXjsaiPrvdhDtp87GrKpg",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "82HP96trCbBmvrpf6S9gVRBiv5Lsvi9h8gr6tv9wQoNk",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "82ox8CBX5BAxionCqk7vxDTF5YJhvnCN5novtfCuCuxt",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "83V5ZHD8CKViDWrPCrzKxTkWzkkPDqNsEgLtfi2v682Z",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "84SDjHABDJGrbzi2nAbB3XMTQkwjAi8cWRWx8L4nFn1n",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8C8QYZ23xzMjLosG59QUGxDB8BeRAgC36izBWAG4YTZo",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8DApaWLoyV9VdpFpnomPqpVo8zyrCB2PUkSJm3UZLS9X",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8F6yD31CWGchS5QyJiWL4V7u3azmD2y11LwG6vr5ThmV",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8GXzQdVq4ZdZXciQe8TAHLNnUuz6qxqthnL1EFQeyQLf",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8LSj1Kkq2NuQbgLojfJivzUYve2vJxf6dvXhb9npP6cU",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8MGURiZgJThRrALkWBZEQguScjCMFjcWmEraYVgVJAu1",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8NbKFRzY9FgWpQoyEaRSLnS3VsMKWE1DcDZ1b3ZNmAWP",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8VuPhHm9aTGEqNUceb5G2HAjq8EgUTSr3un5WLgaS22Z",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8foAGn878kuPoS2ssuRURWtNNRFHuXUCDzZbxZGAfBqB",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8jutXmiV5KNUbV9oiB7oMEwMCfnFkTjnfCQ2tQwmiC3L",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8oNX1g9PjUZVjufSeDynGn9LXV7qdwwdcgnfuRDjZdBS",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8piXYTaDzcMpfyLi5eHiBkUfkAJPN8PiBddCY8RVb5tC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8sYLDRd1umTpwKTrKUDBMWRxwkSXvSaBPsRRJNEhkqys",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8ubzL4Jc7By4kkDBub5VHDnBLgPTXd5ZYYzQ5e4sdgPh",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8urejmzuqXomHb2gaqGUhoy1aYrJ2dvynFUiA6K8xuUC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "8x4Sa3Gj1LKk5t5gur45ioMPB9wp43c8rMZWfjDC53JU",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "92ayXNVT4T9zG69HYNsYykaJy2rxQopSpavgXMRKecP9",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "937PzxC4KTxLLsfAypV5jFWCc3nVSCczRYEZPPKEPTAT",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "95HZuiE9HpeMeN8QDpTDU55DtYUTsjwkR2PorAm57xjc",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "965cJ1B4cX1gxqP7Ui7zfdRdgspb2ziRRvfzSh9maKMj",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "97wTBUsBgXEXArZNueb45Tp17yNR5PjfV8jBnVeRXL6h",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "9DwH2kkfee6R9JPjKbTqX3rJHMrvZnQgr4nGKSns22uK",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "9QXod5UNzg3YUk6APArHFB8P15jfs4dPWosycASMjryJ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "9apxjtVyUA5ezuh257qajoRsPTp1eptMhAc8ehyJUE5N",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "9e2PTSK8ySD34BQHP3xbBSRCR2VMdEyo4zum79kZZeD9",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "9v4fsUwuDZorCgJV4p5s7ng7dGkcnt9bWv8NyAoDgSrH",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "9ykCVrpdzpLq3EXqMEGnfjarJiLZCdpeZ83dgU8NrfRC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "A3FfP2qTdUxNzc8q75dPUfD2JvLoHhLMjDBTb7Pt46pb",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "A4A7hWDKp2j7Mxxkx44eJp5e9d8WoZ3FoJPb77adKRJC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "A8XXFTWEsyt7VLy3YNpPPixyNBpbzMHwYesDAcUQhhro",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "A9Nmi21cNSCJr5LXEZuuZy3UYBb34VSNApUAntpcAmEv",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "ABa3E1McKWYG398V9Ppd8MFtMfRNa4EbdnM7sk2CERLd",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "AJQkq424K8MJ6hYv7WJCEM9qYYZdbW3R2PttR2xqKEYM",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "AM7GAciviJuEJz4Eo2ZdT8XZFPyZGVEcLoPGBwAYWdvJ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "AR88nwf5XBfG4vrmeASAtL5sqX1Wm2h62tY681YGv2rS",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "AS7kwEo64Rn2vvka28c3wAegFU1ZGcNr7T6UtEtoNwhX",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "ATDNfQBnU9HCQvJ8hbVx1LvRTxGQRDs7tC3LWLHTBT8j",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "ATWx8HdMhRMsFe9JpnLDkLBwwWCE2i9UF3ZupJkMHRDW",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "AUuR9M7qVt1PeQk97m7WRxuos8mHrEmC7phjYb6qZyWg",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Af4FD976314yb4omWGKunw2gKwov53ScYTLRpte4TVq9",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Aj4LFz52gUxbQeWk6SMbu8fuSFhDKuUDrRoCTdsrZBpH",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Aq2Ug887dcZehPU4dY3gBkwRUtg78icuA8ZcQC6mWhSP",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "AxRNvGQNf93Vmaesds69ksAkDKjprYF8vem6yft5gZXv",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "B7yb4PVspCshpxEanDnhFkTqZz1CBmi786NT1NmGxR3b",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BD7vw8oYLuKw8z3Wm9GNZbh6SnEEUZY2MNk3eZcLB1DV",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": true,
+      "v2": true
+    }
+  },
+  {
+    "wallet": "BFjd8btekaRjmUu7FRATLEUjj716VETvFp4ijdiv1bHd",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BHEXHqKR3Dz4ewRotkxwAudNhVJc91JZRpZ31YgsmLqc",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BPPPA64EgxLwrLGjHKAX2YnU6LJAtE5aD4A3oenBpuKC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BWtPYAyjYqHRoM9iF1Qeye4GM55omACNMpzBehBMyQMo",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BYMSdUYzgkYNVriDEJ2kbXRtk865kdiuW2S2FG8YqRyX",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BkBsrwnguigXzFiPnzPG1QHDrsNgT2mFGSMuzezMXrBS",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Bo1L5E5RW9pK2EgKyyfVhugHhg7R2KKJRQw1qj8ko7rp",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BpDz9r6Q9Z66YHxTKKbz124g1EDs8BtRefzFpj27d1ro",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BqRzfU6DrYAaG1FvtsmysuFTEwuLK6rep12qtJxtk7c7",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "BuBMeexppVgrhF8Cqg4WQ5DtLiDXdQCXgV6Ek7ExhdtG",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "C1JcSv3nnBqsVGqmvrhoeqmkW5XRMToLbCsEogCtT35m",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "C2NpyywGbQWKY1TBa4tSeJjbWQAoYGKVvZwx2ck7xbXd",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "C5BCmYNiYNAoKnEyEcooRxQV4FcRkJmY1zEVXfmrx7kn",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CAFTSzpkDc3x7W3dRc3ByRhY4q4aR2u5ZJSCXNUTfyHC",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CC2CDnWVFqFaSsNKHkzwTy7aELhVjYtA7kDNn3yJxDZQ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CHV79BE6vkVCWyAqvDTe1fpnefZgmuXNaR2MgWJS1LjJ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CPG7iTUepo8oUhRbDz8CmpzS2ozVtYHcmutoYuQ6Bum8",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CVVZaivG4r2C5XgmANVm8emLYq99TSzhDrQbainrYANm",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CWNvcsh1J9r859aNPrrvYkemdik8mEBSZ61chk4hLLbr",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CWwDD4y9b4xEwNnGRBzwDLhHrBQeHjhgbvKAsTfXCH3M",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CbEuwW1AWa4N8KmYRdVnvcyDXUpMkcyDMfqSbhbBUmVx",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CcBGHNgcY9qGnVwPzSQMYVhN51zA5kBGmcZje3YqCD4x",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CcHfUrLLrJ5pkYXQPUbWXK89fngXZ6e22pwi7zZoM3sf",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CiLBQXuJ8eVw45YivZdMGUWLCSkWmfT2ecajA8sCzbvt",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CmpRzeiwPLt6mp3TBzzt3rCPGx5mN5uPurm85Yv3cYgd",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Cmz4bUMTbYqUzsRHm7swVPKEY5atXcc6bawa8knfWEQj",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "CxDxrHwuDoxVa7kryZnFL6KEtTiiCu3tQnd2rM73s8hV",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DGd3JBC3azAq7xhfhtEPxP1DSrpu7WagBM3qePWBcKJS",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DPpJSDDoEk5G6vVS2kMGBPaZE6RXMENHnWT2EweP2XZG",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DT6aeVRaVF2mJZPQt888Ye2WSAAq8r6m7WDVEBWfLDmT",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DTm3r5X9pw5a4EGkZiZT7MFWAZdK7kSXwLNyuDR1uCxZ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DbrnRjvLaeEJXE8eb2uQGTTmAkjLD7XdCiU1gw8XBW4E",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DjXrDQcTJU2wZDw24SgwYow6Tw4LFgHNDgVvQzJjv5d4",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DmEQoTwevKV3oWpYPgfXuauUVdt8j1ps6JPN16gLrFGP",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DwaGUgZysqx2qQCdjMvYjNWLpQdSG1PiJBpUwKJmBWac",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "DxBiqJa9ReZeTKsvAU58xYyr6KByHDYpUNoq3ymrCdBu",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "E3xYPYCgJKdEx8rhn7NdzMRYF3vm7UjkoH7oqCwPTb26",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EARn2sFbGMRwRMe5fdDDZXPQKECzt6wyND5o3Gnf1ica",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EJ7Uh1wmoxGK5KfcuTNGBfCwPEicV17hbGhXF185QU5e",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EXyWvShEhVbEJB1qLf6Qi2rY7Vgt4H8C5DZqpkZ6RK7h",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EjvPXrLCMoKieWHHDomudF6wB3xwHeVNPyVs6Xx12T4R",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Eqe1JDLn2wy42eLEnNFCHGB46uSNhcLp3G9LEGF7s4XT",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Er5TSVRsjBzNNUmTDzoAZkhWzbNx6EkB4XGHMHSt5GKL",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EsLpfBXBmgCJFkD9sTvHS7oibAsDf5tPVo846zAuErRX",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EyUvLj8WL4GGquQ9TR36A5EcNk38jST1rzvJQhm5XksG",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "EzL3naq57MkxZFs6DX2S69tbK6hB4EnnVxxYenwrvMPw",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "F3HExM2SZdLngwxhob4bUvu87hQDoLSFhSTbHsYE7dzr",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "F3xMApWmeWbhuE2bMJ6sLTrGRxuppvELWUDbym7gLZ7L",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "F7RyfxrQUu8fMsvvSTzLiKaLLEVBxPi52NcAZZ2frdDp",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FACHFCFUztdrtGqqHHSfFnBeEZQJLFrWXGGL3zLNoJTq",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FCxV9xnMo1GKdG2vCYba7gU7dVxjHtABmSiMayDL1jY8",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FFaqY7Y3ve2bw7K985bAUkewfrfgezAtfu7m76X6hyok",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FQ1eRQJ6if1Z35MQt5RnNJEv3GNL4jijFqhZA1dug8B1",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FUKrymxnZnn6HzCQEc3wjbDGequbE1TVdWMtmAASrQAM",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Fb9n4W8yceaUA5qSpzA6GuRKdSf87D42EvkMJB2maJhv",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FhhxAJWJiHvhZ3hna5ZrD2p2S4nmGXWdPFugppqj2mG2",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FiFhRB9QZjVayqni9Rz9D5vrHtHswdtVrdeCi7dR7BQ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FkccGTEh6tJe7FGg3hk1dMsz67FDKr5aMh6CWYnTu1f8",
+    "_is_known_treasury": {
+      "v1": true,
+      "v2": true
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FrCuFCyW8MLigMZcC65pRUp8EVXzA4ahA88NhqA9SP6S",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FunVDq1uYc8MF27gpZvNUxQCUHn6NjgpXPGtQZVL8Xcb",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "FvwKdUeRcbVivbV9bL5gBNmPNFj9qCTfd6FNMDem6GvW",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "G3v1cGhprCDouuV2rTULey639Hw8TNeFY9dcNUt5MaQJ",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GAJujkK2xjfiSJehbmQkuzJ8ToeGfrYN7Mq6grYNVxWn",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GRrVMT8Pt1JAppg1Me6YGNE81GzFofjE7vurnY1kJqce",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GZhKGrGGj4kYaGGD1b4DZXL55ZjVMbLc4KMB4RzDy7YW",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GaG4kaKUifSKunMBYTZFXBd3JQgeeqYXmV1mhPhnyvxt",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Gde1PxzVgSV5w3hXDofNnRngVBKLgjyMUQoBNH5Prwha",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GgeisXDxQqE6sH6Su7eK68UDUQwQyDpuLoTA4FQTc8XL",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GmtBqApuKzW3hWvXQ47ojZJbEAPvNZAHgEpXkEq7Q2Fh",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GozgDuzPnLaBECJtDf7cnoVZUnyJQZZvQqMmGsnMDPEr",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": true,
+      "v2": true
+    }
+  },
+  {
+    "wallet": "GrrRbcii27YwCr4eNXLvr2rnHbhLQgyCmtYZay296Sjw",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Gtjsjp38tZPZctNdCd95GC4R7y4btfG3z7iuEqBgjAyB",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GyDETTJ2DHu8ttSNvWx5HsaS8WC9RDMZu6KxhuoDV7Qu",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "GzaaMeT8osXc71tFhVZ8pgtDv9dy3nPK7xKMkDZm7zac",
+    "_is_known_treasury": {
+      "v1": true,
+      "v2": true
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "H26yqbDap2wMfBvEQkCVkKtiU89Kat7mxJTmF1ycZVPn",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "H551EzkYXND8jseM65edWonGHSye45t7DNfCEed7WpTb",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "H63nviaK69yzrXgGkfbd18jHDL2MPisDiagr4LaDDMYA",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "H6WgCrAGxJkLpLF27dgx2D3WdWcmhZo8iHKU8YV1FPQ1",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "H86sgi4867fncCpciUKAYxJmf6KGCd3HoNoj69svzeeS",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HH8LuQafS59cDcjPk9ycGLQY51bjUpW7wpu1L1NVTbrV",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HNgMnKrg2agvZMqZvdeZviPnXpubYKn8NV2irMQDMH4K",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HVvoy3x5zS3hGwZWt9SLNGekV1bU5UwpCBDWmRAStspz",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HW5igJXU2UpfKPZCdzVmcbpdbJGqjiqCifttj2jRgDPq",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HWowzhAy18W87jWbtKf3xEEExn2NemUqvAyoz5vJVJKu",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Hasbovzfpi4xfnZQ215qtr8ZHWwvG1Gnm1qqfSY1K5Qc",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HfCuapcZfa5L1vyF6srU6AQBftWQdzRTt3QyhE57hx36",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "Hrd2gYoPw7dYiFejBdn43F8UZEcFo1RYSjtmjriBmvDp",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HtXze48XQ6JHJWj48qShoaYtfr5FTiquHgYhi7ttMF4F",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "HuHnjLKpCWDHXJmMmDFTtGtmxZ23KSRTCPkfKyzYLk7H",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "J1kbk89JSN71EiqbMi7fYFNhV9GSnFnqiiTx4S7jvU83",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "J2qwUevjXiJRRc4ARyHwZEZtniccmrnS55aSvwo3psV1",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "J3ma9EHpMeha7kcDcMwcKkdfzcdQiVH4HFd96kpLRFM5",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "JEAYMkuWbCPGwMRQ9JRHzmoA2SLUUpSzzWhGWDQ8PWKu",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "cLQJhijN6yLUwwPDiYWpqvg3hYuTSCYMCSVqxqrmWur",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "j3UWrhRzcbpy1MuekuGWKUrrNkfn3jjRJGiGvSoNPCG",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "wxVJG7Xuz3CkHm6PQKxTtpm8ES7ku23Z8uTudTCeNMn",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  },
+  {
+    "wallet": "yLuMivvyeMvfuzeqVrQTnLDrzjJeW2k8j7Rrye2aygj",
+    "_is_known_treasury": {
+      "v1": false,
+      "v2": false
+    },
+    "_is_known_subprov": {
+      "v1": false,
+      "v2": false
+    }
+  }
+]

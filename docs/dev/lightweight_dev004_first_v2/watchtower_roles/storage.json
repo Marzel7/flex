@@ -1,0 +1,21 @@
+{
+  "fixtures": {
+    "core_v2.sqlite": {
+      "path": "/private/tmp/dev004-watchtower-roles-qualified/core_v2.sqlite",
+      "bytes": 8970240,
+      "sha256": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0"
+    },
+    "ops_v2.sqlite": {
+      "path": "/private/tmp/dev004-watchtower-roles-qualified/ops_v2.sqlite",
+      "bytes": 13754368,
+      "sha256": "4d01a2ab27f11e99e5d497e809b992e95ebca6179936935d3271fad59ca611e4"
+    }
+  },
+  "max_single_file_design_bytes": 16000000,
+  "sqlite_max_page_bytes": 15728640,
+  "raw_retention": "No new raw acquisition; exact retained reference rows only",
+  "unbounded_growth_paths": 0,
+  "added_logical_json_bytes": 5848,
+  "added_filesystem_length_bytes": 12288,
+  "total_rows": 28464
+}

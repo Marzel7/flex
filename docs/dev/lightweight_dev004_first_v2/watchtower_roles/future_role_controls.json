@@ -1,0 +1,58 @@
+[
+  {
+    "synthetic_mint": "DEV004_ROLE_FUTURE_CONTROL_0",
+    "existing_role_session": 288523,
+    "result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "scope": "known-pattern role admission only; no new full behavioural or funding investigation claim"
+  },
+  {
+    "synthetic_mint": "DEV004_ROLE_FUTURE_CONTROL_1",
+    "existing_role_session": 275385,
+    "result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "scope": "known-pattern role admission only; no new full behavioural or funding investigation claim"
+  },
+  {
+    "synthetic_mint": "DEV004_ROLE_FUTURE_CONTROL_2",
+    "existing_role_session": 288639,
+    "result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "scope": "known-pattern role admission only; no new full behavioural or funding investigation claim"
+  },
+  {
+    "synthetic_mint": "DEV004_ROLE_FUTURE_CONTROL_3",
+    "existing_role_session": 288877,
+    "result": {
+      "eligible": true,
+      "reason": "ROLE_NORMALIZED_ROUTE_VERIFIED",
+      "creator_match": true,
+      "subprov_match": true,
+      "treasury_role_match": true,
+      "funding_mechanism_match": true,
+      "funder_signature_present": true
+    },
+    "scope": "known-pattern role admission only; no new full behavioural or funding investigation claim"
+  }
+]

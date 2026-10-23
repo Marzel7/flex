@@ -1,0 +1,307 @@
+{
+  "all_original_tables_preserved": {
+    "wt_walkback_queue": {
+      "old": 1195,
+      "new": 1195,
+      "removed_or_changed": 0
+    },
+    "wt_provisioning_sessions": {
+      "old": 1001,
+      "new": 1001,
+      "removed_or_changed": 0
+    },
+    "wt_walkback_edge_candidates": {
+      "old": 4172,
+      "new": 4172,
+      "removed_or_changed": 0
+    },
+    "wt_attribution_outcomes": {
+      "old": 1164,
+      "new": 1164,
+      "removed_or_changed": 0
+    },
+    "wt_launch_audit": {
+      "old": 600,
+      "new": 600,
+      "removed_or_changed": 0
+    },
+    "wt_watchtower_launches": {
+      "old": 605,
+      "new": 605,
+      "removed_or_changed": 0
+    },
+    "operator_launch_membership": {
+      "old": 1165,
+      "new": 1165,
+      "removed_or_changed": 0
+    },
+    "operator_launch_assignment_history": {
+      "old": 27,
+      "new": 27,
+      "removed_or_changed": 0
+    },
+    "watchtower_token_attribution": {
+      "old": 975,
+      "new": 975,
+      "removed_or_changed": 0
+    },
+    "operators": {
+      "old": 10,
+      "new": 10,
+      "removed_or_changed": 0
+    },
+    "operator_identity_state": {
+      "old": 5,
+      "new": 5,
+      "removed_or_changed": 0
+    },
+    "operator_evidence": {
+      "old": 5,
+      "new": 5,
+      "removed_or_changed": 0
+    },
+    "operator_reviews": {
+      "old": 2,
+      "new": 2,
+      "removed_or_changed": 0
+    },
+    "operator_entities": {
+      "old": 153,
+      "new": 153,
+      "removed_or_changed": 0
+    },
+    "operator_identity_assets": {
+      "old": 122,
+      "new": 122,
+      "removed_or_changed": 0
+    },
+    "monitor_admission_outbox": {
+      "old": 104,
+      "new": 104,
+      "removed_or_changed": 0
+    },
+    "wt_confirmed_treasuries": {
+      "old": 115,
+      "new": 115,
+      "removed_or_changed": 0
+    },
+    "wt_discovered_subprovs": {
+      "old": 0,
+      "new": 2,
+      "removed_or_changed": 0
+    },
+    "wt_ops_v2_wallets": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_ops_v2": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_wrap_close_candidates": {
+      "old": 945,
+      "new": 945,
+      "removed_or_changed": 0
+    },
+    "wt_creator_birth_launch": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_candidate_websocket_watches": {
+      "old": 19,
+      "new": 19,
+      "removed_or_changed": 0
+    },
+    "wt_lineage_quarantine": {
+      "old": 129,
+      "new": 129,
+      "removed_or_changed": 0
+    },
+    "wt_walkback_atomic_flows": {
+      "old": 784,
+      "new": 784,
+      "removed_or_changed": 0
+    },
+    "operation_monitor_facts": {
+      "old": 24,
+      "new": 24,
+      "removed_or_changed": 0
+    },
+    "operation_monitor_observations": {
+      "old": 47,
+      "new": 47,
+      "removed_or_changed": 0
+    },
+    "operation_monitor_entry_provenance": {
+      "old": 71,
+      "new": 71,
+      "removed_or_changed": 0
+    },
+    "dev004_retained_reference_evidence": {
+      "old": 15,
+      "new": 15,
+      "removed_or_changed": 0
+    },
+    "wt_wallet_lifecycle_evidence": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_infrastructure_candidates": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_infrastructure_candidate_descendants": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_infrastructure_candidate_evidence": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_infrastructure_candidate_reviews": {
+      "old": 0,
+      "new": 0,
+      "removed_or_changed": 0
+    },
+    "wt_walkback_transaction_roles": {
+      "old": 73,
+      "new": 73,
+      "removed_or_changed": 0
+    },
+    "operator_identity_events": {
+      "old": 136,
+      "new": 136,
+      "removed_or_changed": 0
+    },
+    "operation_registry_dispositions": {
+      "old": 10,
+      "new": 10,
+      "removed_or_changed": 0
+    },
+    "operation_behavioural_profiles": {
+      "old": 6,
+      "new": 6,
+      "removed_or_changed": 0
+    },
+    "operation_qualification_contracts": {
+      "old": 6,
+      "new": 6,
+      "removed_or_changed": 0
+    },
+    "confirmed_operation_matches": {
+      "old": 318,
+      "new": 318,
+      "removed_or_changed": 0
+    },
+    "operator_promotion_reviews": {
+      "old": 1,
+      "new": 1,
+      "removed_or_changed": 0
+    },
+    "operator_identity_merges": {
+      "old": 1,
+      "new": 1,
+      "removed_or_changed": 0
+    },
+    "operation_monitor_mode_transitions": {
+      "old": 2,
+      "new": 2,
+      "removed_or_changed": 0
+    },
+    "wt_treasury_review": {
+      "old": 50,
+      "new": 50,
+      "removed_or_changed": 0
+    },
+    "wt_lineage_root_policies": {
+      "old": 1,
+      "new": 1,
+      "removed_or_changed": 0
+    },
+    "wt_lineage_verified_session_edges": {
+      "old": 129,
+      "new": 133,
+      "removed_or_changed": 0
+    },
+    "potential_operation_identity": {
+      "old": 2,
+      "new": 2,
+      "removed_or_changed": 0
+    },
+    "potential_operation_evidence_association": {
+      "old": 183,
+      "new": 183,
+      "removed_or_changed": 0
+    },
+    "potential_operation_assessment_version": {
+      "old": 5,
+      "new": 5,
+      "removed_or_changed": 0
+    },
+    "potential_operation_current": {
+      "old": 2,
+      "new": 2,
+      "removed_or_changed": 0
+    },
+    "potential_operation_assessment_lineage": {
+      "old": 5,
+      "new": 5,
+      "removed_or_changed": 0
+    },
+    "potential_operation_assessment_association_binding": {
+      "old": 183,
+      "new": 183,
+      "removed_or_changed": 0
+    },
+    "potential_operation_workflows": {
+      "old": 63,
+      "new": 63,
+      "removed_or_changed": 0
+    },
+    "potential_operation_child_candidates": {
+      "old": 2,
+      "new": 2,
+      "removed_or_changed": 0
+    },
+    "p3r_v2_candidate_membership": {
+      "old": 1332,
+      "new": 1332,
+      "removed_or_changed": 0
+    }
+  },
+  "core_byte_identical": true,
+  "negative_role_controls": [
+    {
+      "control": "missing",
+      "result": {
+        "eligible": false,
+        "reason": "TREASURY_EVIDENCE_CONFLICT"
+      }
+    },
+    {
+      "control": "reversed",
+      "result": {
+        "eligible": false,
+        "reason": "TREASURY_EVIDENCE_CONFLICT"
+      }
+    },
+    {
+      "control": "non_direct",
+      "result": {
+        "eligible": false,
+        "reason": "TREASURY_EVIDENCE_CONFLICT"
+      }
+    }
+  ],
+  "new_support_eligible": 4,
+  "added_role_transfer_does_not_promote_candidates": true,
+  "seed_total_rows": 28464,
+  "logical_json_bytes": 16290819
+}

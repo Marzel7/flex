@@ -1,0 +1,1624 @@
+{
+  "status": "PARTIAL_FUNCTIONAL_CONTROLS_PASS_BOUNDS_PENDING",
+  "checks": {
+    "actual_owner_creates_review": true,
+    "pending_review_not_confirmed": true,
+    "provenance_preserved": true,
+    "x784_actual_profile": true,
+    "actual_projection_published": true,
+    "review_only": true,
+    "public_list_publication": true,
+    "duplicate_single_review": true,
+    "restart_same_identity": true,
+    "alternative_parent_not_selected_member": true,
+    "competing_evidence_retained": true,
+    "duplicate_evidence_no_extra_edges": true,
+    "duplicate_evidence_no_extra_sessions": true,
+    "idempotent_review_publication": true,
+    "insufficient_evidence": true,
+    "infrastructure_exclusion": true,
+    "rejection_preserved": true,
+    "rejected_not_x784_profile": true,
+    "known_treasury_separation": true
+  },
+  "details": {
+    "admission": {
+      "action": "inserted",
+      "wallet": "dev004-new-root",
+      "distinct_mints": 5,
+      "distinct_subprovs": 5,
+      "distinct_creators": 5,
+      "amount_consistency": 1.0
+    },
+    "review": {
+      "treasury": "dev004-new-root",
+      "transfer_pct": null,
+      "out_sol": null,
+      "recipients": null,
+      "micro_pings": null,
+      "detected_via": "topology_cohort_qualified",
+      "status": "PENDING_REVIEW",
+      "reviewed_by": null,
+      "detected_at": 200,
+      "reviewed_at": null,
+      "reviewer": null,
+      "confidence": null,
+      "notes": null,
+      "evidence_json": null,
+      "subprov_wallet": null,
+      "creator_wallet": null,
+      "token_mint": null,
+      "distinct_subprovs": 5,
+      "distinct_creators": 5,
+      "evidence_sigs": "[\"wrap-0\",\"wrap-1\",\"wrap-2\",\"wrap-3\",\"wrap-4\"]",
+      "evidence_subprovs": "[\"dev004-sub-0\",\"dev004-sub-1\",\"dev004-sub-2\",\"dev004-sub-3\",\"dev004-sub-4\"]",
+      "evidence_creators": "[\"dev004-creator-0\",\"dev004-creator-1\",\"dev004-creator-2\",\"dev004-creator-3\",\"dev004-creator-4\"]",
+      "evidence_mints": "[\"dev004-new-mint-0\",\"dev004-new-mint-1\",\"dev004-new-mint-2\",\"dev004-new-mint-3\",\"dev004-new-mint-4\"]",
+      "has_walkback_evidence": 1,
+      "first_walkback_at": 200,
+      "last_walkback_at": 200,
+      "discovery_score": null,
+      "discovery_reasons": null
+    },
+    "payload_keys": [
+      "families",
+      "candidates",
+      "count",
+      "total",
+      "confirmed_operations",
+      "emerging_operations",
+      "established_changes",
+      "candidate_summary",
+      "funnel",
+      "reconciliation",
+      "promotion_config",
+      "intake_contract",
+      "read_only",
+      "confirmed_operations_reconciled",
+      "active_investigations_reconciled",
+      "operator_candidates_reconciled",
+      "review_cases_reconciled",
+      "potential_operations_reconciled",
+      "_active_investigation_pool_reconciled",
+      "_operator_candidate_pool_reconciled",
+      "_review_case_pool_reconciled",
+      "infrastructure_alerts_reconciled",
+      "attention_budget_reconciled",
+      "reconciled_counts",
+      "debug"
+    ],
+    "projected": [
+      {
+        "family_id": "family:ad7fa872f6ca873f",
+        "family_name": "dev0 Family",
+        "stage": "DORMANT",
+        "status": "Dormant",
+        "family_anchor": "dev004-new-root",
+        "previous_stage": "CANDIDATE_FAMILY",
+        "lifecycle_state": "DORMANT",
+        "first_seen_at": 100,
+        "last_seen_at": 104,
+        "last_material_activity_at": 104,
+        "state_changed_at": 104,
+        "merged_into_family_id": null,
+        "superseded_by_family_id": null,
+        "absorbed_family_ids": [],
+        "launches": 5,
+        "observed_launches": 5,
+        "launch_list": [
+          "dev004-new-mint-0",
+          "dev004-new-mint-1",
+          "dev004-new-mint-2",
+          "dev004-new-mint-3",
+          "dev004-new-mint-4"
+        ],
+        "walkback_descendant_count": 5,
+        "walkback_descendant_list": [
+          "dev004-new-mint-0",
+          "dev004-new-mint-1",
+          "dev004-new-mint-2",
+          "dev004-new-mint-3",
+          "dev004-new-mint-4"
+        ],
+        "session_count": 0,
+        "active_sessions": 0,
+        "member_wallets": [
+          "dev004-new-root"
+        ],
+        "client_wallets": [
+          "dev004-sub-0",
+          "dev004-sub-1",
+          "dev004-sub-2",
+          "dev004-sub-3",
+          "dev004-sub-4"
+        ],
+        "provisioning_clients": [
+          "dev004-sub-0",
+          "dev004-sub-1",
+          "dev004-sub-2",
+          "dev004-sub-3",
+          "dev004-sub-4"
+        ],
+        "member_treasuries": [
+          "dev004-new-root"
+        ],
+        "treasuries": [
+          "dev004-new-root"
+        ],
+        "primary_treasury_families": [
+          "dev004-new-root"
+        ],
+        "unique_creators": [
+          "dev004-creator-0",
+          "dev004-creator-1",
+          "dev004-creator-2",
+          "dev004-creator-3",
+          "dev004-creator-4"
+        ],
+        "funding_mechanisms": [
+          "PLAIN_XFER",
+          "WSOL_WRAP_CLOSE"
+        ],
+        "dominant_topology": "Treasury \u2192 persistent client \u2192 fresh creator",
+        "observed_topology_variants": [
+          "Treasury \u2192 persistent client \u2192 fresh creator"
+        ],
+        "evidence_completeness": {
+          "score": 73,
+          "maximum": 100,
+          "dimensions": [
+            {
+              "key": "topology_reconstruction",
+              "label": "Topology Reconstruction",
+              "score": 20,
+              "maximum": 20
+            },
+            {
+              "key": "transaction_provenance",
+              "label": "Transaction Provenance",
+              "score": 20,
+              "maximum": 20
+            },
+            {
+              "key": "relationship_coverage",
+              "label": "Relationship Coverage",
+              "score": 8,
+              "maximum": 15
+            },
+            {
+              "key": "identity_link_coverage",
+              "label": "Identity Link Coverage",
+              "score": 7,
+              "maximum": 15
+            },
+            {
+              "key": "independent_evidence_diversity",
+              "label": "Independent Evidence Diversity",
+              "score": 3,
+              "maximum": 15
+            },
+            {
+              "key": "uncertainty_conflict_coverage",
+              "label": "Uncertainty Conflict Coverage",
+              "score": 15,
+              "maximum": 15
+            }
+          ]
+        },
+        "evidence_breakdown": [
+          {
+            "key": "topology_reconstruction",
+            "label": "Topology Reconstruction",
+            "score": 20,
+            "maximum": 20
+          },
+          {
+            "key": "transaction_provenance",
+            "label": "Transaction Provenance",
+            "score": 20,
+            "maximum": 20
+          },
+          {
+            "key": "relationship_coverage",
+            "label": "Relationship Coverage",
+            "score": 8,
+            "maximum": 15
+          },
+          {
+            "key": "identity_link_coverage",
+            "label": "Identity Link Coverage",
+            "score": 7,
+            "maximum": 15
+          },
+          {
+            "key": "independent_evidence_diversity",
+            "label": "Independent Evidence Diversity",
+            "score": 3,
+            "maximum": 15
+          },
+          {
+            "key": "uncertainty_conflict_coverage",
+            "label": "Uncertainty Conflict Coverage",
+            "score": 15,
+            "maximum": 15
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_sources": [
+          "wt_treasury_review_operational_like"
+        ],
+        "discovery_significance": {
+          "score": 10,
+          "maximum": 100,
+          "dimensions": [
+            {
+              "key": "recent_launch_activity",
+              "label": "Recent Launch Activity",
+              "score": 0,
+              "maximum": 30
+            },
+            {
+              "key": "launch_velocity",
+              "label": "Launch Velocity",
+              "score": 0,
+              "maximum": 15
+            },
+            {
+              "key": "active_session_breadth",
+              "label": "Active Session Breadth",
+              "score": 0,
+              "maximum": 15
+            },
+            {
+              "key": "coherent_member_breadth",
+              "label": "Coherent Member Breadth",
+              "score": 0,
+              "maximum": 20
+            },
+            {
+              "key": "operational_persistence",
+              "label": "Operational Persistence",
+              "score": 0,
+              "maximum": 10
+            },
+            {
+              "key": "topology_novelty",
+              "label": "Topology Novelty",
+              "score": 10,
+              "maximum": 10
+            }
+          ]
+        },
+        "significance_breakdown": [
+          {
+            "key": "recent_launch_activity",
+            "label": "Recent Launch Activity",
+            "score": 0,
+            "maximum": 30
+          },
+          {
+            "key": "launch_velocity",
+            "label": "Launch Velocity",
+            "score": 0,
+            "maximum": 15
+          },
+          {
+            "key": "active_session_breadth",
+            "label": "Active Session Breadth",
+            "score": 0,
+            "maximum": 15
+          },
+          {
+            "key": "coherent_member_breadth",
+            "label": "Coherent Member Breadth",
+            "score": 0,
+            "maximum": 20
+          },
+          {
+            "key": "operational_persistence",
+            "label": "Operational Persistence",
+            "score": 0,
+            "maximum": 10
+          },
+          {
+            "key": "topology_novelty",
+            "label": "Topology Novelty",
+            "score": 10,
+            "maximum": 10
+          }
+        ],
+        "material_change_reasons": [
+          "inactive beyond dormancy window"
+        ],
+        "operational_maturity": {
+          "score": 35,
+          "maximum": 100,
+          "dimensions": [
+            {
+              "key": "observed_duration",
+              "label": "Observed Duration",
+              "score": 0,
+              "maximum": 30
+            },
+            {
+              "key": "independent_sessions",
+              "label": "Independent Sessions",
+              "score": 0,
+              "maximum": 25
+            },
+            {
+              "key": "topology_stability",
+              "label": "Topology Stability",
+              "score": 20,
+              "maximum": 20
+            },
+            {
+              "key": "membership_stability",
+              "label": "Membership Stability",
+              "score": 5,
+              "maximum": 15
+            },
+            {
+              "key": "conflict_survival",
+              "label": "Conflict Survival",
+              "score": 10,
+              "maximum": 10
+            }
+          ]
+        },
+        "maturity_breakdown": [
+          {
+            "key": "observed_duration",
+            "label": "Observed Duration",
+            "score": 0,
+            "maximum": 30
+          },
+          {
+            "key": "independent_sessions",
+            "label": "Independent Sessions",
+            "score": 0,
+            "maximum": 25
+          },
+          {
+            "key": "topology_stability",
+            "label": "Topology Stability",
+            "score": 20,
+            "maximum": 20
+          },
+          {
+            "key": "membership_stability",
+            "label": "Membership Stability",
+            "score": 5,
+            "maximum": 15
+          },
+          {
+            "key": "conflict_survival",
+            "label": "Conflict Survival",
+            "score": 10,
+            "maximum": 10
+          }
+        ],
+        "promotion_ready": true,
+        "promotion_status": "REVIEWABLE",
+        "blocking_reasons": [
+          "family breadth unresolved"
+        ],
+        "reviewable_reasons": [
+          "significant unresolved operation lane",
+          "topology and transaction evidence available"
+        ],
+        "cohesion": {
+          "status": "SIGNIFICANT_UNRESOLVED",
+          "score": 0,
+          "evidence": [],
+          "conflicts": []
+        },
+        "merge_split_decisions": [
+          {
+            "decision": "RETAIN_SINGLETON",
+            "members": [
+              "dev004-new-root"
+            ],
+            "reason": "no complete-link family match"
+          }
+        ],
+        "membership": [
+          {
+            "wallet": "dev004-new-root",
+            "membership_status": "SINGLETON_HYPOTHESIS",
+            "membership_strength": 0,
+            "membership_evidence": [],
+            "membership_conflicts": []
+          }
+        ],
+        "exclusion_evidence": [],
+        "data_quality_warnings": [],
+        "attention_eligible": false,
+        "attention_rank": null,
+        "why_surfaced": [
+          "inactive beyond dormancy window"
+        ],
+        "dormancy_reason": "no material activity inside dormancy window",
+        "supporting_evidence": [
+          {
+            "type": "SELECTED_WALKBACK_EDGE",
+            "source": "wt_walkback_edge_candidates",
+            "detail": {
+              "mint": "dev004-new-mint-0",
+              "wallet": "dev004-sub-0",
+              "candidate_parent": "dev004-new-root",
+              "signature": "fund-0",
+              "mechanism": "PLAIN_XFER",
+              "block_time": 100
+            }
+          },
+          {
+            "type": "SELECTED_WALKBACK_EDGE",
+            "source": "wt_walkback_edge_candidates",
+            "detail": {
+              "mint": "dev004-new-mint-1",
+              "wallet": "dev004-sub-1",
+              "candidate_parent": "dev004-new-root",
+              "signature": "fund-1",
+              "mechanism": "PLAIN_XFER",
+              "block_time": 101
+            }
+          },
+          {
+            "type": "SELECTED_WALKBACK_EDGE",
+            "source": "wt_walkback_edge_candidates",
+            "detail": {
+              "mint": "dev004-new-mint-2",
+              "wallet": "dev004-sub-2",
+              "candidate_parent": "dev004-new-root",
+              "signature": "fund-2",
+              "mechanism": "PLAIN_XFER",
+              "block_time": 102
+            }
+          },
+          {
+            "type": "SELECTED_WALKBACK_EDGE",
+            "source": "wt_walkback_edge_candidates",
+            "detail": {
+              "mint": "dev004-new-mint-3",
+              "wallet": "dev004-sub-3",
+              "candidate_parent": "dev004-new-root",
+              "signature": "fund-3",
+              "mechanism": "PLAIN_XFER",
+              "block_time": 103
+            }
+          },
+          {
+            "type": "SELECTED_WALKBACK_EDGE",
+            "source": "wt_walkback_edge_candidates",
+            "detail": {
+              "mint": "dev004-new-mint-4",
+              "wallet": "dev004-sub-4",
+              "candidate_parent": "dev004-new-root",
+              "signature": "fund-4",
+              "mechanism": "PLAIN_XFER",
+              "block_time": 104
+            }
+          },
+          {
+            "type": "FUNDING_EDGE",
+            "source": "wt_provisioning_edges",
+            "detail": {
+              "edge_id": "edge_2f8eb3c927b9482313c8467c89ff7cf7",
+              "edge_type": "SUBPROV_TO_CREATOR",
+              "from_wallet": "dev004-sub-0",
+              "to_wallet": "dev004-creator-0",
+              "first_observed_by_flex": 1792764002,
+              "last_observed_by_flex": 1792764002,
+              "observation_count": 1,
+              "funding_mechanism": "WSOL_WRAP_CLOSE",
+              "funding_amount_sol": 1.0,
+              "funding_tx_signature": "wrap-0",
+              "funding_block_time": 120,
+              "source_mint": "dev004-new-mint-0",
+              "provenance": "WALKBACK"
+            }
+          },
+          {
+            "type": "FUNDING_EDGE",
+            "source": "wt_provisioning_edges",
+            "detail": {
+              "edge_id": "edge_4d8d68129500904784300490a42d260d",
+              "edge_type": "SUBPROV_TO_CREATOR",
+              "from_wallet": "dev004-sub-1",
+              "to_wallet": "dev004-creator-1",
+              "first_observed_by_flex": 1792764002,
+              "last_observed_by_flex": 1792764002,
+              "observation_count": 1,
+              "funding_mechanism": "WSOL_WRAP_CLOSE",
+              "funding_amount_sol": 1.0,
+              "funding_tx_signature": "wrap-1",
+              "funding_block_time": 121,
+              "source_mint": "dev004-new-mint-1",
+              "provenance": "WALKBACK"
+            }
+          },
+          {
+            "type": "FUNDING_EDGE",
+            "source": "wt_provisioning_edges",
+            "detail": {
+              "edge_id": "edge_8310ae494c8f5d6dc5ac856bb81ae625",
+              "edge_type": "SUBPROV_TO_CREATOR",
+              "from_wallet": "dev004-sub-2",
+              "to_wallet": "dev004-creator-2",
+              "first_observed_by_flex": 1792764002,
+              "last_observed_by_flex": 1792764002,
+              "observation_count": 1,
+              "funding_mechanism": "WSOL_WRAP_CLOSE",
+              "funding_amount_sol": 1.0,
+              "funding_tx_signature": "wrap-2",
+              "funding_block_time": 122,
+              "source_mint": "dev004-new-mint-2",
+              "provenance": "WALKBACK"
+            }
+          },
+          {
+            "type": "FUNDING_EDGE",
+            "source": "wt_provisioning_edges",
+            "detail": {
+              "edge_id": "edge_5b1f84c06430e4f19a5e639d5c9bd4c6",
+              "edge_type": "SUBPROV_TO_CREATOR",
+              "from_wallet": "dev004-sub-3",
+              "to_wallet": "dev004-creator-3",
+              "first_observed_by_flex": 1792764002,
+              "last_observed_by_flex": 1792764002,
+              "observation_count": 1,
+              "funding_mechanism": "WSOL_WRAP_CLOSE",
+              "funding_amount_sol": 1.0,
+              "funding_tx_signature": "wrap-3",
+              "funding_block_time": 123,
+              "source_mint": "dev004-new-mint-3",
+              "provenance": "WALKBACK"
+            }
+          },
+          {
+            "type": "FUNDING_EDGE",
+            "source": "wt_provisioning_edges",
+            "detail": {
+              "edge_id": "edge_1ee4c7fbfbbf88c423a3113dd775d174",
+              "edge_type": "SUBPROV_TO_CREATOR",
+              "from_wallet": "dev004-sub-4",
+              "to_wallet": "dev004-creator-4",
+              "first_observed_by_flex": 1792764002,
+              "last_observed_by_flex": 1792764002,
+              "observation_count": 1,
+              "funding_mechanism": "WSOL_WRAP_CLOSE",
+              "funding_amount_sol": 1.0,
+              "funding_tx_signature": "wrap-4",
+              "funding_block_time": 124,
+              "source_mint": "dev004-new-mint-4",
+              "provenance": "WALKBACK"
+            }
+          }
+        ],
+        "discovery_timeline": [],
+        "evidence_timeline": [],
+        "growth_timeline": [],
+        "current_classification": "Monitoring",
+        "terminal_entity": "dev004-new-root",
+        "observation_count": 5,
+        "campaign_count": 0,
+        "identity_class_count": 0,
+        "review_status": "MONITORING",
+        "review_label": "Monitoring",
+        "promotion_handoff": null,
+        "contradictions": [],
+        "read_only": true,
+        "promotion_gates": {
+          "passed": {
+            "cohesion_or_singleton_lane": true,
+            "promotion_ready": true,
+            "current_significance": false,
+            "recent_material_activity": false,
+            "exclusions_clear": true
+          },
+          "failed": [
+            "family breadth unresolved"
+          ],
+          "reason_not_surfaced": "family breadth unresolved"
+        },
+        "funding_templates": [],
+        "campaigns": [],
+        "identity_classes": [],
+        "confidence": null,
+        "current_attribution_outcome": "UNKNOWN_INFRASTRUCTURE",
+        "is_canonical_operator": false,
+        "canonical_operator_id": null,
+        "projection_scope": "DISCOVERY_ONLY",
+        "registry_eligible": false,
+        "governance_state": "PROVISIONAL",
+        "operational_category": "OPERATIONAL_LIKE",
+        "confirmation_readiness": {
+          "ready": true,
+          "analyst_decision_required": true,
+          "checklist": [
+            {
+              "key": "stable_family_identity",
+              "label": "Stable family identity",
+              "met": true
+            },
+            {
+              "key": "topology_reconstructed",
+              "label": "Topology reconstructed",
+              "met": true
+            },
+            {
+              "key": "treasury_relationships",
+              "label": "Treasury relationships established",
+              "met": true
+            },
+            {
+              "key": "infrastructure_understood",
+              "label": "Infrastructure understood",
+              "met": true
+            },
+            {
+              "key": "behaviour_consistent",
+              "label": "Behaviour consistent",
+              "met": true
+            },
+            {
+              "key": "observation_history",
+              "label": "Sufficient observation history",
+              "met": true
+            },
+            {
+              "key": "evidence_package",
+              "label": "Evidence package complete",
+              "met": true
+            },
+            {
+              "key": "critical_conflicts",
+              "label": "No unresolved critical conflicts",
+              "met": true
+            }
+          ],
+          "outstanding_issues": [
+            "family breadth unresolved"
+          ],
+          "evidence_coverage": 73,
+          "operational_maturity": 35,
+          "explanation": "Evidence coverage informs confirmation readiness but never confirms an operation automatically."
+        },
+        "confirmation": {
+          "confirmed": false,
+          "confirmed_at": null,
+          "confirmed_by": null,
+          "confirmation_reason": null,
+          "confirmation_notes": null,
+          "previous_lifecycle": null,
+          "reversed_at": null,
+          "reversed_by": null,
+          "reversal_reason": null,
+          "history": []
+        }
+      }
+    ],
+    "publication_cards": [
+      {
+        "family_id": "family:ad7fa872f6ca873f",
+        "family_name": "dev0 Family",
+        "stage": "DORMANT",
+        "status": "Dormant",
+        "family_anchor": "dev004-new-root",
+        "previous_stage": "CANDIDATE_FAMILY",
+        "lifecycle_state": "DORMANT",
+        "first_seen_at": 100,
+        "last_seen_at": 104,
+        "last_material_activity_at": 104,
+        "state_changed_at": 104,
+        "merged_into_family_id": null,
+        "superseded_by_family_id": null,
+        "absorbed_family_ids": [],
+        "launches": 5,
+        "observed_launches": 5,
+        "launch_list": [],
+        "walkback_descendant_count": 5,
+        "walkback_descendant_list": [
+          "dev004-new-mint-0",
+          "dev004-new-mint-1",
+          "dev004-new-mint-2",
+          "dev004-new-mint-3",
+          "dev004-new-mint-4"
+        ],
+        "session_count": 0,
+        "active_sessions": 0,
+        "member_wallets": [
+          "dev004-new-root"
+        ],
+        "client_wallets": [
+          "dev004-sub-0",
+          "dev004-sub-1",
+          "dev004-sub-2",
+          "dev004-sub-3",
+          "dev004-sub-4"
+        ],
+        "provisioning_clients": [
+          "dev004-sub-0",
+          "dev004-sub-1",
+          "dev004-sub-2",
+          "dev004-sub-3",
+          "dev004-sub-4"
+        ],
+        "member_treasuries": [
+          "dev004-new-root"
+        ],
+        "treasuries": [
+          "dev004-new-root"
+        ],
+        "primary_treasury_families": [
+          "dev004-new-root"
+        ],
+        "unique_creators": [],
+        "funding_mechanisms": [
+          "PLAIN_XFER",
+          "WSOL_WRAP_CLOSE"
+        ],
+        "dominant_topology": "Treasury \u2192 persistent client \u2192 fresh creator",
+        "observed_topology_variants": [
+          "Treasury \u2192 persistent client \u2192 fresh creator"
+        ],
+        "evidence_completeness": {
+          "score": 73,
+          "maximum": 100,
+          "dimensions": [
+            {
+              "key": "topology_reconstruction",
+              "label": "Topology Reconstruction",
+              "score": 20,
+              "maximum": 20
+            },
+            {
+              "key": "transaction_provenance",
+              "label": "Transaction Provenance",
+              "score": 20,
+              "maximum": 20
+            },
+            {
+              "key": "relationship_coverage",
+              "label": "Relationship Coverage",
+              "score": 8,
+              "maximum": 15
+            },
+            {
+              "key": "identity_link_coverage",
+              "label": "Identity Link Coverage",
+              "score": 7,
+              "maximum": 15
+            },
+            {
+              "key": "independent_evidence_diversity",
+              "label": "Independent Evidence Diversity",
+              "score": 3,
+              "maximum": 15
+            },
+            {
+              "key": "uncertainty_conflict_coverage",
+              "label": "Uncertainty Conflict Coverage",
+              "score": 15,
+              "maximum": 15
+            }
+          ]
+        },
+        "evidence_breakdown": [
+          {
+            "key": "topology_reconstruction",
+            "label": "Topology Reconstruction",
+            "score": 20,
+            "maximum": 20
+          },
+          {
+            "key": "transaction_provenance",
+            "label": "Transaction Provenance",
+            "score": 20,
+            "maximum": 20
+          },
+          {
+            "key": "relationship_coverage",
+            "label": "Relationship Coverage",
+            "score": 8,
+            "maximum": 15
+          },
+          {
+            "key": "identity_link_coverage",
+            "label": "Identity Link Coverage",
+            "score": 7,
+            "maximum": 15
+          },
+          {
+            "key": "independent_evidence_diversity",
+            "label": "Independent Evidence Diversity",
+            "score": 3,
+            "maximum": 15
+          },
+          {
+            "key": "uncertainty_conflict_coverage",
+            "label": "Uncertainty Conflict Coverage",
+            "score": 15,
+            "maximum": 15
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_sources": [
+          "wt_treasury_review_operational_like"
+        ],
+        "discovery_significance": {
+          "score": 10,
+          "maximum": 100,
+          "dimensions": [
+            {
+              "key": "recent_launch_activity",
+              "label": "Recent Launch Activity",
+              "score": 0,
+              "maximum": 30
+            },
+            {
+              "key": "launch_velocity",
+              "label": "Launch Velocity",
+              "score": 0,
+              "maximum": 15
+            },
+            {
+              "key": "active_session_breadth",
+              "label": "Active Session Breadth",
+              "score": 0,
+              "maximum": 15
+            },
+            {
+              "key": "coherent_member_breadth",
+              "label": "Coherent Member Breadth",
+              "score": 0,
+              "maximum": 20
+            },
+            {
+              "key": "operational_persistence",
+              "label": "Operational Persistence",
+              "score": 0,
+              "maximum": 10
+            },
+            {
+              "key": "topology_novelty",
+              "label": "Topology Novelty",
+              "score": 10,
+              "maximum": 10
+            }
+          ]
+        },
+        "significance_breakdown": [
+          {
+            "key": "recent_launch_activity",
+            "label": "Recent Launch Activity",
+            "score": 0,
+            "maximum": 30
+          },
+          {
+            "key": "launch_velocity",
+            "label": "Launch Velocity",
+            "score": 0,
+            "maximum": 15
+          },
+          {
+            "key": "active_session_breadth",
+            "label": "Active Session Breadth",
+            "score": 0,
+            "maximum": 15
+          },
+          {
+            "key": "coherent_member_breadth",
+            "label": "Coherent Member Breadth",
+            "score": 0,
+            "maximum": 20
+          },
+          {
+            "key": "operational_persistence",
+            "label": "Operational Persistence",
+            "score": 0,
+            "maximum": 10
+          },
+          {
+            "key": "topology_novelty",
+            "label": "Topology Novelty",
+            "score": 10,
+            "maximum": 10
+          }
+        ],
+        "material_change_reasons": [
+          "inactive beyond dormancy window"
+        ],
+        "operational_maturity": {
+          "score": 35,
+          "maximum": 100,
+          "dimensions": [
+            {
+              "key": "observed_duration",
+              "label": "Observed Duration",
+              "score": 0,
+              "maximum": 30
+            },
+            {
+              "key": "independent_sessions",
+              "label": "Independent Sessions",
+              "score": 0,
+              "maximum": 25
+            },
+            {
+              "key": "topology_stability",
+              "label": "Topology Stability",
+              "score": 20,
+              "maximum": 20
+            },
+            {
+              "key": "membership_stability",
+              "label": "Membership Stability",
+              "score": 5,
+              "maximum": 15
+            },
+            {
+              "key": "conflict_survival",
+              "label": "Conflict Survival",
+              "score": 10,
+              "maximum": 10
+            }
+          ]
+        },
+        "maturity_breakdown": [
+          {
+            "key": "observed_duration",
+            "label": "Observed Duration",
+            "score": 0,
+            "maximum": 30
+          },
+          {
+            "key": "independent_sessions",
+            "label": "Independent Sessions",
+            "score": 0,
+            "maximum": 25
+          },
+          {
+            "key": "topology_stability",
+            "label": "Topology Stability",
+            "score": 20,
+            "maximum": 20
+          },
+          {
+            "key": "membership_stability",
+            "label": "Membership Stability",
+            "score": 5,
+            "maximum": 15
+          },
+          {
+            "key": "conflict_survival",
+            "label": "Conflict Survival",
+            "score": 10,
+            "maximum": 10
+          }
+        ],
+        "promotion_ready": true,
+        "promotion_status": "REVIEWABLE",
+        "blocking_reasons": [
+          "family breadth unresolved"
+        ],
+        "reviewable_reasons": [
+          "significant unresolved operation lane",
+          "topology and transaction evidence available"
+        ],
+        "cohesion": {
+          "status": "SIGNIFICANT_UNRESOLVED",
+          "score": 0,
+          "evidence": [],
+          "conflicts": []
+        },
+        "merge_split_decisions": [
+          {
+            "decision": "RETAIN_SINGLETON",
+            "members": [
+              "dev004-new-root"
+            ],
+            "reason": "no complete-link family match"
+          }
+        ],
+        "membership": [
+          {
+            "wallet": "dev004-new-root",
+            "membership_status": "SINGLETON_HYPOTHESIS",
+            "membership_strength": 0,
+            "membership_evidence": [],
+            "membership_conflicts": []
+          }
+        ],
+        "exclusion_evidence": [],
+        "data_quality_warnings": [],
+        "attention_eligible": false,
+        "attention_rank": null,
+        "why_surfaced": [
+          "inactive beyond dormancy window"
+        ],
+        "dormancy_reason": "no material activity inside dormancy window",
+        "supporting_evidence": [],
+        "discovery_timeline": [],
+        "evidence_timeline": [],
+        "growth_timeline": [],
+        "current_classification": "Monitoring",
+        "terminal_entity": "dev004-new-root",
+        "observation_count": 5,
+        "campaign_count": 0,
+        "identity_class_count": 0,
+        "review_status": "MONITORING",
+        "review_label": "Monitoring",
+        "promotion_handoff": null,
+        "contradictions": [],
+        "read_only": true,
+        "promotion_gates": {
+          "passed": {
+            "cohesion_or_singleton_lane": true,
+            "promotion_ready": true,
+            "current_significance": false,
+            "recent_material_activity": false,
+            "exclusions_clear": true
+          },
+          "failed": [
+            "family breadth unresolved"
+          ],
+          "reason_not_surfaced": "family breadth unresolved"
+        },
+        "funding_templates": [],
+        "campaigns": [],
+        "identity_classes": [],
+        "confidence": null,
+        "current_attribution_outcome": "UNKNOWN_INFRASTRUCTURE",
+        "is_canonical_operator": false,
+        "canonical_operator_id": null,
+        "projection_scope": "DISCOVERY_ONLY",
+        "registry_eligible": false,
+        "governance_state": "PROVISIONAL",
+        "operational_category": "OPERATIONAL_LIKE",
+        "confirmation_readiness": {
+          "ready": true,
+          "analyst_decision_required": true,
+          "checklist": [
+            {
+              "key": "stable_family_identity",
+              "label": "Stable family identity",
+              "met": true
+            },
+            {
+              "key": "topology_reconstructed",
+              "label": "Topology reconstructed",
+              "met": true
+            },
+            {
+              "key": "treasury_relationships",
+              "label": "Treasury relationships established",
+              "met": true
+            },
+            {
+              "key": "infrastructure_understood",
+              "label": "Infrastructure understood",
+              "met": true
+            },
+            {
+              "key": "behaviour_consistent",
+              "label": "Behaviour consistent",
+              "met": true
+            },
+            {
+              "key": "observation_history",
+              "label": "Sufficient observation history",
+              "met": true
+            },
+            {
+              "key": "evidence_package",
+              "label": "Evidence package complete",
+              "met": true
+            },
+            {
+              "key": "critical_conflicts",
+              "label": "No unresolved critical conflicts",
+              "met": true
+            }
+          ],
+          "outstanding_issues": [
+            "family breadth unresolved"
+          ],
+          "evidence_coverage": 73,
+          "operational_maturity": 35,
+          "explanation": "Evidence coverage informs confirmation readiness but never confirms an operation automatically."
+        },
+        "confirmation": {
+          "confirmed": false,
+          "confirmed_at": null,
+          "confirmed_by": null,
+          "confirmation_reason": null,
+          "confirmation_notes": null,
+          "previous_lifecycle": null,
+          "reversed_at": null,
+          "reversed_by": null,
+          "reversal_reason": null,
+          "history": []
+        },
+        "operational_role": {
+          "current_role": "Operational Treasury",
+          "nodes": [
+            {
+              "role": "Operational Treasury",
+              "current": true
+            }
+          ],
+          "edges": [],
+          "observation_count": 0,
+          "relationship_count": 0,
+          "observed_relationships": [],
+          "related_launch_count": 0,
+          "evidence_backed": false,
+          "source": "Recorded provisioning relationships and canonical launch membership"
+        },
+        "creator_count": 5,
+        "evidence_detail_href": "/api/ops/emerging-operators/family:ad7fa872f6ca873f",
+        "profile_href": "/intelligence/operations/family:ad7fa872f6ca873f",
+        "operational_intelligence_href": "/intelligence/operations/family:ad7fa872f6ca873f?tab=operational",
+        "reconciliation": {
+          "schema_version": "operation-reconciliation-v1",
+          "population_revision_id": "ipr:cf259fe13ed885496759e3fb3f87939b3be4eaf7b2066cd56f901ad285fcb4fc",
+          "reconciliation_package_id": "erp:af2cf8e7292026ddc216b066225f39685a64642448ae783c197511703d1a27ab",
+          "disposition": "UNRESOLVED",
+          "reasoning_summary": "The shadow disposition remains UNRESOLVED.",
+          "supporting_evidence_count": 12,
+          "contradictory_evidence_count": 0,
+          "missing_evidence_count": 4,
+          "dependency_groups": [
+            "creator_reuse",
+            "operation_history",
+            "settlement",
+            "topology_funding_mechanism",
+            "transaction_provenance",
+            "treasury_provisioning"
+          ],
+          "deterministic_result_id": "dr:4c844a23964244de859b546f12724f3cd41e9a550f0ca72a6a637102b4359bca",
+          "legacy_shadow_agreement": false,
+          "expected_difference": true,
+          "supporting_evidence": [
+            {
+              "evidence_type": "TREASURY_RELATIONSHIPS",
+              "label": "Treasury Relationships",
+              "description": "Persisted evidence records 1 treasury relationship(s) for this population.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt walkback queue",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "treasury_provisioning",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "PROVISIONING_LINEAGE",
+              "label": "Provisioning Lineage",
+              "description": "Persisted provisioning edges connect the population to 5 creator(s).",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "SHARED_PROVENANCE",
+              "dependency_group": "treasury_provisioning",
+              "observation_count": 5,
+              "eligible": false
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            },
+            {
+              "evidence_type": "TRANSACTION_PROVENANCE",
+              "label": "Transaction Provenance",
+              "description": "A persisted transaction signature records provenance for the observed relationship.",
+              "truth_status": "TRUE",
+              "applicability": "APPLICABLE",
+              "applicability_reason": "Every launch referenced by the observation belongs to this population revision.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": 5,
+              "eligible": true
+            }
+          ],
+          "contradictory_evidence": [],
+          "missing_evidence": [
+            {
+              "evidence_type": "SESSIONS_UNAVAILABLE",
+              "label": "Sessions Unavailable",
+              "description": "No provisioning session is present in the population evidence.",
+              "truth_status": "UNKNOWN",
+              "applicability": "UNKNOWN",
+              "applicability_reason": "Missing evidence is unknown and cannot be scoped as an observed fact.",
+              "provenance": "wt active subprov sessions",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "treasury_provisioning",
+              "observation_count": null,
+              "eligible": false
+            },
+            {
+              "evidence_type": "RPC_CONFIRMATION_UNAVAILABLE",
+              "label": "Rpc Confirmation Unavailable",
+              "description": "The Investigation Population revision does not record an explicit RPC-confirmation result.",
+              "truth_status": "UNKNOWN",
+              "applicability": "UNKNOWN",
+              "applicability_reason": "Missing evidence is unknown and cannot be scoped as an observed fact.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "transaction_provenance",
+              "observation_count": null,
+              "eligible": false
+            },
+            {
+              "evidence_type": "SETTLEMENT_UNAVAILABLE",
+              "label": "Settlement Unavailable",
+              "description": "No post-launch settlement evidence is present in the Investigation Population revision.",
+              "truth_status": "UNKNOWN",
+              "applicability": "UNKNOWN",
+              "applicability_reason": "Missing evidence is unknown and cannot be scoped as an observed fact.",
+              "provenance": "creator outgoing transfers",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "settlement",
+              "observation_count": null,
+              "eligible": false
+            },
+            {
+              "evidence_type": "CREATOR_REUSE_UNAVAILABLE",
+              "label": "Creator Reuse Unavailable",
+              "description": "No creator-reuse evidence is present in the Investigation Population revision.",
+              "truth_status": "UNKNOWN",
+              "applicability": "UNKNOWN",
+              "applicability_reason": "Missing evidence is unknown and cannot be scoped as an observed fact.",
+              "provenance": "wt provisioning edges",
+              "provenance_independence": "INDEPENDENT",
+              "dependency_group": "creator_reuse",
+              "observation_count": null,
+              "eligible": false
+            }
+          ],
+          "why_population_exists": [
+            "The population exists because the Family Builder grouped persisted membership and lineage facts."
+          ],
+          "analyst_explanation": [
+            "The population exists because the Family Builder grouped persisted membership and lineage facts.",
+            "The package contains population evidence but no independent control-bearing evidence.",
+            "Missing evidence remains unknown and is not treated as contradiction.",
+            "The shadow disposition remains UNRESOLVED."
+          ],
+          "promotion_readiness": {
+            "state": "PARTIALLY READY",
+            "eligible_for_confirmation": false,
+            "message": "Additional independent evidence is required before confirmation.",
+            "blockers": [
+              "No eligible control-bearing evidence independently establishes a single controller.",
+              "No provisioning session is present in the population evidence.",
+              "The Investigation Population revision does not record an explicit RPC-confirmation result.",
+              "No post-launch settlement evidence is present in the Investigation Population revision.",
+              "No creator-reuse evidence is present in the Investigation Population revision."
+            ],
+            "requirements": [
+              "No provisioning session is present in the population evidence.",
+              "The Investigation Population revision does not record an explicit RPC-confirmation result.",
+              "No post-launch settlement evidence is present in the Investigation Population revision.",
+              "No creator-reuse evidence is present in the Investigation Population revision."
+            ]
+          }
+        },
+        "presentation": {
+          "reconciled": true,
+          "disposition": "UNRESOLVED",
+          "label": "Investigation Population",
+          "kind": "investigation_population",
+          "title": "dev0",
+          "profile_kicker": "Investigation population",
+          "confirmation_permitted": false,
+          "parent_population_id": "family:ad7fa872f6ca873f",
+          "potential_operator_clusters": [],
+          "child_operations": [],
+          "legacy_lifecycle": "DORMANT",
+          "profile_href": "/intelligence/operations/family:ad7fa872f6ca873f",
+          "reasoning_summary": "The shadow disposition remains UNRESOLVED.",
+          "population_revision_id": "ipr:cf259fe13ed885496759e3fb3f87939b3be4eaf7b2066cd56f901ad285fcb4fc",
+          "reconciliation_package_id": "erp:af2cf8e7292026ddc216b066225f39685a64642448ae783c197511703d1a27ab",
+          "supporting_evidence_count": 12,
+          "contradictory_evidence_count": 0,
+          "missing_evidence_count": 4,
+          "legacy_shadow_agreement": false,
+          "expected_difference": true,
+          "disposition_label": "Unresolved",
+          "historical_context": "Previously presented through the legacy registry as Dormant. The reconciled disposition now governs analyst presentation.",
+          "investigation_summary": [
+            "This bounded population contains 5 persisted launches and remains active for investigation.",
+            "Reconciliation retained 12 supporting observations without treating shared evidence as proof of common control.",
+            "The current package records 4 evidence gaps, so no child cluster is eligible for confirmation."
+          ]
+        }
+      }
+    ],
+    "whole_population_plan": [
+      [
+        6,
+        0,
+        0,
+        "SCAN wt_walkback_edge_candidates USING INDEX ix_wwec_parent"
+      ],
+      [
+        18,
+        0,
+        0,
+        "USE TEMP B-TREE FOR DISTINCT"
+      ]
+    ],
+    "plans": [
+      [
+        3,
+        0,
+        0,
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_parent (candidate_parent=?)"
+      ]
+    ]
+  },
+  "blocked": [],
+  "database_attempts": [
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/core.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    },
+    {
+      "path": "/private/tmp/dev004-nonp3r-3jqu0b8h/ops.sqlite",
+      "allowed": true,
+      "frames": []
+    }
+  ],
+  "sizes": {
+    "ops.sqlite.write.lock.waiters": 2,
+    "core.sqlite": 335872,
+    "ops.sqlite.write.lock.owner.guard": 0,
+    "ops.sqlite": 806912,
+    "ops.sqlite.write.lock": 823
+  },
+  "source_identity": {
+    "src/ops/emerging_operator_service.py": {
+      "candidate_sha256": "24f7a1b57517c3939c06d9c78ad32a3d8b007d6792cb831397ba291a7fd3fb40",
+      "installed_sha256": "24f7a1b57517c3939c06d9c78ad32a3d8b007d6792cb831397ba291a7fd3fb40"
+    },
+    "src/ops/treasury_topology_classifier.py": {
+      "candidate_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e",
+      "installed_sha256": "f51637e839c0fc15339ce0cca67f74e5dc9878a85b127da8c35e7906fd4d644e"
+    },
+    "src/ops/provisioning_edges.py": {
+      "candidate_sha256": "e662001039ee2eb0b90e6ee3f5d6d369f3c899d77b61e7ae2e285908759457df",
+      "installed_sha256": "e662001039ee2eb0b90e6ee3f5d6d369f3c899d77b61e7ae2e285908759457df"
+    },
+    "src/ops/discovery_intake.py": {
+      "candidate_sha256": "fca487338b3ce79b0c36999a9d269f38af58424596fbfed8538e7a36d9fe11cd",
+      "installed_sha256": "fca487338b3ce79b0c36999a9d269f38af58424596fbfed8538e7a36d9fe11cd"
+    }
+  },
+  "inspection_revision": "d759341e1a3b62968b77df9755e2be9531271e3c",
+  "runtime_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c"
+}

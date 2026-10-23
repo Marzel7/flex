@@ -33701,11 +33701,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "ce5dbfc14b85fa3faae0b3775107e4643bb8f440",
+    "git_head": "4028e7eb15da92837c5e7228ca6485f6fcafe90f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-23T00:20:23.167557+00:00",
-    "working_tree": "DEV004 seed minimization audit complete; reduction HOLD.28454rows unchanged; expansion paused;29test controls and conditional2.13MB duplicated evidence identified. No source/fixture changes."
+    "updated_at_utc": "2026-10-23T07:29:29.121900+00:00",
+    "working_tree": "DEV004 cutover decision complete/HOLD. Optimization stopped; next focused scope is stale candidate freshness continuity, then exact Watchtower role dependencies. No implementation."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -41501,5 +41501,45 @@
     "next_action": "Keep expansion paused. Subject to separate authorization, qualify five-value shared-infrastructure evidence representation against265frozen outcomes and negative-evidence consumers. No implementation in this audit.",
     "production_state": "UNCHANGED; no production/fixture writes, source changes, providers, service actions, deletion, cutover or cursor reset.",
     "updated_at_utc": "2026-10-23T00:20:23.167557+00:00"
+  },
+  "dev004_cutover_blocker_prioritization": {
+    "status": "DECISION_COMPLETE_HOLD_CUTOVER",
+    "engineering_source_revision": "4028e7eb15da92837c5e7228ca6485f6fcafe90f",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only decision and documentation; no executable change.",
+    "scope": "Stop seed-size optimization; focus only operational replacement blockers.",
+    "demonstrated_failures": [
+      "New V2 candidate edge4173 ignored against retained V1 cursor206259",
+      "99 Watchtower routes change verified role distinction to treasury conflict; five other source cases unknown, not proven failures"
+    ],
+    "unqualified_functions": [
+      "Creator count/span/funder decision inputs",
+      "Accepted new-operation discovery path beyond two-candidate bridge",
+      "Complete installed parsing/creator recovery/Walkback investigation and durable writer integration",
+      "Unfinished Birdeye checkpoint/retry/consumed-budget recovery and complete accepted executable composition",
+      "Accepted API/UI/monitoring projections",
+      "Affected persistence/resource bounds and reconciled cutover/rollback"
+    ],
+    "gate_order": [
+      "G1 Potential Operations freshness/discovery continuity",
+      "G2 Attribution decision closure",
+      "G3 Installed intake/creator recovery/Walkback integration",
+      "G4 Price acquisition/restart/composition",
+      "G5 API/UI/monitoring projections",
+      "G6 Existing persistence/resource safety",
+      "G7 Consistent cutover state and rollback then production authorization"
+    ],
+    "historical_nonblockers": [
+      "Missing original ATH candles after approved numerical PASS",
+      "762 NULL event_id assignments alone with preserved authority",
+      "Deep capital continuity remains unqualified with unchanged REVIEW_ONLY result",
+      "19115 unknown disposal classifications are not automatic operational blockers",
+      "Old worktree paths need not be recreated or dormant services activated to qualify equivalent accepted composition"
+    ],
+    "next_action": "Separate authorization for one focused DEV-only freshness-boundary correction/qualification for two existing Living candidates: relevant new evidence, duplicate/unrelated/no-event, crash/reopen, all three source families. No seed expansion or arbitrary reset. Then address exact Watchtower role links.",
+    "supersedes_previous_next_action": "Shared-evidence deduplication/seed minimization is deferred; do not pursue it.",
+    "production_and_activation": "V1 authoritative, existing flags unchanged; no database/source changes, providers, services, deletion or cutover. No database handles opened in this task.",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/cutover_blocker_prioritization/REPORT.md",
+    "updated_at_utc": "2026-10-23T07:29:29.121900+00:00"
   }
 }

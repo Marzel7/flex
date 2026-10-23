@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "d759341e1a3b62968b77df9755e2be9531271e3c",
+    "git_head": "dc3472b601bb945b9fb939743f75c973b36eb502",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-23T12:54:44.349483+00:00",
@@ -42257,6 +42257,23 @@
     "report": "docs/dev/lightweight_dev004_first_v2/non_p3r_cutover_contract/REPORT.md",
     "runtime_deployment_required": false,
     "production": "unchanged; documentation/source-read only; no providers, database connections, source/runtime actions or historical deletion",
-    "next_action": "One bounded provider-free X78.4 Walkback-to-discovery-only-review V2 case via actual upstream owners/readers, with duplicate/reopen/conflict/rejection/known-operation controls; no new engine or P3R prerequisite."
+    "next_action": "One bounded provider-free X78.4 Walkback-to-discovery-only-review V2 case via actual upstream owners/readers, with duplicate/reopen/conflict/rejection/known-operation controls; no new engine or P3R prerequisite.",
+    "subsequent_m1_result": "Non-P3R callable-path functional publication PASS (19 controls); sustained execution/storage bounds HOLD. See dev004_non_p3r_discovery_qualification."
+  },
+  "dev004_non_p3r_discovery_qualification": {
+    "status": "PARTIAL_FUNCTIONAL_PASS_BOUNDS_HOLD",
+    "engineering_revision": "dc3472b601bb945b9fb939743f75c973b36eb502",
+    "executable_candidate": "506fe25c941eadf379ca98e4f0d42c1a2486dc9c",
+    "tests": "19/19 focused provider-free controls pass through accepted provisioning writer, topology review owner, X78.4 actual service public list; restart/duplicates/alternative-parent/insufficient/rejected/known treasury controls pass.",
+    "functional_result": "Five fresh synthetic complete funding routes create one durable PENDING_REVIEW and discovery-only public review card. No new discovery or attribution semantics.",
+    "bounds_blocker": "Existing full projection scans selected-edge population with DISTINCT temp B-tree, uncapped evidence/review/session populations; snapshot scheduling and final list limits do not cap total work or lifetime candidate/snapshot storage. DEV resource caps do not certify runtime bounds.",
+    "report": "docs/dev/lightweight_dev004_first_v2/non_p3r_discovery_qualification/REPORT.md",
+    "fixture_sizes": {
+      "core_bytes": 335872,
+      "ops_bytes": 806912
+    },
+    "runtime_deployment_required": false,
+    "production": "unchanged; no providers, WebSockets, service actions, deployment or historical deletion",
+    "next_action": "Authorize bounded DEV correction only at existing non-P3R projection/snapshot input/work/output boundary, with fail-closed preservation of last good publication; reuse predicates and rerun focused controls."
   }
 }

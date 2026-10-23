@@ -1371,12 +1371,53 @@ class MigrationTerminalDurabilityRisk(RuntimeError):
     """The migration could not be made durable by either persistence layer."""
 
 
+def _signature_migration_journal():
+    """Explicit opt-in only. Stable file must already be initialized/retained."""
+    if os.environ.get("DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED", "0") != "1":
+        return None
+    from src.core.migration_signature_journal import MigrationJournal, JournalHold
+    path = os.environ.get("MIGRATION_JOURNAL_PATH")
+    if not path or not os.path.isabs(path):
+        raise JournalHold("EXPLICIT_STABLE_JOURNAL_PATH_REQUIRED")
+    return MigrationJournal(path)
+
+
+def _migration_journal_readback(row, *, require_handoff=True):
+    """Exact-mint readback only; never infer missing handoff eligibility."""
+    if not row.get("mint"):
+        return False
+    import sqlite3 as _sq
+    try:
+        core = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=5)
+        try:
+            token = core.execute("SELECT migration_tx FROM token_analysis WHERE mint=?", (row["mint"],)).fetchone()
+            if not token or token[0] != row["signature"]:
+                return False
+            if not require_handoff:
+                return True
+            handoff = core.execute("SELECT state,migration_tx FROM migration_walkback_handoff WHERE mint=?", (row["mint"],)).fetchone()
+            if not handoff or str(handoff[0]).upper() != "COMPLETE" or handoff[1] != row["signature"]:
+                return False
+        finally:
+            core.close()
+        ops = _sq.connect(f"file:{_listener_ops_db_path()}?mode=ro", uri=True, timeout=5)
+        try:
+            return ops.execute("SELECT 1 FROM wt_walkback_queue WHERE mint=?", (row["mint"],)).fetchone() is not None
+        finally:
+            ops.close()
+    except Exception:
+        return False  # Keep the record; unavailable readback is never an ACK.
+
+
 def _migration_fallback_file_path() -> str:
     """The last-resort journal for migration queue-enqueue failures.
 
     This deliberately sits beside the DB, like the birth journal, so it is
     retained by the same local-volume backup and restart lifecycle.
     """
+    journal = _signature_migration_journal()
+    if journal is not None:
+        return str(journal.path)
     base = DB_PATH or "flex_complete_database.db"
     return f"{base}.migration_fallback.jsonl"
 
@@ -1405,6 +1446,9 @@ def _durable_jsonl_append(path: str, record: dict) -> None:
 def _migration_fallback_append(mint, migration_signature, received_at, source, last_error,
                                migration_slot=None) -> None:
     """Persist the minimal data needed to recreate migration_persist_queue."""
+    journal = _signature_migration_journal()
+    if journal is not None:
+        return journal.admit(migration_signature, source, received_at, mint, migration_slot=migration_slot)
     _durable_jsonl_append(_migration_fallback_file_path(), {
         "version": 1,
         "mint": mint,
@@ -1438,6 +1482,11 @@ def _migration_terminal_risk_count() -> int:
 
 def _retain_migration_terminal_risk(mint, signature, received_at, queue_error, fallback_error) -> None:
     """Keep an explicit operator-visible record when the normal journal fails."""
+    if _signature_migration_journal() is not None:
+        # The bounded admission record remains the recovery authority. Never
+        # bypass its capacity through the legacy unbounded risk journal.
+        from src.core.migration_signature_journal import JournalHold
+        raise JournalHold("BOUNDED_JOURNAL_CAPACITY_NOT_BYPASSABLE")
     _durable_jsonl_append(_migration_terminal_risk_file_path(), {
         "version": 1,
         "state": "MIGRATION_TERMINAL_DURABILITY_RISK",
@@ -1464,7 +1513,10 @@ def _reconcile_migration_fallback_file_into_queue() -> int:
         return 0
     except Exception:
         return 0
-    records = [r for r in records if r.get("mint") and r.get("signature")]
+    # A v2/signature-first or malformed record must never disappear behind
+    # legacy whole-file cleanup. Opt-in replay owns individual acknowledgements.
+    if any(not isinstance(r, dict) or r.get("version", 1) != 1 or not r.get("mint") or not r.get("signature") for r in records):
+        return 0
     if not records:
         return 0
     try:
@@ -8587,6 +8639,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         """Continue migration pipeline once mint is known. `source` (WEBSOCKET/RECONCILER) is passed
         EXPLICITLY — not via a shared instance var — so concurrent WS + reconciler processing of the
         same migration can't cross-contaminate the migration_source tag (the burst-mislabel race)."""
+        journal = _signature_migration_journal()
+        if journal is not None:
+            row = journal.resolve(signature, mint)
+            if row is not None and row["state"] == "QUARANTINED":
+                from src.core.migration_signature_journal import JournalHold
+                raise JournalHold("MINT_CONFLICT")
         import threading as _tp_threading
         _tp_t0 = time.monotonic()
         _tp_is_loop = threading.current_thread() is threading.main_thread()
@@ -10608,6 +10666,47 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception:
             pass
 
+    def _schedule_journal_migration(self, signature, logs, source="WEBSOCKET", notification_source="PUMPSWAP"):
+        journal = _signature_migration_journal()
+        if journal is None:
+            return asyncio.create_task(self.handle_migration(signature, logs, source=source))
+        row = journal.admit(signature, notification_source, int(time.time()))
+        active = getattr(self, "_signature_journal_active", None)
+        if active is None:
+            active = self._signature_journal_active = set()
+        if signature in active or row["state"] in {"ACKED", "QUARANTINED", "RETRY_EXHAUSTED"}:
+            return None
+        if _migration_journal_readback(row):
+            journal.acknowledge(signature, __import__("hashlib").sha256(__import__("json").dumps([os.path.realpath(DB_PATH), os.path.realpath(_listener_ops_db_path())], separators=(",", ":")).encode()).hexdigest(), _migration_journal_readback)
+            return None
+        # Core commit may have preceded OPS enqueue. Existing handoff retry owns
+        # convergence; do not repeat provider acquisition for that crash window.
+        if _migration_journal_readback(row, require_handoff=False):
+            return None
+        if not journal.begin_attempt(signature):
+            return None
+        active.add(signature)
+        try:
+            return asyncio.create_task(self._run_journal_migration(signature, logs, source))
+        except BaseException:
+            active.discard(signature)
+            raise
+
+    async def _run_journal_migration(self, signature, logs, source):
+        try:
+            await self.handle_migration(signature, logs, source=source)
+            journal = _signature_migration_journal()
+            journal.acknowledge(signature, __import__("hashlib").sha256(__import__("json").dumps([os.path.realpath(DB_PATH), os.path.realpath(_listener_ops_db_path())], separators=(",", ":")).encode()).hexdigest(), _migration_journal_readback)
+        finally:
+            self._signature_journal_active.discard(signature)
+
+    async def _replay_signature_migration_batch(self):
+        journal = _signature_migration_journal()
+        for row in journal.pending():
+            task = self._schedule_journal_migration(row["signature"], [], notification_source=row["source"])
+            if task is not None:
+                await task  # Existing handler/provider controls, bounded sequential batch.
+
     async def handle_migration(self, signature: str, logs: list, source: str = "WEBSOCKET"):
         """Process detected migration. `source` (WEBSOCKET fast-path vs RECONCILER correctness-path)
         is threaded EXPLICITLY into _process_migration_with_mint — no shared instance var — so
@@ -10908,7 +11007,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 _last_migration_at = time.time()
                                 premig_log(f"[WS_MESSAGE_ROUTED] sig={signature[:16]} route=handle_migration source=pumpswap_migration_account")
                                 log_print(f"[WEBSOCKET] 🚨 Migration #{self.websocket_migration_count} detected via migration account: {signature}", flush=True)
-                                asyncio.create_task(self.handle_migration(signature, logs))
+                                self._schedule_journal_migration(signature, logs, notification_source="PUMPSWAP_MIGRATION_ACCOUNT")
                                 continue
 
                             self._debug_pumpswap_migration_skip(signature, logs)
@@ -11089,8 +11188,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             row=await asyncio.to_thread(readback)
             if row is None or not self._eb_birth_audit.record_outcome(receipt_id,outcome="COMMITTED",canonical=tuple(row)):
                 raise RuntimeError("COMPACT_OUTCOME_UNCONFIRMED")
-        except Exception:
-            log_print("[PUMPPORTAL] COMPACT_BIRTH_OUTCOME_UNAVAILABLE",flush=True)
+        except Exception as error:
+            from src.core.pumpportal_birth_audit import receipt_failure_reason
+            log_print(f"[PUMPPORTAL] COMPACT_BIRTH_OUTCOME_UNAVAILABLE reason={receipt_failure_reason(error)}",flush=True)
 
     async def _handle_pumpportal_create_frame(
         self,
@@ -11109,8 +11209,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
         bonding_curve_pda = data.get("bondingCurveKey")
         symbol = data.get("symbol")
         name = data.get("name")
-        v_sol = float(data.get("vSolInBondingCurve") or 0)
-        mc_sol = float(data.get("marketCapSol") or 0)
+        try:
+            v_sol = float(data.get("vSolInBondingCurve") or 0)
+        except (TypeError, ValueError, OverflowError):
+            v_sol = 0.0
+        try:
+            mc_sol = float(data.get("marketCapSol") or 0)
+        except (TypeError, ValueError, OverflowError):
+            mc_sol = 0.0
         birth_receipt_id = self._eb_birth_audit.record(
             receive_utc_ns=receive_utc_ns,
             receive_monotonic_ns=receive_monotonic_ns,
@@ -11368,7 +11474,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 pass
                             if sig and sig not in self.completed_migrations:
                                 log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
-                                asyncio.create_task(self.handle_migration(sig, []))
+                                self._schedule_journal_migration(sig, [], notification_source="PUMPPORTAL_MIGRATION")
                                 # Unsubscribe from trade tracking for this mint
                                 if mint in tracked_trade_mints:
                                     tracked_trade_mints.discard(mint)
@@ -11445,14 +11551,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 try:
                     rows = conn.execute(
                         "SELECT id, signature, CASE WHEN length(CAST(payload AS BLOB))<=4096 THEN payload END AS payload, "
-                        "length(CAST(payload AS BLOB)) AS payload_bytes, source FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                        "length(CAST(payload AS BLOB)) AS payload_bytes, source FROM webhook_birth_queue WHERE consumed = 0 AND quarantine_reason IS NULL ORDER BY id LIMIT 50"
                     ).fetchall()
                 except Exception:
                     # payload/source columns may not exist yet if ALTER TABLE lost the race
                     rows = [
                         {"id": r[0], "signature": r[1], "payload": None, "source": "helius_webhook"}
                         for r in conn.execute(
-                            "SELECT id, signature FROM webhook_birth_queue WHERE consumed = 0 ORDER BY id LIMIT 50"
+                            "SELECT id, signature FROM webhook_birth_queue WHERE consumed = 0 AND quarantine_reason IS NULL ORDER BY id LIMIT 50"
                         ).fetchall()
                     ]
                 conn.close()
@@ -11488,6 +11594,25 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 raise ValueError("INVALID_BIRTH_RETRY_RECORD")
                             if compact:
                                 data = _decode_compact_pumpportal_birth_retry(data, sig)
+                                # Decide before canonical persistence; missing proof/errors retry normally.
+                                def _quarantine_conflict():
+                                    from pathlib import Path
+                                    from src.core.birth_retry_quarantine import quarantine
+                                    _compact_birth_retry_storage_check(DB_PATH, _listener_ops_db_path())
+                                    _core = _sq.connect(DB_PATH, timeout=5)
+                                    _ops = None
+                                    try:
+                                        _ops = _sq.connect(Path(_listener_ops_db_path()).resolve().as_uri() + "?mode=ro", uri=True, timeout=5)
+                                        with _core:
+                                            _core.execute("BEGIN IMMEDIATE")
+                                            return quarantine(_core, _ops, row_id, sig, raw, data)
+                                    finally:
+                                        if _ops is not None:
+                                            _ops.close()
+                                        _core.close()
+                                if await asyncio.to_thread(_quarantine_conflict):
+                                    log_print(f"[WEBHOOK_BIRTH] QUARANTINED sig={sig[:16]} reason=CORE_AUTHORITY_CONFLICT", flush=True)
+                                    continue
                             _mint    = data.get("mint", "")
                             _creator = data.get("traderPublicKey")
                             _bcp     = data.get("bondingCurveKey")
@@ -11551,7 +11676,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 _compact_birth_retry_storage_check(DB_PATH, _listener_ops_db_path())
                             _rc = _sq.connect(DB_PATH, timeout=5)
                             with _rc:
-                                _rc.execute("UPDATE webhook_birth_queue SET retry_count = retry_count + 1 WHERE id = ?", (row_id,))
+                                _rc.execute("UPDATE webhook_birth_queue SET retry_count = retry_count + 1 WHERE id = ? AND consumed=0 AND quarantine_reason IS NULL", (row_id,))
                             _rc.close()
                         except Exception:
                             pass
@@ -11566,7 +11691,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         log_print("[STARTUP] Migration persist queue drainer started", flush=True)
         while True:
             try:
-                _reconciled = _reconcile_migration_fallback_file_into_queue()
+                if _signature_migration_journal() is not None:
+                    await self._replay_signature_migration_batch()
+                    _reconciled = 0
+                else:
+                    _reconciled = _reconcile_migration_fallback_file_into_queue()
                 if _reconciled:
                     log_print(f"[MIGRATION_RETRY] reconciled {_reconciled} migration(s) from file fallback into migration_persist_queue", flush=True)
                 conn = _sq.connect(DB_PATH, timeout=10)
@@ -11743,7 +11872,7 @@ def _mark_consumed(db_path: str, row_id: int) -> None:
     try:
         conn = _sq.connect(db_path, timeout=5)
         with conn:
-            conn.execute("UPDATE webhook_birth_queue SET consumed = 1 WHERE id = ?", (row_id,))
+            conn.execute("UPDATE webhook_birth_queue SET consumed = 1 WHERE id = ? AND quarantine_reason IS NULL", (row_id,))
         conn.close()
     except Exception as _e:
         log_print(f"[WEBHOOK_BIRTH] ⚠ mark_consumed failed row_id={row_id}: {_e}", flush=True)

@@ -7,6 +7,9 @@ blocking the socket if its bounded writer queue is full.
 from __future__ import annotations
 
 import json
+import errno
+import logging
+import sqlite3
 import os
 import queue
 import threading
@@ -18,11 +21,68 @@ from pathlib import Path
 from typing import Any, Optional
 
 
+# Fixed vocabulary only: exception text and identity values never reach logs.
+_RECEIPT_VALUE_REASONS = frozenset({
+    "RECEIPT_CAPACITY", "RECEIPT_DISK_HEADROOM", "RECEIPT_RECORD_CAPACITY",
+    "RECEIPT_FILE_CAPACITY", "RECEIPT_FIELD_CAPACITY", "RECEIPT_CONFLICT",
+    "RECEIPT_PENDING_CONFLICT", "RECEIPT_SCHEMA", "RECEIPT_IDENTITY",
+    "RECEIPT_KIND", "RECEIPT_TIME", "RECEIPT_TARGET", "RECEIPT_SYMLINK",
+    "RECEIPT_ROOT_SYMLINK", "UNEXPECTED_RECEIPT_FIELDS", "RECEIPT_OUTCOME",
+    "COMMIT_READBACK_REQUIRED", "HANDOFF_IDENTITY",
+})
+
+
+def receipt_failure_reason(error):
+    """Classify without rendering arbitrary exceptions or retaining their data."""
+    token = error.args[0] if error.args and type(error.args[0]) is str else None
+    if isinstance(error, OSError):
+        return {errno.ENOSPC: "FS_NO_SPACE", errno.EDQUOT: "FS_QUOTA",
+                errno.EACCES: "FS_PERMISSION", errno.EPERM: "FS_PERMISSION",
+                errno.EROFS: "FS_READ_ONLY", errno.ENOENT: "FS_NOT_FOUND",
+                errno.EEXIST: "FS_EXISTS", errno.EIO: "FS_IO"}.get(error.errno, "FS_OTHER")
+    if isinstance(error, sqlite3.Error):
+        code = getattr(error, "sqlite_errorcode", None)
+        if type(code) is int and code & 255 in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
+            return "DATABASE_BUSY"
+        if isinstance(error, sqlite3.ProgrammingError) and token == "Cannot operate on a closed database.":
+            return "DATABASE_CLOSED"
+        return "DATABASE_ERROR"
+    if isinstance(error, json.JSONDecodeError):
+        return "RECEIPT_JSON_INVALID"
+    if isinstance(error, ValueError) and token in _RECEIPT_VALUE_REASONS:
+        return token
+    if isinstance(error, RuntimeError) and token == "COMPACT_OUTCOME_UNCONFIRMED":
+        return "ACK_UNCONFIRMED"
+    if isinstance(error, KeyError):
+        return "MISSING_FIELD"
+    if isinstance(error, TypeError):
+        return "TYPE_ERROR"
+    return "OTHER"
+
+
+def _log_receipt_failure(stage, error):
+    # Existing Supervisor stderr rotation bounds storage; diagnostic failure
+    # must never change the writer's original fail-closed return behaviour.
+    try:
+        logging.getLogger(__name__).warning(
+            "COMPACT_RECEIPT_FAILURE stage=%s reason=%s", stage, receipt_failure_reason(error))
+    except Exception:
+        pass
+
+
 class PumpPortalBirthAudit:
     # One authoritative listener process; shared across its collector instances.
     _receipt_lock = threading.RLock()
     MAX_RECEIPT_BYTES = 4096
-    MAX_RECEIPT_FILES = 4096
+    # The original single-directory ceiling protected the listener from an
+    # unbounded directory scan, but it also stopped compact provenance after
+    # 4,096 births.  New receipts are sharded by their stable identity prefix:
+    # 256 buckets x 384 receipts = 98,304 bounded active receipts.  The write
+    # path touches one bucket only and therefore never needs a global scan.
+    MAX_RECEIPT_FILES = 4096  # legacy flat-store compatibility only
+    BUCKET_COUNT = 256
+    MAX_RECEIPTS_PER_BUCKET = 384
+    MAX_SHARDED_RECEIPTS = BUCKET_COUNT * MAX_RECEIPTS_PER_BUCKET
     MIN_FREE_BYTES = 2_000_000_000
     def __init__(self, *, enabled: bool, path: str, max_pending: int = 2048, compact_path: Optional[str] = None) -> None:
         self.enabled = bool(enabled)
@@ -119,16 +179,75 @@ class PumpPortalBirthAudit:
         elif row.get("kind")!="MIGRATION_HANDOFF":raise ValueError("RECEIPT_KIND")
         return row
 
-    def _store_receipt(self,name,row):
+    @staticmethod
+    def _bucket_name(name):
+        """Return one of 256 deterministic identity-prefix buckets.
+
+        Migration handoffs retain their historical filename but shard on the
+        identity digest following ``migration-``.  Non-hex names are never
+        accepted as paths; the digest fallback keeps the namespace bounded.
+        """
+        token = name[len("migration-"):] if name.startswith("migration-") else name
+        prefix = token[:2].lower()
+        if len(prefix) == 2 and all(ch in "0123456789abcdef" for ch in prefix):
+            return prefix
+        return hashlib.sha256(name.encode("utf-8")).hexdigest()[:2]
+
+    def _sharded_target(self, name):
+        return self.compact_path / self._bucket_name(name) / (name + ".json")
+
+    def _receipt_target(self, name):
+        """Locate legacy receipts first; all new receipts use a shard."""
+        legacy = self.compact_path / (name + ".json")
+        sharded = self._sharded_target(name)
+        if legacy.exists() or legacy.with_suffix(".tmp").exists():
+            return legacy
+        return sharded
+
+    @staticmethod
+    def _fsync_directory(path):
+        descriptor = os.open(path, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+
+    def _ensure_compact_directory(self, directory):
+        root = self.compact_path
+        if root.is_symlink() or directory.is_symlink():
+            raise ValueError("RECEIPT_ROOT_SYMLINK")
+        root.mkdir(mode=0o700, parents=False, exist_ok=True)
+        if directory != root:
+            directory.mkdir(mode=0o700, parents=False, exist_ok=True)
+
+    def _bucket_has_capacity(self, directory, target, temp):
+        """Bounded target-bucket check; interrupted exact writes are allowed."""
+        if directory == self.compact_path:
+            # Never create new flat receipts.  This branch is only an update to
+            # an existing legacy receipt, so the old global ceiling is not
+            # consulted and legacy restart/outcome compatibility is preserved.
+            return
+        with os.scandir(directory) as entries:
+            entries_count = sum(
+                1 for _ in itertools.islice(entries, self.MAX_RECEIPTS_PER_BUCKET + 2)
+            )
+        exists = target.exists() or temp.exists()
+        if entries_count > self.MAX_RECEIPTS_PER_BUCKET + 1:
+            raise ValueError("RECEIPT_CAPACITY")
+        if not exists and entries_count >= self.MAX_RECEIPTS_PER_BUCKET:
+            raise ValueError("RECEIPT_CAPACITY")
+
+    def _store_receipt(self,name,row,*,target=None):
         root=self.compact_path
         if root.is_symlink():raise ValueError("RECEIPT_ROOT_SYMLINK")
         if shutil.disk_usage(root.parent).free<self.MIN_FREE_BYTES:raise ValueError("RECEIPT_DISK_HEADROOM")
-        root.mkdir(mode=0o700,parents=False,exist_ok=True)
-        target=root/(name+".json");temp=root/(name+".tmp")
+        target = target or self._sharded_target(name)
+        if target.parent.parent != root and target.parent != root:
+            raise ValueError("RECEIPT_TARGET")
+        self._ensure_compact_directory(target.parent)
+        temp=target.with_suffix(".tmp")
         if target.is_symlink() or temp.is_symlink():raise ValueError("RECEIPT_SYMLINK")
-        # Include incomplete transient files in the bound. No automatic deletion.
-        with os.scandir(root) as entries:count=sum(1 for _ in itertools.islice(entries,self.MAX_RECEIPT_FILES+2))
-        if count>self.MAX_RECEIPT_FILES+1 or (count>self.MAX_RECEIPT_FILES and not temp.exists()) or (not target.exists() and not temp.exists() and count>=self.MAX_RECEIPT_FILES):raise ValueError("RECEIPT_CAPACITY")
+        self._bucket_has_capacity(target.parent, target, temp)
         encoded=json.dumps(row,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
         if len(encoded)>self.MAX_RECEIPT_BYTES:raise ValueError("RECEIPT_RECORD_CAPACITY")
         # Recover only this exact validated interrupted write, never scan receipts.
@@ -139,9 +258,7 @@ class PumpPortalBirthAudit:
         fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
         with os.fdopen(fd,"wb") as stream:stream.write(encoded);stream.flush();os.fsync(stream.fileno())
         os.replace(temp,target)
-        directory=os.open(root,os.O_RDONLY)
-        try:os.fsync(directory)
-        finally:os.close(directory)
+        self._fsync_directory(target.parent)
         return row
 
     def _compact_record(self,mint,creator,signature,received):
@@ -149,25 +266,27 @@ class PumpPortalBirthAudit:
             ident,values=self._identity(mint,creator,signature)
             if type(received) is not int or not 0<received<2**63:raise ValueError("RECEIPT_TIME")
             with self._receipt_lock:
-                target=self.compact_path/(ident+".json")
+                target=self._receipt_target(ident)
                 if target.exists():
                     old=self._read_receipt(target)
                     if any(old.get(k)!=v for k,v in values.items()):raise ValueError("RECEIPT_CONFLICT")
                     return ident
                 # A restart may find a fully written but not yet renamed record.
-                pending=self.compact_path/(ident+".tmp")
+                pending=target.with_suffix(".tmp")
                 row=self._read_receipt(pending) if pending.exists() else {"schema":1,"kind":"PUMPPORTAL_BIRTH","receipt_identity":ident,**values,"receipt_utc_ns":received,"validation_result":self._validation(mint,creator,signature),"persistence_outcome":"UNCONFIRMED"}
                 if any(row.get(k)!=v for k,v in values.items()):raise ValueError("RECEIPT_CONFLICT")
-                self._store_receipt(ident,row)
+                self._store_receipt(ident,row,target=target)
             return ident
-        except (OSError,ValueError,TypeError):
+        except (OSError,ValueError,TypeError) as error:
+            _log_receipt_failure("birth_provenance", error)
             self.last_receipt_error="COMPACT_RECEIPT_UNAVAILABLE";return None
 
     def record_outcome(self,ident,*,outcome,canonical=None):
         if self.compact_path is None:return False
         try:
             with self._receipt_lock:
-                row=self._read_receipt(self.compact_path/(ident+".json"))
+                target=self._receipt_target(ident)
+                row=self._read_receipt(target)
                 if outcome not in {"COMMITTED","RETRY_PENDING","UNRECOVERABLE","INCOMPLETE"}:raise ValueError("RECEIPT_OUTCOME")
                 if outcome=="COMMITTED":
                     if canonical is None:raise ValueError("COMMIT_READBACK_REQUIRED")
@@ -178,9 +297,10 @@ class PumpPortalBirthAudit:
                         row.setdefault('accepted_at_utc_ns',time.time_ns())
                 # Duplicate/retry notifications never downgrade a confirmed outcome.
                 if row['persistence_outcome']!="COMMITTED" or outcome=="COMMITTED_CONFLICT":row['persistence_outcome']=outcome
-                self._store_receipt(ident,row)
+                self._store_receipt(ident,row,target=target)
             return True
-        except (OSError,ValueError,TypeError,KeyError):
+        except (OSError,ValueError,TypeError,KeyError) as error:
+            _log_receipt_failure("birth_outcome", error)
             self.last_receipt_error="COMPACT_OUTCOME_UNAVAILABLE";return False
 
     def accepted_birth(self,mint,creator,signature):
@@ -188,7 +308,7 @@ class PumpPortalBirthAudit:
         if self.compact_path is None:return None
         try:
             ident,_=self._identity(mint,creator,signature)
-            row=self._read_receipt(self.compact_path/(ident+'.json'))
+            row=self._read_receipt(self._receipt_target(ident))
             if row.get('source')=='PUMPPORTAL_NEW_TOKEN' and row.get('persistence_outcome')=='COMMITTED' and row.get('accepted_at_utc_ns') and not row.get('canonical_conflict') and self._validation(mint,creator,signature)=='IDENTITIES_VALID_UNVERIFIED_CHAIN':
                 return creator,signature
         except (OSError,ValueError,TypeError):
@@ -201,11 +321,12 @@ class PumpPortalBirthAudit:
             if not isinstance(mint,str) or not 1<=len(mint)<=44 or not isinstance(migration_signature,str) or len(migration_signature)>88:raise ValueError("HANDOFF_IDENTITY")
             ident='migration-'+hashlib.sha256(mint.encode()).hexdigest()
             with self._receipt_lock:
-                target=self.compact_path/(ident+'.json')
+                target=self._receipt_target(ident)
                 if target.exists():return True
-                self._store_receipt(ident,{"schema":1,"kind":"MIGRATION_HANDOFF","receipt_identity":ident,"mint":mint,"migration_signature":migration_signature,"handoff_utc_ns":time.time_ns() if at_utc_ns is None else at_utc_ns,"boundary":"BEFORE_OPS_SUBMIT","outcome":"ATTEMPTED"})
+                self._store_receipt(ident,{"schema":1,"kind":"MIGRATION_HANDOFF","receipt_identity":ident,"mint":mint,"migration_signature":migration_signature,"handoff_utc_ns":time.time_ns() if at_utc_ns is None else at_utc_ns,"boundary":"BEFORE_OPS_SUBMIT","outcome":"ATTEMPTED"},target=target)
             return True
-        except (OSError,ValueError,TypeError):
+        except (OSError,ValueError,TypeError) as error:
+            _log_receipt_failure("migration_handoff", error)
             self.last_receipt_error="COMPACT_HANDOFF_UNAVAILABLE";return False
 
     def health(self) -> dict[str, int | bool]:

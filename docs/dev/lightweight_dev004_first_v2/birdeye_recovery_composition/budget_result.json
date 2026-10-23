@@ -1,0 +1,30 @@
+{
+  "status": "HOLD_ACCEPTED_BUDGET_DURABILITY",
+  "accepted_source_revision": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+  "valid_ledger_fresh_interpreter_counts": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "valid_ledger_exhaustion": {
+    "denied": "TOKEN_PROVIDER_BUDGET_EXHAUSTED"
+  },
+  "malformed_existing_ledger_result": {
+    "global_calls": 1,
+    "token_calls": 1,
+    "remaining_global": 19,
+    "remaining_token": 3
+  },
+  "fsync_calls_during_real_admission": 0,
+  "findings": [
+    "Normal process restart preserves valid rolling-window counts and four-call token ceiling",
+    "Accepted code treats any OSError or ValueError reading state as empty allowance",
+    "Accepted publication uses write_text plus os.replace without file or directory fsync; no power-loss durable pre-dispatch barrier demonstrated"
+  ],
+  "provider_calls": 0,
+  "synthetic_tokens": 1,
+  "maximum_single_file_bytes": 16000000,
+  "five_acquisition_cases": "NOT_RUN_STOP_RULE",
+  "implementation_changes": 0
+}

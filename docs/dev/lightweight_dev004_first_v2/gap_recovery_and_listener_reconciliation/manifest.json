@@ -1,0 +1,37 @@
+{
+  "dev_revision": "2b13612ccc4a9ccef76b31d2c970ce486fbbda99",
+  "accepted_revision": "65da0e227727da5fb19a75950cae8de1c05bc9ab",
+  "composition": {
+    "src/core/pumpfun_curve_listener.py": {
+      "accepted_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+      "installed_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+      "prototype_sha256": "efce3ed8b9adb4f6682cedee47e162a83392c984b3fcdde565cec8c948692f4e",
+      "dev_sha256": "10969164f4400f3f052af4a121b576bbe4336c05ee34abfb1977eb90bf5e7018"
+    },
+    "src/core/pumpportal_birth_audit.py": {
+      "accepted_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "installed_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "prototype_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+      "dev_sha256": "6103d23ec5ea82748bb53ce89985c1dd8885af2c281872a4f3672b1b2781416c"
+    },
+    "src/core/birth_retry_quarantine.py": {
+      "accepted_sha256": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+      "installed_sha256": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+      "prototype_sha256": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d",
+      "dev_sha256": "3768da1d2bd8b061200b44d617ea5eec0dd6390e6ce92f178f37254754ae936d"
+    },
+    "src/core/pumpportal_receipt_maintenance.py": {
+      "accepted_sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce",
+      "installed_sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce",
+      "prototype_sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce",
+      "dev_sha256": null
+    },
+    "scripts/maintain_pumpportal_compact_receipts.py": {
+      "accepted_sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364",
+      "installed_sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364",
+      "prototype_sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364",
+      "dev_sha256": null
+    }
+  },
+  "prototype_scope": "Installed accepted composition plus only the accepted DEV004 _ensure_webhook_birth_queue_schema function; no runtime installation."
+}

@@ -1,0 +1,357 @@
+{
+  "reconciliation_status": "PASS_OFFLINE_PROTOTYPE_NOT_RUNTIME_INTEGRATED",
+  "passed_tests": 67,
+  "failed_tests": 0,
+  "tests": [
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error0-FS_NO_SPACE]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error1-FS_QUOTA]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error2-FS_PERMISSION]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error3-FS_PERMISSION]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error4-FS_READ_ONLY]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error5-FS_NOT_FOUND]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error6-FS_EXISTS]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error7-FS_IO]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error8-FS_OTHER]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error9-OTHER]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error10-TYPE_ERROR]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error11-MISSING_FIELD]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error12-RECEIPT_JSON_INVALID]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error13-ACK_UNCONFIRMED]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error14-OTHER]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_fixed_safe_classifier[error15-DATABASE_ERROR]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_all_known_value_reasons",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error0-RECEIPT_CAPACITY-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error0-RECEIPT_CAPACITY-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error0-RECEIPT_CAPACITY-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error1-RECEIPT_DISK_HEADROOM-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error1-RECEIPT_DISK_HEADROOM-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error1-RECEIPT_DISK_HEADROOM-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error2-RECEIPT_RECORD_CAPACITY-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error2-RECEIPT_RECORD_CAPACITY-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error2-RECEIPT_RECORD_CAPACITY-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error3-FS_NO_SPACE-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error3-FS_NO_SPACE-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error3-FS_NO_SPACE-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error4-FS_PERMISSION-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error4-FS_PERMISSION-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error4-FS_PERMISSION-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error5-RECEIPT_PENDING_CONFLICT-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error5-RECEIPT_PENDING_CONFLICT-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error5-RECEIPT_PENDING_CONFLICT-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error6-TYPE_ERROR-birth_provenance]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error6-TYPE_ERROR-birth_outcome]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_writer_catches_preserve_results[error6-TYPE_ERROR-migration_handoff]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_logging_failure_cannot_change_fail_closed_result",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_successful_bytes_duplicate_retry_and_handoff_unchanged",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_readback_wrapper[success]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_readback_wrapper[missing_row]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_readback_wrapper[closed_connection]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_readback_wrapper[disk_floor]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_receipt_failure_accounting.py::test_actual_readback_wrapper[busy]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data1]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data2]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data3]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data4]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data5]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data6]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data7]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_valid_receipt_bytes_and_canonical_parity[data8]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data0-0.0-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data1-0.0-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data2-0.0-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data3-0.0-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data4-0.0-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data5-0.0-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data6-0.0-2.5]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data7-0.0-3.5]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_malformed_metadata_no_longer_blocks_receipt_or_canonical[data8-4.5-0.0]",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_duplicate_parity",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_conflict_preserves_canonical_and_receipt_identity",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_receipt_failure_remains_fail_open_for_canonical",
+      "outcome": "passed",
+      "error": null
+    },
+    {
+      "test": "tests/test_pumpportal_numeric_parser.py::test_retry_payload_and_outcome_parity",
+      "outcome": "passed",
+      "error": null
+    }
+  ],
+  "composition_boundary": {
+    "startup_exact_dev004": true,
+    "all_other_functions_exact_installed": true
+  },
+  "excluded_original_scope_test": "test_only_requested_handler_changed: intentionally a multi-correction composition; replaced by exact AST boundary assertions",
+  "initial_harness_failures": "Five actual-readback cases blocked by restrictive asyncio worker/shutdown thread guard; rerun only those five after allowing the exact test executor/shutdown threads, all passed. Initial pytest temp/log setup denials also corrected to fixture-local files; no outside writes allowed.",
+  "production_writes": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "current_available_bytes": 5235367936,
+  "current_available_GiB": 4.876,
+  "receipt_floor_bytes": 2000000000,
+  "receipt_floor_pass": true,
+  "fixture_max_file_bytes": 661817,
+  "no_database_open_outside_fixture": true
+}

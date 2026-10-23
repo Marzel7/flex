@@ -1,0 +1,205 @@
+"""Source-bound CREATE checks with memory sinks; no providers or live DB access."""
+import ast
+import asyncio
+import copy
+import errno
+import json
+import sqlite3
+import subprocess
+import threading
+import types
+from pathlib import Path
+
+import pytest
+from tests.test_receipt_failure_accounting import audit, instance
+
+ROOT = Path(__file__).parents[1]
+SOURCE = ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py'
+BASE = 'a766d7e9c3efadc7bf270c62fca0b6d01fdb361c'
+NAME = '_handle_pumpportal_create_frame'
+
+
+def encoded(byte, size=32):
+    alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+    value = int.from_bytes(bytes([byte])*size, 'big')
+    out = ''
+    while value:
+        value, index = divmod(value, 58)
+        out = alphabet[index]+out
+    return out
+
+
+M, C, S = encoded(109), encoded(99), encoded(115, 64)
+DATA = {'txType':'create', 'mint':M, 'traderPublicKey':C, 'signature':S,
+        'symbol':'FIX', 'name':'Fixture', 'bondingCurveKey':None}
+
+
+def baseline():
+    return subprocess.check_output(['git', '-C', str(ROOT), 'show',
+        BASE+':runtime/listener/src/core/pumpfun_curve_listener.py'], text=True)
+
+
+def extract(text, scope):
+    tree = ast.parse(text)
+    names = {NAME, '_compact_pumpportal_birth_retry', '_decode_compact_pumpportal_birth_retry'}
+    nodes = [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name in names]
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), 'exec'), scope)
+    return scope[NAME]
+
+
+class Target:
+    def __init__(self, name, rows):
+        self.name, self.rows = name, rows
+    def exists(self):
+        return self.name in self.rows
+    def with_suffix(self, suffix):
+        return Target(self.name+suffix, self.rows)
+
+
+@pytest.fixture
+def harness(audit, monkeypatch, tmp_path):
+    # Use actual writer admission/outcome methods, replacing only physical storage.
+    monkeypatch.setattr(audit.time, 'time_ns', lambda: 2000000000)
+    def make(text=None, conflict=False, persistence_failure=False, receipt_failure=False):
+        rows, core, attempts, retry, logs, calls = {}, {}, [], {}, [], []
+        if conflict:
+            core[M] = (encoded(98), encoded(98), encoded(116, 64))
+        a = instance(audit, tmp_path)
+        a._receipt_target = lambda ident: Target(ident, rows)
+        a._read_receipt = lambda target: copy.deepcopy(rows[target.name])
+        def store(name, row, **kwargs):
+            if receipt_failure:
+                raise OSError(errno.ENOSPC, 'synthetic-only')
+            rows[name] = copy.deepcopy(row)
+            return row
+        a._store_receipt = store
+        async def persist(mint, creator, created_at, **kwargs):
+            attempts.append((mint, creator, created_at, kwargs))
+            if persistence_failure:
+                raise RuntimeError('synthetic persistence unavailable')
+            core.setdefault(mint, (creator, creator, kwargs['create_tx_signature']))
+            return True
+        async def outcome(ident, mint, committed):
+            assert committed
+            assert a.record_outcome(ident, outcome='COMMITTED', canonical=core[mint])
+        async def noop(*args, **kwargs):
+            pass
+        actor = types.SimpleNamespace(_eb_birth_audit=a,
+            _pumpfun_delivery_latency=types.SimpleNamespace(observe_pumpportal=lambda **kw:calls.append(kw)),
+            _byzantine_birth_signal=None, _portal_vsol={}, completed_launches=set(), seen_mints=set(),
+            _insert_bonding_curve_token=persist, _record_pp_birth_outcome=outcome,
+            _ensure_pf_ws_creator=noop, _remember_bonding_curve_token=lambda *args:None)
+        scope = {'time':types.SimpleNamespace(time=lambda:2, time_ns=lambda:2000000000, monotonic_ns=lambda:1),
+                 'asyncio':asyncio, 'json':json, 'log_print':lambda *args,**kw:logs.append(str(args[0])),
+                 'DB_PATH':'memory-only', '_listener_ops_db_path':lambda:'memory-only',
+                 '_compact_birth_retry_storage_check':lambda *args:None,
+                 '_PP_BIRTH_RETRY_MAX_BYTES':4096, '_PP_BIRTH_RETRY_MAX_ROWS':2048}
+        handler = extract(text or SOURCE.read_text(), scope)
+        class RetryConnection:
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+            def close(self): pass
+            def execute(self, sql, params):
+                if sql.lstrip().startswith('INSERT OR IGNORE'):
+                    retry.setdefault(params[0], params[1])
+                elif not sql.lstrip().startswith('SELECT CASE'):
+                    raise AssertionError('unexpected SQL')
+                return self
+            def fetchone(self):
+                return (retry[S], 'pumpportal_retry', 0)
+        async def run(data):
+            await handler(actor, data, signature=data['signature'], mint=data['mint'],
+                receive_utc_ns=1000000000, receive_monotonic_ns=1,
+                tracked_trade_mints=set(), migration_sol_threshold=1000, ws=types.SimpleNamespace(send=noop))
+            await asyncio.sleep(0)
+        def produce(changes=None):
+            with monkeypatch.context() as patch:
+                if persistence_failure:
+                    patch.setattr(sqlite3, 'connect', lambda *args,**kw:RetryConnection())
+                asyncio.run(run({**DATA, **(changes or {})}))
+        def snapshot():
+            return json.dumps({'receipts':rows,'core':core,'attempts':attempts,'portal':actor._portal_vsol,
+                               'retry':retry,'logs':logs,'calls':calls}, sort_keys=True)
+        return types.SimpleNamespace(produce=produce, snapshot=snapshot, rows=rows,
+            core=core, attempts=attempts, retry=retry, logs=logs, actor=actor)
+    return make
+
+
+VALID = [{}, {'vSolInBondingCurve':None,'marketCapSol':None},
+    {'vSolInBondingCurve':0,'marketCapSol':0}, {'vSolInBondingCurve':1.25,'marketCapSol':2},
+    {'vSolInBondingCurve':'1.25','marketCapSol':' 2.5 '},
+    {'vSolInBondingCurve':'','marketCapSol':''}, {'vSolInBondingCurve':False,'marketCapSol':True},
+    {'vSolInBondingCurve':-1,'marketCapSol':'1e2'},
+    {'vSolInBondingCurve':float('inf'),'marketCapSol':float('nan')}]
+MALFORMED = [({'vSolInBondingCurve':'not-a-number'},0.0,0.0),
+    ({'marketCapSol':'not-a-number'},0.0,0.0), ({'vSolInBondingCurve':{'value':1}},0.0,0.0),
+    ({'marketCapSol':[1]},0.0,0.0), ({'marketCapSol':' '},0.0,0.0),
+    ({'vSolInBondingCurve':'\t'},0.0,0.0),
+    ({'vSolInBondingCurve':10**400,'marketCapSol':2.5},0.0,2.5),
+    ({'vSolInBondingCurve':'bad','marketCapSol':'3.5'},0.0,3.5),
+    ({'vSolInBondingCurve':'4.5','marketCapSol':'bad'},4.5,0.0)]
+
+
+@pytest.mark.parametrize('data', VALID)
+def test_valid_receipt_bytes_and_canonical_parity(harness, data):
+    old, new = harness(baseline()), harness()
+    old.produce(data); new.produce(data)
+    assert old.snapshot() == new.snapshot()
+    assert len(new.rows) == 1 and len(new.attempts) == 1
+    row = next(iter(new.rows.values()))
+    assert row['persistence_outcome'] == 'COMMITTED'
+    assert row['validation_result'] == 'IDENTITIES_VALID_UNVERIFIED_CHAIN'
+
+
+@pytest.mark.parametrize('data,reserve,cap', MALFORMED)
+def test_malformed_metadata_no_longer_blocks_receipt_or_canonical(harness, data, reserve, cap):
+    old = harness(baseline())
+    with pytest.raises((TypeError, ValueError, OverflowError)):
+        old.produce(data)
+    assert not old.rows and not old.attempts
+    new = harness(); new.produce(data)
+    assert len(new.rows) == 1 and new.core[M] == (C,C,S)
+    assert next(iter(new.rows.values()))['persistence_outcome'] == 'COMMITTED'
+    assert new.actor._portal_vsol[M]['v_sol'] == reserve
+    assert new.actor._portal_vsol[M]['mc_sol'] == cap
+
+
+def test_duplicate_parity(harness):
+    old, new = harness(baseline()), harness()
+    for actor in [old,new]: actor.produce(); actor.produce()
+    assert old.snapshot() == new.snapshot()
+    assert len(new.rows) == len(new.core) == 1
+
+
+def test_conflict_preserves_canonical_and_receipt_identity(harness):
+    old, new = harness(baseline(), conflict=True), harness(conflict=True)
+    old.produce(); new.produce({'marketCapSol':'bad'})
+    assert old.snapshot() == new.snapshot()
+    r = next(iter(new.rows.values()))
+    assert r['persistence_outcome'] == 'COMMITTED_CONFLICT' and r['canonical_conflict']
+    assert r['supplied_creator'] == C and new.core[M][0] != C
+
+
+def test_receipt_failure_remains_fail_open_for_canonical(harness, caplog):
+    new = harness(receipt_failure=True); new.produce({'marketCapSol':{ 'bad':1 }})
+    assert not new.rows and new.core[M] == (C,C,S)
+    assert 'stage=birth_provenance reason=FS_NO_SPACE' in caplog.text
+
+
+def test_retry_payload_and_outcome_parity(harness):
+    old, new = harness(baseline(), persistence_failure=True), harness(persistence_failure=True)
+    old.produce(); new.produce({'marketCapSol':[1]})
+    assert old.retry == new.retry and len(new.retry) == 1
+    assert not new.core
+    assert next(iter(new.rows.values()))['persistence_outcome'] == 'RETRY_PENDING'
+    assert json.loads(new.retry[S])['mint'] == M
+
+
+def test_only_requested_handler_changed():
+    old, new = ast.parse(baseline()), ast.parse(SOURCE.read_text())
+    def replace(tree):
+        for n in ast.walk(tree):
+            if isinstance(n, ast.AsyncFunctionDef) and n.name == NAME:
+                n.body = [ast.Pass()]
+        return ast.dump(tree, include_attributes=False)
+    assert replace(old) == replace(new)

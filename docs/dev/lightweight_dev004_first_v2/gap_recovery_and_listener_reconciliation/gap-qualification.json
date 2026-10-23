@@ -1,0 +1,19 @@
+{
+  "status": "HOLD_NO_COMPLETE_GAP_COVERAGE_CONTRACT",
+  "checks": {
+    "birth_page_not_complete_gap": true,
+    "migration_page_not_complete_gap": true,
+    "requests_have_no_pagination_cursor": true,
+    "birth_anchor_advances_despite_failed_acquisition": true,
+    "birth_anchor_not_durable": true
+  },
+  "synthetic_gap_events": 150,
+  "birth_recovered_unique": 100,
+  "migration_recovered_unique": 100,
+  "events_outside_single_page": 50,
+  "source_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+  "scope": "Actual accepted loop bodies, synthetic RPC and transaction sinks only; two instantaneous sweeps. Positive observations prove partial recovery, not on-chain coverage.",
+  "provider_requests": 0,
+  "production_writes": 0,
+  "database_connections": 0
+}

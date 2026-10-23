@@ -1,0 +1,201 @@
+"""Provider-free tests against the installed service composition and real wrapper."""
+import ast
+import asyncio
+import errno
+import importlib.util
+import json
+import logging
+import socket
+import sqlite3
+import subprocess
+import sys
+import time
+import types
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).parents[1]
+SERVICE = ROOT / 'runtime/listener'
+WRITER = SERVICE / 'src/core/pumpportal_birth_audit.py'
+LISTENER = SERVICE / 'src/core/pumpfun_curve_listener.py'
+BASE = 'ce98ec0af892768b1420213716b659e3fe1b6653'
+
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture
+def audit(monkeypatch):
+    def forbidden(*args, **kwargs):
+        pytest.fail('network access forbidden')
+    monkeypatch.setattr(socket.socket, 'connect', forbidden)
+    monkeypatch.setattr(socket, 'create_connection', forbidden)
+    module = load('receipt_accounting_under_test', WRITER)
+    monkeypatch.setitem(sys.modules, 'src.core.pumpportal_birth_audit', module)
+    return module
+
+
+def instance(module, root):
+    return module.PumpPortalBirthAudit(enabled=False, path=str(root/'raw'), compact_path=str(root/'receipts'))
+
+
+def record(a):
+    return a.record(receive_utc_ns=1000000000, receive_monotonic_ns=1,
+                    signature='synthetic-signature', mint='synthetic-mint',
+                    creator='synthetic-creator', parser_utc_ns=1000000001)
+
+
+@pytest.mark.parametrize('error,reason', [
+    (OSError(errno.ENOSPC, 'SECRET'), 'FS_NO_SPACE'),
+    (OSError(errno.EDQUOT, 'SECRET'), 'FS_QUOTA'),
+    (PermissionError(errno.EACCES, 'SECRET'), 'FS_PERMISSION'),
+    (OSError(errno.EPERM, 'SECRET'), 'FS_PERMISSION'),
+    (OSError(errno.EROFS, 'SECRET'), 'FS_READ_ONLY'),
+    (FileNotFoundError(errno.ENOENT, 'SECRET'), 'FS_NOT_FOUND'),
+    (FileExistsError(errno.EEXIST, 'SECRET'), 'FS_EXISTS'),
+    (OSError(errno.EIO, 'SECRET'), 'FS_IO'),
+    (OSError('SECRET'), 'FS_OTHER'),
+    (ValueError('SECRET'), 'OTHER'),
+    (TypeError('SECRET'), 'TYPE_ERROR'),
+    (KeyError('SECRET'), 'MISSING_FIELD'),
+    (json.JSONDecodeError('SECRET', 'SECRET', 0), 'RECEIPT_JSON_INVALID'),
+    (RuntimeError('COMPACT_OUTCOME_UNCONFIRMED'), 'ACK_UNCONFIRMED'),
+    (RuntimeError('SECRET'), 'OTHER'),
+    (sqlite3.OperationalError('SECRET'), 'DATABASE_ERROR'),
+])
+def test_fixed_safe_classifier(audit, error, reason):
+    assert audit.receipt_failure_reason(error) == reason
+
+
+def test_all_known_value_reasons(audit):
+    for reason in audit._RECEIPT_VALUE_REASONS:
+        assert audit.receipt_failure_reason(ValueError(reason)) == reason
+    assert audit.receipt_failure_reason(ValueError(['SECRET'])) == 'OTHER'
+
+
+@pytest.mark.parametrize('stage', ['birth_provenance', 'birth_outcome', 'migration_handoff'])
+@pytest.mark.parametrize('error,reason', [
+    (ValueError('RECEIPT_CAPACITY'), 'RECEIPT_CAPACITY'),
+    (ValueError('RECEIPT_DISK_HEADROOM'), 'RECEIPT_DISK_HEADROOM'),
+    (ValueError('RECEIPT_RECORD_CAPACITY'), 'RECEIPT_RECORD_CAPACITY'),
+    (OSError(errno.ENOSPC, 'SECRET wallet signature api-key payload'), 'FS_NO_SPACE'),
+    (PermissionError(errno.EACCES, 'SECRET'), 'FS_PERMISSION'),
+    (ValueError('RECEIPT_PENDING_CONFLICT'), 'RECEIPT_PENDING_CONFLICT'),
+    (TypeError('SECRET'), 'TYPE_ERROR'),
+])
+def test_actual_writer_catches_preserve_results(audit, tmp_path, monkeypatch, caplog, stage, error, reason):
+    a = instance(audit, tmp_path)
+    ident = record(a) if stage == 'birth_outcome' else None
+    def fail(*args, **kwargs):
+        raise error
+    monkeypatch.setattr(a, '_store_receipt', fail)
+    with caplog.at_level(logging.WARNING):
+        if stage == 'birth_provenance':
+            assert record(a) is None
+            assert a.last_receipt_error == 'COMPACT_RECEIPT_UNAVAILABLE'
+        elif stage == 'birth_outcome':
+            assert a.record_outcome(ident, outcome='INCOMPLETE') is False
+            assert a.last_receipt_error == 'COMPACT_OUTCOME_UNAVAILABLE'
+        else:
+            assert a.note_handoff('synthetic-mint', 'synthetic-signature') is False
+            assert a.last_receipt_error == 'COMPACT_HANDOFF_UNAVAILABLE'
+    assert caplog.messages == [f'COMPACT_RECEIPT_FAILURE stage={stage} reason={reason}']
+    assert 'SECRET' not in caplog.text
+
+
+def test_logging_failure_cannot_change_fail_closed_result(audit, tmp_path, monkeypatch):
+    a = instance(audit, tmp_path)
+    def fail(*args, **kwargs):
+        raise OSError(errno.ENOSPC, 'SECRET')
+    monkeypatch.setattr(a, '_store_receipt', fail)
+    monkeypatch.setattr(logging.Logger, 'warning', fail)
+    assert record(a) is None
+    assert a.last_receipt_error == 'COMPACT_RECEIPT_UNAVAILABLE'
+
+
+def test_successful_bytes_duplicate_retry_and_handoff_unchanged(audit, tmp_path, monkeypatch, caplog):
+    old = types.ModuleType('receipt_accounting_baseline')
+    text = subprocess.check_output(['git', '-C', str(ROOT), 'show', BASE+':runtime/listener/src/core/pumpportal_birth_audit.py'], text=True)
+    exec(compile(text, 'baseline_receipt_writer', 'exec'), old.__dict__)
+    monkeypatch.setattr(time, 'time_ns', lambda: 2000000000)
+    trees = []
+    for module, name in [(old, 'before'), (audit, 'after')]:
+        root = tmp_path/name
+        root.mkdir()
+        a = instance(module, root)
+        ident = record(a)
+        assert record(a) == ident
+        assert a.record_outcome(ident, outcome='RETRY_PENDING')
+        assert a.record_outcome(ident, outcome='COMMITTED', canonical=('synthetic-creator', 'synthetic-creator', 'synthetic-signature'))
+        assert a.note_handoff('synthetic-mint', 'synthetic-signature', at_utc_ns=2000000001)
+        assert a.note_handoff('synthetic-mint', 'synthetic-signature', at_utc_ns=2000000002)
+        trees.append({str(p.relative_to(root)):p.read_bytes() for p in root.rglob('*') if p.is_file()})
+    assert trees[0] == trees[1]
+    assert not caplog.messages
+
+
+def outcome_method(scope):
+    node = next(n for n in ast.walk(ast.parse(LISTENER.read_text())) if isinstance(n, ast.AsyncFunctionDef) and n.name == '_record_pp_birth_outcome')
+    exec(compile(ast.Module(body=[node], type_ignores=[]), str(LISTENER), 'exec'), scope)
+    return scope[node.name]
+
+
+@pytest.mark.parametrize('mode', ['success', 'missing_row', 'closed_connection', 'disk_floor', 'busy'])
+def test_actual_readback_wrapper(audit, tmp_path, monkeypatch, mode, caplog):
+    wrapper = load('receipt_accounting_real_wrapper', SERVICE/'src/utils/db_locking.py')
+    monkeypatch.setattr(wrapper, '_DB_WRITE_SERIALIZE', False)
+    db = tmp_path/'fixture.db'
+    with sqlite3.connect(db) as c:
+        c.execute('CREATE TABLE token_analysis(mint TEXT PRIMARY KEY,earliest_tx_creator TEXT,pf_ws_creator TEXT,create_tx_signature TEXT)')
+        if mode != 'missing_row':
+            c.execute('INSERT INTO token_analysis VALUES(?,?,?,?)', ('synthetic-mint', 'synthetic-creator', 'synthetic-creator', 'synthetic-signature'))
+    a = instance(audit, tmp_path)
+    ident = record(a)
+    if mode == 'closed_connection':
+        native = wrapper.managed_db_connect
+        from contextlib import contextmanager
+        @contextmanager
+        def closed(*args, **kwargs):
+            with native(*args, **kwargs) as c:
+                c.close()
+                yield c
+        monkeypatch.setattr(wrapper, 'managed_db_connect', closed)
+    if mode == 'busy':
+        from contextlib import contextmanager
+        @contextmanager
+        def busy(*args, **kwargs):
+            error = sqlite3.OperationalError('SECRET')
+            error.sqlite_errorcode = sqlite3.SQLITE_BUSY
+            raise error
+            yield
+        monkeypatch.setattr(wrapper, 'managed_db_connect', busy)
+    if mode == 'disk_floor':
+        def floor(*args, **kwargs):
+            raise ValueError('RECEIPT_DISK_HEADROOM')
+        monkeypatch.setattr(a, '_store_receipt', floor)
+    logs = []
+    scope = {'managed_db_connect':wrapper.managed_db_connect, 'DB_PATH':str(db), 'asyncio':asyncio,
+             'log_print':lambda message, **kwargs:logs.append(message)}
+    actor = types.SimpleNamespace(_eb_birth_audit=a)
+    with caplog.at_level(logging.WARNING):
+        asyncio.run(outcome_method(scope)(actor, ident, 'synthetic-mint', True))
+    row = a._read_receipt(a._receipt_target(ident))
+    if mode == 'success':
+        assert row['persistence_outcome'] == 'COMMITTED'
+        assert not logs and not caplog.messages
+    else:
+        expected = {'missing_row':'ACK_UNCONFIRMED','closed_connection':'DATABASE_CLOSED','disk_floor':'ACK_UNCONFIRMED','busy':'DATABASE_BUSY'}[mode]
+        assert logs == [f'[PUMPPORTAL] COMPACT_BIRTH_OUTCOME_UNAVAILABLE reason={expected}']
+        assert row['persistence_outcome'] == 'UNCONFIRMED'
+        if mode == 'disk_floor':
+            assert caplog.messages == ['COMPACT_RECEIPT_FAILURE stage=birth_outcome reason=RECEIPT_DISK_HEADROOM']
+    assert 'SECRET' not in '\n'.join(logs)+caplog.text
+    with sqlite3.connect(db) as c:
+        assert c.execute('SELECT COUNT(*) FROM token_analysis').fetchone()[0] == (0 if mode == 'missing_row' else 1)
+    assert max(p.stat().st_size for p in tmp_path.rglob('*') if p.is_file()) < 8388608

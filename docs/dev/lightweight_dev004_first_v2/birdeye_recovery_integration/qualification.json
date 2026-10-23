@@ -1,0 +1,17 @@
+{
+  "starting_candidate": "aabf24c137ab764a574909c6d097af167b21cb84",
+  "accepted_price_worker": "71b6e338cfb54057ec4984d41bfbe02477c90dba",
+  "status": "HOLD_CHECKPOINT_PRIMARY_KEY_COLLISION",
+  "source_sha256": {
+    "runtime/creator_resolution/src/ops/operation_monitor_worker.py": "711ae8ca26bb0e518e1772688e87fc1896f02ee3770039a80bf90e2037477c46",
+    "runtime/creator_resolution/src/ops/watchtower_terminal_ath_finalizer.py": "273f4075073cb436f36a0ed7705443758a6b6d4432ad58870ab568670cb1d6b6",
+    "runtime/creator_resolution/src/ops/dev_provider_budget.py": "461a8cf99f0e1ca33bdb540fa1d60d54e08890bf8c031af7db36e8f741d69d65"
+  },
+  "fixture_isolation": "Allowed SQLite paths only disposable Core/OPS; network blocked; actual shared writer used",
+  "provider_calls": 0,
+  "shared_writer": "actual commit_write_and_wait; no fake persistence receipts",
+  "test_plan": "Three existing 900-second chunks passed through existing chunk_seconds argument; no production scheduling policy added",
+  "new_schema_objects": 0,
+  "maximum_single_file_bytes": 16000000,
+  "callbacks_active": "Isolated DEV only; production unchanged"
+}

@@ -55,10 +55,11 @@ def _candles(payload: dict[str, Any]) -> list[dict[str, float | int]]:
 
 
 class WatchtowerTerminalAthFinalizer:
-    def __init__(self, db_path: str, *, binding: BirdeyeProductionBinding | None = None, now: Any = time.time):
+    def __init__(self, db_path: str, *, binding: BirdeyeProductionBinding | None = None, now: Any = time.time, before_dispatch: Any = None):
         self.db_path = str(db_path)
         self.binding = binding or BirdeyeProductionBinding()
         self.now = now
+        self.before_dispatch = before_dispatch
 
     def freeze(self, mint: str) -> dict[str, Any]:
         with sqlite3.connect(f"file:{Path(self.db_path).resolve()}?mode=ro", uri=True) as conn:
@@ -102,6 +103,18 @@ class WatchtowerTerminalAthFinalizer:
             return []
         return candles
 
+    def _completed_chunk_ids(self, mint: str) -> set[str]:
+        """Durable evidence is the completion authority; no retry history."""
+        with sqlite3.connect(f"file:{Path(self.db_path).resolve()}?mode=ro", uri=True) as conn:
+            return {str(row[0]) for row in conn.execute(
+                "SELECT DISTINCT request_identity FROM operation_monitor_observations "
+                "WHERE operation_id='watchtower' AND mint=? AND source='BIRDEYE_TERMINAL_ATH_CHUNK'", (mint,))}
+
+    def _completed_chunk_candles(self, mint: str, chunk_ids: set[str], interval: str) -> list[dict[str, float | int]]:
+        with sqlite3.connect(f"file:{Path(self.db_path).resolve()}?mode=ro", uri=True) as conn:
+            rows=conn.execute("SELECT observation_timestamp,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd,request_identity,resolution FROM operation_monitor_observations WHERE operation_id='watchtower' AND mint=? AND source='BIRDEYE_TERMINAL_ATH_CHUNK'",(mint,)).fetchall()
+        return [{'timestamp':int(x[0]),'open':float(x[1]),'high':float(x[2]),'low':float(x[3]),'close':float(x[4])} for x in rows if x[5] in chunk_ids and x[6] == interval]
+
     def finalize(self, mint: str, *, interval: str = "1m", chunk_seconds: int | None = None, watchtower_price_fact_contract: bool = False) -> dict[str, Any]:
         fact = self.freeze(mint)
         if fact.get("ath_finalization_request_id") and fact.get("final_proven_ath_mc") is not None:
@@ -113,11 +126,19 @@ class WatchtowerTerminalAthFinalizer:
         if chunk_seconds is not None and (chunk_seconds < seconds or chunk_seconds % seconds): raise ValueError("INVALID_CHUNK_SECONDS")
         windows = [(left, min(left + (chunk_seconds or end-start), end)) for left in range(start, end, chunk_seconds or end-start)]
         retained = self._retained_15m_ohlc(mint, start, end) if watchtower_price_fact_contract and interval == '15m' else []
-        requests = [] if retained else [build_birdeye_ohlcv_request(address=mint, interval=interval, time_from=left, time_to=right) for left,right in windows]
-        request_id = _digest({"version": FINALIZER_VERSION, "operation_id": "watchtower", "mint": mint, "terminal": end, "requests": [r["request_parameters"] for r in requests]})
-        candles=list(retained); checkpoint_at=int(self.now())
-        for request,(left,right) in zip(requests,windows):
+        planned = [(left, right, _digest({"version":FINALIZER_VERSION,"mint":mint,"resolution":interval,"time_from":left,"time_to":right})) for left,right in windows]
+        completed = self._completed_chunk_ids(mint)
+        remaining = [(left,right,chunk_id) for left,right,chunk_id in planned if chunk_id not in completed]
+        full_requests = [] if retained else [build_birdeye_ohlcv_request(address=mint, interval=interval, time_from=left, time_to=right) for left,right in windows]
+        requests = [] if retained else [build_birdeye_ohlcv_request(address=mint, interval=interval, time_from=left, time_to=right) for left,right,_ in remaining]
+        # Freeze identity over the original plan, never the post-restart remainder.
+        request_id = _digest({"version": FINALIZER_VERSION, "operation_id": "watchtower", "mint": mint, "terminal": end, "requests": [r["request_parameters"] for r in full_requests]})
+        candles=list(retained) if retained else self._completed_chunk_candles(mint, {x[2] for x in planned}, interval)
+        checkpoint_at=int(self.now())
+        for request,(left,right,chunk_id) in zip(requests,remaining):
             # Provider work is outside DB connections/transactions.
+            if self.before_dispatch is not None:
+                self.before_dispatch(mint, 'TERMINAL_FINALIZER')
             outcome = self.binding(request)
             if outcome.status_code != 200:
                 if outcome.status_code == 429:
@@ -127,7 +148,6 @@ class WatchtowerTerminalAthFinalizer:
             part=_candles(outcome.payload or {})
             if not part or (not watchtower_price_fact_contract and (int(part[0]["timestamp"]) > left or int(part[-1]["timestamp"]) + seconds < right or any(int(b["timestamp"])-int(a["timestamp"])>seconds for a,b in zip(part,part[1:])))):
                 raise ValueError("CHUNK_COVERAGE_INCOMPLETE:"+json.dumps({"time_from":left,"time_to":right,"first_bucket":int(part[0]["timestamp"]) if part else None,"last_bucket":int(part[-1]["timestamp"]) if part else None,"candle_count":len(part)},sort_keys=True,separators=(",",":")))
-            chunk_id=_digest({"version":FINALIZER_VERSION,"mint":mint,"resolution":interval,"time_from":left,"time_to":right})
             checkpoint_sql='INSERT OR IGNORE INTO operation_monitor_observations(operation_id,mint,observation_timestamp,mc_usd,resolution,source,request_identity,provenance_digest,created_at,open_mc_usd,high_mc_usd,low_mc_usd,close_mc_usd) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
             checkpoint=[(checkpoint_sql,("watchtower",mint,int(x['timestamp']),float(x['close']),interval,"BIRDEYE_TERMINAL_ATH_CHUNK",chunk_id,_digest(x),checkpoint_at,float(x['open']),float(x['high']),float(x['low']),float(x['close']))) for x in part]
             receipt=commit_write_and_wait(self.db_path,WriteItem('enrichment','watchtower-terminal-ath-chunk',checkpoint,chunk_id))
@@ -148,7 +168,7 @@ class WatchtowerTerminalAthFinalizer:
         if drawdown < 85:
             raise ValueError("TERMINAL_DRAWDOWN_INVARIANT_FAILED")
         now = int(self.now())
-        provenance = _digest({"requests": [r["request_parameters"] for r in requests], "request_id": request_id, "candles": candles, "before": fact["before_finalization_digest"]})
+        provenance = _digest({"requests": [r["request_parameters"] for r in full_requests], "request_id": request_id, "candles": candles, "before": fact["before_finalization_digest"]})
         # Historical Monitor close-only rows share this compact primary key.  A
         # terminal finalizer response is the authoritative OHLC enrichment for
         # that bucket, so it upgrades rather than silently losing h/l/o fields.

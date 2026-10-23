@@ -1,0 +1,76 @@
+{
+  "status": "HOLD",
+  "groups": [
+    {
+      "case": "normal",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "before_dispatch",
+      "status": "PASS",
+      "budget_debits": 4,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "after_response",
+      "status": "PASS",
+      "budget_debits": 4,
+      "synthetic_requests": 4,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "after_checkpoint",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "between_windows",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "before_ack",
+      "status": "PASS",
+      "budget_debits": 3,
+      "synthetic_requests": 3,
+      "finalization_request_id": "07406ad713104276aa4446149cde49754a199418abe9ed6e87724e9834356982"
+    },
+    {
+      "case": "prior_bucket_overlap",
+      "status": "HOLD",
+      "completed_window_reacquired": true,
+      "requests": [
+        {
+          "from": 1800000000,
+          "kind": "synthetic_response",
+          "to": 1800000900
+        },
+        {
+          "from": 1800000000,
+          "kind": "synthetic_response",
+          "to": 1800000900
+        },
+        {
+          "from": 1800000900,
+          "kind": "synthetic_response",
+          "to": 1800001800
+        },
+        {
+          "from": 1800001800,
+          "kind": "synthetic_response",
+          "to": 1800002700
+        }
+      ]
+    }
+  ],
+  "output_root": "/private/tmp/dev004-multi-recovery-2wd8fd71",
+  "real_provider_calls": 0
+}

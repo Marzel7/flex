@@ -10,6 +10,7 @@ from src.core.db_writer import DurableWriteReceipt,commit_write_and_wait
 from src.evidence.queue import EvidenceIntakeQueue
 from src.ops.operation_price_research_orchestrator import adapter_for
 from src.ops.token_data_provider_bindings import BirdeyeProductionBinding,build_birdeye_ohlcv_request
+from src.ops.dev_provider_budget import DevProviderBudget, BudgetDenied
 from src.ops.birdeye_rate_limit import wait_seconds
 from src.ops.dev004_opening_policy import normalize_opening_ohlcv, reduce_policy as reduce_opening_policy
 from src.ops.byzantine_monitor_entry import derive_monitor_entry
@@ -65,6 +66,11 @@ class MonitorQueue:
             'terminal_timestamp':int(fact['monitor_completed_at']),'resolution':'15m',
             'finalizer_contract':'watchtower-terminal-ath.v1','logical_identity':ident,'provenance':provenance}
   return {'status':'ENQUEUED_TERMINAL_ATH','job_id':self.queue.enqueue(envelope,message_id=ident)}
+ def admit_provider_dispatch(self,mint,request_class,*,now=None):
+  """Qualified DEV004 pre-dispatch reservation; never grant budget-less fallback."""
+  if os.getenv('MONITOR_RUNTIME') != 'dev': raise BudgetDenied('DEV004_PROVIDER_BUDGET_RUNTIME_REQUIRED')
+  if not self.provider_eligible(now=now): raise BudgetDenied('PROVIDER_GATE_CLOSED')
+  return DevProviderBudget(self.queue.root).admit(mint,request_class,now=now)
  def _backoff_path(self): return self.queue.root/'provider_backoff.json'
  def provider_backoff(self):
   try: return json.loads(self._backoff_path().read_text())
@@ -256,7 +262,7 @@ class MonitorWorker:
    facts=[dict(x) for x in con.execute("SELECT * FROM operation_monitor_facts WHERE operation_id='watchtower' AND cohort_class='PROSPECTIVE_MONITOR_COHORT' AND monitor_state='PRICE_MONITOR_COMPLETE_COLLAPSED' AND next_observation_at IS NULL AND final_proven_ath_mc IS NULL")]
   return sum(self.q.enqueue_terminal_ath_finalization(fact,provenance='LEGACY_PROSPECTIVE_WATCHTOWER_ATH_REPAIR')['status']=='ENQUEUED_TERMINAL_ATH' for fact in facts)
  def _process_terminal_ath(self,c):
-  p=c.payload['envelope']; finalizer=self.terminal_finalizer_factory(self.db_path); fact=finalizer.freeze(p['mint'])
+  p=c.payload['envelope']; finalizer=self.terminal_finalizer_factory(self.db_path,before_dispatch=self.q.admit_provider_dispatch); fact=finalizer.freeze(p['mint'])
   if finalizer.logical_job_identity(fact)!=p.get('logical_identity'):
    raise ValueError('TERMINAL_ATH_IDENTITY_MISMATCH')
   result=finalizer.finalize(p['mint'],interval='15m',watchtower_price_fact_contract=True)

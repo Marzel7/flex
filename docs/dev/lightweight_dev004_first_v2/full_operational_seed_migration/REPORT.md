@@ -1,3 +1,5 @@
+> PROVENANCE UPDATE: all six references resolve to existing confirmed-operation match records; the remaining blocker is the typed-reference/identity-event FK compatibility contract, not lost match evidence. See [Byzantine event provenance closure](../byzantine_event_provenance/REPORT.md). Historical diagnostic below remains valid.
+
 # DEV004 — Full operational seed migration authority gate
 
 STATUS: HOLD_MISSING_CANONICAL_EVENT_DEPENDENCIES. Six source memberships cannot be imported with their exact schema and foreign-key enforcement. Stopped before building the full compact seed; no source repair, provider acquisition, source snapshot, deletion, service action or deployment.

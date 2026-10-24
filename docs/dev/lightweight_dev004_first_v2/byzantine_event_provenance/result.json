@@ -1,0 +1,133 @@
+{
+  "FK_compatible_assignments_resolved": 0,
+  "authoritative_existing_records": "confirmed_operation_matches; not operator_identity_events",
+  "cause": "V1 writer/schema namespace inconsistency, not a missing confirmed-match import dependency",
+  "diagnostic_after": {
+    "allocated": 73728,
+    "files": 4,
+    "free": 3842584576,
+    "largest": 49152
+  },
+  "diagnostic_before": {
+    "allocated": 0,
+    "files": 0,
+    "free": 3843026944,
+    "largest": 0
+  },
+  "event_ids_changed_or_cleared": 0,
+  "foreign_keys_enforced": true,
+  "identity_events_manufactured": 0,
+  "next_action": "Qualify an explicitly authorized typed legacy confirmed-match reference compatibility contract before full seed import. No identity-event synthesis,FKbypass,assignment omission orproductionrepair.",
+  "original_writer": "project_completed_walkback stores uuid5(detector_version:mint) confirmed-match identity in membership.event_id",
+  "positive_match_imports": [
+    {
+      "duplicate_insertions": 0,
+      "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+      "evidence_sha256": "5c51a98232be92e345060bc17e1a20876bed2edb5e1fbcf0c2cd959685e8b87b",
+      "match_import_exact": true,
+      "match_sha256": "4e608d5b5ada886ada4817c9e6cc3cef7c2bd4575a5676b23b094a62720ae364",
+      "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+      "operator_confidence": "CERTAIN",
+      "operator_status": "CONFIRMED",
+      "wrong_identity_rejected": true
+    },
+    {
+      "duplicate_insertions": 0,
+      "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+      "evidence_sha256": "4bd04020cc940990c7fd67607db4e4e581561632fdf7672f5f1a773d68d16dcb",
+      "match_import_exact": true,
+      "match_sha256": "5f1c330c5e178f1d48791553b262eefdb5a8f2726435d316c2a7ba829ff0330e",
+      "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+      "operator_confidence": "CERTAIN",
+      "operator_status": "CONFIRMED",
+      "wrong_identity_rejected": true
+    },
+    {
+      "duplicate_insertions": 0,
+      "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+      "evidence_sha256": "da4d43d854e4c15fdf6f9894576f19e8200340091f0c6dc1504a66c8b5433d9a",
+      "match_import_exact": true,
+      "match_sha256": "b92094911670729a37630fe31c74c4f851942e648eeb645391b3cf188677dc5c",
+      "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+      "operator_confidence": "CERTAIN",
+      "operator_status": "CONFIRMED",
+      "wrong_identity_rejected": true
+    },
+    {
+      "duplicate_insertions": 0,
+      "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+      "evidence_sha256": "c94bed9250c09fcc2e86dfbec01ac1b8d361a5611985ece4e45cb867983565db",
+      "match_import_exact": true,
+      "match_sha256": "04de1f000c3a06362426bb33353f97f729f980fe860e71b732a1c106de2cfbc0",
+      "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+      "operator_confidence": "CERTAIN",
+      "operator_status": "CONFIRMED",
+      "wrong_identity_rejected": true
+    },
+    {
+      "duplicate_insertions": 0,
+      "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+      "evidence_sha256": "7c652ac3b1cfd8e72a06f84bc3a55669185ce3b23e87c39a507e748d7f19d33d",
+      "match_import_exact": true,
+      "match_sha256": "fcfd43e9c115af4af6290e72844e62a1e41bce9040fc1f1b8ccedf481744dde6",
+      "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+      "operator_confidence": "CERTAIN",
+      "operator_status": "CONFIRMED",
+      "wrong_identity_rejected": true
+    },
+    {
+      "duplicate_insertions": 0,
+      "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+      "evidence_sha256": "8f7b4f78c27e45125008ddd354c311a28489c8d82682c9a03ae9bcde3e852d13",
+      "match_import_exact": true,
+      "match_sha256": "b855696252dc2a523246c007b8224769d797a3bd8c6214ed658360ceae1edc92",
+      "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+      "operator_confidence": "CERTAIN",
+      "operator_status": "CONFIRMED",
+      "wrong_identity_rejected": true
+    }
+  ],
+  "provenance_source_resolved": 6,
+  "provider_calls": 0,
+  "restart_and_match_idempotency": "PASS;6existingmatchrowsbyte/field-exact,0duplicates",
+  "source_mutations": 0,
+  "status": "HOLD_NO_ACCEPTED_MATCH_TO_IDENTITY_EVENT_COMPATIBILITY",
+  "unresolved_assignments": [
+    {
+      "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+      "fk_rejected_even_with_match_present": true,
+      "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+      "result": "HOLD_NO_ACCEPTED_IDENTITY_EVENT_MAPPING"
+    },
+    {
+      "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+      "fk_rejected_even_with_match_present": true,
+      "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+      "result": "HOLD_NO_ACCEPTED_IDENTITY_EVENT_MAPPING"
+    },
+    {
+      "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+      "fk_rejected_even_with_match_present": true,
+      "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+      "result": "HOLD_NO_ACCEPTED_IDENTITY_EVENT_MAPPING"
+    },
+    {
+      "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+      "fk_rejected_even_with_match_present": true,
+      "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+      "result": "HOLD_NO_ACCEPTED_IDENTITY_EVENT_MAPPING"
+    },
+    {
+      "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+      "fk_rejected_even_with_match_present": true,
+      "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+      "result": "HOLD_NO_ACCEPTED_IDENTITY_EVENT_MAPPING"
+    },
+    {
+      "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+      "fk_rejected_even_with_match_present": true,
+      "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+      "result": "HOLD_NO_ACCEPTED_IDENTITY_EVENT_MAPPING"
+    }
+  ]
+}

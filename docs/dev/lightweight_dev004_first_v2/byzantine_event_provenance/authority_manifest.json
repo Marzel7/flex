@@ -1,0 +1,379 @@
+{
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "cases": [
+    {
+      "atomic_proof_sha256": "29058c32519c52220f5e7e62c5b76c913402d8c48ab6b9e551170c7b65fad3a0",
+      "confirmed_match_sha256": "4e608d5b5ada886ada4817c9e6cc3cef7c2bd4575a5676b23b094a62720ae364",
+      "creator_CREATE_migration_sha256": "b541ff7a8a765527c8c88a337b1f25c45ff7259c7b5703c65e3caeab0a3245ae",
+      "identity_event_count": 0,
+      "key": {
+        "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+        "membership_sha256": "32bfe20a40df618fcf30625bc6cbdf43bd4bd601929b37d54cb8833f81621a77",
+        "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "membership_sha256": "32bfe20a40df618fcf30625bc6cbdf43bd4bd601929b37d54cb8833f81621a77",
+      "original_strict_proof_membership_sha256": "f865c9501545c0c1fcc2721d5930047c3f54ca4c35883133bdf448ec313060d4",
+      "other_authorities": {
+        "CoreV1": {
+          "identity_event_table": false
+        },
+        "accepted_reference_OPS": {
+          "identity_events": 0,
+          "plan": [
+            "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+          ]
+        }
+      }
+    },
+    {
+      "atomic_proof_sha256": "cdfd47cd925947fd53401ac72b124be3a7c5057a05934b0ac23724e8eb58c8db",
+      "confirmed_match_sha256": "5f1c330c5e178f1d48791553b262eefdb5a8f2726435d316c2a7ba829ff0330e",
+      "creator_CREATE_migration_sha256": "ced6e3aa014f31f61c816f6391d6f8f097b384e33ec9e2f6db18fe0aace27d03",
+      "identity_event_count": 0,
+      "key": {
+        "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+        "membership_sha256": "aaaca84c18f6a93e263847a7e9b5618a0da75846a077fdefbdfcac84072ec719",
+        "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "membership_sha256": "aaaca84c18f6a93e263847a7e9b5618a0da75846a077fdefbdfcac84072ec719",
+      "original_strict_proof_membership_sha256": "db76cbcbb2cb0e6b7e7848153afef5b40ffe8fbae8161b38bf840af935cb384f",
+      "other_authorities": {
+        "CoreV1": {
+          "identity_event_table": false
+        },
+        "accepted_reference_OPS": {
+          "identity_events": 0,
+          "plan": [
+            "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+          ]
+        }
+      }
+    },
+    {
+      "atomic_proof_sha256": "88f873a254d4da06b609ca5573daf4de0402c0dc80d51ab7de636564e656c74b",
+      "confirmed_match_sha256": "b92094911670729a37630fe31c74c4f851942e648eeb645391b3cf188677dc5c",
+      "creator_CREATE_migration_sha256": "79fa1f3a67a4c74ffc3dfe1bddc0ed450d010f37e1990a8264b05b84fb0021b2",
+      "identity_event_count": 0,
+      "key": {
+        "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+        "membership_sha256": "86d40ac64c0ebd029a3926d63415187d49525cb4594f7590738da0943f98ddfd",
+        "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "membership_sha256": "86d40ac64c0ebd029a3926d63415187d49525cb4594f7590738da0943f98ddfd",
+      "original_strict_proof_membership_sha256": "dfa59a686ea6d7543e7de4b2fa12c2f420459f529dbcdac586bf557b31b08fa9",
+      "other_authorities": {
+        "CoreV1": {
+          "identity_event_table": false
+        },
+        "accepted_reference_OPS": {
+          "identity_events": 0,
+          "plan": [
+            "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+          ]
+        }
+      }
+    },
+    {
+      "atomic_proof_sha256": "9ac0e6e186f15db691b094444f0204d61b5d7833a83d03a4a3e4c63ff9c1af25",
+      "confirmed_match_sha256": "04de1f000c3a06362426bb33353f97f729f980fe860e71b732a1c106de2cfbc0",
+      "creator_CREATE_migration_sha256": "a7a85578e8393466e03e06815cb242b68bbf5c2d5ddf5ae0c260006a11298841",
+      "identity_event_count": 0,
+      "key": {
+        "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+        "membership_sha256": "d18dbe1af10ded9149a20b6f9b9edd43d745f640445e1c14beb60bfa9051224e",
+        "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "membership_sha256": "d18dbe1af10ded9149a20b6f9b9edd43d745f640445e1c14beb60bfa9051224e",
+      "original_strict_proof_membership_sha256": "5f729b749fba12058b1550ae0984b5ed26e92c8043dd5144f3f9df4f90f85025",
+      "other_authorities": {
+        "CoreV1": {
+          "identity_event_table": false
+        },
+        "accepted_reference_OPS": {
+          "identity_events": 0,
+          "plan": [
+            "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+          ]
+        }
+      }
+    },
+    {
+      "atomic_proof_sha256": "f5f9ba12780e303c3a9094f41209ed12a0300bde2f1d0113fd6122640ec636a5",
+      "confirmed_match_sha256": "fcfd43e9c115af4af6290e72844e62a1e41bce9040fc1f1b8ccedf481744dde6",
+      "creator_CREATE_migration_sha256": "14bd91b30bc5e570b84bd40712ffdec6ac9679050856fa8c7e2e717713cd412d",
+      "identity_event_count": 0,
+      "key": {
+        "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+        "membership_sha256": "5a8d65a5864c45ba4d9ce1a0d8f77e3a4a72daca2a100330624642e8dac40ae6",
+        "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "membership_sha256": "5a8d65a5864c45ba4d9ce1a0d8f77e3a4a72daca2a100330624642e8dac40ae6",
+      "original_strict_proof_membership_sha256": "a8a746872434a7d17bed2c46c5466e559e2d0c7115a638db4f2c448e603408fa",
+      "other_authorities": {
+        "CoreV1": {
+          "identity_event_table": false
+        },
+        "accepted_reference_OPS": {
+          "identity_events": 0,
+          "plan": [
+            "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+          ]
+        }
+      }
+    },
+    {
+      "atomic_proof_sha256": "68aa65277aba6b47988d5518f056195212444baa552599ed6967819ab6a50343",
+      "confirmed_match_sha256": "b855696252dc2a523246c007b8224769d797a3bd8c6214ed658360ceae1edc92",
+      "creator_CREATE_migration_sha256": "fb65523f2b3e126a7ded765bdad78afe6300b292336e308ab787311cf21b707b",
+      "identity_event_count": 0,
+      "key": {
+        "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+        "membership_sha256": "3e9a0ef379b7008ae9025328a2c41f5af9129abf092f20383286160d7cdfb109",
+        "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+        "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+      },
+      "membership_sha256": "3e9a0ef379b7008ae9025328a2c41f5af9129abf092f20383286160d7cdfb109",
+      "original_strict_proof_membership_sha256": "77b9d508f07952c8f9807027d1e4e6738090b99856ee00fcfaeb7b53a3a4f52b",
+      "other_authorities": {
+        "CoreV1": {
+          "identity_event_table": false
+        },
+        "accepted_reference_OPS": {
+          "identity_events": 0,
+          "plan": [
+            "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+          ]
+        }
+      }
+    }
+  ],
+  "foreign_key_contract": "CREATE TABLE operator_launch_membership (\n    mint TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    source_population_id TEXT,\n    assigned_at INTEGER NOT NULL,\n    event_id TEXT REFERENCES operator_identity_events(event_id)\n)",
+  "lookups": [
+    {
+      "owner": "membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "confirmed_match",
+      "plan": [
+        "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+      ]
+    },
+    {
+      "owner": "identity_event",
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ]
+    },
+    {
+      "owner": "canonical_creator_CREATE_migration",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "proof_membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "atomic_proof",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+      ]
+    },
+    {
+      "owner": "membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "confirmed_match",
+      "plan": [
+        "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+      ]
+    },
+    {
+      "owner": "identity_event",
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ]
+    },
+    {
+      "owner": "canonical_creator_CREATE_migration",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "proof_membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "atomic_proof",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+      ]
+    },
+    {
+      "owner": "membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "confirmed_match",
+      "plan": [
+        "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+      ]
+    },
+    {
+      "owner": "identity_event",
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ]
+    },
+    {
+      "owner": "canonical_creator_CREATE_migration",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "proof_membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "atomic_proof",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+      ]
+    },
+    {
+      "owner": "membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "confirmed_match",
+      "plan": [
+        "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+      ]
+    },
+    {
+      "owner": "identity_event",
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ]
+    },
+    {
+      "owner": "canonical_creator_CREATE_migration",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "proof_membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "atomic_proof",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+      ]
+    },
+    {
+      "owner": "membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "confirmed_match",
+      "plan": [
+        "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+      ]
+    },
+    {
+      "owner": "identity_event",
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ]
+    },
+    {
+      "owner": "canonical_creator_CREATE_migration",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "proof_membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "atomic_proof",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+      ]
+    },
+    {
+      "owner": "membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "confirmed_match",
+      "plan": [
+        "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+      ]
+    },
+    {
+      "owner": "identity_event",
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ]
+    },
+    {
+      "owner": "canonical_creator_CREATE_migration",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "proof_membership",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ]
+    },
+    {
+      "owner": "atomic_proof",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+      ]
+    }
+  ],
+  "prior_evidence": "dab00bbf931e70684228a6195e20268d6557cf5f",
+  "schema_sha256": "dcacee774aa43d6578694d8efd6b157d0f3ee1d0d11fafa7f6f9d9d4f7066194",
+  "writer": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/runtime/walkback/src/ops/wsol_10_sol_four_step_operation.py",
+  "writer_sha256": "c490d537d2278e12ef1250fdaf1ec9e6d8e032283d9c68b6723fa5544e57fcb1"
+}

@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "7b9eb4504e62c1917c87f56d9faefd367ea68228",
+    "git_head": "f1db199fa11ee6b513f18bb41bc84ef1e63d0181",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T09:50:40.314281+00:00",
+    "updated_at_utc": "2026-10-24T10:33:46.955815+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42462,7 +42462,7 @@
     "next_action": "Qualify controlled writer fence and paired Core/OPS authority transfer using the new stable admission journal. Keep V1 authoritative. Do not deploy/initialize production journal/activate flags or switch databases."
   },
   "dev004_paired_transfer_gate": {
-    "status": "HOLD_BIRTH_ADMISSION_AND_RETIREMENT_FENCE_DISK_CLEARED",
+    "status": "PREVIOUS_SOURCE_BLOCKERS_RESOLVED_DEV_PAIRED_TRANSFER_NOT_EXECUTED",
     "engineering_revision": "7b9eb4504e62c1917c87f56d9faefd367ea68228",
     "executable_candidate": "a89cf9b6c899060d02a4fd88fc630241f01df746",
     "result": "Eight directly affected controls pass as diagnostics. Migration admission during V1 lease now succeeds. Two functional blockers reproduced: full V1 fence prevents durable birth retry; old V1 handle may reacquire lease and commit after release. No paired rebind/rollback acceptance.",
@@ -42474,7 +42474,36 @@
     "runtime_deployment_reason": "Test/documentation-only prerequisite qualification.",
     "production_state": "Unchanged; no DB connections/writes, service actions, provider calls, live WebSockets, deployment or cutover.",
     "report": "docs/dev/lightweight_dev004_first_v2/paired_transfer_gate/REPORT.md",
-    "next_action": "Complete bounded independent durable birth admission and retirement fence enforced by existing writer owners. No new coordinator, production deployment or cutover. Disk restoration is no longer a blocker/next action.",
-    "retry_evidence": "docs/dev/lightweight_dev004_first_v2/paired_transfer_gate/retry-results.json"
+    "next_action": "Two source safety blockers now qualify in isolated DEV. Paired transfer remains unexecuted and requires separate authorization; do not rerun historical a89 counterexample as a current feature-enabled acceptance test.",
+    "retry_evidence": "docs/dev/lightweight_dev004_first_v2/paired_transfer_gate/retry-results.json",
+    "blocker_resolution_candidate": "91d3975e77236f601586b1bd8af86544cc97b9de",
+    "blocker_resolution_evidence": "docs/dev/lightweight_dev004_first_v2/birth_admission_retirement/REPORT.md"
+  },
+  "dev004_birth_admission_retirement": {
+    "status": "PASS_DEV_QUALIFICATION_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "f1db199fa11ee6b513f18bb41bc84ef1e63d0181",
+    "executable_candidate": "91d3975e77236f601586b1bd8af86544cc97b9de",
+    "objective": "Resolve independent durable birth admission and stale V1 writer retirement only; no paired transfer.",
+    "implementation": "Versioned existing birth fallback file with stable explicit path, accepted compact receipt identity, bounded atomic fsync publication and exact canonical readback ACK. Existing writer owners in listener/resolver/Walkback publish immutable per-path retirement marker under write lane + SQLite reservation; lease/statement/cursor/precommit and native execution guards refuse stale managed writers.",
+    "tests": "148 unique provider-free PASS:66 birth/retirement +63 migration journal +19 existing writer/autocommit/priority. Real process exit/reopen, lease release, cached SQL, active writer drain, interrupted retirement, stale commits, native race, callback preservation, actual PumpPortal frame, retries, quarantine and Core-commit recovery. One harness import failure corrected; only that case rerun PASS.",
+    "storage": {
+      "journal_max_bytes_each": 2000000,
+      "record_bytes": 4096,
+      "records_each": 512,
+      "batch_rows": 20,
+      "journal_attempts": 3,
+      "retirement_marker_bytes": 2048,
+      "largest_fixture_bytes": 20480,
+      "fixture_total_bytes": 900927,
+      "new_unbounded_growth_paths": 0
+    },
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_scope": "Code qualified only in isolated DEV modules/interfaces. No daemon deployment or production DEV_COMPLETE claim.",
+    "production_state": "Unchanged; all6installed writer preimages freshly match accepted source. No production marker creation/source/config/DB changes, credential reads, provider calls, WebSockets, service actions or rebind. BIRDEYE/provider contracts preserved.",
+    "limits": "Fence covers existing managed Flex/native OPS factories, not arbitrary unmodified SQLite clients. No unretire, exclusive paired activation, rollback or paired switch implemented. Existing generic non-PumpPortal fallbacks unchanged.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birth_admission_retirement/REPORT.md",
+    "remaining_blockers": "NONE for the two requested DEV acceptance conditions. Paired final reconciliation/rebind/rollback remains unexecuted, not authorized.",
+    "next_action": "Stop this correction. Await separate paired-transfer authorization; do not deploy, retire production stores, enable flags or rebind."
   }
 }

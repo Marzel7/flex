@@ -1,0 +1,10 @@
+{
+  "configured_core": "/private/tmp/dev004-paired-transfer-release-qualification/test_mixed_pair_must_fail_clos0/v2-core.sqlite",
+  "configured_ops": "/private/tmp/dev004-paired-transfer-release-qualification/test_mixed_pair_must_fail_clos0/v1-ops.sqlite",
+  "core_committed_under_mixed_pair": true,
+  "birth_ack_states": [
+    "ACKED",
+    "ACKED"
+  ],
+  "launch_rejected": false
+}

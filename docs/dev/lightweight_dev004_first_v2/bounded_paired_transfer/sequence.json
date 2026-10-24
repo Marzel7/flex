@@ -1,0 +1,10 @@
+[
+  "V1 lease held; birth+migration durably admitted, duplicates coalesced",
+  "Core V1 retired",
+  "OPS V1 retired",
+  "core final state reconciled/idempotently verified",
+  "ops final state reconciled/idempotently verified",
+  "frozen complete fixture launch configuration published",
+  "fresh existing interfaces bind configured Core/OPS",
+  "pending migration canonical + intent + durable OPS queue + Core ACK verified"
+]

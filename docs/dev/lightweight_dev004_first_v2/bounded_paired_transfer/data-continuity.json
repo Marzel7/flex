@@ -1,0 +1,37 @@
+{
+  "source_revision": "91d3975e77236f601586b1bd8af86544cc97b9de",
+  "birth_identities": [
+    "7b68a27ba24305a2989d63196a937916b97901233ae46c0dd41e898b962c3f74",
+    "00d92976682d0161d537280c2ffc16cfad9911f4567cca0f20d67a1fc28dfb4c"
+  ],
+  "birth_states": [
+    "ACKED",
+    "ACKED"
+  ],
+  "migration_identities": [
+    "7f6c0b68492fb3271e4060e83efb0f7fa1c4d33eb9b8c98fd7490f7c55616538"
+  ],
+  "migration_states": [
+    "ACKED"
+  ],
+  "preserved_tables": {
+    "core": {
+      "token_analysis": 1,
+      "creator_resolution_queue": 1,
+      "birth_persist_queue": 0,
+      "migration_walkback_handoff": 0,
+      "webhook_birth_queue": 1
+    },
+    "ops": {
+      "operators": 1,
+      "operator_identity_events": 0,
+      "operator_launch_membership": 1,
+      "wt_walkback_queue": 1,
+      "wt_attribution_outcomes": 1
+    }
+  },
+  "canonical_birth_count": 2,
+  "new_migration_handoff_count": 1,
+  "duplicates_coalesced": true,
+  "fixture_scope": "Retained synthetic reference rows plus accepted persistence bodies; not full daemon/intake certification"
+}

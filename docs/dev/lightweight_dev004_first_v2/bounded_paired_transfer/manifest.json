@@ -1,0 +1,38 @@
+{
+  "status": "HOLD_MIXED_PAIR_STARTUP_NOT_REJECTED",
+  "source_revision": "91d3975e77236f601586b1bd8af86544cc97b9de",
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "source_hashes": {
+    "runtime/listener/src/core/db.py": "0ac2b40c1fdc0604b35be758a510a84e1b42a5fede9087c48f75f8ede6118ef2",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "db38a0bb430db9432f185b14923575606f7696d1c67c723eab0098dddc92a8d2",
+    "runtime/listener/src/core/birth_admission_journal.py": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8",
+    "runtime/listener/src/core/migration_signature_journal.py": "1cea4b612f6da9ecd2bc07457a7778edd5b740af0a6f22041c2c352cac37e2ce",
+    "runtime/listener/src/core/database_write_service.py": "0d102200b82e50feddc345f5293206881cd97dc98939a5efa505d900f98b8e50",
+    "runtime/listener/src/utils/db_locking.py": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0"
+  },
+  "fixture_configuration_sha256": "faff4243a1ab414b6f7601a9f9581927e539cf8de8c1535c02b80b8335b8cac4",
+  "configuration_scope": "Frozen test launch mapping only; existing runtime has no enforced paired-generation validation",
+  "tests": {
+    "passed": 7,
+    "failed": 1,
+    "failed_acceptance": "test_mixed_pair_must_fail_closed_before_canonical_acceptance",
+    "initial_harness_errors": "Missing managed_db_connect/priority globals and Row tuple comparison corrected in test harness only before final run"
+  },
+  "storage": {
+    "unique_fixture_files": 188,
+    "maximum_file_bytes": 98304,
+    "logical_fixture_bytes": 2863073,
+    "allocated_fixture_bytes": 3260416,
+    "rlimit_fsize_bytes": 16000000,
+    "rows_per_table_transaction_limit": 20,
+    "maximum_tables_per_fixture_generation": 10,
+    "maximum_row_encoded_bytes": 65536
+  },
+  "runtime_changed": false,
+  "production_writes": 0,
+  "production_database_connections": 0,
+  "provider_calls": 0,
+  "live_websockets": 0,
+  "runtime_deployment_required": false,
+  "supervisor_config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e"
+}

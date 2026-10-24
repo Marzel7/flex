@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "d3aba9c92d1fb3645d227ecf764414933fe103b2",
+    "git_head": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T21:44:15.784142+00:00",
-    "working_tree": "DEV004 admission-order fix deployed; final handoff reconciliation exceeds 12000 rows. V1 restored ACTIVE, three workers running; V2 inactive."
+    "updated_at_utc": "2026-10-24T22:25:12.079182+00:00",
+    "working_tree": "DEV004 production V2 migration PASS; matched V2 pair active, three authorized workers healthy, original V1 preserved and retired from writes. Detailed evidence retained locally."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43616,73 +43616,68 @@
     "engineering_publication": "Local immutable source and evidence commits; terminal handoff published independently."
   },
   "dev004_controlled_production_cutover": {
-    "status": "HOLD_HANDOFF_ROW_LIMIT_V1_ACTIVE",
-    "engineering_revision": "d3aba9c92d1fb3645d227ecf764414933fe103b2",
-    "candidate": "c8e0233ecbdbfcc59bb8c6892f3f7dedd8580b30",
+    "status": "PASS_PRODUCTION_V2_ACTIVE",
+    "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
+    "runtime_deployment_gate": "PASS",
     "production_authorization": true,
-    "fresh_compact_matched_pair_rollback_authorized": true,
-    "report": "docs/dev/lightweight_dev004_first_v2/admission_order_production/REPORT.md",
-    "exact_blocker": "ROW_LIMIT:migration_walkback_handoff: bounded source query returned 12001 rows; final operational-state reconciliation rolled back both staged V2 transactions. Complete required handoff preservation not qualified.",
-    "failing_acceptance": "At least 12001 handoff rows exceed fixed 12000 owner limit. No V1 retirement or V2 activation.",
-    "actual_installed_runtime": {
-      "approved_payload_files": 65,
-      "installed_hash_mismatches": [],
-      "source_bundle_installed_on_V1": true,
-      "active_generation": "DEV004-V1-20261024",
-      "active_pair_manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-pair.json",
-      "active_pair_sha256": "6ecb2ff760afbe61475fb441babede57fbe0bb84b69bf372388df4a8eb17afd4",
-      "supervisor_configuration_sha256": "a6dcc96e3ef0f107226d1a488f00813e51eb3a504a50ea0dca19bb754617c858",
-      "active_core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
-      "active_ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
-      "listener_PID": 59620,
-      "resolver_PID": 59912,
-      "walkback_PID": 59940,
-      "all_three_RUNNING": true,
-      "all_dormant_supervisor_groups_STOPPED": true,
-      "original_preimages_preserved": true,
-      "V2_runtime_not_activated": true,
-      "frozen_runtime_plan_sha256": "e638714a2eb578e13e88f25d55fe03227b0bf299e78d3705a69b89e79c88ffd1",
-      "source_bundle": "c8e0233ecbdbfcc59bb8c6892f3f7dedd8580b30"
-    },
-    "recovery": {
-      "action": "Withdraw TRANSFER fence while V1 remained unretired; validate matched V1 ACTIVE before restarting resolver and Walkback. Listener correction installed and running. No retired marker cleared.",
-      "journal_snapshot": {
-        "birth": {
-          "count": 169,
-          "states": {
-            "ACKED": 70,
-            "QUARANTINED": 1,
-            "RESOLVED": 98
-          }
-        },
-        "migration": {
-          "count": 27,
-          "states": {
-            "ACKED": 3,
-            "RESOLVED": 2,
-            "RETRY_EXHAUSTED": 22
-          }
-        }
-      },
-      "free_bytes": 4183355392
-    },
-    "staged_data": {
-      "source_quarantine_capture": 207116,
-      "complete_private_staging_OPS_bytes": 145014784,
-      "inactive_persistent_V2_quarantine_rows": 74585,
-      "inactive_core": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
-      "inactive_ops": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
-    },
-    "V1_retired": false,
-    "V2_activation": false,
-    "full_V1_copies": 0,
+    "V2_activation": true,
+    "V1_retired": true,
+    "V1_preserved": true,
+    "V1_full_copies": 0,
     "V1_delete_compaction": 0,
-    "receipt_deletion_or_retention_shortening": 0,
-    "provider_calls_for_qualification": 0,
-    "runtime_provider_activity": "Normal authorized runtime activity; no artificial provider traffic and not claimed zero.",
-    "runtime_deployment_gate": "HOLD_FOR_V2_CUTOVER",
-    "next_action": "Implement indexed durable bounded continuation for migration_walkback_handoff with exact complete coverage and dependencies, then resume the existing authorized cutover; do not raise the limit or omit rows.",
-    "safety_for_next_agent": "V1 is ACTIVE, unretired, all three workers RUNNING. V2 remains staged inactive. Reuse existing runtime state; never reset journals or rerun fresh-only install/prepare. Source payload c8e0233e installed and verified. Required handoff transfer exceeds fixed population limit. Reconcile a new final boundary after the narrow continuation fix. No full V1 copies, deletion, compaction, artificial provider traffic or dormant activation."
+    "qualification": {
+      "focused_continuation_passed": 8,
+      "focused_production_recovery_profile_passed": 5,
+      "final_failures": 0,
+      "existing_equivalence_evidence_reused": true
+    },
+    "reconciliation": {
+      "selected_operational_comparisons": 57898,
+      "checkpointed_populations": 27,
+      "source_boundary_handoffs": 48921,
+      "quarantine_records_exact": 207116,
+      "foreign_key_violations": 0,
+      "known_operations_exact": 10,
+      "memberships_exact": 1174,
+      "source_conflicting_membership_outcomes_preserved": 265,
+      "pending_monitor_admissions_preserved": 8
+    },
+    "live_acceptance": {
+      "listener": "RUNNING",
+      "resolver": "RUNNING",
+      "walkback": "RUNNING_HEALTHY",
+      "matched_generation": true,
+      "V1_open_connections": 0,
+      "exact_birth_canonical_and_committed_receipt_matches": 467,
+      "exact_migration_canonical_handoff_queue_acknowledgements": 19,
+      "fresh_after_activation_migration_acknowledgements": 11,
+      "quarantined_birth_records_protected": 3,
+      "retry_exhausted_migration_notifications_protected": 37,
+      "retained_canonical_peak_rows_exact": 216,
+      "new_natural_peak_rows_separate": 12
+    },
+    "provider": {
+      "credential_name": "BIRDEYE",
+      "legacy_fallback": false,
+      "consumed_budget_preserved": true,
+      "requests_initiated_for_testing": 0,
+      "normal_authorized_runtime_activity_resumed": true
+    },
+    "safety": {
+      "disk_floor_and_reserve_maintained": true,
+      "new_file_cap_enforced": true,
+      "retention_shortened": false,
+      "dormant_services_activated": false,
+      "rollback": "FRESH_COMPACT_MATCHED_PAIR_PREPARED; never reactivate retired V1",
+      "unreceived_external_notification_completeness_not_claimed": true
+    },
+    "publication": {
+      "detailed_production_artifacts": "LOCAL_ONLY_APPROVAL_REVIEW_REJECTED_UPLOAD",
+      "engineering_source": "LOCAL_COMMITTED_AND_INSTALLED; not claiming remote publication",
+      "handoff_payload": "MINIMAL_AGGREGATE_STATUS_ONLY"
+    },
+    "exact_blocker": null,
+    "next_action": "NONE \u2014 production migration complete; preserve original retired V1 and protected evidence. No V1 deletion or compaction authorized."
   },
   "dev004_journal_capacity_reuse": {
     "status": "PASS_OFFLINE_QUALIFICATION_NOT_DEPLOYED",
@@ -43755,7 +43750,7 @@
       "floor_bytes": 2000000000,
       "reserve_bytes": 67108864
     },
-    "next_action": "Qualified and unchanged; admission ordering is now corrected. Current blocker is bounded handoff population continuation; prior source capture requires refreshed final boundary before promotion."
+    "next_action": "COMPLETE \u2014 exact protected quarantine transfer included in production V2."
   },
   "dev004_admission_order_correction": {
     "status": "PASS_DEPLOYED_ON_V1",
@@ -43773,6 +43768,6 @@
     "strict_mixed_binding_rejection": true,
     "production_source_changed": true,
     "V2_activation": false,
-    "next_action": "Implement indexed durable bounded continuation for migration_walkback_handoff with exact complete coverage and dependencies, then resume the existing authorized cutover; do not raise the limit or omit rows."
+    "next_action": "COMPLETE \u2014 included in active production V2 composition."
   }
 }

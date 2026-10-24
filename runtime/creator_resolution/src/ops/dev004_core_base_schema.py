@@ -31,12 +31,14 @@ def _hold(message):
 def _sql(value):
     return re.findall(r"[a-z_][a-z_0-9]*|[0-9]+|[^\s]", value.lower().replace("if not exists", ""))
 
-def _check_peak(conn):
+def _check_peak(conn, parent="tracked_tokens"):
+    expected_sql=PEAK_SQL.replace("REFERENCES tracked_tokens(mint)", "REFERENCES "+parent+"(mint)")
+    expected_fk=[[0,0,parent,"mint","mint","NO ACTION","NO ACTION","NONE"]]
     row=conn.execute("SELECT type,sql FROM sqlite_schema WHERE name='token_market_cap_peaks'").fetchone()
     if row is None:return False
-    if row[0]!='table' or _sql(row[1])!=_sql(PEAK_SQL):_hold('INCOMPATIBLE_PEAK_DEFINITION')
+    if row[0]!='table' or _sql(row[1])!=_sql(expected_sql):_hold('INCOMPATIBLE_PEAK_DEFINITION')
     if [list(r) for r in conn.execute('PRAGMA table_xinfo(token_market_cap_peaks)')]!=PEAK_COLUMNS:_hold('INCOMPATIBLE_PEAK_COLUMNS')
-    if [list(r) for r in conn.execute('PRAGMA foreign_key_list(token_market_cap_peaks)')]!=PEAK_FK:_hold('INCOMPATIBLE_PEAK_FK')
+    if [list(r) for r in conn.execute('PRAGMA foreign_key_list(token_market_cap_peaks)')]!=expected_fk:_hold('INCOMPATIBLE_PEAK_FK')
     indexes=list(conn.execute('PRAGMA index_list(token_market_cap_peaks)'))
     if len(indexes)!=1 or tuple(indexes[0][1:])!=('sqlite_autoindex_token_market_cap_peaks_1',1,'pk',0):_hold('INCOMPATIBLE_PEAK_INDEXES')
     if [list(r) for r in conn.execute('PRAGMA index_xinfo(sqlite_autoindex_token_market_cap_peaks_1)')]!=PEAK_INDEX:_hold('INCOMPATIBLE_PEAK_PK')
@@ -72,12 +74,19 @@ def _check_columns(conn):
     return [name for name in COLUMNS if name not in columns]
 
 def initialize(core: str | Path, *, disposable_root: str | Path,
-               allow_disposable_v2: bool = False, fault=lambda stage:None):
+               allow_disposable_v2: bool = False, fault=lambda stage:None,
+               price_identity_parent: str = "tracked_tokens"):
     """Atomic schema DDL; post-commit marker can be recovered by revalidation.
 
     No scans, user_version override, default backfill, observation writes or providers.
     Caller must impose the OS file bound; CLI does this before opening SQLite.
     """
+    # Explicit fresh-V2 profile: historical price identity need not be monitored.
+    # Default/installed bootstrap authority remains unchanged. Never reparent data.
+    if price_identity_parent not in ("tracked_tokens","token_analysis"):_hold('UNSUPPORTED_PRICE_IDENTITY_PARENT')
+    version=VERSION if price_identity_parent=="tracked_tokens" else VERSION+".canonical-price-identity"
+    contract=CONTRACT if price_identity_parent=="tracked_tokens" else hashlib.sha256((CONTRACT+":token_analysis").encode()).hexdigest()
+    peak_sql=PEAK_SQL.replace("REFERENCES tracked_tokens(mint)", "REFERENCES "+price_identity_parent+"(mint)")
     if not allow_disposable_v2:_hold('EXPLICIT_DEV_AUTHORIZATION_REQUIRED')
     root=Path(disposable_root).absolute();path=Path(core).absolute()
     if root!=root.resolve() or not root.is_relative_to(Path('/private/tmp')) or not root.name.startswith('dev004-'):_hold('DISPOSABLE_ROOT_REQUIRED')
@@ -86,7 +95,7 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
     if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1 or info.st_size>MAX_MAIN_BYTES:_hold('DISPOSABLE_FILE_IDENTITY_OR_BUDGET')
     soft,_=resource.getrlimit(resource.RLIMIT_FSIZE)
     if soft==resource.RLIM_INFINITY or soft>MAX_FILE_BYTES:_hold('QUALIFIED_OS_FILE_LIMIT_REQUIRED')
-    marker=path.with_name(path.name+'.'+VERSION+'.json');temp=marker.with_suffix(marker.suffix+'.tmp')
+    marker=path.with_name(path.name+'.'+version+'.json');temp=marker.with_suffix(marker.suffix+'.tmp')
     for p in [marker,temp,path.with_name(path.name+'-wal'),path.with_name(path.name+'-shm'),path.with_name(path.name+'-journal')]:
         if p.exists() or p.is_symlink():
             st=p.lstat()
@@ -97,28 +106,28 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
         try:prior=json.loads(marker.read_text())
         except (ValueError,OSError):_hold('INVALID_VERSION_MARKER')
         if not isinstance(prior,dict):_hold('INVALID_VERSION_MARKER')
-        if prior.get('version')!=VERSION or prior.get('contract')!=CONTRACT or prior.get('identity')!=[info.st_dev,info.st_ino]:_hold('INCOMPATIBLE_VERSION_MARKER')
+        if prior.get('version')!=version or prior.get('contract')!=contract or prior.get('identity')!=[info.st_dev,info.st_ino]:_hold('INCOMPATIBLE_VERSION_MARKER')
     conn=sqlite3.connect(path.as_uri()+'?mode=rw',uri=True,timeout=1,isolation_level=None)
     try:
         conn.execute('PRAGMA busy_timeout=1000');conn.execute('PRAGMA foreign_keys=ON')
-        # An existing accepted owner supplies tracked_tokens; this step never invents it.
-        parent={r[1]:r for r in conn.execute('PRAGMA table_xinfo(tracked_tokens)')}
+        # Validate the selected existing identity owner; never synthesize a parent.
+        parent={r[1]:r for r in conn.execute('PRAGMA table_xinfo('+price_identity_parent+')')}
         if 'mint' not in parent or parent['mint'][2]!='TEXT' or parent['mint'][5]!=1:_hold('TRACKED_TOKENS_OWNER_REQUIRED')
         if sum(bool(r[5]) for r in parent.values())!=1:_hold('INCOMPATIBLE_TRACKED_TOKENS_PK')
         conn.set_progress_handler(lambda:int(time.monotonic()>deadline),1000)
         deadline=time.monotonic()+2
         conn.execute('BEGIN IMMEDIATE')
-        missing=_check_columns(conn);present=_check_peak(conn)
+        missing=_check_columns(conn);present=_check_peak(conn,price_identity_parent)
         if prior is not None and (missing or not present):_hold('VERSION_MARKER_SCHEMA_MISMATCH')
         fault('before_ddl')
         for name in missing:
             conn.execute('ALTER TABLE token_analysis ADD COLUMN '+name+' '+COLUMNS[name]);fault('after_column:'+name)
-        if not present:conn.execute(PEAK_SQL)
+        if not present:conn.execute(peak_sql)
         fault('after_peak')
-        if _check_columns(conn) or not _check_peak(conn):_hold('POSTCONDITION_FAILED')
+        if _check_columns(conn) or not _check_peak(conn,price_identity_parent):_hold('POSTCONDITION_FAILED')
         fault('before_commit');conn.execute('COMMIT');fault('after_commit')
-        if prior is not None:return {'status':'ALREADY_INITIALIZED','version':VERSION,'contract':CONTRACT}
-        payload={'version':VERSION,'contract':CONTRACT,'identity':[info.st_dev,info.st_ino]}
+        if prior is not None:return {'status':'ALREADY_INITIALIZED','version':version,'contract':contract}
+        payload={'version':version,'contract':contract,'identity':[info.st_dev,info.st_ino]}
         encoded=(json.dumps(payload,sort_keys=True)+'\n').encode()
         if len(encoded)>MAX_MARKER_BYTES:_hold('VERSION_MARKER_BUDGET')
         fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_TRUNC|os.O_NOFOLLOW,0o600)
@@ -127,7 +136,7 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
         directory=os.open(root,os.O_RDONLY)
         try:os.fsync(directory)
         finally:os.close(directory)
-        return {'status':'INITIALIZED','version':VERSION,'contract':CONTRACT}
+        return {'status':'INITIALIZED','version':version,'contract':contract}
     except BaseException:
         if conn.in_transaction:conn.rollback()
         raise

@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "4b871217b78829f07adaab7e1f4ae13fc5a92878",
+    "git_head": "bf0da567634a040c96cc955c9afe165466d94beb",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
@@ -42772,7 +42772,7 @@
     "production_state": "Unchanged; read-only indexed currentOPSkeys/schema andfiniteDEVreference metadata only; no V1filecopies orwrite/foreignkeyrepair/source/config/service/restart/provider/WS/deletion/cutover actions.",
     "next_action": "Use byzantine_event_provenance report. No furthergenericlost-eventsearch: qualify only a separately authorized typedlegacyconfirmed-match importcontract preserving IDs/canonicaldecisions/FKs. No productionrepair/fullmigration.",
     "blocker_refined_by_provenance_closure": "All6IDs are existingconfirmed_operation_matches.match_id, not missingconfirmed evidence. Acceptedproducer puts matchUUID in membership.event_id while FK points toidentityevents. Need acceptedtypedreferencecompatibility; prior exactFKdiagnostic remains valid.",
-    "current_gate": "See dev004_final_migration_preparation: sixByzantineFKclosurePASS; fullseedreferenceintegrityHOLDatmissingtracked_tokensparent; fullrehearsalnotrun."
+    "current_gate": "PASS in dev004_full_disposable_rehearsal: complete28462selectedrecords+1171derivedrefs imported/verified,FK0,restartandmatchedcompactDEVrollbackPASS.No productioncutover."
   },
   "dev004_byzantine_event_provenance": {
     "status": "PARTIAL_PROVENANCE_RESOLVED_FK_COMPATIBILITY_HOLD",
@@ -43006,6 +43006,99 @@
     "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED;offlineDEVqualificationcomplete;noDEV_COMPLETEproductionclaimorcutoverauthority",
     "source_snapshot_limit": "Each source uses its own read-only SQLite snapshot; no cross-database atomic generation/cutover authority claimed. Repeat source drift invalidates reuse unless selector row digests verify.",
     "publication": "Engineering15changedfilesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;nosourceDBpayloadsorfakeparentspublished",
-    "blocker": null
+    "blocker": null,
+    "subsequent_rehearsal": "dev004_full_disposable_rehearsal PASS; all118newtypedrefs preservedinfullseed. PreviousIMPORT_EXECUTEDNOremainsaccurateforthatclosedqualification;oneimportexecutedonlyinlaterauthorizedmilestone."
+  },
+  "dev004_full_disposable_rehearsal": {
+    "status": "PASS",
+    "engineering_revision": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "qualification_composition_at_execution": "fd7f4670ba51bfb75d263049f4b993d6ccfbe91c",
+    "accepted_runtime_unchanged_from": "4b871217b78829f07adaab7e1f4ae13fc5a92878",
+    "report": "docs/dev/lightweight_dev004_first_v2/full_disposable_rehearsal/REPORT.md",
+    "manifest_sha256": "3a88ea161b40bf602f2a72cdde55b9942cc4646217f54bf8f197e51f004495ca",
+    "starting_handoff": "7c7304b1162cc4d9c5c0b0e8e86f647ef70e8dc4",
+    "direct_import_executions": 1,
+    "selected_records": 28462,
+    "accepted_external_reference_records_included": 15,
+    "derived_typed_reference_rows": 1171,
+    "total_verified_rows": 29633,
+    "integrity": "BothcompletecompactDBsquickcheckok/FK0;everyselectedandderivedrowexactPK/SHA256afterfreshprocessrestartandmatchedrollback;11acceptedinstalledreaderoutputsmatchV1oracles;3realdb.pybindingsvalidateinbothgenerations.",
+    "source_access": "OriginalV1Core/OPSreadonlyindexedselectedkeys;nofullV1copies,snapshots,retirement,sealing,rebindorreplacement. Freshverificationchildrenforbidallnon-disposableSQLiteaccess.",
+    "restart": {
+      "all_source_database_access_forbidden": true,
+      "foreign_key_violations": 0,
+      "generation": "disposable-imported-v2",
+      "quick_check": "ok",
+      "reader_comparisons": 11,
+      "rows_verified": 29633,
+      "status": "PASS",
+      "three_component_database_bindings": "PASS"
+    },
+    "rollback": {
+      "all_source_database_access_forbidden": true,
+      "foreign_key_violations": 0,
+      "generation": "disposable-rollback",
+      "quick_check": "ok",
+      "reader_comparisons": 11,
+      "rows_verified": 29633,
+      "status": "PASS",
+      "three_component_database_bindings": "PASS"
+    },
+    "rollback_scope": "Managedstagedwrite rollback restoresoriginalpricevalue. OnlyDEVcompactpairretired;freshmatchedcompactrollbackpaircreatedfromnewV2output,notproductionV1. StaleDEVwriterrejected;both29,633rowand11readeroraclespass. LiveV1authorityunchanged.",
+    "critical_state_preservation": [
+      {
+        "generation": "v2",
+        "known_operations": 10,
+        "pending_outbox_admissions_retained": 5,
+        "typed_reference_counts": {
+          "CONFIRMED_MATCH": 180,
+          "FUNDING_SIGNATURE": 14,
+          "IDENTITY_EVENT": 111,
+          "MEMBERSHIP_COMMIT": 104,
+          "NONE": 762
+        },
+        "unknown_infrastructure_conflicts_retained": 10
+      },
+      {
+        "generation": "rollback",
+        "known_operations": 10,
+        "pending_outbox_admissions_retained": 5,
+        "typed_reference_counts": {
+          "CONFIRMED_MATCH": 180,
+          "FUNDING_SIGNATURE": 14,
+          "IDENTITY_EVENT": 111,
+          "MEMBERSHIP_COMMIT": 104,
+          "NONE": 762
+        },
+        "unknown_infrastructure_conflicts_retained": 10
+      }
+    ],
+    "storage": {
+      "core_v2_bytes": 4833280,
+      "ops_v2_bytes": 12783616,
+      "compact_pair_bytes": 17616896,
+      "sampled_fixture_peak_bytes": 41721856,
+      "largest_observed_file_bytes": 12783616,
+      "free_before_import": 3758845952,
+      "free_after_verification": 3678900224,
+      "smallest_retained_free_sample": 3678900224,
+      "feature_file_limit_bytes": 67108864,
+      "fixture_total_budget_bytes": 268435456,
+      "oracle_archive_bytes": 2296569,
+      "peak_scope": "Disposableexecutionroot;publishedarchiveandsmallgit/repositoryoverheadadditional;notabsoluteinstantaneouspeak.",
+      "global_free_delta_bytes": -79945728,
+      "accounting": "Globalfreechangeincludesconcurrentactivity;notattributedsolelytofixtureallocation. No sourcecleanup/VACUUM/checkpoint/deletion."
+    },
+    "resolved_harness_issue": "InitialrestartassumedWalkbackresolve_ops_db_path;actualAPIisOPS_DB_PATH.Harnessfixedonly;verificationresumedonsamepair,zeronewimports,noruntimechange.",
+    "source_generation_limit": "Independentread-onlyCore/OPSsnapshots,notatomicquiescedproductiongeneration;notfinalproductionqueue/cutoveracceptance.",
+    "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED",
+    "production_activation": false,
+    "active_disposable_generation": "disposable-rollback",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "full_V1_copies": 0,
+    "publication": "Engineering15filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;archivedroworaclesarePK/hashonly,nopayloadcopy;runtimeunchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 requested one full disposable migration rehearsal complete. Stop,preserveV1. Anyproductiontransitionrequiresseparateauthorizationandapplicablefinalauthority/live-statereconciliation;donotdeployautomatically."
   }
 }

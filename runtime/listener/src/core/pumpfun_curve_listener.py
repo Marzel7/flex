@@ -1384,7 +1384,7 @@ def _birth_admission_journal():
     path = os.environ.get("BIRTH_JOURNAL_PATH")
     if not path or not os.path.isabs(path):
         raise JournalHold("EXPLICIT_STABLE_BIRTH_JOURNAL_REQUIRED")
-    return BirthJournal(path)
+    return BirthJournal(path, verify_completed=_birth_journal_readback)
 
 
 def _birth_journal_canonical(row):
@@ -1416,7 +1416,32 @@ def _signature_migration_journal():
     path = os.environ.get("MIGRATION_JOURNAL_PATH")
     if not path or not os.path.isabs(path):
         raise JournalHold("EXPLICIT_STABLE_JOURNAL_PATH_REQUIRED")
-    return MigrationJournal(path)
+    return MigrationJournal(path, verify_completed=_migration_journal_readback,
+                            resolve_completed=_migration_completed_mint)
+
+
+def _migration_completed_mint(row):
+    """Bounded canonical identity lookup after journal completion reclamation.
+
+    Accepted migration_tx index is mandatory; never scan historical tokens or
+    reinterpret a missing index/failed query as permission to reacquire.
+    """
+    _validate_active_pair()
+    import sqlite3 as _sq
+    connection = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=5)
+    try:
+        sql = "SELECT mint FROM token_analysis WHERE migration_tx=? LIMIT 2"
+        plan = connection.execute("EXPLAIN QUERY PLAN " + sql, (row["signature"],)).fetchall()
+        if not all("SEARCH" in p[3] and "INDEX" in p[3] for p in plan):
+            from src.core.migration_signature_journal import JournalHold
+            raise JournalHold("COMPLETED_MIGRATION_IDENTITY_INDEX_REQUIRED")
+        found = connection.execute(sql, (row["signature"],)).fetchall()
+        if len(found) > 1:
+            from src.core.migration_signature_journal import JournalHold
+            raise JournalHold("CONFLICTING_CANONICAL_MIGRATION_IDENTITY")
+        return found[0][0] if found else None
+    finally:
+        connection.close()
 
 
 def _migration_journal_readback(row, *, require_handoff=True):

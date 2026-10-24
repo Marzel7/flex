@@ -299,7 +299,7 @@ def test_actual_explicit_path_ignores_DB_rebind(j,monkeypatch):
  def imp(name,*args,**kw):
   if name=='src.core.migration_signature_journal':return m
   return builtins.__import__(name,*args,**kw)
- scope={'__builtins__':dict(vars(builtins),__import__=imp),'os':os,'DB_PATH':'old-core'}
+ scope={'__builtins__':dict(vars(builtins),__import__=imp),'os':os,'DB_PATH':'old-core','_migration_journal_readback':lambda r:False,'_migration_completed_mint':lambda r:None}
  listener_methods(scope,['_signature_migration_journal','_migration_fallback_file_path'])
  monkeypatch.setenv('DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED','1');monkeypatch.setenv('MIGRATION_JOURNAL_PATH',str(j.path));admit(j)
  old=scope['_migration_fallback_file_path']();scope['DB_PATH']='new-core';assert scope['_migration_fallback_file_path']()==old;assert scope['_signature_migration_journal']().pending()[0]['signature']=='signature'
@@ -307,17 +307,15 @@ def test_actual_explicit_path_ignores_DB_rebind(j,monkeypatch):
  with pytest.raises(m.JournalHold):scope['_signature_migration_journal']()
 
 def test_accepted_composition_preserved():
- base=ROOT/'docs/dev/lightweight_dev004_first_v2/gap_recovery_and_listener_reconciliation/prototype'
+ import subprocess
+ candidate='cec3494d0322e8e4e08e7bcd32ceea23d74b02e0'
  for rel in ['src/core/pumpportal_birth_audit.py','src/core/pumpportal_receipt_maintenance.py','scripts/maintain_pumpportal_compact_receipts.py']:
-  if rel=='src/core/pumpportal_birth_audit.py':
-   def audit_functions(p):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
-   old_audit=audit_functions(base/(rel+'.txt'));new_audit=audit_functions(ROOT/'runtime/listener'/rel)
-   assert {k for k in old_audit if old_audit[k]!=new_audit.get(k)}=={'record_outcome'}
-  else:assert (ROOT/'runtime/listener'/rel).read_bytes()==(base/(rel+'.txt')).read_bytes()
- def functions(p):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
- old=functions(base/'src/core/pumpfun_curve_listener.py.txt');new=functions(ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py')
- changed={k for k in old if old[k]!=new.get(k)}
- assert changed=={'_migration_fallback_file_path','_migration_fallback_append','_retain_migration_terminal_risk','_reconcile_migration_fallback_file_into_queue','_process_migration_with_mint','listen_pumpswap_websocket','listen_pumpportal_websocket','drain_migration_persist_queue','_handle_pumpportal_create_frame','_insert_bonding_curve_token','_reconcile_fallback_file_into_queue','drain_birth_persist_queue','_record_pp_birth_outcome'}
+  old=subprocess.check_output(['git','show',candidate+':runtime/listener/'+rel],cwd=ROOT)
+  assert (ROOT/'runtime/listener'/rel).read_bytes()==old
+ def functions(text):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(text)) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+ old=functions(subprocess.check_output(['git','show',candidate+':runtime/listener/src/core/pumpfun_curve_listener.py'],cwd=ROOT).decode());new=functions((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text())
+ assert {k for k in old if old[k]!=new.get(k)}=={'_birth_admission_journal','_signature_migration_journal'}
+ assert set(new)-set(old)=={'_migration_completed_mint'}
 
 def test_flag_off_does_not_delete_v2_journal(j):
  admit(j,'unknown');admit(j,'known',mint='mint');before=j.path.read_bytes()

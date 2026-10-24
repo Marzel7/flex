@@ -352,7 +352,7 @@ def test_birth_pending_retries_then_single_commit(env):
  with NATIVE(p) as c:assert c.execute('SELECT count(*) FROM token_analysis').fetchone()[0]==1
 
 def test_birth_stable_path_not_DB_dependent(env,monkeypatch):
- j=birthjournal(env);j.admit_birth(payload());scope={'os':os};listener_functions(scope,['_birth_admission_journal'])
+ j=birthjournal(env);j.admit_birth(payload());scope={'os':os,'_birth_journal_readback':lambda r:False};listener_functions(scope,['_birth_admission_journal'])
  monkeypatch.setenv('DEV004_DURABLE_BIRTH_JOURNAL_ENABLED','1');monkeypatch.setenv('BIRTH_JOURNAL_PATH',str(j.path));monkeypatch.setenv('DB_PATH','not-a-production-database')
  assert scope['_birth_admission_journal']().pending()[0]['payload']==payload()
 

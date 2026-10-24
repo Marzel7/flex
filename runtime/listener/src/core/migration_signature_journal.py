@@ -1,6 +1,6 @@
 """Bounded version-2 extension of the existing migration fallback JSONL journal.
 
-No provider transport, background service, database, automatic pruning or cutover.
+No provider transport, background service, database or cutover.
 A stable path must be explicitly bound before opt-in use. Missing/ambiguous files
 fail closed; initialization is a separate explicit DEV/deployment step.
 """
@@ -45,7 +45,9 @@ def _paired_ack_generation():
 
 class MigrationJournal:
     _key = staticmethod(event_id)
-    def __init__(self, path):
+    def __init__(self, path, *, verify_completed=None, resolve_completed=None):
+        self.verify_completed = verify_completed
+        self.resolve_completed = resolve_completed
         self.path = Path(path).absolute()
         self.lock_path = self.path.with_name(self.path.name + '.lock')
         self.tmp = self.path.with_name(self.path.name + '.tmp')
@@ -202,15 +204,117 @@ class MigrationJournal:
         self._sync_dir()  # Dispatch is forbidden unless all publication steps succeed.
 
     def snapshot(self):
+        if self.tmp.exists() and self.verify_completed is not None:
+            self.recover_reclamation()
         with self._lock():
             return self._read()
 
     def _change(self, fn):
+        if self.tmp.exists() and self.verify_completed is not None:
+            self.recover_reclamation()
         with self._lock():
             records = self._read()
             result = fn(records)
+            if len(records) > MAX_RECORDS or sum(len(json.dumps(r, sort_keys=True, separators=(',', ':')).encode()) + 1 for r in records) > MAX_JOURNAL_BYTES:
+                if self.verify_completed is None:
+                    raise JournalHold('JOURNAL_CAPACITY')
+                self._reclaim(records, self.verify_completed, MAX_BATCH, keep=result.get('id') if isinstance(result, dict) else None)
             self._publish(records)
             return result
+
+    @staticmethod
+    def _reclaimable(row):
+        # Legacy originals and every conflict remain retained evidence.
+        return (row['state'] == 'ACKED' and row.get('ack') is not None
+                and row.get('error_code') is None
+                and not any(row.get(k) for k in ('legacy', 'legacy_birth', 'legacy_duplicates',
+                                                'conflicting_mint', 'conflicting_slot', 'conflicting_payload')))
+
+    def _reclaim(self, rows, verify, limit, keep=None):
+        if verify is None:
+            raise JournalHold('COMPLETION_VERIFIER_REQUIRED')
+        generation = _paired_ack_generation()
+        removed = []
+        for row in rows:
+            if len(removed) == limit:
+                break
+            if row['id'] != keep and self._reclaimable(row) and verify(dict(row)) is True:
+                removed.append(row['id'])
+        if _paired_ack_generation() != generation:
+            raise JournalHold('PAIR_CHANGED_DURING_RECLAMATION')
+        identities = set(removed)
+        rows[:] = [r for r in rows if r['id'] not in identities]
+        return removed
+
+    def reclaim_completed(self, verify=None, *, limit=MAX_BATCH):
+        if type(limit) is not int or not 0 < limit <= MAX_BATCH:
+            raise JournalHold('BATCH_CAPACITY')
+        with self._lock():
+            rows = self._read()
+            removed = self._reclaim(rows, verify or self.verify_completed, limit)
+            self._publish(rows)
+            return removed
+
+    def recover_reclamation(self):
+        """Explicit recovery of an interrupted capacity-only publication.
+
+        The candidate can add unacknowledged admissions, but cannot change or
+        omit any old record except independently reverified completed work.
+        Never discard a temporary file or silently reset ambiguous state.
+        """
+        with self._lock():
+            if not self.tmp.exists():
+                return False
+            with self.tmp.open('rb') as stream:
+                raw = stream.read(MAX_JOURNAL_BYTES + 1)
+            if len(raw) > MAX_JOURNAL_BYTES or (raw and not raw.endswith(b'\n')):
+                raise JournalHold('RECLAMATION_RECOVERY_AMBIGUOUS')
+            try:
+                lines = raw.splitlines()
+                if any(len(line) + 1 > MAX_RECORD_BYTES for line in lines):
+                    raise ValueError()
+                candidate = [json.loads(line) for line in lines]
+                for row in candidate:
+                    self._validate(row)
+                if len(candidate) > MAX_RECORDS or len({r['id'] for r in candidate}) != len(candidate):
+                    raise ValueError()
+            except (ValueError, KeyError, TypeError):
+                raise JournalHold('RECLAMATION_RECOVERY_AMBIGUOUS') from None
+            # Read original without bypassing its validation or renaming evidence.
+            original = self.tmp
+            self.tmp = self.path.with_name(self.path.name + '.recovery-unpublished')
+            try:
+                rows = self._read()
+            finally:
+                self.tmp = original
+            byid = {r['id']: r for r in candidate}
+            missing = []
+            for row in rows:
+                if row['id'] in byid:
+                    if byid[row['id']] != row:
+                        raise JournalHold('RECLAMATION_RECOVERY_AMBIGUOUS')
+                else:
+                    missing.append(row)
+            if len(missing) > MAX_BATCH:
+                raise JournalHold('RECLAMATION_RECOVERY_BATCH_CAPACITY')
+            if any(not self._reclaimable(r) for r in missing):
+                raise JournalHold('RECLAMATION_RECOVERY_PROTECTED')
+            if missing:
+                copy = list(missing)
+                self._reclaim(copy, self.verify_completed, MAX_RECORDS)
+                if copy:
+                    raise JournalHold('RECLAMATION_RECOVERY_UNVERIFIED')
+            stat = os.statvfs(self.path.parent)
+            if stat.f_bavail * stat.f_frsize < DISK_FLOOR + MAX_JOURNAL_BYTES:
+                raise JournalHold('DISK_FLOOR')
+            fd = os.open(self.tmp, os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0))
+            try:
+                os.fsync(fd)
+            finally:
+                os.close(fd)
+            os.replace(self.tmp, self.path)
+            self._sync_dir()
+            return True
 
     def admit(self, signature, source, received_at, mint=None, *, migration_slot=None):
         incoming = self._new(signature, source, received_at, mint, migration_slot)
@@ -233,6 +337,17 @@ class MigrationJournal:
                     elif mint and row['mint'] is None and row['state'] not in {'QUARANTINED','ACKED','RETRY_EXHAUSTED'}:
                         row['mint'] = mint; row['state'] = 'RESOLVED'
                     return dict(row)
+            if self.resolve_completed is not None:
+                resolved = self.resolve_completed(dict(incoming))
+                if resolved is not None:
+                    _text(resolved, 64)
+                    if incoming['mint'] not in (None, resolved):
+                        incoming['conflicting_mint'] = resolved
+                        incoming['state'] = 'QUARANTINED'
+                        incoming['error_code'] = 'MINT_CONFLICT'
+                    else:
+                        incoming['mint'] = resolved
+                        incoming['state'] = 'RESOLVED'
             rows.append(incoming)
             return dict(incoming)
         return self._change(change)

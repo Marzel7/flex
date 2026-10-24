@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[4];REF=Path('/private/tmp/dev004-compact-creator-qualified/classification_closure');SRC=Path('/Users/kevinkeaveney/Dev/claude/flex/database')
 def load(p,n):
  s=importlib.util.spec_from_file_location(n,p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
-price=load(ROOT/'docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/qualify.py','price');old=price.old;typed=price.typed
+price=load(ROOT/'docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/qualify.py','price');old=price.old;typed=load(ROOT/'runtime/listener/src/ops/dev004_watchtower_references.py','typed_watchtower_compat')
 
 def import_row(c,table,keys,row):
  existing=c.execute('SELECT * FROM "'+table+'" WHERE '+' AND '.join('"'+k+'" IS ?' for k in keys),tuple(row[k] for k in keys)).fetchone()

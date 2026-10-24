@@ -27,6 +27,19 @@ def record_member(conn:sqlite3.Connection,*,operation_id:str,mint:str,membership
  return event_id
 def commit_membership_and_outbox(conn:sqlite3.Connection,*,operation_id:str,mint:str,source_population_id:str,membership_id:str,committed_at:int,semantic_version:str=VERSION,opening_id:str|None=None)->str:
  """Same-source-transaction seam. Caller owns BEGIN/COMMIT; no destination access."""
+ # Explicit extended DEV schema needs the actual outbox parent before its FK child.
+ # Legacy/default path retains the accepted ordering and behaviour below.
+ if conn.execute("SELECT 1 FROM pragma_table_info('operator_membership_reference_v1') WHERE name='outbox_event_id'").fetchone():
+  if not conn.in_transaction:
+   conn.execute('BEGIN')  # A released outermost SAVEPOINT must not acknowledge a commit.
+  conn.execute('SAVEPOINT dev004_membership_outbox')
+  try:
+   event_id=record_member(conn,operation_id=operation_id,mint=mint,membership_id=membership_id,committed_at=committed_at,semantic_version=semantic_version,opening_id=opening_id)
+   conn.execute("INSERT INTO operator_launch_membership(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,?)",(mint,operation_id,source_population_id,int(committed_at),membership_id))
+   conn.execute('RELEASE dev004_membership_outbox')
+   return event_id
+  except BaseException:
+   conn.execute('ROLLBACK TO dev004_membership_outbox');conn.execute('RELEASE dev004_membership_outbox');raise
  conn.execute("INSERT INTO operator_launch_membership(mint,operator_id,source_population_id,assigned_at,event_id) VALUES(?,?,?,?,?)",(mint,operation_id,source_population_id,int(committed_at),membership_id))
  return record_member(conn,operation_id=operation_id,mint=mint,membership_id=membership_id,committed_at=committed_at,semantic_version=semantic_version,opening_id=opening_id)
 def deliver_one(conn:sqlite3.Connection,queue:Any,*,now:int)->dict|None:

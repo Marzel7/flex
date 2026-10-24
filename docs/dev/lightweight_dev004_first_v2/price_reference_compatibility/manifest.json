@@ -1,0 +1,68 @@
+{
+  "ATH_relative_tolerance": 0.001,
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "blocker": {
+    "error": "unknown or ambiguous membership reference",
+    "selection": {
+      "database": "ops",
+      "key": {
+        "mint": "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump"
+      },
+      "table": "operator_launch_membership"
+    },
+    "source_reference_lookup": {
+      "confirmed_match_rows": 0,
+      "event_id": "38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np",
+      "identity_event_rows": 0,
+      "lookup": "indexed exact event_id/match_id lookups; no replacement or new reference invented",
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "source_population_id": "watchtower_behavioural_paginated_lineage_20260825"
+    },
+    "stage": "direct_import"
+  },
+  "budgets_endpoints_retries": "unchanged; provider calls0",
+  "credential_authority": "BIRDEYE exclusively; no credential values inspected",
+  "fixture_roots": [
+    "/private/tmp/dev004-price-reference-qualified",
+    "/private/tmp/dev004-price-reference-compact-rehearsal-final"
+  ],
+  "full_rehearsal_decision": "HOLD",
+  "full_runtime_manifest_status": "INCOMPLETE_NOT_PROMOTED",
+  "price_identity_profile": {
+    "default": "tracked_tokens unchanged",
+    "explicit_argument": "price_identity_parent=\"token_analysis\"",
+    "installation": "fresh explicitly disposable Core only; no rewrite of nonempty peak table; distinct durable version marker",
+    "name": "dev004.core-base.v1.canonical-price-identity"
+  },
+  "price_reference_decision": "PASS",
+  "prior_evidence": "34276f460386139cc5534d36b9d359ee1b0cfb5a",
+  "prior_qualified_source": "202e30b4f843748926ea088aca988aea6ad9dc45",
+  "production_activation": false,
+  "results": {
+    "price_result.json": "fc7f498cc47b9a46c339cfa6768703d8c9afe5a2d31cc3872c7cc3425b95600f",
+    "rehearsal_result.json": "f2dc67b3fe080556a52d1eeee44b931cf6532db345971eae14a60f5fa66def51",
+    "source_gate_result.json": "dcaa0574240553a291142f7a5b218605aa7fc8bdcfbdd51652d76792fc3df65d"
+  },
+  "rollback": "No activation. Roll back both disposable transactions; source V1 pair, journals and authority remain untouched. Verified both targets have0canonical/membership rows after failed import.",
+  "source_commit": "20b0f4e159e2c05b6bfcd54084178ad6a5cc4862",
+  "source_database_paths": [
+    "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  ],
+  "source_files": {
+    "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/compact_rehearsal.py": "cb41568f47fdd0b10cc78e37001b120057196a82c3eb8959a6902dba3ff1c6df",
+    "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/qualify.py": "7625e17d4070332c7be9bd808b45ab9e8d24195ed10c5884939e518f77afce9d",
+    "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/rehearsal_gate.py": "e4b24ceb8be687a30f3534c36da7d995fbecd56e26e2d072a2b2338ac9521fc3",
+    "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": "26340824b6c8628d860534da233f7066ef77ec3f8fa996075970d9cb6bea3f26"
+  },
+  "sources": "mode=ro; indexed selected keys only; no full V1 copy/hash/snapshot",
+  "storage": {
+    "RLIMIT_FSIZE_bytes": 67108864,
+    "database_page_limit": 8192,
+    "floor_bytes": 2000000000,
+    "new_unbounded_growth_paths": 0,
+    "no_raw_provider_retention": true,
+    "reserve_bytes": 67108864,
+    "sampled_total_ceiling_bytes": 134217728
+  }
+}

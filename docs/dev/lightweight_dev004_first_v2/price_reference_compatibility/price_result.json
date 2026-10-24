@@ -1,0 +1,105 @@
+{
+  "ATH_relative_difference": 0,
+  "ATH_tolerance": 0.001,
+  "allocated_bytes": 118784,
+  "byzantine_imports": 6,
+  "checks": [
+    "exact_retained_V1_identity_and_price",
+    "explicit_canonical_parent_bootstrap",
+    "exact_import_FK_enabled",
+    "no_tracking_record_created",
+    "all_price_columns_exact",
+    "duplicate_import_idempotent",
+    "missing_identity_rejected",
+    "required_identity_delete_rejected",
+    "actual_installed_audit_reader_exact",
+    "accepted_price_service_UPSERT_equivalent",
+    "prospective_price_write_preserved_without_monitor_membership",
+    "repeat_schema_profile",
+    "incompatible_default_profile_rejected",
+    "fresh_process_restart_exact_and_idempotent",
+    "Byzantine_FK_import:AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+    "Byzantine_FK_import:ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+    "Byzantine_FK_import:EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+    "Byzantine_FK_import:7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+    "Byzantine_FK_import:FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+    "Byzantine_FK_import:DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+    "all_retained_peak_canonical_identities_present"
+  ],
+  "checks_passed": 21,
+  "complete_migration_rehearsal": "PENDING_NEXT_PHASE_NOT_CLAIMED",
+  "foreign_keys_enabled": true,
+  "free_after": 3808284672,
+  "free_before": 3808448512,
+  "full_seed_price_parent_gate": "PASS",
+  "identity_sha256": "15f25f31fde492c241d3466fe6cf4630aabfa7c550b58db0eff5c67a37b55f2f",
+  "largest_file_bytes": 81920,
+  "mint": "BEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump",
+  "peak_sha256": "0838836bacff8fbc6beacc9d13240f0773a5ce0c976705678d0c7af813a46ad2",
+  "plans": [
+    {
+      "plan": [
+        "SEARCH token_market_cap_peaks USING INDEX sqlite_autoindex_token_market_cap_peaks_1 (mint=?)"
+      ],
+      "table": "token_market_cap_peaks"
+    },
+    {
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "table": "token_analysis"
+    },
+    {
+      "plan": [
+        "SEARCH tracked_tokens USING INDEX sqlite_autoindex_tracked_tokens_1 (mint=?)"
+      ],
+      "table": "tracked_tokens"
+    },
+    {
+      "plan": [
+        "SEARCH token_market_cap_peaks USING INDEX sqlite_autoindex_token_market_cap_peaks_1 (mint=?)"
+      ],
+      "table": "token_market_cap_peaks"
+    },
+    {
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "table": "token_analysis"
+    }
+  ],
+  "price_reader_output": {
+    "create_ts": null,
+    "current_mc": 101219.0,
+    "migrated": 1,
+    "migration_sig": "4X4rEMCRYQovX98HA9Er3EJt1rex1gvNZzDBioT972iAjC93yAL4yGyRYVDmFQFW7Sm74XDdWdhjmDVqT6xKhASa",
+    "migration_time": 1788333399,
+    "peak_at": 1788333468,
+    "peak_mc": 101219.0
+  },
+  "price_reference_status": "PASS",
+  "price_values": {
+    "candidate_peak_count": 1,
+    "candidate_peak_mc": 101219.0,
+    "effective_peak_mc": 101219.0,
+    "mint": "BEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump",
+    "peak_market_cap": 101219.0,
+    "peak_market_cap_at": 1788333468,
+    "raw_peak_mc": 101219.0,
+    "raw_peak_mc_at": 1788333468
+  },
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "rowid_retained": 13,
+  "source_provenance": {
+    "create_tx_signature": "2a1JXVgUSrHSQNh1pGtobYea7DZDrbBgbXSEtvykBgJ8vxs6iM6fQPNu1ExLyWV6E83yZYo9k8ugcGMkQ1fzVo2f",
+    "first_observed_at": 1788333468,
+    "first_observed_confidence": 0.8,
+    "first_observed_mc": 101219.0,
+    "first_observed_source": "price_snapshot:dexscreener",
+    "migration_tx": "4X4rEMCRYQovX98HA9Er3EJt1rex1gvNZzDBioT972iAjC93yAL4yGyRYVDmFQFW7Sm74XDdWdhjmDVqT6xKhASa",
+    "price_source": "dexscreener"
+  },
+  "source_schema_sha256": "1e9aa093fd6d3b02659ec23d4277a8cd5b0e8abb4e790797d22adcc0b69178f2",
+  "tracked_records_created": 0
+}

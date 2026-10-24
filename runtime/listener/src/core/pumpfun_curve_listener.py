@@ -1371,6 +1371,37 @@ class MigrationTerminalDurabilityRisk(RuntimeError):
     """The migration could not be made durable by either persistence layer."""
 
 
+def _birth_admission_journal():
+    if os.environ.get("DEV004_DURABLE_BIRTH_JOURNAL_ENABLED", "0") != "1":
+        return None
+    from src.core.birth_admission_journal import BirthJournal
+    from src.core.migration_signature_journal import JournalHold
+    path = os.environ.get("BIRTH_JOURNAL_PATH")
+    if not path or not os.path.isabs(path):
+        raise JournalHold("EXPLICIT_STABLE_BIRTH_JOURNAL_REQUIRED")
+    return BirthJournal(path)
+
+
+def _birth_journal_canonical(row):
+    import sqlite3 as _sq
+    try:
+        connection = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=5)
+        try:
+            return connection.execute("SELECT earliest_tx_creator,pf_ws_creator,create_tx_signature FROM token_analysis WHERE mint=?", (row["mint"],)).fetchone()
+        finally:
+            connection.close()
+    except Exception:
+        return None
+
+
+def _birth_journal_readback(row):
+    canonical = _birth_journal_canonical(row)
+    if canonical is None:
+        return False
+    creator = row["payload"]["traderPublicKey"]
+    return canonical[2] == row["signature"] and {v for v in canonical[:2] if v} == ({creator} if creator else set())
+
+
 def _signature_migration_journal():
     """Explicit opt-in only. Stable file must already be initialized/retained."""
     if os.environ.get("DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED", "0") != "1":
@@ -1617,7 +1648,9 @@ def _reconcile_fallback_file_into_queue() -> int:
         try:
             records.append(_json.loads(ln))
         except Exception:
-            continue  # corrupt line -- drop rather than block the rest
+            return 0  # Never delete a valid subset beside an unparsed record.
+    if any(not isinstance(r, dict) or "version" in r or "payload" in r for r in records):
+        return 0  # Versioned birth admission owns individual ACKs, not bulk cleanup.
 
     try:
         import sqlite3 as _sq
@@ -6030,6 +6063,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
             _birth_telemetry_incr("persisted_direct")
             log_print(f"[PREMIG_BIRTH_SEED] mint={mint[:6]} ts={birth_seen_at} source=birth", flush=True)
         except Exception as e:
+            if birth_evidence_source == "PUMPPORTAL_NEW_TOKEN" and _birth_admission_journal() is not None:
+                log_print(f"[BIRTH_JOURNAL] canonical pending error={type(e).__name__}", flush=True)
+                return False  # Independent admitted record owns retry; no V1 fallback.
             if isinstance(e, (CrossProcessDatabaseWriteTimeout, NestedDatabaseWriteError)) or "database is locked" in str(e):
                 _birth_telemetry_incr("write_timeouts")
             log_print(f"[BIRTH] ⚠ Failed to insert bonding-curve token {mint[:16]}...: {e} — queuing for durable retry", flush=True)
@@ -11205,6 +11241,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         ws,
     ):
         """Handle one PumpPortal create frame without changing its hot-path order."""
+        birth_journal = _birth_admission_journal()
+        birth_admission = None
+        if birth_journal is not None:
+            encoded = _compact_pumpportal_birth_retry(data, mint=mint, signature=signature, receive_utc_ns=receive_utc_ns)
+            birth_admission = birth_journal.admit_birth(json.loads(encoded))
         creator = data.get("traderPublicKey")
         bonding_curve_pda = data.get("bondingCurveKey")
         symbol = data.get("symbol")
@@ -11255,7 +11296,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 "ts": int(time.time()),
             }
 
-        if mint and signature and mint not in self.completed_launches:
+        if birth_journal is not None:
+            committed = await self._persist_durable_birth(birth_admission)
+            if birth_receipt_id:
+                await self._record_pp_birth_outcome(birth_receipt_id, mint, committed)
+            if committed:
+                asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="birth"))
+
+        if birth_journal is None and mint and signature and mint not in self.completed_launches:
             self.completed_launches.add(signature)
             self.seen_mints.add(mint)
             if bonding_curve_pda:
@@ -11754,6 +11802,46 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[LISTENER] ⚠ migration persist drain error: {exc}", flush=True)
             await asyncio.sleep(10)
 
+    async def _persist_durable_birth(self, row):
+        journal = _birth_admission_journal()
+        binding = __import__("hashlib").sha256(os.path.realpath(DB_PATH).encode()).hexdigest()
+        if row["state"] == "ACKED":
+            return row["ack"]["binding"] == binding and _birth_journal_readback(row)
+        if row["state"] in {"QUARANTINED", "RETRY_EXHAUSTED"}:
+            return False
+        if _birth_journal_readback(row):
+            return journal.acknowledge(row["id"], binding, _birth_journal_readback)
+        canonical = _birth_journal_canonical(row)
+        payload = row["payload"]
+        if canonical is not None:
+            creators = {v for v in canonical[:2] if v}
+            if (canonical[2] and canonical[2] != row["signature"]) or (creators and creators != {payload["traderPublicKey"]}):
+                journal.quarantine(row["id"], "CORE_AUTHORITY_CONFLICT")
+                return False
+        from src.core.database_write_service import assert_database_writable, DatabaseRetiredError
+        try:
+            assert_database_writable(DB_PATH)
+        except DatabaseRetiredError:
+            return False  # No attempt or V1 retry is consumed while retired.
+        if not journal.begin_attempt(row["id"]):
+            return False
+        try:
+            created_at = row.get("legacy_birth", {}).get("created_at") or str(payload["receive_utc_ns"] // 1_000_000_000)
+            committed = await self._insert_bonding_curve_token(row["mint"], payload["traderPublicKey"], created_at,
+                bonding_curve_pda=payload["bondingCurveKey"], create_tx_signature=row["signature"],
+                symbol=payload["symbol"], name=payload["name"], birth_evidence_source="PUMPPORTAL_NEW_TOKEN")
+            if committed is not True:
+                return False
+            return journal.acknowledge(row["id"], binding, _birth_journal_readback)
+        except Exception as error:
+            log_print(f"[BIRTH_JOURNAL] pending error={type(error).__name__}", flush=True)
+            return False
+
+    async def _drain_durable_birth_batch(self):
+        journal = _birth_admission_journal()
+        for row in journal.pending():
+            await self._persist_durable_birth(row)
+
     async def drain_birth_persist_queue(self):
         """X78.19 -- retry births whose first insert lost the write-lane race.
 
@@ -11773,6 +11861,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
         log_print("[LISTENER] ✅ Birth persist queue drainer started", flush=True)
         while True:
             try:
+                if _birth_admission_journal() is not None:
+                    await self._drain_durable_birth_batch()
                 # X78.19 -- reconcile the file-based last-resort backstop
                 # first, so anything that couldn't even reach
                 # birth_persist_queue (the write lane was too busy for that

@@ -311,7 +311,7 @@ def test_accepted_composition_preserved():
  def functions(p):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
  old=functions(base/'src/core/pumpfun_curve_listener.py.txt');new=functions(ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py')
  changed={k for k in old if old[k]!=new.get(k)}
- assert changed=={'_migration_fallback_file_path','_migration_fallback_append','_retain_migration_terminal_risk','_reconcile_migration_fallback_file_into_queue','_process_migration_with_mint','listen_pumpswap_websocket','listen_pumpportal_websocket','drain_migration_persist_queue'}
+ assert changed=={'_migration_fallback_file_path','_migration_fallback_append','_retain_migration_terminal_risk','_reconcile_migration_fallback_file_into_queue','_process_migration_with_mint','listen_pumpswap_websocket','listen_pumpportal_websocket','drain_migration_persist_queue','_handle_pumpportal_create_frame','_insert_bonding_curve_token','_reconcile_fallback_file_into_queue','drain_birth_persist_queue'}
 
 def test_flag_off_does_not_delete_v2_journal(j):
  admit(j,'unknown');admit(j,'known',mint='mint');before=j.path.read_bytes()

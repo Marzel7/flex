@@ -36,6 +36,7 @@ def _text(value, cap, *, optional=False):
     return value
 
 class MigrationJournal:
+    _key = staticmethod(event_id)
     def __init__(self, path):
         self.path = Path(path).absolute()
         self.lock_path = self.path.with_name(self.path.name + '.lock')
@@ -231,7 +232,7 @@ class MigrationJournal:
     def resolve(self, signature, mint):
         _text(mint, 64)
         def change(rows):
-            row = next((r for r in rows if r['id'] == event_id(signature)), None)
+            row = next((r for r in rows if r['id'] == self._key(signature)), None)
             if row is None:
                 return None
             if row['mint'] and row['mint'] != mint:
@@ -246,7 +247,7 @@ class MigrationJournal:
 
     def begin_attempt(self, signature):
         def change(rows):
-            row = next(r for r in rows if r['id'] == event_id(signature))
+            row = next(r for r in rows if r['id'] == self._key(signature))
             if row['state'] in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
                 return False
             if row['attempts'] >= MAX_ATTEMPTS:
@@ -260,7 +261,7 @@ class MigrationJournal:
     def acknowledge(self, signature, binding, verify):
         _text(binding, 256)
         def change(rows):
-            row = next(r for r in rows if r['id'] == event_id(signature))
+            row = next(r for r in rows if r['id'] == self._key(signature))
             if row['state'] == 'ACKED':
                 if row['ack']['binding'] != binding:
                     raise JournalHold('ACK_BINDING_CONFLICT')
@@ -279,7 +280,7 @@ class MigrationJournal:
     def quarantine(self, signature, reason):
         _text(reason, 80)
         def change(rows):
-            row = next(r for r in rows if r['id'] == event_id(signature))
+            row = next(r for r in rows if r['id'] == self._key(signature))
             if row['state'] == 'ACKED':
                 raise JournalHold('ACKED_REQUIRES_EXPLICIT_REVIEW')
             row['state'] = 'QUARANTINED'; row['error_code'] = reason

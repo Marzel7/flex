@@ -1,0 +1,35 @@
+{
+  "active_paths": {
+    "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  },
+  "free_bytes": 4183355392,
+  "generation": "DEV004-V1-20261024",
+  "handoff_lower_bound": 12001,
+  "journal_states": {
+    "birth": {
+      "count": 169,
+      "states": {
+        "ACKED": 70,
+        "QUARANTINED": 1,
+        "RESOLVED": 98
+      }
+    },
+    "migration": {
+      "count": 27,
+      "states": {
+        "ACKED": 3,
+        "RESOLVED": 2,
+        "RETRY_EXHAUSTED": 22
+      }
+    }
+  },
+  "payload_verified": true,
+  "runtime_plan_sha256": "e638714a2eb578e13e88f25d55fe03227b0bf299e78d3705a69b89e79c88ffd1",
+  "services": "watchtower_listener              RUNNING   pid 59620, uptime 0:01:21\ncreator_resolution_worker        RUNNING   pid 59912, uptime 0:00:35\nwalkback_worker                  RUNNING   pid 59940, uptime 0:00:29",
+  "source_commit": "c8e0233ecbdbfcc59bb8c6892f3f7dedd8580b30",
+  "v2_sizes": {
+    "core.sqlite": 10645504,
+    "ops.sqlite": 60428288
+  }
+}

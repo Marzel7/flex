@@ -114,6 +114,8 @@ def test_unknown_version_no_mutation(j):
 
 def listener_methods(scope,names):
  t=ast.parse((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text())
+ if '_validate_active_pair' not in scope:
+  scope['_validate_active_pair']=lambda:None  # This retained suite is legacy unsealed/flag-off only.
  for name in names:
   n=next(n for n in ast.walk(t) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==name);exec(compile(ast.Module(body=[n],type_ignores=[]),'installed-interface','exec'),scope)
  return scope
@@ -307,11 +309,15 @@ def test_actual_explicit_path_ignores_DB_rebind(j,monkeypatch):
 def test_accepted_composition_preserved():
  base=ROOT/'docs/dev/lightweight_dev004_first_v2/gap_recovery_and_listener_reconciliation/prototype'
  for rel in ['src/core/pumpportal_birth_audit.py','src/core/pumpportal_receipt_maintenance.py','scripts/maintain_pumpportal_compact_receipts.py']:
-  assert (ROOT/'runtime/listener'/rel).read_bytes()==(base/(rel+'.txt')).read_bytes()
+  if rel=='src/core/pumpportal_birth_audit.py':
+   def audit_functions(p):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+   old_audit=audit_functions(base/(rel+'.txt'));new_audit=audit_functions(ROOT/'runtime/listener'/rel)
+   assert {k for k in old_audit if old_audit[k]!=new_audit.get(k)}=={'record_outcome'}
+  else:assert (ROOT/'runtime/listener'/rel).read_bytes()==(base/(rel+'.txt')).read_bytes()
  def functions(p):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
  old=functions(base/'src/core/pumpfun_curve_listener.py.txt');new=functions(ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py')
  changed={k for k in old if old[k]!=new.get(k)}
- assert changed=={'_migration_fallback_file_path','_migration_fallback_append','_retain_migration_terminal_risk','_reconcile_migration_fallback_file_into_queue','_process_migration_with_mint','listen_pumpswap_websocket','listen_pumpportal_websocket','drain_migration_persist_queue','_handle_pumpportal_create_frame','_insert_bonding_curve_token','_reconcile_fallback_file_into_queue','drain_birth_persist_queue'}
+ assert changed=={'_migration_fallback_file_path','_migration_fallback_append','_retain_migration_terminal_risk','_reconcile_migration_fallback_file_into_queue','_process_migration_with_mint','listen_pumpswap_websocket','listen_pumpportal_websocket','drain_migration_persist_queue','_handle_pumpportal_create_frame','_insert_bonding_curve_token','_reconcile_fallback_file_into_queue','drain_birth_persist_queue','_record_pp_birth_outcome'}
 
 def test_flag_off_does_not_delete_v2_journal(j):
  admit(j,'unknown');admit(j,'known',mint='mint');before=j.path.read_bytes()

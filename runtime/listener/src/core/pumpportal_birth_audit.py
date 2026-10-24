@@ -282,6 +282,10 @@ class PumpPortalBirthAudit:
             self.last_receipt_error="COMPACT_RECEIPT_UNAVAILABLE";return None
 
     def record_outcome(self,ident,*,outcome,canonical=None):
+        requires_pair_ack = outcome == "COMMITTED"
+        if requires_pair_ack:
+            from src.core.paired_binding_guard import validate_pair, PairedBindingError
+            pair_generation = validate_pair(purpose="active")
         if self.compact_path is None:return False
         try:
             with self._receipt_lock:
@@ -297,6 +301,8 @@ class PumpPortalBirthAudit:
                         row.setdefault('accepted_at_utc_ns',time.time_ns())
                 # Duplicate/retry notifications never downgrade a confirmed outcome.
                 if row['persistence_outcome']!="COMMITTED" or outcome=="COMMITTED_CONFLICT":row['persistence_outcome']=outcome
+                if requires_pair_ack and validate_pair(purpose="active") != pair_generation:
+                    raise PairedBindingError("PAIR_CHANGED_DURING_RECEIPT_ACK")
                 self._store_receipt(ident,row,target=target)
             return True
         except (OSError,ValueError,TypeError,KeyError) as error:

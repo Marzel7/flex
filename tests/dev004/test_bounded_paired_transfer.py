@@ -23,7 +23,30 @@ class PairCase:
      for ddl in SCHEMA[kind]:c.execute(ddl)
   self.birth=env.b.BirthJournal(env.path/'stable-birth.jsonl');self.birth.initialize();self.migration=env.m.MigrationJournal(env.path/'stable-migration.jsonl');self.migration.initialize()
   self.config=env.path/'frozen-pair.json';self.steps=[];self.calls=[];self.logs=[];self.current=None;self.scope=None;self.stale=None
-  self.binding('v1');self.seed()
+  self.guard=sys.modules['src.core.paired_binding_guard'];self.authority=env.path/'active-pair-authority.json';self.manifests={};self.reconciled=False
+  self.prepare_manifest('v1');self.guard.seal_manifest(str(self.manifests['v1']));self.select_authority('v1','ACTIVE');self.bind_environment('v1');self.binding('v1');self.seed()
+ def publish_json(self,path,value):
+  data=json.dumps(value,sort_keys=True,separators=(',',':')).encode();assert len(data)<=8192
+  temp=path.with_name(path.name+'.tmp');fd=os.open(temp,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
+  try:assert os.write(fd,data)==len(data);os.fsync(fd)
+  finally:os.close(fd)
+  os.replace(temp,path);fd=os.open(path.parent,os.O_RDONLY)
+  try:os.fsync(fd)
+  finally:os.close(fd)
+ def prepare_manifest(self,g):
+  path=self.env.path/(g+'-runtime-manifest.json')
+  previous=None
+  if g!='v1':
+   original=json.loads(self.manifests['v1'].read_text());previous={'generation':original['generation'],'stores':original['stores']}
+  value={'version':1,'authority':{'id':'fixture-exclusive-authority','path':str(self.authority),'origin_generation':'fixture-v1'},'generation':'fixture-'+g,'stores':{k:self.guard.database_identity(str(self.paths[g][k]),'fixture-'+g,k) for k in ['core','ops']},'predecessor':previous}
+  if path.exists():assert json.loads(path.read_text())==value
+  else:self.publish_json(path,value)
+  self.manifests[g]=path
+ def select_authority(self,g,phase):
+  value={'version':1,'authority_id':'fixture-exclusive-authority','origin_generation':'fixture-v1','generation':'fixture-'+g,'manifest_path':str(self.manifests[g]),'manifest_sha256':hashlib.sha256(self.manifests[g].read_bytes()).hexdigest(),'phase':phase,'owner':'runtime' if phase=='ACTIVE' else 'fixture-transfer-owner','transfer_complete':phase=='ACTIVE'}
+  self.publish_json(self.authority,value)
+ def bind_environment(self,g,transfer=False):
+  for name,value in {'DEV004_PAIRED_BINDING_REQUIRED':'1','FLEX_DB_PAIR_MANIFEST':str(self.manifests[g]),'FLEX_DB_PAIR_AUTHORITY':str(self.authority),'FLEX_DB_PAIR_ROLE':'transfer' if transfer else 'runtime','FLEX_DB_PAIR_OWNER':'fixture-transfer-owner' if transfer else '' ,'DB_PATH':str(self.paths[g]['core']),'WT_OPS_DB_PATH':str(self.paths[g]['ops'])}.items():self.env.patch.setenv(name,value)
  def conn(self,path,read=False):
   c=NATIVE('file:'+str(path)+'?mode=ro' if read else path,uri=read,factory=self.d.TrackedConnection)
   c._db_path=str(path);c._db_caller='bounded-paired-qualification';c.row_factory=sqlite3.Row;return c
@@ -83,6 +106,7 @@ class PairCase:
   if len(rows)>20 or any(len(json.dumps(r,default=str).encode())>65536 for r in rows):raise Hold('TRANSFER_BUDGET')
   return sorted(rows,key=lambda r:json.dumps(r,sort_keys=True,default=str))
  def reconcile(self,crash_after_core=False):
+  self.prepare_manifest('v2');self.select_authority('v2','TRANSFER');self.bind_environment('v2',True)
   for kind,tables in [('core',CORE_TABLES),('ops',OPS_TABLES)]:
    marker=Path(str(self.paths['v1'][kind])+'.retired')
    if not marker.exists():raise Hold('SOURCE_NOT_RETIRED')
@@ -103,7 +127,8 @@ class PairCase:
    self.steps.append(kind+' final state reconciled/idempotently verified')
    if kind=='core' and crash_after_core:raise Crash('between-reconciliation-stores')
  def publish_frozen_config(self,partial=False):
-  value={'source_revision':'91d3975e77236f601586b1bd8af86544cc97b9de','generation':'fixture-v2','core':str(self.paths['v2']['core']),'ops':str(self.paths['v1' if partial else 'v2']['ops']),'birth_journal':str(self.birth.path),'migration_journal':str(self.migration.path)}
+  self.guard.seal_manifest(str(self.manifests['v2']));self.select_authority('v2','ACTIVE');self.bind_environment('v2')
+  value={'source_base_revision':'91d3975e77236f601586b1bd8af86544cc97b9de','generation':'fixture-v2','core':str(self.paths['v2']['core']),'ops':str(self.paths['v1' if partial else 'v2']['ops']),'birth_journal':str(self.birth.path),'migration_journal':str(self.migration.path),'pair_manifest':str(self.manifests['v2']),'pair_authority':str(self.authority)}
   data=json.dumps(value,sort_keys=True).encode();assert len(data)<4096
   temp=self.config.with_suffix('.tmp');fd=os.open(temp,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)
   try:assert os.write(fd,data)==len(data);os.fsync(fd)
@@ -146,7 +171,7 @@ def test_complete_matched_pair_controlled_transfer(case):
  assert c.birth.admit_birth(support.payload(sig='pending-create',mint='new-launch',time=3))['state']=='ACKED'
  assert c.migration.admit('pending-migration','PUMPSWAP_MIGRATION_ACCOUNT',3)['state']=='ACKED'
  (c.env.path/'sequence.json').write_text(json.dumps(c.steps,indent=2))
- continuity={'source_revision':'91d3975e77236f601586b1bd8af86544cc97b9de','birth_identities':[r['id'] for r in c.birth.snapshot()],'birth_states':[r['state'] for r in c.birth.snapshot()],'migration_identities':[r['id'] for r in c.migration.snapshot()],'migration_states':[r['state'] for r in c.migration.snapshot()],'preserved_tables':{kind:{table:len(c.rows(c.paths['v1'][kind],table)) for table in tables} for kind,tables in [('core',CORE_TABLES),('ops',OPS_TABLES)]},'canonical_birth_count':2,'new_migration_handoff_count':1,'duplicates_coalesced':True,'fixture_scope':'Retained synthetic reference rows plus accepted persistence bodies; not full daemon/intake certification'}
+ continuity={'source_base_revision':'91d3975e77236f601586b1bd8af86544cc97b9de','birth_identities':[r['id'] for r in c.birth.snapshot()],'birth_states':[r['state'] for r in c.birth.snapshot()],'migration_identities':[r['id'] for r in c.migration.snapshot()],'migration_states':[r['state'] for r in c.migration.snapshot()],'preserved_tables':{kind:{table:len(c.rows(c.paths['v1'][kind],table)) for table in tables} for kind,tables in [('core',CORE_TABLES),('ops',OPS_TABLES)]},'canonical_birth_count':2,'new_migration_handoff_count':1,'duplicates_coalesced':True,'fixture_scope':'Retained synthetic reference rows plus accepted persistence bodies; not full daemon/intake certification'}
  (c.env.path/'data-continuity.json').write_text(json.dumps(continuity,indent=2))
 
 def test_restart_after_core_retirement(case):
@@ -173,27 +198,34 @@ def test_core_commit_before_ops_handoff_remains_pending_on_restart(case):
  assert len(c.migration.pending())==1;c.resume();c.finish_migration();assert not c.migration.pending()
 
 def test_mixed_pair_must_fail_closed_before_canonical_acceptance(case):
- c=case;c.admit_during_lease();c.retire();c.reconcile();c.publish_frozen_config(partial=True);c.resume()
+ c=case;c.admit_during_lease();c.retire();c.reconcile();c.publish_frozen_config(partial=True)
  blocked=False
- try:c.drain_births()
- except Exception:blocked=True
+ try:
+  c.resume();c.drain_births()
+ except c.guard.PairedBindingError:blocked=True
  with c.conn(c.paths['v2']['core'],True) as q:committed=q.execute("SELECT 1 FROM token_analysis WHERE mint='new-launch'").fetchone() is not None
- evidence={'configured_core':str(c.current['core']),'configured_ops':str(c.current['ops']),'core_committed_under_mixed_pair':committed,'birth_ack_states':[r['state'] for r in c.birth.snapshot()],'launch_rejected':blocked}
+ evidence={'configured_core':os.environ['DB_PATH'],'configured_ops':os.environ['WT_OPS_DB_PATH'],'core_committed_under_mixed_pair':committed,'birth_ack_states':[r['state'] for r in c.birth.snapshot()],'launch_rejected':blocked}
  (c.env.path/'mixed-pair-counterexample.json').write_text(json.dumps(evidence,indent=2))
  assert blocked and not committed,'Current resolver/consumer accepts Core V2 with retired OPS V1; birth can ACK before a complete pair is established'
 
 
-def restart_binding_child(case):
+def restart_binding_child(case,expect_reject=False):
  import subprocess
  code="""import importlib.util,json,os,sys,resource,socket
 resource.setrlimit(resource.RLIMIT_FSIZE,(16000000,16000000))
 socket.socket.connect=lambda *a,**kw:(_ for _ in ()).throw(RuntimeError('NETWORK_FORBIDDEN'))
-c=json.load(open(sys.argv[1]));os.environ['DB_PATH']=c['core'];os.environ['WT_OPS_DB_PATH']=c['ops']
+c=json.load(open(sys.argv[1]));os.environ['DB_PATH']=c['core'];os.environ['WT_OPS_DB_PATH']=c['ops'];os.environ['DEV004_PAIRED_BINDING_REQUIRED']='1';os.environ['FLEX_DB_PAIR_MANIFEST']=c['pair_manifest'];os.environ['FLEX_DB_PAIR_AUTHORITY']=c['pair_authority']
+import types
+for name,path in [('src',str(__import__('pathlib').Path(sys.argv[2]).parents[1])),('src.core',str(__import__('pathlib').Path(sys.argv[2]).parent))]:
+ p=types.ModuleType(name);p.__path__=[path];sys.modules[name]=p
 s=importlib.util.spec_from_file_location('db',sys.argv[2]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
 print(json.dumps({'core':m.DB_PATH,'ops':m.resolve_ops_db_path()}),flush=True)
 os._exit(17)
 """
  r=subprocess.run([sys.executable,'-B','-c',code,str(case.config),str(ROOT/'runtime/listener/src/core/db.py')],cwd=case.env.path,env={'PATH':os.environ.get('PATH',''),'PYTHONDONTWRITEBYTECODE':'1'},capture_output=True,text=True,timeout=10)
+ if expect_reject:
+  assert r.returncode!=17 and 'PairedBindingError' in r.stderr,r.stderr
+  return {'rejected':True}
  assert r.returncode==17,r.stderr
  return json.loads(r.stdout)
 
@@ -204,6 +236,6 @@ def test_real_restart_preserves_matched_fixture_bindings(case):
 
 def test_restart_does_not_hide_mixed_pair_counterexample(case):
  c=case;c.admit_during_lease();c.retire();c.reconcile();c.publish_frozen_config(partial=True)
- actual=restart_binding_child(c)
- assert actual=={'core':str(c.paths['v2']['core']),'ops':str(c.paths['v1']['ops'])}
+ actual=restart_binding_child(c,expect_reject=True)
+ assert actual=={'rejected':True}
  (c.env.path/'restart-mixed-pair-evidence.json').write_text(json.dumps(actual,indent=2))

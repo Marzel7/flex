@@ -93,16 +93,20 @@ class DatabaseRetiredError(RuntimeError):
     """Persistent refusal, independent of transient write-lease ownership."""
 
 
-def assert_database_writable(path):
+def assert_database_writable(path, *, _retirement_metadata_only=False):
     if not path:
         return
     try:
         os.lstat(os.path.realpath(str(path)) + ".retired")
     except FileNotFoundError:
-        return
+        pass
     except OSError:
         raise DatabaseRetiredError("RETIREMENT_STATE_UNAVAILABLE") from None
-    raise DatabaseRetiredError("DATABASE_RETIRED")
+    else:
+        raise DatabaseRetiredError("DATABASE_RETIRED")
+    if not _retirement_metadata_only:
+        from src.core.paired_binding_guard import validate_pair
+        validate_pair(write_path=os.path.realpath(str(path)), purpose="write")
 
 
 def retire_database(database, path, *, generation, timeout=5.0):
@@ -125,13 +129,24 @@ def retire_database(database, path, *, generation, timeout=5.0):
                 raise ValueError()
         except Exception:
             raise DatabaseRetiredError("RETIREMENT_STATE_AMBIGUOUS") from None
+        # Retry may follow failed synchronization after readable publication.
+        fd = os.open(marker, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        directory = os.open(os.path.dirname(path), os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
         return expected
     if not os.path.isfile(path):
         raise ValueError("EXISTING_DATABASE_REQUIRED")
     payload = json.dumps(expected, sort_keys=True, separators=(",", ":")).encode()
     if len(payload) > 2048:
         raise ValueError("RETIREMENT_RECORD_CAPACITY")
-    lease = acquire_write_lease(database, path, str(uuid.uuid4()), "retire-database", timeout=timeout)
+    lease = acquire_write_lease(database, path, str(uuid.uuid4()), "retire-database", timeout=timeout, _retirement_metadata_only=True)
     connection = None
     try:
         connection = _native_connect(path, timeout=timeout)
@@ -900,6 +915,7 @@ def acquire_write_lease(
     *,
     timeout: float = CROSS_PROCESS_LOCK_TIMEOUT_SEC,
     priority: int = DEFAULT_PRIORITY,
+    _retirement_metadata_only: bool = False,
 ) -> WriteLease:
     """Acquire the database-wide lane used by services and tracked connections.
 
@@ -923,7 +939,7 @@ def acquire_write_lease(
     falls back to today's plain flock() contention for that attempt.
     """
     real_path = os.path.realpath(path)
-    assert_database_writable(real_path)
+    assert_database_writable(real_path, _retirement_metadata_only=_retirement_metadata_only)
     this_thread_ident = threading.get_ident()
     outer = getattr(_thread_write_lease, "owner", None)
     if outer is not None:
@@ -1046,7 +1062,7 @@ def acquire_write_lease(
         raise exc
 
     try:
-        assert_database_writable(real_path)
+        assert_database_writable(real_path, _retirement_metadata_only=_retirement_metadata_only)
     except BaseException:
         fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
         lock_file.close()

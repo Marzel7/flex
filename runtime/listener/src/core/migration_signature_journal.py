@@ -35,6 +35,14 @@ def _text(value, cap, *, optional=False):
         raise JournalHold('INVALID_FIELD')
     return value
 
+def _paired_ack_generation():
+    configured = os.environ.get("DEV004_PAIRED_BINDING_REQUIRED", "0") == "1" or os.environ.get("FLEX_DB_PAIR_MANIFEST") or os.environ.get("FLEX_DB_PAIR_AUTHORITY")
+    paths = [os.environ.get("DB_PATH"), os.environ.get("WT_OPS_DB_PATH")]
+    if configured or any(p and os.path.lexists(os.path.realpath(p) + ".pair-bound") for p in paths):
+        from src.core.paired_binding_guard import validate_pair
+        return validate_pair(purpose="active")
+    return None
+
 class MigrationJournal:
     _key = staticmethod(event_id)
     def __init__(self, path):
@@ -259,6 +267,7 @@ class MigrationJournal:
         return self._change(change)
 
     def acknowledge(self, signature, binding, verify):
+        pair_generation = _paired_ack_generation()
         _text(binding, 256)
         def change(rows):
             row = next(r for r in rows if r['id'] == self._key(signature))
@@ -271,6 +280,8 @@ class MigrationJournal:
             if not verify(dict(row)):
                 row['error_code'] = 'READBACK_UNVERIFIED'
                 return False
+            if _paired_ack_generation() != pair_generation:
+                raise JournalHold('PAIR_CHANGED_DURING_ACK')
             row['state'] = 'ACKED'
             row['ack'] = {'binding': binding, 'identity': row['id']}
             row['error_code'] = None

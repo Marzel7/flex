@@ -24,3 +24,6 @@ LIVE_DB_PATH = DB_PATH
 OPS_DB_PATH = os.path.abspath(
     os.environ.get("WT_OPS_DB_PATH", os.path.join(_DB_DIR, "wt_ops_v2.db"))
 )
+
+from src.core.paired_binding_guard import validate_pair as _validate_pair
+_validate_pair(core_path=DB_PATH, ops_path=OPS_DB_PATH, purpose="active")

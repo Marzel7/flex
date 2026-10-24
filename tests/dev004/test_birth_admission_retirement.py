@@ -29,11 +29,13 @@ def no_network(monkeypatch,tmp_path):
 def env(tmp_path,monkeypatch):
  for name in ['src','src.core','src.utils']:
   pkg=types.ModuleType(name);pkg.__path__=[];monkeypatch.setitem(sys.modules,name,pkg)
- for name in ['src.core.database_write_service','src.utils.db_locking','src.core.migration_signature_journal','src.core.birth_admission_journal']:
+ for name in ['src.core.database_write_service','src.utils.db_locking','src.core.migration_signature_journal','src.core.birth_admission_journal','src.core.paired_binding_guard']:
   monkeypatch.delitem(sys.modules,name,raising=False)
  monkeypatch.setattr(sqlite3,'connect',NATIVE)
  monkeypatch.setenv('DB_PATH',str(tmp_path/'core.sqlite'));monkeypatch.setenv('WT_OPS_DB_PATH',str(tmp_path/'ops.sqlite'));monkeypatch.setenv('DB_WRITE_SERIALIZE','1')
+ for key in ['DEV004_PAIRED_BINDING_REQUIRED','FLEX_DB_PAIR_MANIFEST','FLEX_DB_PAIR_AUTHORITY','FLEX_DB_PAIR_ROLE','FLEX_DB_PAIR_OWNER']:monkeypatch.delenv(key,raising=False)
  for k in ['DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH','DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH','DB_CONNECTION_FAILURE_DIAGNOSTICS_PATH']:monkeypatch.delenv(k,raising=False)
+ g=load('src.core.paired_binding_guard',ROOT/'runtime/listener/src/core/paired_binding_guard.py');monkeypatch.setitem(sys.modules,'src.core.paired_binding_guard',g)
  m=load('src.core.migration_signature_journal',ROOT/'runtime/listener/src/core/migration_signature_journal.py');b=load('src.core.birth_admission_journal',ROOT/'runtime/listener/src/core/birth_admission_journal.py')
  # Keep dynamic module entries scoped to this test.
  monkeypatch.setitem(sys.modules,'src.core.migration_signature_journal',m);monkeypatch.setitem(sys.modules,'src.core.birth_admission_journal',b)
@@ -155,6 +157,11 @@ def test_birth_payload_conflict_retained(env):
 
 def listener_functions(scope,names):
  tree=ast.parse((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text())
+ if '_validate_active_pair' not in scope:
+  def validate_active():
+   from src.core.paired_binding_guard import validate_pair
+   return validate_pair(core_path=scope.get('DB_PATH'), ops_path=scope.get('_listener_ops_db_path',lambda:os.environ.get('WT_OPS_DB_PATH'))(),purpose='active')
+  scope['_validate_active_pair']=validate_active
  for name in names:
   n=next(n for n in ast.walk(tree) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==name);exec(compile(ast.Module(body=[n],type_ignores=[]),'actual-listener-interface','exec'),scope)
  return scope

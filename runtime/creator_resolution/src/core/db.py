@@ -26,12 +26,20 @@ OPS_DB_PATH = os.path.abspath(
 )
 
 
+from src.core.paired_binding_guard import validate_pair as _validate_pair
+_validate_pair(core_path=DB_PATH, ops_path=OPS_DB_PATH, purpose="active")
+
+
 def resolve_ops_db_path() -> str:
     """Resolve OPS beside the configured LIVE authority, never beside a checkout."""
     explicit = os.environ.get("WT_OPS_DB_PATH")
     if explicit:
-        return os.path.realpath(explicit)
+        resolved = os.path.realpath(explicit)
+        _validate_pair(core_path=DB_PATH, ops_path=resolved, purpose="active")
+        return resolved
     live = os.environ.get("DB_PATH") or os.environ.get("FLEX_DB_PATH")
     if not live:
         raise RuntimeError("OPS authority requires DB_PATH, FLEX_DB_PATH, or WT_OPS_DB_PATH")
-    return os.path.join(os.path.dirname(os.path.realpath(live)), "wt_ops_v2.db")
+    resolved = os.path.join(os.path.dirname(os.path.realpath(live)), "wt_ops_v2.db")
+    _validate_pair(core_path=DB_PATH, ops_path=resolved, purpose="active")
+    return resolved

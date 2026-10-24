@@ -1371,6 +1371,11 @@ class MigrationTerminalDurabilityRisk(RuntimeError):
     """The migration could not be made durable by either persistence layer."""
 
 
+def _validate_active_pair():
+    from src.core.paired_binding_guard import validate_pair
+    return validate_pair(core_path=DB_PATH, ops_path=_listener_ops_db_path(), purpose="active")
+
+
 def _birth_admission_journal():
     if os.environ.get("DEV004_DURABLE_BIRTH_JOURNAL_ENABLED", "0") != "1":
         return None
@@ -1395,6 +1400,7 @@ def _birth_journal_canonical(row):
 
 
 def _birth_journal_readback(row):
+    _validate_active_pair()
     canonical = _birth_journal_canonical(row)
     if canonical is None:
         return False
@@ -1415,6 +1421,7 @@ def _signature_migration_journal():
 
 def _migration_journal_readback(row, *, require_handoff=True):
     """Exact-mint readback only; never infer missing handoff eligibility."""
+    _validate_active_pair()
     if not row.get("mint"):
         return False
     import sqlite3 as _sq
@@ -10707,6 +10714,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if journal is None:
             return asyncio.create_task(self.handle_migration(signature, logs, source=source))
         row = journal.admit(signature, notification_source, int(time.time()))
+        _validate_active_pair()
         active = getattr(self, "_signature_journal_active", None)
         if active is None:
             active = self._signature_journal_active = set()
@@ -11214,6 +11222,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
             log_print(f"[PUMPPORTAL] ⚠ Seed subscription failed (deferred, non-fatal): {_e}", flush=True)
 
     async def _record_pp_birth_outcome(self, receipt_id, mint, committed):
+        if committed:
+            _validate_active_pair()
         if not committed:
             self._eb_birth_audit.record_outcome(receipt_id, outcome="RETRY_PENDING")
             return
@@ -11803,6 +11813,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             await asyncio.sleep(10)
 
     async def _persist_durable_birth(self, row):
+        _validate_active_pair()
         journal = _birth_admission_journal()
         binding = __import__("hashlib").sha256(os.path.realpath(DB_PATH).encode()).hexdigest()
         if row["state"] == "ACKED":

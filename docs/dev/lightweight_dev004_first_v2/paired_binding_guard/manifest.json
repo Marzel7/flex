@@ -1,0 +1,70 @@
+{
+  "status": "PASS_DEV_QUALIFICATION",
+  "candidate_sha": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "source_base": "91d3975e77236f601586b1bd8af86544cc97b9de",
+  "counterexample_evidence": "859dc444ad964c0fd6dd90ef8b1f75cd89bef6af",
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "baseline_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+  "changed_source_and_test_hashes": {
+    "runtime/creator_resolution/src/core/database_write_service.py": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+    "runtime/creator_resolution/src/core/db.py": "07b95cfcc16b9647deae96a962df29a19d055392108c86df6ca9ddc6e8ebc6a2",
+    "runtime/creator_resolution/src/core/paired_binding_guard.py": "e6696234ed4644f41971ecb5bf9496b504bd74048ae5838cbda9cd2eceba3f83",
+    "runtime/listener/src/core/database_write_service.py": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+    "runtime/listener/src/core/db.py": "07b95cfcc16b9647deae96a962df29a19d055392108c86df6ca9ddc6e8ebc6a2",
+    "runtime/listener/src/core/migration_signature_journal.py": "e63080f4e884cd1b4a13bccf69c3cd75d6131f0eea58b01ebd466f9bcf71a7f0",
+    "runtime/listener/src/core/paired_binding_guard.py": "e6696234ed4644f41971ecb5bf9496b504bd74048ae5838cbda9cd2eceba3f83",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "b032eba39e75c951f612491bfbfbee858875129a323efbaae9063461b77a17c4",
+    "runtime/listener/src/core/pumpportal_birth_audit.py": "1bcc41e6a5e0b63d318c2a52a71a5536f89838b4e3363ebc60cfa8cb4f3fec38",
+    "runtime/walkback/src/core/database_write_service.py": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+    "runtime/walkback/src/core/db.py": "a7481b240fd9507b19c65c8e305607dfd134db718487e1ae6227599ecb317f6f",
+    "runtime/walkback/src/core/paired_binding_guard.py": "e6696234ed4644f41971ecb5bf9496b504bd74048ae5838cbda9cd2eceba3f83",
+    "tests/dev004/test_birth_admission_retirement.py": "450d212ae68abfc73ee5a8c95336789c63e6be8ce7db91cfd3a7cff5ed72b47a",
+    "tests/dev004/test_bounded_paired_transfer.py": "b4475d984e1caf808ea7eb25a5053dd0dad3a3a4a3548feaea55bff767d16387",
+    "tests/dev004/test_paired_binding_guard.py": "ebdd982a71c19fef702b0520e472324cae2aab1915c76351bb6330ccc88c5ae3",
+    "tests/dev004/test_signature_first_migration_journal.py": "7595c759d55c30122ba09f6af0f052fdc1bc1a58b0dd21802c4278303e900d91"
+  },
+  "installed_preimages": {
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/../utils/db_locking.py": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "/Users/kevinkeaveney/Production/flex-main-workers/src/core/../utils/db_locking.py": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/../utils/db_locking.py": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+    "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+    "production_retirement_markers": {
+      "flex_complete_database.db": false,
+      "wt_ops_v2.db": false
+    }
+  },
+  "tests": {
+    "unique_passed": 192,
+    "failed": 0,
+    "journal_retirement_transfer_and_binding": 173,
+    "existing_writer_controls": 19,
+    "focused_binding_controls": 36,
+    "retained_transfer_controls": 8,
+    "evidence_label_only_rerun": 8
+  },
+  "runtime_deployment_required": true,
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "production_changed": false,
+  "storage": {
+    "manifest_authority_read_cap_each": 8192,
+    "seal_bytes_each": 2048,
+    "seals_per_pair": 2,
+    "seal_floor_bytes": 2000000000,
+    "journal_bytes_each": 2000000,
+    "journal_staging_bytes_each": 2000000,
+    "journal_record_bytes": 4096,
+    "journal_record_count": 512,
+    "replay_batch_rows": 20,
+    "metadata_cache_entries": 1,
+    "test_file_rlimit": 16000000,
+    "largest_fixture_file": 98304,
+    "observed_fixture_logical_total": 16851830,
+    "new_unbounded_growth_paths": 0,
+    "raw_retention": "No new raw payload retention; existing compact journals unchanged"
+  },
+  "scope": "Managed Flex writers and registered native OPS factories; trusted frozen manifest/authority owner. Not arbitrary unmodified SQLite clients or malicious metadata removal. No production activation."
+}

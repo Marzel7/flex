@@ -1,0 +1,14 @@
+{
+  "source_commit": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
+  "bundle_manifest_path": "docs/dev/lightweight_dev004_first_v2/production_bundle_qualification/bundle_manifest.json",
+  "bundle_manifest_sha256": "c74de7208dadd6750515c2e31b2f7a23f1b3c0b109a75d318f68920653c7fdbc",
+  "remaining_gate_count": 3,
+  "focused_tests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "migration_reruns": 0
+}

@@ -1,0 +1,27 @@
+# DEV004 — Post-receipt production-bundle reconciliation
+
+**Receipt reconciliation: PASS, DEV-only. Overall production cutover: HOLD on three existing concrete gates.** Starting handoff bb1a158f verified against local evidence and installed source. No deployment, migration rerun, provider call or historical investigation.
+
+The existing DEV004 source now includes the deployed1,536-per-bucket ceiling and warning, in immutable source **8f21becaa7e86f2476282b9d47a3fef546eee3a6**. Only the receipt capacity constants and `_bucket_has_capacity` were merged. DEV004's `record_outcome` pair validation before and after canonical acknowledgement remains AST-identical. The V2 writer hash is **edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c**; current deployed V1 writer remains **b022320c…**. Their whole-file hashes correctly differ because V2 retains that additional guard. Accepted numeric-parser fallback blocks match installed source. No other runtime file changed.
+
+Five focused provider-free checks PASS: exact deployed capacity with unchanged V2 methods; full old bucket plus valid paired ACK; invalid pair rejection; pair change during ACK rejection; legacy identity/dedup preservation. Fixtures remain below4KiB per receipt and are disposable. The prior32 receipt controls and five-minute live acceptance are reused. Receipt capacity and resolver PID authority are closed gates, not new cutover blockers. No29,633-row migration or100creator/616Watchtower/26Deep/11frozen matrix repeated.
+
+## Minimum remaining cutover blockers
+
+1. **Complete production authority and rollback bundle.** V2Core/OPS persistent paths/generation, paired manifest/seals/transfer owner, independent birth/migration journal paths, and persistent creator-history/freshness bindings remain explicitly unassigned. Bind price checkpoints/budget authority without reset. Freeze exact active listener/resolver/Walkback payload/current preimages and source/config rollback. The tested migration controls are not yet installed or configured in production. A source commit exists; a complete production activation manifest does not.
+2. **Final live operational-state reconciliation.** The accepted seed is not a final frozen live generation. Preserve the additional Watchtower admission/PENDINGoutbox, all required pending/retry/handoff/webhook/quarantine state, and reconcile the three expired leases without transferring active ownership. Last retained funding counts3,584pending/59retry and bounded webhook/quarantine probes are **historical observations, not current counts or complete selection**. Establish deterministic bounded selection and final canonical/admission watermarks through the existing durable journal/fence contract. No blanket history copy, queue discard or provider-gap completeness assumption.
+3. **Production per-file/WAL enforcement and transition budget.** Receipt files are bounded4KiB and capacity is restored. New V2DB/WAL/transient files still lack qualified production fail-closed enforcement below500,000,000bytes; DEV harness RLIMIT is not production enforcement. Bind bounded journal/drain/WAL and rollback allocation, retaining2GBfloor and V1in place. The proposed5GiBcombined target is not enforced and is not made a separate acceptance requirement.
+
+These are missing production acceptance evidence/authority, not demonstrated regressions of the accepted compact import. Dormant API/monitor/bridge/Funding/Cascade stay STOPPED; no restoration/activation is a prerequisite for the current active-trio transition. P3R, seed minimization and closed historical-reference investigations remain out of scope. No new historical qualification is requested.
+
+## Receipt and rollback reconciliation
+
+Installed P0 candidate3c8d0d22 / deployed evidencec3b027cd / handoffbb1a158f remain PASS:393,216sharded slots, zero capacity refusals during300.98seconds,93expanded buckets,130exact committed matches including98births received during the acceptance window. Existing receipt identities, seven-day protection and quarantine remain unchanged. Those observations are retained deployment evidence, not a fresh capacity census.
+
+All future V1 source preimage/rollback bindings must use the expanded writer, never384-limit source. The P0capacity-compatible fallback67b342e7… applies to the existing unpaired V1 runtime. **It must not replace a future paired V2 writer wholesale**, because it lacks V2's paired-ACK guard. V2rollback must preserve both1536capacity and pair validation, together with the matched database/config authority. No database or receipt rollback is performed.
+
+## Next action
+
+**One bounded production-bundle completion qualification:** bind the concrete persistent paths/feature flags/owner and exact active-trio plus rollback payload around source8f21beca; attach explicit bounded live-state selection/lease dispositions and production per-file/WAL budgets. Leave null authority HOLDs explicit until proven. No deployment or migration rerun is needed for that step, and no full V1copy is permitted.
+
+The updated existing `production_bundle_qualification/bundle_manifest.json` records this reconciliation and three gates. It remains a draft, not a golden activation manifest. Read-only disk sample2,503,196,672bytes exceeds2GBfloor; this does not reserve future cutover storage. No production changes, schema changes, service actions, provider calls, receipt mutation or new500MBfile. Runtime source reconciliation is QUALIFIED_NOT_DEPLOYED for the DEV004bundle; the independent P0deployment remains COMPLETE/PASS.

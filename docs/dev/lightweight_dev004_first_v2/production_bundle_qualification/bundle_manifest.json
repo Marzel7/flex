@@ -6,7 +6,7 @@
       "_identity",
       "_bucket_name"
     ],
-    "capacity_changed": false,
+    "capacity_changed": true,
     "files": {
       "scripts/maintain_pumpportal_compact_receipts.py": {
         "behaviour_changed": false,
@@ -19,11 +19,13 @@
         "sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce"
       }
     },
-    "immutable_candidate": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "immutable_candidate": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
     "maintenance_run_executed": false,
     "production_mutations": 0,
     "retention_window_changed": false,
-    "status": "PASS_RETAINED_SOURCE_COMPOSITION_ONLY"
+    "status": "PASS_RETAINED_SOURCE_COMPOSITION_ONLY",
+    "original_maintenance_asset_qualification_commit": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "capacity_change_scope": "DEV-only composition merge of already deployed P0; no production installation in this task."
   },
   "auxiliary_flags": {
     "BIRTH_JOURNAL_PATH": null,
@@ -71,7 +73,7 @@
     "receipt_identity_manifest.json.gz": "42b0fa213a7a4a947898f313af200af89eaae34f248a88036f839e865b10c54e"
   },
   "full_rehearsals_rerun": 0,
-  "immutable_source_composition": "bf0da567634a040c96cc955c9afe165466d94beb",
+  "immutable_source_composition": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
   "live_state_dispositions": {
     "additional_watchtower_admission": "REQUIRED_TRANSFER:exactmembership+canonicalclosure+PENDINGoutboxidentity;currentlyretainedinV1",
     "expired_running_leases": {
@@ -104,9 +106,10 @@
         "truncated": true,
         "unconsumed": 129
       }
-    }
+    },
+    "observation_scope": "Retained bounded observations at2026-10-24T16:18:56Z, not refreshed counts or a final frozen generation. No complete global admission watermark claimed."
   },
-  "next_action": "Separatelyauthorizeaboundednon-destructiveper-bucketcapacityextensionqualificationandcontrolleddeployment;preserveall7dayprotectedreceipts,dedup,atomicwrites,latency,disk/fileboundsandrollback. Donotrunretirementorshortenretention.",
+  "next_action": "Freeze one complete production-bound configuration and exact active-trio/rollback payload around source8f21beca, then qualify only missing operational-state selection and production file/WAL budgets. No deployment or import until these concrete gates pass.",
   "paired_binding_flags": {
     "DEV004_PAIRED_BINDING_REQUIRED": "requiredforqualifiedproductiongeneration",
     "FLEX_DB_PAIR_AUTHORITY": null,
@@ -138,19 +141,45 @@
     "legacy_fallback": false,
     "per_token_budget": 4,
     "values_inspected": false,
-    "window_seconds": 60
+    "window_seconds": 60,
+    "observation_scope": "Retained16:18bounded budget observation; no ledger reset or new acquisition. Not a fresh complete price-state census."
   },
   "provider_calls": 0,
-  "reason": "Read-onlyassessmentandfrozenbundle-draftmetadataonly;nosource/runtimebehaviourchange.",
+  "reason": "DEV-only minimal receipt composition merge plus bounded source/config assessment. Deployed independent P0PASS remains closed; no DEV004 runtime deployment authorized.",
   "receipt_authority": {
-    "age_eligible": 0,
-    "full_buckets": 236,
-    "protected_receipts": 102214,
-    "remaining_slots": 186,
-    "retirement_command_invoked": false,
-    "retirement_would_free_physical_disk": false,
     "root": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
-    "seven_day_seconds": 604800
+    "seven_day_seconds": 604800,
+    "max_record_bytes": 4096,
+    "buckets": 256,
+    "per_bucket_limit": 1536,
+    "sharded_slots": 393216,
+    "warning_threshold": 1152,
+    "deployed_gate": "PASS_COMPLETE",
+    "deployed_candidate": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
+    "deployed_evidence": "c3b027cd8a43a83c13ac75def8d32ae70f34822d",
+    "deployed_handoff": "bb1a158fd88d0d24ff95ffe8620eaf4a00433dfd",
+    "installed_V1_preimage_sha256": "b022320c55ebedea95153c17c7ad2fb2fc8a6335951a8960dea642e5505e72bf",
+    "DEV004_composed_writer_sha256": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c",
+    "whole_file_hashes_should_match": false,
+    "reason": "DEV004 preserves additional paired-acknowledgement guard; deployed capacity/warning method matches exactly.",
+    "retirement_command_invoked": false,
+    "receipt_identities_and_legacy_lookup": "UNCHANGED",
+    "retirement_eligibility_not_reaudited": true,
+    "deployed_proof": {
+      "acceptance_seconds": 300.98041662503965,
+      "capacity_failures": 0,
+      "expanded_buckets": 93,
+      "exact_new_committed_matches": 130,
+      "existing_receipt_paths_retained": 102309,
+      "final_remaining_slots": 294838,
+      "observed_at": "2026-10-24T17:18:11Z"
+    },
+    "rollback_scope": {
+      "old_384_limit_writer": "PROHIBITED_AFTER_EXPANSION",
+      "P0_compatible_fallback_sha256": "67b342e737cd9e06f2ca9be877ab1c4910981662934e1f221ce5a55d27800647",
+      "P0_fallback_scope": "Existing unpaired V1 runtime only. Do not replace a future DEV004 paired writer with this whole-file fallback because it lacks paired-ack validation.",
+      "V2_runtime_requirement": "Retain1536limit plus paired-ack guard in exact versioned V2 rollback composition; matched database/config rollback still must be bound."
+    }
   },
   "receipt_moves_deletions_or_capacity_changes": 0,
   "required_independent_journal_bindings": {
@@ -172,15 +201,15 @@
     "retained_DEV_matched_pair": "PASS_REUSED",
     "retirement_not_executed_so_receipt_restore_needed": false
   },
-  "runtime_deployment_required": false,
+  "runtime_deployment_required": true,
   "service_actions": 0,
   "source_runtime_trees": {
+    "listener": "6464ba90e945312000eb49a374e7a1934a94ff94",
     "creator_resolution": "42e53a3a6fb82d330b475829b7414ec796540536",
-    "listener": "e3ec66b0041d424a4570eb8a7d14ca2988dc1a4b",
     "walkback": "6db474de8fc6b0fb8d253123173653a01c49f7ef"
   },
-  "status": "HOLD_P0_RECEIPT_CAPACITY__SOURCE_CONFIG_BUNDLE_NOT_DEPLOYMENT_QUALIFIED",
-  "stop_rule": "IndependentP0confirmed:activeprovenancecapacityfailuresandnoageeligiblecapacityreclamation. Nobundledeploymentqualificationbeyondthisgate.",
+  "status": "HOLD_THREE_PRODUCTION_CUTOVER_GATES__RECEIPT_CAPACITY_RESOLVED",
+  "stop_rule": "No deployment/migration rerun/historical research. Identify existing concrete gates only.",
   "storage": {
     "diagnostic_file_cap": 33554432,
     "five_GiB_ceiling_enforced": false,
@@ -194,6 +223,51 @@
     "qualified_DEV_record_cap": 4096,
     "qualified_DEV_rehearsal_peak": 41721856,
     "receipt_record_cap": 4096,
-    "receipt_slots": 98304
-  }
+    "receipt_slots": 393216,
+    "current_readonly_free_bytes": 2503196672,
+    "current_readonly_observed_at": "2026-10-24T17:23:09.085754+00:00",
+    "receipt_capacity_gate": "PASS_REUSED_DEPLOYED_PROOF"
+  },
+  "prior_bundle_assessment": {
+    "source": "ccabf8cf74c72aa8fbbca9732f7f8ab7c3a92c5b",
+    "manifest_sha256": "9a7e0896eac464c6eea8814f2393352d0d74cbc9bd240b82f95d6cb653d26871",
+    "receipt_incident": "Resolved by accepted independent P0deployment; old occupancy/age data historical, not current."
+  },
+  "remaining_mandatory_gates": [
+    {
+      "id": "PRODUCTION_RUNTIME_AND_AUTHORITY_BINDINGS",
+      "status": "HOLD",
+      "requirements": [
+        "Exact active-trio payload/current preimages preserving installed corrections, with composed receipt writer1536+paired-ack guard.",
+        "Persistent V2pair paths/generation/seals and exclusive transfer owner; independent initialized birth/migration journal paths.",
+        "Persistent creator-history/freshness and price/checkpoint/budget bindings; exact source/config and matched rollback authority."
+      ],
+      "evidence": "Explicit null bindings and installed journal/guard gaps in retained production preflight; receipt integration alone does not fill them."
+    },
+    {
+      "id": "FINAL_OPERATIONAL_STATE_RECONCILIATION",
+      "status": "HOLD",
+      "requirements": [
+        "Complete bounded selection and preservation of pending/retry/handoff/quarantine/webhook state outside selected seed; additional Watchtower membership/outbox.",
+        "Reconcile three expired running leases without copying active ownership; do not discard pending jobs.",
+        "Final canonical/admission watermark after durable owner enabled, then fenced paired transition; no assumed complete provider gap recovery."
+      ],
+      "evidence": "Successful29,633row seed rehearsal is closed; live deltas/coverage were not part of that frozen cohort."
+    },
+    {
+      "id": "ENFORCEABLE_PRODUCTION_FILE_AND_WAL_BUDGETS",
+      "status": "HOLD",
+      "requirements": [
+        "Fail-closed per-file/transient limits before500,000,000bytes for new V2DBs/WAL and other transition outputs.",
+        "Production journal/receipt/disk-floor budgets and bounded drain/WAL/rollback headroom; no full V1copy."
+      ],
+      "evidence": "DEV rehearsal RLIMIT does not constrain running production writers. Receipt files are bounded4KiB; remaining database/WAL enforcement is unqualified."
+    }
+  ],
+  "resolved_gates": [
+    "Receipt-capacity incident and non-destructive production correction; retain deployed proof.",
+    "Resolver PID turnover authority verified; historical PID values not mandatory.",
+    "Successful compact import/reference closure/functional matrices remain accepted; no rerun."
+  ],
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_FOR_DEV004_BUNDLE"
 }

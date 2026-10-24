@@ -1,0 +1,199 @@
+{
+  "accepted_receipt_assets_already_in_commit": {
+    "accepted_receipt_source": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
+    "candidate_installed_receipt_reader_AST_equivalence": [
+      "_read_receipt",
+      "_identity",
+      "_bucket_name"
+    ],
+    "capacity_changed": false,
+    "files": {
+      "scripts/maintain_pumpportal_compact_receipts.py": {
+        "behaviour_changed": false,
+        "byte_exact_installed_accepted_source_already_in_commit": true,
+        "sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364"
+      },
+      "src/core/pumpportal_receipt_maintenance.py": {
+        "behaviour_changed": false,
+        "byte_exact_installed_accepted_source_already_in_commit": true,
+        "sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce"
+      }
+    },
+    "immutable_candidate": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "maintenance_run_executed": false,
+    "production_mutations": 0,
+    "retention_window_changed": false,
+    "status": "PASS_RETAINED_SOURCE_COMPOSITION_ONLY"
+  },
+  "auxiliary_flags": {
+    "BIRTH_JOURNAL_PATH": null,
+    "DEV004_CREATOR_HISTORY_PATH": {
+      "production_path": null,
+      "retained_qualified_artifact": "/private/tmp/dev004-compact-creator-qualified/history.json",
+      "sha256": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb"
+    },
+    "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": {
+      "current_explicit_config": "not present; installed implementation absent",
+      "required_for_transition": "1 after separately authorized initialization/deployment"
+    },
+    "DEV004_PAIRED_BINDING_REQUIRED": {
+      "current_explicit_config": "not present; installed guard absent",
+      "required_for_transition": "1 under qualified production generation"
+    },
+    "DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED": {
+      "current_explicit_config": "not present; installed implementation absent",
+      "required_for_transition": "1 after separately authorized initialization/deployment"
+    },
+    "FLEX_DB_PAIR_AUTHORITY": null,
+    "FLEX_DB_PAIR_MANIFEST": null,
+    "LIVING_V2_FRESHNESS_MAPPING_PATH": {
+      "production_path": null,
+      "retained_qualified_artifact": "/private/tmp/dev004-outage-freshness/freshness_mapping.json",
+      "sha256": "87c995c633841adaaeffa3114ceacbed0441bf0c00e004036b8dd120d844026d"
+    },
+    "MIGRATION_JOURNAL_PATH": null
+  },
+  "current_V1_paths": {
+    "core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  },
+  "current_bindings_and_preimages_authority": {
+    "path": "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/final_production_preflight/production_manifest.json",
+    "sha256": "e8924143cee9b603ae51c8aa09c2912df0cd31e94df42abf793ab0a3fce21dac",
+    "state": "Retained precedingread-onlypreflight,notafreshcompletepayloadinstallationapproval"
+  },
+  "diagnostic_source_revision": "8c5359ec5c895d580f4a10807bcdb964fd25ec89",
+  "dormant_services": "API/monitor/bridge/Funding/CascadeSTOPPED;noactivationorhistoricalworktreerestoration",
+  "evidence_hashes": {
+    "live_state_dispositions_input.json": "e8a8af58e9db1d940fb40a19451a82715a8bb75fda26fd3660d808bb741d1c3f",
+    "packaging_verification.json": "ebd476a804bc0a6540810b84fadc991139e2bbf30ba808c403bbb5607df121b0",
+    "receipt_gate_result.json": "9f8874bc693057c77c5044ea39a5768630385e4c2a03cf70a281891cdac16ca7",
+    "receipt_identity_manifest.json.gz": "42b0fa213a7a4a947898f313af200af89eaae34f248a88036f839e865b10c54e"
+  },
+  "full_rehearsals_rerun": 0,
+  "immutable_source_composition": "bf0da567634a040c96cc955c9afe165466d94beb",
+  "live_state_dispositions": {
+    "additional_watchtower_admission": "REQUIRED_TRANSFER:exactmembership+canonicalclosure+PENDINGoutboxidentity;currentlyretainedinV1",
+    "expired_running_leases": {
+      "active_ownership_must_not_transfer": true,
+      "classification": "HOLD_OWNER_RECONCILIATION",
+      "cleared_or_reactivated": false,
+      "count": 3
+    },
+    "funding_pending_retry": {
+      "classification": "REQUIRED_PRESERVATION_AND_BOUNDED_TRANSFER",
+      "current_pending": 3584,
+      "current_retry": 59,
+      "drop_or_reset_allowed": false,
+      "more_pending_than_rehearsed_count": 3448,
+      "rehearsed_pending": 136
+    },
+    "price_checkpoint_budget": "RETAIN_CURRENT_EXTERNALAUTHORITY;HOLDproductiongeneration/rollbackbinding;noacquisition",
+    "quarantine": {
+      "classification": "REQUIRED_EXCLUSION_AUTHORITY;HOLD_COMPLETE_CLOSURE",
+      "sample": {
+        "complete": false,
+        "count_lower_bound": 2049
+      }
+    },
+    "webhook": {
+      "classification": "RETAIN_V1_AUTHORITY;HOLD_COMPLETE_TRANSFER_SET",
+      "sample": {
+        "quarantined": 113,
+        "seen": 129,
+        "truncated": true,
+        "unconsumed": 129
+      }
+    }
+  },
+  "next_action": "Separatelyauthorizeaboundednon-destructiveper-bucketcapacityextensionqualificationandcontrolleddeployment;preserveall7dayprotectedreceipts,dedup,atomicwrites,latency,disk/fileboundsandrollback. Donotrunretirementorshortenretention.",
+  "paired_binding_flags": {
+    "DEV004_PAIRED_BINDING_REQUIRED": "requiredforqualifiedproductiongeneration",
+    "FLEX_DB_PAIR_AUTHORITY": null,
+    "FLEX_DB_PAIR_MANIFEST": null
+  },
+  "production_V2_paths": {
+    "core": null,
+    "ops": null,
+    "status": "UNASSIGNED;donotpromoteprivateTMPretiredrehearsalstores"
+  },
+  "production_mutations": 0,
+  "production_package_paths": {
+    "listener": "/Users/kevinkeaveney/Production/flex-listener",
+    "resolver": "/Users/kevinkeaveney/Production/flex-main-workers",
+    "walkback": "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+  },
+  "provider_authority": {
+    "action": "RETAIN_AUTHORITY_IN_PLACE;DONOTRESETORRECREATELEDGER",
+    "credential_name": "BIRDEYE",
+    "current_persisted_budget": {
+      "bytes": 1217,
+      "interpretation": "Preserve unchanged; not fresh allowance.",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue/provider_budget.json",
+      "retained_debits": 10,
+      "sha256": "d5f7f952e5865c7c7b56a7f233031d0449011400c04ef4d392061cccf00bfca1",
+      "version": 1
+    },
+    "global_budget": 20,
+    "legacy_fallback": false,
+    "per_token_budget": 4,
+    "values_inspected": false,
+    "window_seconds": 60
+  },
+  "provider_calls": 0,
+  "reason": "Read-onlyassessmentandfrozenbundle-draftmetadataonly;nosource/runtimebehaviourchange.",
+  "receipt_authority": {
+    "age_eligible": 0,
+    "full_buckets": 236,
+    "protected_receipts": 102214,
+    "remaining_slots": 186,
+    "retirement_command_invoked": false,
+    "retirement_would_free_physical_disk": false,
+    "root": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
+    "seven_day_seconds": 604800
+  },
+  "receipt_moves_deletions_or_capacity_changes": 0,
+  "required_independent_journal_bindings": {
+    "BIRTH_JOURNAL_PATH": null,
+    "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "requiredafterseparatelyauthorizedinitialization",
+    "DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED": "requiredafterseparatelyauthorizedinitialization",
+    "MIGRATION_JOURNAL_PATH": null
+  },
+  "retained_rehearsal_authority": {
+    "evidence": "bf0da567",
+    "handoff": "1bf09b12",
+    "result": "PASS_NOT_REPEATED",
+    "rows": 29633
+  },
+  "rollback": {
+    "V1_preserved": true,
+    "cannot_unretire_source_or_drop_postswitch_work": true,
+    "production_source_configuration_bindings_complete": false,
+    "retained_DEV_matched_pair": "PASS_REUSED",
+    "retirement_not_executed_so_receipt_restore_needed": false
+  },
+  "runtime_deployment_required": false,
+  "service_actions": 0,
+  "source_runtime_trees": {
+    "creator_resolution": "42e53a3a6fb82d330b475829b7414ec796540536",
+    "listener": "e3ec66b0041d424a4570eb8a7d14ca2988dc1a4b",
+    "walkback": "6db474de8fc6b0fb8d253123173653a01c49f7ef"
+  },
+  "status": "HOLD_P0_RECEIPT_CAPACITY__SOURCE_CONFIG_BUNDLE_NOT_DEPLOYMENT_QUALIFIED",
+  "stop_rule": "IndependentP0confirmed:activeprovenancecapacityfailuresandnoageeligiblecapacityreclamation. Nobundledeploymentqualificationbeyondthisgate.",
+  "storage": {
+    "diagnostic_file_cap": 33554432,
+    "five_GiB_ceiling_enforced": false,
+    "floor": 2000000000,
+    "free_at_gate_end": 3774103552,
+    "no_full_V1_copies": true,
+    "planned_temporary_budget": 268435456,
+    "production_DB_WAL_file_growth_cap_qualified": false,
+    "protected_identity_archive_bytes": 7922395,
+    "qualified_DEV_journal_cap": 2000000,
+    "qualified_DEV_record_cap": 4096,
+    "qualified_DEV_rehearsal_peak": 41721856,
+    "receipt_record_cap": 4096,
+    "receipt_slots": 98304
+  }
+}

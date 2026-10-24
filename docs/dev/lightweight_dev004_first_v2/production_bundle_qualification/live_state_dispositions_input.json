@@ -1,0 +1,62 @@
+{
+  "additional_watchtower_membership": {
+    "assigned_at": 1792855650,
+    "event_id": "WATCHTOWER_CONFIRMED:3WUfWQADbhWwogJk7Y37o5PUUVEy7KK1xsxB3YTvpump:1792855650",
+    "mint": "3WUfWQADbhWwogJk7Y37o5PUUVEy7KK1xsxB3YTvpump",
+    "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+    "source_population_id": "walkback_watchtower_confirmed_projection_v1"
+  },
+  "additional_watchtower_outbox": {
+    "event_id": "da31c61c0256b0dac92bae4569a068ac1c367de4479b1f8b700b6b79f19a5ae0",
+    "state": "PENDING"
+  },
+  "expired_running_leases": [
+    {
+      "attempts": 1,
+      "creator_address": "CFNDwGJ8sAXFQXC1gXjb4nTga5rXrGP5sUwQ4ACV5K7P",
+      "expired": true,
+      "locked_until": 1792310725,
+      "mint": "4Lc1ApeFVZS9swCoXuBMatgqUxusdwCqZLUgqK9epump"
+    },
+    {
+      "attempts": 0,
+      "creator_address": "2crS7H1twaziiS5hqwvJUivdAMsctvr3ViwUWHckBdTD",
+      "expired": true,
+      "locked_until": 1792310784,
+      "mint": "QQbg5mHwF9JyJhpD8rRHEjorfVHvgsCnz3yN4CWpump"
+    },
+    {
+      "attempts": 0,
+      "creator_address": "4hE5AYMX9BEywNroVZBXiEVjcGXyVmt4hC5saQvuce47",
+      "expired": true,
+      "locked_until": 1792310784,
+      "mint": "KtjUeE5xWjct4aK87o6WXLcBLuYg858X7LB2MX4pump"
+    }
+  ],
+  "funding_queue": {
+    "pending": 3584,
+    "retry": 59,
+    "running": 3
+  },
+  "lineage_quarantine": {
+    "complete": false,
+    "count_lower_bound": 2049
+  },
+  "observed_at_utc": "2026-10-24T16:18:56.772712+00:00",
+  "production_mutations": 0,
+  "provider_budget": {
+    "bytes": 1217,
+    "interpretation": "Preserve unchanged; not fresh allowance.",
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue/provider_budget.json",
+    "retained_debits": 10,
+    "sha256": "d5f7f952e5865c7c7b56a7f233031d0449011400c04ef4d392061cccf00bfca1",
+    "version": 1
+  },
+  "running_probe_truncated": false,
+  "webhook": {
+    "quarantined": 113,
+    "seen": 129,
+    "truncated": true,
+    "unconsumed": 129
+  }
+}

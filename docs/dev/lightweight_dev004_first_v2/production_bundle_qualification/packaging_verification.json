@@ -1,0 +1,26 @@
+{
+  "accepted_receipt_source": "83f5c05f7af093b3290eea8a7acc92c8eb389bda",
+  "candidate_installed_receipt_reader_AST_equivalence": [
+    "_read_receipt",
+    "_identity",
+    "_bucket_name"
+  ],
+  "capacity_changed": false,
+  "files": {
+    "scripts/maintain_pumpportal_compact_receipts.py": {
+      "behaviour_changed": false,
+      "byte_exact_installed_accepted_source_already_in_commit": true,
+      "sha256": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364"
+    },
+    "src/core/pumpportal_receipt_maintenance.py": {
+      "behaviour_changed": false,
+      "byte_exact_installed_accepted_source_already_in_commit": true,
+      "sha256": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce"
+    }
+  },
+  "immutable_candidate": "bf0da567634a040c96cc955c9afe165466d94beb",
+  "maintenance_run_executed": false,
+  "production_mutations": 0,
+  "retention_window_changed": false,
+  "status": "PASS_RETAINED_SOURCE_COMPOSITION_ONLY"
+}

@@ -1,0 +1,1179 @@
+{
+  "age_eligible_receipts": 0,
+  "archive_state": {
+    "eligible_archive_write_tested": false,
+    "exists": false,
+    "reason": "No mkdir,rename,archive-capacity mutation or maintenance command executed."
+  },
+  "bodies_read": 102214,
+  "body_read_bytes": 56726759,
+  "bounded_manifest_covers_all_current_paths": true,
+  "bucket_counts": {
+    "00": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "01": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "02": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "03": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "04": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "05": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "06": {
+      "all_entries": 359,
+      "json_files": 359
+    },
+    "07": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "08": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "09": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "0a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "0b": {
+      "all_entries": 379,
+      "json_files": 379
+    },
+    "0c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "0d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "0e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "0f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "10": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "11": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "12": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "13": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "14": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "15": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "16": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "17": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "18": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "19": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "1a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "1b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "1c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "1d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "1e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "1f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "20": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "21": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "22": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "23": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "24": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "25": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "26": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "27": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "28": {
+      "all_entries": 382,
+      "json_files": 382
+    },
+    "29": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "2a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "2b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "2c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "2d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "2e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "2f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "30": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "31": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "32": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "33": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "34": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "35": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "36": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "37": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "38": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "39": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "3a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "3b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "3c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "3d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "3e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "3f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "40": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "41": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "42": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "43": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "44": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "45": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "46": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "47": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "48": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "49": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "4a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "4b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "4c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "4d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "4e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "4f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "50": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "51": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "52": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "53": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "54": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "55": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "56": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "57": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "58": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "59": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "5a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "5b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "5c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "5d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "5e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "5f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "60": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "61": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "62": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "63": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "64": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "65": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "66": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "67": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "68": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "69": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "6a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "6b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "6c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "6d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "6e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "6f": {
+      "all_entries": 376,
+      "json_files": 376
+    },
+    "70": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "71": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "72": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "73": {
+      "all_entries": 381,
+      "json_files": 381
+    },
+    "74": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "75": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "76": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "77": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "78": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "79": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "7a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "7b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "7c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "7d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "7e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "7f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "80": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "81": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "82": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "83": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "84": {
+      "all_entries": 378,
+      "json_files": 378
+    },
+    "85": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "86": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "87": {
+      "all_entries": 373,
+      "json_files": 373
+    },
+    "88": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "89": {
+      "all_entries": 383,
+      "json_files": 383
+    },
+    "8a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "8b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "8c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "8d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "8e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "8f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "90": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "91": {
+      "all_entries": 371,
+      "json_files": 371
+    },
+    "92": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "93": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "94": {
+      "all_entries": 361,
+      "json_files": 361
+    },
+    "95": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "96": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "97": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "98": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "99": {
+      "all_entries": 377,
+      "json_files": 377
+    },
+    "9a": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "9b": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "9c": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "9d": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "9e": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "9f": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a0": {
+      "all_entries": 382,
+      "json_files": 382
+    },
+    "a1": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a2": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a3": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a4": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a5": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a6": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a7": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a8": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "a9": {
+      "all_entries": 370,
+      "json_files": 370
+    },
+    "aa": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ab": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ac": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ad": {
+      "all_entries": 379,
+      "json_files": 379
+    },
+    "ae": {
+      "all_entries": 374,
+      "json_files": 374
+    },
+    "af": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b0": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b1": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b2": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b3": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b4": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b5": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b6": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b7": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b8": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "b9": {
+      "all_entries": 376,
+      "json_files": 376
+    },
+    "ba": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "bb": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "bc": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "bd": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "be": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "bf": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c0": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c1": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c2": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c3": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c4": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c5": {
+      "all_entries": 377,
+      "json_files": 377
+    },
+    "c6": {
+      "all_entries": 370,
+      "json_files": 370
+    },
+    "c7": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c8": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "c9": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ca": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "cb": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "cc": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "cd": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ce": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "cf": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d0": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d1": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d2": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d3": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d4": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d5": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d6": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d7": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "d8": {
+      "all_entries": 377,
+      "json_files": 377
+    },
+    "d9": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "da": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "db": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "dc": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "dd": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "de": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "df": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e0": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e1": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e2": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e3": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e4": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e5": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e6": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e7": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e8": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "e9": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ea": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "eb": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ec": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ed": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ee": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ef": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f0": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f1": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f2": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f3": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f4": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f5": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f6": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f7": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f8": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "f9": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "fa": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "fb": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "fc": {
+      "all_entries": 369,
+      "json_files": 369
+    },
+    "fd": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "fe": {
+      "all_entries": 384,
+      "json_files": 384
+    },
+    "ff": {
+      "all_entries": 384,
+      "json_files": 384
+    }
+  },
+  "canonical_birth_loss_count": "NOT_ESTABLISHED; receipt/provenance capacity failures do not alone prove canonicalCorebirthloss.",
+  "current_active_json_files": 102214,
+  "dependency_checks_executed": 0,
+  "dependency_schema_metadata": [
+    {
+      "database": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "handoff_control_present": true,
+      "migration_index": {
+        "idx_migration_persist_queue_mint_status": [
+          "mint",
+          "status"
+        ],
+        "sqlite_autoindex_migration_persist_queue_1": [
+          "signature"
+        ]
+      }
+    },
+    {
+      "database": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    }
+  ],
+  "free_bytes_at_end": 3774103552,
+  "full_buckets": 236,
+  "installed_source_sha256": {
+    "/Users/kevinkeaveney/Production/flex-listener/scripts/maintain_pumpportal_compact_receipts.py": "124f7d1791eccfb32650752c10e43fb5000795678e04a88233bdc38a78da3364",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_birth_audit.py": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+    "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_receipt_maintenance.py": "486f8e4d9ea193de13f7c02c6919a4ba14b427e588c2221485a72404408923ce"
+  },
+  "legacy_files": 4096,
+  "log_after": [
+    {
+      "bytes": 16560640,
+      "exists": true,
+      "failure_counts": {},
+      "inode": 1049647872,
+      "mtime_utc": "2026-10-24T16:13:09.724347+00:00",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+      "tail_bytes_examined": 8388608
+    },
+    {
+      "bytes": 6355969,
+      "exists": true,
+      "failure_counts": {
+        "birth_outcome:RECEIPT_DISK_HEADROOM": 1,
+        "birth_provenance:RECEIPT_CAPACITY": 6480,
+        "birth_provenance:RECEIPT_DISK_HEADROOM": 2380,
+        "migration_handoff:HANDOFF_IDENTITY": 2267,
+        "migration_handoff:RECEIPT_CAPACITY": 306,
+        "migration_handoff:RECEIPT_DISK_HEADROOM": 109
+      },
+      "inode": 757092214,
+      "mtime_utc": "2026-10-24T16:12:56.011150+00:00",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener_err.log",
+      "tail_bytes_examined": 6355969
+    }
+  ],
+  "log_before": [
+    {
+      "bytes": 16531022,
+      "exists": true,
+      "failure_counts": {},
+      "inode": 1049647872,
+      "mtime_utc": "2026-10-24T16:12:28.604169+00:00",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+      "tail_bytes_examined": 8388608
+    },
+    {
+      "bytes": 6355614,
+      "exists": true,
+      "failure_counts": {
+        "birth_outcome:RECEIPT_DISK_HEADROOM": 1,
+        "birth_provenance:RECEIPT_CAPACITY": 6475,
+        "birth_provenance:RECEIPT_DISK_HEADROOM": 2380,
+        "migration_handoff:HANDOFF_IDENTITY": 2267,
+        "migration_handoff:RECEIPT_CAPACITY": 306,
+        "migration_handoff:RECEIPT_DISK_HEADROOM": 109
+      },
+      "inode": 757092214,
+      "mtime_utc": "2026-10-24T16:11:58.329533+00:00",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener_err.log",
+      "tail_bytes_examined": 6355614
+    }
+  ],
+  "maintenance_is_dry_run_capable": false,
+  "maintenance_run_executed": false,
+  "natural_observation_seconds": 42.139194,
+  "new_log_failures_during_scan": [
+    {
+      "new_bytes": 29618,
+      "new_capacity_receipt_failures": 0,
+      "new_failures": {},
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener.log",
+      "same_file": true
+    },
+    {
+      "new_bytes": 355,
+      "new_capacity_receipt_failures": 5,
+      "new_failures": {
+        "birth_provenance:RECEIPT_CAPACITY": 5
+      },
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/supervisor/listener_err.log",
+      "same_file": true
+    }
+  ],
+  "newest_receipt_utc": "2026-10-24T16:12:33.539199+00:00",
+  "observed_end_utc": "2026-10-24T16:13:10.777950+00:00",
+  "observed_start_utc": "2026-10-24T16:12:28.638756+00:00",
+  "oldest_first_retirement_eligible_utc": "2026-10-26T10:34:21.719507+00:00",
+  "oldest_receipt_utc": "2026-10-19T10:34:21.719507+00:00",
+  "outcome_counts": {
+    "ATTEMPTED": 3948,
+    "COMMITTED": 96766,
+    "COMMITTED_CONFLICT": 1376,
+    "RETRY_PENDING": 120,
+    "UNCONFIRMED": 4
+  },
+  "primary_decisions": {
+    "PROTECTED:YOUNGER_THAN_SEVEN_DAYS": 102214
+  },
+  "production_mutations": 0,
+  "protected_identity_archive_sha256": "42b0fa213a7a4a947898f313af200af89eaae34f248a88036f839e865b10c54e",
+  "protected_manifest_archive_bytes": 7922395,
+  "protected_manifest_uncompressed_bytes": 18630142,
+  "protected_manifest_uncompressed_sha256": "4dfa3113c6ae73957b9fcf53bae5b3134b6ca6978198f6d3295c4aca05439453",
+  "provider_calls": 0,
+  "receipt_kinds": {
+    "MIGRATION_HANDOFF": 3948,
+    "PUMPPORTAL_BIRTH": 98266
+  },
+  "receipt_moves_or_deletions": 0,
+  "remaining_slots": 186,
+  "retention_cutoff_utc": "2026-10-17T16:12:28.638756+00:00",
+  "retirement_reclaims_physical_space": false,
+  "retirement_semantics": "same-filesystem reversible rename into .retired; no deletion or canonicalDBwrite; recovers active bucket slots only",
+  "secondary_protection_flags": {
+    "DURABLE_HANDOFF_RETAINED": 3948,
+    "PROTECTED_AUDIT_CONFLICT": 1376,
+    "UNRESOLVED_RECEIPT": 1500
+  },
+  "service_actions": 0,
+  "status": "HOLD_P0_RECEIPT_CAPACITY",
+  "unreadable": []
+}

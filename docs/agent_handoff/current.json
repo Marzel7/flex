@@ -23374,7 +23374,7 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-10-24T11:42:16.707296+00:00",
+  "last_updated": "2026-10-24T11:54:10.220125+00:00",
   "latest_at_utc": "2026-08-18T14:08:03Z",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "e5025c59b0a9bd2f8a967fba568407e18419ffaa",
+    "git_head": "375ba43a87ba8f1b9e5c7f0603e8772dbb972283",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T11:42:16.707296+00:00",
-    "working_tree": "DEV004 paired binding guard PASS isolated DEV; executable0013ccbd; evidence e5025c59. 192 unique provider-free PASS. No production deployment, flags, markers or cutover."
+    "updated_at_utc": "2026-10-24T11:54:10.220125+00:00",
+    "working_tree": "DEV004 migration preflight HOLD_MISSING_AUTHORITY: one complete rehearsal-only manifest/state-coverage binding missing. Candidate0013ccbd unchanged; no tests repeated or production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -42560,5 +42560,42 @@
     "report": "docs/dev/lightweight_dev004_first_v2/paired_binding_guard/REPORT.md",
     "remaining_blockers": "NONE for requested DEV correction. Production activation/cutover unexecuted and unauthorized.",
     "next_action": "NONE \u2014 requested DEV correction complete. Stop; preserve V1 authority. Separate authorization and existing controlled preflight required before production deployment/cutover."
+  },
+  "dev004_migration_preflight": {
+    "status": "HOLD_MISSING_AUTHORITY",
+    "engineering_revision": "375ba43a87ba8f1b9e5c7f0603e8772dbb972283",
+    "executable_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+    "source_changed": false,
+    "candidate_integrity": "All accepted source corrections verified ancestral/coexisting. Four retained seed/history/freshness artifacts match accepted hashes. No new functional defect.",
+    "tests": "No suites repeated. Reuse192guard/journal/transfer/writer PASS;100creator/616routes/26Deep/11frozen,Walkback,Birdeye andnonP3R accepted evidence.",
+    "live_authority": {
+      "core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "secondary_creator": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+      "listener_pid": 94632,
+      "resolver_pid": 3874,
+      "walkback_pid": 94577,
+      "other_selective_services": "STOPPED",
+      "supervisor_config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e"
+    },
+    "disk": {
+      "available_bytes": 3929370624,
+      "floor_bytes": 2000000000,
+      "floor_pass": true,
+      "core_allocated_bytes": 35652194304,
+      "ops_allocated_bytes": 16194613248,
+      "reference_pair_bytes": 22724608,
+      "receipt_files": 101364,
+      "receipt_allocated_bytes": 415186944,
+      "full_receipt_buckets": 176,
+      "receipt_capacity_note": "Accepted sharded256x384pluslegacy; no deletion. Future new identities in a full bucket fail closed.",
+      "v2_5gib_ceiling": "Unqualified planning target; no production sustained growth claim."
+    },
+    "blocker": "Existing runtime manifest explicitly partial/pins712f1840; guarded transfer JSON covers10synthetic tables only. No one manifest binds candidate/all3entrypoints,CoreOPS+secondary,seed/history/freshness,stablejournals/receipts,pricequeue/checkpoint/budget,rollback and enforced sandbox bounds.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only metadata/limited indexed queue observations and evidence consolidation only.",
+    "production_state": "Unchanged: no source/config/DB writes,service actions,providers,WebSockets,deletion or cutover. Credentials not read. Queue probes are per-query snapshots, not final consistent reconciliation.",
+    "report": "docs/dev/lightweight_dev004_first_v2/migration_preflight/REPORT.md",
+    "next_action": "Freeze one bounded rehearsal-only manifest/state-coverage ledger for candidate0013ccbd using existing accepted components and artifact hashes; declare allstores/journals/pricebudget/rollback and enforcedfile/totalcaps. Then one complete disposable rehearsal; no production action or repeated matrices."
   }
 }

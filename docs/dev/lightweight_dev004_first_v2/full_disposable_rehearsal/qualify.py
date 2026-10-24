@@ -81,7 +81,7 @@ def run(base):
   return result
  importer.old.ro=source_hook;importer.import_row=capture
  # Existing run requires a fresh root; the wrapper's own authority root is parent.
- target=base/'import';importer.run(target)
+ target=base/'dev004-import';importer.run(target)
  result=json.loads((target/'result.json').read_text())
  if result['status']!='FULL_REFERENCE_IMPORT_PASS':raise RuntimeError('IMPORT_HOLD:'+json.dumps(result['blocker']))
  # Freeze oracles from source records, plus exactly the derived typed sidecar.

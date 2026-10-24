@@ -23374,7 +23374,7 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-10-24T11:54:10.220125+00:00",
+  "last_updated": "2026-10-24T12:15:42.717346+00:00",
   "latest_at_utc": "2026-08-18T14:08:03Z",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "375ba43a87ba8f1b9e5c7f0603e8772dbb972283",
+    "git_head": "6e6d1b0729649e7f548cbd7057e39f564b565daa",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T11:54:10.220125+00:00",
-    "working_tree": "DEV004 migration preflight HOLD_MISSING_AUTHORITY: one complete rehearsal-only manifest/state-coverage binding missing. Candidate0013ccbd unchanged; no tests repeated or production changes."
+    "updated_at_utc": "2026-10-24T12:15:42.717346+00:00",
+    "working_tree": "DEV004 single disposable migration PASS. Complete manifest remote-verified, actual crash/restart/rebind and fresh rollback passed; runtimecandidate0013ccbd unchanged; no production mutations or deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -42596,6 +42596,50 @@
     "runtime_deployment_reason": "Read-only metadata/limited indexed queue observations and evidence consolidation only.",
     "production_state": "Unchanged: no source/config/DB writes,service actions,providers,WebSockets,deletion or cutover. Credentials not read. Queue probes are per-query snapshots, not final consistent reconciliation.",
     "report": "docs/dev/lightweight_dev004_first_v2/migration_preflight/REPORT.md",
-    "next_action": "Freeze one bounded rehearsal-only manifest/state-coverage ledger for candidate0013ccbd using existing accepted components and artifact hashes; declare allstores/journals/pricebudget/rollback and enforcedfile/totalcaps. Then one complete disposable rehearsal; no production action or repeated matrices."
+    "next_action": "Requested missing manifest/rehearsal gate closed. Preserve historical preflight observations; use dev004_disposable_migration_rehearsal. No production authorization.",
+    "resolution_status": "RESOLVED_BY_SINGLE_DISPOSABLE_REHEARSAL_PASS",
+    "resolution_source": "27713bdca3f99c2b37a5e11469eddce1db62fc2a"
+  },
+  "dev004_disposable_migration_rehearsal": {
+    "status": "PASS",
+    "engineering_revision": "6e6d1b0729649e7f548cbd7057e39f564b565daa",
+    "source_commit": "27713bdca3f99c2b37a5e11469eddce1db62fc2a",
+    "executable_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+    "runtime_source_changed": false,
+    "manifest": "docs/dev/lightweight_dev004_first_v2/rehearsal_authority/manifest.json",
+    "manifest_sha256": "32882b5ca9fee543ee3e6f86e4038b096823376edbb94256287a81296c1bd1a0",
+    "frozen_manifest_commit": "6bfd275a",
+    "engineering_publication": "origin/codex/dev004-first-v2-prototype",
+    "publication_verification": "All13source/manifest/report/evidence files byte-compared against fetched remote. No database payloads published.",
+    "authority": "Complete rehearsal-only manifest: all3source/destination/rollback stores and physical identities/initialhashes; stable journals/receipt/history/freshness; source tree/file/dependency identities; checkpoint/queue/budget and BIRDEYEname-only; flags, isolated entrypoints, storage and matched rollback. All assets validated before one execute.",
+    "migration_count": 1,
+    "execution": "Actual existing lease/journal/retirement/guard/canonical/readback/checkpoint interfaces; entire compact retained DEV source copied cold into declared closed inodes. Migrate process intentionallyexit71afterCorecommit/beforeOPShandoff; fresh recovery0; fresh matchedrollback0.",
+    "equivalence": "Exact80tables at transfer:15Core/58OPS/7secondary;12496Core+15992OPS+1secondaryrow. Protected evidence/provenance unchanged; original source and stable files retain initialhashes. FinalV2 and rollback all3DBfiles byte-identical.",
+    "ath": "Canonical ATH/provenance unchanged,0%V1/V2difference. Reuse accepted reconstructed0.0025616522235844718%relative<0.1%; exact originalcandles remains separatelyunqualified.",
+    "restart_idempotency": "PASS:2birthACKs+1migrationACK; duplicate intake adds no DBdelta;2staleV1writesrejected;1completedwindow retained/1unfinishedjob recoverable;original1reservationledgerunchanged20global4token60s. No externalHTTP.",
+    "rollback": "PASS freshauthorizedmatchedpair including latestpost-switchwrites+secondary; bothoriginalV1+V2remainretired; stablejournal/receipt/mapping/queue/budgetauthoritypreserved. Neverunretire or pathflip.",
+    "storage": {
+      "floor_bytes": 2000000000,
+      "available_before": 3899011072,
+      "available_after": 3853733888,
+      "allocated_before": 24592384,
+      "allocated_after": 70344704,
+      "maximum_file_bytes": 13762560,
+      "process_file_limit_bytes": 16000000,
+      "total_budget_bytes": 402653184,
+      "prewrite_free_reserve_bytes": 402653184,
+      "maximum_file_count": 512,
+      "provider_calls": 0,
+      "raw_retention": false,
+      "new_unbounded_growth_paths": 0
+    },
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Only isolated rehearsal harness/configuration/evidence, no executable runtime correction or production deployment. Existing full daemon/provider/classifier matrices reused.",
+    "production_mutations": 0,
+    "production_state": "V1authoritative unchanged; no productionDB/journal/config/source writes oropens, service/restart/WS/provider/cutover/promotion. Childaudits restrictallSQLite andPythonwrites todisposableroot; secretsnotread.",
+    "scope_limit": "Complete declared compact-reference plus synthetic operational rehearsal, not live daemon/deployment/sustainedproduction growth acceptance. Reproduction requires SHA256-identified retained local DEV inputs, fresh root/inode identities and a new manifest; existingroot refusessecondexecute.5GiBproductionceilingunqualified.",
+    "report": "docs/dev/lightweight_dev004_first_v2/rehearsal_authority/REPORT.md",
+    "blocker": null,
+    "next_action": "NONE \u2014 requested milestone complete. Stop, preserve V1. Separate explicit authorization required for any production deployment or transition; do not repeat migration or accepted matrices."
   }
 }

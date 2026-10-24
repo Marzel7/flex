@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/p0-receipt-capacity",
-    "git_head": "fe6acaddd9c1b95e5feaf8e06b71830e48849d63",
+    "git_head": "11e9d172174b8fc9320064222ed9160ee92f6686",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T16:55:04.453349+00:00",
-    "working_tree": "Read-only P0 receipt-capacity deployment preflight GO; no deployment or service actions. Candidate remains3c8d0d22."
+    "updated_at_utc": "2026-10-24T17:00:53.506959+00:00",
+    "working_tree": "Authorized P0 one-file deployment stopped before service actions: current resolverPID92522 differs from preflight3874. Source remains original, listener running."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43326,5 +43326,51 @@
     "blocker": null,
     "next_action": "Separately authorize exact one-file listener deployment with capacity-compatible fallback and bounded natural acceptance; immediately recheck disk/preimage/sole-owner prerequisites.",
     "engineering_publication": "Local immutable evidence commit only; no engineering remote publication requested or performed."
+  },
+  "p0_receipt_capacity_production_deployment": {
+    "status": "HOLD_PREDEPLOYMENT_SERVICE_AUTHORITY_CHANGED",
+    "engineering_evidence_revision": "11e9d172174b8fc9320064222ed9160ee92f6686",
+    "runtime_candidate": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
+    "report": "docs/dev/p0_receipt_capacity/deployment/REPORT.md",
+    "authorization": "One-file listener-only deployment and five-minute natural acceptance authorized; no other restart/change. Execution stopped at prerequisite boundary.",
+    "installed_source_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+    "candidate_and_fallback_hashes_verified": true,
+    "staged": "Only candidate and compatible fallback privately staged, no production replacement.",
+    "listener_pid_before_after": [
+      94632,
+      94632
+    ],
+    "resolver_pid_preflight_current": [
+      3874,
+      92522
+    ],
+    "walkback_pid_before_after": [
+      94577,
+      94577
+    ],
+    "states": "All three RUNNING",
+    "capacity": {
+      "per_bucket_before_after": [
+        384,
+        384
+      ],
+      "full_buckets": 242,
+      "remaining_slots": 103,
+      "active_receipts": 102297
+    },
+    "database_health": "Core/OPS bounded query-only reads pass; WALs0bytes.",
+    "free_bytes_at_stop": 2520268800,
+    "five_minute_acceptance": "NOT_STARTED_PREREQUISITE_STOP",
+    "rollback": "NOT_REQUIRED_NOT_INSTALLED; use compatible fallback after any future expanded writes.",
+    "production_source_changes": 0,
+    "receipt_mutations": 0,
+    "manual_database_writes": 0,
+    "service_actions": 0,
+    "manual_provider_calls": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "blocker": "Resolver process authority changed from frozen preflightPID3874 to92522. No claim PID turnover alone proves a defect. Immediate baseline confirmation missing; user stop-on-prerequisite rule applied.",
+    "next_action": "Confirm current resolver92522 runtime authority and refresh service baseline, then resume already authorized listener-only deployment if immediate prerequisites match. Do not restart or modify resolver.",
+    "engineering_publication": "Local evidence commit only; no engineering remote publication performed."
   }
 }

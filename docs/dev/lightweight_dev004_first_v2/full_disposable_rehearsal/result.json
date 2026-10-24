@@ -1,0 +1,95 @@
+{
+  "actual_filesystem_free_delta": -79945728,
+  "after": {
+    "allocated_bytes": 41721856,
+    "files": 29,
+    "free_bytes": 3678900224,
+    "largest_file_bytes": 12783616
+  },
+  "before": {
+    "allocated_bytes": 0,
+    "files": 0,
+    "free_bytes": 3758845952,
+    "largest_file_bytes": 0
+  },
+  "before_basis": "Existing importer free_bytes sampled immediately before direct-source import; wrapper restart resumed without reimport after a resolved harness API mismatch.",
+  "compact_V2_rollback_pair_copy": true,
+  "compact_pair_bytes": 17616896,
+  "critical_state_preservation": [
+    {
+      "generation": "v2",
+      "known_operations": 10,
+      "pending_outbox_admissions_retained": 5,
+      "typed_reference_counts": {
+        "CONFIRMED_MATCH": 180,
+        "FUNDING_SIGNATURE": 14,
+        "IDENTITY_EVENT": 111,
+        "MEMBERSHIP_COMMIT": 104,
+        "NONE": 762
+      },
+      "unknown_infrastructure_conflicts_retained": 10
+    },
+    {
+      "generation": "rollback",
+      "known_operations": 10,
+      "pending_outbox_admissions_retained": 5,
+      "typed_reference_counts": {
+        "CONFIRMED_MATCH": 180,
+        "FUNDING_SIGNATURE": 14,
+        "IDENTITY_EVENT": 111,
+        "MEMBERSHIP_COMMIT": 104,
+        "NONE": 762
+      },
+      "unknown_infrastructure_conflicts_retained": 10
+    }
+  ],
+  "database_sizes": {
+    "core": 4833280,
+    "ops": 12783616
+  },
+  "derived_typed_rows": 1171,
+  "direct_import_executions": 1,
+  "full_V1_copies": 0,
+  "largest_observed_file_bytes": 12783616,
+  "limitations": [
+    "This is one full selected operational-seed import, not a production cutover.",
+    "Source Core/OPS reads are independent read-only snapshots, not a quiesced atomic production generation.",
+    "Rollback is an authorized fresh matched compact DEV pair; real V1 remains authoritative and unchanged.",
+    "Prior journals/provider recovery qualifications reused; no live intake or provider execution."
+  ],
+  "managed_transaction_rollback": "PASS;stagedpricechangereverted",
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "restart": {
+    "all_source_database_access_forbidden": true,
+    "foreign_key_violations": 0,
+    "generation": "disposable-imported-v2",
+    "quick_check": "ok",
+    "reader_comparisons": 11,
+    "rows_verified": 29633,
+    "status": "PASS",
+    "three_component_database_bindings": "PASS"
+  },
+  "retired_dev_writer_rejected": true,
+  "rollback": {
+    "all_source_database_access_forbidden": true,
+    "foreign_key_violations": 0,
+    "generation": "disposable-rollback",
+    "quick_check": "ok",
+    "reader_comparisons": 11,
+    "rows_verified": 29633,
+    "status": "PASS",
+    "three_component_database_bindings": "PASS"
+  },
+  "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED",
+  "sampled_peak_allocated_bytes": 41721856,
+  "selected_source_rows": 28462,
+  "smallest_observed_free_bytes": 3678900224,
+  "source_V1_retired_or_rebound": false,
+  "source_and_target_row_digests_exact": true,
+  "source_revision": "fd7f4670ba51bfb75d263049f4b993d6ccfbe91c",
+  "status": "PASS",
+  "storage_peak_basis": "Sampled allocation, not an instantaneous hard high-water mark; original importer floor checks and recorded continuation samples both apply.",
+  "storage_samples": 38,
+  "total_target_rows": 29633
+}

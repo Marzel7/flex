@@ -1,0 +1,13 @@
+{
+  "creator_classification": "7b22d1144ee513e48283e2ab3c7949e2f4aa1a03aaf936de43455af1bf2ff4e4",
+  "creator_funding_history": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "known_subprovider": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa",
+  "known_treasury": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa",
+  "ohlc_reduction": "34d5d101eb31cc58f46fa8f42f6978a95abe056270b2711a4a6f83947a9c297c",
+  "parent_candidates": "ceda45982c7f9b449ee79af6d1263f2bb18396a639ae665f6fd82eeb4ed3bf11",
+  "price_fact": "c34baa314d70e88b8ca9b01e1a0c84b675a7fe01cff250dc681a08123eaf4d96",
+  "price_observations": "46c9995f499a213c3dad7046d1cc9ef0a4fd6ba824740469d0ec50edf791364a",
+  "quarantine": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "retained_outcome": "e6c47ddbdc43a8b177cf51e08ac45571fc1af0491063a038c700d71e22b6eff9",
+  "watchtower_route": "c5d5c66405fa1937fdfe0fe1ea699258e7c771ff26db3400ce568ec1647d149a"
+}

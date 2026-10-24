@@ -1,0 +1,6 @@
+{
+  "detail": "Traceback (most recent call last):\n  File \"/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/full_disposable_rehearsal/qualify.py\", line 117, in <module>\n    base=Path(sys.argv[2]);isolate(base,False);print(json.dumps(verify_pair(base,Path(sys.argv[3]))))\n                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/full_disposable_rehearsal/qualify.py\", line 55, in verify_pair\n    db=load(ROOT/f'runtime/{component}/src/core/db.py','qualified_db_'+component);assert db.DB_PATH==m['stores']['core']['path'] and db.resolve_ops_db_path()==m['stores']['ops']['path']\n                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'qualified_db_walkback' has no attribute 'resolve_ops_db_path'\n",
+  "resolution": "Use actual Walkback OPS_DB_PATH API; verification resumed on same imported pair, no runtime correction/source reads/new import. Final qualification PASS.",
+  "status": "RESOLVED_HARNESS_ONLY",
+  "type": "AssertionError"
+}

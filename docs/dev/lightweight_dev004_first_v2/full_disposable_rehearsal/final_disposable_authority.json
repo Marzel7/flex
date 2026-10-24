@@ -1,0 +1,11 @@
+{
+  "authority_id": "dev004-full-disposable-rehearsal",
+  "generation": "disposable-rollback",
+  "manifest_path": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/rollback-runtime-manifest.json",
+  "manifest_sha256": "dc68232ce118d0aa6950d848a9a38b63c1834ecd589db88021ecfcb6bce52c4e",
+  "origin_generation": "disposable-imported-v2",
+  "owner": "runtime",
+  "phase": "ACTIVE",
+  "transfer_complete": true,
+  "version": 1
+}

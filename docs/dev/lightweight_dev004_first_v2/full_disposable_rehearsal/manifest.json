@@ -1,0 +1,69 @@
+{
+  "ATH_relative_tolerance": 0.001,
+  "accepted_runtime_source_unchanged_from": "4b871217b78829f07adaab7e1f4ae13fc5a92878",
+  "credential_authority": "BIRDEYEunchanged;valuesnotinspected",
+  "derived_reference_rows": 1171,
+  "execution_root": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1",
+  "external_retained_reference_records_included": 15,
+  "full_V1_copies": 0,
+  "limits": {
+    "additional_initial_reserve": 268435456,
+    "combined_sampled": 268435456,
+    "disk_floor": 2000000000,
+    "oracle_file": 8000000,
+    "single_file": 67108864
+  },
+  "next_action": "NONE \u2014 one requested disposable rehearsal complete. Production cutover requires separate authorization and live final-state preflight.",
+  "original_code_commit": "f9f34ab7bc64cbbfc3fc6fdc86386c9ad70166c2",
+  "original_direct_imports": 1,
+  "plan_sha256": "7452c02b3036e3dd69883ced72c91ef6076df93910d89e0ebf16850d9860c2a1",
+  "production_activation": false,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "qualified_database_bytes": 17616896,
+  "restart": "Fresh interpreter; non-disposable SQLite access forbidden; fullrowdigests,quickcheck,FKcheck,11actualreaderoutputs,3actualdb.pybindings",
+  "result_files": {
+    "final_disposable_authority.json": "445d6d280d44b700b945aa2f59103b6a3074148ef625fd3fa079622719724a3e",
+    "import_result.json": "2f769a9688156c1870eefbb6a8f75c198b77eef1b9ddbee3c29a0d1b57ef830b",
+    "plan.json": "7452c02b3036e3dd69883ced72c91ef6076df93910d89e0ebf16850d9860c2a1",
+    "reader_oracles.json": "d4230813409ecd7c3337915e873444a0a7d4105259900585138166045d3875ba",
+    "resolved_harness_error.json": "29eadfe1de3ef20d6308b258e5d64b8264ac6010878d5b1e2f1c3d9dbb150cc7",
+    "restart_result.json": "99c68f46c43e9854197d7e2d8748d32bf318c090bc2ca2b581cbddb371c7deb5",
+    "result.json": "21d0d35ca477343b9dbca1b99f3e5684949b0d09733380c7910a3a17e768bf43",
+    "rollback_result.json": "2402ebc455f45e535867da019db4b5a2afce8be5c9060c3d2f5256447076dd1a",
+    "rollback_runtime_manifest.json": "dc68232ce118d0aa6950d848a9a38b63c1834ecd589db88021ecfcb6bce52c4e",
+    "v2_runtime_manifest.json": "4f9a68b394d8e22e50b12a7159c9e4a7da07ddd05a4a1d8229078082d480eb1d",
+    "verification_resume_plan.json": "3be64c13bc4303b1ee13e123cbf83da62aa8a472da3295ec407cfd7565afaf95"
+  },
+  "resume_plan_sha256": "3be64c13bc4303b1ee13e123cbf83da62aa8a472da3295ec407cfd7565afaf95",
+  "rollback": "Actualmanagedrollbackofstagedwrite+retirementofDEVcompactpair+freshmatchedcompactV2rollbackpair;originalDEVpairremainsretired,staleDEVwriterrejected. RealV1authoritynevermodified.",
+  "row_oracles": {
+    "archive_bytes": 2296569,
+    "archive_sha256": "de540a70d56643c9603a1cc19230a9390991afd1b566b5983365b77a91c437bd",
+    "format": "JSON of table/PK/row SHA256 only; no source row payloads or V1 snapshot",
+    "uncompressed_bytes": 6395954,
+    "uncompressed_sha256": "94e0f83a7d087c2c02aacdb5487039ca5691f1093b8cf0a3e0f82aa3de91e1ec"
+  },
+  "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED",
+  "sampled_peak_additional_bytes": 41721856,
+  "selected_records": 28462,
+  "source_database_identities": {
+    "core": {
+      "access": "mode=ro;selectedindexedkeys;nofullcopyorfilehash",
+      "device": 16777234,
+      "inode": 549513179,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db"
+    },
+    "ops": {
+      "access": "mode=ro;selectedindexedkeys;nofullcopyorfilehash",
+      "device": 16777234,
+      "inode": 421043107,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    }
+  },
+  "source_generation_limitation": "Independentread-onlyCore/OPSsnapshots;noatomicproductioncutovergenerationclaim",
+  "source_revision": "fd7f4670ba51bfb75d263049f4b993d6ccfbe91c",
+  "status": "PASS_DISPOSABLE_REHEARSAL_ONLY",
+  "verification_code_commit": "1e3ea614c1efcc0fb8b8d9f4571fc8b10aa0dded",
+  "verification_continuation_imports": 0
+}

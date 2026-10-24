@@ -1,0 +1,10 @@
+{
+  "all_source_database_access_forbidden": true,
+  "foreign_key_violations": 0,
+  "generation": "disposable-imported-v2",
+  "quick_check": "ok",
+  "reader_comparisons": 11,
+  "rows_verified": 29633,
+  "status": "PASS",
+  "three_component_database_bindings": "PASS"
+}

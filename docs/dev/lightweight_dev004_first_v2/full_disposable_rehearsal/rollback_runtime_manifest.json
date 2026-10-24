@@ -1,0 +1,44 @@
+{
+  "authority": {
+    "id": "dev004-full-disposable-rehearsal",
+    "origin_generation": "disposable-imported-v2",
+    "path": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/pair-authority.json"
+  },
+  "generation": "disposable-rollback",
+  "predecessor": {
+    "generation": "disposable-imported-v2",
+    "stores": {
+      "core": {
+        "device": 16777234,
+        "generation": "disposable-imported-v2",
+        "inode": 1051486050,
+        "path": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/core.sqlite",
+        "role": "core"
+      },
+      "ops": {
+        "device": 16777234,
+        "generation": "disposable-imported-v2",
+        "inode": 1051486075,
+        "path": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/ops.sqlite",
+        "role": "ops"
+      }
+    }
+  },
+  "stores": {
+    "core": {
+      "device": 16777234,
+      "generation": "disposable-rollback",
+      "inode": 1051500645,
+      "path": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/rollback-core.sqlite",
+      "role": "core"
+    },
+    "ops": {
+      "device": 16777234,
+      "generation": "disposable-rollback",
+      "inode": 1051500663,
+      "path": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/rollback-ops.sqlite",
+      "role": "ops"
+    }
+  },
+  "version": 1
+}

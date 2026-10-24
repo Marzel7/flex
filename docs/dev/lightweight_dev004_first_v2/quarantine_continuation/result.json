@@ -1,0 +1,91 @@
+{
+  "DEV004_QUARANTINE_CONTINUATION_STATUS": "PASS_FOCUSED_QUALIFICATION_AND_FENCED_STAGING",
+  "QUARANTINE_SOURCE_COUNT": 207116,
+  "QUARANTINE_TRANSFERRED_COUNT": 207116,
+  "QUARANTINE_RECONCILIATION": "Exact row/state comparison, ordered digest equality and full EOF completion on the fenced source boundary; staging only. V1 has since resumed, so this is not a current final production generation.",
+  "quarantine_digest": "b51806989c5e639db940cbd6f7d93728026483d5d918769e60e8ff03882b936b",
+  "persistent_inactive_V2_quarantine_rows": 74585,
+  "BATCH_AND_RESTART_SAFETY": {
+    "rows_per_batch": 128,
+    "max_row_bytes": 65536,
+    "checkpoint_bytes": 16384,
+    "main_db_budget": 480000000,
+    "kernel_file_limit": 499000000,
+    "disk_floor": 2000000000,
+    "reserve": 67108864,
+    "no_quarantine_population_ceiling": true,
+    "no_whole_population_transaction": true,
+    "crash_commit_checkpoint_replay": "PASS",
+    "duplicate_and_conflict": "PASS",
+    "complete_source_target_coverage": "PASS"
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "continuation": {
+      "passed": 16,
+      "failed": 0
+    },
+    "large_fresh_rollback": {
+      "passed": 1,
+      "ops_bytes": 108609536,
+      "bootstrap_before_restore": true
+    },
+    "separate_existing_lease_owners": "PASS; nested write prohibition preserved",
+    "critical_fenced_signature_admission": {
+      "passed": 0,
+      "failed": 1,
+      "durably_admitted_records": 0,
+      "actual_lookup_body": true
+    }
+  },
+  "FINAL_CANDIDATE_SHA": "dfb76562efc0aa598c6750ddb36723b9e5e7b06e",
+  "PRODUCTION_CUTOVER_STATUS": "HOLD_ABORTED_BEFORE_V1_RETIREMENT",
+  "critical_blocker": "MigrationJournal.admit invokes resolve_completed inside the journal mutation before appending/publishing the new signature. Actual _migration_completed_mint requires ACTIVE authority and raises PAIR_TRANSFER_ONLY at the transfer fence. The signature remains absent from the journal. Admission is therefore not independent of the fenced Core/OPS pair.",
+  "ACTIVE_CORE_OPS_PATHS": {
+    "core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  },
+  "active_generation": "DEV004-V1-20261024",
+  "active_pair_manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-pair.json",
+  "active_pair_sha256": "6ecb2ff760afbe61475fb441babede57fbe0bb84b69bf372388df4a8eb17afd4",
+  "active_supervisor_configuration_sha256": "a6dcc96e3ef0f107226d1a488f00813e51eb3a504a50ea0dca19bb754617c858",
+  "installed_payload_manifest_sha256": "3746276b38c58e698324b7a1fb07857a8e381d99a0ed36c19b3d71fcb75d9022",
+  "installed_payload_files_verified": 65,
+  "installed_payload_mismatches": [],
+  "SERVICE_HEALTH": {
+    "listener": 44753,
+    "resolver": 47203,
+    "walkback": 47244,
+    "state": "All RUNNING after restoring the same unretired V1 pair to ACTIVE; no V2 runtime activated",
+    "birth_recovery_sample": {
+      "records": 152,
+      "states": {
+        "ACKED": 152
+      },
+      "canonical_ACK_matches": 152
+    },
+    "migration_recovery_sample": {
+      "records": 10,
+      "states": {
+        "RETRY_EXHAUSTED": 6,
+        "ACKED": 4
+      },
+      "canonical_ACK_matches": null
+    }
+  },
+  "ROLLBACK_STATUS": "Controlled abort before retirement: V1 write acceptance restored under its matched generation; no retired V1 reactivation. Fresh compact V2 rollback not invoked. Large fresh rollback ordering separately qualified.",
+  "V1_retirement": false,
+  "V2_activation": false,
+  "source_and_config_installed_on_V1": true,
+  "source_files_installed": 65,
+  "only_affected_services_changed": true,
+  "full_V1_copies": 0,
+  "V1_delete_or_compaction": 0,
+  "receipt_delete_or_retention_change": 0,
+  "provider_calls_for_qualification": 0,
+  "production_provider_activity": "Only ordinary runtime activity from authorized services; no artificial traffic; not asserted zero.",
+  "remaining_unjournaled_external_event_exposure": "Not certified; bounded log identity scan found no independently recoverable unmatched signature, which is not proof of zero exposure. No mint/timestamp/event was invented or replayed.",
+  "disk_free_evidence_bytes": 4294234112,
+  "largest_observed_created_db_bytes": 145014784,
+  "RUNTIME_DEPLOYMENT_GATE": "HOLD_FOR_PRODUCTION_V2",
+  "NEXT_ACTION": "Commit signature-first admission before optional completed-record lookup; preserve pending signature on TRANSFER/unavailable/conflicting lookup and prevent premature dispatch. Qualify that exact failure and then resume this same authorized cutover with a newly frozen live boundary."
+}

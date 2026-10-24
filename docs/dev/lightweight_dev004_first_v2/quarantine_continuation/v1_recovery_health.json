@@ -1,0 +1,33 @@
+{
+  "journals": {
+    "birth": {
+      "records": 152,
+      "states": {
+        "ACKED": 152
+      },
+      "canonical_ACK_matches": 152
+    },
+    "migration": {
+      "records": 10,
+      "states": {
+        "RETRY_EXHAUSTED": 6,
+        "ACKED": 4
+      },
+      "canonical_ACK_matches": null
+    }
+  },
+  "logs": {
+    "stdout_logfile": {
+      "tail_bytes": 262144,
+      "PAIR_TRANSFER_ONLY_lines": 520,
+      "PumpSwap_transfer_errors": 0,
+      "capacity_refusals": 0
+    },
+    "stderr_logfile": {
+      "tail_bytes": 262144,
+      "PAIR_TRANSFER_ONLY_lines": 89,
+      "PumpSwap_transfer_errors": 0,
+      "capacity_refusals": 0
+    }
+  }
+}

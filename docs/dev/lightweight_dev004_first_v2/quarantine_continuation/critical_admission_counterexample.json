@@ -1,0 +1,10 @@
+{
+  "status": "CRITICAL_FAILURE_REPRODUCED",
+  "error": "PAIR_TRANSFER_ONLY",
+  "signature_durably_admitted": false,
+  "journal_records": 0,
+  "lookup": "actual _migration_completed_mint AST unchanged",
+  "production_DB_opens": 0,
+  "provider_calls": 0,
+  "root": "/private/tmp/dev004-fenced-admission-counterexample-rdwfjkp7"
+}

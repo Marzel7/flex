@@ -1,0 +1,13 @@
+{
+  "bootstrap_before_restore": true,
+  "fresh_write": true,
+  "matched_active_generation": "rollback",
+  "production_paths_opened": 0,
+  "providers": 0,
+  "quarantine_rows": 13000,
+  "rollback_ops_bytes": 108609536,
+  "root": "/private/tmp/dev004-large-rollback-zz7srxdo",
+  "same_destination_physical_identity": true,
+  "source_ops_bytes": 108609536,
+  "status": "PASS"
+}

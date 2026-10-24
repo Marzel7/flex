@@ -1,0 +1,10 @@
+{
+  "checkpoint": "/private/tmp/dev004-production-compact-stage-20261024/quarantine-fenced-capacity.json",
+  "digest": "b51806989c5e639db940cbd6f7d93728026483d5d918769e60e8ff03882b936b",
+  "free_bytes": 4344201216,
+  "seconds": 67.09053620800842,
+  "source_count": 207116,
+  "status": "PASS_FENCED_CAPACITY_AND_COVERAGE",
+  "target_bytes": 145014784,
+  "target_count": 207116
+}

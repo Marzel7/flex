@@ -1,0 +1,11 @@
+{
+  "authority_id": "DEV004-production-transfer-20261024",
+  "generation": "DEV004-V1-20261024",
+  "manifest_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-pair.json",
+  "manifest_sha256": "6ecb2ff760afbe61475fb441babede57fbe0bb84b69bf372388df4a8eb17afd4",
+  "origin_generation": "DEV004-V1-20261024",
+  "owner": "runtime",
+  "phase": "ACTIVE",
+  "transfer_complete": true,
+  "version": 1
+}

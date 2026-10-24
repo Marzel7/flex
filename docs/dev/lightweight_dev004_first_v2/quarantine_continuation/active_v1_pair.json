@@ -1,0 +1,26 @@
+{
+  "authority": {
+    "id": "DEV004-production-transfer-20261024",
+    "origin_generation": "DEV004-V1-20261024",
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json"
+  },
+  "generation": "DEV004-V1-20261024",
+  "predecessor": null,
+  "stores": {
+    "core": {
+      "device": 16777234,
+      "generation": "DEV004-V1-20261024",
+      "inode": 549513179,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "role": "core"
+    },
+    "ops": {
+      "device": 16777234,
+      "generation": "DEV004-V1-20261024",
+      "inode": 421043107,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "role": "ops"
+    }
+  },
+  "version": 1
+}

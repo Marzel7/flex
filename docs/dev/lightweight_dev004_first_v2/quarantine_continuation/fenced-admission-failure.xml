@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.167" timestamp="2026-10-24T22:02:12.711934+01:00" hostname="Kevins-MacBook-Pro.local"><testcase classname="tests.dev004.test_fenced_migration_admission_regression" name="test_signature_is_durable_when_completion_lookup_rejects_transfer" time="0.130"><failure message="AssertionError: Required signature was not durably admitted before completion lookup failed&#10;assert [] == ['synthetic-t...er-signature']&#10;  &#10;  Right contains one more item: 'synthetic-transfer-signature'&#10;  Use -v to get more diff">tests/dev004/test_fenced_migration_admission_regression.py:19: in test_signature_is_durable_when_completion_lookup_rejects_transfer
+    assert [r['signature'] for r in work.snapshot()]==['synthetic-transfer-signature'], 'Required signature was not durably admitted before completion lookup failed'
+E   AssertionError: Required signature was not durably admitted before completion lookup failed
+E   assert [] == ['synthetic-t...er-signature']
+E     
+E     Right contains one more item: 'synthetic-transfer-signature'
+E     Use -v to get more diff</failure></testcase></testsuite></testsuites>

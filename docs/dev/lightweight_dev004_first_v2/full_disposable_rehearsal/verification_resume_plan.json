@@ -1,0 +1,12 @@
+{
+  "change": "Harness only: Walkback uses actual OPS_DB_PATH; reuse original committed compact pair and exact oracles. No runtime/source/importer change.",
+  "existing_import_result_sha256": "2f769a9688156c1870eefbb6a8f75c198b77eef1b9ddbee3c29a0d1b57ef830b",
+  "imports_remaining": 0,
+  "mode": "RESUME_VERIFICATION_ONLY",
+  "original_plan_sha256": "7452c02b3036e3dd69883ced72c91ef6076df93910d89e0ebf16850d9860c2a1",
+  "reader_oracles_sha256": "d4230813409ecd7c3337915e873444a0a7d4105259900585138166045d3875ba",
+  "root": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1",
+  "row_oracles_sha256": "94e0f83a7d087c2c02aacdb5487039ca5691f1093b8cf0a3e0f82aa3de91e1ec",
+  "source_commit": "1e3ea614c1efcc0fb8b8d9f4571fc8b10aa0dded",
+  "source_database_access_allowed": false
+}

@@ -26,16 +26,28 @@ SELECTION = ("SELECT rowid,mint FROM wt_walkback_queue INDEXED BY ix_wbq_outcome
 
 
 def _storage(conn):
+    # Keep the original DEV bound. The paired production profile inherits the
+    # already-qualified compact-store budget, never an unrestricted database.
+    stores=[file for _,name,file in conn.execute('PRAGMA database_list') if name=='main' and file]
+    limit=MAX_DB_BYTES
+    if os.environ.get('DEV004_PAIRED_BINDING_REQUIRED')=='1':
+        if len(stores)!=1:raise ValueError('RECOVERY_PAIRED_DATABASE_REQUIRED')
+        from src.core.paired_binding_guard import validate_pair
+        validate_pair(write_path=stores[0],purpose='write')
+        import resource
+        soft,hard=resource.getrlimit(resource.RLIMIT_FSIZE)
+        if soft==resource.RLIM_INFINITY or hard==resource.RLIM_INFINITY or soft>499_000_000 or hard>=500_000_000:
+            raise ValueError('RECOVERY_KERNEL_FILE_LIMIT_REQUIRED')
+        limit=480_000_000
     page_size = conn.execute('PRAGMA page_size').fetchone()[0]
-    if page_size * conn.execute('PRAGMA page_count').fetchone()[0] > MAX_DB_BYTES:
+    if page_size * conn.execute('PRAGMA page_count').fetchone()[0] > limit:
         raise ValueError('RECOVERY_DATABASE_BUDGET')
     current = conn.execute('PRAGMA max_page_count').fetchone()[0]
-    conn.execute('PRAGMA max_page_count=' + str(min(current, MAX_DB_BYTES // page_size)))
-    for _, name, file in conn.execute('PRAGMA database_list'):
-        if name == 'main' and file:
-            wal = Path(file + '-wal')
-            if wal.exists() and wal.stat().st_size >= MAX_WAL_BYTES:
-                raise ValueError('RECOVERY_WAL_PRESSURE')
+    conn.execute('PRAGMA max_page_count=' + str(min(current, limit // page_size)))
+    for file in stores:
+        wal=Path(file+'-wal')
+        if wal.exists() and wal.stat().st_size>=MAX_WAL_BYTES:
+            raise ValueError('RECOVERY_WAL_PRESSURE')
 
 
 def _eligible(conn, mint):

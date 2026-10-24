@@ -1,0 +1,606 @@
+{
+  "status": "QUALIFIED_JOURNAL_CORRECTION_PRODUCTION_HOLD_LIVE_QUARANTINE_BOUND",
+  "source_start": "a805dd49e1b70b84d1b8c7724723a4f28ade2d42",
+  "generation": "DEV004-V2-20261024",
+  "planned_production_environment": {
+    "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+    "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+    "CREATOR_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+    "PUMPSWAP_TOKENS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+    "DEV004_PAIRED_BINDING_REQUIRED": "1",
+    "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+    "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+    "FLEX_DB_PAIR_ROLE": "runtime",
+    "FLEX_DB_AUXILIARY_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/auxiliary.json",
+    "FLEX_DB_AUXILIARY_SHA256": {
+      "registration": "sha256 of exact generation-bound auxiliary manifest",
+      "must_be_materialized_before_any_runtime_launch": true,
+      "missing_or_null_runtime_value": "FAIL_CLOSED"
+    },
+    "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+    "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+    "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+    "DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED": "1",
+    "DEV004_CREATOR_HISTORY_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/reference/creator_history.json",
+    "LIVING_V2_FRESHNESS_MAPPING_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/reference/freshness_mapping.json",
+    "DB_WRITE_SERIALIZE": "1",
+    "TMPDIR": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tmp",
+    "SQLITE_TMPDIR": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tmp",
+    "RPC_COMPACT_ENABLED": "0"
+  },
+  "roles": {
+    "listener": {
+      "package": "/Users/kevinkeaveney/Production/flex-listener",
+      "entrypoint": "src.core.pumpfun_curve_listener",
+      "preserved_wrapper_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+      "nonsecret_wrapper_environment": {
+        "CREATOR_BACKFILL_ENABLED": "0",
+        "LISTENER_PRICE_WORKER_ENABLED": "0",
+        "LISTENER_CREATOR_ACTIVITY_ENABLED": "0",
+        "LISTENER_LIVE_PRICE_UPDATER_ENABLED": "0",
+        "LISTENER_CREATOR_FUNDING_QUEUE_ENABLED": "0",
+        "LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED": "0",
+        "LISTENER_DB_MAINTENANCE_ENABLED": "0",
+        "LISTENER_MIGRATION_RECONCILER_ENABLED": "0",
+        "LISTENER_PORTAL_VSOL_FLUSH_ENABLED": "0",
+        "LISTENER_DB_STARTUP_MAINTENANCE_ENABLED": "0",
+        "LISTENER_BONDING_INDEX_FULL_HYDRATE_ENABLED": "0",
+        "LISTENER_RPC_METRICS_DB_ENABLED": "0",
+        "LISTENER_PREDICTION_SCORING_ENABLED": "0",
+        "CROSS_FUNDING_CLUSTER_ANALYZER_ENABLED": "0",
+        "TRADING_SIM_AUTO_BUY_ENABLED": "0",
+        "LISTENER_PUMPPORTAL_BIRTHS_ENABLED": "1",
+        "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED": "0",
+        "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED": "1",
+        "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
+        "HELIUS_BIRTH_WS_ENABLED": "0",
+        "PUMPFUN_BIRTH_RECONCILER_ENABLED": "0",
+        "PUMPFUN_BIRTH_RECONCILE_ONLY_WHEN_PUMPPORTAL_DOWN": "1",
+        "PUMPFUN_BIRTH_RECONCILE_INTERVAL_SECONDS": "60",
+        "PUMPFUN_BIRTH_RECONCILE_LIMIT": "100",
+        "PUMPFUN_BIRTH_TX_CONCURRENCY": "1",
+        "DB_WRITE_SERIALIZE": "1",
+        "LISTENER_MINIMAL_DB_SCHEMA_ENABLED": "1",
+        "LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED": "1",
+        "LISTENER_DISCOVERY_RPC_CONCURRENCY": "3",
+        "LISTENER_GETTX_RETRY_DELAYS": "1",
+        "DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH": "logs/diagnostics/x78_19_listener_connections.jsonl"
+      },
+      "command": [
+        "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+        "-u",
+        "-m",
+        "src.core.lightweight_runtime_entry",
+        "src.core.pumpfun_curve_listener"
+      ]
+    },
+    "creator_resolution": {
+      "package": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "entrypoint": "src.core.creator_resolution_worker",
+      "command": [
+        "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+        "-u",
+        "-m",
+        "src.core.lightweight_runtime_entry",
+        "src.core.creator_resolution_worker"
+      ]
+    },
+    "walkback": {
+      "package": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "entrypoint": "src.core.walkback_worker",
+      "args": [
+        "--loop"
+      ],
+      "command": [
+        "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+        "-u",
+        "-m",
+        "src.core.lightweight_runtime_entry",
+        "src.core.walkback_worker",
+        "--loop"
+      ]
+    }
+  },
+  "deployment_payload": {
+    "runtime/creator_resolution/src/apis/rpc_efficiency_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/apis/rpc_efficiency_api.py",
+      "sha256": "ea33f3960197d9c4f67d2fb0a1175e5de051007a047556adab795e3af41684d7",
+      "preimage_sha256": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "bytes": 13103
+    },
+    "runtime/creator_resolution/src/apis/rpc_metrics_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/apis/rpc_metrics_api.py",
+      "sha256": "660389ad347988f833341bb85e86ef00332e1d283ead81837f0060587680148b",
+      "preimage_sha256": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "bytes": 105486
+    },
+    "runtime/creator_resolution/src/apis/rpc_savings_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/apis/rpc_savings_api.py",
+      "sha256": "d0238abe599aa1710363f9c7b8bf7cdf137138b14306eb8023cfbe251fc377c6",
+      "preimage_sha256": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "bytes": 12994
+    },
+    "runtime/creator_resolution/src/core/database_write_service.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/database_write_service.py",
+      "sha256": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+      "preimage_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "bytes": 72946
+    },
+    "runtime/creator_resolution/src/core/db.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/db.py",
+      "sha256": "07b95cfcc16b9647deae96a962df29a19d055392108c86df6ca9ddc6e8ebc6a2",
+      "preimage_sha256": "0ac2b40c1fdc0604b35be758a510a84e1b42a5fede9087c48f75f8ede6118ef2",
+      "bytes": 1747
+    },
+    "runtime/creator_resolution/src/core/lightweight_runtime_entry.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/lightweight_runtime_entry.py",
+      "sha256": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+      "preimage_sha256": null,
+      "bytes": 1899
+    },
+    "runtime/creator_resolution/src/core/main.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/main.py",
+      "sha256": "bc94f6ad2627512d5e08e57c64ea132a21e857830f4d49538c02f4732af29651",
+      "preimage_sha256": "fb0b4ff9255b030ace2e48b1988159618ae8e8f39d3f8b1a0bad2efced21d222",
+      "bytes": 1923438
+    },
+    "runtime/creator_resolution/src/core/paired_binding_guard.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/paired_binding_guard.py",
+      "sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "preimage_sha256": null,
+      "bytes": 12150
+    },
+    "runtime/creator_resolution/src/metrics/rpc_compact.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/metrics/rpc_compact.py",
+      "sha256": "032752bc15dfabc297c883de05e98c7c72d5e3caabe10c611cd1ab839734ea97",
+      "preimage_sha256": null,
+      "bytes": 40838
+    },
+    "runtime/creator_resolution/src/metrics/rpc_compact_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/metrics/rpc_compact_api.py",
+      "sha256": "c4d46cd40cad38f629f4cd098d1cb2e90cbef680e11aaaa22923fbf35c4d72be",
+      "preimage_sha256": null,
+      "bytes": 6224
+    },
+    "runtime/creator_resolution/src/metrics/rpc_metrics_recorder.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/metrics/rpc_metrics_recorder.py",
+      "sha256": "2bdc1f1c4cd7c7cf03e391a377c85fc7ec20fc5f35204985cec8aa29f855cfbf",
+      "preimage_sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "bytes": 79487
+    },
+    "runtime/creator_resolution/src/ops/attribution_outcome.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/attribution_outcome.py",
+      "sha256": "0331a9f7d8ba0dbe202f32cc4a2456185633122c6076fc507c220818f2b11d6e",
+      "preimage_sha256": "d13679c7e61f5f9b8fb996e5322dfe97b575b6564322952493b63d7f1655090b",
+      "bytes": 33240
+    },
+    "runtime/creator_resolution/src/ops/dev004_checkpoint_completion.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_checkpoint_completion.py",
+      "sha256": "f9bbc1c1750c0c889946757d83cdae6773cd59fca6e24155969b4598bf07190c",
+      "preimage_sha256": null,
+      "bytes": 8441
+    },
+    "runtime/creator_resolution/src/ops/dev004_compact_creator_history.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_compact_creator_history.py",
+      "sha256": "a4aea1fc52078ad6b510d73a02daa69f0a0e878a842923b6d568b567e4b8b3f7",
+      "preimage_sha256": null,
+      "bytes": 4436
+    },
+    "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_core_base_schema.py",
+      "sha256": "6e7a202d45866c5432e11e09578be99d2092369d506fc16f1c3a679d71787ba7",
+      "preimage_sha256": null,
+      "bytes": 17149
+    },
+    "runtime/creator_resolution/src/ops/dev004_freshness_mapping.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_freshness_mapping.py",
+      "sha256": "5554c178238e7e83d933e150f66340ab5e89c05d9a4396715f61a2415c342c5e",
+      "preimage_sha256": null,
+      "bytes": 7951
+    },
+    "runtime/creator_resolution/src/ops/dev004_membership_references.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_membership_references.py",
+      "sha256": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+      "preimage_sha256": null,
+      "bytes": 9402
+    },
+    "runtime/creator_resolution/src/ops/dev004_opening_policy.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_opening_policy.py",
+      "sha256": "77ee1063f49b34e64703b272aa0a73906e98dd9917de0abd3771688e9895bb44",
+      "preimage_sha256": null,
+      "bytes": 3660
+    },
+    "runtime/creator_resolution/src/ops/dev004_watchtower_references.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev004_watchtower_references.py",
+      "sha256": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+      "preimage_sha256": null,
+      "bytes": 12049
+    },
+    "runtime/creator_resolution/src/ops/dev_provider_budget.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/dev_provider_budget.py",
+      "sha256": "461a8cf99f0e1ca33bdb540fa1d60d54e08890bf8c031af7db36e8f741d69d65",
+      "preimage_sha256": null,
+      "bytes": 6803
+    },
+    "runtime/creator_resolution/src/ops/generic_living_lineage_metadata.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/generic_living_lineage_metadata.py",
+      "sha256": "00e729bca24d3dd00cdd5b40a700d108530e6479c05d3eb56ec31049826560ef",
+      "preimage_sha256": "4098153f8b2f56ad2785d3d3fc321a1443eb1208dcb863fd9d11269bbc928e13",
+      "bytes": 6209
+    },
+    "runtime/creator_resolution/src/ops/generic_living_persisted_source_reader.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/generic_living_persisted_source_reader.py",
+      "sha256": "6f11dd35a8ae372ccd55c00f1d5bc67b0315a47f4ae0f8f7d887882052800bd6",
+      "preimage_sha256": "36deafc03d2ded93909538707a714bd02606810aa6147f12f9fb6af0357014c1",
+      "bytes": 2257
+    },
+    "runtime/creator_resolution/src/ops/living_potential_operations.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/living_potential_operations.py",
+      "sha256": "12f718a2fc9b9a8cce67bc842368736c98d73eacfbf02448835e1d70cb62b687",
+      "preimage_sha256": "922fe66b3fafe86b1f2eb606e70e63ff8efd795beda2de48f44f41cc19d4c95a",
+      "bytes": 19903
+    },
+    "runtime/creator_resolution/src/ops/operation_monitor_worker.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/operation_monitor_worker.py",
+      "sha256": "711ae8ca26bb0e518e1772688e87fc1896f02ee3770039a80bf90e2037477c46",
+      "preimage_sha256": "c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f",
+      "bytes": 31300
+    },
+    "runtime/creator_resolution/src/ops/watchtower_terminal_ath_finalizer.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/watchtower_terminal_ath_finalizer.py",
+      "sha256": "775597d96cfdb576ee6e2a811726f2a76fbd83edc6d2edd2a208a9bdaeeef480",
+      "preimage_sha256": "0d3f91cf9fdbe18bb0dc492998fb55a027dcaafae5c68a09fba8b35a4520816f",
+      "bytes": 12930
+    },
+    "runtime/creator_resolution/src/utils/db_locking.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/utils/db_locking.py",
+      "sha256": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0",
+      "preimage_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+      "bytes": 96945
+    },
+    "runtime/listener/src/apis/rpc_efficiency_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/apis/rpc_efficiency_api.py",
+      "sha256": "ea33f3960197d9c4f67d2fb0a1175e5de051007a047556adab795e3af41684d7",
+      "preimage_sha256": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "bytes": 13103
+    },
+    "runtime/listener/src/apis/rpc_metrics_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/apis/rpc_metrics_api.py",
+      "sha256": "660389ad347988f833341bb85e86ef00332e1d283ead81837f0060587680148b",
+      "preimage_sha256": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "bytes": 105486
+    },
+    "runtime/listener/src/apis/rpc_savings_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/apis/rpc_savings_api.py",
+      "sha256": "d0238abe599aa1710363f9c7b8bf7cdf137138b14306eb8023cfbe251fc377c6",
+      "preimage_sha256": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "bytes": 12994
+    },
+    "runtime/listener/src/core/birth_admission_journal.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/birth_admission_journal.py",
+      "sha256": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8",
+      "preimage_sha256": null,
+      "bytes": 6767
+    },
+    "runtime/listener/src/core/database_write_service.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/database_write_service.py",
+      "sha256": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+      "preimage_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "bytes": 72946
+    },
+    "runtime/listener/src/core/db.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/db.py",
+      "sha256": "07b95cfcc16b9647deae96a962df29a19d055392108c86df6ca9ddc6e8ebc6a2",
+      "preimage_sha256": "0ac2b40c1fdc0604b35be758a510a84e1b42a5fede9087c48f75f8ede6118ef2",
+      "bytes": 1747
+    },
+    "runtime/listener/src/core/lightweight_runtime_entry.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/lightweight_runtime_entry.py",
+      "sha256": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+      "preimage_sha256": null,
+      "bytes": 1899
+    },
+    "runtime/listener/src/core/main.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/main.py",
+      "sha256": "12a28dfdefd10f25a219f5ebbf79c068ae1e3619e58990636faed503e62eb307",
+      "preimage_sha256": "7be64c3c98e9ba0b195c9f39a462f4e4ab692d50ba0ad393b9f641e14b9d44e4",
+      "bytes": 1924351
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py",
+      "sha256": "0927eb1aac2084a33e3fcbe42285cc844e34a3159d0adc99c3e8677f3776da95",
+      "preimage_sha256": null,
+      "bytes": 20496
+    },
+    "runtime/listener/src/core/paired_binding_guard.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/paired_binding_guard.py",
+      "sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "preimage_sha256": null,
+      "bytes": 12150
+    },
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "sha256": "4b014c846c14dd015dec1b28f51e162e588e16a20a71c954cd8c23d3b1fb61db",
+      "preimage_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f",
+      "bytes": 673752
+    },
+    "runtime/listener/src/core/pumpportal_birth_audit.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_birth_audit.py",
+      "sha256": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c",
+      "preimage_sha256": "b022320c55ebedea95153c17c7ad2fb2fc8a6335951a8960dea642e5505e72bf",
+      "bytes": 25907
+    },
+    "runtime/listener/src/metrics/rpc_compact.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/metrics/rpc_compact.py",
+      "sha256": "032752bc15dfabc297c883de05e98c7c72d5e3caabe10c611cd1ab839734ea97",
+      "preimage_sha256": null,
+      "bytes": 40838
+    },
+    "runtime/listener/src/metrics/rpc_compact_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/metrics/rpc_compact_api.py",
+      "sha256": "c4d46cd40cad38f629f4cd098d1cb2e90cbef680e11aaaa22923fbf35c4d72be",
+      "preimage_sha256": null,
+      "bytes": 6224
+    },
+    "runtime/listener/src/metrics/rpc_metrics_recorder.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/metrics/rpc_metrics_recorder.py",
+      "sha256": "2bdc1f1c4cd7c7cf03e391a377c85fc7ec20fc5f35204985cec8aa29f855cfbf",
+      "preimage_sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "bytes": 79487
+    },
+    "runtime/listener/src/ops/dev004_membership_references.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/ops/dev004_membership_references.py",
+      "sha256": "36c38fa1158f70ad6c3b5dd603031e371e6fbaa710016ecbf3c2c0fe7c94fcd6",
+      "preimage_sha256": null,
+      "bytes": 14615
+    },
+    "runtime/listener/src/ops/dev004_watchtower_references.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/ops/dev004_watchtower_references.py",
+      "sha256": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+      "preimage_sha256": null,
+      "bytes": 12049
+    },
+    "runtime/listener/src/ops/generic_living_lineage_metadata.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/ops/generic_living_lineage_metadata.py",
+      "sha256": "00e729bca24d3dd00cdd5b40a700d108530e6479c05d3eb56ec31049826560ef",
+      "preimage_sha256": "4098153f8b2f56ad2785d3d3fc321a1443eb1208dcb863fd9d11269bbc928e13",
+      "bytes": 6209
+    },
+    "runtime/listener/src/utils/db_locking.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/utils/db_locking.py",
+      "sha256": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0",
+      "preimage_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+      "bytes": 96945
+    },
+    "runtime/walkback/src/apis/rpc_efficiency_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/apis/rpc_efficiency_api.py",
+      "sha256": "ea33f3960197d9c4f67d2fb0a1175e5de051007a047556adab795e3af41684d7",
+      "preimage_sha256": "7a890c9bd59917c305ef879e77764b8d5f5ddfddb66b45dc6c2ce79c02160408",
+      "bytes": 13103
+    },
+    "runtime/walkback/src/apis/rpc_metrics_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/apis/rpc_metrics_api.py",
+      "sha256": "660389ad347988f833341bb85e86ef00332e1d283ead81837f0060587680148b",
+      "preimage_sha256": "8808838210831446524029c840d7f1e1a4b6c1640faeb85b3d5f2f6086627be9",
+      "bytes": 105486
+    },
+    "runtime/walkback/src/apis/rpc_savings_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/apis/rpc_savings_api.py",
+      "sha256": "d0238abe599aa1710363f9c7b8bf7cdf137138b14306eb8023cfbe251fc377c6",
+      "preimage_sha256": "31248fb0df0ca16c4d4c6df8fcb105915a5b0eb51653b50f6947813eec77b838",
+      "bytes": 12994
+    },
+    "runtime/walkback/src/core/database_write_service.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/database_write_service.py",
+      "sha256": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+      "preimage_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+      "bytes": 72946
+    },
+    "runtime/walkback/src/core/db.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/db.py",
+      "sha256": "a7481b240fd9507b19c65c8e305607dfd134db718487e1ae6227599ecb317f6f",
+      "preimage_sha256": "862883dc3c6aa4a3c7072e281a67b6dbd086c747b7a265e69f9fcce9a5fc899c",
+      "bytes": 1049
+    },
+    "runtime/walkback/src/core/lightweight_runtime_entry.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/lightweight_runtime_entry.py",
+      "sha256": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+      "preimage_sha256": null,
+      "bytes": 1899
+    },
+    "runtime/walkback/src/core/main.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/main.py",
+      "sha256": "cfcb5d71269364aaa1c435c09d7d9b302c66da10099316b2d19aed6f05fe756d",
+      "preimage_sha256": "e88ac1e7d2409c8e71bc987cfcb1ef73d6377cdf0507bbc81824a03bf2ef8a4d",
+      "bytes": 1965198
+    },
+    "runtime/walkback/src/core/paired_binding_guard.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/paired_binding_guard.py",
+      "sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "preimage_sha256": null,
+      "bytes": 12150
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "sha256": "69006376163723ae1fc6efe339ffb8113d128fc4e9dcb8db388de3074fc7d211",
+      "preimage_sha256": "aeae403fdfb802bfe5da4f5416d09af8209d2e7fc19dcf7dcddcc6e96d266df6",
+      "bytes": 111230
+    },
+    "runtime/walkback/src/metrics/rpc_compact.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/metrics/rpc_compact.py",
+      "sha256": "032752bc15dfabc297c883de05e98c7c72d5e3caabe10c611cd1ab839734ea97",
+      "preimage_sha256": null,
+      "bytes": 40838
+    },
+    "runtime/walkback/src/metrics/rpc_compact_api.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/metrics/rpc_compact_api.py",
+      "sha256": "c4d46cd40cad38f629f4cd098d1cb2e90cbef680e11aaaa22923fbf35c4d72be",
+      "preimage_sha256": null,
+      "bytes": 6224
+    },
+    "runtime/walkback/src/metrics/rpc_metrics_recorder.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/metrics/rpc_metrics_recorder.py",
+      "sha256": "2bdc1f1c4cd7c7cf03e391a377c85fc7ec20fc5f35204985cec8aa29f855cfbf",
+      "preimage_sha256": "6b39824d89b7b2493e4b031449662ee70ec187837440f0bb7d8f85e529d9d46e",
+      "bytes": 79487
+    },
+    "runtime/walkback/src/ops/attribution_outcome.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/attribution_outcome.py",
+      "sha256": "39e45fafe580ec54f49928b8034f74a7222dc3502ccd94557d8d938b9c5fa4d7",
+      "preimage_sha256": "4907e3ac01c7139048310c51e9493ca261a9eb2895451f3452cb9434af66e73f",
+      "bytes": 33906
+    },
+    "runtime/walkback/src/ops/dev004_compact_creator_history.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/dev004_compact_creator_history.py",
+      "sha256": "a4aea1fc52078ad6b510d73a02daa69f0a0e878a842923b6d568b567e4b8b3f7",
+      "preimage_sha256": null,
+      "bytes": 4436
+    },
+    "runtime/walkback/src/ops/dev004_membership_references.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/dev004_membership_references.py",
+      "sha256": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+      "preimage_sha256": null,
+      "bytes": 9402
+    },
+    "runtime/walkback/src/ops/dev004_walkback_projection_recovery.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/dev004_walkback_projection_recovery.py",
+      "sha256": "9980458452c664701be17c32e3e7396264ade29208e6af5b1622994c3d603294",
+      "preimage_sha256": null,
+      "bytes": 7613
+    },
+    "runtime/walkback/src/ops/dev004_watchtower_references.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/dev004_watchtower_references.py",
+      "sha256": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+      "preimage_sha256": null,
+      "bytes": 12049
+    },
+    "runtime/walkback/src/ops/generic_living_lineage_metadata.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/generic_living_lineage_metadata.py",
+      "sha256": "00e729bca24d3dd00cdd5b40a700d108530e6479c05d3eb56ec31049826560ef",
+      "preimage_sha256": "4098153f8b2f56ad2785d3d3fc321a1443eb1208dcb863fd9d11269bbc928e13",
+      "bytes": 6209
+    },
+    "runtime/walkback/src/ops/monitor_live_admission.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/monitor_live_admission.py",
+      "sha256": "79836d5ea31961634d90e07de10000885ef5e9e09839982065dd6d1ce5a37fa3",
+      "preimage_sha256": "7fe1c3399eca3c22a42db6173a2a358082a77df97bbf2eb62e06c94dcac47a3e",
+      "bytes": 7702
+    },
+    "runtime/walkback/src/utils/db_locking.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/db_locking.py",
+      "sha256": "104ea8c7f6a2dcb2602b02890f71704a456b267eda9e7eeb9b4beb0465e7d7c3",
+      "preimage_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89",
+      "bytes": 95397
+    }
+  },
+  "source_registration": "Candidate revision and tree identities frozen by this commit; no actual production destinations created or activated. Physical identities/auxiliary hash must come from explicit schema owner, never placeholders accepted as active.",
+  "schema_owner_blocker": {
+    "status": "CORRECTED_DEV_PROFILE_QUALIFICATION_PASS",
+    "profile_version": 1,
+    "explicit_activation": [
+      "DEV004_PRODUCTION_BOOTSTRAP_MANIFEST",
+      "DEV004_PRODUCTION_BOOTSTRAP_SHA256"
+    ],
+    "validation": "Exact physical targets, schema/owner hashes, pair generation, TRANSFER phase/owner, predecessor retirement, file/disk bounds; legacyDEVprofile unchanged."
+  },
+  "retry_handoff_quarantine": "Existing typed journal/queue authorities preserved; bound stable journals independent of DB_PATH; no stale lease promoted.",
+  "global_lock_authority": "Existing per-physical-database database_write_service locks; db_global_lock derives Core DB_PATH.write.lock. Shared explicit Core path in all roles; no new coordinator.",
+  "provider": {
+    "credential_name": "BIRDEYE",
+    "legacy_fallback": false,
+    "global": 20,
+    "per_token": 4,
+    "window_seconds": 60,
+    "budget_state_path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue/provider_budget.json",
+    "budget_sha256": "d5f7f952e5865c7c7b56a7f233031d0449011400c04ef4d392061cccf00bfca1",
+    "rule": "Preserve consumed reservations and checkpoints; no reset, acquisition or provider call."
+  },
+  "price_authority": "Accepted71b6e338 and DEV004 provenance/recovery controls reused; canonical ATH/provenance unchanged, relative tolerance0.001valuationonly.",
+  "dormant": "API/monitor/bridge/Funding/Cascade remain STOPPED; activation requires complete same-generation bindings and retained pending-state release. No restored runtime roots.",
+  "storage": {
+    "kernel_per_new_file_cap": 499000000,
+    "receipt_cap": 4096,
+    "journal_cap": 2000000,
+    "floor": 2000000000,
+    "combined_5GiB": "PLANNING_NOT_ENFORCED",
+    "seven_day_retirement": "Only accepted eligibility owners; protect canonical, operation, quarantine, pinned and unknown dependencies. No retirement executed. Full end-to-end maintenance not claimed before production bootstrap qualifies.",
+    "bootstrap_kernel_limit": 67108864,
+    "runtime_kernel_limit": 499000000
+  },
+  "rollback": {
+    "mode": "Fresh matched compact pair; never restore a retired generation or384-limit receipt writer",
+    "paths": {
+      "core": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/rollback/core.sqlite",
+      "ops": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/rollback/ops.sqlite"
+    },
+    "source": "Exact payload/preimage inventory above; P0V1fallback is not a V2paired-ack fallback.",
+    "state": "Fresh compact matched target, same scoped owners and generation validator; no unretire or384receipt rollback."
+  },
+  "final_disposable_rehearsal": {
+    "status": "PASS",
+    "count": 1,
+    "result": "final-profile-integrated-result.json",
+    "binding_verification": "binding-verification.json",
+    "new_29633row_imports": 0,
+    "source_generation": "fixture-v1 -> fixture-v2 -> fixture-rollback"
+  },
+  "production_changes": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "V1_copies": 0,
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "immutable_source_commit": "34ec79d8a97d08cd808c48c7eb0a55b2437b98ed",
+  "runtime_trees": {
+    "listener": "bff77c14df35a4822df202f42ae9be8838d750dd",
+    "creator_resolution": "cc0b8708a9fa6031f46683e1d9132b63dfb4e993",
+    "walkback": "7d893c46d0e239634e8855a994b8aedc6cf5eef5"
+  },
+  "schema_owner_files": {
+    "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": "6e7a202d45866c5432e11e09578be99d2092369d506fc16f1c3a679d71787ba7",
+    "runtime/listener/src/ops/dev004_membership_references.py": "36c38fa1158f70ad6c3b5dd603031e371e6fbaa710016ecbf3c2c0fe7c94fcd6"
+  },
+  "registration_contract": {
+    "phase": "After separately authorized destination creation and source fence, before schema bootstrap/runtime start",
+    "procedure": [
+      "Use existing database_identity for exact precreated destinations; no fabricatedinode/filename-only identity.",
+      "Publish matched TRANSFER pair and exclusive owner through existing authority protocol.",
+      "Freeze production_bootstrap section with exact root, generation, pair hash, physical stores, schema hashes and owner; pin complete frozen bytes in environment.",
+      "Invoke existing Corecanonical-price and typed schema owners explicitly; repeat/restart revalidates.",
+      "Publish seals and ACTIVE authority only after complete reconciliation; clear bootstrap-only environment for runtime."
+    ],
+    "metadata_caps": {
+      "frozen_runtime": 65536,
+      "pair": 8192,
+      "authority": 8192,
+      "schema_marker": 4096
+    },
+    "no_production_registration_executed": true,
+    "bootstrap_process": {
+      "soft_and_hard_file_limit": 67108864,
+      "SIGXFSZ": "ignore, surface write failure; restart through versioned owner",
+      "V1_sources": "READ_ONLY except separately authorized source-retirement metadata; never copy full V1"
+    }
+  },
+  "journal_capacity_lifecycle": {
+    "owner": "Existing MigrationJournal inherited by BirthJournal",
+    "active_record_cap": 512,
+    "per_record_bytes": 4096,
+    "journal_file_bytes": 2000000,
+    "transaction_temp_bytes": 2000000,
+    "reclaim_batch": 20,
+    "archives": 0,
+    "unbounded_growth_paths": 0,
+    "reclamation": "Only ACKED/no-error/no-conflict/nonlegacy records independently reverified against current paired canonical+handoff evidence. Canonical/receipt identity authority remains retained. Missing authority refuses reclamation.",
+    "deduplication": "Birth mint PK and exact creator/CREATE readback; signature-first migration restored by mandatory indexed canonical migration_tx lookup before provider dispatch; publication precedes processing/ACK.",
+    "recovery": "Capacity-only complete temporary publications automatically revalidated at restart; pending/protected records cannot be changed or omitted. Truncated/ambiguous candidates fail closed.",
+    "seven_day_receipts": "Unchanged, byte-for-byte match with cec3494d."
+  },
+  "required_existing_canonical_identity_index": {
+    "name": "idx_psi0a_token_analysis_migration_tx",
+    "accepted_V1_sql": "CREATE INDEX \"idx_psi0a_token_analysis_migration_tx\" ON \"token_analysis\" (\"migration_tx\")",
+    "source": "Read-only V1 sqlite_schema exact statement; no V1 index creation",
+    "target": "Compact Core only",
+    "qualification": "Indexed lookup and duplicate-authority conflict tests PASS; runtime refuses absence instead of scanning or reacquiring."
+  },
+  "production_cutover_executed": false
+}

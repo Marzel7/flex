@@ -1,0 +1,56 @@
+{
+  "DEV004_JOURNAL_CAPACITY_STATUS": "PASS_OFFLINE_QUALIFICATION_NOT_DEPLOYED",
+  "FINAL_CANDIDATE_SHA": "34ec79d8a97d08cd808c48c7eb0a55b2437b98ed",
+  "runtime_manifest_sha256": "5c0a5dfea4ddcac49dfcc2e896a477286a095bc4d429e56e5f8661d7ec4b9189",
+  "EVENT_513_RESULT": "PASS_BIRTH_AND_MIGRATION",
+  "THOUSANDS_RESULT": "2500 sequential complete admissions each stream; active journal <=512; no archive",
+  "tests": {
+    "distinct_accepted_controls": 192,
+    "new_capacity_controls": 27,
+    "affected_existing_controls": 165,
+    "long_sequences": {
+      "birth": 2500,
+      "migration": 2500
+    },
+    "final_recovery_run": "23/23 pass; four event513/thousands controls passed in original run and their paths unchanged by final recovery-only adjustments",
+    "compatibility_run": "164 passed; AST-only callback fixture corrected and failed single case rerun PASS; legacy source-baseline assertion updated to actual accepted cec3494d; original error-code compatibility failures corrected."
+  },
+  "production_cutover_status": "HOLD_REQUIRED_QUARANTINE_TRANSFER_EXCEEDS_QUALIFIED_BOUND",
+  "critical_blocker": {
+    "table": "ops.wt_lineage_quarantine",
+    "selected_seed_rows": 129,
+    "live_population_lower_bound": 12001,
+    "accepted_reconciliation_limit": 12000,
+    "failure": "ROW_LIMIT:wt_lineage_quarantine",
+    "required_action": "Qualify deterministic keyset continuation and total storage bounds for required quarantine state; no record exclusion or schema change authorized by this result.",
+    "staging_transactions": "Rolled back on boundary refusal; V1 untouched."
+  },
+  "active_core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+  "active_ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+  "service_pids": {
+    "listener": 97696,
+    "resolver": 92522,
+    "walkback": 94577
+  },
+  "receipt_capacity": {
+    "full_buckets": 0,
+    "max_bucket_entries": 405,
+    "available_sharded_slots_sample": 291966,
+    "legacy_files": 4096
+  },
+  "source_preimages": "65/65 match",
+  "compact_seed_allocation_bytes": 17620992,
+  "compact_core_bytes": 4833280,
+  "compact_ops_bytes": 12783616,
+  "disk_free_evidence_bytes": 4828246016,
+  "production_source_changes": 0,
+  "production_database_writes": 0,
+  "service_actions": 0,
+  "provider_calls": 0,
+  "V2_activation": false,
+  "V1_retirement": false,
+  "rollback": "Fresh compact matched-pair model accepted and unchanged; not invoked",
+  "runtime_deployment_required": true,
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "next_action": "Qualify bounded required-quarantine continuation with complete identity/exclusion/provenance preservation and storage limits; then resume the already-authorized migration. Do not repeat historical matrices or the completed journal correction."
+}

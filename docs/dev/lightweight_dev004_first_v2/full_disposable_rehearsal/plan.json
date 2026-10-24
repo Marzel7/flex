@@ -3,7 +3,7 @@
   "V1_rollback": "V1sourcepairremainsauthoritativeandunchangedthroughout;noactivationinproduction.",
   "accepted_composition": "483066f625e85994f2fcfc996edf52543ab809e8",
   "accepted_external_reference_rows": 15,
-  "code_commit": "df30f97f9a9dc12fdb5b1f38e854d7803ad6ec86",
+  "code_commit": "f9f34ab7bc64cbbfc3fc6fdc86386c9ad70166c2",
   "credential_authority": "BIRDEYEunchanged;valuesnotread",
   "documented_synthetic_controls_not_selected": 29,
   "free_before_plan": 3734110208,
@@ -20,8 +20,8 @@
   "provider_calls": 0,
   "restart": "Freshchild:allnon-disposableSQLiteaccessforbidden;3realdb.pyentrypoints;fullrowdigests/readers/FK/quickcheck",
   "rollback_pair": {
-    "core": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/import/rollback-core.sqlite",
-    "ops": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/import/rollback-ops.sqlite"
+    "core": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/rollback-core.sqlite",
+    "ops": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/rollback-ops.sqlite"
   },
   "rollback_source": "OnlynewcompactV2output.NoproductionV1clonesorretirement. FreshmatchedDEVpair,notunretiringanysource.",
   "root": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1",
@@ -44,7 +44,7 @@
     }
   },
   "source_files": {
-    "docs/dev/lightweight_dev004_first_v2/full_disposable_rehearsal/qualify.py": "aae8ce83afc9a731488d9fd2b13fa00cf16af3196fe553debdbf74c79bdd156a",
+    "docs/dev/lightweight_dev004_first_v2/full_disposable_rehearsal/qualify.py": "35a0ec602c0c83115dbf32e1841441c630c26daa80627cf71175218b9746bafb",
     "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/compact_rehearsal.py": "9d9c4937dfdf6dea82398e17da4516b8668294f8d9e8beee50f47debe8491eb1",
     "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": "26340824b6c8628d860534da233f7066ef77ec3f8fa996075970d9cb6bea3f26",
     "runtime/listener/src/core/database_write_service.py": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
@@ -54,7 +54,7 @@
   },
   "starting_handoff": "7c7304b1162cc4d9c5c0b0e8e86f647ef70e8dc4",
   "target_pair": {
-    "core": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/import/core.sqlite",
-    "ops": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/import/ops.sqlite"
+    "core": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/core.sqlite",
+    "ops": "/private/tmp/dev004-full-direct-rehearsal-7c7304b1/dev004-import/ops.sqlite"
   }
 }

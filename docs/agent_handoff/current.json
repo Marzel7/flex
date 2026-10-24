@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "e3881acfd194a254f5483d388822bc29c1e7572c",
+    "git_head": "d3aba9c92d1fb3645d227ecf764414933fe103b2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T18:55:59.446059+00:00",
-    "working_tree": "DEV004production profile and final integrated rehearsalPASS. Candidatecec3494d;27focusedtests+1integratedscenario+3same-fixture runtime binding childrenPASS. GO_FOR_PRODUCTION_CUTOVER_AUTHORIZATION only; no production changes."
+    "updated_at_utc": "2026-10-24T21:44:15.784142+00:00",
+    "working_tree": "DEV004 admission-order fix deployed; final handoff reconciliation exceeds 12000 rows. V1 restored ACTIVE, three workers running; V2 inactive."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43616,14 +43616,14 @@
     "engineering_publication": "Local immutable source and evidence commits; terminal handoff published independently."
   },
   "dev004_controlled_production_cutover": {
-    "status": "HOLD_ABORTED_BEFORE_RETIREMENT_V1_ACTIVE",
-    "engineering_revision": "e3881acfd194a254f5483d388822bc29c1e7572c",
-    "candidate": "dfb76562efc0aa598c6750ddb36723b9e5e7b06e",
+    "status": "HOLD_HANDOFF_ROW_LIMIT_V1_ACTIVE",
+    "engineering_revision": "d3aba9c92d1fb3645d227ecf764414933fe103b2",
+    "candidate": "c8e0233ecbdbfcc59bb8c6892f3f7dedd8580b30",
     "production_authorization": true,
     "fresh_compact_matched_pair_rollback_authorized": true,
-    "report": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/REPORT.md",
-    "exact_blocker": "MigrationJournal.admit invokes resolve_completed inside the journal mutation before appending/publishing the new signature. Actual _migration_completed_mint requires ACTIVE authority and raises PAIR_TRANSFER_ONLY at the transfer fence. The signature remains absent from the journal. Admission is therefore not independent of the fenced Core/OPS pair.",
-    "failing_acceptance": "tests/dev004/test_fenced_migration_admission_regression.py:1FAIL; actual lookup rejects TRANSFER before new signature is published, journal stays empty.",
+    "report": "docs/dev/lightweight_dev004_first_v2/admission_order_production/REPORT.md",
+    "exact_blocker": "ROW_LIMIT:migration_walkback_handoff: bounded source query returned 12001 rows; final operational-state reconciliation rolled back both staged V2 transactions. Complete required handoff preservation not qualified.",
+    "failing_acceptance": "At least 12001 handoff rows exceed fixed 12000 owner limit. No V1 retirement or V2 activation.",
     "actual_installed_runtime": {
       "approved_payload_files": 65,
       "installed_hash_mismatches": [],
@@ -43634,19 +43634,37 @@
       "supervisor_configuration_sha256": "a6dcc96e3ef0f107226d1a488f00813e51eb3a504a50ea0dca19bb754617c858",
       "active_core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
       "active_ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
-      "listener_PID": 44753,
-      "resolver_PID": 47203,
-      "walkback_PID": 47244,
+      "listener_PID": 59620,
+      "resolver_PID": 59912,
+      "walkback_PID": 59940,
       "all_three_RUNNING": true,
       "all_dormant_supervisor_groups_STOPPED": true,
       "original_preimages_preserved": true,
-      "V2_runtime_not_activated": true
+      "V2_runtime_not_activated": true,
+      "frozen_runtime_plan_sha256": "e638714a2eb578e13e88f25d55fe03227b0bf299e78d3705a69b89e79c88ffd1",
+      "source_bundle": "c8e0233ecbdbfcc59bb8c6892f3f7dedd8580b30"
     },
     "recovery": {
-      "action": "Restore ACTIVE on same unretired V1 pair; restart only resolver/Walkback; listener remained running. No retired marker cleared.",
-      "birth_sample": "152ACKed,152exact canonical CREATE matches",
-      "migration_sample": "4ACKed,6RETRY_EXHAUSTED protected; no completed-state invention",
-      "unrecorded_external_event_exposure": "Not certified. Bounded retained-log scan found no independently recoverable unmatched full signature; not proof of zero exposure. No event/mint/timestamp manufactured."
+      "action": "Withdraw TRANSFER fence while V1 remained unretired; validate matched V1 ACTIVE before restarting resolver and Walkback. Listener correction installed and running. No retired marker cleared.",
+      "journal_snapshot": {
+        "birth": {
+          "count": 169,
+          "states": {
+            "ACKED": 70,
+            "QUARANTINED": 1,
+            "RESOLVED": 98
+          }
+        },
+        "migration": {
+          "count": 27,
+          "states": {
+            "ACKED": 3,
+            "RESOLVED": 2,
+            "RETRY_EXHAUSTED": 22
+          }
+        }
+      },
+      "free_bytes": 4183355392
     },
     "staged_data": {
       "source_quarantine_capture": 207116,
@@ -43663,8 +43681,8 @@
     "provider_calls_for_qualification": 0,
     "runtime_provider_activity": "Normal authorized runtime activity; no artificial provider traffic and not claimed zero.",
     "runtime_deployment_gate": "HOLD_FOR_V2_CUTOVER",
-    "next_action": "Commit signature-first admission before optional completed-record lookup; preserve pending signature on TRANSFER/unavailable/conflicting lookup and prevent premature dispatch. Qualify that exact failure and then resume this same authorized cutover with a newly frozen live boundary.",
-    "safety_for_next_agent": "Production is not unchanged:65qualified source files and V1paired/journal configuration are installed. V1 remains ACTIVE. Reuse existing .runtime/dev004-v2 state; do not rerun prepare/install blindly, initialize journals again, delete evidence or reactivate retired stores. Signature persistence must precede optional completion lookup and preserve retry ceilings/dispatch safeguards. Read actual owner/config/physical identities before resuming."
+    "next_action": "Implement indexed durable bounded continuation for migration_walkback_handoff with exact complete coverage and dependencies, then resume the existing authorized cutover; do not raise the limit or omit rows.",
+    "safety_for_next_agent": "V1 is ACTIVE, unretired, all three workers RUNNING. V2 remains staged inactive. Reuse existing runtime state; never reset journals or rerun fresh-only install/prepare. Source payload c8e0233e installed and verified. Required handoff transfer exceeds fixed population limit. Reconcile a new final boundary after the narrow continuation fix. No full V1 copies, deletion, compaction, artificial provider traffic or dormant activation."
   },
   "dev004_journal_capacity_reuse": {
     "status": "PASS_OFFLINE_QUALIFICATION_NOT_DEPLOYED",
@@ -43737,6 +43755,24 @@
       "floor_bytes": 2000000000,
       "reserve_bytes": 67108864
     },
-    "next_action": "Quarantine continuation is qualified; do not reopen it as research. Resolve the journal admission-ordering regression before another cutover fence."
+    "next_action": "Qualified and unchanged; admission ordering is now corrected. Current blocker is bounded handoff population continuation; prior source capture requires refreshed final boundary before promotion."
+  },
+  "dev004_admission_order_correction": {
+    "status": "PASS_DEPLOYED_ON_V1",
+    "source_revision": "c8e0233ecbdbfcc59bb8c6892f3f7dedd8580b30",
+    "evidence_revision": "d3aba9c92d1fb3645d227ecf764414933fe103b2",
+    "report": "docs/dev/lightweight_dev004_first_v2/admission_order_production/REPORT.md",
+    "focused_tests": {
+      "passed": 42,
+      "failed": 0
+    },
+    "separate_ordering_composition_controls": 6,
+    "price_parent_index_control": 1,
+    "runtime_deployment_gate": "PASS",
+    "durable_before_lookup": true,
+    "strict_mixed_binding_rejection": true,
+    "production_source_changed": true,
+    "V2_activation": false,
+    "next_action": "Implement indexed durable bounded continuation for migration_walkback_handoff with exact complete coverage and dependencies, then resume the existing authorized cutover; do not raise the limit or omit rows."
   }
 }

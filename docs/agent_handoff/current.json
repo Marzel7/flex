@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "f1db199fa11ee6b513f18bb41bc84ef1e63d0181",
+    "git_head": "859dc444ad964c0fd6dd90ef8b1f75cd89bef6af",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T10:33:46.955815+00:00",
+    "updated_at_utc": "2026-10-24T10:58:42.264264+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42505,5 +42505,28 @@
     "report": "docs/dev/lightweight_dev004_first_v2/birth_admission_retirement/REPORT.md",
     "remaining_blockers": "NONE for the two requested DEV acceptance conditions. Paired final reconciliation/rebind/rollback remains unexecuted, not authorized.",
     "next_action": "Stop this correction. Await separate paired-transfer authorization; do not deploy, retire production stores, enable flags or rebind."
+  },
+  "dev004_bounded_paired_transfer": {
+    "status": "HOLD_MIXED_GENERATION_STARTUP_NOT_REJECTED",
+    "engineering_revision": "859dc444ad964c0fd6dd90ef8b1f75cd89bef6af",
+    "executable_candidate": "91d3975e77236f601586b1bd8af86544cc97b9de",
+    "source_changed": false,
+    "sequence": "Disposable pair; source lease + birth/migration durable admissions; retire Core/OPS; bounded exact final-state reconciliation; frozen complete fixture config; fresh actual path/persistence interfaces target V2; durable drain/readback. No production rebind.",
+    "positive_evidence": "Matched pair and restart/reconciliation/Core-before-OPS crash cases pass;7retained synthetic rows compare exactly,2canonical births,1newmigration handoff,2birthACKs+1migrationACK; duplicate identities coalesce; stale V1 Core/OPS writes rejected.",
+    "failed_acceptance": "With CoreV2 + retired OPSV1 configuration, current resolver/consumer does not reject startup; birth commits to CoreV2 and journal ACKs before a complete pair exists. Real process restart preserves mixed bindings. Distinct paired startup gate missing, not failure of single-store retirement or admitted-record durability.",
+    "tests": "8portable provider-free controls:7PASS,1mandatoryFAIL. No xfail/exclusion. Initial harness managed_db_connect/priority globals corrected before final run.",
+    "configuration_authority": "Frozen test launch JSON only, not an existing runtime generation coordinator. Existing actual core/db.py consumes independent DB_PATH/WT_OPS_DB_PATH without paired validation.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Only test/evidence additions; no executable correction.",
+    "storage": {
+      "maximum_fixture_file_bytes": 98304,
+      "logical_fixture_bytes": 2863073,
+      "allocated_fixture_bytes": 3260416,
+      "process_file_limit": 16000000,
+      "rows_per_table_transaction": 20
+    },
+    "production_state": "Unchanged. No production DB open/write, markers, service control, providers, WebSockets, source/config/credential changes, promotion or cutover.",
+    "report": "docs/dev/lightweight_dev004_first_v2/bounded_paired_transfer/REPORT.md",
+    "next_action": "Qualify minimal paired startup/config validation in existing runtime boundary before any canonical write, including partial-rebind restart. Rerun this same bounded suite; no distributed transaction framework or deployment."
   }
 }

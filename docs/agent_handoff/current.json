@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "c7a8c15323bca39c086d1f53f6043193e509d333",
+    "git_head": "ccabf8cf74c72aa8fbbca9732f7f8ab7c3a92c5b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
-    "working_tree": "DEV004 Byzantine provenance6/6resolved toexistingconfirmedmatch IDs;FKcompatibleassignmentimports0/6HOLD. Sourcewriter overloads event_id namespace, no acceptedcompat mapper. No eventsinvented,V1changes orruntimechanges."
+    "updated_at_utc": "2026-10-24T16:28:45.087461+00:00",
+    "working_tree": "DEV004 production bundle qualification stopped at independent P0 receipt capacity. Read-only assessment; no runtime or production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43186,5 +43186,43 @@
     "runtime_deployment_reason": "Read-onlyproductionpreflight/configurationdocumentationonly;nodeploymentorcorrection.",
     "publication": "Engineering6filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;runtimeunchanged.",
     "next_action": "Oneboundedproduction-integrationdeploymentpreflight:exactactive-triopayload/preimages,persistentjournal/paired/historybindings,andexplicitlivestate/receipt/filebudgetgates.KeepV1authoritative,nocutoverorrepeatedfullrehearsalorhistoricalresearch."
+  },
+  "dev004_production_bundle_qualification": {
+    "acceptance": {
+      "active_receipts": 102214,
+      "age_eligible_receipts": 0,
+      "available_bytes": 3774103552,
+      "bucket_count": 256,
+      "canonical_birth_loss": "NOT_ESTABLISHED",
+      "earliest_age_eligibility": "strictly after 2026-10-26T10:34:21.719507Z",
+      "floor_bytes": 2000000000,
+      "full_buckets": 236,
+      "full_rehearsal": "PRIOR_PASS_RETAINED_NOT_RERUN",
+      "new_capacity_failures_in_42_14_seconds": 5,
+      "production_activation_manifest": "INCOMPLETE",
+      "remaining_slots": 186,
+      "retirement_executed": false,
+      "source_packaging": "PASS_SOURCE_COMPOSITION_ONLY"
+    },
+    "activation_authorized": false,
+    "blocker": "Active receipt capacity refusals; all current receipts protected by seven-day contract; retirement reclaims zero slots. Production bindings remain incomplete.",
+    "engineering_publication": "HANDOFF_TRANSPORT_DEGRADED: engineering evidence push rejected by automatic approval review; local commit preserved; no remote verification claimed.",
+    "engineering_source_revision": "ccabf8cf74c72aa8fbbca9732f7f8ab7c3a92c5b",
+    "live_state": {
+      "disposition": "Preserve pending/retry; owner reconciliation required for expired leases; no reactivation. Webhook/quarantine complete transfer sets remain unqualified.",
+      "expired_running_leases": 3,
+      "funding_pending": 3584,
+      "funding_retry": 59
+    },
+    "manifest_sha256": "9a7e0896eac464c6eea8814f2393352d0d74cbc9bd240b82f95d6cb653d26871",
+    "next_action": "Separately authorize bounded non-destructive receipt-capacity extension qualification and controlled deployment preserving retention, deduplication, evidence, file limits, disk floor and rollback. Do not retire young receipts.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "report": "docs/dev/lightweight_dev004_first_v2/production_bundle_qualification/REPORT.md",
+    "runtime_deployment_reason": "Read-only assessment and draft manifest only; no executable runtime change.",
+    "runtime_deployment_required": false,
+    "runtime_source_revision": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "service_actions": 0,
+    "status": "HOLD_P0_RECEIPT_CAPACITY"
   }
 }

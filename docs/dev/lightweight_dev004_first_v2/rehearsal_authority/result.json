@@ -1,0 +1,51 @@
+{
+  "authority_bindings_complete": true,
+  "candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "disk_after": {
+    "allocated": 70344704,
+    "files": 55,
+    "free": 3853733888,
+    "largest": 13762560,
+    "logical": 70202656
+  },
+  "disk_before": {
+    "allocated": 24592384,
+    "files": 34,
+    "free": 3899011072,
+    "largest": 13762560,
+    "logical": 24524192
+  },
+  "equivalence": {
+    "ATH_numerical_relative_difference": "0.00002561652223584471798292797435",
+    "ATH_tolerance": ".001",
+    "all_tables_at_transfer": "EXACT",
+    "canonical_ATH_provenance_unchanged": true,
+    "history_and_freshness": "EXACT",
+    "original_candles": "independently unqualified; not required by accepted numerical contract",
+    "protected_historical_rows_and_schema": "EXACT"
+  },
+  "manifest_sha256": "32882b5ca9fee543ee3e6f86e4038b096823376edbb94256287a81296c1bd1a0",
+  "migration_executions": 1,
+  "phases": [
+    {
+      "exit": 71,
+      "phase": "migrate"
+    },
+    {
+      "exit": 0,
+      "phase": "recover"
+    },
+    {
+      "exit": 0,
+      "phase": "rollback"
+    }
+  ],
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "restart_idempotency": "PASS",
+  "rollback": "PASS_FRESH_MATCHED_PAIR",
+  "runtime_deployment_required": false,
+  "scope": "One provider-free migration of all retained compact DEV tables plus bounded operational fixture; existing worker/classifier/acquisition acceptance reused, not full live daemon deployment",
+  "source_commit": "27713bdca3f99c2b37a5e11469eddce1db62fc2a",
+  "status": "PASS"
+}

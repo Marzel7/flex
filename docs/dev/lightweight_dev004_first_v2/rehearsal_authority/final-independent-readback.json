@@ -1,0 +1,33 @@
+{
+  "manifest_sha256": "32882b5ca9fee543ee3e6f86e4038b096823376edbb94256287a81296c1bd1a0",
+  "original_source_and_stable_asset_checks": {
+    "freshness.json": true,
+    "history.json": true,
+    "price-queue/provider_budget.json": true,
+    "price-queue/provider_budget.lock": true,
+    "receipts/7b/7b68a27ba24305a2989d63196a937916b97901233ae46c0dd41e898b962c3f74.json": true,
+    "v1-core.sqlite": true,
+    "v1-creator.sqlite": true,
+    "v1-ops.sqlite": true
+  },
+  "all_source_tables_before_replay_exact": true,
+  "destination_and_rollback_all3_file_hashes_exact": true,
+  "table_counts": {
+    "core": 15,
+    "creator": 7,
+    "ops": 58
+  },
+  "row_counts": {
+    "core": 12496,
+    "creator": 1,
+    "ops": 15992
+  },
+  "final_active_authority": {
+    "generation": "fixture-rollback",
+    "owner": "runtime",
+    "phase": "ACTIVE",
+    "transfer_complete": true
+  },
+  "free_bytes_at_final_read": 3873153024,
+  "remote_frozen_manifest_commit": "6bfd275a"
+}

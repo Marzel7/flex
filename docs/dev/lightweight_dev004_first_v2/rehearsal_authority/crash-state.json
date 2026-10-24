@@ -1,0 +1,6 @@
+{
+  "budget_sha256": "d565537b11c21ec541485093ff1ae5fe9eb85eab058d5c9299653d0cb715dfd0",
+  "pending_births": 0,
+  "pending_migrations": 1,
+  "phase": "after_Core_commit_before_OPS_handoff"
+}

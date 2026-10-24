@@ -1,0 +1,331 @@
+{
+  "core": {
+    "_schema": "170be904d6294c92cff07aaf51c6db9407de1c5470fa99bf2bd517319a1a26d7",
+    "birth_persist_queue": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "creator_funders": {
+      "rows": 3543,
+      "sha256": "fd44abda15e466deaf4d8aa805897915e4b20d05b6454d2230987a70e74116be"
+    },
+    "creator_funding_queue": {
+      "rows": 1467,
+      "sha256": "40b82874bea2e66200e6e79e2f7c47c456f9a240d713480b93c69696d62133e9"
+    },
+    "creator_resolution_queue": {
+      "rows": 29,
+      "sha256": "c8f8c778dab08d5449d6678d182f0c6442e924cea743176e31c376b3469be5e7"
+    },
+    "metadata_cache": {
+      "rows": 1143,
+      "sha256": "623306178ecbbc2907c88dac24317be2066b2cb437fa445d2b68b9dff0f84d1f"
+    },
+    "migration_walkback_handoff": {
+      "rows": 343,
+      "sha256": "75520711784329200a507ea0a9f67e10474feb261166314b7d6390d8fd3cf807"
+    },
+    "sqlite_sequence": {
+      "rows": 3,
+      "sha256": "259f1a3891744eaf44301fbdbc1425bd336b953fc69c31461b9c70700c8938bc"
+    },
+    "token_analysis": {
+      "rows": 1155,
+      "sha256": "24757c4a274476205f2692039017c0ab1d19ed96a21ddd820138f047bd109f94"
+    },
+    "token_market_cap_peaks": {
+      "rows": 216,
+      "sha256": "d03652d66d04af4bf366f4f5f4239fe7163bbef03806c84e05c6da509366adce"
+    },
+    "token_pool_accounts": {
+      "rows": 1138,
+      "sha256": "94aa065d741a2d5cefa31ea6e379a31ea25a90623d676ee688db315a2a025885"
+    },
+    "tracked_tokens": {
+      "rows": 1129,
+      "sha256": "bd1bac1afedff83ce7cbd66fcadcb067728aee3daf728a1d3fd07d942d4fda35"
+    },
+    "transfer_index": {
+      "rows": 2326,
+      "sha256": "3afc796f9a50da58812f098c9f314f44474b835ce3c65efca594bd1831fb6846"
+    },
+    "wb_create_control": {
+      "rows": 1,
+      "sha256": "1a8071d0a79b82f55f7f4c5d6f7a01538d7fc0031e13520a08463c503de214bd"
+    },
+    "wb_create_delivery": {
+      "rows": 1,
+      "sha256": "6ff97e1d9110712285326db15796f10a52df6d1c440baea0e917d282747415e9"
+    },
+    "webhook_birth_queue": {
+      "rows": 2,
+      "sha256": "b4473f951d683164f5a0d815abfc82312c05b8919375ec209534747b8dc7edb6"
+    }
+  },
+  "creator": {
+    "_schema": "6ce48a7b9be7aabe94c5c8f4b102f42ffbd6fe13a1b34e4762fdecbacd23827b",
+    "creator_activity_jobs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "creator_activity_state": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "creator_profile": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "creator_sol_movements": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "creator_tokens": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sqlite_sequence": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "system_config": {
+      "rows": 1,
+      "sha256": "5cd3eb75aecd8e217393fb38e741e35edb6c8abc6a7cd4929deb8cf6577285a6"
+    }
+  },
+  "ops": {
+    "_schema": "ba12813b7fec615d4093934c6bee25ed74bf220db466b0de4f38f1f72e7104cb",
+    "confirmed_operation_matches": {
+      "rows": 318,
+      "sha256": "59928d71775cdef1d09b70ae1a66083c5a65f93110218d72f8df2257eb4ba4c1"
+    },
+    "dev004_retained_reference_evidence": {
+      "rows": 15,
+      "sha256": "e0a2271568ecd228ca3e91ea49562f2e9ce1d537b19275e5ca19a48e8ca3c60f"
+    },
+    "monitor_admission_outbox": {
+      "rows": 104,
+      "sha256": "ab002f6b54997835301b96b22c3018afbe390eb2305b33c3cf2e496cb0ea0e1b"
+    },
+    "operation_behavioural_profiles": {
+      "rows": 6,
+      "sha256": "d787fee11af4e393920061589f9f97b518ba9871a2594fa3f44996671ad7fda1"
+    },
+    "operation_monitor_entry_provenance": {
+      "rows": 71,
+      "sha256": "8ac31375727f9972dff1d656e27f1d7fc6de0ef5b18bfa36c4ef1ac64aa0fd64"
+    },
+    "operation_monitor_facts": {
+      "rows": 24,
+      "sha256": "6cccb3297db59f97e8e063c94a0d96e4fd4239efcc57f6cc75754adda8955a01"
+    },
+    "operation_monitor_mode_transitions": {
+      "rows": 2,
+      "sha256": "0e3f756511ae7e36072b2b78b15bdc089a0f2e6a2d5f127888ec50cbf2d907d3"
+    },
+    "operation_monitor_observations": {
+      "rows": 48,
+      "sha256": "d3c235beb634ef5ed72f818661e00d9282869e3f22e4d3e0c6f98628858fca0e"
+    },
+    "operation_monitor_window_completion": {
+      "rows": 1,
+      "sha256": "9fa2b796680b3cefb26b6251247389f2f80701478b8268b0f0573f40407f6482"
+    },
+    "operation_qualification_contracts": {
+      "rows": 6,
+      "sha256": "fb8816d080edc2c095f62ec5b2c87903712e90b28626333d6bc36bca55e5978e"
+    },
+    "operation_registry_dispositions": {
+      "rows": 10,
+      "sha256": "c725e3e95689bc66f4b1366757823cf1027f0762716f9cf6846693f57bc72b9c"
+    },
+    "operator_entities": {
+      "rows": 153,
+      "sha256": "39696ea60a4fc4d6665090bde2f302eed06bb5dd47e3d9ebc884a7684d67384e"
+    },
+    "operator_evidence": {
+      "rows": 5,
+      "sha256": "4b943f3df1edf0d5ff2dce9378238eb0cffc219e4de0c941edf9015905161be1"
+    },
+    "operator_identity_assets": {
+      "rows": 122,
+      "sha256": "2508c71b074ff64245279d9fcf7b53c062a163198da627b0390d941289d8662c"
+    },
+    "operator_identity_events": {
+      "rows": 136,
+      "sha256": "68bf44e79398c850215edbdc6154d7ca2757c74f4e4d895dac4f01159b25a82f"
+    },
+    "operator_identity_merges": {
+      "rows": 1,
+      "sha256": "b6445bb614ae1a3c9bdee8223705bcc7735a64a1809fc20a510558b03efeb3be"
+    },
+    "operator_identity_state": {
+      "rows": 5,
+      "sha256": "e9047688759a4d02cffb877288e19b7b8add88b09669f227869ebbcfcb2e3d9e"
+    },
+    "operator_launch_assignment_history": {
+      "rows": 27,
+      "sha256": "28fd5a151dfba851ad83745f8508878de45449186c98daee4f01c300667b958f"
+    },
+    "operator_launch_membership": {
+      "rows": 1166,
+      "sha256": "8adf6eb9fa61f25f08f6ff654b2d7c8ab9a45682009946f73956f8f421191ebb"
+    },
+    "operator_promotion_reviews": {
+      "rows": 1,
+      "sha256": "06bd477f59da2aa71cd36ae9329141a720142f22df0a4c1ccff39543ca74190d"
+    },
+    "operator_reviews": {
+      "rows": 2,
+      "sha256": "6ca1c207526f2c2d0f211d44d15d38b738181f23980c50c71a25db9df8206c1f"
+    },
+    "operators": {
+      "rows": 11,
+      "sha256": "6254e69e4dde699b6eea2ae610f0b19c9b16f2e65796cce441552b4a912442e2"
+    },
+    "p3r_v2_candidate_membership": {
+      "rows": 1332,
+      "sha256": "8f1c3de6968ba645ff2376ccc23b04077346f301d92774971d7f2f404d2d8056"
+    },
+    "potential_operation_assessment_association_binding": {
+      "rows": 183,
+      "sha256": "2995e9500bd17588a7cf9807fbf0adfabe1575ee0bb9433f567d3a2936b5ce83"
+    },
+    "potential_operation_assessment_lineage": {
+      "rows": 5,
+      "sha256": "12efc9e17bd85f7905e09c15017055eca9561de6967e1707c0f3d8d8b5b8baa0"
+    },
+    "potential_operation_assessment_version": {
+      "rows": 5,
+      "sha256": "1bb4b653456a3204f3e190f74a26bf8bf9b1788e324e8db91f9946977ffe2771"
+    },
+    "potential_operation_child_candidates": {
+      "rows": 2,
+      "sha256": "038c98ed51640b409013eb613caf14cc5fafd02ac32e7e8f2fca902e1be5074c"
+    },
+    "potential_operation_current": {
+      "rows": 2,
+      "sha256": "d5b782bf995923cbe79a827925fb03ae4147472c8080114a64f339ea3e1ffcd5"
+    },
+    "potential_operation_evidence_association": {
+      "rows": 183,
+      "sha256": "35b58c643320bea100c05b060e0114a148bb9a9880d21afd7be4947788053a81"
+    },
+    "potential_operation_identity": {
+      "rows": 2,
+      "sha256": "ee3c899b5b61a8fbd415d897904d3077bf3eb47e457e3b128a247fe41153b327"
+    },
+    "potential_operation_workflows": {
+      "rows": 63,
+      "sha256": "6e6bf871c1f3561ca219d4a4977c29c2489817f15b0c034f771635dd855567cf"
+    },
+    "sqlite_sequence": {
+      "rows": 3,
+      "sha256": "8cb993863baae74f41bd3efd45bbf17aac57c2e0d5ecc6eb2bc5ba6937d2dc00"
+    },
+    "watchtower_token_attribution": {
+      "rows": 975,
+      "sha256": "e249fa90f2b06f86b7125bba2655dc5932a9291c8f6763db23e40c1842bb1686"
+    },
+    "wt_active_subprov_sessions": {
+      "rows": 4,
+      "sha256": "24484268d457c7958aa1739a87ef015c2996336c971e2f006b649c2d256897c1"
+    },
+    "wt_attribution_outcomes": {
+      "rows": 1165,
+      "sha256": "2f7d9480acf8ec9e7f0b844a15ea93d73640dd13babcdc40c05acb55e1a819a1"
+    },
+    "wt_candidate_websocket_watches": {
+      "rows": 19,
+      "sha256": "2e30f5100f724794f9af5a3589ba9efbc1f6561c8656f81674a0df065146fc2e"
+    },
+    "wt_confirmed_treasuries": {
+      "rows": 115,
+      "sha256": "bec28655b607c8bedb94e04508642541bb3157f51be4619da0c97cb1dc217c9f"
+    },
+    "wt_creator_birth_launch": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wt_discovered_subprovs": {
+      "rows": 2,
+      "sha256": "5c63e35b44d6e7c76c744c961f1551881f41d7b07fbbe1ddc9022229e026d804"
+    },
+    "wt_infrastructure_candidate_descendants": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wt_infrastructure_candidate_evidence": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wt_infrastructure_candidate_reviews": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wt_infrastructure_candidates": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wt_launch_audit": {
+      "rows": 600,
+      "sha256": "532a3fc5ae296ce8bf08020db6f72c55557fc1a62c7844e94057cc3406e239c3"
+    },
+    "wt_lineage_quarantine": {
+      "rows": 129,
+      "sha256": "9103a54e2ad89ff47dc83326dbf37d3f000db501ddc0b22b57852ea416ef7427"
+    },
+    "wt_lineage_root_policies": {
+      "rows": 1,
+      "sha256": "1730799aafa1aa3b6dbef2371917d805f9fd7582ea92f9e4005a7166d07e7b56"
+    },
+    "wt_lineage_verified_session_edges": {
+      "rows": 133,
+      "sha256": "1cec755b2113edab28680984ff8ae90f44588eadbdde0115b0b56123ed58cbd0"
+    },
+    "wt_ops_v2": {
+      "rows": 3,
+      "sha256": "722a76f334ac8d43f7f6dd0d8e3755fb2d1019b2e90ccef0237386a915beced7"
+    },
+    "wt_ops_v2_wallets": {
+      "rows": 6,
+      "sha256": "d9db6f15e13a48a2c2d46b6ede79b390df912bc3a6f38596063b0f67e8769bfa"
+    },
+    "wt_provisioning_sessions": {
+      "rows": 1001,
+      "sha256": "92b58df0170110608c61ceb15990f229506967229cfcbd24641060d3a0aa0556"
+    },
+    "wt_treasury_review": {
+      "rows": 50,
+      "sha256": "964baa9b8023fb0652257c05037b6d6438c428eaac861c6b2ead4e2d1466345d"
+    },
+    "wt_walkback_atomic_flows": {
+      "rows": 784,
+      "sha256": "84a9a2ea23a562458fc1f82ccf098d1857658c5653203d5491ea5f68af280ace"
+    },
+    "wt_walkback_edge_candidates": {
+      "rows": 4172,
+      "sha256": "058430061400cd40c12e97d28d7accd9361f26f3da54f1f17ebee293e575054b"
+    },
+    "wt_walkback_queue": {
+      "rows": 1196,
+      "sha256": "f993e98fff904573068f15ffe32fb94809a990eb02eb6bf04baa672bc7a01352"
+    },
+    "wt_walkback_transaction_roles": {
+      "rows": 73,
+      "sha256": "af4c2c4c2c390c3db790e3140dd4616c44a77c5ce5345c37661f31d63d027359"
+    },
+    "wt_wallet_lifecycle_evidence": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "wt_watchtower_launches": {
+      "rows": 605,
+      "sha256": "8cabf5a7b94102978da75565e8256d29ef094da15385a43dc49093cf1e6623f0"
+    },
+    "wt_wrap_close_candidates": {
+      "rows": 945,
+      "sha256": "407567305e181b66e1ce522991989922d1d2d6707e7334f038736b486b5a5756"
+    }
+  }
+}

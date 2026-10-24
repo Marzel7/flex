@@ -1,0 +1,7 @@
+{
+  "all_tables_and_secondary_exact": true,
+  "originals_remain_retired": true,
+  "stable_state_preserved": true,
+  "status": "PASS",
+  "target_generation": "fixture-rollback"
+}

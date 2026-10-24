@@ -1,0 +1,19 @@
+{
+  "source_commit": "27713bdca3f99c2b37a5e11469eddce1db62fc2a",
+  "candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "manifest_sha256": "32882b5ca9fee543ee3e6f86e4038b096823376edbb94256287a81296c1bd1a0",
+  "status": "PASS",
+  "single_migration": true,
+  "result_sha256": "e175d2c0ceb41aaa536632f6afb420f610c107bda9b813f9cce6cfa1a8ebc437",
+  "evidence_files": {
+    "recover-process.json": "659dfb28dcc385fb577a5a269bbf0f45b5ef743eda3c5406ba0cc6b54107ca74",
+    "snapshot-equivalence.json": "48a96f37995e948161e983a11926f3889f0a6f32d6dd320b0ea827d282ce0771",
+    "restart-result.json": "f0a4c1943ab4d5bc6cc23fc6f8939a7e7958bc9b96ad5fcda364ef860b7e94be",
+    "rollback-process.json": "a9eff4dc17581d69bbcd6ecc5338d02df8a4de717647fcc3a7075b2330a1bdea",
+    "result.json": "e175d2c0ceb41aaa536632f6afb420f610c107bda9b813f9cce6cfa1a8ebc437",
+    "crash-state.json": "d222bf1fe34dbc24697e52bb7a22ef848501f29583d3fd34caa3e70144cce607",
+    "migrate-process.json": "ff371a64d960b87391613a8cdc4fea9fa3169cbd61f6a9fa3427f9003adce2d0",
+    "rollback-result.json": "2796f672b07fe20a5019cca4c502754b5ee65ddc2b78b9fd5ba098c48f6018fb",
+    "final-independent-readback.json": "b844c4f34d156d871de053748ce5f7d9b13f39d9baef199646eab9da365c791e"
+  }
+}

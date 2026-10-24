@@ -1,0 +1,21 @@
+{
+  "birth_ACKs": [
+    "ACKED",
+    "ACKED"
+  ],
+  "budget_sha256": "d565537b11c21ec541485093ff1ae5fe9eb85eab058d5c9299653d0cb715dfd0",
+  "completed_windows": [
+    "dev004-rehearsal-completed-window"
+  ],
+  "duplicate_changes": false,
+  "mapping_hashes": {
+    "freshness.json": "87c995c633841adaaeffa3114ceacbed0441bf0c00e004036b8dd120d844026d",
+    "history.json": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb"
+  },
+  "migration_ACKs": [
+    "ACKED"
+  ],
+  "price_queue_pending": 1,
+  "stale_writes_rejected": 2,
+  "status": "PASS"
+}

@@ -1,0 +1,24 @@
+{
+  "starting_DEV004_commit": "ccabf8cf74c72aa8fbbca9732f7f8ab7c3a92c5b",
+  "retained_rehearsal_commit": "bf0da567634a040c96cc955c9afe165466d94beb",
+  "deployed_receipt_commit": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
+  "deployed_evidence": "c3b027cd8a43a83c13ac75def8d32ae70f34822d",
+  "starting_handoff": "bb1a158fd88d0d24ff95ffe8620eaf4a00433dfd",
+  "old_V2_writer_sha256": "1bcc41e6a5e0b63d318c2a52a71a5536f89838b4e3363ebc60cfa8cb4f3fec38",
+  "deployed_writer_sha256": "b022320c55ebedea95153c17c7ad2fb2fc8a6335951a8960dea642e5505e72bf",
+  "merged_V2_writer_sha256": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c",
+  "delta": "Only deployed capacity constants/warning method merged. DEV004 paired receipt acknowledgement guard preserved exactly. V2 and installed whole-file hashes intentionally differ.",
+  "retained_test_evidence": "32P0receipt/retention tests and five-minute deployed acceptance reused; 29,633row migration and historical matrices not repeated.",
+  "production_changes": 0,
+  "service_actions": 0,
+  "provider_calls": 0,
+  "migration_reruns": 0,
+  "observed_utc": "2026-10-24T17:23:09.085754+00:00",
+  "available_bytes": 2503196672,
+  "focused_tests": {
+    "passed": 5,
+    "failed": 0,
+    "scope": "Deployed capacity method exact; other DEV receipt methods unchanged; valid pair acknowledgements, invalid/mid-ACK pair failure, legacy identity. No migration rerun."
+  },
+  "accepted_numeric_parser_fallbacks_AST_match": true
+}

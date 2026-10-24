@@ -77,11 +77,12 @@ class PumpPortalBirthAudit:
     # The original single-directory ceiling protected the listener from an
     # unbounded directory scan, but it also stopped compact provenance after
     # 4,096 births.  New receipts are sharded by their stable identity prefix:
-    # 256 buckets x 384 receipts = 98,304 bounded active receipts.  The write
+    # 256 buckets x 1,536 receipts = 393,216 bounded active receipts.  The write
     # path touches one bucket only and therefore never needs a global scan.
     MAX_RECEIPT_FILES = 4096  # legacy flat-store compatibility only
     BUCKET_COUNT = 256
-    MAX_RECEIPTS_PER_BUCKET = 384
+    MAX_RECEIPTS_PER_BUCKET = 1536
+    RECEIPT_WARNING_THRESHOLD = 1152
     MAX_SHARDED_RECEIPTS = BUCKET_COUNT * MAX_RECEIPTS_PER_BUCKET
     MIN_FREE_BYTES = 2_000_000_000
     def __init__(self, *, enabled: bool, path: str, max_pending: int = 2048, compact_path: Optional[str] = None) -> None:
@@ -236,6 +237,13 @@ class PumpPortalBirthAudit:
             raise ValueError("RECEIPT_CAPACITY")
         if not exists and entries_count >= self.MAX_RECEIPTS_PER_BUCKET:
             raise ValueError("RECEIPT_CAPACITY")
+        if not exists and entries_count == self.RECEIPT_WARNING_THRESHOLD:
+            try:
+                logging.getLogger(__name__).warning(
+                    "COMPACT_RECEIPT_CAPACITY_WARNING bucket_limit=%s remaining=%s",
+                    self.MAX_RECEIPTS_PER_BUCKET, self.MAX_RECEIPTS_PER_BUCKET - entries_count)
+            except Exception:
+                pass  # Diagnostics must not change durable admission semantics.
 
     def _store_receipt(self,name,row,*,target=None):
         root=self.compact_path

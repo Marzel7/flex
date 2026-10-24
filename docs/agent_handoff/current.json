@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/p0-receipt-capacity",
-    "git_head": "11e9d172174b8fc9320064222ed9160ee92f6686",
+    "git_head": "c3b027cd8a43a83c13ac75def8d32ae70f34822d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T17:00:53.506959+00:00",
-    "working_tree": "Authorized P0 one-file deployment stopped before service actions: current resolverPID92522 differs from preflight3874. Source remains original, listener running."
+    "updated_at_utc": "2026-10-24T17:20:35.453832+00:00",
+    "working_tree": "P0 receipt capacity one-file production deployment COMPLETE. Listener97696running; five-minute natural acceptance PASS; resolver92522/Walkback94577unchanged. DEV004 migration unaffected."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43223,10 +43223,11 @@
     "runtime_deployment_required": false,
     "runtime_source_revision": "bf0da567634a040c96cc955c9afe165466d94beb",
     "service_actions": 0,
-    "status": "HOLD_P0_RECEIPT_CAPACITY"
+    "status": "HOLD_P0_RECEIPT_CAPACITY",
+    "receipt_capacity_gate_resolution": "Independent P0 one-file deployment COMPLETE / c3b027cd; receipt-capacity blocker resolved. This does not qualify or authorize DEV004 migration or its remaining bindings."
   },
   "p0_non_destructive_receipt_capacity": {
-    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "status": "PASS_DEPLOYED",
     "engineering_revision": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
     "engineering_branch": "codex/p0-receipt-capacity",
     "engineering_worktree": "/private/tmp/flex-p0-receipt-capacity",
@@ -43266,14 +43267,15 @@
     "free_bytes_before": 3745775616,
     "free_bytes_after": 3670016000,
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "runtime_deployment_gate": "PASS",
     "production_mutations": 0,
     "provider_calls": 0,
     "service_actions": 0,
     "receipt_mutations": 0,
     "activation_authorized": false,
-    "blocker": "DEV qualification complete; production still on old exhausted limit. No production deployment authorized.",
-    "next_action": "Separately authorize source-only deployment preflight for exact one-file payload and capacity-compatible fallback, rechecking installed preimage, sole listener ownership and disk headroom. Do not deploy under current authorization."
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "deployment_evidence_revision": "c3b027cd8a43a83c13ac75def8d32ae70f34822d"
   },
   "p0_receipt_capacity_deployment_preflight": {
     "status": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
@@ -43328,49 +43330,102 @@
     "engineering_publication": "Local immutable evidence commit only; no engineering remote publication requested or performed."
   },
   "p0_receipt_capacity_production_deployment": {
-    "status": "HOLD_PREDEPLOYMENT_SERVICE_AUTHORITY_CHANGED",
-    "engineering_evidence_revision": "11e9d172174b8fc9320064222ed9160ee92f6686",
+    "status": "COMPLETE",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "engineering_evidence_revision": "c3b027cd8a43a83c13ac75def8d32ae70f34822d",
     "runtime_candidate": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
-    "report": "docs/dev/p0_receipt_capacity/deployment/REPORT.md",
-    "authorization": "One-file listener-only deployment and five-minute natural acceptance authorized; no other restart/change. Execution stopped at prerequisite boundary.",
-    "installed_source_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
-    "candidate_and_fallback_hashes_verified": true,
-    "staged": "Only candidate and compatible fallback privately staged, no production replacement.",
+    "report": "docs/dev/p0_receipt_capacity/deployment_resume/REPORT.md",
+    "installed_target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpportal_birth_audit.py",
+    "installed_source_sha256": "b022320c55ebedea95153c17c7ad2fb2fc8a6335951a8960dea642e5505e72bf",
+    "source_preimage_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+    "compatible_fallback_sha256": "67b342e737cd9e06f2ca9be877ab1c4910981662934e1f221ce5a55d27800647",
+    "resolver_authority": {
+      "status": "VERIFIED_SUPERVISOR_MANAGED_REPLACEMENT",
+      "pid": 92522,
+      "old_pid": 3874,
+      "parent_supervisor_pid": 1131,
+      "duplicate_resolvers": false,
+      "executable": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+      "cwd": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "source_config_bindings": "Accepted hashes and explicit Core/OPS Supervisor bindings verified; PID change is not a blocker.",
+      "process_start_local": "2026-10-24T17:50:46 Europe/London"
+    },
+    "prior_attempt": {
+      "evidence": "11e9d172",
+      "status": "HOLD before actions; resolved by current bounded authority verification"
+    },
     "listener_pid_before_after": [
       94632,
-      94632
+      97696
     ],
-    "resolver_pid_preflight_current": [
-      3874,
-      92522
-    ],
-    "walkback_pid_before_after": [
-      94577,
-      94577
-    ],
-    "states": "All three RUNNING",
-    "capacity": {
-      "per_bucket_before_after": [
-        384,
-        384
-      ],
-      "full_buckets": 242,
-      "remaining_slots": 103,
-      "active_receipts": 102297
+    "other_worker_pids": {
+      "creator_resolution_worker": 92522,
+      "walkback_worker": 94577
     },
-    "database_health": "Core/OPS bounded query-only reads pass; WALs0bytes.",
-    "free_bytes_at_stop": 2520268800,
-    "five_minute_acceptance": "NOT_STARTED_PREREQUISITE_STOP",
-    "rollback": "NOT_REQUIRED_NOT_INSTALLED; use compatible fallback after any future expanded writes.",
-    "production_source_changes": 0,
-    "receipt_mutations": 0,
+    "other_worker_states": "Unchanged; running workers retain PIDs; Funding/Cascade/API/monitor/bridge and other entries remain STOPPED.",
+    "installation": "Only approved receipt writer atomically installed with file/directory fsync; UID501/GID20/mode0644 retained. Numeric-parser, wrapper, maintenance, handoff and configuration unchanged.",
+    "capacity": {
+      "old_per_bucket": 384,
+      "new_per_bucket": 1536,
+      "buckets": 256,
+      "sharded_ceiling": 393216,
+      "before_active": 102309,
+      "final_active": 102474,
+      "final_remaining_slots": 294838,
+      "formerly_full_buckets_with_verified_new_committed_receipts": 93
+    },
+    "acceptance": {
+      "status": "PASS",
+      "elapsed_seconds": 300.98041662503965,
+      "window_utc": "approximately2026-10-24T17:12:00Z\u201317:17:00Z",
+      "new_committed_exact_core_matches_since_predeploy": 130,
+      "matched_births_received_during_window": 98,
+      "pumpportal_subscription": true,
+      "pumpswap_subscription": true,
+      "capacity_refusals": 0,
+      "sqlite_connection_lifecycle_errors": 0,
+      "sql_errors": 0,
+      "existing_handoff_identity_warnings": 8,
+      "warning_scope": "Pre-existing fixed HANDOFF_IDENTITY validation warnings, unchanged; not capacity refusals.",
+      "preexisting_receipt_paths_preserved": 102309,
+      "missing_paths": 0,
+      "byte_identical_protected_receipt_samples": 32,
+      "webhook_quarantine_samples_preserved": 113,
+      "lineage_quarantine_samples_preserved": 64,
+      "birth_queue_identity_counter_samples_preserved": 64
+    },
+    "disk_database": {
+      "min_sampled_free_bytes": 2492080128,
+      "final_free_bytes": 2511835136,
+      "receipt_floor_bytes": 2000000000,
+      "core_final_wal_bytes": 0,
+      "ops_final_wal_bytes": 0,
+      "core_schema_version": 849,
+      "ops_schema_version": 766,
+      "bindings_and_inodes_unchanged": true,
+      "bounded_read_health": "PASS"
+    },
+    "storage": {
+      "largest_final_receipt_bytes": 562,
+      "max_receipt_and_temp_bytes": 4096,
+      "max_diagnostic_file_bytes": 16777216,
+      "new_files_ge500MB": 0,
+      "new_unbounded_paths": 0,
+      "raw_retention_added": false
+    },
+    "source_files_installed": 1,
+    "listener_restarts": 1,
+    "other_service_actions": 0,
     "manual_database_writes": 0,
-    "service_actions": 0,
-    "manual_provider_calls": 0,
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "blocker": "Resolver process authority changed from frozen preflightPID3874 to92522. No claim PID turnover alone proves a defect. Immediate baseline confirmation missing; user stop-on-prerequisite rule applied.",
-    "next_action": "Confirm current resolver92522 runtime authority and refresh service baseline, then resume already authorized listener-only deployment if immediate prerequisites match. Do not restart or modify resolver.",
-    "engineering_publication": "Local evidence commit only; no engineering remote publication performed."
+    "manual_provider_test_calls": 0,
+    "receipt_deletions": 0,
+    "retention_changes": 0,
+    "schema_changes": 0,
+    "V2_cutover": false,
+    "rollback": "NOT_REQUIRED. Compatible fallback retained. Never restore384-limit writer after expanded writes.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE. Leave listener97696running.",
+    "engineering_publication": "Local immutable engineering evidence commit; terminal handoff published separately."
   }
 }

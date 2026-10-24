@@ -23374,7 +23374,7 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-08-18T13:12:07Z",
+  "last_updated": "2026-10-24T11:42:16.707296+00:00",
   "latest_at_utc": "2026-08-18T14:08:03Z",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "859dc444ad964c0fd6dd90ef8b1f75cd89bef6af",
+    "git_head": "e5025c59b0a9bd2f8a967fba568407e18419ffaa",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T10:58:42.264264+00:00",
-    "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
+    "updated_at_utc": "2026-10-24T11:42:16.707296+00:00",
+    "working_tree": "DEV004 paired binding guard PASS isolated DEV; executable0013ccbd; evidence e5025c59. 192 unique provider-free PASS. No production deployment, flags, markers or cutover."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -42507,7 +42507,7 @@
     "next_action": "Stop this correction. Await separate paired-transfer authorization; do not deploy, retire production stores, enable flags or rebind."
   },
   "dev004_bounded_paired_transfer": {
-    "status": "HOLD_MIXED_GENERATION_STARTUP_NOT_REJECTED",
+    "status": "HISTORICAL_COUNTEREXAMPLE_RESOLVED_BY_PAIRED_BINDING_GUARD_DEV",
     "engineering_revision": "859dc444ad964c0fd6dd90ef8b1f75cd89bef6af",
     "executable_candidate": "91d3975e77236f601586b1bd8af86544cc97b9de",
     "source_changed": false,
@@ -42527,6 +42527,38 @@
     },
     "production_state": "Unchanged. No production DB open/write, markers, service control, providers, WebSockets, source/config/credential changes, promotion or cutover.",
     "report": "docs/dev/lightweight_dev004_first_v2/bounded_paired_transfer/REPORT.md",
-    "next_action": "Qualify minimal paired startup/config validation in existing runtime boundary before any canonical write, including partial-rebind restart. Rerun this same bounded suite; no distributed transaction framework or deployment."
+    "next_action": "Counterexample retained historically; corrected bounded transfer suite now8PASS. Use paired_binding_guard report; do not deploy or cut over without separate authorization.",
+    "resolution_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519"
+  },
+  "dev004_paired_binding_guard": {
+    "status": "PASS_DEV_QUALIFICATION_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "e5025c59b0a9bd2f8a967fba568407e18419ffaa",
+    "executable_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+    "source_base": "91d3975e77236f601586b1bd8af86544cc97b9de",
+    "counterexample_evidence": "859dc444ad964c0fd6dd90ef8b1f75cd89bef6af",
+    "implementation": "Bounded frozen manifest + physical Core/OPS seals + single active authority validation in all3 startup/write boundaries and listener retry/handoff/ACK paths. Existing retirement/precommit guards preserved. Successor requires both predecessor retirements. TRANSFER cannot startup/ACK. No publisher/service/schema/coordinator added. Idempotent metadata retry re-syncs file+directory.",
+    "tests": "192 unique provider-free PASS,0fail:129 retained journal/retirement +8 transfer +36 focused pair controls +19 existing writer controls. Both mixed directions/startup, missing/corrupt/partial identities, replacement, stale commits, ACK mutation races, restart, authorized fresh rollback pair. Additional8control evidence-label rerunPASS. Network blocked, disposable-only SQLite audit.",
+    "continuity": "Seven retained synthetic rows exact;2birth identities+1migration durable ACK, no duplicate canonical identity; pending retry/quarantine/membership evidence preserved. Original7positive controls stillPASS. Matched restart/rebind is disposable test only.",
+    "storage": {
+      "manifest_authority_max_bytes_each": 8192,
+      "seal_max_bytes_each": 2048,
+      "seals_per_pair": 2,
+      "journal_max_bytes_each": 2000000,
+      "staging_max_bytes_each": 2000000,
+      "record_max_bytes": 4096,
+      "record_count_max": 512,
+      "batch_max": 20,
+      "floor_bytes": 2000000000,
+      "largest_fixture_file_bytes": 98304,
+      "test_file_limit_bytes": 16000000,
+      "new_unbounded_growth_paths": 0
+    },
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "production_state": "Unchanged. Installed6writer preimages,listener and Supervisor config hashes freshly match previous authority. No production DB open/write, markers, flags, config/source/service changes, providers, WebSockets or cutover. BIRDEYE/provider budgets unchanged.",
+    "limits": "Managed Flex/native OPS writers and trusted configuration authority; not arbitrary unmodified SQLite clients. Retired originalV1 never unretired; post-retirement rollback uses a new authorized matched copy pair. No absolute WAL/lock-time claim.",
+    "report": "docs/dev/lightweight_dev004_first_v2/paired_binding_guard/REPORT.md",
+    "remaining_blockers": "NONE for requested DEV correction. Production activation/cutover unexecuted and unauthorized.",
+    "next_action": "NONE \u2014 requested DEV correction complete. Stop; preserve V1 authority. Separate authorization and existing controlled preflight required before production deployment/cutover."
   }
 }

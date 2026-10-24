@@ -10747,7 +10747,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             _validate_active_pair()
         except RuntimeError as error:
-            if str(error) == 'PAIR_TRANSFER_ONLY':
+            if str(error).startswith('PAIR_'):
                 return None
             raise
         active = getattr(self, "_signature_journal_active", None)
@@ -11347,7 +11347,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 if birth_receipt_id:
                     await self._record_pp_birth_outcome(birth_receipt_id, mint, committed)
             except RuntimeError as error:
-                if str(error) == 'PAIR_TRANSFER_ONLY':
+                if str(error).startswith('PAIR_'):
                     return  # Already admitted; keep receiving while writes fence.
                 raise
             if committed:

@@ -64,3 +64,12 @@ def test_birth_frame_stays_admitted_during_fence(tmp_path):
  obj=types.SimpleNamespace(_eb_birth_audit=types.SimpleNamespace(record=lambda **k:'receipt',compact_path=tmp_path),_pumpfun_delivery_latency=types.SimpleNamespace(observe_pumpportal=lambda **k:None),_byzantine_birth_signal=None,_portal_vsol={},_persist_durable_birth=persist,_record_pp_birth_outcome=forbidden)
  asyncio.run(scope['_handle_pumpportal_create_frame'](obj,{'traderPublicKey':'creator'},signature='sig',mint='mint',receive_utc_ns=1,receive_monotonic_ns=1,tracked_trade_mints=set(),migration_sol_threshold=1,ws=None))
  assert work.pending()[0]['state']=='RESOLVED' and work.pending()[0]['ack'] is None
+
+
+def test_receiver_retains_input_when_old_pair_is_no_longer_owner(tmp_path):
+ import types,time
+ work=journal.MigrationJournal(tmp_path/'work.jsonl');work.initialize()
+ scope={'_signature_migration_journal':lambda:work,'time':time,'_validate_active_pair':lambda:(_ for _ in ()).throw(RuntimeError('PAIR_AUTHORITY_MANIFEST'))}
+ tree=ast.parse((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text());fn=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='_schedule_journal_migration');exec(compile(ast.Module(body=[fn],type_ignores=[]),'receiver','exec'),scope)
+ assert scope['_schedule_journal_migration'](types.SimpleNamespace(),'signature',[]) is None
+ assert work.pending()[0]['attempts']==0 and work.pending()[0]['ack'] is None

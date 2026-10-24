@@ -1,0 +1,108 @@
+{
+  "allocated_bytes": 81920,
+  "blocker": {
+    "action": "HOLD; no parent synthesized, peak deleted or FK bypassed",
+    "indexed_source_plan": [
+      "SEARCH tracked_tokens USING INDEX sqlite_autoindex_tracked_tokens_1 (mint=?)"
+    ],
+    "mint": "BEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump",
+    "missing_parent": "tracked_tokens",
+    "retained_rowid": 13,
+    "source_parent_count": 0,
+    "table": "token_market_cap_peaks"
+  },
+  "cases": [
+    {
+      "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+      "match_sha256": "4e608d5b5ada886ada4817c9e6cc3cef7c2bd4575a5676b23b094a62720ae364",
+      "membership_sha256": "32bfe20a40df618fcf30625bc6cbdf43bd4bd601929b37d54cb8833f81621a77",
+      "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+      "reference_kind": "CONFIRMED_MATCH"
+    },
+    {
+      "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+      "match_sha256": "5f1c330c5e178f1d48791553b262eefdb5a8f2726435d316c2a7ba829ff0330e",
+      "membership_sha256": "aaaca84c18f6a93e263847a7e9b5618a0da75846a077fdefbdfcac84072ec719",
+      "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+      "reference_kind": "CONFIRMED_MATCH"
+    },
+    {
+      "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+      "match_sha256": "b92094911670729a37630fe31c74c4f851942e648eeb645391b3cf188677dc5c",
+      "membership_sha256": "86d40ac64c0ebd029a3926d63415187d49525cb4594f7590738da0943f98ddfd",
+      "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+      "reference_kind": "CONFIRMED_MATCH"
+    },
+    {
+      "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+      "match_sha256": "04de1f000c3a06362426bb33353f97f729f980fe860e71b732a1c106de2cfbc0",
+      "membership_sha256": "d18dbe1af10ded9149a20b6f9b9edd43d745f640445e1c14beb60bfa9051224e",
+      "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+      "reference_kind": "CONFIRMED_MATCH"
+    },
+    {
+      "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+      "match_sha256": "fcfd43e9c115af4af6290e72844e62a1e41bce9040fc1f1b8ccedf481744dde6",
+      "membership_sha256": "5a8d65a5864c45ba4d9ce1a0d8f77e3a4a72daca2a100330624642e8dac40ae6",
+      "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+      "reference_kind": "CONFIRMED_MATCH"
+    },
+    {
+      "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+      "match_sha256": "b855696252dc2a523246c007b8224769d797a3bd8c6214ed658360ceae1edc92",
+      "membership_sha256": "3e9a0ef379b7008ae9025328a2c41f5af9129abf092f20383286160d7cdfb109",
+      "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+      "reference_kind": "CONFIRMED_MATCH"
+    }
+  ],
+  "controls": [
+    "empty_legacy_bootstrap",
+    "exact_FK_import:AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+    "exact_FK_import:ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+    "exact_FK_import:EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+    "exact_FK_import:7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+    "exact_FK_import:FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+    "exact_FK_import:DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+    "all_foreign_keys",
+    "no_manufactured_identity_events",
+    "six_idempotent_replays",
+    "repeat_initialization",
+    "unknown_parent",
+    "wrong_match_mint",
+    "wrong_operator",
+    "required_match_parent_deletion",
+    "direct_reference_deletion",
+    "reference_rewrite",
+    "immutable_membership_identity",
+    "legacy_null_compatibility",
+    "membership_delete_cascade",
+    "identity_event_namespace",
+    "ambiguous_namespace",
+    "explicit_disposable_authorization_required",
+    "fresh_process_restart_and_duplicate_suppression",
+    "three_package_composition"
+  ],
+  "controls_passed": 25,
+  "disk_free_after": 3786809344,
+  "disk_free_before": 3786547200,
+  "foreign_keys_enabled": true,
+  "full_rehearsal": "NOT_RUN_MANDATORY_REFERENCE_INTEGRITY_GATE_FAILED",
+  "largest_file": 81920,
+  "new_identity_events": 0,
+  "package_sha256": {
+    "creator_resolution": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+    "listener": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+    "walkback": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5"
+  },
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "runtime_deployment_reason": "Explicit disposable schema qualification only; no production activation authorized.",
+  "runtime_deployment_required": false,
+  "six_imports": "PASS",
+  "source_paths": {
+    "CoreV1": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "OPSV1": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  },
+  "source_schema_sha256": "dcacee774aa43d6578694d8efd6b157d0f3ee1d0d11fafa7f6f9d9d4f7066194",
+  "status": "HOLD"
+}

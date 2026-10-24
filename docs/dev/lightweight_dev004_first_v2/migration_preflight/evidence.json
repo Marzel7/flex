@@ -1,0 +1,563 @@
+{
+  "status": "HOLD_MISSING_AUTHORITY",
+  "candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "observed_at_utc": "2026-10-24T11:53:36.720478+00:00",
+  "production_readonly": {
+    "observed_at_utc": "2026-10-24T11:48:57Z",
+    "databases": {
+      "core": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "journal_mode": "wal",
+        "tables": {
+          "creator_resolution_queue": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "idx_creator_resolution_queue_updated",
+                "columns": [
+                  "updated_at"
+                ]
+              },
+              {
+                "name": "idx_creator_resolution_queue_status",
+                "columns": [
+                  "status",
+                  "priority",
+                  "next_attempt_at",
+                  "locked_until"
+                ]
+              },
+              {
+                "name": "sqlite_autoindex_creator_resolution_queue_1",
+                "columns": [
+                  "mint"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {
+              "complete": 48,
+              "ignored": 2
+            },
+            "plan": [
+              "SCAN creator_resolution_queue"
+            ],
+            "counts_not_full_population": true
+          },
+          "birth_persist_queue": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "idx_birth_persist_queue_status",
+                "columns": [
+                  "status"
+                ]
+              },
+              {
+                "name": "sqlite_autoindex_birth_persist_queue_1",
+                "columns": [
+                  "mint"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {
+              "PROCESSED": 50
+            },
+            "plan": [
+              "SCAN birth_persist_queue"
+            ],
+            "counts_not_full_population": true
+          },
+          "migration_walkback_handoff": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "idx_migration_walkback_handoff_due",
+                "columns": [
+                  "state",
+                  "next_attempt_at",
+                  "migrated_at"
+                ]
+              },
+              {
+                "name": "sqlite_autoindex_migration_walkback_handoff_1",
+                "columns": [
+                  "mint"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {
+              "COMPLETE": 50
+            },
+            "plan": [
+              "SCAN migration_walkback_handoff USING COVERING INDEX idx_migration_walkback_handoff_due"
+            ],
+            "counts_not_full_population": true
+          },
+          "webhook_birth_queue": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "sqlite_autoindex_webhook_birth_queue_1",
+                "columns": [
+                  "signature"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {},
+            "plan": [
+              "SCAN webhook_birth_queue"
+            ],
+            "counts_not_full_population": true
+          }
+        }
+      },
+      "ops": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "journal_mode": "wal",
+        "tables": {
+          "wt_walkback_queue": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "ix_wbq_deep_review_page",
+                "columns": [
+                  "funder_block_time",
+                  "mint"
+                ]
+              },
+              {
+                "name": "ix_wbq_priority",
+                "columns": [
+                  "status",
+                  "priority",
+                  "enqueued_at"
+                ]
+              },
+              {
+                "name": "ix_wbq_funder",
+                "columns": [
+                  "funder_wallet"
+                ]
+              },
+              {
+                "name": "ix_wbq_outcome",
+                "columns": [
+                  "intelligence_outcome"
+                ]
+              },
+              {
+                "name": "ix_wbq_class",
+                "columns": [
+                  "walkback_class",
+                  "status"
+                ]
+              },
+              {
+                "name": "ix_wbq_status",
+                "columns": [
+                  "status",
+                  "enqueued_at"
+                ]
+              },
+              {
+                "name": "sqlite_autoindex_wt_walkback_queue_1",
+                "columns": [
+                  "mint"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {
+              "skipped": 29,
+              "complete": 21
+            },
+            "plan": [
+              "SCAN wt_walkback_queue"
+            ],
+            "counts_not_full_population": true
+          },
+          "wt_attribution_outcomes": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "ix_wao_completed_at",
+                "columns": [
+                  "completed_at"
+                ]
+              },
+              {
+                "name": "ix_wao_terminal",
+                "columns": [
+                  "terminal_entity",
+                  "outcome_type"
+                ]
+              },
+              {
+                "name": "ix_wao_type_time",
+                "columns": [
+                  "outcome_type",
+                  "completed_at"
+                ]
+              },
+              {
+                "name": "sqlite_autoindex_wt_attribution_outcomes_1",
+                "columns": [
+                  "mint"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {},
+            "plan": [
+              "SCAN wt_attribution_outcomes USING COVERING INDEX ix_wao_completed_at"
+            ],
+            "counts_not_full_population": true
+          },
+          "operator_launch_membership": {
+            "exists": true,
+            "indexes": [
+              {
+                "name": "ix_operator_launch_membership_operator",
+                "columns": [
+                  "operator_id"
+                ]
+              },
+              {
+                "name": "sqlite_autoindex_operator_launch_membership_1",
+                "columns": [
+                  "mint"
+                ]
+              }
+            ],
+            "bounded_sample_rows": 50,
+            "sample_states": {},
+            "plan": [
+              "SCAN operator_launch_membership USING COVERING INDEX ix_operator_launch_membership_operator"
+            ],
+            "counts_not_full_population": true
+          }
+        }
+      }
+    },
+    "paths": {
+      "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.birth_fallback.jsonl": {
+        "exists": false
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.migration_fallback.jsonl": {
+        "exists": false
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.migration_terminal_durability_risk.jsonl": {
+        "exists": false
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db": {
+        "exists": true,
+        "bytes": 24178688,
+        "allocated": 24211456
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex": {
+        "exists": true
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/provider_budget.json": {
+        "exists": false
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/provider_budget.lock": {
+        "exists": false
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue": {
+        "exists": true
+      }
+    },
+    "credential_files_not_read": [
+      "/Users/kevinkeaveney/Dev/claude/flex/.env"
+    ],
+    "receipts": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
+      "files_observed": 5000,
+      "logical_bytes": 2775991,
+      "allocated_bytes": 20480000,
+      "largest_bytes": 562,
+      "enumeration_limit": 5000,
+      "complete_at_observation": false
+    },
+    "free_bytes": 3922083840
+  },
+  "indexed_pending_samples": {
+    "creator_resolution_queue": {
+      "pending": {
+        "observed": 0,
+        "at_least": false
+      },
+      "retry": {
+        "observed": 0,
+        "at_least": false
+      },
+      "running": {
+        "observed": 0,
+        "at_least": false
+      },
+      "quarantined": {
+        "observed": 0,
+        "at_least": false
+      },
+      "PENDING": {
+        "observed": 0,
+        "at_least": false
+      },
+      "RETRY": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED_CONFLICT": {
+        "observed": 0,
+        "at_least": false
+      }
+    },
+    "birth_persist_queue": {
+      "pending": {
+        "observed": 0,
+        "at_least": false
+      },
+      "retry": {
+        "observed": 0,
+        "at_least": false
+      },
+      "running": {
+        "observed": 0,
+        "at_least": false
+      },
+      "quarantined": {
+        "observed": 0,
+        "at_least": false
+      },
+      "PENDING": {
+        "observed": 0,
+        "at_least": false
+      },
+      "RETRY": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED_CONFLICT": {
+        "observed": 0,
+        "at_least": false
+      }
+    },
+    "migration_walkback_handoff": {
+      "pending": {
+        "observed": 0,
+        "at_least": false
+      },
+      "retry": {
+        "observed": 0,
+        "at_least": false
+      },
+      "running": {
+        "observed": 0,
+        "at_least": false
+      },
+      "quarantined": {
+        "observed": 0,
+        "at_least": false
+      },
+      "PENDING": {
+        "observed": 0,
+        "at_least": false
+      },
+      "RETRY": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED_CONFLICT": {
+        "observed": 0,
+        "at_least": false
+      }
+    },
+    "wt_walkback_queue": {
+      "pending": {
+        "observed": 0,
+        "at_least": false
+      },
+      "retry": {
+        "observed": 0,
+        "at_least": false
+      },
+      "running": {
+        "observed": 0,
+        "at_least": false
+      },
+      "quarantined": {
+        "observed": 0,
+        "at_least": false
+      },
+      "PENDING": {
+        "observed": 0,
+        "at_least": false
+      },
+      "RETRY": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED": {
+        "observed": 0,
+        "at_least": false
+      },
+      "QUARANTINED_CONFLICT": {
+        "observed": 0,
+        "at_least": false
+      }
+    },
+    "monitor_queue_metadata": {
+      "provider_budget.json": {
+        "exists": true,
+        "bytes": 1217,
+        "allocated": 4096,
+        "version": 1,
+        "call_entries": 10
+      },
+      "provider_budget.lock": {
+        "exists": true,
+        "bytes": 0,
+        "allocated": 0
+      },
+      "provider_backoff.json": {
+        "exists": true,
+        "bytes": 643,
+        "allocated": 4096
+      }
+    },
+    "receipts": {
+      "files": 100000,
+      "logical_bytes": 55500704,
+      "allocated_bytes": 409600000,
+      "max_bytes": 562,
+      "complete_at_observation": false,
+      "enumeration_cap": 100000
+    }
+  },
+  "receipt_allocation": {
+    "files": 101364,
+    "logical_bytes": 56255871,
+    "allocated_bytes": 415186944,
+    "max_file_bytes": 562,
+    "complete_at_observation": true,
+    "cap": 105000,
+    "legacy_files": 4096,
+    "bucket_count": 256,
+    "bucket_min": 339,
+    "bucket_max": 384,
+    "full_buckets": 176
+  },
+  "tests_rerun": 0,
+  "runtime_deployment_required": false,
+  "runtime_deployment_reason": "Read-only preflight and evidence consolidation; no executable changes.",
+  "supervisor": {
+    "config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+    "sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e",
+    "running": {
+      "listener": 94632,
+      "resolver": 3874,
+      "walkback": 94577
+    },
+    "other_selective_services": "STOPPED"
+  },
+  "candidate_integrity": {
+    "2d825bbc": {
+      "ancestor": true
+    },
+    "889f2399": {
+      "ancestor": true
+    },
+    "ace58aba": {
+      "ancestor": true
+    },
+    "4ff48a00": {
+      "ancestor": true
+    },
+    "87d33147": {
+      "ancestor": true
+    },
+    "968432da": {
+      "ancestor": true
+    },
+    "20d1025e": {
+      "ancestor": true
+    },
+    "09ae1394": {
+      "ancestor": true
+    },
+    "54ece3eb": {
+      "ancestor": true
+    },
+    "dd481183": {
+      "ancestor": true
+    },
+    "aabf24c1": {
+      "ancestor": true
+    },
+    "506fe25c": {
+      "ancestor": true
+    },
+    "a89cf9b6": {
+      "ancestor": true
+    },
+    "91d3975e": {
+      "ancestor": true
+    }
+  },
+  "seed_artifacts": [
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/core_v2.sqlite",
+      "bytes": 8970240,
+      "allocated_bytes": 8970240,
+      "sha256": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/ops_v2.sqlite",
+      "bytes": 13754368,
+      "allocated_bytes": 13754368,
+      "sha256": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a"
+    },
+    {
+      "path": "/private/tmp/dev004-compact-creator-qualified/history.json",
+      "bytes": 1218041,
+      "allocated_bytes": 1220608,
+      "sha256": "f6c3d9d89a32204f116595049545ec7bcabe9391987b5a32f5e73837b05d8bcb"
+    },
+    {
+      "path": "/private/tmp/dev004-outage-freshness/freshness_mapping.json",
+      "bytes": 151878,
+      "allocated_bytes": 155648,
+      "sha256": "87c995c633841adaaeffa3114ceacbed0441bf0c00e004036b8dd120d844026d"
+    }
+  ],
+  "storage": {
+    "safety_floor_bytes": 2000000000,
+    "final_available_bytes": 3931758592,
+    "production_core_allocated_bytes": 35652194304,
+    "production_ops_allocated_bytes": 16194613248,
+    "reference_core_ops_bytes": 22724608,
+    "reference_plus_history_and_mapping_logical_bytes": 24094527,
+    "swap_total_mib": 8192,
+    "swap_used_mib": 7528.62,
+    "rehearsal_reserve_proposal_bytes": 268435456,
+    "reserve_is_enforced": false,
+    "v2_5gib_target_qualified": false
+  },
+  "blocker": "No single current rehearsal runtime/configuration manifest binds candidate, matched generations, all three service entrypoints, secondary creator database, seed/history/freshness, receipts/journals, price queue/budget state, isolation/capacity limits and rollback identities. Existing runtime manifest is explicitly partial and pins712f1840; guarded transfer configuration covers only synthetic ten-table persistence interfaces."
+}

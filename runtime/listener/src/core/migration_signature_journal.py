@@ -351,7 +351,9 @@ class MigrationJournal:
                 if resolved is not None:
                     _text(resolved, 64)
                     return self.resolve(signature, resolved)
-            except Exception:
+            except Exception as error:
+                if isinstance(error, RuntimeError) and str(error).startswith('PAIR_') and str(error) not in {'PAIR_TRANSFER_ONLY','PAIR_AUTHORITY_NOT_CURRENT','PAIR_DATABASE_RETIRED'}:
+                    raise  # Invalid bindings still fail loudly, after admission.
                 raise CompletionLookupDeferred('COMPLETION_LOOKUP_DEFERRED') from None
         return row
 

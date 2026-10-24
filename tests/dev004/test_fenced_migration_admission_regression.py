@@ -69,7 +69,7 @@ def test_birth_frame_stays_admitted_during_fence(tmp_path):
 def test_receiver_retains_input_when_old_pair_is_no_longer_owner(tmp_path):
  import types,time
  work=journal.MigrationJournal(tmp_path/'work.jsonl');work.initialize()
- scope={'_signature_migration_journal':lambda:work,'time':time,'_validate_active_pair':lambda:(_ for _ in ()).throw(RuntimeError('PAIR_AUTHORITY_MANIFEST'))}
+ scope={'_signature_migration_journal':lambda:work,'time':time,'_validate_active_pair':lambda:(_ for _ in ()).throw(RuntimeError('PAIR_AUTHORITY_NOT_CURRENT'))}
  tree=ast.parse((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text());fn=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='_schedule_journal_migration');exec(compile(ast.Module(body=[fn],type_ignores=[]),'receiver','exec'),scope)
  assert scope['_schedule_journal_migration'](types.SimpleNamespace(),'signature',[]) is None
  assert work.pending()[0]['attempts']==0 and work.pending()[0]['ack'] is None

@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "7d3013e6d606123bf8ab8d24b65975342c95fd8a",
+    "git_head": "6e7171b87da583e5a992972370e63bbedd584ed7",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T18:55:59.446059+00:00",
@@ -43616,48 +43616,81 @@
     "engineering_publication": "Local immutable source and evidence commits; terminal handoff published independently."
   },
   "dev004_controlled_production_cutover": {
-    "status": "HOLD_CRITICAL_DURABLE_ADMISSION_CAPACITY",
-    "engineering_revision": "7d3013e6d606123bf8ab8d24b65975342c95fd8a",
-    "candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+    "status": "HOLD_REQUIRED_QUARANTINE_TRANSFER_EXCEEDS_QUALIFIED_BOUND",
+    "engineering_revision": "6e7171b87da583e5a992972370e63bbedd584ed7",
+    "candidate": "34ec79d8a97d08cd808c48c7eb0a55b2437b98ed",
+    "base_candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
     "production_authorization": true,
     "fresh_compact_matched_pair_rollback_authorized": true,
-    "previous_rollback_mismatch": "RESOLVED_BY_LATEST_USER_AUTHORIZATION",
-    "report": "docs/dev/lightweight_dev004_first_v2/production_admission_capacity_hold/REPORT.md",
+    "prior_journal_capacity_defect": "FIXED_AND_QUALIFIED_OFFLINE",
+    "report": "docs/dev/lightweight_dev004_first_v2/journal_capacity_reuse/REPORT.md",
+    "blocker": {
+      "table": "ops.wt_lineage_quarantine",
+      "selected_seed_rows": 129,
+      "live_population_lower_bound": 12001,
+      "accepted_reconciliation_limit": 12000,
+      "failure": "ROW_LIMIT:wt_lineage_quarantine",
+      "required_action": "Qualify deterministic keyset continuation and total storage bounds for required quarantine state; no record exclusion or schema change authorized by this result.",
+      "staging_transactions": "Rolled back on boundary refusal; V1 untouched."
+    },
     "live_preflight": {
       "source_preimages": "65/65 match",
-      "workers": {
+      "worker_PIDs": {
         "listener": 97696,
         "resolver": 92522,
-        "walkback": 94577,
-        "supervisor": 1131
+        "walkback": 94577
       },
-      "workers_status": "RUNNING from expected package roots; dormant services STOPPED",
-      "disk_free_sample_bytes": 4868902912,
-      "budget_ledger_hash_matches": true,
-      "Core_OPS_observed_WAL_bytes": [
-        0,
-        0
-      ],
-      "remaining_checks": "Stopped at exact critical journal defect; full receipt/queue/lock/credential checks not claimed PASS."
+      "worker_states": "All three RUNNING under Supervisor1131 from expected production packages; terminal check unchanged",
+      "receipts": {
+        "full_buckets": 0,
+        "max_bucket_entries": 405,
+        "available_sharded_slots_sample": 291966,
+        "legacy_files": 4096
+      },
+      "disk_free_bytes": 4828246016,
+      "Birdeye_budget_hash_matches": true
     },
-    "blocker": "Both exact candidate journals retain ACKED records under lifetime MAX_RECORDS=512. After512 canonical+ACKed events and zero pending, event513 raises JOURNAL_CAPACITY; restart still refuses. No accepted reclamation/rollover exists. Admission occurs before birth processing/migration dispatch.",
-    "provider_free_results": {
-      "canonical_and_ACKed_records": 1024,
-      "capacity_rejections_before_after_restart": 4,
-      "birth_file_bytes": 305736,
-      "migration_file_bytes": 273188,
-      "prior_records_preserved": true,
-      "kernel_fixture_file_limit": 16000000
+    "compact_stage": {
+      "status": "FULL_REFERENCE_IMPORT_PASS",
+      "allocation_bytes": 17620992,
+      "Core_bytes": 4833280,
+      "OPS_bytes": 12783616,
+      "full_V1_copies": 0,
+      "foreign_keys_enabled": true
     },
+    "active_core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "active_ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
     "production_source_changes": 0,
     "production_DB_writes": 0,
-    "service_actions": 0,
+    "production_service_actions": 0,
     "provider_calls": 0,
-    "migrated_records": 0,
-    "V2_cutover": false,
-    "V1_retired": false,
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only preflight and compact disposable counterexample only.",
-    "next_action": "Qualify bounded restart-safe completed-record reclamation or journal generation rollover preserving canonical verification, deduplication, pending/quarantine/retry state and transfer watermarks; then resume already authorized cutover after immediate live preflight. Do not simply raise cap."
+    "V2_activation": false,
+    "V1_retirement": false,
+    "next_action": "Qualify bounded required-quarantine continuation with complete identity/exclusion/provenance preservation and storage limits; then resume the already-authorized migration. Do not repeat historical matrices or the completed journal correction.",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+  },
+  "dev004_journal_capacity_reuse": {
+    "status": "PASS_OFFLINE_QUALIFICATION_NOT_DEPLOYED",
+    "candidate": "34ec79d8a97d08cd808c48c7eb0a55b2437b98ed",
+    "engineering_evidence_revision": "6e7171b87da583e5a992972370e63bbedd584ed7",
+    "report": "docs/dev/lightweight_dev004_first_v2/journal_capacity_reuse/REPORT.md",
+    "manifest": "docs/dev/lightweight_dev004_first_v2/journal_capacity_reuse/runtime_plan.json",
+    "manifest_sha256": "5c0a5dfea4ddcac49dfcc2e896a477286a095bc4d429e56e5f8661d7ec4b9189",
+    "tests": {
+      "distinct_accepted_controls": 192,
+      "new_capacity_controls": 27,
+      "affected_existing_controls": 165,
+      "long_sequences": {
+        "birth": 2500,
+        "migration": 2500
+      },
+      "final_recovery_run": "23/23 pass; four event513/thousands controls passed in original run and their paths unchanged by final recovery-only adjustments",
+      "compatibility_run": "164 passed; AST-only callback fixture corrected and failed single case rerun PASS; legacy source-baseline assertion updated to actual accepted cec3494d; original error-code compatibility failures corrected."
+    },
+    "lifecycle": "20 independently reverified ACK completions reclaimed when512active limit reached; no legacy/protected/error record removed. Restart capacity-only recovery validates no pending identity lost. No archive or increased cap. Duplicate signature-only migration resolves through required indexed canonical identity before dispatch; receipts/retention unchanged.",
+    "storage": "2MBjournal+2MBtemporary,4096byte records,512active,20reclaimbatch;0newarchives/0unboundedgrowthpaths; kernelfile and diskfloor refusal PASS",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "next_action": "Do not repeat this correction. Resolve current required-quarantine transfer continuation, then resume authorized production migration."
   }
 }

@@ -23,6 +23,10 @@ STATES = {'PENDING', 'RESOLVED', 'ACKED', 'QUARANTINED', 'RETRY_EXHAUSTED'}
 class JournalHold(RuntimeError):
     pass
 
+class CompletionLookupDeferred(JournalHold):
+    """Admission is durable; no dispatch until optional lookup qualifies."""
+    admission_durable = True
+
 def event_id(signature):
     if not isinstance(signature, str) or not 1 <= len(signature) <= 128:
         raise JournalHold('INVALID_SIGNATURE')
@@ -337,20 +341,19 @@ class MigrationJournal:
                     elif mint and row['mint'] is None and row['state'] not in {'QUARANTINED','ACKED','RETRY_EXHAUSTED'}:
                         row['mint'] = mint; row['state'] = 'RESOLVED'
                     return dict(row)
-            if self.resolve_completed is not None:
-                resolved = self.resolve_completed(dict(incoming))
-                if resolved is not None:
-                    _text(resolved, 64)
-                    if incoming['mint'] not in (None, resolved):
-                        incoming['conflicting_mint'] = resolved
-                        incoming['state'] = 'QUARANTINED'
-                        incoming['error_code'] = 'MINT_CONFLICT'
-                    else:
-                        incoming['mint'] = resolved
-                        incoming['state'] = 'RESOLVED'
             rows.append(incoming)
             return dict(incoming)
-        return self._change(change)
+        # The independently durable input always precedes any Core/OPS read.
+        row = self._change(change)
+        if self.resolve_completed is not None and row['state'] not in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
+            try:
+                resolved = self.resolve_completed(dict(row))
+                if resolved is not None:
+                    _text(resolved, 64)
+                    return self.resolve(signature, resolved)
+            except Exception:
+                raise CompletionLookupDeferred('COMPLETION_LOOKUP_DEFERRED') from None
+        return row
 
     def resolve(self, signature, mint):
         _text(mint, 64)

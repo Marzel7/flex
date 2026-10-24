@@ -10738,8 +10738,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
         journal = _signature_migration_journal()
         if journal is None:
             return asyncio.create_task(self.handle_migration(signature, logs, source=source))
-        row = journal.admit(signature, notification_source, int(time.time()))
-        _validate_active_pair()
+        try:
+            row = journal.admit(signature, notification_source, int(time.time()))
+        except Exception as error:
+            if getattr(error, 'admission_durable', False):
+                return None  # Pending input is retained; never dispatch or ACK.
+            raise
+        try:
+            _validate_active_pair()
+        except RuntimeError as error:
+            if str(error) == 'PAIR_TRANSFER_ONLY':
+                return None
+            raise
         active = getattr(self, "_signature_journal_active", None)
         if active is None:
             active = self._signature_journal_active = set()
@@ -11332,9 +11342,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
             }
 
         if birth_journal is not None:
-            committed = await self._persist_durable_birth(birth_admission)
-            if birth_receipt_id:
-                await self._record_pp_birth_outcome(birth_receipt_id, mint, committed)
+            try:
+                committed = await self._persist_durable_birth(birth_admission)
+                if birth_receipt_id:
+                    await self._record_pp_birth_outcome(birth_receipt_id, mint, committed)
+            except RuntimeError as error:
+                if str(error) == 'PAIR_TRANSFER_ONLY':
+                    return  # Already admitted; keep receiving while writes fence.
+                raise
             if committed:
                 asyncio.create_task(self._ensure_pf_ws_creator(mint, reason="birth"))
 

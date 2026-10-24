@@ -314,7 +314,7 @@ def test_accepted_composition_preserved():
   assert (ROOT/'runtime/listener'/rel).read_bytes()==old
  def functions(text):return {n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(text)) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
  old=functions(subprocess.check_output(['git','show',candidate+':runtime/listener/src/core/pumpfun_curve_listener.py'],cwd=ROOT).decode());new=functions((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text())
- assert {k for k in old if old[k]!=new.get(k)}=={'_birth_admission_journal','_signature_migration_journal'}
+ assert {k for k in old if old[k]!=new.get(k)}=={'_birth_admission_journal','_signature_migration_journal','_schedule_journal_migration','_handle_pumpportal_create_frame'}
  assert set(new)-set(old)=={'_migration_completed_mint'}
 
 def test_flag_off_does_not_delete_v2_journal(j):

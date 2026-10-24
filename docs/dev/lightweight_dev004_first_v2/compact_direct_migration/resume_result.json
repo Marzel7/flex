@@ -1,0 +1,53 @@
+{
+  "destination_files": {
+    "core": {
+      "allocated": 294912,
+      "bytes": 294912,
+      "sha256": "f1c698f0877740593dbdfb91dd4506088fc7405e296e23f0088334fdd4930001"
+    },
+    "ops": {
+      "allocated": 479232,
+      "bytes": 479232,
+      "sha256": "13f596387f4323b21b0c4e07cfe94a0c619ab13804e99bd6452a3a4e0962963a"
+    }
+  },
+  "disk_after": {
+    "allocated_bytes": 884736,
+    "files": 11,
+    "free_bytes": 4932685824,
+    "largest_file_bytes": 479232
+  },
+  "disk_before": {
+    "allocated_bytes": 81920,
+    "files": 4,
+    "free_bytes": 4933214208,
+    "largest_file_bytes": 74632
+  },
+  "intermediate_source_snapshot_bytes": 0,
+  "manifest_sha256": "5a1f308d8201d9b8df5a22fabd74388688b733e5a7cc6efe68df1163224499d3",
+  "method": "DIRECT_INDEXED_V1_READ_TO_COMPACT_V2_INSERT",
+  "phases": [
+    {
+      "exit": 71,
+      "mode": "migrate-crash"
+    },
+    {
+      "exit": 0,
+      "mode": "migrate-resume"
+    },
+    {
+      "exit": 0,
+      "mode": "verify-reopened"
+    }
+  ],
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "qualification_count": 1,
+  "selected_encoded_bytes": 39287,
+  "selected_unique_rows": 37,
+  "source_commit": "eb9e1d35ea0b87ab38d59bb46a2b3fac458884ff",
+  "source_copy_bytes": 0,
+  "source_reads": "52 bounded selectors, second process retries only uncheckpointed selector",
+  "status": "PASS",
+  "wider_migration": "NOT_AUTHORIZED; representative historical closure only; current full seed/delta eligibility and final cutover authority remain separate"
+}

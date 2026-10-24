@@ -1,3 +1,5 @@
+> RESUMED RESULT: PASS — the disk gate cleared and one direct-read compact qualification passed. See [RESUME_REPORT.md](RESUME_REPORT.md). The HOLD observations below are retained historical evidence, not current status.
+
 # DEV004 — Compact migration boundary clarified
 
 STATUS: HOLD_DISK_HEADROOM. The corrected representative qualification failed closed before any source database was opened or target file/row was written. No wider migration, source snapshot, production mutation, provider call, service action or cleanup occurred. RUNTIME_DEPLOYMENT_REQUIRED=false: DEV-only qualification harness and evidence, no runtime deployment.

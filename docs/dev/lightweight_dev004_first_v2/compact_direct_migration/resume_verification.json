@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "source_commit": "eb9e1d35ea0b87ab38d59bb46a2b3fac458884ff",
+  "runtime_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "manifest_sha256": "5a1f308d8201d9b8df5a22fabd74388688b733e5a7cc6efe68df1163224499d3",
+  "gate_available_bytes": 4931072000,
+  "gate_required_bytes": 2067108864,
+  "selected_rows": {
+    "core": 6,
+    "ops": 31,
+    "total": 37
+  },
+  "selected_encoded_bytes": 39287,
+  "destination_total_bytes": 774144,
+  "all52_source_selectors_indexed": true,
+  "all11_reader_comparisons": true,
+  "reopened_V1_database_access_forbidden": true,
+  "checkpoint_accounting": "One row committed before crash/cursor;36 inserted during resume;37 actual unique target rows. Cursor52complete. Diagnostic inserted36 is not the total imported population.",
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "full_source_copy_bytes": 0,
+  "intermediate_source_snapshot_bytes": 0,
+  "qualification_count": 1,
+  "full_operational_size_not_inferred_from_sample": true
+}

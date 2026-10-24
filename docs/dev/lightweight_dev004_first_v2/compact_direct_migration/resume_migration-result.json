@@ -1,0 +1,26 @@
+{
+  "ATH_relative_difference": 0.0,
+  "all_selected_fields_and_null_event_links_exact": true,
+  "canonical_price_fields_exact": true,
+  "comparisons": {
+    "creator_classification": true,
+    "creator_funding_history": true,
+    "known_subprovider": true,
+    "known_treasury": true,
+    "ohlc_reduction": true,
+    "parent_candidates": true,
+    "price_fact": true,
+    "price_observations": true,
+    "quarantine": true,
+    "retained_outcome": true,
+    "watchtower_route": true
+  },
+  "cursor_complete": true,
+  "frozen_legacy_missing_original_candles": "No new original-candle reconstruction; accepted numerical evidence reused separately",
+  "idempotent_existing_row_insertions": 0,
+  "intermediate_row_snapshot_bytes": 0,
+  "selected_unique_rows": 37,
+  "source_database_copy_bytes": 0,
+  "source_mutations": 0,
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "all_reader_outputs_exact": true,
+  "finalization": "ALREADY_FINALIZED",
+  "provider_calls": 0,
+  "restoration": "abort-before-activation; original V1 remains authoritative and never written",
+  "runtime_V1_database_opens_allowed": false,
+  "status": "PASS",
+  "storage": {
+    "allocated_bytes": 876544,
+    "files": 9,
+    "free_bytes": 4932702208,
+    "largest_file_bytes": 479232
+  }
+}

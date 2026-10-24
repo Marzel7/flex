@@ -33,3 +33,11 @@ REMAINING_CUTOVER_BLOCKERS: (1) current headroom prevents journal admission; (2)
 NEXT_ACTION: Restore headroom above the existing journal floor plus staging reserve (at least2002000000available bytes, not a complete cutover-space budget). Keep V1 authoritative. Then the bounded remaining integration is durable birth admission and a retirement fence enforced by existing writer owners; do not schedule production cutover on the strength of migration journaling alone.
 
 RUNTIME_DEPLOYMENT_REQUIRED=false — test/documentation-only gate qualification. Existing source/schema/configuration, credentials, services and production stores unchanged. No implementation deployment, acquisition, historical research, deletion or V2 cutover.
+
+## Retry after storage recovery — 2026-10-24
+
+DISK_FLOOR: CLEARED at observation. Initial available5171245056bytes; fixture-time5167042560bytes (~4.81GiB). Actual journal initialization/admission succeeded without a guard bypass. The signature-first migration remained durably PENDING during the existing V1 write lease and was readable afterward. Eight directly affected controls passed as diagnostics; maximum fixture24576bytes; zero provider requests/production connections or writes. retry-results.json records this run. The runner now accepts either a correct floor refusal or verified durable admission, rather than assuming the filesystem is always below the floor.
+
+UPDATED DEV004_PAIRED_TRANSFER_STATUS: HOLD for two functional blockers only: durable birth admission independent of fenced V1, and durable V1 retirement/stale-writer refusal. Both reproduced on the unchanged candidate. Disk is no longer the next action or blocker; no space reservation/full cutover budget is claimed.
+
+UPDATED NEXT_ACTION: Complete bounded durable birth admission and a retirement fence enforced by existing writer owners before attempting paired rebind. Do not create a new coordinator, restart services or execute cutover. Candidatea89cf9b6 remains unchanged; this retry changes tests/documentation only.

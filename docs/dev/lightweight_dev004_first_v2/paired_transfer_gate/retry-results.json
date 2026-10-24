@@ -1,0 +1,24 @@
+{
+  "status": "HOLD_BIRTH_ADMISSION_AND_DURABLE_RETIREMENT_FENCE_MISSING",
+  "checks": {
+    "journal_admission_durable_during_V1_lease": true,
+    "existing_same_thread_pair_lease_rejected": true,
+    "old_V1_handle_can_commit_after_finite_lease_release": true,
+    "same_service_alias_rebind_fails_closed": true,
+    "new_alias_does_not_retire_old_authority": true,
+    "birth_canonical_only_fence_still_writes_V1_retry": true,
+    "birth_under_all_V1_fence_has_no_durable_retry": true,
+    "birth_failed_admission_never_claims_COMMITTED": true
+  },
+  "scope": "Actual write-lease and registry interfaces, real disposable SQLite and current journal. Birth AST uses synthetic canonical denial and audit sinks; storage guard stubbed only to isolate fence. Stale-handle control uses actual lease API with raw fixture SQLite, not a full TrackedConnection/daemon test. Registry creates two idle daemon workers, not services; no commands submitted.",
+  "provider_calls": 0,
+  "production_database_connections": 0,
+  "production_writes": 0,
+  "maximum_fixture_file_bytes": 24576,
+  "journal_pending": [
+    "synthetic-migration"
+  ],
+  "available_bytes": 5167042560,
+  "journal_floor_refusal": false,
+  "source_sha256": "ff42a8e51c802ecb884ad3abb4c86a6ab06e2d0f41a1ac5835e59f627eff42cc"
+}

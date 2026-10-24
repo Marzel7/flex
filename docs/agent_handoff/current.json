@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "f9064ac445888959abfa66d4459bfc67109246b5",
+    "git_head": "749d527bc2d414ce7bf642db4796cc30f9668029",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T18:55:59.446059+00:00",
@@ -43614,5 +43614,22 @@
     "blocker": null,
     "next_action": "Obtain separate production cutover authorization for sourcecec3494d and pinned plan. Follow exact sequence in report: revalidate/stage; durable admission; fence/retire; compact direct reconciliation; register exact pair/profile; initialize; seal/ACTIVE; natural acceptance. Failed acceptance uses fresh matched compact rollback with journals retained. Do not execute any production step without authorization.",
     "engineering_publication": "Local immutable source and evidence commits; terminal handoff published independently."
+  },
+  "dev004_controlled_production_cutover": {
+    "status": "HOLD_BEFORE_PRODUCTION_CHANGES",
+    "engineering_revision": "749d527bc2d414ce7bf642db4796cc30f9668029",
+    "candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+    "report": "docs/dev/lightweight_dev004_first_v2/production_cutover_hold/REPORT.md",
+    "source_preimages": "65/65 match",
+    "free_disk_initial_bytes": 4669902848,
+    "blocker": "Authorization requires rollback to original matched V1 pair; accepted runtime permanently retires V1 and rejects it. Qualified rollback uses a fresh compact matched pair. These mandatory rollback authorities differ.",
+    "next_action": "Obtain explicit acceptance of qualified fresh compact matched-pair rollback with original V1 preserved, or separately qualify original-pair rollback; then recheck immediate live preconditions.",
+    "production_writes": 0,
+    "production_source_changes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "V2_imports": 0,
+    "runtime_deployment_gate": "HOLD",
+    "remaining_live_preflight": "Stopped at rollback mismatch; no certification of worker/queue/WAL/provider state."
   }
 }

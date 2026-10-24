@@ -1,0 +1,102 @@
+{
+  "funding_active_counts": {
+    "pending": {
+      "count": 3566,
+      "plan": [
+        "SEARCH creator_funding_queue USING COVERING INDEX idx_creator_funding_queue_status (status=?)"
+      ]
+    },
+    "retry": {
+      "count": 59,
+      "plan": [
+        "SEARCH creator_funding_queue USING COVERING INDEX idx_creator_funding_queue_status (status=?)"
+      ]
+    },
+    "running": {
+      "count": 3,
+      "plan": [
+        "SEARCH creator_funding_queue USING COVERING INDEX idx_creator_funding_queue_status (status=?)"
+      ]
+    }
+  },
+  "latest_existing_maintenance_row": [
+    {
+      "id": 123,
+      "ran_at": 1782346186,
+      "rpc_cache_deleted": 9119,
+      "rpc_metrics_deleted": 152777
+    }
+  ],
+  "lock_metadata": {
+    "core": {
+      "kernel_lock_probed": false,
+      "owner_sidecar_exists": false,
+      "reason": "No touch/flock/write probe; absence does not prove quiescence."
+    },
+    "ops": {
+      "kernel_lock_probed": false,
+      "owner_sidecar_exists": false,
+      "reason": "No touch/flock/write probe; absence does not prove quiescence."
+    }
+  },
+  "new_operation_memberships": [
+    {
+      "classification": "CURRENT_DELTA_REQUIRING_FINAL_RECONCILIATION_NOT_IMPORTED",
+      "membership": {
+        "assigned_at": 1792855650,
+        "event_id": "WATCHTOWER_CONFIRMED:3WUfWQADbhWwogJk7Y37o5PUUVEy7KK1xsxB3YTvpump:1792855650",
+        "mint": "3WUfWQADbhWwogJk7Y37o5PUUVEy7KK1xsxB3YTvpump",
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "source_population_id": "walkback_watchtower_confirmed_projection_v1"
+      },
+      "outbox": {
+        "event_id": "da31c61c0256b0dac92bae4569a068ac1c367de4479b1f8b700b6b79f19a5ae0",
+        "state": "PENDING"
+      },
+      "outcome": {
+        "confidence": "HIGH",
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "outcome_type": "CANONICAL_OPERATOR_REACHED"
+      }
+    }
+  ],
+  "price_schema_names": {
+    "core": [
+      "acquisition_availability_transitions"
+    ],
+    "ops": [
+      "prospective_slot_acquisition_intents"
+    ]
+  },
+  "quarantine": {
+    "current_rows": "AT_LEAST_2049",
+    "selected_rehearsal_rows": 129,
+    "truncated": true
+  },
+  "running_funding_lease_expiry": [
+    {
+      "creator_address": "CFNDwGJ8sAXFQXC1gXjb4nTga5rXrGP5sUwQ4ACV5K7P",
+      "expired_at_observation": true,
+      "locked_until": 1792310725,
+      "mint": "4Lc1ApeFVZS9swCoXuBMatgqUxusdwCqZLUgqK9epump"
+    },
+    {
+      "creator_address": "2crS7H1twaziiS5hqwvJUivdAMsctvr3ViwUWHckBdTD",
+      "expired_at_observation": true,
+      "locked_until": 1792310784,
+      "mint": "QQbg5mHwF9JyJhpD8rRHEjorfVHvgsCnz3yN4CWpump"
+    },
+    {
+      "creator_address": "4hE5AYMX9BEywNroVZBXiEVjcGXyVmt4hC5saQvuce47",
+      "expired_at_observation": true,
+      "locked_until": 1792310784,
+      "mint": "KtjUeE5xWjct4aK87o6WXLcBLuYg858X7LB2MX4pump"
+    }
+  ],
+  "webhook_queue": {
+    "pending_unconsumed_in_seen_rows": 129,
+    "quarantined_in_seen_rows": 113,
+    "rows_seen": 129,
+    "truncated": true
+  }
+}

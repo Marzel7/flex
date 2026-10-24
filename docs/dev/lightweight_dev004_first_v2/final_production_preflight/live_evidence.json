@@ -1,0 +1,2834 @@
+{
+  "active_state_probes": {
+    "core.birth_persist_queue": {
+      "PENDING": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "QUARANTINED": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RETRY": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RUNNING": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "pending": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "processing": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "quarantined": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "retry": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "running": {
+        "plan": [
+          "SEARCH birth_persist_queue USING COVERING INDEX idx_birth_persist_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      }
+    },
+    "core.creator_funding_queue": {
+      "PENDING": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "QUARANTINED": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RETRY": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RUNNING": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "pending": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [
+          {
+            "attempts": 0,
+            "creator_address": "D9gQ6RhKEpnobPBUdWY5bPQt2p3zGk3iVz6ChpUi2ArA",
+            "locked_until": 0,
+            "mint": "13oiDMAPeqiMo3D6NMrg6WTt6AEGCCKe3acBHBmmpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2U1HHwdVqHun2gED2Wb2yfp9Frorawyf9rH824cEXUs3",
+            "locked_until": 0,
+            "mint": "6AG2mmuCRouxsc7oijN6R4eL7Hm8Bb2ERgzmrsJDpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FAX4qRQdiSj2iWDYvkJ21VieVCXGREtwMhEyAHSJ1aqp",
+            "locked_until": 0,
+            "mint": "861z1ND2m3CFG8hiWqenCSjJ2iqsMpu2AxrtkMXzpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EuhRBRChQbSt4kpWK28WMqQM4S7XnLeL1wH4jWKr5mGK",
+            "locked_until": 0,
+            "mint": "8q92FDyrxwK6nbcZAp22o28ErKSWazWd2Vu4h93Xpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "bwamJzztZsepfkteWRChggmXuiiCQvpLqPietdNfSXa",
+            "locked_until": 0,
+            "mint": "8rAfPF9iTTtg3oWcfpimpCnwZgwmEqeLSFbNgiRiBTH",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2E94st2NZnzA943HBceijgkw75gXTTxch39yquMBfeQk",
+            "locked_until": 0,
+            "mint": "9nKCMYsLJQWMB1qkMeWsJyYXqDP9X18cVMqjrZdJpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2QxaCUPLQ9p7VPcRS38DDNXJA1AsQeixN12LUX5K5pDN",
+            "locked_until": 0,
+            "mint": "8BJVo52GHGamFNpjnoJP3iANMvUWBVDCQ7dVhPqipump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2QxaCUPLQ9p7VPcRS38DDNXJA1AsQeixN12LUX5K5pDN",
+            "locked_until": 0,
+            "mint": "D73qwa3daTkcMdjN1aRVxLvAuVBry9f85z1JKKnFpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2E94st2NZnzA943HBceijgkw75gXTTxch39yquMBfeQk",
+            "locked_until": 0,
+            "mint": "HjZS4VLzLKEEK87HHu7cvJY1uHYo4HqPaU97WSg6pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EuhRBRChQbSt4kpWK28WMqQM4S7XnLeL1wH4jWKr5mGK",
+            "locked_until": 0,
+            "mint": "DcCqsRqrxYvYF9WnSy49yJtrtCmWfNLzCpgPWX2Spump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DwWt5SkytR5cv6DnSN4CNqqpFMG2yTLdGD5CJbag292F",
+            "locked_until": 0,
+            "mint": "5VZr9QAmo67MD6BQ79Cu2erbbeDtY8eQ4cR9fFNspump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EuhRBRChQbSt4kpWK28WMqQM4S7XnLeL1wH4jWKr5mGK",
+            "locked_until": 0,
+            "mint": "ArDbyTkCNp7M3eimLFwkzJcmhMCEMsxmdZpYYo7upump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2QxaCUPLQ9p7VPcRS38DDNXJA1AsQeixN12LUX5K5pDN",
+            "locked_until": 0,
+            "mint": "FD8A9ZivhzUPDH8YYn7bsxZgW6FX13KostCgUaUdpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CfBoFQ3tRrKhhjoXiocdVFJ9WkCzQNwbEK8uBZ6vRnrR",
+            "locked_until": 0,
+            "mint": "7A31GxzMTUheA68j9V9VuTBKsxso2MwV417Te4vxpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "3HwH8kuciRa67fvwSayghDqNjjEh1HdjqPQCqTdwb95L",
+            "locked_until": 0,
+            "mint": "EvLFnVD883CdHZk8QVRxUC5HxnK17aeUv5tgwqUepump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Ads16RwpnpRZsWofLBYt6qAuB86zsBWSMeZ3iH88Lofr",
+            "locked_until": 0,
+            "mint": "E9rgeifiGQKhqM1tR1NT2fuQcBWomiNVyVvHUL1xpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FVZRwUp6E4m9jV4VumF8q7m8q3mF9fpikRrJSCCfFAdP",
+            "locked_until": 0,
+            "mint": "2DS8jQLn5z3BwwFxx9aeyTUPwV7R4DVUSjKeP5wVpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EFrwj8VxGJtzqrLCUCfczGU8UqqpgNmcggbbBVLxaptU",
+            "locked_until": 0,
+            "mint": "5TZUoYkpDucyg3Fi6juVSijkiQFUquPg7upcbRBUpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx",
+            "locked_until": 0,
+            "mint": "Cd3gD1TyBxWYCAirPHpvD4onunAUkSFj6VkMCHZXpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4QwJ4AXMtSjnCwgM9kiDpsGtXmjEd3hAVRkDg3o3bDQs",
+            "locked_until": 0,
+            "mint": "E3JZTGew86aYNjbDWrE6TNUkaMsDSKRAVKx61xyTpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "W48w87gqUDxfo9kV2DMaPc2s8T2AnCE1nj7oRV8xaRq",
+            "locked_until": 0,
+            "mint": "FBag9NEChHUjXveM3Kwi8z1TVoG1CCnrah1ymb8Bpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8wuZETYn7wg2XiL9oUTaWZHR3HsP3ubruS3DBpaPYNRr",
+            "locked_until": 0,
+            "mint": "BjgWJCxBkSYUcwBzexAv4xvJ6b3JKw8rdgt56zYkpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FxnUuCWgg2YkHSnqJCmZiU12VU7T4Z66x6kp91XaoqwY",
+            "locked_until": 0,
+            "mint": "GysGAeD5cjFBoS7op5GPnr8rmCw8uwBoXucxKcjepump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7MLzFkjc82KkJ5TDFPdNGprPYf6JGSpbbXfPZ6QJohR9",
+            "locked_until": 0,
+            "mint": "69hrBPPf2AMtQStxkzytY3z3YcppMJYKrdXh28obpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "sAhs4ASzJNXbXRmBjcn3ou8s8rn7feYtZJduBoJRsFS",
+            "locked_until": 0,
+            "mint": "4RLAtTan9Xq1zkKiNeggr8Y17msv3WyGzXcdB4iNpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "63phaDm7xNzX2e6kcxdQXAKHN12xCi1VfHaF7FkPFJqY",
+            "locked_until": 0,
+            "mint": "FkauyJ6YfLQEAyVDpQgcsRAdKwqSn7BTmYoLCmuDtM1B",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2F6p8TXy3DXDx8zygmMJXXvpCJVBPznq9jaqbNVQpT18",
+            "locked_until": 0,
+            "mint": "B8RppSzriLgRehHRJ5mMRVwFKwdD2gymAqUBuVUxpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6eYrfbwDaFhFWYvVwXLswzZ2xhymTT4cFYa8FXHgFPWt",
+            "locked_until": 0,
+            "mint": "BNTCA4F1cpvfeHiGXNQ9Ryax94qKGc6fM329tgwopump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DKckGH3injoGWHfVfiA8DdzXwqe3sQYGHaAZUktqHErK",
+            "locked_until": 0,
+            "mint": "DKDaiXqrAGxzmw1D7XN27965kHKrJicZxCSJeYgepump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "A9arcrfdvWV8LUmkRn1NZZXp1YvZ2yqEf6x14meCbkM5",
+            "locked_until": 0,
+            "mint": "s9NujqSoJBZa8eWbRLZUi63QrMKWiQwVYumWdpapump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FcnNq1oTAxCFgVn8f3dB2YoUjLMDHP9BWBL1SenTPM7r",
+            "locked_until": 0,
+            "mint": "FQi79TRbqZZcp9rXvqH57zCiWTsPHFe9g3gWtFWnpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "gVDXhoGbePACvSqN7CZBtQXFW9eyJwsgudPEwSydAkx",
+            "locked_until": 0,
+            "mint": "CCJf9gnrZQkdhgUa1XrCWELpUgTBDSQaE6Uh93zXpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CyisuRWRiK22aMiRY8X4HKXkMuKqkze8YM7Brjg7am4n",
+            "locked_until": 0,
+            "mint": "FmTUa7muAJE8JayVdBhLp5jvd68Zg9GDtwEyAydfpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CCgfRLhwUzMNFWS46NNMuBZ7d7otC2WYyM4ajMNTRCN",
+            "locked_until": 0,
+            "mint": "2mSYq9D25xdbcXcUR9PRQbZ4ghPzfADKxEGEYtK5pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9LrV1FiCufNePzAabQMAoJKDuscD4Qkzy18pXn8NUfij",
+            "locked_until": 0,
+            "mint": "bKFhaM9BfrHcRyw6yFSzVPpb245eufb8CH7Gw3Dpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DfG6UhpaE4kXTi6qFWp6n2FLV1djoZQ5YyD7gqbVPscU",
+            "locked_until": 0,
+            "mint": "BfshNCcnaQ2rUEaVVbGdWM516cbuZxCg7auQarvTpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6xDGW8oET4q9f3U9JEtcbvfVQ426toe9Gr74qnq5komH",
+            "locked_until": 0,
+            "mint": "5JG1xXFFo2nrXNz6KPxjVrTA3rvKxWhqZ1E2iyt9pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7mEVL4zRftbPqg7C5FcWXgBnDfqds3oMj5HN1ZvQgsbw",
+            "locked_until": 0,
+            "mint": "7PYHpMK17bmWCyjQcHDD2mbiyFLjdSBQCLNVdacapump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4yJLiB1j5oJh1D5Rx1neYseNih1m8fpVsK2hTtR64HLo",
+            "locked_until": 0,
+            "mint": "yRvjDRpKszxEptq9Tr7CoD4T5gVGx5r7xp3C4Bhpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "H9NpjfcQaVMWebzghhVM6YLinYSFJu96Xvg2Qr8EEXNC",
+            "locked_until": 0,
+            "mint": "2frZ69c7BxfoRpQNTRAxcchADCw2zpXBtQaYLYBapump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8HeDT75s5g4CtCimH5B5nySqCiQhtWii8UnZhxBtFo38",
+            "locked_until": 0,
+            "mint": "ESABfJpt9cocXgWX7HF8WwSXrcv785oyaA8imwojpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "BvmN6CX5oSH3uuyBnrEc2dZDXuK2LjxwXGfZoWAbNFUJ",
+            "locked_until": 0,
+            "mint": "BS8Wt9kAvfEN6m66GjE6r7rXcko4LxgHfsKzCprHpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EcLhEcR8FuMz3CQ81KtNfWWTDRqEMbJvHqs1VUoYzZZQ",
+            "locked_until": 0,
+            "mint": "89aytsrowh5og72STeHkjUmBCLpwyv45E8FeWPHfpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "GwTLcT635Kq9xyVKAAccBYQLmZK7uFM9CcLLYHNCUd9Q",
+            "locked_until": 0,
+            "mint": "J4LT679cgT1rxxDVikQszYbhTh1XZxYQ3cwe3AVipump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8J846uoKiJT5ibex6XJjyuHKJaGGxratX6hAJUFR7JUk",
+            "locked_until": 0,
+            "mint": "2jWzFfeu5GkyxVQoFtqkn1j7pTjsmaDY7uE8SLZMpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "ASVxp6vAzCWnyRLvojnGGphDUFT9nUiZsGcu7QPsXTCS",
+            "locked_until": 0,
+            "mint": "4uLUPqupqvyGEeqVd7PBE1m9TMaYB2Jy5JjZb2Jnpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "5HELPjX4ci9RV9BgpwMEvq2rdyKpzzMhV8f99FZ4mQEK",
+            "locked_until": 0,
+            "mint": "Xk2GSQwXhgU8vteLzEHxCFbhnxNT4bC2dQ96AAqpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8N5Kb1TdKQQXfBZ8PJNKdZV7vdF4yFNYrvQya4JP43f4",
+            "locked_until": 0,
+            "mint": "AVCGL9LQPCt6bwnkzt17psQWFBripYibqEyrzs1Ypump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4Mcoqgym73oKVjyonwSgT78bxVEXVAgYBEagEWZdBPQs",
+            "locked_until": 0,
+            "mint": "47huugjVa2m9qva38hDSKofpqSQ7Vg3e7MTRf1Ugpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7MsVrDDB5YWF2J9Py43xbJ1abGoGvw7iYDvQRnCWY8UP",
+            "locked_until": 0,
+            "mint": "Qf1HwJEYatQQybArkM3iSMijaWoXKhB1G8MR1BBpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2mg5oZiJf61YHA4cEZvVicZkw34ssmVSgNxtjzLKueyn",
+            "locked_until": 0,
+            "mint": "g2JxvVRe4Guk5AfLdjnKNZycURUzMVizkG1VwCppump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "5ixiAsMhSDCXiPgLwQpCsP3puKbJadKMyuFFxGGaCMgW",
+            "locked_until": 0,
+            "mint": "EghbFxrR5TG3Mc6nWsJxvtH5x59YbLPXdTP36CfMpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DoTDND5fcjsA8bDXVSgefnEJ2q4RuNEtEupbdr4YFpyo",
+            "locked_until": 0,
+            "mint": "4GGuUG6QZQ97LraPpUEoqLHuZZK9MrxnGogyqJLhpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "57MTsPZv2YNbuii7KcaNMWv1tURBb9EwBBk3CnA4qFj5",
+            "locked_until": 0,
+            "mint": "nzGf2WgmT9j45WcprtwtDZE3nPJvwdMz98qnVBopump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4DAyzVwq55EgZzgWqbZowBJRwLwLHAqQaCu8ebbwbsm7",
+            "locked_until": 0,
+            "mint": "A5SvyMeAUkHZ1gh3bBvHkhNDm1SKhRve9FaPBkd7pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8cpuGmjJeR5BZHFaw5FyDVgFVnra7ejmT6hUnFgxY5C8",
+            "locked_until": 0,
+            "mint": "AsfkthpixFhsK6xWwKy4mjvDBG3RprfXdbVCC2NPpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "zAtkDxEVbJqFTLqrMx1y3CGf2xpp5gHr5rr493ZVrxK",
+            "locked_until": 0,
+            "mint": "4zRwknCzcexdECtrd35J2aUV5ArC3meHKqoMyyugpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Dk9T3hQCHnozgrbgyPRGpMf1G1MEqLyfreJXoaK7tSsy",
+            "locked_until": 0,
+            "mint": "6mosQx7PJFRRLAkidpfDLBiAR9WNfofQA8AbGnuBpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9jwfZT1V4rvG8ZRdfR8gQfu9yYKSmZeejBEhmpPgYtPv",
+            "locked_until": 0,
+            "mint": "1YYZfEyEbFT8HeXfhzMP8RSUTbALn2dsvEHTgPhAkP5",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FBUxKQqF4cdmN2CnnpZ9KRZfhQF8WbKh6aq2fymVsX8x",
+            "locked_until": 0,
+            "mint": "5LLmRRGF4FrGpLmx4E22yntXDTpBJbehK6BwgDNqpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DZFjZHn7dFw1SR9bd1PuPsMQ23vzPoQGBNgUtTSnXWUB",
+            "locked_until": 0,
+            "mint": "MgfPJEwbrzvrhKiWTm6grvFP8dChp7kBhGYfVo1pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CSsoZzAcQiW9qfsfTc5Wo6uvwdTeYJDjrsR5GCB4fARb",
+            "locked_until": 0,
+            "mint": "XKqwNicZMVmtFYqjBgPZrT3qu4TRNzXYoAtYcoGpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "BnzTRVxZhXYqVwvjZoSBF9D8LibbUFumXsrHZ9qh9Gr7",
+            "locked_until": 0,
+            "mint": "8HLccNdQmkVeEBBh8ndVHPQxyEmrKmoeCr4hwVKHpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6PX4xuN4TLPCL2GqtUZf2Q6iTjwfGbc9vcK33sinN3wP",
+            "locked_until": 0,
+            "mint": "J4dyfXc8EY3TXAeFdpAKZqWyW4S8XpdoABib7JMnpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4a5szUKkFHxc1Wbp3qwfUVeTnmUyaMqNjh8zLgsM7re7",
+            "locked_until": 0,
+            "mint": "CSrVrMvWgtCujEyny39Bbgb5A814pVRnYYRNAMG6pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4tKSqEKUwdT9okwvEJhy31CsPYoFVHhVR8theo6wWRg9",
+            "locked_until": 0,
+            "mint": "Ceg5r4XpdErHSkr8CFLhe6wFf34V1thrjbFrKobapump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "HsUmaFPdtEmWg6e2YUagQ3kUUWrnp7fNp13cjHc27kpp",
+            "locked_until": 0,
+            "mint": "GftdnCVhNpmavB7Tymawkr8k5vjngU45ahKbnq17pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "AUPCgvogTNqQTSjZUFEQxZMgzy5SWZEATuFggTGPuYpr",
+            "locked_until": 0,
+            "mint": "CSCeRq9jQLZZsVUUBTkkXUs3taYQnZptdxjZ6HNspump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7FYGy6Q2h832M84JbDENFR3oxcJv56A1F1YmxaGjHB31",
+            "locked_until": 0,
+            "mint": "53uRT7dWSrY5HvGTaTnfPk67xAR9HrmbiUXUmFikpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2mVxhbztpuYuGZnAN3ZDXmQQGPmXanPz86onqX8K1qxe",
+            "locked_until": 0,
+            "mint": "6BxR72N3EpY9ef8FhY8nRapagw37cFn5fgZNGGscpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CYAPSYvmCY9ujD5QNRoLxR2suKdQNzvBaM3rifiMR7kC",
+            "locked_until": 0,
+            "mint": "CP6SxRL4y9oZufSD7AvmMQTtM8uxPiZDmoyyH4YDpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2dyjiDVr3jUWN8DdLptzRsXVUYFZWHRThqoyZCfo6gAP",
+            "locked_until": 0,
+            "mint": "93dCwxVNWypR7ZMVm5qDVLDme5Dv3AWNwETSWorh26Ey",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "3dMjqqemgmETQQ4rUW9qWFVHBjb6pWy767HsPiVi7C6d",
+            "locked_until": 0,
+            "mint": "H6BtNN6ow1G5YFY4Nu8XcSSnYyRJQQrumSgX6uHFpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EjCovnjfpngN8dhi2Ndt5SDVivkb1cvWDjYrYiVetH4U",
+            "locked_until": 0,
+            "mint": "jHPKyedQYh2pQidU2RoKE2jr9WDz7sNHSb8FGxMpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "3EHT8WYjfYkRnCDdJj7F32X4tvW1Bg9iJKZQ2qrFmC8y",
+            "locked_until": 0,
+            "mint": "DD99N8C4QWADSppfsAsR7VN85FViQDMQ7aH8LTkxpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Hufy2kTe3sji5mbcttVhmkbWFyyKbHuHd9V8qQpWT4dw",
+            "locked_until": 0,
+            "mint": "3hUqTqKTUQFmNtKPKwZjDtT4Ps4bJn7nfJNaAFX2pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7yJyFpu1pSqJg9nPBdKTDZ11zMs8DbrsoCwcE4ES8N4Q",
+            "locked_until": 0,
+            "mint": "AFcennfJBVYxFKmjKbjZy7yyEZP9KrFDNfX9w8rApump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Ewq33828RtFq2Y3RVeLTsry3XhUnx8VmPXDFufx1pYxN",
+            "locked_until": 0,
+            "mint": "EfB9nGpicGi1eSTvnc1JHF3Q2143yNMEziJSgEg8pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Aub1dGQA7o8ELdgg6BtRFu9vSsfqSRUUKzCJZjroEX2a",
+            "locked_until": 0,
+            "mint": "HpsnnJkhc2sEPriBtsEdLTeg9NsM2XKZkNx6N6Frpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "ArG89Zqvwsc8R4b7ALFZ31qQ9NiRNRqVTxvZcrq2kzYo",
+            "locked_until": 0,
+            "mint": "LXyYARUGeRzzoPcJi3mqWzjU8mb1iTdt4ANUxE1pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EBx24uAPtaS1SvHwRhKEktSgzaXdiVEyHuSVpAMVwrcD",
+            "locked_until": 0,
+            "mint": "CEiHHnga3SkamV7192WKjH31oN1TDazG4PucV3QMpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8grrUzSdvZw5JMiUhyn6uobRRCEGRMGy8wwTTXNvu1pQ",
+            "locked_until": 0,
+            "mint": "DNM1AePswCnFFydQ2dz1yUJ3m4CBEKiCEkgpQ8YYpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "HMpjEFwSGDgM3whvyhn2w46g588MgPsEPMxpo4UbjJEg",
+            "locked_until": 0,
+            "mint": "BDoQixRLFXqMwwh1PGft5N613JkoKYpWhFUrcaRppump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "ZMrKSxZpkNTY42ELx7BfRcN5xPzLQ1ddQ953uATKRCA",
+            "locked_until": 0,
+            "mint": "DwK6hbyQiLL64qMHUtgrxWA86hPxvZ3eoKREmuYpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7MFDmKekBztUKfMJhDkjtr2UviSyvzkZwhw4UXo8Shks",
+            "locked_until": 0,
+            "mint": "6r7RRB2pkYdCuLD3ubTd59BNdmtRLUCzASjSX2Ydpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CmD6KatKkD9LEoxWZNpcbDWYEnMYrM69kPYwXhhWTKAx",
+            "locked_until": 0,
+            "mint": "B6JwXga2H1xtSj5awzFdTebdU9MjsvpNAYfnGhjjpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6U18DnDxryEdwx7wC7jghMH8a36t2yxHy9Zmd3SQhisF",
+            "locked_until": 0,
+            "mint": "pHW26J5oCRgr591wU5BbydvbF4p3zm64QEGDx6spump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9seBXNv2fm2iCW9qYVfg7HDpt8xkx5T7zAgNZ4PQzPTu",
+            "locked_until": 0,
+            "mint": "2hbdj2UjSoeyp2RZaydUuykdsyR5k5c6xgTJ5HGVpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DTRUSpxn2STbX6527w9UBBSai1KteS4uC4U9hFLLw5aA",
+            "locked_until": 0,
+            "mint": "H4cCqt5LuQJ8uc7ztGGUxqf7FNHJMq3uU5sxfe3Bpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2dyjiDVr3jUWN8DdLptzRsXVUYFZWHRThqoyZCfo6gAP",
+            "locked_until": 0,
+            "mint": "2QaqoC9E93AXGjCt9ssZjrdvPSQ3qr69NsTDBvZ2pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8Q6FyTbtPCDHEgdaoYYiEHX5rABrmvHEbLwHZHhdcyY2",
+            "locked_until": 0,
+            "mint": "AmKDiJRyoN67AhXW4aD923mqWDm21VKfmhJGCLLApump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9seBXNv2fm2iCW9qYVfg7HDpt8xkx5T7zAgNZ4PQzPTu",
+            "locked_until": 0,
+            "mint": "DjBXrc1L2Eaw9XF9ZpyHmn3jMsfadPYMt1EoFxukpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4SPPSePVRaSfa7WW2wGZzJwJ9n5C6ZuLouR9SyyiKVKQ",
+            "locked_until": 0,
+            "mint": "X8HToP2mAwgDGj1E4pMvn25P2Km9hR34yfE57zwpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9vDqT3tfVGe8KGMXhNgNgkf5ciaxbM7hKvjvqT6hinqK",
+            "locked_until": 0,
+            "mint": "HieMYCLP1yaKk4FretB98C37aoZ9DDjMU7GREmitpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4m7PziFG9Dbf95h3xbjscHxZeaFvjjcVvgrd3p1GKKuJ",
+            "locked_until": 0,
+            "mint": "DX4mJgzzwRcrxQevhzzyNtkxmzKhDAo7tRpQT6xNpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8JDtdf8Rerh6wshC1cxq8wKhBHa3zysBtRemDoeUG2Pp",
+            "locked_until": 0,
+            "mint": "Bm4wjKYR31nFbyq74Xvo6oX2dTevRuBTZku1RFuhpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2dyjiDVr3jUWN8DdLptzRsXVUYFZWHRThqoyZCfo6gAP",
+            "locked_until": 0,
+            "mint": "E9in9CfS9Tas3WzC5LEsMKnLJXCYvGs1SUvWHVvApump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FMGtcKNJJuGtk5sqBJN2Q4CQDdNoWeSegLsJyQxzGZsm",
+            "locked_until": 0,
+            "mint": "D1q76fnkPxDNN8Gfehj4cxMeehyetCRqwRBVpM28pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "u46ZgLuJw37Di7ieYgncFDDAWsaZcKDCguRk3P8memY",
+            "locked_until": 0,
+            "mint": "AYngjjwEccW532KBerj99AmmNy9dftXVyQKqXWZtpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6BUSNCj8sSb4JQNnyVjdQrYMdiw7oR4jkdSrVQsbYZNk",
+            "locked_until": 0,
+            "mint": "G9M3eCecYGCLVg6S8pqp7TujWTMk6Y5dYoTDENDJpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "FaJxvj5rCHhm6PukLf4QnWrw31gQ9Z2hsuzacW8QyrQ5",
+            "locked_until": 0,
+            "mint": "4Z7vcfssq4r8v14wfb653P4MPKMwL6JcNoE796S2gUsH",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "ybioX3fTXoh7BbNkpSVvtX1agyxVdmpx1TVFeYJXxcd",
+            "locked_until": 0,
+            "mint": "GVtXE663xuZTjKSEEbwt6LKA5143nBBKY89iL64Npump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DJ5fkWVVZeY9z9uWKdFuD5HmxHDnWUfawdxB6ptwhePB",
+            "locked_until": 0,
+            "mint": "2FtvwFqvsWm8bsuyrqYFpPqy6ngX62SmoMy6Gvcxpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4nRGfr9eQwUSq5ZgC1b1o9WrK3Q4ykisy232AMsqxc23",
+            "locked_until": 0,
+            "mint": "4z43UVofftZkdQpsb8VgkoqqrQTqK6bkikm56M4epump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "GNbYfwBaEbooU46p32LfMJkzEuBVqg6ejPyJ7gEbgf6L",
+            "locked_until": 0,
+            "mint": "ApqocXeNoDcdYxJHoffqTXud8tdcBHXVBcJLBCGLpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6oABnktxmqBX7S3aF64nzD3zYj7Dt6bjYDt8xTwYj6oY",
+            "locked_until": 0,
+            "mint": "3goEJAqwmQNFjHpw77yNjWdm3ZXvPyfAqk53ruBypump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Ar6SEc6QGLcbMWNx9JDRtrskBggcLjPSLe8E4tpMyogk",
+            "locked_until": 0,
+            "mint": "rSxCyHDHDNMXrWmpQxJ9WNSP76fPURzEwSqHhx9pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DWaAEHNGZzX1wBA9LqYrG8YE2F66T6h41MvMaubdqwA7",
+            "locked_until": 0,
+            "mint": "QFNDHbgPCwwaRiGUYT5uBWSymbSrvQBNHk8RpLmpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "5eJFtYvkvjp9WjT6CyR9xnSLTDctRb7o4WpZWtmqGQEJ",
+            "locked_until": 0,
+            "mint": "FaTV2BF4T8PdokhukbDNUk6CpPw7x9rgzgqk1P5Ppump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "DR84hd9nM3P8XRSrsVE6xVas5qLh7XGZQ7ubgMciL9fY",
+            "locked_until": 0,
+            "mint": "FvcHJY4sUiAK2c9c9kStWAWhraLhYfrgsC6ZNjYpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "BFmEoeQGRrxJutCe5m4DMv1fVU7CtSf42eN1RyNePNg6",
+            "locked_until": 0,
+            "mint": "f1qYDRWv72prGQ9N3gPotzNitzHmMd61PcZ7hNrpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "3Ketb5R12StgttdgQpw4XtdJbShfzkg2hxqVcy3EfzbM",
+            "locked_until": 0,
+            "mint": "pw36Te1iwN6o3DfWshbVVPeWBjGsv1HkkBVMS4Cpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "EUAEjcsPRnrPxBvC9uDbZmonUibf8qfm7ufgbnmxGbVH",
+            "locked_until": 0,
+            "mint": "HkD1XEg3sgwWkb5ZVDztWPMaPveLkwKw8qDwvT9Kpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6wrBJjZqKpzZatgH7WqyUjwhvuQWcAZzrcVFpBjJd8X9",
+            "locked_until": 0,
+            "mint": "6C7hgz2RhinRFMyv8717DCnBRncqqsrkHUmii8Xkpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "C2TFeiRyzzApUxvjrfaXF1RLfad2SfaHvSqGaEPmmxfv",
+            "locked_until": 0,
+            "mint": "5eCYAtpc41G9Mpi5NyoMqP9bo8Fx8PaoBB56K8sypump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9NDQfbvCTJaKq5A2UUqSjPF8sGDRWBsK9ikw8fFa1FLY",
+            "locked_until": 0,
+            "mint": "YwfoH4Uu5YwmGaPPzoY9UuERARzqcyB4NGVpfq5pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "ychj5UD9oLTAGQubCZ5PvMaFsocXwxonNaiqg3pVgzA",
+            "locked_until": 0,
+            "mint": "Vor1HsHpoaGDJsjuVetU8kitzqR3MoyFLqVKFYRpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "CgkeAmWEunFmhZyGXRii5fAikyWcnxvcw7jKVKTAYpZZ",
+            "locked_until": 0,
+            "mint": "9mBi6hL2omjfeQ5JiNdLDf7zEAmXVuSBsSU3kNm9pump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8nZEVQFUnMLV6eqqESAhJKodTaESCpvmAmFvWqzgpYxG",
+            "locked_until": 0,
+            "mint": "LUpgK4hZJbyDY1UyZPKZLbRKEqYTWVxxgHFNvoDpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2dyjiDVr3jUWN8DdLptzRsXVUYFZWHRThqoyZCfo6gAP",
+            "locked_until": 0,
+            "mint": "DZUoNryPXhwuoMgc8wwT8qqcQ5kG2Y5AWQ2ENYtcpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "F9eApkkA6At19Ci8a7WFqJMvnzNBihx7NvUHfcTCxJ3j",
+            "locked_until": 0,
+            "mint": "FQtqYkKv6f48dxEGop4Mg2TmFA8vzBKy7cKF2urSpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "grok1r9rhYXqniD79L3eeBB6bBLd8ytGrhDRa6kgRNt",
+            "locked_until": 0,
+            "mint": "D2DWXpMVx4SKuspHuWRghR4YfudAprHoxM6VUdsa7Jv9",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "grok1r9rhYXqniD79L3eeBB6bBLd8ytGrhDRa6kgRNt",
+            "locked_until": 0,
+            "mint": "6ZwXxjk2RkoTV65ceaE18HnVQoeGqdEWQ9o7Kh8xYita",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "dtrzJPj7yDdvm6eRqBAgxsK2sMJeD9HhBEBB3XMedXy",
+            "locked_until": 0,
+            "mint": "7c8e4YNSqfbFYfoLdCRuQUEkH5HRMdaz1bstJxu3VJX7",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "Bjr89zvdsKjferx1uYxcZ9kywqK4zE8PVzAUbHGXBHJr",
+            "locked_until": 0,
+            "mint": "3F4qRSNhEc33g7omDbKSEav5irKFZNELjNee2W9ipump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "8BaFXqu4GizNM9QRwY6LPrsMUsX1X95HHMXRmANj7k8Q",
+            "locked_until": 0,
+            "mint": "FkxsbEaJsniL9shyfZzUKAGkPXEm6iovCykiyKhwpump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "5BmertYkrgrmRFMV5SXeJVtXevZ24dJXBbLDGp5LPECP",
+            "locked_until": 0,
+            "mint": "9EQ6vdaNabbafsv8962STvDgRmimSkHe6xinMufypump",
+            "status": "pending"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "JDQKDrc1TQgBRvdFh56tkta5sYcDj1SoP52Eiu64rSrT",
+            "locked_until": 0,
+            "mint": "GSV8KLYohuPAwk5DJiueY564Vo7Xmbehoi2pZDVvpump",
+            "status": "pending"
+          }
+        ],
+        "truncated": true
+      },
+      "processing": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "quarantined": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "retry": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [
+          {
+            "attempts": 3,
+            "creator_address": "9MsrGFJqAD1JmQCfTR86XfLMsLFKFGTsUQFCLRoykZZf",
+            "locked_until": 0,
+            "mint": "7fv6BfXtbRdxuJCJQbKZeY4ZDJsZnJ3aVEw6URMapump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "5zwN9NQei4fctQ8AfEk67PVoH1jSCSYCpfYkeamkpznj",
+            "locked_until": 0,
+            "mint": "HVAYF7YvNjipReVh6SWmfagurhxvbdN8CQtn6qropump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "3kRCjjB1TAzkBszKrvcafp9VwimPbSdfykjvuUaXPU2r",
+            "locked_until": 0,
+            "mint": "CshSnfFPuWZ4FjnwCKZ3vZGVjgKVQ5SCbaAexqLwpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "Ce8xX6ixypbvDauod3mTGwxowbDpqurpha3rqANpVaTM",
+            "locked_until": 0,
+            "mint": "2vH4PcjCvu11UGsFGP52aY6zKrBYZmNo8TxPps4Ppump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "AvcWA3ngM55sSpjh1FZthmqA7V6BHo4f555a8w3Wv3ij",
+            "locked_until": 0,
+            "mint": "GGJRnqjNjDWQGDageMkzc3ndPkzuYtUwmFVkxFakpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "AV7PjXHL5JXZ1YoYRoN9Dsstg1x2UciBupMCXcJP8gUz",
+            "locked_until": 0,
+            "mint": "D5283gnYe7WKqAJURGYbUkzKVogMfNBFgYTyGbk7UMiF",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "4LBEBNefj5e8BJbL1xdvoYQQHEPzTK14pWSrgoAkAPe2",
+            "locked_until": 0,
+            "mint": "9LhuK9W37eX2TvpVjpKqAd3ted3ujFTGzS6smbk6pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "bwamJzztZsepfkteWRChggmXuiiCQvpLqPietdNfSXa",
+            "locked_until": 0,
+            "mint": "gtKtdFzeie7Q3zwKssubLNPzZ168it6ig2Ln6xsfi2r",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "AvcWA3ngM55sSpjh1FZthmqA7V6BHo4f555a8w3Wv3ij",
+            "locked_until": 0,
+            "mint": "CJ3tfqJzLJCuNLAtyMhvC3DyXh3wFgAx46jNXxcApump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "D9gQ6RhKEpnobPBUdWY5bPQt2p3zGk3iVz6ChpUi2ArA",
+            "locked_until": 0,
+            "mint": "7znHCLMLYsMFQ7kcFucUZFm81modL77XPQe9gdJdpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "AV7PjXHL5JXZ1YoYRoN9Dsstg1x2UciBupMCXcJP8gUz",
+            "locked_until": 0,
+            "mint": "5dNGLhqc7nqoYy9qxDp8hqUgMk4LRkjgnveT3Xu2LVnP",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "J9TYAsWWidbrcZybmLSfrLzryANf4CgJBLdvwdGuC8MB",
+            "locked_until": 0,
+            "mint": "BXk6T14wM2aQDmNQ3pgeC9QSQfd2y4Cinsd7wXeJpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "5fnNMqJ4aTUmTkL1qswsb1anVM9VKDssj1hfvdVwHnq",
+            "locked_until": 0,
+            "mint": "Gs2dqewcvgeyfr7u7UYQRH1Y6vqrs3zaYYq1eL3Bpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7NBW9PDFbfFy6tqMFq9CjP4EZNKb76J9JHhDHMtFdtbT",
+            "locked_until": 0,
+            "mint": "4hfye6h74Nrm2HMEhQxWyBwWJZHJHRNTEf9vnbfwpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "whamNNP9tHoxLg92yHvJPdYhghEoCg1qYTsh5a2oLbx",
+            "locked_until": 0,
+            "mint": "6CcWWDyzeD38DfYVGsxCuZnBKBRLrFEgkNS68sXQpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "D9gQ6RhKEpnobPBUdWY5bPQt2p3zGk3iVz6ChpUi2ArA",
+            "locked_until": 0,
+            "mint": "8Z7DUnjga93xysyRCme5W5K6KVRJu1pUZU5w9hnepump",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "6Wg4aeZ29WRKDsM695c7tTT8oYAcbvFq7DYn8416BPBg",
+            "locked_until": 0,
+            "mint": "P5sWgNgHN4omhbk86PXRJuFmpW5uuNy5oaezPmrpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "AvcWA3ngM55sSpjh1FZthmqA7V6BHo4f555a8w3Wv3ij",
+            "locked_until": 0,
+            "mint": "94yadmf3NTixWsRYk5PtSyHECyqEDmi4yds8xFC6pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "89Vv7Xpr14FfY9n3HPTX5edG1FpVXZkAG2BrdncjNCUW",
+            "locked_until": 0,
+            "mint": "5fDhtKEXrYH8xVwCfsi7m9SCRYjFNfiZKFGA5WaVpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "DHLRzkf3XUhsdUGshpJGwyJJsHnfzKjZt2dZDt6tX3MF",
+            "locked_until": 0,
+            "mint": "DSttsqBzDAKs4S8E3Kcoi7QzUmwsEAdDDqHcmaEDpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "6waxhdAqJ1ZTr31F4CBNFEgeCMfTKVFpidMcHoy1PKCN",
+            "locked_until": 0,
+            "mint": "GD758yotyoMCFbCiTgDFYPZMA8TUWAKfeeQWknG8pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "CfBoFQ3tRrKhhjoXiocdVFJ9WkCzQNwbEK8uBZ6vRnrR",
+            "locked_until": 0,
+            "mint": "4pYaNmtx36myr6dUHnqBhfKwoLrxHNU8RCbrSy2rpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "GeUnv1jmtviRbR7Gu1JnXSGkUMUgFVBHuEVQVpTaUX1W",
+            "locked_until": 0,
+            "mint": "ErC33169qSHinNJfeRZcNyGWyYwvHurJGywrAHM7Rk9C",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4YWbMLWSaSwzWxRrhY6d97KsS3hV9Xfspr2yHuJubFhJ",
+            "locked_until": 0,
+            "mint": "HRiqQtfkXYvHrzLDG7vTBDhevi56ZFnDYKtQaoDRpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "Ce8xX6ixypbvDauod3mTGwxowbDpqurpha3rqANpVaTM",
+            "locked_until": 0,
+            "mint": "9JV9keZiWLUNqBqEwQqhKEsqzTaJV7dpELmJquX4ponL",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "bwamJzztZsepfkteWRChggmXuiiCQvpLqPietdNfSXa",
+            "locked_until": 0,
+            "mint": "3aiQF78negEPUKKmgKdEPNv2NozQwX6kaLzi1WbGwbPf",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "FZ4tWM9rDqFPMeoNjSoLwXTzLS6zeJxXLiAtLVSfFdbj",
+            "locked_until": 0,
+            "mint": "6K199rrMeT6UYC8FEAUAcFpWvatKbicMxSGXxvDapump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "4SxjmMJkdAo9Ef3qzHZey3bLFsx2FhC2XmAoHmJB6Q5N",
+            "locked_until": 0,
+            "mint": "Fk9LVFsGAVGkFjzqX61u4xdweNbutNvsK1xKmRcapump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "GeUnv1jmtviRbR7Gu1JnXSGkUMUgFVBHuEVQVpTaUX1W",
+            "locked_until": 0,
+            "mint": "HTn6f5nuzSAxC6Pp7zNgSyHzvjQMigdSSMfXeQN8r3t8",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "7FVfSdnR9VPGjMtmBP1Hz9C2DFTpoNX8gVVRmnimnGt9",
+            "locked_until": 0,
+            "mint": "gK1pcxLpZcgwLwsuzU8NqSeGbDLFTT4izcDKq7spump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "HTM87R4mgjDdiF6Yfn8duK9vbDmZxiPCTRbGvm7eCAJY",
+            "locked_until": 0,
+            "mint": "2FuK4GY5eXXY88MLv9A2EMicFKUhY2Lo4PRysnwzeLjk",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "H2v3MsRwLfJgfunojnenvdrEQ3qsNjqHFnjULEdVeQAs",
+            "locked_until": 0,
+            "mint": "3Soxf9GzrKVkRCXaDjRaNtsAkTgyeUdauBpoF9RDpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "AMRsSeU5JpqwQWJGNLMpZzRCZSFEwYQYbMnms3dD4311",
+            "locked_until": 0,
+            "mint": "3rv6wR2zMpjPuoLn9DKDrmQDRym6fhSPJP6PchuZpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "Dzp1SrZ474xwGp6ZEP6cNKo39u9zeXe1YAuTkyZyv3t4",
+            "locked_until": 0,
+            "mint": "CXtfTFwGjSaoQAR8vnPZUQZDh84knXGFtmYWEgfSpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "8NJ7Ujpji8uMF2675mqaTSEm2DCbfJA7fiRKtiaqkaLN",
+            "locked_until": 0,
+            "mint": "9jaHXNfF4DNyfPgDfMuYEyqdQUBjWF3a7VkhKagFpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "HF2EGxkKXRhdR93ZN5fY925PpecZDwRfKwhag6mvFMLW",
+            "locked_until": 0,
+            "mint": "9F1wwU3reW7VebXRpjPRTgCN8HF6mxH8XcvuNCi2pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "C8rXn35DjQJMEqSW6ZCXSCX2rxdznudf3TJ9r8qToXeW",
+            "locked_until": 0,
+            "mint": "F8J1x85U93kQWzbrx45bGZzY4GNCtUD87eEdG7HZpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "C8rXn35DjQJMEqSW6ZCXSCX2rxdznudf3TJ9r8qToXeW",
+            "locked_until": 0,
+            "mint": "CRNPKVx1V8bFozAryqdXdEXSkwjRTNUAFxj8x68spump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "7ufmve7ZSFCzuNcKRunYrGtyb2Ka1MXzkWwf7jZhVsmL",
+            "locked_until": 0,
+            "mint": "6NqoyXkLg3tq9XCwshEs2qdD3Li5PB5zbCCw4BuGpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "HF2EGxkKXRhdR93ZN5fY925PpecZDwRfKwhag6mvFMLW",
+            "locked_until": 0,
+            "mint": "F6Jpt9mFiiQmrFBx83sHrKtWWFBd4ndPT3L3CfZQpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "C8rXn35DjQJMEqSW6ZCXSCX2rxdznudf3TJ9r8qToXeW",
+            "locked_until": 0,
+            "mint": "4NX3ioZVQ7BSqNXzWjtKTjpjsrDjDyH3iH4iDZWNpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "FV4TJrrUHsvVCYWBazEtqw5tFgxR1rqr6PF5J7hkjgVG",
+            "locked_until": 0,
+            "mint": "BFuLxt196d2SaLkpvTNx26ifpt4FuNYJrGB9FvC6pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "GFA2t9fZVY3jC7wDBPDB8FdsVNzLWgK44J4q7XpP476a",
+            "locked_until": 0,
+            "mint": "9fNDTGedfFfCcCiFXJkYKP5fn7kimzjBgZNtedZvpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "3QsuQtczCa7WQQK7LvFu2m8CDFazzwqxmcVDUts6ZMpP",
+            "locked_until": 0,
+            "mint": "82ZRyE5dLMBJ57L4M7fTi4LDKxg4mcjb3vkyoH6Tpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "D6EMJQyc12H5bwkW6WeH5kAz5w84QqcBQPoZi2rLVZnm",
+            "locked_until": 0,
+            "mint": "HZcMCZ6k8idJKsBKVNJREVDymdDXvD5oZH3JdEa9pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "29yFzeBZgxf5zqrAkKXwgZtQehRf4pL8WbV2nRJikbw8",
+            "locked_until": 0,
+            "mint": "Dvu3Poa6zBo6XPrx65EnRhqjrPJzJ2zjDswzqSmhpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "bwamJzztZsepfkteWRChggmXuiiCQvpLqPietdNfSXa",
+            "locked_until": 0,
+            "mint": "Ak7JbLvKEFzkcfpvLErnnkQ8xoB2P3HNbLDp6Du2JVSW",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "7deXDyXcB3GLzHyM5Pk5kJFRJyotwhTBQjnD73TFnnze",
+            "locked_until": 0,
+            "mint": "HgXuXhuSrJWLBY8AuT6DFGnxBKmbCs93qdbbowHPpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "AcMjATYKiyss3xXqhGfLw4c134tMPdm3PKvdTWaPaGuN",
+            "locked_until": 0,
+            "mint": "3wESM4Jdpsg49JkyuAi9NgoVmYBtwXrbVXm1ZGwgpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "HdnW7rHUzkYFYxCky5rXBRFtJevUiYEJsHMPSH6SpQsW",
+            "locked_until": 0,
+            "mint": "12uAy3vu6Y9FzRWRxzAZwW5BZKa3xzEf8JoK7eMGpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 1,
+            "creator_address": "2A8dxFVNriZdM1Us85EFvQdnx3dTixCGaNwRseWXy856",
+            "locked_until": 0,
+            "mint": "DAiiKgcnA3gvRSVr4c5RFpfuXX7wKK38rfY6Ei8ceYVb",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "GZbDsxWJn64PTLo3mLAMwLAgxyqDBvAZW8DCBcH6EmNG",
+            "locked_until": 0,
+            "mint": "76a7HJTShQACXbtBuswPK33P3zMzCEqmG4gPe6d2pump",
+            "status": "retry"
+          },
+          {
+            "attempts": 3,
+            "creator_address": "8ZN71XTdVo8yRovnGLmNgW3Tgniw6A4J3JGLvPD686FP",
+            "locked_until": 0,
+            "mint": "7Y4aiBeCSLCU5mDc23KqLSzGpyjJiJvqFvd2TsUZpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "G7NvZKjoVqBDWciSYtWWgUPB7DA1iJavdvH5jty2FAmM",
+            "locked_until": 0,
+            "mint": "7uXeapeKSTv4fr2mSDrC9KTCLqgnoECBttd6h1NYpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "4Lm2uqHgauVS1gzzNCd1F4FeGNwzUp6dXp5uqHxmrnDX",
+            "locked_until": 0,
+            "mint": "Afkbv7eaxzW1qQyYcf5NeffDRKX4be6fs4TPuJeXpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "9moofpwiSG2omUUDFixKxt4djpPkxs1urosdXY42nSHw",
+            "locked_until": 0,
+            "mint": "91yebhbFBEP9XCuyAnW6GePnXC7nKrZAGn77LcgVpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "B4tWmhfCBLvRYugPcu6bgP36DVweLc457pywc1a3QJju",
+            "locked_until": 0,
+            "mint": "AT2Ek9iB7eLMTYSqKfRH5PJDePb9pPgdRAwgdhFSpump",
+            "status": "retry"
+          },
+          {
+            "attempts": 2,
+            "creator_address": "CFNDwGJ8sAXFQXC1gXjb4nTga5rXrGP5sUwQ4ACV5K7P",
+            "locked_until": 0,
+            "mint": "7exT29ZZngP3QZKEZYzNEeFjgTnBsvkyt5qorapapump",
+            "status": "retry"
+          },
+          {
+            "attempts": 4,
+            "creator_address": "CFNDwGJ8sAXFQXC1gXjb4nTga5rXrGP5sUwQ4ACV5K7P",
+            "locked_until": 0,
+            "mint": "UA136g5LtDEUxpGVWC9p1iaXtNXYeNS4JYMiQFqpump",
+            "status": "retry"
+          }
+        ],
+        "truncated": false
+      },
+      "running": {
+        "plan": [
+          "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_status (status=?)"
+        ],
+        "rows": [
+          {
+            "attempts": 1,
+            "creator_address": "CFNDwGJ8sAXFQXC1gXjb4nTga5rXrGP5sUwQ4ACV5K7P",
+            "locked_until": 1792310725,
+            "mint": "4Lc1ApeFVZS9swCoXuBMatgqUxusdwCqZLUgqK9epump",
+            "status": "running"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "2crS7H1twaziiS5hqwvJUivdAMsctvr3ViwUWHckBdTD",
+            "locked_until": 1792310784,
+            "mint": "QQbg5mHwF9JyJhpD8rRHEjorfVHvgsCnz3yN4CWpump",
+            "status": "running"
+          },
+          {
+            "attempts": 0,
+            "creator_address": "4hE5AYMX9BEywNroVZBXiEVjcGXyVmt4hC5saQvuce47",
+            "locked_until": 1792310784,
+            "mint": "KtjUeE5xWjct4aK87o6WXLcBLuYg858X7LB2MX4pump",
+            "status": "running"
+          }
+        ],
+        "truncated": false
+      }
+    },
+    "core.creator_resolution_queue": {
+      "PENDING": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "QUARANTINED": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RETRY": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RUNNING": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "pending": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "processing": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "quarantined": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "retry": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "running": {
+        "plan": [
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_status (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      }
+    },
+    "core.migration_walkback_handoff": {
+      "PENDING": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "QUARANTINED": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RETRY": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RUNNING": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "pending": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "processing": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "quarantined": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "retry": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "running": {
+        "plan": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      }
+    },
+    "ops.wt_walkback_queue": {
+      "PENDING": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "QUARANTINED": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RETRY": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "RUNNING": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "pending": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "processing": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "quarantined": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "retry": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      },
+      "running": {
+        "plan": [
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_priority (status=?)"
+        ],
+        "rows": [],
+        "truncated": false
+      }
+    }
+  },
+  "database_files": {
+    "core": {
+      "-shm": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-shm"
+      },
+      "-wal": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-wal"
+      },
+      ".pair-bound": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.pair-bound"
+      },
+      ".retired": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.retired"
+      },
+      ".write-owner.json": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.write-owner.json"
+      },
+      "main": {
+        "allocated_bytes": 35652194304,
+        "bytes": 35652194304,
+        "device": 16777234,
+        "exists": true,
+        "inode": 549513179,
+        "mtime_ns": 1792856537198482111,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db"
+      }
+    },
+    "ops": {
+      "-shm": {
+        "allocated_bytes": 32768,
+        "bytes": 32768,
+        "device": 16777234,
+        "exists": true,
+        "inode": 1051644069,
+        "mtime_ns": 1792856536709514243,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-shm"
+      },
+      "-wal": {
+        "allocated_bytes": 0,
+        "bytes": 0,
+        "device": 16777234,
+        "exists": true,
+        "inode": 1051644068,
+        "mtime_ns": 1792856509057392362,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-wal"
+      },
+      ".pair-bound": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.pair-bound"
+      },
+      ".retired": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.retired"
+      },
+      ".write-owner.json": {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db.write-owner.json"
+      },
+      "main": {
+        "allocated_bytes": 16194613248,
+        "bytes": 16194387968,
+        "device": 16777234,
+        "exists": true,
+        "inode": 421043107,
+        "mtime_ns": 1792856509020710207,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      }
+    }
+  },
+  "delta_scope": "Exact selected-row PK/digest delta plus bounded known-operation roots. Global new birth/migration delta cannot be reconstructed exactly: rehearsal retained no whole-source admission watermark or atomic source generation. No global source-table scan attempted.",
+  "external_retained_records_reused": 15,
+  "free_after": 3690426368,
+  "free_before": 3689828352,
+  "imports_or_rehearsals_run": 0,
+  "installed_critical_composition": {
+    "creator_resolution": [
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "07b95cfcc16b9647deae96a962df29a19d055392108c86df6ca9ddc6e8ebc6a2",
+        "file": "src/core/db.py",
+        "installed_exists": true,
+        "installed_sha256": "0ac2b40c1fdc0604b35be758a510a84e1b42a5fede9087c48f75f8ede6118ef2"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+        "file": "src/core/database_write_service.py",
+        "installed_exists": true,
+        "installed_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0",
+        "file": "src/utils/db_locking.py",
+        "installed_exists": true,
+        "installed_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e6696234ed4644f41971ecb5bf9496b504bd74048ae5838cbda9cd2eceba3f83",
+        "file": "src/core/paired_binding_guard.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": false,
+        "file": "src/core/birth_admission_journal.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": false,
+        "file": "src/core/migration_signature_journal.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+        "file": "src/ops/dev004_watchtower_references.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148",
+        "file": "src/utils/birdeye_credentials.py",
+        "installed_exists": true,
+        "installed_sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      }
+    ],
+    "listener": [
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "07b95cfcc16b9647deae96a962df29a19d055392108c86df6ca9ddc6e8ebc6a2",
+        "file": "src/core/db.py",
+        "installed_exists": true,
+        "installed_sha256": "0ac2b40c1fdc0604b35be758a510a84e1b42a5fede9087c48f75f8ede6118ef2"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+        "file": "src/core/database_write_service.py",
+        "installed_exists": true,
+        "installed_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0",
+        "file": "src/utils/db_locking.py",
+        "installed_exists": true,
+        "installed_sha256": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e6696234ed4644f41971ecb5bf9496b504bd74048ae5838cbda9cd2eceba3f83",
+        "file": "src/core/paired_binding_guard.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8",
+        "file": "src/core/birth_admission_journal.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e63080f4e884cd1b4a13bccf69c3cd75d6131f0eea58b01ebd466f9bcf71a7f0",
+        "file": "src/core/migration_signature_journal.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+        "file": "src/ops/dev004_watchtower_references.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148",
+        "file": "src/utils/birdeye_credentials.py",
+        "installed_exists": true,
+        "installed_sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      }
+    ],
+    "walkback": [
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "a7481b240fd9507b19c65c8e305607dfd134db718487e1ae6227599ecb317f6f",
+        "file": "src/core/db.py",
+        "installed_exists": true,
+        "installed_sha256": "862883dc3c6aa4a3c7072e281a67b6dbd086c747b7a265e69f9fcce9a5fc899c"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e3c112e064a0c9648b2fad3890b57b9afd92e665a91c5eb99d859fae87ce1a0c",
+        "file": "src/core/database_write_service.py",
+        "installed_exists": true,
+        "installed_sha256": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "104ea8c7f6a2dcb2602b02890f71704a456b267eda9e7eeb9b4beb0465e7d7c3",
+        "file": "src/utils/db_locking.py",
+        "installed_exists": true,
+        "installed_sha256": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89"
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e6696234ed4644f41971ecb5bf9496b504bd74048ae5838cbda9cd2eceba3f83",
+        "file": "src/core/paired_binding_guard.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": false,
+        "file": "src/core/birth_admission_journal.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": false,
+        "file": "src/core/migration_signature_journal.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+        "file": "src/ops/dev004_watchtower_references.py",
+        "installed_exists": false
+      },
+      {
+        "candidate_exists": true,
+        "candidate_sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148",
+        "file": "src/utils/birdeye_credentials.py",
+        "installed_exists": true,
+        "installed_sha256": "399b02557775ff5406df3dd57291ad1c91ae437331db21d356be4288770c6148"
+      }
+    ]
+  },
+  "installed_listener_durable_functions": {
+    "_drain_durable_birth_batch": false,
+    "_persist_durable_birth": false,
+    "_schedule_journal_migration": false
+  },
+  "known_operation_root_delta": {
+    "04265d9f-6eb2-568c-a49e-9253091a4dbb": {
+      "current_memberships": 622,
+      "missing_memberships": [],
+      "new_memberships": [
+        "3WUfWQADbhWwogJk7Y37o5PUUVEy7KK1xsxB3YTvpump"
+      ],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 621
+    },
+    "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b": {
+      "current_memberships": 0,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 0
+    },
+    "64527dc2-8073-50c0-8bd7-7ef49e62d875": {
+      "current_memberships": 0,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 0
+    },
+    "70f27e37-83eb-5c97-831c-48189ef98f6c": {
+      "current_memberships": 0,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 0
+    },
+    "777211c3-211e-551b-9310-ff9301570627": {
+      "current_memberships": 260,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 260
+    },
+    "bb255638-a493-551f-938c-8be7c9ea4f1e": {
+      "current_memberships": 26,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 26
+    },
+    "bd7d7479-1454-5d41-9f68-115550348f3e": {
+      "current_memberships": 84,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 84
+    },
+    "ccb7b1b0-56e1-4543-9e95-3f284bed3943": {
+      "current_memberships": 0,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 0
+    },
+    "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334": {
+      "current_memberships": 171,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 171
+    },
+    "f560f4fa-770b-57aa-83be-954d11d1a3c1": {
+      "current_memberships": 9,
+      "missing_memberships": [],
+      "new_memberships": [],
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "rehearsal_memberships": 9
+    }
+  },
+  "legacy_DB_relative_journals": {
+    "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.birth_fallback.jsonl": {
+      "exists": false,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.birth_fallback.jsonl"
+    },
+    "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.migration_fallback.jsonl": {
+      "exists": false,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.migration_fallback.jsonl"
+    },
+    "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.migration_terminal_durability_risk.jsonl": {
+      "exists": false,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db.migration_terminal_durability_risk.jsonl"
+    }
+  },
+  "listener_wrapper_safe_flags": {
+    "BIRTH_JOURNAL_PATH": [],
+    "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": [],
+    "DEV004_PAIRED_BINDING_REQUIRED": [],
+    "DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED": [],
+    "FLEX_DB_PAIR_AUTHORITY": [],
+    "FLEX_DB_PAIR_MANIFEST": [],
+    "MIGRATION_JOURNAL_PATH": [],
+    "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED": [
+      "1"
+    ],
+    "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH": [
+      "\"${PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH:-/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts}\""
+    ]
+  },
+  "listener_wrapper_sha256": "b1dd5b99db29e3cad76999c7baf343d205bb2118c6785c66db805537ea32c434",
+  "observed_end_utc": "2026-10-24T15:42:18.377796+00:00",
+  "observed_start_utc": "2026-10-24T15:42:03.722028+00:00",
+  "price_budget_state": {
+    "allocated_bytes": 4096,
+    "allowance_interpretation": "NOT_RESET_OR_ASSUMED_CURRENT",
+    "bytes": 1217,
+    "device": 16777234,
+    "entry_count": 10,
+    "exists": true,
+    "inode": 992551282,
+    "mtime_ns": 1791790936245305622,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue/provider_budget.json",
+    "sha256": "d5f7f952e5865c7c7b56a7f233031d0449011400c04ef4d392061cccf00bfca1",
+    "version": 1
+  },
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "receipt_capacity": {
+    "allocated_bytes": 418328576,
+    "bucket_files": {
+      "00": 384,
+      "01": 384,
+      "02": 384,
+      "03": 384,
+      "04": 384,
+      "05": 384,
+      "06": 354,
+      "07": 384,
+      "08": 384,
+      "09": 384,
+      "0a": 384,
+      "0b": 372,
+      "0c": 384,
+      "0d": 384,
+      "0e": 384,
+      "0f": 384,
+      "10": 384,
+      "11": 384,
+      "12": 384,
+      "13": 384,
+      "14": 384,
+      "15": 384,
+      "16": 384,
+      "17": 384,
+      "18": 384,
+      "19": 384,
+      "1a": 384,
+      "1b": 384,
+      "1c": 384,
+      "1d": 384,
+      "1e": 384,
+      "1f": 384,
+      "20": 384,
+      "21": 384,
+      "22": 384,
+      "23": 384,
+      "24": 384,
+      "25": 384,
+      "26": 384,
+      "27": 384,
+      "28": 378,
+      "29": 384,
+      "2a": 384,
+      "2b": 384,
+      "2c": 384,
+      "2d": 384,
+      "2e": 384,
+      "2f": 384,
+      "30": 384,
+      "31": 384,
+      "32": 384,
+      "33": 384,
+      "34": 384,
+      "35": 384,
+      "36": 384,
+      "37": 384,
+      "38": 384,
+      "39": 384,
+      "3a": 384,
+      "3b": 379,
+      "3c": 380,
+      "3d": 384,
+      "3e": 384,
+      "3f": 380,
+      "40": 384,
+      "41": 384,
+      "42": 384,
+      "43": 384,
+      "44": 384,
+      "45": 384,
+      "46": 384,
+      "47": 384,
+      "48": 384,
+      "49": 384,
+      "4a": 384,
+      "4b": 384,
+      "4c": 384,
+      "4d": 384,
+      "4e": 384,
+      "4f": 384,
+      "50": 384,
+      "51": 384,
+      "52": 384,
+      "53": 384,
+      "54": 384,
+      "55": 384,
+      "56": 384,
+      "57": 384,
+      "58": 384,
+      "59": 384,
+      "5a": 384,
+      "5b": 384,
+      "5c": 384,
+      "5d": 384,
+      "5e": 384,
+      "5f": 384,
+      "60": 384,
+      "61": 384,
+      "62": 384,
+      "63": 384,
+      "64": 384,
+      "65": 384,
+      "66": 384,
+      "67": 384,
+      "68": 384,
+      "69": 384,
+      "6a": 384,
+      "6b": 384,
+      "6c": 384,
+      "6d": 384,
+      "6e": 384,
+      "6f": 376,
+      "70": 384,
+      "71": 384,
+      "72": 384,
+      "73": 378,
+      "74": 384,
+      "75": 384,
+      "76": 384,
+      "77": 384,
+      "78": 384,
+      "79": 384,
+      "7a": 384,
+      "7b": 384,
+      "7c": 384,
+      "7d": 384,
+      "7e": 384,
+      "7f": 382,
+      "80": 384,
+      "81": 384,
+      "82": 384,
+      "83": 384,
+      "84": 376,
+      "85": 384,
+      "86": 384,
+      "87": 369,
+      "88": 384,
+      "89": 382,
+      "8a": 384,
+      "8b": 384,
+      "8c": 384,
+      "8d": 384,
+      "8e": 384,
+      "8f": 384,
+      "90": 384,
+      "91": 366,
+      "92": 384,
+      "93": 384,
+      "94": 356,
+      "95": 384,
+      "96": 384,
+      "97": 384,
+      "98": 384,
+      "99": 374,
+      "9a": 384,
+      "9b": 384,
+      "9c": 384,
+      "9d": 384,
+      "9e": 384,
+      "9f": 384,
+      "a0": 379,
+      "a1": 382,
+      "a2": 384,
+      "a3": 384,
+      "a4": 384,
+      "a5": 384,
+      "a6": 384,
+      "a7": 384,
+      "a8": 384,
+      "a9": 368,
+      "aa": 384,
+      "ab": 384,
+      "ac": 384,
+      "ad": 376,
+      "ae": 373,
+      "af": 384,
+      "b0": 384,
+      "b1": 384,
+      "b2": 384,
+      "b3": 384,
+      "b4": 384,
+      "b5": 384,
+      "b6": 384,
+      "b7": 384,
+      "b8": 384,
+      "b9": 372,
+      "ba": 384,
+      "bb": 384,
+      "bc": 384,
+      "bd": 384,
+      "be": 384,
+      "bf": 384,
+      "c0": 384,
+      "c1": 384,
+      "c2": 384,
+      "c3": 384,
+      "c4": 384,
+      "c5": 375,
+      "c6": 367,
+      "c7": 384,
+      "c8": 384,
+      "c9": 384,
+      "ca": 384,
+      "cb": 384,
+      "cc": 384,
+      "cd": 384,
+      "ce": 384,
+      "cf": 384,
+      "d0": 384,
+      "d1": 384,
+      "d2": 384,
+      "d3": 384,
+      "d4": 384,
+      "d5": 384,
+      "d6": 384,
+      "d7": 384,
+      "d8": 375,
+      "d9": 384,
+      "da": 384,
+      "db": 384,
+      "dc": 384,
+      "dd": 384,
+      "de": 384,
+      "df": 384,
+      "e0": 384,
+      "e1": 384,
+      "e2": 384,
+      "e3": 384,
+      "e4": 384,
+      "e5": 384,
+      "e6": 384,
+      "e7": 384,
+      "e8": 384,
+      "e9": 384,
+      "ea": 384,
+      "eb": 384,
+      "ec": 383,
+      "ed": 384,
+      "ee": 384,
+      "ef": 384,
+      "f0": 384,
+      "f1": 384,
+      "f2": 384,
+      "f3": 384,
+      "f4": 381,
+      "f5": 384,
+      "f6": 384,
+      "f7": 384,
+      "f8": 384,
+      "f9": 384,
+      "fa": 384,
+      "fb": 384,
+      "fc": 366,
+      "fd": 384,
+      "fe": 384,
+      "ff": 384
+    },
+    "complete": true,
+    "files": 102131,
+    "full_buckets": 229,
+    "largest_file_bytes": 562,
+    "legacy_files": 4096,
+    "logical_bytes": 56680991,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/logs/pumpportal_compact_birth_receipts",
+    "remaining_shard_slots": 269
+  },
+  "secondary_creator_repository": {
+    "allocated_bytes": 24211456,
+    "bytes": 24178688,
+    "device": 16777234,
+    "exists": true,
+    "inode": 364534729,
+    "mtime_ns": 1786637047371236061,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db"
+  },
+  "selected_V1_rows_compared": 28447,
+  "selected_queue_states": {
+    "core.creator_funding_queue": {
+      "complete": 1038,
+      "expired": 97,
+      "failed": 137,
+      "pending": 136,
+      "retry": 59
+    },
+    "core.creator_resolution_queue": {
+      "complete": 26,
+      "skipped": 1
+    },
+    "core.migration_walkback_handoff": {
+      "COMPLETE": 343
+    },
+    "ops.monitor_admission_outbox": {
+      "DELIVERED": 99,
+      "PENDING": 5
+    },
+    "ops.wt_walkback_queue": {
+      "complete": 1191,
+      "failed": 3
+    }
+  },
+  "selected_row_changes": 0,
+  "selected_row_missing": 0,
+  "services": {
+    "alert_evaluator": {
+      "autostart": "false",
+      "bindings": {
+        "OPS_V2_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "72ba4ca024c19218c23a48fba499a1311c174b6409a6b6ad5d87bdc6181651da",
+      "directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "directory_exists": true,
+      "environment_names": [
+        "ALERTS_DB_PATH",
+        "ALERT_EVAL_INTERVAL_S",
+        "OPS_V2_DB_PATH",
+        "PYTHONPATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "creator_funding_worker": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "EVIDENCE_MIRROR_COHORT_ENABLED": "0",
+        "EVIDENCE_MIRROR_ENABLED": "0",
+        "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED": "0",
+        "RETAINED_ACQUISITION_V2_SHADOW_ENABLED": "0",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "e8b533d891420e901fd1e3c287d3244ee78e6d13a8f9ad8086d44736b5311417",
+      "directory": "/Users/kevinkeaveney/Production/flex-funding",
+      "directory_exists": true,
+      "environment_names": [
+        "CFQ_AUXILIARY_OUTGOING_TIMEOUT_SECONDS",
+        "CFQ_BACKLOG_THRESHOLD",
+        "CFQ_BATCH_SIZE",
+        "CFQ_BATCH_SIZE_IDLE",
+        "CFQ_EXTRACTION_SLOTS",
+        "CFQ_INTEL_REFRESH_DEBOUNCE_SEC",
+        "CFQ_INTERVAL_IDLE_SEC",
+        "CFQ_INTERVAL_SEC",
+        "CFQ_JOB_TIMEOUT_SECONDS",
+        "CFQ_LOCK_SECONDS",
+        "CFQ_MAX_ATTEMPTS",
+        "DB_PATH",
+        "EVIDENCE_MIRROR_COHORT_ENABLED",
+        "EVIDENCE_MIRROR_ENABLED",
+        "PYTHONPATH",
+        "RETAINED_ACQUISITION_DATABASE_PATH",
+        "RETAINED_ACQUISITION_DEGRADED_PATH",
+        "RETAINED_ACQUISITION_JOURNAL_BUFFER_SIZE",
+        "RETAINED_ACQUISITION_OBSERVATIONS_ENABLED",
+        "RETAINED_ACQUISITION_V2_SHADOW_ENABLED",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "creator_resolution_worker": {
+      "autostart": "false",
+      "bindings": {
+        "CRQ_HISTORICAL_DISCOVERY_ENABLED": "0",
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "DB_WRITE_SERIALIZE": "1",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "955339a47e4e113610fe8c35a3602f19904107eb9331f30aa4a24319eac26e81",
+      "directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "directory_exists": true,
+      "environment_names": [
+        "CREATOR_RESOLUTION_HIGH_PRIORITY_MAX_PAGES",
+        "CREATOR_RESOLUTION_HIGH_PRIORITY_MAX_RUNTIME_SECS",
+        "CREATOR_RESOLUTION_MAX_PAGES",
+        "CREATOR_RESOLUTION_MAX_RUNTIME_SECS",
+        "CRQ_BACKLOG_THRESHOLD",
+        "CRQ_BATCH_SIZE",
+        "CRQ_BATCH_SIZE_IDLE",
+        "CRQ_BATCH_SIZE_MID",
+        "CRQ_ENQUEUE_MISSING_LIMIT",
+        "CRQ_HISTORICAL_DISCOVERY_ENABLED",
+        "CRQ_INTERVAL_IDLE_SEC",
+        "CRQ_INTERVAL_SEC",
+        "DB_PATH",
+        "DB_WRITE_SERIALIZE",
+        "PYTHONPATH",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": 3874,
+      "state": "RUNNING"
+    },
+    "evidence_writer": {
+      "autostart": "false",
+      "bindings": {
+        "EVIDENCE_ARTIFACT_STORE_ENABLED": "1",
+        "EVIDENCE_HEALTH_ENABLED": "1",
+        "EVIDENCE_MIRROR_COHORT_ENABLED": "0",
+        "EVIDENCE_MIRROR_ENABLED": "0",
+        "EVIDENCE_NORMALIZATION_ENABLED": "0",
+        "EVIDENCE_PLATFORM_ENABLED": "1",
+        "EVIDENCE_PRIMITIVE_ENGINE_ENABLED": "0",
+        "EVIDENCE_QUEUE_ENABLED": "1",
+        "EVIDENCE_WRITER_ENABLED": "1"
+      },
+      "command_sha256": "88080652918a1d1f75aa6a2af5bb442fb17defdb46cb99a3d5c582621d606b99",
+      "directory": "/Users/kevinkeaveney/Dev/claude/flex",
+      "directory_exists": true,
+      "environment_names": [
+        "EVIDENCE_ARTIFACT_PATH",
+        "EVIDENCE_ARTIFACT_STORE_ENABLED",
+        "EVIDENCE_DATABASE_PATH",
+        "EVIDENCE_HEALTH_ENABLED",
+        "EVIDENCE_MAX_ATTEMPTS",
+        "EVIDENCE_MIRROR_COHORT_ENABLED",
+        "EVIDENCE_MIRROR_ENABLED",
+        "EVIDENCE_MIRROR_SPOOL_PATH",
+        "EVIDENCE_NORMALIZATION_ENABLED",
+        "EVIDENCE_PLATFORM_ENABLED",
+        "EVIDENCE_PRIMITIVE_ENGINE_ENABLED",
+        "EVIDENCE_QUEUE_ENABLED",
+        "EVIDENCE_QUEUE_PATH",
+        "EVIDENCE_WRITER_BATCH_SIZE",
+        "EVIDENCE_WRITER_ENABLED",
+        "EVIDENCE_WRITER_POLL_SECONDS",
+        "PYTHONPATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "infra_sync_scheduler": {
+      "autostart": "false",
+      "bindings": {},
+      "command_sha256": "1854f9a4403bd8cf047eb42edf0e4d9ee8ade15e5fa9c9674f9ee074bba6e939",
+      "directory": "/Users/kevinkeaveney/Dev/claude/flex",
+      "directory_exists": true,
+      "environment_names": [
+        "PYTHONPATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "intelligence_snapshot_scheduler": {
+      "autostart": "false",
+      "bindings": {},
+      "command_sha256": "0b60eaac4aadb3bff6e69811e034238524698f72c82a1ee0c9193a802f8bc0cc",
+      "directory": "/Users/kevinkeaveney/Dev/claude/flex",
+      "directory_exists": true,
+      "environment_names": [
+        "PYTHONPATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "operation_monitor_bridge": {
+      "autostart": "false",
+      "bindings": {
+        "MONITOR_BRIDGE_MONITOR_DB": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+        "MONITOR_BRIDGE_QUEUE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+        "MONITOR_BRIDGE_SOURCE_DB": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "WATCHTOWER_SHADOW_CAPTURE_ENABLED": "0",
+        "WATCHTOWER_SHADOW_EVALUATION_ENABLED": "0"
+      },
+      "command_sha256": "cb0dbb76be4f72577f2ee0cc0395d23bfc606b87bb456e98bca5ae0880a73c78",
+      "directory": "/Users/kevinkeaveney/.codex/worktrees/watchtower-monitor-bounded-soak/flex",
+      "directory_exists": false,
+      "environment_names": [
+        "MONITOR_BRIDGE_CADENCE_SECONDS",
+        "MONITOR_BRIDGE_HEALTH_PATH",
+        "MONITOR_BRIDGE_MONITOR_DB",
+        "MONITOR_BRIDGE_QUEUE_PATH",
+        "MONITOR_BRIDGE_SELECTION_PATH",
+        "MONITOR_BRIDGE_SOURCE_DB",
+        "PYTHONPATH",
+        "WATCHTOWER_FINAL_ROOT",
+        "WATCHTOWER_FINAL_SHA",
+        "WATCHTOWER_SHADOW_CAPTURE_ENABLED",
+        "WATCHTOWER_SHADOW_EVALUATION_ENABLED"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "operation_monitor_worker": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "FLEX_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "MONITOR_PROVIDER_GLOBAL_LIMIT": "20",
+        "MONITOR_PROVIDER_TOKEN_LIMIT": "4",
+        "MONITOR_RUNTIME_STATE_ROOT": "/Users/kevinkeaveney/Dev/claude/flex",
+        "OPERATION_MONITOR_QUEUE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue",
+        "OPS_V2_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db",
+        "WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED": "1",
+        "WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED": "1",
+        "WATCHTOWER_SHADOW_CAPTURE_ENABLED": "0",
+        "WATCHTOWER_SHADOW_EVALUATION_ENABLED": "0",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/wt_ops_v2.dev.db"
+      },
+      "command_sha256": "7dd5d386b5dc09e755e316d70c2ff06bc166515a995c1d3820b8a133788226c9",
+      "directory": "/private/tmp/flex-dev014-early-minimum-worker",
+      "directory_exists": false,
+      "environment_names": [
+        "DATABASE_PATH",
+        "DB_PATH",
+        "FLEX_DB_PATH",
+        "MONITOR_ENV_FILE",
+        "MONITOR_PROVIDER_GLOBAL_LIMIT",
+        "MONITOR_PROVIDER_TOKEN_LIMIT",
+        "MONITOR_RUNTIME",
+        "MONITOR_RUNTIME_STATE_ROOT",
+        "OPERATIONS_MODE",
+        "OPERATION_MONITOR_CANONICAL_BIRTH_DB_PATH",
+        "OPERATION_MONITOR_QUEUE_PATH",
+        "OPS_V2_DB_PATH",
+        "PYTHONPATH",
+        "WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED",
+        "WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH",
+        "WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH",
+        "WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED",
+        "WATCHTOWER_FINAL_ROOT",
+        "WATCHTOWER_FINAL_SHA",
+        "WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH",
+        "WATCHTOWER_SHADOW_CAPTURE_ENABLED",
+        "WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH",
+        "WATCHTOWER_SHADOW_EVALUATION_ENABLED",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "operation_scheduler": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "FLEX_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "OPS_V2_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "f817d828b0b73f391a44a7e30dde52bd40b19b0a7398a0cf07cbf9372f0ef2e3",
+      "directory": "/Users/kevinkeaveney/Production/flex-operation-scheduler-77492",
+      "directory_exists": true,
+      "environment_names": [
+        "DB_PATH",
+        "FLEX_DB_PATH",
+        "OPS_FORWARD_INTERVAL_SEC",
+        "OPS_FORWARD_MAX_RPC",
+        "OPS_INTAKE_INTERVAL_SEC",
+        "OPS_INTAKE_MAX_RPC",
+        "OPS_SCHEDULER_LOCK",
+        "OPS_V2_DB_PATH",
+        "PYTHONPATH",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "walkback_worker": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "DB_WRITE_SERIALIZE": "1",
+        "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED": "true",
+        "WALKBACK_MAX_ATTEMPTS": "3",
+        "WALKBACK_RPC_BUDGET_BATCH": "80",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "50f0dacf5dfe399e3d7f839de124d379dd326340d482b93e0eafa990592ebf7b",
+      "directory": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "directory_exists": true,
+      "environment_names": [
+        "DB_PATH",
+        "DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH",
+        "DB_WALKBACK_SQL_DIAGNOSTICS_PATH",
+        "DB_WRITE_SERIALIZE",
+        "HELIUS_RPC_URL",
+        "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED",
+        "OPERATIONS_MODE",
+        "OPERATION_EVIDENCE_PRIORITY_OBSERVATION_ID",
+        "OPERATION_EVIDENCE_PRIORITY_STATE_PATH",
+        "PYTHONPATH",
+        "WALKBACK_BATCH_SIZE",
+        "WALKBACK_INTERVAL_SEC",
+        "WALKBACK_MAX_ATTEMPTS",
+        "WALKBACK_RPC_BUDGET_BATCH",
+        "WATCHTOWER_CANONICAL_PREDICATE_MODE",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": 94577,
+      "state": "RUNNING"
+    },
+    "watchtower_api": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "DB_WRITE_SERIALIZE": "1",
+        "FLEX_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "OPERATION_MONITOR_QUEUE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/operation_monitor_jobs",
+        "OPS_V2_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED": "1",
+        "WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED": "1",
+        "WATCHTOWER_SHADOW_CAPTURE_ENABLED": "0",
+        "WATCHTOWER_SHADOW_EVALUATION_ENABLED": "0",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "f51b41cb9d45729a9cd17ead85fb81250b9d12babda54cdc2c85e17368973830",
+      "directory": "/Users/kevinkeaveney/.codex/worktrees/dev020-runtime/flex",
+      "directory_exists": false,
+      "environment_names": [
+        "DB_PATH",
+        "DB_WRITE_SERIALIZE",
+        "FLEX_DB_PATH",
+        "FLEX_ENABLE_FLASK_BACKGROUND_WORKERS",
+        "FLEX_UI_RECOVERY_MODE",
+        "FLEX_WS_DISABLED",
+        "OPERATION_MONITOR_QUEUE_PATH",
+        "OPS_V2_DB_PATH",
+        "PYTHONPATH",
+        "WATCHTOWER_CURRENT_MC_OVERLAY_ENABLED",
+        "WATCHTOWER_CURRENT_MC_QUOTE_DB_PATH",
+        "WATCHTOWER_EARLY_MINIMUM_EVIDENCE_DB_PATH",
+        "WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_PATH",
+        "WATCHTOWER_EARLY_MINIMUM_RESEARCH_PILOT_SHA256",
+        "WATCHTOWER_EARLY_MINIMUM_TRACKING_ENABLED",
+        "WATCHTOWER_FINAL_ROOT",
+        "WATCHTOWER_FINAL_SHA",
+        "WATCHTOWER_MONITOR_QUEUE_PATH",
+        "WATCHTOWER_MONITOR_UI_DB_PATH",
+        "WATCHTOWER_OFFSET_AUDIT_LEDGER_PATH",
+        "WATCHTOWER_SHADOW_CAPTURE_ENABLED",
+        "WATCHTOWER_SHADOW_CAPTURE_LEDGER_PATH",
+        "WATCHTOWER_SHADOW_EVALUATION_ENABLED",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "watchtower_listener": {
+      "autostart": "false",
+      "bindings": {
+        "BYZANTINE_BIRTH_SIGNAL_ENABLED": "0",
+        "CREATOR_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "FLEX_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "LISTENER_RPC_METRICS_API_START_ENABLED": "0",
+        "MIGRATION_CENSUS_ENABLED": "1",
+        "OPERATION_EVIDENCE_PRIORITY_ENABLED": "0",
+        "OPS_V2_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED": "0",
+        "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/evidence_platform/production/pumpportal_birth_evidence",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "d9afe88267c72384a771f0b68f236a53dc7d36f85cfbbe9c6bb3e702417cc268",
+      "directory": "/Users/kevinkeaveney/Production/flex-listener",
+      "directory_exists": true,
+      "environment_names": [
+        "BIRTH_DURABILITY_METRICS_PATH",
+        "BYZANTINE_BIRTH_SIGNAL_ENABLED",
+        "CREATOR_DB_PATH",
+        "CURVE_WATCH_STATE_PATH",
+        "DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH",
+        "DB_PATH",
+        "DB_SERIALIZER_METRICS_PATH",
+        "FLEX_DB_PATH",
+        "HANDOFF_DURABILITY_T0",
+        "LAUNCH_PRICE_LOG_PATH",
+        "LISTENER_LOOP_LAG_SNAPSHOT_DIR",
+        "LISTENER_RPC_METRICS_API_START_ENABLED",
+        "MIGRATION_CENSUS_ENABLED",
+        "MIGRATION_CENSUS_PATH",
+        "MIGRATION_LOG_PATH",
+        "MIGRATION_SETTINGS_PATH",
+        "OPERATION_EVIDENCE_PRIORITY_ENABLED",
+        "OPS_V2_DB_PATH",
+        "PREMIGRATION_LOG_PATH",
+        "PUMPFUN_DELIVERY_LATENCY_CAPTURE_PATH",
+        "PUMPFUN_OPENING_ACTION_EVIDENCE_DB",
+        "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED",
+        "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_PATH",
+        "PYTHONPATH",
+        "SUPERVISOR_LISTENER_LOG_PATH",
+        "WATCHTOWER_RELAY_SOLVER_PROJECTION_PATH",
+        "WS_PRICE_TRACE_LOG_PATH",
+        "WS_SNAPSHOT_LOG_PATH",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": 94632,
+      "state": "RUNNING"
+    },
+    "watchtower_ngrok": {
+      "autostart": "false",
+      "bindings": {},
+      "command_sha256": "61d44a57d43cba9c65282643fb1930bb11005ee4349d256c7f6bed8876d9dfa7",
+      "directory": "/Users/kevinkeaveney/Production/flex-main-workers",
+      "directory_exists": true,
+      "environment_names": [],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "webhook_worker": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "DB_WRITE_SERIALIZE": "1"
+      },
+      "command_sha256": "b3dd42b297e5f7c9c7985357724cdd25ab9ac9ecf5be2318fe07d09fe41089d5",
+      "directory": "/Users/kevinkeaveney/Dev/claude/flex",
+      "directory_exists": true,
+      "environment_names": [
+        "DB_PATH",
+        "DB_WRITE_SERIALIZE",
+        "PYTHONPATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    },
+    "ws_cascade": {
+      "autostart": "false",
+      "bindings": {
+        "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "OPS_V2_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "WS_CANDIDATE_WATCH_ENABLED": "0",
+        "WS_PROGRAM_CREATE_WATCHER_ENABLED": "1",
+        "WS_SUBPROV_WATCH_ENABLED": "0",
+        "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "command_sha256": "ce6ad07f5b77347d8798a72cec3efd1987d85045dd64ba029ea5670815af33b1",
+      "directory": "/Users/kevinkeaveney/Production/flex-cascade",
+      "directory_exists": true,
+      "environment_names": [
+        "DB_NULL_OWNER_DIAGNOSTICS_PATH",
+        "DB_PATH",
+        "DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH",
+        "DB_WALKBACK_SQL_DIAGNOSTICS_PATH",
+        "HELIUS_API_KEY",
+        "HELIUS_RPC_URL",
+        "HELIUS_WS_URL",
+        "OPS_V2_DB_PATH",
+        "PYTHONPATH",
+        "WS_ARMED_STATE_PATH",
+        "WS_CANDIDATE_REJECT_WINDOW_S",
+        "WS_CANDIDATE_TTL_SEC",
+        "WS_CANDIDATE_WATCH_ENABLED",
+        "WS_CREATE_FETCH_CONCURRENCY",
+        "WS_CREATE_FETCH_MAX_QUEUE",
+        "WS_CREATE_FETCH_TIMEOUT_S",
+        "WS_MAX_ACTIVE_SUBPROVS",
+        "WS_MAX_CANDIDATES",
+        "WS_MAX_PROMOTED_SUBPROVS",
+        "WS_MAX_TREASURY_SUBSCRIBE",
+        "WS_POLL_SEC",
+        "WS_PRICE_TRACE_LOG_PATH",
+        "WS_PROGRAM_CREATE_WATCHER_ENABLED",
+        "WS_PROGRAM_DRAIN_GRACE_S",
+        "WS_PROMOTE_DISCOVERED",
+        "WS_SAVE_CANDIDATE_FANOUT",
+        "WS_SESSION_TTL_SEC",
+        "WS_SNAPSHOT_LOG_PATH",
+        "WS_SUBPROV_CLASSIFICATION_ENFORCE",
+        "WS_SUBPROV_SIGNATURE_CONCURRENCY",
+        "WS_SUBPROV_WATCH_ENABLED",
+        "WS_TEMP_SUBPROV_ENFORCE",
+        "WS_TEMP_SUBPROV_TTL_SEC",
+        "WS_TEMP_SWEEP_INTERVAL_SEC",
+        "WS_TEMP_SWEEP_RPC_BUDGET",
+        "WS_TREASURY_MIN_SOL",
+        "WT_OPS_DB_PATH"
+      ],
+      "pid": null,
+      "state": "STOPPED"
+    }
+  },
+  "source_candidate": "bf0da567634a040c96cc955c9afe165466d94beb",
+  "source_schema": {
+    "core": {
+      "journal_mode": "wal",
+      "schema_version": 849
+    },
+    "ops": {
+      "journal_mode": "wal",
+      "schema_version": 766
+    }
+  },
+  "status": "HOLD",
+  "supervisor_config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+  "supervisor_config_sha256": "0f1d9f3c03c422727a8e7bdb2ffe623f1c77e817910c0fbe063a4c954356623e"
+}

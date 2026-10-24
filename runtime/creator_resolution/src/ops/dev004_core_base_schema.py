@@ -28,6 +28,71 @@ class BootstrapHold(RuntimeError):
 def _hold(message):
     raise BootstrapHold(message)
 
+def _production_profile(path, root, role, schema_authority):
+    """Explicit frozen profile; never a fallback for an invalid DEV path."""
+    import stat
+    def fail(code):
+        raise RuntimeError('PRODUCTION_BOOTSTRAP_' + code)
+    def physical(value):
+        if not isinstance(value, str) or not os.path.isabs(value) or str(Path(value).resolve()) != value or '..' in Path(value).parts:
+            fail('PHYSICAL_PATH_REQUIRED')
+        return Path(value)
+    def read(value, cap):
+        p = physical(value)
+        info = p.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > cap:
+            fail('METADATA_IDENTITY_OR_CAPACITY')
+        raw = p.read_bytes()
+        if len(raw) > cap or p.stat().st_ino != info.st_ino:
+            fail('METADATA_CHANGED')
+        return json.loads(raw), raw
+    frozen_path = os.environ.get('DEV004_PRODUCTION_BOOTSTRAP_MANIFEST')
+    frozen_hash = os.environ.get('DEV004_PRODUCTION_BOOTSTRAP_SHA256')
+    if not frozen_path or not frozen_hash:
+        fail('FROZEN_MANIFEST_REQUIRED')
+    frozen, frozen_raw = read(frozen_path, 65536)
+    if hashlib.sha256(frozen_raw).hexdigest() != frozen_hash:
+        fail('FROZEN_HASH_MISMATCH')
+    b = frozen.get('production_bootstrap')
+    required = {'version','root','generation','pair_manifest_path','pair_manifest_sha256','authority_path','transfer_owner','stores','schema_authority'}
+    if not isinstance(b, dict) or set(b) != required or type(b['version']) is not int or b['version'] != 1:
+        fail('PROFILE_VERSION')
+    root = physical(str(root)); path = physical(str(path))
+    if str(root) != b['root'] or path.parent != root or path.suffix != '.sqlite' or not root.is_dir():
+        fail('ROOT_OR_TARGET_MISMATCH')
+    if not isinstance(b['stores'], dict) or set(b['stores']) != {'core','ops'} or not isinstance(b['schema_authority'], dict) or set(b['schema_authority']) != {'core','ops'} or b['schema_authority'][role] != schema_authority:
+        fail('SCHEMA_AUTHORITY_MISMATCH')
+    if os.environ.get('DEV004_PAIRED_BINDING_REQUIRED') != '1' or os.environ.get('FLEX_DB_PAIR_ROLE') != 'transfer' or not b['transfer_owner'] or os.environ.get('FLEX_DB_PAIR_OWNER') != b['transfer_owner']:
+        fail('EXCLUSIVE_TRANSFER_OWNER_REQUIRED')
+    if os.environ.get('FLEX_DB_PAIR_MANIFEST') != b['pair_manifest_path'] or os.environ.get('FLEX_DB_PAIR_AUTHORITY') != b['authority_path']:
+        fail('PAIR_AUTHORITY_BINDING_MISMATCH')
+    pair, pair_raw = read(b['pair_manifest_path'], 8192)
+    owner, owner_raw = read(b['authority_path'], 8192)
+    if hashlib.sha256(pair_raw).hexdigest() != b['pair_manifest_sha256'] or pair.get('generation') != b['generation'] or pair.get('stores') != b['stores'] or pair.get('predecessor') is None:
+        fail('PAIRED_GENERATION_MISMATCH')
+    if owner.get('phase') != 'TRANSFER' or owner.get('owner') != b['transfer_owner'] or owner.get('transfer_complete') is not False:
+        fail('BOOTSTRAP_PHASE_REQUIRED')
+    from src.core.paired_binding_guard import validate_pair, database_identity
+    for kind in ['core','ops']:
+        record = b['stores'][kind]
+        p = physical(record.get('path'))
+        info = p.lstat()
+        if p.parent != root or not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or database_identity(str(p), b['generation'], kind) != record:
+            fail('DATABASE_IDENTITY_MISMATCH')
+    if str(path) != b['stores'][role]['path'] or b['stores']['core']['path'] == b['stores']['ops']['path']:
+        fail('WRONG_DATABASE_ROLE')
+    if validate_pair(write_path=str(path), purpose='write') != b['generation']:
+        fail('GENERATION_NOT_CURRENT')
+    soft, hard = resource.getrlimit(resource.RLIMIT_FSIZE)
+    if soft == resource.RLIM_INFINITY or hard == resource.RLIM_INFINITY or soft > 64*1024*1024 or hard >= 500000000 or path.stat().st_size >= 64*1024*1024:
+        fail('KERNEL_FILE_LIMIT_REQUIRED')
+    space = os.statvfs(root)
+    if space.f_bavail * space.f_frsize < 2_000_000_000 + 16*1024*1024:
+        fail('DISK_FLOOR')
+    if read(frozen_path,65536)[1] != frozen_raw or read(b['authority_path'],8192)[1] != owner_raw:
+        fail('AUTHORITY_CHANGED')
+    return b['generation']
+
 def _sql(value):
     return re.findall(r"[a-z_][a-z_0-9]*|[0-9]+|[^\s]", value.lower().replace("if not exists", ""))
 
@@ -89,7 +154,12 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
     peak_sql=PEAK_SQL.replace("REFERENCES tracked_tokens(mint)", "REFERENCES "+price_identity_parent+"(mint)")
     if not allow_disposable_v2:_hold('EXPLICIT_DEV_AUTHORIZATION_REQUIRED')
     root=Path(disposable_root).absolute();path=Path(core).absolute()
-    if root!=root.resolve() or not root.is_relative_to(Path('/private/tmp')) or not root.name.startswith('dev004-'):_hold('DISPOSABLE_ROOT_REQUIRED')
+    production_profile = bool(os.environ.get('DEV004_PRODUCTION_BOOTSTRAP_MANIFEST') or os.environ.get('DEV004_PRODUCTION_BOOTSTRAP_SHA256'))
+    authority = {'contract':contract,'owner_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+    if production_profile:
+        _production_profile(path, root, 'core', authority)
+    elif root!=root.resolve() or not root.is_relative_to(Path('/private/tmp')) or not root.name.startswith('dev004-'):
+        _hold('DISPOSABLE_ROOT_REQUIRED')
     if path.parent!=root or path!=path.resolve() or path.suffix!='.sqlite':_hold('EXPLICIT_DISPOSABLE_CORE_REQUIRED')
     info=path.stat()
     if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1 or info.st_size>MAX_MAIN_BYTES:_hold('DISPOSABLE_FILE_IDENTITY_OR_BUDGET')
@@ -120,12 +190,16 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
         missing=_check_columns(conn);present=_check_peak(conn,price_identity_parent)
         if prior is not None and (missing or not present):_hold('VERSION_MARKER_SCHEMA_MISMATCH')
         fault('before_ddl')
+        if production_profile:_production_profile(path,root,'core',authority)
         for name in missing:
             conn.execute('ALTER TABLE token_analysis ADD COLUMN '+name+' '+COLUMNS[name]);fault('after_column:'+name)
         if not present:conn.execute(peak_sql)
         fault('after_peak')
         if _check_columns(conn) or not _check_peak(conn,price_identity_parent):_hold('POSTCONDITION_FAILED')
-        fault('before_commit');conn.execute('COMMIT');fault('after_commit')
+        fault('before_commit')
+        if production_profile:_production_profile(path,root,'core',authority)
+        conn.execute('COMMIT');fault('after_commit')
+        if production_profile:_production_profile(path,root,'core',authority)
         if prior is not None:return {'status':'ALREADY_INITIALIZED','version':version,'contract':contract}
         payload={'version':version,'contract':contract,'identity':[info.st_dev,info.st_ino]}
         encoded=(json.dumps(payload,sort_keys=True)+'\n').encode()

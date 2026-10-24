@@ -1,0 +1,504 @@
+{
+  "core": [
+    {
+      "type": "table",
+      "name": "birth_persist_queue",
+      "table": "birth_persist_queue",
+      "sql": "CREATE TABLE birth_persist_queue (\n                id                   INTEGER PRIMARY KEY AUTOINCREMENT,\n                mint                 TEXT    NOT NULL,\n                creator              TEXT,\n                created_at           TEXT,\n                bonding_curve_pda    TEXT,\n                create_tx_signature  TEXT,\n                symbol               TEXT,\n                name                 TEXT,\n                received_at          INTEGER NOT NULL,\n                status               TEXT    NOT NULL DEFAULT 'PENDING',\n                retry_count          INTEGER NOT NULL DEFAULT 0,\n                last_error           TEXT,\n                last_attempt_at      INTEGER,\n                processed_at         INTEGER, wb_birth_source TEXT,\n                UNIQUE(mint)\n            )"
+    },
+    {
+      "type": "table",
+      "name": "creator_funders",
+      "table": "creator_funders",
+      "sql": "CREATE TABLE creator_funders (\n    creator_address TEXT NOT NULL,\n    funder_address TEXT NOT NULL,\n    amount_sol REAL NOT NULL,\n    first_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    is_cex BOOLEAN DEFAULT 0,\n    cex_exchange TEXT,\n    cex_type TEXT, source_type TEXT DEFAULT 'original_sender', is_classified INTEGER DEFAULT 0, fully_analyzed INTEGER DEFAULT 0, total_inflows REAL DEFAULT 0, total_outflows REAL DEFAULT 0, net_change REAL DEFAULT 0, last_analyzed TIMESTAMP,\n    PRIMARY KEY(creator_address, funder_address)\n)"
+    },
+    {
+      "type": "table",
+      "name": "creator_funding_queue",
+      "table": "creator_funding_queue",
+      "sql": "CREATE TABLE creator_funding_queue (\n                creator_address TEXT NOT NULL,\n                mint TEXT NOT NULL,\n                migration_timestamp TEXT,\n                create_tx_signature TEXT,\n                status TEXT DEFAULT 'pending',\n                next_attempt_at INTEGER DEFAULT 0,\n                locked_until INTEGER DEFAULT 0,\n                attempts INTEGER DEFAULT 0,\n                last_error TEXT,\n                created_at INTEGER DEFAULT (strftime('%s','now')),\n                updated_at INTEGER DEFAULT (strftime('%s','now')), source TEXT, funding_enqueued_at INTEGER, funding_extracted_at INTEGER, curve_completed_slot INTEGER, enqueued_slot INTEGER, priority_reason TEXT, job_priority INTEGER DEFAULT 0, observation_required INTEGER NOT NULL DEFAULT 0,\n                PRIMARY KEY (creator_address, mint)\n            )"
+    },
+    {
+      "type": "table",
+      "name": "creator_resolution_queue",
+      "table": "creator_resolution_queue",
+      "sql": "CREATE TABLE creator_resolution_queue (\n            mint TEXT PRIMARY KEY,\n            status TEXT NOT NULL DEFAULT 'pending',\n            priority INTEGER NOT NULL DEFAULT 100,\n            reason TEXT,\n            source TEXT,\n            attempts INTEGER NOT NULL DEFAULT 0,\n            next_attempt_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            locked_until INTEGER NOT NULL DEFAULT 0,\n            last_error TEXT,\n            resolved_creator TEXT,\n            create_tx_signature TEXT,\n            migrated_at INTEGER,\n            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            resolved_at INTEGER\n        , sigs_examined INTEGER, pages_examined INTEGER, runtime_secs REAL, skip_reason TEXT, resolution_tier TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "metadata_cache",
+      "table": "metadata_cache",
+      "sql": "CREATE TABLE metadata_cache (\n                mint TEXT PRIMARY KEY,\n                symbol TEXT NOT NULL,\n                name TEXT NOT NULL,\n                cached_at INTEGER NOT NULL,\n                cached_source TEXT\n            )"
+    },
+    {
+      "type": "table",
+      "name": "migration_walkback_handoff",
+      "table": "migration_walkback_handoff",
+      "sql": "CREATE TABLE migration_walkback_handoff (\n            mint TEXT PRIMARY KEY,\n            creator TEXT,\n            migration_tx TEXT,\n            migrated_at INTEGER NOT NULL,\n            state TEXT NOT NULL DEFAULT 'PENDING',\n            attempt_count INTEGER NOT NULL DEFAULT 0,\n            next_attempt_at INTEGER NOT NULL DEFAULT 0,\n            last_attempt_at INTEGER,\n            last_error_class TEXT,\n            last_error_message TEXT,\n            created_at INTEGER NOT NULL,\n            completed_at INTEGER,\n            terminal_at INTEGER\n        )"
+    },
+    {
+      "type": "table",
+      "name": "token_analysis",
+      "table": "token_analysis",
+      "sql": "CREATE TABLE token_analysis (\n  mint TEXT UNIQUE PRIMARY KEY,\n  analyzed_at REAL,\n  total_txs INT,\n  total_events INT,\n  events_parsed INT,\n  mint_concentration REAL,\n  unique_minters_ratio REAL,\n  sell_suppression_ratio REAL,\n  mint_velocity_sec REAL,\n  buy_size_variance REAL,\n  sell_volume_concentration REAL,\n  creator_activity_ratio REAL,\n  post_migration_mint_concentration REAL,\n  post_migration_unique_minters_ratio REAL,\n  post_migration_sell_suppression_ratio REAL,\n  post_migration_mint_velocity_sec REAL,\n  post_migration_buy_size_variance REAL,\n  post_migration_sell_volume_concentration REAL,\n  post_migration_creator_activity_ratio REAL,\n  post_migration_coverage REAL,\n  rug_probability REAL,\n  risk_level TEXT,\n  migration_tx TEXT,\n  price_current REAL,\n  price_highest REAL,\n  market_cap_current REAL,\n  market_cap_highest REAL,\n  market_cap_highest_at NUM,\n  price_updated_at NUM,\n  price_source TEXT,\n  pool_address TEXT,\n  created_at NUM,\n  rug_indicator TEXT,\n  earliest_tx_creator TEXT,\n  creator_is_blocked INT,\n  network_risk INT,\n  connected_malicious_count INT,\n  bonding_curve_pda TEXT,\n  create_tx_signature TEXT\n, cluster_id TEXT, cluster_name TEXT, cluster_risk_multiplier REAL DEFAULT 1.0, network_funder_address TEXT, network_name TEXT, network_tier TEXT, network_is_cex INTEGER DEFAULT 0, market_cap_highest_at_ts INTEGER, is_about_to_migrate BOOLEAN DEFAULT 0, migration_progress_pct REAL, migration_band TEXT, migration_signal_updated_at INTEGER, lifecycle_stage TEXT DEFAULT 'migration_pending', migrated_at INTEGER, dex TEXT, pumpswap_pool_address TEXT, source_platform TEXT, is_new INTEGER DEFAULT 0, migration_signal_source TEXT, pf_ws_creator TEXT, creator_mismatch INTEGER DEFAULT 0, first_pre_migration_signal_at INTEGER, curve_complete INTEGER DEFAULT 0, curve_completed_at INTEGER, curve_completed_slot INTEGER, curve_complete_source TEXT, migration_slot INTEGER, creator_resolved_slot INTEGER, funding_job_enqueued_slot INTEGER, funding_extracted_slot INTEGER, first_observed_mc REAL, first_observed_price REAL, first_observed_at INTEGER, first_observed_source TEXT, first_observed_confidence REAL, watchtower_related INTEGER NOT NULL DEFAULT 0, watchtower_evidence_json TEXT, migration_source TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "token_market_cap_peaks",
+      "table": "token_market_cap_peaks",
+      "sql": "CREATE TABLE token_market_cap_peaks (\n  mint TEXT PRIMARY KEY,\n  peak_market_cap REAL DEFAULT 0,\n  peak_market_cap_at INTEGER DEFAULT 0, raw_peak_mc REAL DEFAULT 0, effective_peak_mc REAL DEFAULT 0, candidate_peak_mc REAL, candidate_peak_count INTEGER DEFAULT 0, raw_peak_mc_at INTEGER,\n  FOREIGN KEY(mint) REFERENCES token_analysis(mint)\n)"
+    },
+    {
+      "type": "table",
+      "name": "token_pool_accounts",
+      "table": "token_pool_accounts",
+      "sql": "CREATE TABLE token_pool_accounts (\n                mint              TEXT NOT NULL,\n                base_account      TEXT NOT NULL,\n                quote_account     TEXT NOT NULL,\n                pool_program      TEXT NOT NULL DEFAULT 'raydium_amm',\n                base_token        TEXT NOT NULL,\n                quote_token       TEXT NOT NULL DEFAULT 'So11111111111111111111111111111111111111112',\n                base_decimals     INTEGER NOT NULL DEFAULT 6,\n                quote_decimals    INTEGER NOT NULL DEFAULT 9,\n                last_reserve_fetch INTEGER DEFAULT 0,\n                is_active         BOOLEAN DEFAULT 1,\n                created_at        INTEGER NOT NULL,\n                updated_at        INTEGER NOT NULL, vault_validation_status TEXT NOT NULL DEFAULT 'pending' CHECK(vault_validation_status IN ('pending', 'validated', 'rejected')), vault_validation_error TEXT, vault_validation_attempts INTEGER DEFAULT 0, last_vault_validation_at INTEGER DEFAULT 0, discovery_method TEXT DEFAULT 'unknown', is_primary BOOLEAN DEFAULT 0, last_ws_update_at INTEGER DEFAULT 0, last_swap_seen_at INTEGER DEFAULT 0, quote_liquidity REAL DEFAULT 0.0, pool_score REAL DEFAULT 0.0, token_supply INTEGER DEFAULT 1000000000, pool_address TEXT DEFAULT NULL, is_legacy INTEGER DEFAULT 1, vault_discovery_time_secs REAL DEFAULT NULL, vault_discovery_attempts INTEGER DEFAULT 0, vault_discovery_strategy TEXT DEFAULT 'unknown', vault_resolution_state TEXT DEFAULT 'pending', vault_resolved_at INTEGER DEFAULT NULL, authority_account TEXT DEFAULT NULL, liquidity_removed BOOLEAN DEFAULT 0, liquidity_removed_at INTEGER,\n                PRIMARY KEY (mint, base_account)\n            )"
+    },
+    {
+      "type": "table",
+      "name": "tracked_tokens",
+      "table": "tracked_tokens",
+      "sql": "CREATE TABLE tracked_tokens (\n                mint                TEXT PRIMARY KEY,\n                symbol              TEXT,\n                pair_address        TEXT,\n                priority_level      TEXT DEFAULT 'MEDIUM',\n                last_price_update   INTEGER DEFAULT 0,\n                is_active           BOOLEAN DEFAULT 1,\n                created_at          INTEGER NOT NULL,\n                updated_at          INTEGER NOT NULL\n            , last_activity_at INTEGER, inactive_since INTEGER, stop_reason TEXT, fetch_failures INTEGER DEFAULT 0, boost_until INTEGER DEFAULT 0, tracking_reason TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "transfer_index",
+      "table": "transfer_index",
+      "sql": "CREATE TABLE transfer_index (\n    id                  INTEGER PRIMARY KEY AUTOINCREMENT,\n    signature           TEXT NOT NULL,                       -- Transaction signature\n    source              TEXT NOT NULL,                       -- Source wallet address\n    destination         TEXT NOT NULL,                       -- Destination wallet address\n    amount_lamports     INTEGER NOT NULL,                    -- Transfer amount in lamports (avoid floats)\n    amount_sol          REAL GENERATED ALWAYS AS (amount_lamports / 1e9) STORED,  -- SOL equivalent\n    slot                INTEGER NOT NULL DEFAULT 0,          -- Slot number (0 when unavailable from feed)\n    block_time          INTEGER NOT NULL,                    -- Unix timestamp\n    indexed_at          REAL NOT NULL,                       -- When indexed (time.time())\n    is_valid            BOOLEAN NOT NULL DEFAULT 1,          -- Validation flag (for cleanup)\n    transfer_type       TEXT DEFAULT 'standard',             -- 'standard', 'spl_token', 'rent', etc.\n\n    -- Composite uniqueness: one row per (tx, sender, recipient) pair\n    UNIQUE (signature, source, destination),\n\n    -- Constraints\n    CHECK (amount_lamports > 0),\n    CHECK (block_time > 0)\n)"
+    },
+    {
+      "type": "table",
+      "name": "wb_create_control",
+      "table": "wb_create_control",
+      "sql": "CREATE TABLE wb_create_control(id INTEGER PRIMARY KEY CHECK(id=1),epoch TEXT NOT NULL CHECK(length(epoch)<=64),activated_at INTEGER NOT NULL,enabled INTEGER NOT NULL CHECK(enabled IN(0,1)),pending_count INTEGER NOT NULL DEFAULT 0 CHECK(pending_count BETWEEN 0 AND 10000),ack_count INTEGER NOT NULL DEFAULT 0 CHECK(ack_count BETWEEN 0 AND 70000),admitted INTEGER NOT NULL DEFAULT 0 CHECK(admitted BETWEEN 0 AND 100000),core_base INTEGER NOT NULL,ops_base INTEGER NOT NULL,birth_retry_admitted INTEGER NOT NULL DEFAULT 0 CHECK(birth_retry_admitted BETWEEN 0 AND 100000))"
+    },
+    {
+      "type": "table",
+      "name": "wb_create_delivery",
+      "table": "wb_create_delivery",
+      "sql": "CREATE TABLE wb_create_delivery(seq INTEGER PRIMARY KEY AUTOINCREMENT,epoch TEXT NOT NULL CHECK(length(epoch)<=64),mint TEXT NOT NULL CHECK(length(mint)<=44),creator TEXT NOT NULL CHECK(length(creator)<=44),signature TEXT NOT NULL CHECK(length(signature)<=88),digest TEXT NOT NULL CHECK(length(digest)=64),source TEXT NOT NULL CHECK(source IN('STRICT_RPC','PUMPPORTAL')),qualification TEXT NOT NULL CHECK(length(qualification)<=64),migrated_at INTEGER NOT NULL,slot INTEGER,block_time INTEGER,state TEXT NOT NULL CHECK(state IN('PENDING','ACK','BLOCKED')),due INTEGER NOT NULL,tries INTEGER NOT NULL CHECK(tries BETWEEN 0 AND 5),last_error_code TEXT CHECK(length(last_error_code)<=64),acked_at INTEGER,UNIQUE(epoch,mint))"
+    },
+    {
+      "type": "table",
+      "name": "webhook_birth_queue",
+      "table": "webhook_birth_queue",
+      "sql": "CREATE TABLE webhook_birth_queue (\n                id        INTEGER PRIMARY KEY AUTOINCREMENT,\n                signature TEXT    NOT NULL UNIQUE,\n                consumed  INTEGER NOT NULL DEFAULT 0,\n                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))\n            , payload TEXT, source TEXT NOT NULL DEFAULT 'helius_webhook', retry_count INTEGER NOT NULL DEFAULT 0, quarantine_reason TEXT CHECK(quarantine_reason IS NULL OR quarantine_reason='CORE_AUTHORITY_CONFLICT'))"
+    }
+  ],
+  "ops": [
+    {
+      "type": "table",
+      "name": "confirmed_operation_matches",
+      "table": "confirmed_operation_matches",
+      "sql": "CREATE TABLE confirmed_operation_matches (\n    match_id TEXT PRIMARY KEY, operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    mint TEXT NOT NULL, detector_version TEXT NOT NULL,\n    state TEXT NOT NULL CHECK(state IN ('CONFIRMED_MATCH')), evidence_json TEXT NOT NULL,\n    detected_at INTEGER NOT NULL, UNIQUE(operator_id, mint, detector_version)\n)"
+    },
+    {
+      "type": "table",
+      "name": "dev004_retained_reference_evidence",
+      "table": "dev004_retained_reference_evidence",
+      "sql": "CREATE TABLE dev004_retained_reference_evidence(evidence_id TEXT PRIMARY KEY,source_authority TEXT NOT NULL,source_table TEXT NOT NULL,source_key_json TEXT NOT NULL,payload_json TEXT NOT NULL,row_sha256 TEXT NOT NULL,qualification TEXT NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "monitor_admission_outbox",
+      "table": "monitor_admission_outbox",
+      "sql": "CREATE TABLE monitor_admission_outbox(event_id TEXT PRIMARY KEY,operation_id TEXT NOT NULL,mint TEXT NOT NULL,membership_id TEXT NOT NULL UNIQUE,committed_at INTEGER NOT NULL,semantic_version TEXT NOT NULL,opening_id TEXT,state TEXT NOT NULL DEFAULT 'PENDING',claimed_at INTEGER,delivered_at INTEGER)"
+    },
+    {
+      "type": "table",
+      "name": "operation_behavioural_profiles",
+      "table": "operation_behavioural_profiles",
+      "sql": "CREATE TABLE operation_behavioural_profiles (profile_id TEXT PRIMARY KEY, operator_id TEXT, source_candidate_id TEXT NOT NULL, profile_version INTEGER NOT NULL, status TEXT NOT NULL, provenance_json TEXT NOT NULL, member_mints_json TEXT NOT NULL, created_at INTEGER NOT NULL, reviewed_at INTEGER, reviewer TEXT, UNIQUE(operator_id,profile_version), UNIQUE(source_candidate_id,profile_version))"
+    },
+    {
+      "type": "table",
+      "name": "operation_monitor_entry_provenance",
+      "table": "operation_monitor_entry_provenance",
+      "sql": "CREATE TABLE operation_monitor_entry_provenance (\n operation_id TEXT NOT NULL,mint TEXT NOT NULL,entry_quality TEXT NOT NULL,entry_policy TEXT NOT NULL,evidence_version TEXT NOT NULL,evidence_identity TEXT NOT NULL,\n entry_mc_usd REAL NOT NULL,entry_timestamp INTEGER NOT NULL,entry_slot INTEGER NOT NULL,canonical_create_signature TEXT NOT NULL,canonical_create_slot INTEGER NOT NULL,canonical_create_time INTEGER NOT NULL,reference_slot_offset INTEGER NOT NULL,\n first_available_signature TEXT NOT NULL,first_available_venue TEXT NOT NULL,provider_evidence_identity TEXT NOT NULL,provider_provenance_json TEXT NOT NULL,acquired_at INTEGER NOT NULL,\n PRIMARY KEY(operation_id,mint,entry_quality,entry_policy,evidence_identity))"
+    },
+    {
+      "type": "table",
+      "name": "operation_monitor_facts",
+      "table": "operation_monitor_facts",
+      "sql": "CREATE TABLE operation_monitor_facts (\n operation_id TEXT NOT NULL,mint TEXT NOT NULL,cohort_class TEXT NOT NULL,assignment_timestamp INTEGER,assignment_provenance TEXT,\n entry_method TEXT NOT NULL,entry_timestamp INTEGER,entry_mc_usd REAL,entry_status TEXT,entry_exactness TEXT,\n latest_mc_usd REAL,latest_mc_timestamp INTEGER,current_multiple REAL,running_peak_mc_usd REAL,running_peak_timestamp INTEGER,running_peak_multiple REAL,drawdown_percent REAL,\n reached_2x INTEGER,reached_5x INTEGER,reached_10x INTEGER,first_2x_timestamp INTEGER,first_5x_timestamp INTEGER,first_10x_timestamp INTEGER,\n drawdown_25_timestamp INTEGER,drawdown_50_timestamp INTEGER,drawdown_75_timestamp INTEGER,drawdown_85_timestamp INTEGER,monitor_state TEXT NOT NULL,\n monitor_started_at INTEGER,last_observation_at INTEGER,next_observation_at INTEGER,monitor_completed_at INTEGER,provider_call_count INTEGER NOT NULL DEFAULT 0,candles_retained INTEGER NOT NULL DEFAULT 0,candle_resolution TEXT,evidence_status TEXT,provenance_digest TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, retained_monitor_peak_mc_usd REAL, retained_monitor_peak_evidence TEXT, final_proven_ath_mc REAL, final_ath_multiple REAL, final_ath_evidence TEXT, final_ath_resolution TEXT, final_ath_bucket_start INTEGER, final_ath_bucket_end INTEGER, ath_finalized_at INTEGER, ath_finalization_request_id TEXT, ath_finalization_provenance_digest TEXT, entry_native_mc_sol TEXT,PRIMARY KEY(operation_id,mint))"
+    },
+    {
+      "type": "table",
+      "name": "operation_monitor_mode_transitions",
+      "table": "operation_monitor_mode_transitions",
+      "sql": "CREATE TABLE operation_monitor_mode_transitions (\n mode TEXT NOT NULL,effective_at INTEGER NOT NULL,previous_mode TEXT,config_source TEXT NOT NULL,contract_version TEXT NOT NULL,provenance TEXT NOT NULL,created_at INTEGER NOT NULL,\n PRIMARY KEY(mode,effective_at))"
+    },
+    {
+      "type": "table",
+      "name": "operation_monitor_observations",
+      "table": "operation_monitor_observations",
+      "sql": "CREATE TABLE operation_monitor_observations (\n operation_id TEXT NOT NULL,mint TEXT NOT NULL,observation_timestamp INTEGER NOT NULL,mc_usd REAL NOT NULL,resolution TEXT NOT NULL,\n source TEXT NOT NULL,request_identity TEXT NOT NULL,provenance_digest TEXT NOT NULL,created_at INTEGER NOT NULL, open_mc_usd REAL, high_mc_usd REAL, low_mc_usd REAL, close_mc_usd REAL,\n PRIMARY KEY(operation_id,mint,observation_timestamp,resolution))"
+    },
+    {
+      "type": "table",
+      "name": "operation_qualification_contracts",
+      "table": "operation_qualification_contracts",
+      "sql": "CREATE TABLE operation_qualification_contracts (\n contract_id TEXT PRIMARY KEY, operator_id TEXT NOT NULL REFERENCES operators(operator_id), qualification_category TEXT NOT NULL CHECK(qualification_category IN ('CONFIRMED','PROVISIONAL')), automation_eligibility TEXT NOT NULL CHECK(automation_eligibility IN ('ELIGIBLE','REVIEW_ONLY')), detector_version TEXT NOT NULL, parent_mechanism TEXT, source_candidate_id TEXT, benchmark_json TEXT NOT NULL, contract_json TEXT NOT NULL, evidence_lineage_json TEXT NOT NULL, frozen_edge_highwater INTEGER, created_at INTEGER NOT NULL, UNIQUE(operator_id,detector_version)\n)"
+    },
+    {
+      "type": "table",
+      "name": "operation_registry_dispositions",
+      "table": "operation_registry_dispositions",
+      "sql": "CREATE TABLE operation_registry_dispositions (operator_id TEXT PRIMARY KEY REFERENCES operators(operator_id), disposition TEXT NOT NULL, manual_reviewer TEXT NOT NULL, reason TEXT NOT NULL, source_candidate_id TEXT, updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "operator_entities",
+      "table": "operator_entities",
+      "sql": "CREATE TABLE operator_entities (\n    operator_id     TEXT NOT NULL REFERENCES operators(operator_id),\n    entity_address  TEXT NOT NULL,\n    entity_type     TEXT NOT NULL DEFAULT 'UNKNOWN',\n    confidence      TEXT NOT NULL DEFAULT 'UNKNOWN',\n    evidence_count  INTEGER NOT NULL DEFAULT 0,\n    first_seen      INTEGER,\n    last_seen       INTEGER,\n    added_at        INTEGER NOT NULL,\n    PRIMARY KEY (operator_id, entity_address)\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_evidence",
+      "table": "operator_evidence",
+      "sql": "CREATE TABLE operator_evidence (\n    evidence_id     TEXT PRIMARY KEY,           -- uuid4\n    operator_id     TEXT NOT NULL REFERENCES operators(operator_id),\n    evidence_type   TEXT NOT NULL,              -- key from EVIDENCE_CATALOGUE\n    evidence_category TEXT NOT NULL,            -- IDENTITY | SUPPORTING | CONTEXT\n    source_operation TEXT,                      -- operation_id that produced this\n    entity_a        TEXT,                       -- first wallet/entity involved\n    entity_b        TEXT,                       -- second wallet/entity involved (if applicable)\n    weight          REAL NOT NULL DEFAULT 0.0,\n    details         TEXT,                       -- JSON: extra fields\n    created_at      INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_identity_assets",
+      "table": "operator_identity_assets",
+      "sql": "CREATE TABLE operator_identity_assets (\n    asset_id TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    asset_type TEXT NOT NULL,\n    asset_value TEXT NOT NULL,\n    status TEXT NOT NULL DEFAULT 'ACTIVE',\n    evidence_revision TEXT NOT NULL,\n    added_at INTEGER NOT NULL,\n    event_id TEXT NOT NULL REFERENCES operator_identity_events(event_id),\n    UNIQUE(operator_id, asset_type, asset_value)\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_identity_events",
+      "table": "operator_identity_events",
+      "sql": "CREATE TABLE operator_identity_events (\n    event_id TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    event_type TEXT NOT NULL,\n    timestamp INTEGER NOT NULL,\n    analyst TEXT NOT NULL,\n    evidence_revision TEXT NOT NULL,\n    reason TEXT NOT NULL,\n    payload_json TEXT NOT NULL DEFAULT '{}'\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_identity_merges",
+      "table": "operator_identity_merges",
+      "sql": "CREATE TABLE operator_identity_merges (\n    source_operator_id TEXT PRIMARY KEY REFERENCES operators(operator_id),\n    destination_operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    event_id TEXT NOT NULL REFERENCES operator_identity_events(event_id),\n    merged_at INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_identity_state",
+      "table": "operator_identity_state",
+      "sql": "CREATE TABLE operator_identity_state (\n    operator_id TEXT PRIMARY KEY REFERENCES operators(operator_id),\n    identity_status TEXT NOT NULL,\n    activity_status TEXT NOT NULL DEFAULT 'ACTIVE',\n    source_population_id TEXT,\n    source_population_revision TEXT,\n    confirmation_evidence_package TEXT,\n    disposition_at_confirmation TEXT,\n    merged_into_operator_id TEXT,\n    retired_at INTEGER,\n    updated_at INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_launch_assignment_history",
+      "table": "operator_launch_assignment_history",
+      "sql": "CREATE TABLE operator_launch_assignment_history (\n    assignment_id TEXT PRIMARY KEY,\n    mint TEXT NOT NULL,\n    from_operator_id TEXT,\n    to_operator_id TEXT NOT NULL,\n    timestamp INTEGER NOT NULL,\n    analyst TEXT NOT NULL,\n    evidence_revision TEXT NOT NULL,\n    reason TEXT NOT NULL,\n    event_id TEXT NOT NULL REFERENCES operator_identity_events(event_id)\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_launch_membership",
+      "table": "operator_launch_membership",
+      "sql": "CREATE TABLE operator_launch_membership (\n mint TEXT PRIMARY KEY,\n operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n source_population_id TEXT,\n assigned_at INTEGER NOT NULL,\n event_id TEXT\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_membership_reference_v1",
+      "table": "operator_membership_reference_v1",
+      "sql": "CREATE TABLE operator_membership_reference_v1 (\n mint TEXT PRIMARY KEY REFERENCES operator_launch_membership(mint) ON DELETE CASCADE,\n operator_id TEXT NOT NULL REFERENCES operators(operator_id), legacy_event_id TEXT,\n reference_kind TEXT NOT NULL CHECK(reference_kind IN ('NONE','IDENTITY_EVENT','CONFIRMED_MATCH','MEMBERSHIP_COMMIT','FUNDING_SIGNATURE')),\n identity_event_id TEXT,confirmed_match_id TEXT,membership_assigned_at INTEGER NOT NULL,\n outbox_event_id TEXT,funding_mint TEXT,funding_signature TEXT,outcome_mint TEXT,\n CHECK(typeof(membership_assigned_at)='integer'),\n CHECK(outbox_event_id IS NULL OR (length(CAST(outbox_event_id AS BLOB))=64 AND outbox_event_id NOT GLOB '*[^0-9a-f]*')),\n CHECK(length(CAST(mint AS BLOB)) BETWEEN 1 AND 128),\n CHECK(length(CAST(operator_id AS BLOB)) BETWEEN 1 AND 128),\n CHECK(legacy_event_id IS NULL OR length(CAST(legacy_event_id AS BLOB)) BETWEEN 1 AND 128),\n CHECK((reference_kind='NONE' AND legacy_event_id IS NULL AND identity_event_id IS NULL AND confirmed_match_id IS NULL AND outbox_event_id IS NULL AND funding_mint IS NULL AND funding_signature IS NULL AND outcome_mint IS NULL)\n OR (reference_kind='IDENTITY_EVENT' AND legacy_event_id IS NOT NULL AND identity_event_id IS NOT NULL AND identity_event_id=legacy_event_id AND confirmed_match_id IS NULL AND outbox_event_id IS NULL AND funding_mint IS NULL AND funding_signature IS NULL AND outcome_mint IS NULL)\n OR (reference_kind='CONFIRMED_MATCH' AND legacy_event_id IS NOT NULL AND confirmed_match_id IS NOT NULL AND confirmed_match_id=legacy_event_id AND identity_event_id IS NULL AND outbox_event_id IS NULL AND funding_mint IS NULL AND funding_signature IS NULL AND outcome_mint IS NULL)\n OR (reference_kind='MEMBERSHIP_COMMIT' AND legacy_event_id IS NOT NULL AND outbox_event_id IS NOT NULL AND identity_event_id IS NULL AND confirmed_match_id IS NULL AND funding_mint IS NULL AND funding_signature IS NULL AND outcome_mint IS NOT NULL AND outcome_mint=mint)\n OR (reference_kind='FUNDING_SIGNATURE' AND legacy_event_id IS NOT NULL AND funding_mint IS NOT NULL AND funding_mint=mint AND funding_signature IS NOT NULL AND funding_signature=legacy_event_id AND identity_event_id IS NULL AND confirmed_match_id IS NULL AND outbox_event_id IS NULL AND outcome_mint IS NOT NULL AND outcome_mint=mint)),\n FOREIGN KEY(identity_event_id,operator_id) REFERENCES operator_identity_events(event_id,operator_id),\n FOREIGN KEY(confirmed_match_id,operator_id,mint) REFERENCES confirmed_operation_matches(match_id,operator_id,mint),\n FOREIGN KEY(outbox_event_id,legacy_event_id,operator_id,mint,membership_assigned_at) REFERENCES monitor_admission_outbox(event_id,membership_id,operation_id,mint,committed_at),\n FOREIGN KEY(funding_mint,funding_signature) REFERENCES wt_walkback_queue(mint,funder_sig),\n FOREIGN KEY(outcome_mint) REFERENCES wt_attribution_outcomes(mint)\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_promotion_reviews",
+      "table": "operator_promotion_reviews",
+      "sql": "CREATE TABLE operator_promotion_reviews (\n    promotion_review_id TEXT PRIMARY KEY,\n    proposal_id         TEXT NOT NULL,\n    proposal_fingerprint TEXT NOT NULL,\n    identity_fingerprint TEXT NOT NULL,\n    candidate_key       TEXT NOT NULL,\n    decision            TEXT NOT NULL CHECK(decision IN ('APPROVE','REJECT','DEFER')),\n    reviewer            TEXT NOT NULL,\n    timestamp           INTEGER NOT NULL,\n    reason              TEXT NOT NULL,\n    supporting_notes    TEXT,\n    evidence_snapshot   TEXT NOT NULL,\n    canonical_operator_id TEXT,\n    UNIQUE(proposal_fingerprint, decision)\n)"
+    },
+    {
+      "type": "table",
+      "name": "operator_reviews",
+      "table": "operator_reviews",
+      "sql": "CREATE TABLE operator_reviews (\n    review_id       TEXT PRIMARY KEY,           -- uuid4\n    operator_id     TEXT NOT NULL REFERENCES operators(operator_id),\n    decision        TEXT NOT NULL,              -- CONFIRMED | REJECTED | MERGE | SPLIT | FLAGGED\n    reviewer        TEXT,                       -- analyst identifier (optional)\n    timestamp       INTEGER NOT NULL,\n    reason          TEXT,                       -- free-text explanation\n    related_operator_id TEXT                    -- for MERGE/SPLIT decisions\n)"
+    },
+    {
+      "type": "table",
+      "name": "operators",
+      "table": "operators",
+      "sql": "CREATE TABLE operators (\n    operator_id     TEXT PRIMARY KEY,           -- uuid4\n    status          TEXT NOT NULL DEFAULT 'CANDIDATE',\n    confidence      TEXT NOT NULL DEFAULT 'UNKNOWN',\n    first_seen      INTEGER,                    -- unix ts\n    last_seen       INTEGER,                    -- unix ts\n    summary         TEXT,                       -- human-readable one-liner\n    review_state    TEXT NOT NULL DEFAULT 'PENDING',  -- PENDING | IN_REVIEW | REVIEWED\n    display_name    TEXT,                       -- optional analyst-set label\n    created_at      INTEGER NOT NULL,\n    updated_at      INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "p3r_v2_candidate_membership",
+      "table": "p3r_v2_candidate_membership",
+      "sql": "CREATE TABLE p3r_v2_candidate_membership (run_id TEXT NOT NULL, candidate_id TEXT NOT NULL, mint TEXT NOT NULL, membership_reason TEXT NOT NULL, provenance_json TEXT NOT NULL, PRIMARY KEY(run_id,candidate_id,mint))"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_assessment_association_binding",
+      "table": "potential_operation_assessment_association_binding",
+      "sql": "CREATE TABLE potential_operation_assessment_association_binding(\n assessment_id TEXT NOT NULL, association_id TEXT NOT NULL, association_contract_version TEXT NOT NULL,\n PRIMARY KEY(assessment_id,association_id), FOREIGN KEY(assessment_id) REFERENCES potential_operation_assessment_version(assessment_id))"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_assessment_lineage",
+      "table": "potential_operation_assessment_lineage",
+      "sql": "CREATE TABLE potential_operation_assessment_lineage(\n assessment_id TEXT PRIMARY KEY, potential_operation_id TEXT NOT NULL,\n pipeline_lineage TEXT NOT NULL CHECK(pipeline_lineage IN ('LEGACY_CANDIDATE_SPECIFIC','GENERIC_DECLARATIVE_V2')),\n pipeline_version TEXT NOT NULL, source_contract_version TEXT,\n association_contract_version TEXT NOT NULL, created_at INTEGER NOT NULL,\n FOREIGN KEY(assessment_id) REFERENCES potential_operation_assessment_version(assessment_id))"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_assessment_version",
+      "table": "potential_operation_assessment_version",
+      "sql": "CREATE TABLE potential_operation_assessment_version (assessment_id TEXT PRIMARY KEY, potential_operation_id TEXT NOT NULL, evidence_digest TEXT NOT NULL, freshness_key TEXT NOT NULL, payload_json TEXT NOT NULL, created_at INTEGER NOT NULL, UNIQUE(potential_operation_id,evidence_digest))"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_child_candidates",
+      "table": "potential_operation_child_candidates",
+      "sql": "CREATE TABLE potential_operation_child_candidates(child_id TEXT PRIMARY KEY,parent_candidate_id TEXT NOT NULL,workflow_status TEXT NOT NULL,proposed_name TEXT NOT NULL,member_mints_json TEXT NOT NULL,provenance_json TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_current",
+      "table": "potential_operation_current",
+      "sql": "CREATE TABLE potential_operation_current (potential_operation_id TEXT PRIMARY KEY, assessment_id TEXT NOT NULL, freshness_key TEXT NOT NULL, updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_evidence_association",
+      "table": "potential_operation_evidence_association",
+      "sql": "CREATE TABLE potential_operation_evidence_association (association_id TEXT PRIMARY KEY, potential_operation_id TEXT NOT NULL, evidence_key TEXT NOT NULL, evidence_type TEXT NOT NULL, state TEXT NOT NULL CHECK(state IN ('INCLUDED','EXCLUDED','UNRESOLVED','CONTRADICTORY')), rationale_json TEXT NOT NULL, created_at INTEGER NOT NULL, UNIQUE(potential_operation_id,evidence_key,evidence_type,state))"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_identity",
+      "table": "potential_operation_identity",
+      "sql": "CREATE TABLE potential_operation_identity (potential_operation_id TEXT PRIMARY KEY, status TEXT NOT NULL, origin_json TEXT NOT NULL, created_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "potential_operation_workflows",
+      "table": "potential_operation_workflows",
+      "sql": "CREATE TABLE potential_operation_workflows(\ncandidate_id TEXT PRIMARY KEY, canonical_run_id TEXT NOT NULL, canonical_tier TEXT NOT NULL, priority_rank INTEGER NOT NULL, operational_likeness REAL NOT NULL, activity_score REAL NOT NULL, priority_score REAL NOT NULL, workflow_status TEXT NOT NULL, proposed_name TEXT, parent_mechanism TEXT, latest_verdict TEXT, principal_gap TEXT, next_action TEXT, rpc_requirement TEXT, related_operator_id TEXT, last_investigated_at INTEGER, provenance_json TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)"
+    },
+    {
+      "type": "table",
+      "name": "watchtower_token_attribution",
+      "table": "watchtower_token_attribution",
+      "sql": "CREATE TABLE watchtower_token_attribution (\n            mint                TEXT PRIMARY KEY,\n            creator             TEXT,\n            score               REAL    NOT NULL DEFAULT 0,\n            tier                TEXT    NOT NULL DEFAULT 'NONE',  -- STRONG | WEAK | NONE\n            reasons_json        TEXT,\n            ancestry_depth      INTEGER,\n            matched_treasury    TEXT,\n            matched_collector   TEXT,\n            matched_subprov     TEXT,\n            matched_signaller   TEXT,\n            matched_relay       TEXT,\n            evidence_paths_json TEXT,\n            reviewed_status     TEXT    NOT NULL DEFAULT 'AUTO',  -- AUTO|REVIEW|CONFIRMED|REJECTED\n            scored_at           INTEGER NOT NULL\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_active_subprov_sessions",
+      "table": "wt_active_subprov_sessions",
+      "sql": "CREATE TABLE wt_active_subprov_sessions (\n            id                INTEGER PRIMARY KEY AUTOINCREMENT,\n            subprov_wallet    TEXT NOT NULL,\n            treasury_wallet   TEXT,\n            funding_signature TEXT,\n            funding_amount    REAL,\n            funding_time      INTEGER,\n            state             TEXT NOT NULL DEFAULT 'ACTIVE',\n            detected_at       INTEGER NOT NULL,\n            expires_at        INTEGER,\n            closed_at         INTEGER, subprov_known INTEGER DEFAULT 0, open_reason TEXT DEFAULT 'PROVISION_CANDIDATE', initial_funding_amount REAL, topup_count INTEGER DEFAULT 0, topup_amount_total REAL DEFAULT 0.0, last_topup_at INTEGER, monitoring_state TEXT DEFAULT 'LIVE_ARMED', funding_sequence_number INTEGER, treasury_rotated INTEGER DEFAULT 0, last_activity_at INTEGER, funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE', session_tag TEXT DEFAULT NULL, operation_state TEXT, last_swept_at INTEGER, sweep_count INTEGER NOT NULL DEFAULT 0, first_swept_at INTEGER,\n            UNIQUE(subprov_wallet, funding_signature)\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_attribution_outcomes",
+      "table": "wt_attribution_outcomes",
+      "sql": "CREATE TABLE wt_attribution_outcomes (\n    mint                          TEXT PRIMARY KEY,\n    outcome_type                  TEXT NOT NULL CHECK(outcome_type IN ('CANONICAL_OPERATOR_REACHED','KNOWN_MULTI_TOKEN_CREATOR','KNOWN_CEX_REACHED','KNOWN_BRIDGE_REACHED','KNOWN_RELAY_REACHED','UNKNOWN_INFRASTRUCTURE','LINEAGE_GAP','AMBIGUOUS_BRANCH','MAX_DEPTH','INSUFFICIENT_EVIDENCE')),\n    stop_reason                   TEXT NOT NULL,\n    terminal_entity               TEXT,\n    terminal_entity_type          TEXT NOT NULL,\n    confidence                    TEXT NOT NULL,\n    evidence_json                 TEXT NOT NULL,\n    operator_id                   TEXT,\n    should_seed_emerging_operator INTEGER NOT NULL CHECK(should_seed_emerging_operator IN (0,1)),\n    should_retry                  INTEGER NOT NULL CHECK(should_retry IN (0,1)),\n    completed_at                  INTEGER NOT NULL,\n    source_queue_updated_at       INTEGER,\n    materialized_at               INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_candidate_websocket_watches",
+      "table": "wt_candidate_websocket_watches",
+      "sql": "CREATE TABLE wt_candidate_websocket_watches (\n            id                       INTEGER PRIMARY KEY AUTOINCREMENT,\n            candidate_wallet         TEXT NOT NULL,\n            subprov_wallet           TEXT,\n            treasury_wallet          TEXT,\n            wrap_close_signature     TEXT,\n            wrap_wallet              TEXT,\n            temp_wsol_account        TEXT,\n            close_destination        TEXT,\n            funding_amount           REAL,\n            state                    TEXT NOT NULL DEFAULT 'WATCHING',\n            websocket_subscription_id TEXT,\n            detected_at              INTEGER NOT NULL,\n            expires_at               INTEGER,\n            closed_at                INTEGER,\n            close_reason             TEXT, wrap_close_time INTEGER, watch_mode TEXT DEFAULT 'LIVE', funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE', initial_subprov_funding_sol REAL, initial_subprov_funding_signature TEXT, initial_subprov_funding_time INTEGER, subprov_fanout_count_at_capture INTEGER, subprov_fanout_value_at_capture REAL,\n            UNIQUE(candidate_wallet, wrap_close_signature)\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_confirmed_treasuries",
+      "table": "wt_confirmed_treasuries",
+      "sql": "CREATE TABLE wt_confirmed_treasuries (\n  treasury TEXT PRIMARY KEY,\n  transfer_pct INTEGER,\n  out_sol REAL,\n  recipients INTEGER,\n  micro_pings INTEGER,\n  method TEXT,\n  confidence TEXT,\n  confirmed_at INTEGER, provenance TEXT DEFAULT 'CONFIRMED_SEED', no_subscribe INTEGER DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "wt_creator_birth_launch",
+      "table": "wt_creator_birth_launch",
+      "sql": "CREATE TABLE wt_creator_birth_launch (\n    creator           TEXT PRIMARY KEY,\n    treasury          TEXT,\n    subprov           TEXT,\n    funded_at         INTEGER,        -- creator born (wrap-close funding tx block_time)\n    launched_at       INTEGER,        -- token CREATE block_time\n    birth_to_launch_s INTEGER,        -- THE metric\n    creator_mode      TEXT,           -- INSTANT (<60s) | STAGED (>=60s) | UNKNOWN (no launch yet)\n    token_mint        TEXT,\n    funding_sig       TEXT,\n    launch_sig        TEXT,\n    base_amount_sol   REAL,\n    measured_at       INTEGER\n, launch_mode TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "wt_discovered_subprovs",
+      "table": "wt_discovered_subprovs",
+      "sql": "CREATE TABLE wt_discovered_subprovs (\n            subprov         TEXT PRIMARY KEY,\n            first_creator   TEXT,            -- a creator it provisioned\n            creator_count   INTEGER DEFAULT 1,\n            treasury        TEXT,            -- NULL until traced\n            treasury_known  INTEGER DEFAULT 0,\n            first_seen      INTEGER,\n            last_seen       INTEGER\n        , immediate_funder TEXT, funder_is_subprov INTEGER DEFAULT 0, confidence REAL DEFAULT 0.20, state TEXT DEFAULT 'PROVISION_CANDIDATE', wrap_close_count INTEGER DEFAULT 0, topup_count INTEGER DEFAULT 0, rejected_reason TEXT, buy_swarm_count INTEGER DEFAULT 0, create_count INTEGER DEFAULT 0, buy_swarm_ratio REAL DEFAULT 0.0, subprov_type TEXT DEFAULT 'UNKNOWN', seeded_account_count INTEGER DEFAULT 0, discovery_source TEXT, funding_mechanism TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidate_descendants",
+      "table": "wt_infrastructure_candidate_descendants",
+      "sql": "CREATE TABLE wt_infrastructure_candidate_descendants (\n wallet TEXT NOT NULL, mint TEXT NOT NULL, creator TEXT, subprovider TEXT,\n path_evidence_key TEXT NOT NULL, first_seen_at INTEGER NOT NULL,\n PRIMARY KEY(wallet, mint, path_evidence_key)\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidate_evidence",
+      "table": "wt_infrastructure_candidate_evidence",
+      "sql": "CREATE TABLE wt_infrastructure_candidate_evidence (\n wallet TEXT NOT NULL, evidence_key TEXT NOT NULL, evidence_type TEXT NOT NULL,\n evidence_json TEXT NOT NULL, observed_at INTEGER NOT NULL,\n PRIMARY KEY(wallet, evidence_key)\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidate_reviews",
+      "table": "wt_infrastructure_candidate_reviews",
+      "sql": "CREATE TABLE wt_infrastructure_candidate_reviews (\n candidate_wallet TEXT PRIMARY KEY, proposed_role TEXT NOT NULL, confidence TEXT NOT NULL,\n review_status TEXT NOT NULL DEFAULT 'PENDING_REVIEW', reviewed_by TEXT, reviewed_at INTEGER,\n review_notes TEXT, evidence_snapshot_json TEXT NOT NULL, created_at INTEGER NOT NULL,\n updated_at INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_infrastructure_candidates",
+      "table": "wt_infrastructure_candidates",
+      "sql": "CREATE TABLE wt_infrastructure_candidates (\n wallet TEXT PRIMARY KEY, candidate_role TEXT NOT NULL, confidence TEXT NOT NULL,\n first_seen_at INTEGER, last_seen_at INTEGER, wallet_birth_at INTEGER,\n lifecycle_quality TEXT NOT NULL, distinct_launches INTEGER NOT NULL DEFAULT 0,\n distinct_creators INTEGER NOT NULL DEFAULT 0, distinct_subproviders INTEGER NOT NULL DEFAULT 0,\n distinct_hubs INTEGER NOT NULL DEFAULT 0, distinct_treasury_branches INTEGER NOT NULL DEFAULT 0,\n funding_epoch_count INTEGER NOT NULL DEFAULT 0, total_sol_distributed REAL NOT NULL DEFAULT 0,\n max_single_transfer_sol REAL NOT NULL DEFAULT 0, median_transfer_sol REAL NOT NULL DEFAULT 0,\n account_close_descendant_count INTEGER NOT NULL DEFAULT 0,\n rapid_migration_descendant_count INTEGER NOT NULL DEFAULT 0,\n competing_inbound_source_count INTEGER NOT NULL DEFAULT 0,\n known_common_capital_links INTEGER NOT NULL DEFAULT 0,\n service_exchange_risk REAL NOT NULL DEFAULT 0, evidence_score REAL NOT NULL DEFAULT 0,\n counterevidence_score REAL NOT NULL DEFAULT 0, role_score_treasury REAL NOT NULL DEFAULT 0,\n role_score_reservoir REAL NOT NULL DEFAULT 0, role_score_hub REAL NOT NULL DEFAULT 0,\n role_score_relay REAL NOT NULL DEFAULT 0, positive_evidence_json TEXT NOT NULL,\n negative_evidence_json TEXT NOT NULL, uncertainties_json TEXT NOT NULL,\n status TEXT NOT NULL DEFAULT 'SHADOW', review_state TEXT NOT NULL DEFAULT 'PENDING_REVIEW',\n created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_launch_audit",
+      "table": "wt_launch_audit",
+      "sql": "CREATE TABLE wt_launch_audit (\n        mint                        TEXT PRIMARY KEY,\n        creator                     TEXT,\n        treasury                    TEXT,\n        subprov                     TEXT,\n        create_signature            TEXT,\n        create_slot                 INTEGER,\n        create_time                 INTEGER,\n\n        -- detection latency (epoch seconds, float where sub-second)\n        ws_seen_at                  REAL,\n        tx_fetched_at               REAL,\n        mint_extracted_at           REAL,\n        alert_emitted_at            REAL,\n        detection_latency_ms        INTEGER,      -- alert_emitted - create_time\n        fetch_latency_ms            INTEGER,      -- tx_fetched - ws_seen\n        alert_latency_ms            INTEGER,      -- alert_emitted - ws_seen\n\n        -- position / tx ordering\n        create_tx_index_in_slot     INTEGER,\n        first_external_buy_sig       TEXT,\n        first_external_buy_slot      INTEGER,\n        first_external_buy_index_in_slot INTEGER,\n        our_possible_buy_slot        INTEGER,\n        our_possible_buy_index_estimate INTEGER,\n        txs_before_first_external_buy   INTEGER,\n        buys_before_first_external_buy  INTEGER,\n        buys_before_detection        INTEGER,\n        buys_before_possible_entry   INTEGER,\n\n        -- market cap (+ provenance per metric)\n        mc_at_create                REAL,\n        mc_at_create_source         TEXT,\n        mc_at_detection             REAL,\n        mc_at_detection_source      TEXT,\n        mc_at_first_external_buy    REAL,\n        mc_at_first_external_buy_source TEXT,\n        peak_mc                     REAL,\n        peak_mc_source              TEXT,\n        current_mc                  REAL,\n        time_to_peak_s              INTEGER,\n        retrace_from_peak_pct       REAL,\n        mc_unavailable_reason       TEXT,\n        curve_virtual_sol           INTEGER,\n        curve_virtual_tokens        INTEGER,\n\n        -- outcome\n        migrated                    INTEGER DEFAULT 0,\n        migration_signature         TEXT,\n        migration_time              INTEGER,\n        dumped_before_migration     INTEGER DEFAULT 0,\n        dump_time                   INTEGER,\n        final_state                 TEXT,        -- INSTANT|STAGED|MIGRATED|DUMPED_BEFORE_MIGRATION|EXPIRED|UNKNOWN\n\n        -- actionability\n        actionable_multiple         REAL,        -- peak_mc / mc_at_detection (the headline KPI)\n        peak_multiple_from_first_external REAL,\n        seconds_from_detection_to_peak    INTEGER,\n\n        -- workflow\n        audit_state                 TEXT DEFAULT 'PENDING',\n        last_checkpoint             INTEGER DEFAULT 0,\n        created_at                  INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n        updated_at                  INTEGER NOT NULL DEFAULT (strftime('%s','now'))\n    , source TEXT DEFAULT 'LIVE_WS_CASCADE', program_log_seen_at REAL, get_transaction_started_at REAL, record_launch_started_at REAL, record_launch_committed_at REAL, block_time_to_ws_seen_ms INTEGER, ws_seen_to_fetch_start_ms INTEGER, fetch_duration_ms INTEGER, fetch_to_mint_extract_ms INTEGER, mint_extract_to_db_start_ms INTEGER, db_commit_duration_ms INTEGER, db_commit_to_alert_ms INTEGER, total_ws_to_commit_ms INTEGER, total_block_time_to_commit_ms INTEGER, program_log_context_slot INTEGER, tx_slot INTEGER, slot_lag INTEGER, estimated_slot_to_ws_ms INTEGER, program_fetch_started_at REAL, program_tx_fetched_at REAL, handoff_to_canonical_at REAL, program_fetch_duration_ms INTEGER, handoff_to_canonical_ms INTEGER, canonical_fetch_skipped INTEGER DEFAULT 0, duplicate_fetch_count INTEGER DEFAULT 0)"
+    },
+    {
+      "type": "table",
+      "name": "wt_lineage_quarantine",
+      "table": "wt_lineage_quarantine",
+      "sql": "CREATE TABLE wt_lineage_quarantine (\n            quarantine_id TEXT PRIMARY KEY,\n            source_table TEXT NOT NULL,\n            source_row_id INTEGER NOT NULL,\n            subject_wallet TEXT,\n            related_wallet TEXT,\n            signature TEXT,\n            evidence_class TEXT NOT NULL,\n            quarantine_reason TEXT NOT NULL,\n            evidence_source TEXT NOT NULL,\n            evidence_json TEXT NOT NULL DEFAULT '{}',\n            exclude_from_tier1 INTEGER NOT NULL DEFAULT 1,\n            quarantined_at INTEGER NOT NULL,\n            UNIQUE(source_table, source_row_id)\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_lineage_root_policies",
+      "table": "wt_lineage_root_policies",
+      "sql": "CREATE TABLE wt_lineage_root_policies (\n            subject_wallet TEXT PRIMARY KEY,\n            require_explicit_tier1 INTEGER NOT NULL DEFAULT 1,\n            policy_reason TEXT NOT NULL,\n            evidence_source TEXT NOT NULL,\n            updated_at INTEGER NOT NULL\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_lineage_verified_session_edges",
+      "table": "wt_lineage_verified_session_edges",
+      "sql": "CREATE TABLE wt_lineage_verified_session_edges (\n            session_id INTEGER PRIMARY KEY,\n            sender TEXT NOT NULL,\n            recipient TEXT NOT NULL,\n            signature TEXT NOT NULL,\n            relationship_type TEXT NOT NULL,\n            evidence_source TEXT NOT NULL,\n            verified_at INTEGER NOT NULL\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_ops_v2",
+      "table": "wt_ops_v2",
+      "sql": "CREATE TABLE wt_ops_v2 (\n            operation_uuid TEXT PRIMARY KEY,\n            treasury_root  TEXT NOT NULL UNIQUE,\n            family_uuid    TEXT,\n            status         TEXT NOT NULL DEFAULT 'FORMING',\n            confidence     REAL NOT NULL DEFAULT 0.0,\n            first_seen     INTEGER NOT NULL,\n            last_seen      INTEGER NOT NULL,\n            created_at     INTEGER NOT NULL,\n            updated_at     INTEGER NOT NULL,\n            source         TEXT,\n            notes          TEXT\n        , op_type TEXT DEFAULT 'WATCHTOWER')"
+    },
+    {
+      "type": "table",
+      "name": "wt_ops_v2_wallets",
+      "table": "wt_ops_v2_wallets",
+      "sql": "CREATE TABLE wt_ops_v2_wallets (\n            operation_uuid TEXT NOT NULL,\n            wallet         TEXT NOT NULL,\n            role           TEXT NOT NULL,\n            first_seen     INTEGER NOT NULL,\n            last_seen      INTEGER NOT NULL,\n            evidence_json  TEXT,\n            PRIMARY KEY (operation_uuid, wallet)\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_provisioning_sessions",
+      "table": "wt_provisioning_sessions",
+      "sql": "CREATE TABLE wt_provisioning_sessions (\n    session_id                       TEXT PRIMARY KEY,\n    source_mint                      TEXT NOT NULL UNIQUE,\n    treasury                        TEXT,\n    subprov                         TEXT,\n    creator                         TEXT,\n    treasury_to_subprov_block_time   INTEGER,\n    subprov_to_creator_block_time    INTEGER,\n    creator_launch_time              INTEGER,\n    treasury_to_subprov_latency_seconds INTEGER,\n    subprov_to_creator_latency_seconds  INTEGER,\n    creator_to_launch_latency_seconds   INTEGER,\n    treasury_to_subprov_mechanism    TEXT,\n    subprov_to_creator_mechanism     TEXT,\n    treasury_to_subprov_amount_sol   REAL,\n    subprov_to_creator_amount_sol    REAL,\n    recorded_at                      INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_treasury_review",
+      "table": "wt_treasury_review",
+      "sql": "CREATE TABLE wt_treasury_review (\n  treasury TEXT PRIMARY KEY,\n  transfer_pct INTEGER,\n  out_sol REAL,\n  recipients INTEGER,\n  micro_pings INTEGER,\n  detected_via TEXT,           -- micro_ping | fanout_walkup | manual\n  status TEXT DEFAULT 'PENDING_REVIEW',  -- PENDING_REVIEW | CONFIRMED | REJECTED\n  reviewed_by TEXT,\n  detected_at INTEGER,\n  reviewed_at INTEGER, reviewer TEXT, confidence TEXT, notes TEXT, evidence_json TEXT, subprov_wallet TEXT, creator_wallet TEXT, token_mint TEXT, distinct_subprovs INTEGER DEFAULT 1, distinct_creators INTEGER DEFAULT 1, evidence_sigs TEXT, evidence_subprovs TEXT, evidence_creators TEXT, evidence_mints TEXT, has_walkback_evidence INTEGER DEFAULT 0, first_walkback_at INTEGER, last_walkback_at INTEGER, discovery_score INTEGER, discovery_reasons TEXT)"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_atomic_flows",
+      "table": "wt_walkback_atomic_flows",
+      "sql": "CREATE TABLE wt_walkback_atomic_flows (\n evidence_key TEXT PRIMARY KEY, mint TEXT, signature TEXT NOT NULL,\n source_wallet TEXT, owner TEXT, temporary_account TEXT NOT NULL, authority TEXT,\n close_destination TEXT, transfer_lamports INTEGER, net_destination_lamports INTEGER,\n has_create INTEGER NOT NULL, has_sync_native INTEGER NOT NULL, has_close INTEGER NOT NULL,\n instruction_order_json TEXT NOT NULL, causal_interpretation TEXT NOT NULL,\n block_time INTEGER, first_observed_at INTEGER NOT NULL, last_observed_at INTEGER NOT NULL,\n observation_count INTEGER NOT NULL DEFAULT 1\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_edge_candidates",
+      "table": "wt_walkback_edge_candidates",
+      "sql": "CREATE TABLE wt_walkback_edge_candidates (\n evidence_key TEXT PRIMARY KEY, mint TEXT NOT NULL, wallet TEXT NOT NULL,\n candidate_parent TEXT NOT NULL, signature TEXT NOT NULL, block_time INTEGER,\n amount_lamports INTEGER, mechanism TEXT NOT NULL, instruction_index INTEGER NOT NULL DEFAULT -1,\n inner_instruction_index INTEGER NOT NULL DEFAULT -1, pre_balance INTEGER, post_balance INTEGER,\n net_balance_change INTEGER, anchor_signature TEXT, anchor_block_time INTEGER,\n hop_depth INTEGER NOT NULL, owner TEXT, close_authority TEXT, close_destination TEXT,\n temporary_account TEXT, evidence_strength TEXT NOT NULL, selection_status TEXT NOT NULL,\n rejection_reason TEXT, first_observed_at INTEGER NOT NULL, last_observed_at INTEGER NOT NULL,\n observation_count INTEGER NOT NULL DEFAULT 1\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_queue",
+      "table": "wt_walkback_queue",
+      "sql": "CREATE TABLE wt_walkback_queue (\n            mint                TEXT NOT NULL,\n            creator             TEXT,\n            subprov             TEXT,\n            treasury            TEXT,\n            walkback_class      TEXT NOT NULL DEFAULT 'FULL_WALKBACK',\n            attribution_source  TEXT,\n            status              TEXT NOT NULL DEFAULT 'pending',\n            rpc_used            INTEGER NOT NULL DEFAULT 0,\n            attempts            INTEGER NOT NULL DEFAULT 0,\n            last_error          TEXT,\n            enqueued_at         INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            started_at          INTEGER,\n            completed_at        INTEGER,\n            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')), intelligence_outcome TEXT, funder_wallet TEXT, funding_mechanism TEXT, funder_amount_sol REAL, funder_sig TEXT, funder_slot INTEGER, funder_block_time INTEGER, claimed_by TEXT, claimed_at INTEGER, lease_expires_at INTEGER, next_retry_at INTEGER, path_state TEXT, termination_reason_json TEXT, create_anchor_signature TEXT, create_anchor_slot INTEGER, create_anchor_block_time INTEGER, create_anchor_source TEXT, create_anchor_audit_state TEXT, priority INTEGER NOT NULL DEFAULT 0, priority_reason TEXT, anchor_lookup_attempts INTEGER NOT NULL DEFAULT 0, last_anchor_lookup_at INTEGER, anchor_recovered_at INTEGER, anchor_recovery_source TEXT, anchor_lookup_state TEXT, infrastructure_retry_count INTEGER NOT NULL DEFAULT 0, last_infrastructure_error TEXT,\n            PRIMARY KEY (mint)\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_walkback_transaction_roles",
+      "table": "wt_walkback_transaction_roles",
+      "sql": "CREATE TABLE wt_walkback_transaction_roles (\n evidence_key TEXT PRIMARY KEY, projection_version TEXT NOT NULL, mint TEXT NOT NULL, signature TEXT NOT NULL,\n anchor_signature TEXT, transfer_source TEXT, transfer_destination TEXT, transfer_lamports INTEGER,\n fee_payer TEXT, signers_json TEXT NOT NULL, outer_shape_json TEXT NOT NULL, inner_shape_json TEXT NOT NULL,\n route_semantics TEXT NOT NULL, provenance_digest TEXT NOT NULL, first_observed_at INTEGER NOT NULL,\n last_observed_at INTEGER NOT NULL, observation_count INTEGER NOT NULL DEFAULT 1,\n UNIQUE(mint,signature,transfer_source,transfer_destination,transfer_lamports)\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_wallet_lifecycle_evidence",
+      "table": "wt_wallet_lifecycle_evidence",
+      "sql": "CREATE TABLE wt_wallet_lifecycle_evidence (\n wallet TEXT PRIMARY KEY, earliest_recoverable_signature TEXT,\n earliest_recoverable_block_time INTEGER, first_inbound_signature TEXT,\n first_inbound_block_time INTEGER, first_outbound_signature TEXT,\n first_outbound_block_time INTEGER, last_activity_block_time INTEGER,\n pre_launch_tx_count INTEGER, total_observed_tx_count INTEGER,\n distinct_creators_funded INTEGER NOT NULL DEFAULT 0,\n distinct_launches_reached INTEGER NOT NULL DEFAULT 0,\n distinct_subproviders_funded INTEGER NOT NULL DEFAULT 0,\n distinct_hubs_funded INTEGER NOT NULL DEFAULT 0,\n lifecycle_quality TEXT NOT NULL DEFAULT 'UNKNOWN', updated_at INTEGER NOT NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "wt_watchtower_launches",
+      "table": "wt_watchtower_launches",
+      "sql": "CREATE TABLE wt_watchtower_launches (\n            id                        INTEGER PRIMARY KEY AUTOINCREMENT,\n            mint                      TEXT,\n            creator_wallet            TEXT NOT NULL,\n            create_signature          TEXT,\n            create_time               INTEGER,\n            treasury_wallet           TEXT,\n            subprov_wallet            TEXT,\n            wrap_close_signature      TEXT,\n            birth_to_launch_seconds   INTEGER,\n            funding_mechanism         TEXT DEFAULT 'WSOL_WRAP_CLOSE',\n            creator_extraction_method TEXT DEFAULT 'CLOSE_ACCOUNT_DESTINATION',\n            confidence                TEXT DEFAULT 'STRICT',\n            state                     TEXT DEFAULT 'FIRED_CREATE',\n            recorded_at               INTEGER NOT NULL DEFAULT (strftime('%s','now')), create_slot INTEGER, subprov_funding_sol REAL, wrap_close_sol REAL, fanout_time INTEGER, fanout_count INTEGER, fanout_to_create_secs REAL, create_to_migration_secs INTEGER, launch_mode TEXT, detection_source TEXT, detection_delay_seconds INTEGER,\n            UNIQUE(creator_wallet, create_signature)\n        )"
+    },
+    {
+      "type": "table",
+      "name": "wt_wrap_close_candidates",
+      "table": "wt_wrap_close_candidates",
+      "sql": "CREATE TABLE wt_wrap_close_candidates (\n            creator                  TEXT PRIMARY KEY,   -- = closeAccount.destination\n            funding_mechanism        TEXT DEFAULT 'WSOL_WRAP_CLOSE',\n            creator_extraction_method TEXT DEFAULT 'CLOSE_ACCOUNT_DESTINATION',\n            subprov_wallet           TEXT,\n            wrap_wallet              TEXT,\n            temp_wsol_account        TEXT,\n            close_destination        TEXT,               -- = creator (explicit, audit)\n            lineage_source_treasury  TEXT,\n            base_amount_sol          REAL,\n            tx_signature             TEXT,\n            funded_at                INTEGER,\n            confidence               TEXT DEFAULT 'STRICT',\n            state                    TEXT DEFAULT 'DETECTED',  -- DETECTED|ARMED|FIRED|EXPIRED\n            detected_at              INTEGER NOT NULL\n        , creator_mode TEXT, birth_to_launch_s INTEGER)"
+    },
+    {
+      "type": "index",
+      "name": "dev004_confirmed_match_operator_mint_key",
+      "table": "confirmed_operation_matches",
+      "sql": "CREATE UNIQUE INDEX dev004_confirmed_match_operator_mint_key ON confirmed_operation_matches(match_id,operator_id,mint)"
+    },
+    {
+      "type": "index",
+      "name": "dev004_identity_event_operator_key",
+      "table": "operator_identity_events",
+      "sql": "CREATE UNIQUE INDEX dev004_identity_event_operator_key ON operator_identity_events(event_id,operator_id)"
+    },
+    {
+      "type": "index",
+      "name": "dev004_outbox_membership_identity_key",
+      "table": "monitor_admission_outbox",
+      "sql": "CREATE UNIQUE INDEX dev004_outbox_membership_identity_key ON monitor_admission_outbox(event_id,membership_id,operation_id,mint,committed_at)"
+    },
+    {
+      "type": "index",
+      "name": "dev004_queue_funding_identity_key",
+      "table": "wt_walkback_queue",
+      "sql": "CREATE UNIQUE INDEX dev004_queue_funding_identity_key ON wt_walkback_queue(mint,funder_sig)"
+    },
+    {
+      "type": "index",
+      "name": "ix_operator_launch_membership_operator",
+      "table": "operator_launch_membership",
+      "sql": "CREATE INDEX ix_operator_launch_membership_operator ON operator_launch_membership(operator_id)"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_membership_project_insert",
+      "table": "operator_launch_membership",
+      "sql": "CREATE TRIGGER dev004_membership_project_insert AFTER INSERT ON operator_launch_membership BEGIN INSERT INTO operator_membership_reference_v1(mint,operator_id,legacy_event_id,reference_kind,identity_event_id,confirmed_match_id,membership_assigned_at,outbox_event_id,funding_mint,funding_signature,outcome_mint) VALUES(NEW.mint,NEW.operator_id,NEW.event_id,CASE WHEN NEW.event_id IS NULL THEN 'NONE' WHEN COALESCE((EXISTS(SELECT 1 FROM operator_identity_events e WHERE e.event_id=NEW.event_id AND e.operator_id=NEW.operator_id)),0) THEN 'IDENTITY_EVENT' WHEN COALESCE((EXISTS(SELECT 1 FROM confirmed_operation_matches m WHERE m.match_id=NEW.event_id AND m.operator_id=NEW.operator_id AND m.mint=NEW.mint AND m.state='CONFIRMED_MATCH')),0) THEN 'CONFIRMED_MATCH' WHEN COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0) THEN 'MEMBERSHIP_COMMIT' WHEN COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0) THEN 'FUNDING_SIGNATURE' ELSE 'INVALID' END,CASE WHEN NEW.event_id IS NOT NULL AND COALESCE((EXISTS(SELECT 1 FROM operator_identity_events e WHERE e.event_id=NEW.event_id AND e.operator_id=NEW.operator_id)),0) THEN NEW.event_id END,CASE WHEN NEW.event_id IS NOT NULL AND COALESCE((EXISTS(SELECT 1 FROM confirmed_operation_matches m WHERE m.match_id=NEW.event_id AND m.operator_id=NEW.operator_id AND m.mint=NEW.mint AND m.state='CONFIRMED_MATCH')),0) THEN NEW.event_id END,NEW.assigned_at,CASE WHEN NEW.event_id IS NOT NULL AND COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0) THEN (SELECT o.event_id FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id) END,CASE WHEN NEW.event_id IS NOT NULL AND COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0) THEN NEW.mint END,CASE WHEN NEW.event_id IS NOT NULL AND COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0) THEN NEW.event_id END,CASE WHEN NEW.event_id IS NOT NULL AND ((COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0)) OR (COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0))) THEN NEW.mint END); END"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_membership_project_update",
+      "table": "operator_launch_membership",
+      "sql": "CREATE TRIGGER dev004_membership_project_update AFTER UPDATE ON operator_launch_membership BEGIN UPDATE operator_membership_reference_v1 SET operator_id=NEW.operator_id,legacy_event_id=NEW.event_id,reference_kind=CASE WHEN NEW.event_id IS NULL THEN 'NONE' WHEN COALESCE((EXISTS(SELECT 1 FROM operator_identity_events e WHERE e.event_id=NEW.event_id AND e.operator_id=NEW.operator_id)),0) THEN 'IDENTITY_EVENT' WHEN COALESCE((EXISTS(SELECT 1 FROM confirmed_operation_matches m WHERE m.match_id=NEW.event_id AND m.operator_id=NEW.operator_id AND m.mint=NEW.mint AND m.state='CONFIRMED_MATCH')),0) THEN 'CONFIRMED_MATCH' WHEN COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0) THEN 'MEMBERSHIP_COMMIT' WHEN COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0) THEN 'FUNDING_SIGNATURE' ELSE 'INVALID' END,identity_event_id=CASE WHEN NEW.event_id IS NOT NULL AND COALESCE((EXISTS(SELECT 1 FROM operator_identity_events e WHERE e.event_id=NEW.event_id AND e.operator_id=NEW.operator_id)),0) THEN NEW.event_id END,confirmed_match_id=CASE WHEN NEW.event_id IS NOT NULL AND COALESCE((EXISTS(SELECT 1 FROM confirmed_operation_matches m WHERE m.match_id=NEW.event_id AND m.operator_id=NEW.operator_id AND m.mint=NEW.mint AND m.state='CONFIRMED_MATCH')),0) THEN NEW.event_id END,membership_assigned_at=NEW.assigned_at,outbox_event_id=CASE WHEN NEW.event_id IS NOT NULL AND COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0) THEN (SELECT o.event_id FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id) END,funding_mint=CASE WHEN NEW.event_id IS NOT NULL AND COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0) THEN NEW.mint END,funding_signature=CASE WHEN NEW.event_id IS NOT NULL AND COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0) THEN NEW.event_id END,outcome_mint=CASE WHEN NEW.event_id IS NOT NULL AND ((COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0)) OR (COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0))) THEN NEW.mint END WHERE mint=NEW.mint; SELECT CASE WHEN changes()<>1 THEN RAISE(ABORT,'missing typed membership reference') END; END"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_membership_validate_insert",
+      "table": "operator_launch_membership",
+      "sql": "CREATE TRIGGER dev004_membership_validate_insert BEFORE INSERT ON operator_launch_membership BEGIN SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM operator_launch_membership WHERE mint=NEW.mint) AND EXISTS(SELECT 1 FROM operator_launch_membership LIMIT 1 OFFSET 49999) THEN RAISE(ABORT,'membership capacity') END; SELECT CASE WHEN NEW.event_id IS NOT NULL AND ((COALESCE((EXISTS(SELECT 1 FROM operator_identity_events e WHERE e.event_id=NEW.event_id AND e.operator_id=NEW.operator_id)),0))+(COALESCE((EXISTS(SELECT 1 FROM confirmed_operation_matches m WHERE m.match_id=NEW.event_id AND m.operator_id=NEW.operator_id AND m.mint=NEW.mint AND m.state='CONFIRMED_MATCH')),0))+(COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0))+(COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0)))<>1 THEN RAISE(ABORT,'unknown or ambiguous membership reference') END; END"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_membership_validate_update",
+      "table": "operator_launch_membership",
+      "sql": "CREATE TRIGGER dev004_membership_validate_update BEFORE UPDATE ON operator_launch_membership BEGIN SELECT CASE WHEN NEW.mint IS NOT OLD.mint THEN RAISE(ABORT,'membership identity is immutable') END; SELECT CASE WHEN NEW.event_id IS NOT NULL AND ((COALESCE((EXISTS(SELECT 1 FROM operator_identity_events e WHERE e.event_id=NEW.event_id AND e.operator_id=NEW.operator_id)),0))+(COALESCE((EXISTS(SELECT 1 FROM confirmed_operation_matches m WHERE m.match_id=NEW.event_id AND m.operator_id=NEW.operator_id AND m.mint=NEW.mint AND m.state='CONFIRMED_MATCH')),0))+(COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='walkback_watchtower_confirmed_projection_v1'\n AND NEW.event_id=('WATCHTOWER_CONFIRMED:'||NEW.mint||':'||CAST(NEW.assigned_at AS TEXT))\n AND EXISTS(SELECT 1 FROM monitor_admission_outbox o WHERE o.membership_id=NEW.event_id\n AND o.operation_id=NEW.operator_id AND o.mint=NEW.mint AND o.committed_at=NEW.assigned_at\n AND o.semantic_version='WATCHTOWER_CONFIRMED_V1')\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint))),0))+(COALESCE(((NEW.operator_id='04265d9f-6eb2-568c-a49e-9253091a4dbb' AND NEW.source_population_id='watchtower_behavioural_paginated_lineage_20260825'\n AND EXISTS(SELECT 1 FROM wt_walkback_queue q WHERE q.mint=NEW.mint AND q.funder_sig=NEW.event_id)\n AND EXISTS(SELECT 1 FROM wt_attribution_outcomes a WHERE a.mint=NEW.mint\n AND a.operator_id=NEW.operator_id AND a.outcome_type='CANONICAL_OPERATOR_REACHED'))),0)))<>1 THEN RAISE(ABORT,'unknown or ambiguous membership reference') END; END"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_reference_preserve",
+      "table": "operator_membership_reference_v1",
+      "sql": "CREATE TRIGGER dev004_reference_preserve BEFORE DELETE ON operator_membership_reference_v1 WHEN EXISTS(SELECT 1 FROM operator_launch_membership WHERE mint=OLD.mint) BEGIN SELECT RAISE(ABORT,'typed reference is required'); END"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_reference_validate_insert",
+      "table": "operator_membership_reference_v1",
+      "sql": "CREATE TRIGGER dev004_reference_validate_insert BEFORE INSERT ON operator_membership_reference_v1 BEGIN  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM operator_launch_membership m WHERE m.mint=NEW.mint AND m.operator_id=NEW.operator_id AND m.event_id IS NEW.legacy_event_id AND m.assigned_at=NEW.membership_assigned_at) THEN RAISE(ABORT,'typed reference disagrees with membership') END; END"
+    },
+    {
+      "type": "trigger",
+      "name": "dev004_reference_validate_update",
+      "table": "operator_membership_reference_v1",
+      "sql": "CREATE TRIGGER dev004_reference_validate_update BEFORE UPDATE ON operator_membership_reference_v1 BEGIN SELECT CASE WHEN EXISTS(SELECT 1 FROM operator_launch_membership m WHERE m.mint=OLD.mint AND m.operator_id=OLD.operator_id AND m.event_id IS OLD.legacy_event_id AND m.assigned_at=OLD.membership_assigned_at) AND (NEW.mint IS NOT OLD.mint OR NEW.operator_id IS NOT OLD.operator_id OR NEW.legacy_event_id IS NOT OLD.legacy_event_id OR NEW.reference_kind IS NOT OLD.reference_kind OR NEW.identity_event_id IS NOT OLD.identity_event_id OR NEW.confirmed_match_id IS NOT OLD.confirmed_match_id OR NEW.membership_assigned_at IS NOT OLD.membership_assigned_at OR NEW.outbox_event_id IS NOT OLD.outbox_event_id OR NEW.funding_mint IS NOT OLD.funding_mint OR NEW.funding_signature IS NOT OLD.funding_signature OR NEW.outcome_mint IS NOT OLD.outcome_mint) THEN RAISE(ABORT,'typed reference is canonical projection') END; SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM operator_launch_membership m WHERE m.mint=NEW.mint AND m.operator_id=NEW.operator_id AND m.event_id IS NEW.legacy_event_id AND m.assigned_at=NEW.membership_assigned_at) THEN RAISE(ABORT,'typed reference disagrees with membership') END; END"
+    }
+  ]
+}

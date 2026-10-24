@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "6e7171b87da583e5a992972370e63bbedd584ed7",
+    "git_head": "e3881acfd194a254f5483d388822bc29c1e7572c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T18:55:59.446059+00:00",
@@ -43616,58 +43616,55 @@
     "engineering_publication": "Local immutable source and evidence commits; terminal handoff published independently."
   },
   "dev004_controlled_production_cutover": {
-    "status": "HOLD_REQUIRED_QUARANTINE_TRANSFER_EXCEEDS_QUALIFIED_BOUND",
-    "engineering_revision": "6e7171b87da583e5a992972370e63bbedd584ed7",
-    "candidate": "34ec79d8a97d08cd808c48c7eb0a55b2437b98ed",
-    "base_candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+    "status": "HOLD_ABORTED_BEFORE_RETIREMENT_V1_ACTIVE",
+    "engineering_revision": "e3881acfd194a254f5483d388822bc29c1e7572c",
+    "candidate": "dfb76562efc0aa598c6750ddb36723b9e5e7b06e",
     "production_authorization": true,
     "fresh_compact_matched_pair_rollback_authorized": true,
-    "prior_journal_capacity_defect": "FIXED_AND_QUALIFIED_OFFLINE",
-    "report": "docs/dev/lightweight_dev004_first_v2/journal_capacity_reuse/REPORT.md",
-    "blocker": {
-      "table": "ops.wt_lineage_quarantine",
-      "selected_seed_rows": 129,
-      "live_population_lower_bound": 12001,
-      "accepted_reconciliation_limit": 12000,
-      "failure": "ROW_LIMIT:wt_lineage_quarantine",
-      "required_action": "Qualify deterministic keyset continuation and total storage bounds for required quarantine state; no record exclusion or schema change authorized by this result.",
-      "staging_transactions": "Rolled back on boundary refusal; V1 untouched."
+    "report": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/REPORT.md",
+    "exact_blocker": "MigrationJournal.admit invokes resolve_completed inside the journal mutation before appending/publishing the new signature. Actual _migration_completed_mint requires ACTIVE authority and raises PAIR_TRANSFER_ONLY at the transfer fence. The signature remains absent from the journal. Admission is therefore not independent of the fenced Core/OPS pair.",
+    "failing_acceptance": "tests/dev004/test_fenced_migration_admission_regression.py:1FAIL; actual lookup rejects TRANSFER before new signature is published, journal stays empty.",
+    "actual_installed_runtime": {
+      "approved_payload_files": 65,
+      "installed_hash_mismatches": [],
+      "source_bundle_installed_on_V1": true,
+      "active_generation": "DEV004-V1-20261024",
+      "active_pair_manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-pair.json",
+      "active_pair_sha256": "6ecb2ff760afbe61475fb441babede57fbe0bb84b69bf372388df4a8eb17afd4",
+      "supervisor_configuration_sha256": "a6dcc96e3ef0f107226d1a488f00813e51eb3a504a50ea0dca19bb754617c858",
+      "active_core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "active_ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "listener_PID": 44753,
+      "resolver_PID": 47203,
+      "walkback_PID": 47244,
+      "all_three_RUNNING": true,
+      "all_dormant_supervisor_groups_STOPPED": true,
+      "original_preimages_preserved": true,
+      "V2_runtime_not_activated": true
     },
-    "live_preflight": {
-      "source_preimages": "65/65 match",
-      "worker_PIDs": {
-        "listener": 97696,
-        "resolver": 92522,
-        "walkback": 94577
-      },
-      "worker_states": "All three RUNNING under Supervisor1131 from expected production packages; terminal check unchanged",
-      "receipts": {
-        "full_buckets": 0,
-        "max_bucket_entries": 405,
-        "available_sharded_slots_sample": 291966,
-        "legacy_files": 4096
-      },
-      "disk_free_bytes": 4828246016,
-      "Birdeye_budget_hash_matches": true
+    "recovery": {
+      "action": "Restore ACTIVE on same unretired V1 pair; restart only resolver/Walkback; listener remained running. No retired marker cleared.",
+      "birth_sample": "152ACKed,152exact canonical CREATE matches",
+      "migration_sample": "4ACKed,6RETRY_EXHAUSTED protected; no completed-state invention",
+      "unrecorded_external_event_exposure": "Not certified. Bounded retained-log scan found no independently recoverable unmatched full signature; not proof of zero exposure. No event/mint/timestamp manufactured."
     },
-    "compact_stage": {
-      "status": "FULL_REFERENCE_IMPORT_PASS",
-      "allocation_bytes": 17620992,
-      "Core_bytes": 4833280,
-      "OPS_bytes": 12783616,
-      "full_V1_copies": 0,
-      "foreign_keys_enabled": true
+    "staged_data": {
+      "source_quarantine_capture": 207116,
+      "complete_private_staging_OPS_bytes": 145014784,
+      "inactive_persistent_V2_quarantine_rows": 74585,
+      "inactive_core": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+      "inactive_ops": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
     },
-    "active_core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
-    "active_ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
-    "production_source_changes": 0,
-    "production_DB_writes": 0,
-    "production_service_actions": 0,
-    "provider_calls": 0,
+    "V1_retired": false,
     "V2_activation": false,
-    "V1_retirement": false,
-    "next_action": "Qualify bounded required-quarantine continuation with complete identity/exclusion/provenance preservation and storage limits; then resume the already-authorized migration. Do not repeat historical matrices or the completed journal correction.",
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED"
+    "full_V1_copies": 0,
+    "V1_delete_compaction": 0,
+    "receipt_deletion_or_retention_shortening": 0,
+    "provider_calls_for_qualification": 0,
+    "runtime_provider_activity": "Normal authorized runtime activity; no artificial provider traffic and not claimed zero.",
+    "runtime_deployment_gate": "HOLD_FOR_V2_CUTOVER",
+    "next_action": "Commit signature-first admission before optional completed-record lookup; preserve pending signature on TRANSFER/unavailable/conflicting lookup and prevent premature dispatch. Qualify that exact failure and then resume this same authorized cutover with a newly frozen live boundary.",
+    "safety_for_next_agent": "Production is not unchanged:65qualified source files and V1paired/journal configuration are installed. V1 remains ACTIVE. Reuse existing .runtime/dev004-v2 state; do not rerun prepare/install blindly, initialize journals again, delete evidence or reactivate retired stores. Signature persistence must precede optional completion lookup and preserve retry ceilings/dispatch safeguards. Read actual owner/config/physical identities before resuming."
   },
   "dev004_journal_capacity_reuse": {
     "status": "PASS_OFFLINE_QUALIFICATION_NOT_DEPLOYED",
@@ -43692,5 +43689,54 @@
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "next_action": "Do not repeat this correction. Resolve current required-quarantine transfer continuation, then resume authorized production migration."
+  },
+  "dev004_quarantine_continuation": {
+    "status": "PASS_FOCUSED_AND_FENCED_STAGING",
+    "candidate": "dfb76562efc0aa598c6750ddb36723b9e5e7b06e",
+    "engineering_evidence_revision": "e3881acfd194a254f5483d388822bc29c1e7572c",
+    "report": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/REPORT.md",
+    "source_count_at_fenced_capture": 207116,
+    "staged_target_count": 207116,
+    "digest": "b51806989c5e639db940cbd6f7d93728026483d5d918769e60e8ff03882b936b",
+    "source_has_resumed": "Old capture must not be promoted without a new current frozen boundary",
+    "bounds": {
+      "rows_per_batch": 128,
+      "max_row_bytes": 65536,
+      "checkpoint_bytes": 16384,
+      "main_db_budget": 480000000,
+      "kernel_file_limit": 499000000,
+      "disk_floor": 2000000000,
+      "reserve": 67108864,
+      "no_quarantine_population_ceiling": true,
+      "no_whole_population_transaction": true,
+      "crash_commit_checkpoint_replay": "PASS",
+      "duplicate_and_conflict": "PASS",
+      "complete_source_target_coverage": "PASS"
+    },
+    "tests": {
+      "continuation": {
+        "passed": 16,
+        "failed": 0
+      },
+      "large_fresh_rollback": {
+        "passed": 1,
+        "ops_bytes": 108609536,
+        "bootstrap_before_restore": true
+      },
+      "separate_existing_lease_owners": "PASS; nested write prohibition preserved",
+      "critical_fenced_signature_admission": {
+        "passed": 0,
+        "failed": 1,
+        "durably_admitted_records": 0,
+        "actual_lookup_body": true
+      }
+    },
+    "storage": {
+      "compact_staging_OPS_bytes": 145014784,
+      "large_rollback_fixture_OPS_bytes": 108609536,
+      "floor_bytes": 2000000000,
+      "reserve_bytes": 67108864
+    },
+    "next_action": "Quarantine continuation is qualified; do not reopen it as research. Resolve the journal admission-ordering regression before another cutover fence."
   }
 }

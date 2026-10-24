@@ -1,0 +1,182 @@
+{
+  "diagnostic_after": {
+    "allocated_bytes": 40960,
+    "available_bytes": 4942454784,
+    "files": 2,
+    "largest_file_bytes": 28672
+  },
+  "diagnostic_before": {
+    "allocated_bytes": 0,
+    "available_bytes": 4942516224,
+    "files": 0,
+    "largest_file_bytes": 0
+  },
+  "diagnostic_database_bytes": 28672,
+  "diagnostic_tests": [
+    {
+      "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+      "expected_safety_result": true,
+      "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+      "result": "REJECTED_FOREIGN_KEY_CONSTRAINT"
+    },
+    {
+      "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+      "expected_safety_result": true,
+      "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+      "result": "REJECTED_FOREIGN_KEY_CONSTRAINT"
+    },
+    {
+      "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+      "expected_safety_result": true,
+      "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+      "result": "REJECTED_FOREIGN_KEY_CONSTRAINT"
+    },
+    {
+      "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+      "expected_safety_result": true,
+      "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+      "result": "REJECTED_FOREIGN_KEY_CONSTRAINT"
+    },
+    {
+      "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+      "expected_safety_result": true,
+      "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+      "result": "REJECTED_FOREIGN_KEY_CONSTRAINT"
+    },
+    {
+      "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+      "expected_safety_result": true,
+      "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+      "result": "REJECTED_FOREIGN_KEY_CONSTRAINT"
+    }
+  ],
+  "event_ids_cleared_or_invented": false,
+  "full_seed_migration_started": false,
+  "full_seed_peak_storage": "NOT_QUALIFIED: only bounded authority diagnostic executed",
+  "full_seed_size": "NOT_QUALIFIED: mandatory dependency gate blocks import",
+  "missing_dependencies": [
+    {
+      "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+      "membership_sha256": "32bfe20a40df618fcf30625bc6cbdf43bd4bd601929b37d54cb8833f81621a77",
+      "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+      "membership_sha256": "aaaca84c18f6a93e263847a7e9b5618a0da75846a077fdefbdfcac84072ec719",
+      "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+      "membership_sha256": "86d40ac64c0ebd029a3926d63415187d49525cb4594f7590738da0943f98ddfd",
+      "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+      "membership_sha256": "d18dbe1af10ded9149a20b6f9b9edd43d745f640445e1c14beb60bfa9051224e",
+      "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+      "membership_sha256": "5a8d65a5864c45ba4d9ce1a0d8f77e3a4a72daca2a100330624642e8dac40ae6",
+      "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+      "membership_sha256": "3e9a0ef379b7008ae9025328a2c41f5af9129abf092f20383286160d7cdfb109",
+      "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    }
+  ],
+  "next_action": "Establish independently accepted provenance/event authority for these6memberships in DEV, or explicitly qualify a preserved unresolved-state contract without altering canonical source. Do not disable FKs, delete/omit memberships, invent events, clear event IDs or repair production.",
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "safe_rejections": 6,
+  "schema_changed_or_weakened": false,
+  "source_case": "Six new current Byzantine memberships not present in accepted retained seed; each non-null event_id has no source identity event",
+  "source_operator_membership_counts": [
+    {
+      "current_memberships": 621,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "retained_memberships": 621
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 260,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "retained_memberships": 260
+    },
+    {
+      "current_memberships": 26,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e",
+      "retained_memberships": 26
+    },
+    {
+      "current_memberships": 84,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+      "retained_memberships": 84
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 171,
+      "missing_from_source": [],
+      "new_mints": [
+        "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+        "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+        "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+        "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+        "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+        "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump"
+      ],
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "retained_memberships": 165
+    },
+    {
+      "current_memberships": 9,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "retained_memberships": 9
+    }
+  ],
+  "source_snapshot_or_full_copy_bytes": 0,
+  "status": "HOLD_MISSING_CANONICAL_EVENT_DEPENDENCIES"
+}

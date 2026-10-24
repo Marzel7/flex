@@ -1,0 +1,267 @@
+{
+  "inventories": [
+    {
+      "current_memberships": 621,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+      "retained_memberships": 621
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "4c96fa15-c318-5a09-a4d9-bb9b78a8dd2b",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "64527dc2-8073-50c0-8bd7-7ef49e62d875",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "70f27e37-83eb-5c97-831c-48189ef98f6c",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 260,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "777211c3-211e-551b-9310-ff9301570627",
+      "retained_memberships": 260
+    },
+    {
+      "current_memberships": 26,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "bb255638-a493-551f-938c-8be7c9ea4f1e",
+      "retained_memberships": 26
+    },
+    {
+      "current_memberships": 84,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "bd7d7479-1454-5d41-9f68-115550348f3e",
+      "retained_memberships": 84
+    },
+    {
+      "current_memberships": 0,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "ccb7b1b0-56e1-4543-9e95-3f284bed3943",
+      "retained_memberships": 0
+    },
+    {
+      "current_memberships": 171,
+      "missing_from_source": [],
+      "new_mints": [
+        "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+        "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+        "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+        "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+        "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+        "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump"
+      ],
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334",
+      "retained_memberships": 165
+    },
+    {
+      "current_memberships": 9,
+      "missing_from_source": [],
+      "new_mints": [],
+      "operator_id": "f560f4fa-770b-57aa-83be-954d11d1a3c1",
+      "retained_memberships": 9
+    }
+  ],
+  "membership_foreign_keys": [
+    {
+      "from": "event_id",
+      "id": 0,
+      "match": "NONE",
+      "on_delete": "NO ACTION",
+      "on_update": "NO ACTION",
+      "seq": 0,
+      "table": "operator_identity_events",
+      "to": "event_id"
+    },
+    {
+      "from": "operator_id",
+      "id": 1,
+      "match": "NONE",
+      "on_delete": "NO ACTION",
+      "on_update": "NO ACTION",
+      "seq": 0,
+      "table": "operators",
+      "to": "operator_id"
+    }
+  ],
+  "missing_event_dependencies": [
+    {
+      "event_id": "498b37fe-9718-5a49-b916-2884e2672da9",
+      "membership_sha256": "32bfe20a40df618fcf30625bc6cbdf43bd4bd601929b37d54cb8833f81621a77",
+      "mint": "AYpi7MmUuyyBZ8kGwPMfJo4NMXo2haxrSj8KXCx7pump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "71d01928-dd9a-5564-b2fd-e974c8eec69e",
+      "membership_sha256": "aaaca84c18f6a93e263847a7e9b5618a0da75846a077fdefbdfcac84072ec719",
+      "mint": "ETLrwm8hLbTAXvqvgSZyM7Gg7iZrvdKrXPN5w5YKpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "cff71e45-2825-5bd1-b96f-68f72035684f",
+      "membership_sha256": "86d40ac64c0ebd029a3926d63415187d49525cb4594f7590738da0943f98ddfd",
+      "mint": "EQcSJDxbZMNQoJYr1KeQdFP9YZiHLMy7zPsCmT3Kpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "c87bbf2a-960f-5f1f-88a1-4d1e5ae0e1de",
+      "membership_sha256": "d18dbe1af10ded9149a20b6f9b9edd43d745f640445e1c14beb60bfa9051224e",
+      "mint": "7NBemqQEqYtXnthmDhKt32mkwCZGihwXhGDFi75Qpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "57bd0ec3-af69-5bb9-89c5-c5bf6ab3228a",
+      "membership_sha256": "5a8d65a5864c45ba4d9ce1a0d8f77e3a4a72daca2a100330624642e8dac40ae6",
+      "mint": "FrjBb3eSfKLf4SMGb6vLw1jRS8XAf8URwBLnWxUkpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    },
+    {
+      "event_id": "5d4976b4-e19a-552f-bdef-7e001fabc858",
+      "membership_sha256": "3e9a0ef379b7008ae9025328a2c41f5af9129abf092f20383286160d7cdfb109",
+      "mint": "DVaQQGX48qnLmc2xSEoh1J64GSny3VFXdMjMJyEnpump",
+      "operator_id": "d8ee4d7a-fcd6-5a5b-b897-24f6ab56e334"
+    }
+  ],
+  "plans": [
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX ix_operator_launch_membership_operator (operator_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_launch_membership WHERE operator_id=? LIMIT 2049"
+    },
+    {
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_identity_events WHERE event_id=?"
+    },
+    {
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_identity_events WHERE event_id=?"
+    },
+    {
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_identity_events WHERE event_id=?"
+    },
+    {
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_identity_events WHERE event_id=?"
+    },
+    {
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_identity_events WHERE event_id=?"
+    },
+    {
+      "plan": [
+        "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+      ],
+      "sql": "SELECT * FROM operator_identity_events WHERE event_id=?"
+    }
+  ],
+  "reference_file": {
+    "path": "/private/tmp/dev004-compact-creator-qualified/classification_closure/ops_v2.sqlite",
+    "sha256": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a"
+  },
+  "rollback": "Target diagnostic never activated; V1 unchanged; no source rollback needed",
+  "scope": "Mandatory current-membership foreign-key gate before full operational seed migration",
+  "source": {
+    "device": 16777234,
+    "inode": 421043107,
+    "observed_bytes": 16194387968,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+    "schema_version": 766
+  },
+  "source_records_retained_in_memory_only": true,
+  "source_schemas": {
+    "operator_identity_events": "CREATE TABLE operator_identity_events (\n    event_id TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    event_type TEXT NOT NULL,\n    timestamp INTEGER NOT NULL,\n    analyst TEXT NOT NULL,\n    evidence_revision TEXT NOT NULL,\n    reason TEXT NOT NULL,\n    payload_json TEXT NOT NULL DEFAULT '{}'\n)",
+    "operator_launch_membership": "CREATE TABLE operator_launch_membership (\n    mint TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    source_population_id TEXT,\n    assigned_at INTEGER NOT NULL,\n    event_id TEXT REFERENCES operator_identity_events(event_id)\n)",
+    "operators": "CREATE TABLE operators (\n    operator_id     TEXT PRIMARY KEY,           -- uuid4\n    status          TEXT NOT NULL DEFAULT 'CANDIDATE',\n    confidence      TEXT NOT NULL DEFAULT 'UNKNOWN',\n    first_seen      INTEGER,                    -- unix ts\n    last_seen       INTEGER,                    -- unix ts\n    summary         TEXT,                       -- human-readable one-liner\n    review_state    TEXT NOT NULL DEFAULT 'PENDING',  -- PENDING | IN_REVIEW | REVIEWED\n    display_name    TEXT,                       -- optional analyst-set label\n    created_at      INTEGER NOT NULL,\n    updated_at      INTEGER NOT NULL\n)"
+  },
+  "status": "AUTHORITY_INCOMPLETE",
+  "storage": {
+    "file_max": 8000000,
+    "floor": 2000000000,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "reserve": 67108864,
+    "sqlite_page_max": 256
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "IMPORT_EXECUTED": "NO",
+  "PRODUCTION_MUTATIONS": 0,
+  "PROVIDER_CALLS": 0,
+  "accepted_corrections_unchanged": {
+    "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": "26340824b6c8628d860534da233f7066ef77ec3f8fa996075970d9cb6bea3f26",
+    "runtime/creator_resolution/src/ops/dev004_membership_references.py": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+    "runtime/listener/src/ops/dev004_membership_references.py": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+    "runtime/walkback/src/ops/dev004_membership_references.py": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5"
+  },
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "commands": [
+    "python -B docs/dev/lightweight_dev004_first_v2/seed_reference_preflight/qualify.py /private/tmp/dev004-<unique> --watchtower-compatibility",
+    "python -B docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/qualify.py /private/tmp/dev004-<synthetic-unique>",
+    "python -B docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/verify.py <preflight-root> <synthetic-root>"
+  ],
+  "conflicting_outcomes_retained": 10,
+  "data_mutations": "Only explicit synthetic fixture records, never production/source/reference rows. No corrected source assignments or outcome changes.",
+  "evidence": {
+    "preflight_checkpoint.json": "0eef8e36350867c4f386cd154fa6431c3011be01dcb72119ac4364155b54b9ed",
+    "preflight_findings.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "preflight_result.json": "6b0bcbf45c4c6184cddaa54901f70b239a68ec53ef50194550a9bda19cac22a8",
+    "synthetic_checks.json": "fa7b187305034c6fcedef36851ed3e23cd8adc89a89458e720d7826a7ab067fa",
+    "verification.json": "9f55d95d62a7a9a44e61a581fb6c03237f4a31521690f77593b4875e36f0c9f1"
+  },
+  "future_import_binding": "Parent rows must be actual selected source rows. Outbox+queue+outcomes before memberships. Source drift requires revalidation. No selected V1 records imported in this task.",
+  "new_exclusions": 0,
+  "original_typed_v1_owner": "unchanged;noimplicitupgradeofnonemptyv1sidecar",
+  "outbox_hash_authority": "Accepted source owner and read-only resolver verify deterministicidentityhash;SQLFKenforcesexactparent composite identity,notcryptographichashcomputation",
+  "owner": "src.ops.dev004_watchtower_references.initialize;explicitfreshdisposableonly",
+  "pending_admissions_retained": 5,
+  "profile": "DEV004_TYPED_MEMBERSHIP_REFERENCE_V2_WATCHTOWER",
+  "python": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+  "reference_edges": 3635,
+  "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED; intendedDEVinterfacesexecutedwithsyntheticstoresonly;productiondeploymentnotauthorized",
+  "selected_rows": 28462,
+  "source_commit": "0ace7186a302d7b04222b4000157f6b61ecde4b9",
+  "source_files": {
+    "docs/dev/lightweight_dev004_first_v2/seed_reference_preflight/qualify.py": "e826ccaf1381fa4544d1afd8a5a735967b4a968890c1bd060dcc07687e94675c",
+    "docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/qualify.py": "9738cfffb7bd5d49e1f463bbb87dad21fe273e7b43dce0ddaba17ed23ab3ea3f",
+    "docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/verify.py": "18f0b1070f6f71cbfae0f02c9105bcbacea747d43f0a80d8e51625bfe1ea4147",
+    "runtime/creator_resolution/src/ops/dev004_watchtower_references.py": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+    "runtime/listener/src/ops/dev004_watchtower_references.py": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+    "runtime/walkback/src/ops/dev004_watchtower_references.py": "e5d6ceb999486e1606c54724831000e9ca417c49dbfa0e8ce22852ccd6d491dd",
+    "runtime/walkback/src/ops/monitor_live_admission.py": "79836d5ea31961634d90e07de10000885ef5e9e09839982065dd6d1ce5a37fa3"
+  },
+  "source_snapshot_limitation": "Each source uses its own read-only SQLite snapshot; no cross-database atomic generation/cutover authority claimed. Repeat source drift invalidates reuse unless selector row digests verify.",
+  "starting_evidence": "95f3a891b6d422803ec2252d4b251b74641e831c",
+  "starting_handoff": "960119a4249dc34fbeae932f17550c241d0162da",
+  "status": "QUALIFIED_DEV_ONLY_NO_IMPORT_OR_DEPLOYMENT",
+  "storage": {
+    "contract_initializer_required_process_file_limit_bytes": 67108864,
+    "free_bytes_at_preservation_verification": 2670596096,
+    "max_membership_rows": 50000,
+    "new_reference_field_bounds": "mint/operator/reference<=128bytes;outboxevent64hex;assignmentinteger;newsignature/outcome identities constrained tooriginalboundedvalues",
+    "new_unbounded_growth_paths": 0,
+    "preflight_after": {
+      "allocated_bytes": 192512,
+      "free_bytes": 2680107008,
+      "largest_file_bytes": 159753
+    },
+    "preflight_before": {
+      "allocated_bytes": 0,
+      "free_bytes": 2683842560,
+      "largest_file_bytes": 0
+    },
+    "raw_provider_payload_retention": false,
+    "synthetic_fixture_allocated_bytes": 188416,
+    "synthetic_fixture_largest_file_bytes": 118784,
+    "synthetic_process_file_limit_bytes": 8000000
+  },
+  "unsupported_references": 0
+}

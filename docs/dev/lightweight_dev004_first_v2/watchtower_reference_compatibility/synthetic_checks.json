@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "fresh_extended_schema_FK_enabled",
+    "existing_branch:NONE",
+    "existing_branch:IDENTITY_EVENT",
+    "existing_branch:CONFIRMED_MATCH",
+    "unknown_infrastructure_not_promoted",
+    "pending_admission_unchanged",
+    "delivered_reference_supported",
+    "funding_signature_and_lineage_gap_unchanged",
+    "unknown_reference",
+    "wrong_source_population",
+    "wrong_commit_timestamp",
+    "outbox_parent_delete",
+    "outcome_counterevidence_delete",
+    "funding_signature_rewrite",
+    "sidecar_type_rewrite",
+    "delivery_recovery_not_fenced_by_reference_identity",
+    "idempotent_extended_bootstrap",
+    "duplicate_memberships_not_added",
+    "all_synthetic_foreign_keys",
+    "actual_membership_and_outbox_writer_compatible_no_implicit_commit",
+    "failed_child_rolls_back_outbox_savepoint",
+    "ambiguous_parent_namespace",
+    "nullable_population_cannot_bypass_exclusive_namespace",
+    "fresh_process_restart_and_duplicate_suppression",
+    "process_crash_before_caller_commit_rolls_back_both_writes",
+    "legacy_default_writer_order_and_semantics_unchanged"
+  ],
+  "groups_passed": 26
+}

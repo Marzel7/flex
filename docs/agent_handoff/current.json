@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "88b75c7a1b7848fc812db06c216feeeba69389f9",
+    "git_head": "a959aff92747a42591cb3f69e3314b896895a113",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T17:28:31.618963+00:00",
-    "working_tree": "DEV004 receipt composition reconciled in DEV; deployed P0capacity remains COMPLETE. FivefocusedtestsPASS. CutoverHOLD on productionbindings/live-state closure/per-fileWAL budgets; no deployment or migration rerun."
+    "updated_at_utc": "2026-10-24T18:13:27.748063+00:00",
+    "working_tree": "DEV004final readiness HOLD_SINGLE_CRITICAL_BLOCKER: Core/typed bootstrap owners reject persistent production roots even with valid TRANSFER authority. Runtime file/auxiliary controls56testsPASS; no final rehearsal or production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43478,6 +43478,74 @@
     "new_files_ge500MB": 0,
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_FOR_DEV004_BUNDLE",
-    "next_action": "One bounded production-bundle completion qualification: exact persistent authority/config and active-trio+rollback payload, with explicit live-state selection/lease dispositions and production file/WAL budgets. No deployment or migration rerun."
+    "next_action": "One bounded production-bundle completion qualification: exact persistent authority/config and active-trio+rollback payload, with explicit live-state selection/lease dispositions and production file/WAL budgets. No deployment or migration rerun.",
+    "superseding_execution": "a959aff9: implemented/tested runtime/auxiliary/file controls and bounded state dispositions; final readiness stopped on exact disposable-only bootstrap owner contract. Independent P0deployment remains COMPLETE."
+  },
+  "dev004_final_migration_readiness": {
+    "status": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "engineering_evidence_revision": "a959aff92747a42591cb3f69e3314b896895a113",
+    "immutable_source_composition": "a805dd49e1b70b84d1b8c7724723a4f28ade2d42",
+    "starting_source": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
+    "starting_evidence": "88b75c7a1b7848fc812db06c216feeeba69389f9",
+    "report": "docs/dev/lightweight_dev004_first_v2/final_migration_readiness/REPORT.md",
+    "runtime_manifest": "docs/dev/lightweight_dev004_first_v2/final_migration_readiness/runtime_manifest.json",
+    "runtime_manifest_sha256": "8e2b22e4d93ef1867c663941dfa50f3abce57c18ea501a7c0bd34f9fc73b5e0e",
+    "implementation": {
+      "runtime_files_changed": 6,
+      "same_process_launch_boundary": "Hard499000000byte RLIMIT_FSIZE before application startup; inherits to children; explicit paired/auxiliary authority required.",
+      "auxiliary_authority": "One creator repository, exact physical identity/generation/pinned metadata bound to pair; unknown paths rejected.",
+      "receipt_correction": "Deployed1536capacity and DEV004pairedACKpreserved; production source remainsb022320c."
+    },
+    "tests": {
+      "unique_passed": 56,
+      "failed": 0,
+      "runtime_auxiliary_transfer_guard": 54,
+      "additional_exact_bootstrap_rejections": 2,
+      "scaled_storage_test": "Pinned-reader WAL write rejected at131072byte kernel limit; prior commit retained after reopen, failed row absent, quick_checkok.",
+      "historical_matrices": "REUSED_NOT_REOPENED",
+      "29633row_imports": 0
+    },
+    "live_state_prepared": {
+      "operations": 10,
+      "memberships": 1172,
+      "Walkback_waiting": 859,
+      "creator_pending_selected": 0,
+      "birth_pending_selected": 0,
+      "funding_pending": 3635,
+      "funding_retry": 59,
+      "funding_running_expired": 3,
+      "migration_records": 113,
+      "webhook_records": 138,
+      "quarantine_complete_accounting": 207116,
+      "quarantine_encoded_bytes": 146296829,
+      "source_scope": "Bounded indexed/keyset read-only moving observations; not final atomic Core/OPSgeneration.",
+      "dispositions": "TRANSFERrequired operational state and pending/retry jobs; PRESERVE_AS_REFERENCEaccepted completed/receipt/price evidence; RETAIN_IN_V1_UNTIL_RELEASEexpired ownership and unselected forensic evidence. Nothing silently dropped or reactivated.",
+      "final_watermark": "Not fabricated; must be published by existing final fenced journal authority."
+    },
+    "gate_status": {
+      "production_binding": "BLOCKED_BY_DISPOSABLE_ONLY_SCHEMA_OWNERS",
+      "live_state": "BOUNDED_DISPOSITIONS_PREPARED_NOT_FINAL_FENCED_IMPORT",
+      "storage": "KERNEL_BOUNDARY_COMPONENT_PASS; full retention/aggregate end-to-end gate not claimed before final bundle qualification"
+    },
+    "exact_blocker": {
+      "Core_owner": "runtime/creator_resolution/src/ops/dev004_core_base_schema.py:initialize -> DISPOSABLE_ROOT_REQUIRED",
+      "OPS_owner": "runtime/listener/src/ops/dev004_watchtower_references.py:initialize/base.profile -> EXPLICIT_DISPOSABLE_FK_PROFILE_REQUIRED",
+      "proof": "Both reject production-style roots with valid paired TRANSFER authority and no schema mutation. Explicit/private/tmp/dev004-*restriction still built into accepted owners.",
+      "impact": "Persistent Core canonical-price and OPS typed-reference schema cannot be initialized through current owners; cannot claim production manifest/rehearsal readiness."
+    },
+    "final_integrated_rehearsal": "NOT_RUN_ALL_GATES_NOT_QUALIFIED",
+    "rollback": "Matched component proofs retained; persistent forward/rollback bootstrap blocked by same owner contract. Do not reactivate retired sources or restore384receiptlimit.",
+    "Birdeye": "BIRDEYEonly; existing20global/4token/60s budgets/checkpoints/consumed authority preserved;0.1%ATH tolerance unchanged; no requests.",
+    "free_bytes_observed": 2798366720,
+    "new_files_ge500MB": 0,
+    "production_changes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "full_V1_copies": 0,
+    "V1_deletion": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_COMPONENTS__FINAL_BUNDLE_HOLD",
+    "next_action": "SameDEV004: add versioned manifest-scoped production profile to the two existing schema owners, validating exact path/identity/generation and exclusive TRANSFER owner with unchanged schema/FK/file/disk checks and explicitV1rejection. Do not bypass/tmpguard. Then finalize manifest and run prepared single bounded integrated rehearsal. No newDEV/historical research or production activation.",
+    "engineering_publication": "Local immutable source/evidence commits; terminal handoff published separately."
   }
 }

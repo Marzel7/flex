@@ -108,3 +108,12 @@ def test_typed_profile_rejects_invalid_configuration(profile,fault):
   q.execute('PRAGMA foreign_keys=ON')
   with pytest.raises(Exception):OPS.initialize(q,disposable_root=root,allow_disposable_v2=True)
  assert path.read_bytes()==before
+
+
+def test_creator_index_preserves_canonical_price_parent(profile):
+ x=profile
+ for _ in range(2):
+  assert CORE.initialize_creator_index(x.c.paths['v2']['core'],disposable_root=x.root,allow_disposable_v2=True,price_identity_parent='token_analysis')['creator_index']=='VERIFIED'
+ with p.NATIVE(x.c.paths['v2']['core']) as c:
+  assert c.execute('pragma foreign_key_list(token_market_cap_peaks)').fetchone()[2]=='token_analysis'
+  assert [r[2] for r in c.execute('pragma index_info(idx_ta_pf_ws_creator)')]==['pf_ws_creator']

@@ -216,13 +216,13 @@ def initialize(core: str | Path, *, disposable_root: str | Path,
         raise
     finally:conn.close()
 
-def initialize_creator_index(core, *, disposable_root, allow_disposable_v2=False):
+def initialize_creator_index(core, *, disposable_root, allow_disposable_v2=False, price_identity_parent="tracked_tokens"):
     """Accepted startup column/index on a bounded disposable fixture.
 
     v1 schema marker remains unchanged. Index identity is independently revalidated.
     """
     result = initialize(core, disposable_root=disposable_root,
-                        allow_disposable_v2=allow_disposable_v2)
+                        allow_disposable_v2=allow_disposable_v2, price_identity_parent=price_identity_parent)
     conn = sqlite3.connect(Path(core).absolute().as_uri() + '?mode=rw', uri=True, timeout=1)
     sql = 'CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator)'
     try:

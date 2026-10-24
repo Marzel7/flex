@@ -1,0 +1,13 @@
+{
+  "candidate_sha": "a89cf9b6c899060d02a4fd88fc630241f01df746",
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "runtime_changed": false,
+  "files": {
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "ff42a8e51c802ecb884ad3abb4c86a6ab06e2d0f41a1ac5835e59f627eff42cc",
+    "runtime/listener/src/core/migration_signature_journal.py": "30a4f6b1d46d7ce4b0953517f89cea94373a34168792fa49927e83909f050c7f",
+    "runtime/listener/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "runtime/listener/src/core/db_writer.py": "fa5c7ce795d0391c10aa7f7b60823f2624a936ed0cf298e07cb92c0c85807b32",
+    "runtime/listener/src/utils/db_locking.py": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390"
+  },
+  "installed_listener_sha256": "751d40d14150b112513cfbed44329cf1c9f0e3e58f34369dd8f29550a1cd3a5f"
+}

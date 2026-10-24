@@ -1,0 +1,10 @@
+{
+  "batch_count": 289,
+  "complete": true,
+  "findings": 118,
+  "findings_sha256": "5073afe8231dd66a070440ba28307531cd5ad1420e4306430242a2147bb45e7d",
+  "phase": "COMPLETE",
+  "reference_edges": 3635,
+  "selected_rows": 28462,
+  "source_row_digest": "75424bd26ebbe9c087e6f90cb4f0da85545b3ebc80e15fccfd5e05ce0682017c"
+}

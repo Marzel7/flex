@@ -1,0 +1,307 @@
+{
+  "after_storage": {
+    "allocated_bytes": 352256,
+    "free_bytes": 2672058368,
+    "largest_file_bytes": 309547
+  },
+  "after_storage_before_final_metadata": {
+    "allocated_bytes": 4096,
+    "free_bytes": 2672410624,
+    "largest_file_bytes": 549
+  },
+  "base_selected_rows": 28444,
+  "batch_rows": 128,
+  "before_storage": {
+    "allocated_bytes": 0,
+    "free_bytes": 2676412416,
+    "largest_file_bytes": 0
+  },
+  "checkpoint_batches": 289,
+  "corrections_applied": 0,
+  "coverage": "All declared FKs under accepted price and typed-membership profiles; all typed membership branches; listed accepted assessment, registry and monitor ownership references. Opaque provenance strings/JSON are retained and hashed, not invented as relational FK contracts. This is not a new full semantic/schema audit.",
+  "edge_counts_by_contract": {
+    "core.token_market_cap_peaks:DECLARED_FK:0": 216,
+    "ops.confirmed_operation_matches:DECLARED_FK:0": 324,
+    "ops.monitor_admission_outbox:ACCEPTED_READER_OWNERSHIP:mint,operation_id,membership_id": 104,
+    "ops.operation_monitor_observations:ACCEPTED_READER_OWNERSHIP:operation_id,mint": 33,
+    "ops.operation_qualification_contracts:DECLARED_FK:0": 6,
+    "ops.operation_registry_dispositions:DECLARED_FK:0": 10,
+    "ops.operator_entities:DECLARED_FK:0": 153,
+    "ops.operator_evidence:DECLARED_FK:0": 5,
+    "ops.operator_identity_assets:DECLARED_FK:0": 122,
+    "ops.operator_identity_assets:DECLARED_FK:1": 122,
+    "ops.operator_identity_events:DECLARED_FK:0": 136,
+    "ops.operator_identity_merges:DECLARED_FK:0": 1,
+    "ops.operator_identity_merges:DECLARED_FK:1": 1,
+    "ops.operator_identity_merges:DECLARED_FK:2": 1,
+    "ops.operator_identity_state:ACCEPTED_READER_OWNERSHIP:merged_into_operator_id": 1,
+    "ops.operator_identity_state:DECLARED_FK:0": 5,
+    "ops.operator_launch_assignment_history:ACCEPTED_READER_OWNERSHIP:from_operator_id": 1,
+    "ops.operator_launch_assignment_history:ACCEPTED_READER_OWNERSHIP:to_operator_id": 27,
+    "ops.operator_launch_assignment_history:DECLARED_FK:0": 27,
+    "ops.operator_launch_membership:DECLARED_FK:1": 1171,
+    "ops.operator_launch_membership:TYPED_REFERENCE": 409,
+    "ops.operator_reviews:DECLARED_FK:0": 2,
+    "ops.potential_operation_assessment_association_binding:ACCEPTED_READER_OWNERSHIP:association_id": 183,
+    "ops.potential_operation_assessment_association_binding:CANDIDATE_OWNERSHIP": 183,
+    "ops.potential_operation_assessment_association_binding:DECLARED_FK:0": 183,
+    "ops.potential_operation_assessment_lineage:ACCEPTED_READER_OWNERSHIP:potential_operation_id": 5,
+    "ops.potential_operation_assessment_lineage:ASSESSMENT_CANDIDATE_OWNERSHIP": 5,
+    "ops.potential_operation_assessment_lineage:DECLARED_FK:0": 5,
+    "ops.potential_operation_assessment_version:ACCEPTED_READER_OWNERSHIP:potential_operation_id": 5,
+    "ops.potential_operation_current:ACCEPTED_READER_OWNERSHIP:assessment_id": 2,
+    "ops.potential_operation_current:ACCEPTED_READER_OWNERSHIP:potential_operation_id": 2,
+    "ops.potential_operation_current:ASSESSMENT_CANDIDATE_OWNERSHIP": 2,
+    "ops.potential_operation_evidence_association:ACCEPTED_READER_OWNERSHIP:potential_operation_id": 183
+  },
+  "exclusions_applied": 0,
+  "findings_sha256": "5073afe8231dd66a070440ba28307531cd5ad1420e4306430242a2147bb45e7d",
+  "full_database_copies": 0,
+  "legacy_namespace_groups": {
+    "LEGACY_FUNDER_SIGNATURE_REFERENCE": 14,
+    "MEMBERSHIP_COMMIT_ID_WITH_DURABLE_OUTBOX": 104
+  },
+  "lookup_plans": {
+    "core.creator_funders:creator_address,funder_address": [
+      "SEARCH creator_funders USING INDEX sqlite_autoindex_creator_funders_1 (creator_address=? AND funder_address=?)"
+    ],
+    "core.creator_funding_queue:creator_address,mint": [
+      "SEARCH creator_funding_queue USING INDEX sqlite_autoindex_creator_funding_queue_1 (creator_address=? AND mint=?)"
+    ],
+    "core.creator_resolution_queue:mint": [
+      "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+    ],
+    "core.metadata_cache:mint": [
+      "SEARCH metadata_cache USING INDEX sqlite_autoindex_metadata_cache_1 (mint=?)"
+    ],
+    "core.migration_walkback_handoff:mint": [
+      "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+    ],
+    "core.token_analysis:mint": [
+      "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+    ],
+    "core.token_market_cap_peaks:mint": [
+      "SEARCH token_market_cap_peaks USING INDEX sqlite_autoindex_token_market_cap_peaks_1 (mint=?)"
+    ],
+    "core.token_pool_accounts:mint,base_account": [
+      "SEARCH token_pool_accounts USING INDEX sqlite_autoindex_token_pool_accounts_1 (mint=? AND base_account=?)"
+    ],
+    "core.tracked_tokens:mint": [
+      "SEARCH tracked_tokens USING INDEX sqlite_autoindex_tracked_tokens_1 (mint=?)"
+    ],
+    "core.transfer_index:id": [
+      "SEARCH transfer_index USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "ops.confirmed_operation_matches:match_id": [
+      "SEARCH confirmed_operation_matches USING INDEX sqlite_autoindex_confirmed_operation_matches_1 (match_id=?)"
+    ],
+    "ops.monitor_admission_outbox:event_id": [
+      "SEARCH monitor_admission_outbox USING INDEX sqlite_autoindex_monitor_admission_outbox_1 (event_id=?)"
+    ],
+    "ops.monitor_admission_outbox:membership_id": [
+      "SEARCH monitor_admission_outbox USING INDEX sqlite_autoindex_monitor_admission_outbox_2 (membership_id=?)"
+    ],
+    "ops.operation_behavioural_profiles:profile_id": [
+      "SEARCH operation_behavioural_profiles USING INDEX sqlite_autoindex_operation_behavioural_profiles_1 (profile_id=?)"
+    ],
+    "ops.operation_monitor_entry_provenance:operation_id,mint,entry_quality,entry_policy,evidence_identity": [
+      "SEARCH operation_monitor_entry_provenance USING INDEX sqlite_autoindex_operation_monitor_entry_provenance_1 (operation_id=? AND mint=? AND entry_quality=? AND entry_policy=? AND evidence_identity=?)"
+    ],
+    "ops.operation_monitor_facts:operation_id,mint": [
+      "SEARCH operation_monitor_facts USING INDEX sqlite_autoindex_operation_monitor_facts_1 (operation_id=? AND mint=?)"
+    ],
+    "ops.operation_monitor_mode_transitions:mode,effective_at": [
+      "SEARCH operation_monitor_mode_transitions USING INDEX sqlite_autoindex_operation_monitor_mode_transitions_1 (mode=? AND effective_at=?)"
+    ],
+    "ops.operation_monitor_observations:operation_id,mint,observation_timestamp,resolution": [
+      "SEARCH operation_monitor_observations USING INDEX sqlite_autoindex_operation_monitor_observations_1 (operation_id=? AND mint=? AND observation_timestamp=? AND resolution=?)"
+    ],
+    "ops.operation_qualification_contracts:contract_id": [
+      "SEARCH operation_qualification_contracts USING INDEX sqlite_autoindex_operation_qualification_contracts_1 (contract_id=?)"
+    ],
+    "ops.operation_registry_dispositions:operator_id": [
+      "SEARCH operation_registry_dispositions USING INDEX sqlite_autoindex_operation_registry_dispositions_1 (operator_id=?)"
+    ],
+    "ops.operator_entities:operator_id,entity_address": [
+      "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+    ],
+    "ops.operator_evidence:evidence_id": [
+      "SEARCH operator_evidence USING INDEX sqlite_autoindex_operator_evidence_1 (evidence_id=?)"
+    ],
+    "ops.operator_identity_assets:asset_id": [
+      "SEARCH operator_identity_assets USING INDEX sqlite_autoindex_operator_identity_assets_1 (asset_id=?)"
+    ],
+    "ops.operator_identity_events:event_id": [
+      "SEARCH operator_identity_events USING INDEX sqlite_autoindex_operator_identity_events_1 (event_id=?)"
+    ],
+    "ops.operator_identity_merges:source_operator_id": [
+      "SEARCH operator_identity_merges USING INDEX sqlite_autoindex_operator_identity_merges_1 (source_operator_id=?)"
+    ],
+    "ops.operator_identity_state:operator_id": [
+      "SEARCH operator_identity_state USING INDEX sqlite_autoindex_operator_identity_state_1 (operator_id=?)"
+    ],
+    "ops.operator_launch_assignment_history:assignment_id": [
+      "SEARCH operator_launch_assignment_history USING INDEX sqlite_autoindex_operator_launch_assignment_history_1 (assignment_id=?)"
+    ],
+    "ops.operator_launch_membership:mint": [
+      "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+    ],
+    "ops.operator_promotion_reviews:promotion_review_id": [
+      "SEARCH operator_promotion_reviews USING INDEX sqlite_autoindex_operator_promotion_reviews_1 (promotion_review_id=?)"
+    ],
+    "ops.operator_reviews:review_id": [
+      "SEARCH operator_reviews USING INDEX sqlite_autoindex_operator_reviews_1 (review_id=?)"
+    ],
+    "ops.operators:operator_id": [
+      "SEARCH operators USING INDEX sqlite_autoindex_operators_1 (operator_id=?)"
+    ],
+    "ops.p3r_v2_candidate_membership:run_id,candidate_id,mint": [
+      "SEARCH p3r_v2_candidate_membership USING INDEX sqlite_autoindex_p3r_v2_candidate_membership_1 (run_id=? AND candidate_id=? AND mint=?)"
+    ],
+    "ops.potential_operation_assessment_association_binding:assessment_id,association_id": [
+      "SEARCH potential_operation_assessment_association_binding USING INDEX sqlite_autoindex_potential_operation_assessment_association_binding_1 (assessment_id=? AND association_id=?)"
+    ],
+    "ops.potential_operation_assessment_lineage:assessment_id": [
+      "SEARCH potential_operation_assessment_lineage USING INDEX sqlite_autoindex_potential_operation_assessment_lineage_1 (assessment_id=?)"
+    ],
+    "ops.potential_operation_assessment_version:assessment_id": [
+      "SEARCH potential_operation_assessment_version USING INDEX sqlite_autoindex_potential_operation_assessment_version_1 (assessment_id=?)"
+    ],
+    "ops.potential_operation_child_candidates:child_id": [
+      "SEARCH potential_operation_child_candidates USING INDEX sqlite_autoindex_potential_operation_child_candidates_1 (child_id=?)"
+    ],
+    "ops.potential_operation_current:potential_operation_id": [
+      "SEARCH potential_operation_current USING INDEX sqlite_autoindex_potential_operation_current_1 (potential_operation_id=?)"
+    ],
+    "ops.potential_operation_evidence_association:association_id": [
+      "SEARCH potential_operation_evidence_association USING INDEX sqlite_autoindex_potential_operation_evidence_association_1 (association_id=?)"
+    ],
+    "ops.potential_operation_identity:potential_operation_id": [
+      "SEARCH potential_operation_identity USING INDEX sqlite_autoindex_potential_operation_identity_1 (potential_operation_id=?)"
+    ],
+    "ops.potential_operation_workflows:candidate_id": [
+      "SEARCH potential_operation_workflows USING INDEX sqlite_autoindex_potential_operation_workflows_1 (candidate_id=?)"
+    ],
+    "ops.watchtower_token_attribution:mint": [
+      "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+    ],
+    "ops.wt_active_subprov_sessions:id": [
+      "SEARCH wt_active_subprov_sessions USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "ops.wt_attribution_outcomes:mint": [
+      "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+    ],
+    "ops.wt_candidate_websocket_watches:id": [
+      "SEARCH wt_candidate_websocket_watches USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "ops.wt_confirmed_treasuries:treasury": [
+      "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+    ],
+    "ops.wt_discovered_subprovs:subprov": [
+      "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+    ],
+    "ops.wt_launch_audit:mint": [
+      "SEARCH wt_launch_audit USING INDEX sqlite_autoindex_wt_launch_audit_1 (mint=?)"
+    ],
+    "ops.wt_lineage_quarantine:quarantine_id": [
+      "SEARCH wt_lineage_quarantine USING INDEX sqlite_autoindex_wt_lineage_quarantine_1 (quarantine_id=?)"
+    ],
+    "ops.wt_lineage_root_policies:subject_wallet": [
+      "SEARCH wt_lineage_root_policies USING INDEX sqlite_autoindex_wt_lineage_root_policies_1 (subject_wallet=?)"
+    ],
+    "ops.wt_lineage_verified_session_edges:session_id": [
+      "SEARCH wt_lineage_verified_session_edges USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "ops.wt_ops_v2:operation_uuid": [
+      "SEARCH wt_ops_v2 USING INDEX sqlite_autoindex_wt_ops_v2_1 (operation_uuid=?)"
+    ],
+    "ops.wt_ops_v2_wallets:operation_uuid,wallet": [
+      "SEARCH wt_ops_v2_wallets USING INDEX sqlite_autoindex_wt_ops_v2_wallets_1 (operation_uuid=? AND wallet=?)"
+    ],
+    "ops.wt_provisioning_sessions:session_id": [
+      "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_1 (session_id=?)"
+    ],
+    "ops.wt_treasury_review:treasury": [
+      "SEARCH wt_treasury_review USING INDEX sqlite_autoindex_wt_treasury_review_1 (treasury=?)"
+    ],
+    "ops.wt_walkback_atomic_flows:evidence_key": [
+      "SEARCH wt_walkback_atomic_flows USING INDEX sqlite_autoindex_wt_walkback_atomic_flows_1 (evidence_key=?)"
+    ],
+    "ops.wt_walkback_edge_candidates:evidence_key": [
+      "SEARCH wt_walkback_edge_candidates USING INDEX sqlite_autoindex_wt_walkback_edge_candidates_1 (evidence_key=?)"
+    ],
+    "ops.wt_walkback_queue:mint": [
+      "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+    ],
+    "ops.wt_walkback_transaction_roles:evidence_key": [
+      "SEARCH wt_walkback_transaction_roles USING INDEX sqlite_autoindex_wt_walkback_transaction_roles_1 (evidence_key=?)"
+    ],
+    "ops.wt_watchtower_launches:id": [
+      "SEARCH wt_watchtower_launches USING INTEGER PRIMARY KEY (rowid=?)"
+    ],
+    "ops.wt_wrap_close_candidates:creator": [
+      "SEARCH wt_wrap_close_candidates USING INDEX sqlite_autoindex_wt_wrap_close_candidates_1 (creator=?)"
+    ]
+  },
+  "namespace_source_links_verified": 118,
+  "null_reference_edges_not_constrained": 794,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "qualified_exclusions": {
+    "authority": "seed_minimization/row_classification_manifest.json explicit synthetic reason; no operational orphan excluded",
+    "existing_synthetic_controls": 29,
+    "new_exclusions": 0
+  },
+  "resolved_reference_edges": 3517,
+  "runtime_deployment_reason": "Read-only reference preflight and bounded diagnostic metadata only.",
+  "runtime_deployment_required": false,
+  "selected_rows_with_source_authority": 28462,
+  "selection_contract": "Same selected reference PK populations as20b0f4e1, excluding29 documented syntheticcontrols, retaining15 externally authoritative rows, plus accepted sixByzantine closures. No new population search.",
+  "six_case_closure_additions": {
+    "core.token_analysis": 6,
+    "ops.confirmed_operation_matches": 6,
+    "ops.operator_launch_membership": 6
+  },
+  "snapshot_limit": "Each source uses its own read-only SQLite snapshot; no cross-database atomic generation/cutover authority claimed. Repeat source drift invalidates reuse unless selector row digests verify.",
+  "source_metadata": [
+    {
+      "database": "core",
+      "device": 16777234,
+      "inode": 549513179,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "schema_version": 849
+    },
+    {
+      "database": "ops",
+      "device": 16777234,
+      "inode": 421043107,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "schema_version": 766
+    }
+  ],
+  "source_row_digest": "75424bd26ebbe9c087e6f90cb4f0da85545b3ebc80e15fccfd5e05ce0682017c",
+  "source_selected_encoded_bytes": 25706632,
+  "status": "HOLD",
+  "supplementary_evidence_probes": {
+    "atomic_signature_probes": 118
+  },
+  "target_databases_created": 0,
+  "total_reference_edges_checked": 3635,
+  "total_selected_rows": 28462,
+  "typed_reference_branches": {
+    "CONFIRMED_MATCH": 180,
+    "IDENTITY_EVENT": 111,
+    "NONE": 762
+  },
+  "unique_affected_rows": 118,
+  "unknown_reference_count": 118,
+  "unresolved_by_operator": {
+    "04265d9f-6eb2-568c-a49e-9253091a4dbb": 118
+  },
+  "unresolved_by_table": {
+    "ops.operator_launch_membership": {
+      "LEGACY_REFERENCE_TYPE_UNRESOLVED": 118
+    }
+  },
+  "unresolved_reference_count": 118
+}

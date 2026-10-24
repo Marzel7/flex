@@ -1,0 +1,253 @@
+[
+  {
+    "database": "core",
+    "key": {
+      "mint": "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU"
+    },
+    "table": "creator_resolution_queue"
+  },
+  {
+    "database": "core",
+    "key": {
+      "mint": "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU"
+    },
+    "table": "token_analysis"
+  },
+  {
+    "database": "core",
+    "key": {
+      "id": 1
+    },
+    "table": "wb_create_control"
+  },
+  {
+    "database": "core",
+    "key": {
+      "seq": 1
+    },
+    "table": "wb_create_delivery"
+  },
+  {
+    "database": "core",
+    "key": {
+      "id": 1
+    },
+    "table": "webhook_birth_queue"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PRICE_COMMIT_CRASH_FINAL",
+      "operation_id": "watchtower"
+    },
+    "table": "operation_monitor_facts"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_0",
+      "operation_id": "watchtower"
+    },
+    "table": "operation_monitor_facts"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_1",
+      "operation_id": "watchtower"
+    },
+    "table": "operation_monitor_facts"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_2",
+      "operation_id": "watchtower"
+    },
+    "table": "operation_monitor_facts"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_SYNTHETIC_PRICE_TOKEN",
+      "operation_id": "watchtower"
+    },
+    "table": "operation_monitor_facts"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_TERMINAL_SYNTHETIC_FINAL",
+      "operation_id": "watchtower"
+    },
+    "table": "operation_monitor_facts"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PRICE_COMMIT_CRASH_FINAL",
+      "observation_timestamp": 1792711833,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PRICE_COMMIT_CRASH_FINAL",
+      "observation_timestamp": 1792712733,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_0",
+      "observation_timestamp": 1792711833,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_0",
+      "observation_timestamp": 1792712733,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_1",
+      "observation_timestamp": 1792711833,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_1",
+      "observation_timestamp": 1792712733,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_2",
+      "observation_timestamp": 1792711833,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_PROVENANCE_OFFSET_2",
+      "observation_timestamp": 1792712733,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_SYNTHETIC_PRICE_TOKEN",
+      "observation_timestamp": 1792711833,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_SYNTHETIC_PRICE_TOKEN",
+      "observation_timestamp": 1792712602,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_SYNTHETIC_PRICE_TOKEN",
+      "observation_timestamp": 1792712733,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_SYNTHETIC_PRICE_TOKEN",
+      "observation_timestamp": 1792713502,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_TERMINAL_SYNTHETIC_FINAL",
+      "observation_timestamp": 1792711833,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "DEV004_TERMINAL_SYNTHETIC_FINAL",
+      "observation_timestamp": 1792712733,
+      "operation_id": "watchtower",
+      "resolution": "15m"
+    },
+    "table": "operation_monitor_observations"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "evidence_key": "50b9cff7af44aadafdefd2d525cf8b92deb2277802809165855c4951039810fc"
+    },
+    "table": "wt_walkback_edge_candidates"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "evidence_key": "ac2470a75b6e35ec7ebd9bc15cd8ef2387c459ae54e35e8bf4ac816f400e6846"
+    },
+    "table": "wt_walkback_edge_candidates"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "evidence_key": "cf7742a623699025fe63ef4ad8cd1ea84b2058a81bb3307ea473a4156c06ce04"
+    },
+    "table": "wt_walkback_edge_candidates"
+  },
+  {
+    "database": "ops",
+    "key": {
+      "mint": "CTgXRztpsRBJ9nv7sxH9BmrLUztqLVH894NitGy2rUPU"
+    },
+    "table": "wt_walkback_queue"
+  }
+]

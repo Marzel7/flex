@@ -1,0 +1,96 @@
+{
+  "ATH_relative_tolerance": 0.001,
+  "algorithm": {
+    "batch_rows": 128,
+    "completion": "289 durable checkpoints; COMPLETE contains row digest, edge count and findings hash",
+    "encoded_selected_byte_budget": 67108864,
+    "lookup_rows_max": 2,
+    "restart": "No claim of connection-local durable authority. Re-execute deterministic selectors and require source-row digests to match before evidence reuse.",
+    "selection": "read-only explicit mode=ro SQLite handles; PK keyset continuation; source selectors must be indexed; all failures accumulated",
+    "source_generation_limitation": "Each source uses its own read-only SQLite snapshot; no cross-database atomic generation/cutover authority claimed. Repeat source drift invalidates reuse unless selector row digests verify.",
+    "source_lookup_timeout_seconds": 1,
+    "source_row_limit": 30000,
+    "supplementary_signature_lookup_max": 33
+  },
+  "baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "corrections_applied": 0,
+  "coverage": "All declared FKs under accepted price and typed-membership profiles; all typed membership branches; listed accepted assessment, registry and monitor ownership references. Opaque provenance strings/JSON are retained and hashed, not invented as relational FK contracts. This is not a new full semantic/schema audit.",
+  "credential_authority": "BIRDEYE unchanged; values not read",
+  "diagnostic_files": {
+    "checkpoint.json": "ec41f68e5a07bacd4c2b011e3579993570d1e030225f7ae15b734337e90997b1",
+    "contracts.json": "c129d55753e627ce4022923783580ec4f1ca0e60c2bc6a8377ce3abf70596919",
+    "excluded_controls.json": "c43d9f393e1164aebc7cfb928f68f32b9b0fb4b460c56b08579ceddf42cca78f",
+    "findings.json": "a416ad2cfb3dc7734fc9a7230904945631f65038ed2953de42f86f38499f0e9f",
+    "result.json": "98f2153d6ff96cef017a6607a5616872a38814f6383f70dd1902f95b47a7eca7",
+    "verification.json": "6179807e919827beacf9521b7b39187a79456ef114f95df5f7027e0b52acdf2a"
+  },
+  "full_imports": 0,
+  "new_exclusions": 0,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "qualified_contract_sources": {
+    "runtime/creator_resolution/src/ops/dev004_core_base_schema.py": "26340824b6c8628d860534da233f7066ef77ec3f8fa996075970d9cb6bea3f26",
+    "runtime/listener/src/ops/dev004_membership_references.py": "ac696f9881e62970b6270bdf3a2879969e9538541b6b6b1f17f3b946744f2ce5",
+    "runtime/listener/src/ops/generic_living_active_components.py": "f56e97ff72a73cd746e91905184e8a4909ad32753ab48a4d733aa916ed452298",
+    "runtime/listener/src/ops/generic_living_lineage_metadata.py": "00e729bca24d3dd00cdd5b40a700d108530e6479c05d3eb56ec31049826560ef",
+    "runtime/listener/src/ops/operation_monitor_worker.py": "c1e90f9ba54c4d6c8f86feb1b8060cff5143a6d8ec5f682bdf89a7e8809e7f7f",
+    "runtime/walkback/src/core/watchtower_registry_promotion.py": "cd5508da7d20b76a0770eaa44aaa4d694d715e3612c7426a4f850d9b20d28370",
+    "runtime/walkback/src/ops/monitor_live_admission.py": "7fe1c3399eca3c22a42db6173a2a358082a77df97bbf2eb62e06c94dcac47a3e"
+  },
+  "reason": "Read-only diagnostics only; no runtime behaviour change, deployment or activation.",
+  "runtime_changed": false,
+  "runtime_deployment_required": false,
+  "runtime_source_authority": "20b0f4e159e2c05b6bfcd54084178ad6a5cc4862",
+  "selected_population": {
+    "accepted_Byzantine_closure_additions": 18,
+    "base_operational_rows": 28444,
+    "classification_manifest_sha256": "9652427e9caa33af4c23446912849249e1fec80c1cfdc3b54ec07315b80002ba",
+    "documented_synthetic_controls_not_selected": 29,
+    "external_retained_reference_records": 15,
+    "reference_files": {
+      "/private/tmp/dev004-compact-creator-qualified/classification_closure/core_v2.sqlite": "f98cb391ec4aaea65f4dd9266b9769c298534088a5f264de7e843e50027f57e0",
+      "/private/tmp/dev004-compact-creator-qualified/classification_closure/ops_v2.sqlite": "92efde2c3ae80ef1c8a897bf1485eb4d2218e6059f70492988c69469b709ec2a"
+    },
+    "rows": 28462,
+    "source": "same accepted PK populations as20b0f4e1"
+  },
+  "source_paths_and_snapshot_metadata": [
+    {
+      "database": "core",
+      "device": 16777234,
+      "inode": 549513179,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "schema_version": 849
+    },
+    {
+      "database": "ops",
+      "device": 16777234,
+      "inode": 421043107,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "schema_version": 766
+    }
+  ],
+  "source_row_digest": "75424bd26ebbe9c087e6f90cb4f0da85545b3ebc80e15fccfd5e05ce0682017c",
+  "status": "COMPLETE_READ_ONLY_PREFLIGHT_HOLD_FOR_IMPORT",
+  "storage": {
+    "diagnostic_total_budget_bytes": 67108864,
+    "free_floor_bytes": 2000000000,
+    "new_unbounded_growth_paths": 0,
+    "observations": {
+      "after": {
+        "allocated_bytes": 352256,
+        "free_bytes": 2672058368,
+        "largest_file_bytes": 309547
+      },
+      "before": {
+        "allocated_bytes": 0,
+        "free_bytes": 2676412416,
+        "largest_file_bytes": 0
+      }
+    },
+    "raw_source_row_payloads_retained": false,
+    "reserve_bytes": 67108864,
+    "single_file_limit_bytes": 16777216
+  },
+  "tool_source_revision": "f2752eaf7d7bd02e080c18ad6beedeac5b3e263b"
+}

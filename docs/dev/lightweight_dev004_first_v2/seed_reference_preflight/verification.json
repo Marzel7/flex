@@ -1,0 +1,51 @@
+{
+  "current_outcome_discrepancies": [
+    {
+      "mint": "4xT1TtLEsH4sRhJhEFuK6sY9cE1iuXwF6hCHzQwopump"
+    },
+    {
+      "mint": "5GWVzRPoYSxsaN18HEjTUCpMxfz2tDs4o85rN1cFpump"
+    },
+    {
+      "mint": "68T1FYp5iTudTRue6dUxnxdrm98DmXe5AiCXM5jDpump"
+    },
+    {
+      "mint": "94iEVftrQ1AzhyTKKFnCw1XqMe5J8jEt8iWX44YCpump"
+    },
+    {
+      "mint": "95WF7wLb9gcET9kGYp3wSXekSdrYceLmJHSXonetpump"
+    },
+    {
+      "mint": "BHyCgyour6WUPmxZLYZEpeeZLtjtnFkwK3vKdmrUpump"
+    },
+    {
+      "mint": "FhTzPi295zf9d4vVvh9A6CzduFKe2H1hnq8AW8wgpump"
+    },
+    {
+      "mint": "GVeQ82oyUZzHhULUWtE73wwGdiiypyDVpMspxBFVpump"
+    },
+    {
+      "mint": "JEgD4j5pZcnw8SqLogi1yS22uUAUsKDvUNarv7apump"
+    },
+    {
+      "mint": "yDp9dCy1UrRTuwv4urMgkSUHNpw76UvyZHXLmPrpump"
+    }
+  ],
+  "external_retained_evidence_records_verified": 15,
+  "groups": [
+    "findings_digest_matches_result_and_completion_checkpoint",
+    "complete_selected_population_accounting",
+    "complete_edge_accounting_no_early_exit",
+    "no_duplicate_findings",
+    "all_legacy_namespace_source_links_recorded",
+    "all_recorded_source_lookup_plans_indexed",
+    "completion_checkpoint_population_and_edge_fencing",
+    "existing_typed_compatibility_and_explicit_nulls_preserved",
+    "only_previous_documented_synthetic_exclusions",
+    "15_external_payload_digests_13_row_keys_2_prior_qualified_audit_contexts",
+    "read_only_no_import_or_corrections"
+  ],
+  "groups_passed": 11,
+  "limitation": "Verification of recorded bounded preflight evidence; not runtime deployment or cutover acceptance.",
+  "verification": "PASS"
+}

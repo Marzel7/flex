@@ -23374,7 +23374,7 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-10-24T13:13:37.003875+00:00",
+  "last_updated": "2026-10-24T13:28:28.483340+00:00",
   "latest_at_utc": "2026-08-18T14:08:03Z",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "dab00bbf931e70684228a6195e20268d6557cf5f",
+    "git_head": "a7f96954216e185a69034cb43f80451508f16c6b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T13:13:37.003875+00:00",
-    "working_tree": "DEV004 full operational seed HOLD:6newByzantinememberships have nonnullFKeventIDs absent fromsourceoperator_identity_events.6/6exact-schema disposableimports reject. No fullseedmigration/sourcecopy/productionchange. Disk~4.94GBsafe."
+    "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
+    "working_tree": "DEV004 Byzantine provenance6/6resolved toexistingconfirmedmatch IDs;FKcompatibleassignmentimports0/6HOLD. Sourcewriter overloads event_id namespace, no acceptedcompat mapper. No eventsinvented,V1changes orruntimechanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -42770,6 +42770,44 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Test-only authority diagnostic/evidence, no executable runtime correction, promotion or deployment.",
     "production_state": "Unchanged; read-only indexed currentOPSkeys/schema andfiniteDEVreference metadata only; no V1filecopies orwrite/foreignkeyrepair/source/config/service/restart/provider/WS/deletion/cutover actions.",
-    "next_action": "One bounded DEV provenance/event-owner resolution for exactly6listedmemberships andFK-compatibleimportcontract. Ifmissingeventsunavailable,explicitlyqualify preserved-unresolved-statecontract withoutinventingprovenance orchangingcanonicaldecisions. Stop;no productionrepair orpartialseed-as-fullclaim."
+    "next_action": "Use byzantine_event_provenance report. No furthergenericlost-eventsearch: qualify only a separately authorized typedlegacyconfirmed-match importcontract preserving IDs/canonicaldecisions/FKs. No productionrepair/fullmigration.",
+    "blocker_refined_by_provenance_closure": "All6IDs are existingconfirmed_operation_matches.match_id, not missingconfirmed evidence. Acceptedproducer puts matchUUID in membership.event_id while FK points toidentityevents. Need acceptedtypedreferencecompatibility; prior exactFKdiagnostic remains valid."
+  },
+  "dev004_byzantine_event_provenance": {
+    "status": "PARTIAL_PROVENANCE_RESOLVED_FK_COMPATIBILITY_HOLD",
+    "engineering_revision": "a7f96954216e185a69034cb43f80451508f16c6b",
+    "qualification_source": "4a9fba09c0b838cbaf60f619bea3de50a9954838",
+    "runtime_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+    "runtime_source_changed": false,
+    "report": "docs/dev/lightweight_dev004_first_v2/byzantine_event_provenance/REPORT.md",
+    "authority_manifest_sha256": "771175ae2eece503dbc1aeff7594dc6338ddd4d52637fe910c55ce2be3fd4491",
+    "publication": "All8source/report/evidence files byte-verified against origin/codex/dev004-first-v2-prototype; no databasepayload published. Runtime3trees equal0013ccbd.",
+    "provenance_resolved": 6,
+    "FK_assignment_imports_resolved": 0,
+    "authoritative_existing_owner": "OPS V1confirmed_operation_matches;project_completed_walkback;versionBYZANTINE_PROVEN_CREATOR_CONTINUITY.v1",
+    "cause": "All6membership.event_id values exactlyequal uuid5(NAMESPACE_URL,detector_version:mint) match_id; operator/mint anddetected_at/assigned_at match. Writer createsconfirmedmatch+membership,notidentityevent. V1declaredFKreferencesoperator_identity_events. Existingproducer/schema namespace inconsistency,notmissingmatchpayload/importomission.",
+    "evidence": "36boundedindexedlookups verifyexactmatchrecords,canonicalCorecreatorCREATE/migration,priorcanonicalproofmembership+atomicflow.6identityevents absent inOPSV1 andacceptedseedOPS;CoreV1hasnoeventtable. No globalabsence orhistoricalprocessclaim. WriterSHA c490d537d2278e12ef1250fdaf1ec9e6d8e032283d9c68b6723fa5544e57fcb1matchesall3installedpackages.",
+    "tests": "6exactmatchimportsPASS;6duplicateimportsadd0;6wrongmintidentitycontrolsreject;freshchildexit0verifiesall6rowdigests/replayandcleanFKs.6membershipimportsFKrejectevenwithmatchpresent.0manufacturedidentityevents,0cleared/changedIDs,0invalidassignmentsretained. SourceoperatorCONFIRMED/CERTAINpreserved.",
+    "accepted_compatibility_owner": "None established in inspectedfrozenproducer/governance/manualpromotionpaths. Operation-levelgovernancebootstrapCONFIRMED event hasdifferentIDandsemantics; cannot substituteforlaunchmatch. No inventedadapter.",
+    "storage": {
+      "target_bytes": 49152,
+      "final_diagnostic_allocated_bytes": 81920,
+      "before_available_bytes": 3843026944,
+      "after_diagnostic_available_bytes": 3842584576,
+      "later_available_bytes": 3831668736,
+      "floor_bytes": 2000000000,
+      "reserve_bytes": 67108864,
+      "file_limit_bytes": 8000000,
+      "sqlite_page_cap": 256,
+      "raw_retention": false,
+      "new_unbounded_growth_paths": 0
+    },
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only authority lookup/disposabletest/evidenceonly; no executable runtimecorrection ordeployment.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "unchanged_acceptance": "100creator/616Watchtower/26Deep/11frozen/Walkback/Birdeye/freshness reused,notrerun. No sourceDB/schema/config/credential/service/restart/WS/deletion/cutover orbroadhistoricalresearch.",
+    "blocker": "No acceptedFKcompatiblemapping fromtheseexistingconfirmedmatchreferencestoidentityeventcontract. All6canonicalassignmentimportsremainHOLD.",
+    "next_action": "DefineandseparatelyqualifyonlyDEVtypedlegacyconfirmed-matchreferencecompatibility, preservingexistingIDs/assignments/evidence/FKs. Do notmanufactureidentityevents,nullIDs,dropassignments,bypassconstraints,repairV1orresumefullseedunderunqualifiedmapping."
   }
 }

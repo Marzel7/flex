@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/p0-receipt-capacity",
-    "git_head": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
+    "git_head": "fe6acaddd9c1b95e5feaf8e06b71830e48849d63",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T16:46:27.494390+00:00",
-    "working_tree": "Independent P0 receipt capacity extension qualified in isolated DEV. No DEV004 migration scope change; no production deployment."
+    "updated_at_utc": "2026-10-24T16:55:04.453349+00:00",
+    "working_tree": "Read-only P0 receipt-capacity deployment preflight GO; no deployment or service actions. Candidate remains3c8d0d22."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43274,5 +43274,57 @@
     "activation_authorized": false,
     "blocker": "DEV qualification complete; production still on old exhausted limit. No production deployment authorized.",
     "next_action": "Separately authorize source-only deployment preflight for exact one-file payload and capacity-compatible fallback, rechecking installed preimage, sole listener ownership and disk headroom. Do not deploy under current authorization."
+  },
+  "p0_receipt_capacity_deployment_preflight": {
+    "status": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
+    "engineering_evidence_revision": "fe6acaddd9c1b95e5feaf8e06b71830e48849d63",
+    "runtime_candidate": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
+    "report": "docs/dev/p0_receipt_capacity/preflight/REPORT.md",
+    "candidate_source_sha256": "b022320c55ebedea95153c17c7ad2fb2fc8a6335951a8960dea642e5505e72bf",
+    "installed_preimage_sha256": "6703e012e81554957a3ba22b754f1b5373a7816eefb35a1bfa8dd15cb1e6fc8b",
+    "compatible_fallback_sha256": "67b342e737cd9e06f2ca9be877ab1c4910981662934e1f221ce5a55d27800647",
+    "accepted_numeric_parser_preserved": "65da0e227727da5fb19a75950cae8de1c05bc9ab / installed751d40d1; no package downgrade",
+    "tests": {
+      "passed": 32,
+      "failed": 0
+    },
+    "live_capacity": {
+      "start_utc": "2026-10-24T16:50:17.872081+00:00",
+      "end_utc": "2026-10-24T16:50:49.602416+00:00",
+      "full_buckets": 242,
+      "remaining_slots": 117,
+      "readable_receipts": 102283,
+      "age_protected": 102283,
+      "age_eligible": 0,
+      "canonical_conflicts": 1378,
+      "unresolved_births": 1502,
+      "migration_handoffs": 3949,
+      "new_capacity_refusal_messages": 5,
+      "observation_seconds": 31.730335,
+      "canonical_birth_loss": "NOT_ESTABLISHED"
+    },
+    "services": {
+      "listener": 94632,
+      "resolver": 3874,
+      "walkback": 94577,
+      "states": "RUNNING; one matching listener Python process"
+    },
+    "database_health": "Both bounded query-only reads succeeded; both WAL0bytes; no checkpoint/write.",
+    "free_bytes_at_receipt_scan": 3595874304,
+    "final_free_bytes": 2520047616,
+    "disk_caveat": "Material concurrent decline. Current >2GB+64MiB but recheck immediately before staging/start. No cleanup or unrelated storage investigation. Expanded slots do not reserve disk.",
+    "rollback_rule": "After any expanded-bucket write or uncertainty use only tested capacity-compatible fallback. Exact384-limit preimage is not authorized after expansion.",
+    "plan": "Stage bounded hashes/preimage/fallback; stop only listener; exclusive same-directory file write/fsync/atomic replace/directory fsync; start only listener; verify natural subscriptions, expanded-bucket COMMITTED receipt and protected retry/quarantine identities; resolver/Walkback unchanged. Restart has intake interruption; no lossless replay claim.",
+    "production_mutations": 0,
+    "receipt_mutations": 0,
+    "database_writes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only preflight and deployment plan only. Executable correction remains QUALIFIED_NOT_DEPLOYED.",
+    "activation_authorized": false,
+    "blocker": null,
+    "next_action": "Separately authorize exact one-file listener deployment with capacity-compatible fallback and bounded natural acceptance; immediately recheck disk/preimage/sole-owner prerequisites.",
+    "engineering_publication": "Local immutable evidence commit only; no engineering remote publication requested or performed."
   }
 }

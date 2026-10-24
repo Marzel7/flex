@@ -34780,12 +34780,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "ccabf8cf74c72aa8fbbca9732f7f8ab7c3a92c5b",
+    "branch": "codex/p0-receipt-capacity",
+    "git_head": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T16:28:45.087461+00:00",
-    "working_tree": "DEV004 production bundle qualification stopped at independent P0 receipt capacity. Read-only assessment; no runtime or production changes."
+    "updated_at_utc": "2026-10-24T16:46:27.494390+00:00",
+    "working_tree": "Independent P0 receipt capacity extension qualified in isolated DEV. No DEV004 migration scope change; no production deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43224,5 +43224,55 @@
     "runtime_source_revision": "bf0da567634a040c96cc955c9afe165466d94beb",
     "service_actions": 0,
     "status": "HOLD_P0_RECEIPT_CAPACITY"
+  },
+  "p0_non_destructive_receipt_capacity": {
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "3c8d0d22fdf04ffe43ff81daf7f0736f86a646d7",
+    "engineering_branch": "codex/p0-receipt-capacity",
+    "engineering_worktree": "/private/tmp/flex-p0-receipt-capacity",
+    "engineering_remote_publication": "NOT_REQUESTED_OR_PERFORMED; local immutable commit retained. Handoff publication only.",
+    "frozen_baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "accepted_source_base": "a766d7e9c3efadc7bf270c62fca0b6d01fdb361c",
+    "report": "docs/dev/p0_receipt_capacity/REPORT.md",
+    "implementation": "One packaged writer: finite bucket limit384to1536, fixed warning at1152. Same256identity buckets, paths, legacy lookup, fsync publication, retention and quarantine.",
+    "capacity_observation": {
+      "utc": "2026-10-24T16:41:18.224624+00:00",
+      "active_receipts": 102270,
+      "full_buckets": 241,
+      "remaining_old_slots": 130,
+      "allocated_receipt_bytes": 418897920
+    },
+    "new_limits": {
+      "per_bucket": 1536,
+      "buckets": 256,
+      "sharded_receipts": 393216,
+      "receipt_and_temp_bytes": 4096,
+      "active_payload_envelope_bytes": 1627389952,
+      "active_archive_payload_envelope_bytes": 3254779904,
+      "floor_bytes": 2000000000,
+      "new_unbounded_paths": 0
+    },
+    "rate_qualification": "Accepted 600.1second observation197births,7PPmigrations,13PumpSwapnotifications. Seven-day extrapolation198543births/218700conservative total, not a seven-day measurement or absolute upper bound. No rate inferred from capacity failures.",
+    "tests": {
+      "passed": 32,
+      "failed": 0,
+      "focus": "Full old/new buckets, collisions, legacy/dedup/conflict reads, disk refusal, sync/rename interruption restart, retention/quarantine, concurrent near-ceiling writes, migration handoff, source-only fallback. Includes11accepted retention controls.",
+      "full_bucket_benchmark_samples": 32,
+      "median_ms": 1.8698125,
+      "max_ms": 2.287875,
+      "absolute_latency_guarantee": false
+    },
+    "rollback": "Exact preimage cannot reliably update buckets exceeding385entries. Tested capacity-compatible fallback is exact installed preimage with only1536limit retained. Never shrink limit or delete records as rollback.",
+    "free_bytes_before": 3745775616,
+    "free_bytes_after": 3670016000,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_actions": 0,
+    "receipt_mutations": 0,
+    "activation_authorized": false,
+    "blocker": "DEV qualification complete; production still on old exhausted limit. No production deployment authorized.",
+    "next_action": "Separately authorize source-only deployment preflight for exact one-file payload and capacity-compatible fallback, rechecking installed preimage, sole listener ownership and disk headroom. Do not deploy under current authorization."
   }
 }

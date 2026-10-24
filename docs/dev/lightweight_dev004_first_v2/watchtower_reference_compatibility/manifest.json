@@ -24,6 +24,11 @@
     "verification.json": "9f55d95d62a7a9a44e61a581fb6c03237f4a31521690f77593b4875e36f0c9f1"
   },
   "future_import_binding": "Parent rows must be actual selected source rows. Outbox+queue+outcomes before memberships. Source drift requires revalidation. No selected V1 records imported in this task.",
+  "future_import_owner_binding": {
+    "owner": "dev004_watchtower_references",
+    "source": "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/compact_rehearsal.py",
+    "verification": "PASS; AST only; importer never executed"
+  },
   "new_exclusions": 0,
   "original_typed_v1_owner": "unchanged;noimplicitupgradeofnonemptyv1sidecar",
   "outbox_hash_authority": "Accepted source owner and read-only resolver verify deterministicidentityhash;SQLFKenforcesexactparent composite identity,notcryptographichashcomputation",
@@ -31,11 +36,13 @@
   "pending_admissions_retained": 5,
   "profile": "DEV004_TYPED_MEMBERSHIP_REFERENCE_V2_WATCHTOWER",
   "python": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+  "qualified_runtime_source_commit": "0ace7186a302d7b04222b4000157f6b61ecde4b9",
   "reference_edges": 3635,
   "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED; intendedDEVinterfacesexecutedwithsyntheticstoresonly;productiondeploymentnotauthorized",
   "selected_rows": 28462,
-  "source_commit": "0ace7186a302d7b04222b4000157f6b61ecde4b9",
+  "source_commit": "483066f625e85994f2fcfc996edf52543ab809e8",
   "source_files": {
+    "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/compact_rehearsal.py": "9d9c4937dfdf6dea82398e17da4516b8668294f8d9e8beee50f47debe8491eb1",
     "docs/dev/lightweight_dev004_first_v2/seed_reference_preflight/qualify.py": "e826ccaf1381fa4544d1afd8a5a735967b4a968890c1bd060dcc07687e94675c",
     "docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/qualify.py": "9738cfffb7bd5d49e1f463bbb87dad21fe273e7b43dce0ddaba17ed23ab3ea3f",
     "docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/verify.py": "18f0b1070f6f71cbfae0f02c9105bcbacea747d43f0a80d8e51625bfe1ea4147",

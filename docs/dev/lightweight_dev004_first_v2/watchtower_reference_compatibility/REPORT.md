@@ -4,7 +4,7 @@ DEV004_STATUS: **PASS — requested isolated DEV qualification complete.**
 
 REFERENCE_COMPATIBILITY: **PASS**. Same28,462selected rows;3,635/3,635reference edges supported. UNRESOLVED_REFERENCE_COUNT: **0**. MISSING_PARENT_COUNT: **0**. New operational exclusions0.
 
-Qualified source `0ace7186a302d7b04222b4000157f6b61ecde4b9`. Starting evidence95f3a891 and handoff960119a4; FLEX_STABLE_V2 and accepted source ancestry retained. All source identifiers, assignment rows, provenance/confidence and negative evidence remain unchanged. No full V2 import, promotion or deployment.
+Qualified composition `483066f625e85994f2fcfc996edf52543ab809e8` (tested runtime bytes from `0ace7186a302d7b04222b4000157f6b61ecde4b9` unchanged). Starting evidence95f3a891 and handoff960119a4; FLEX_STABLE_V2 and accepted source ancestry retained. All source identifiers, assignment rows, provenance/confidence and negative evidence remain unchanged. No full V2 import, promotion or deployment.
 
 ## Smallest contract correction
 
@@ -25,7 +25,7 @@ PENDING_OUTBOX_ADMISSIONS_RETAINED: **5/5**, same original event/membership iden
 
 ## Verification
 
-The read-only preflight uses the same selected-key population,128-row batches, bounded indexed lookups and completion fencing. All118 new branches resolve to existing selected parents:104MEMBERSHIP_COMMIT,14FUNDING_SIGNATURE. Original counts remain180CONFIRMED_MATCH,111IDENTITY_EVENT and762NONE. No target database or selected-row import is performed by preflight.
+The read-only preflight uses the same selected-key population,128-row batches, bounded indexed lookups and completion fencing. All118 new branches resolve to existing selected parents:104MEMBERSHIP_COMMIT,14FUNDING_SIGNATURE. Original counts remain180CONFIRMED_MATCH,111IDENTITY_EVENT and762NONE. No target database or selected-row import is performed by preflight. The existing future disposable importer is now explicitly bound to this qualified owner; AST verification PASS, importer not executed.
 
 **26 focused synthetic control groups PASS:** FK-on schema initialization, all original branches, both new branches, conflict/pending retention, unknown and ambiguous rejection, source/timestamp/parent protections, direct sidecar rewrite rejection, duplicate suppression, repeat bootstrap, actual accepted writer compatibility, no implicit commit, savepoint rollback, fresh-process reopen and process crash before caller commit, plus unchanged legacy writer ordering. A nullable-population ambiguity control passes. An initial writer-order counterexample was corrected; a test-fixture quote error was corrected before the final run. No remaining test failures.
 

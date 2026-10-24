@@ -44,7 +44,7 @@ def copy(src,dst):
  with src.open('rb') as f,dst.open('wb') as g:shutil.copyfileobj(f,g,65536);g.flush();os.fsync(g.fileno())
  check(sha(src)==sha(dst),'COPY_DIGEST_MISMATCH')
 def logical(path):
- q=sqlite3.connect(Path(path).as_uri()+'?mode=ro',uri=True);q.execute('PRAGMA query_only=ON');out={}
+ q=sqlite3.connect(Path(path).as_uri()+'?mode=ro',uri=True);q.execute('PRAGMA query_only=ON');q.execute('PRAGMA temp_store=MEMORY');out={}
  try:
   schema=q.execute("SELECT type,name,tbl_name,sql FROM sqlite_schema ORDER BY type,name").fetchall();check(len(schema)<1500,'SCHEMA_LIMIT')
   out['_schema']=hashlib.sha256(json.dumps(schema,separators=(',',':')).encode()).hexdigest()
@@ -72,14 +72,15 @@ def isolation(base):
  def audit(event,args):
   if event=='sqlite3.connect':
    raw=str(args[0]);plain=raw[5:].split('?',1)[0] if raw.startswith('file:') else raw
-   check(plain!=':memory:' and Path(plain).resolve().is_relative_to(base),'UNDECLARED_DATABASE')
+   check(plain!=':memory:' and Path(plain).resolve() in {base/(g+'-'+k+'.sqlite') for g in ['v1','v2','rollback'] for k in ['core','ops','creator']},'UNDECLARED_DATABASE')
+   check(storage(base)['allocated']+3*FILE<TOTAL,'SQLITE_TRANSACTION_ALLOCATION_RESERVE')
   if event=='open':
    raw=args[0]
    if not isinstance(raw,(str,bytes,os.PathLike)):return
    p=Path(os.fsdecode(raw));check(p.name not in ['.env','.env.production'],'CREDENTIAL_FILE_FORBIDDEN')
    flags=args[2] if isinstance(args[2],int) else 0
    if flags & (os.O_WRONLY|os.O_RDWR|os.O_CREAT|os.O_TRUNC|os.O_APPEND):
-    check(p.resolve().is_relative_to(base),'WRITE_OUTSIDE_REHEARSAL');check(os.statvfs(base).f_bavail*os.statvfs(base).f_frsize>=FLOOR+TOTAL,'DISK_FLOOR_AND_REHEARSAL_RESERVE')
+    check(p.resolve().is_relative_to(base),'WRITE_OUTSIDE_REHEARSAL');check(storage(base)['allocated']+FILE<TOTAL,'FILE_ALLOCATION_RESERVE');check(os.statvfs(base).f_bavail*os.statvfs(base).f_frsize>=FLOOR+TOTAL,'DISK_FLOOR_AND_REHEARSAL_RESERVE')
  sys.addaudithook(audit)
  p=load('rehearsal_pair',ROOT/'tests/dev004/test_bounded_paired_transfer.py');import pytest
  patch=pytest.MonkeyPatch();env=p.support.env.__wrapped__(base,patch)
@@ -144,7 +145,9 @@ def validate(base,source_commit,expected_hash):
  storage(base);return m
 
 def resume_case(base,g):
- p,env=isolation(base);c,completion,queue,budget=case(base,p,env);extras(c);c.bind_environment(g);c.binding(g);env.patch.setenv('CREATOR_DB_PATH',str(base/(g+'-creator.sqlite')));return p,c,completion,queue,budget
+ p,env=isolation(base);c,completion,queue,budget=case(base,p,env);
+ for key,value in json.loads((base/'manifest.json').read_text())['feature_flags'].items():env.patch.setenv(key,str(value))
+ extras(c);c.bind_environment(g);c.binding(g);env.patch.setenv('CREATOR_DB_PATH',str(base/(g+'-creator.sqlite')));return p,c,completion,queue,budget
 
 def freeze_copy(c,source,target):
  for k in ['core','ops']:
@@ -153,7 +156,7 @@ def freeze_copy(c,source,target):
  copy(c.env.path/(source+'-creator.sqlite'),c.env.path/(target+'-creator.sqlite'))
 
 def activate(c,g):
- c.guard.seal_manifest(str(c.manifests[g]));c.select_authority(g,'ACTIVE');c.bind_environment(g);c.binding(g)
+ c.guard.seal_manifest(str(c.manifests[g]));c.select_authority(g,'ACTIVE');c.bind_environment(g);c.binding(g);c.env.patch.setenv('CREATOR_DB_PATH',str(c.env.path/(g+'-creator.sqlite')))
 
 def stage(base,phase):
  if phase=='migrate':

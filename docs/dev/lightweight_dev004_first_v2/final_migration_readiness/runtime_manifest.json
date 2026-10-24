@@ -476,5 +476,11 @@
   "provider_calls": 0,
   "service_actions": 0,
   "V1_copies": 0,
-  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_COMPONENTS; FINAL_BUNDLE_HOLD"
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_COMPONENTS; FINAL_BUNDLE_HOLD",
+  "immutable_source_commit": "a805dd49e1b70b84d1b8c7724723a4f28ade2d42",
+  "runtime_trees": {
+    "listener": "817b787acfb6fca4bdb13e46a2dc73ddf9c92f27",
+    "creator_resolution": "f4954d4107a5ece3c50e6760fcc0af8f15c3b185",
+    "walkback": "7d893c46d0e239634e8855a994b8aedc6cf5eef5"
+  }
 }

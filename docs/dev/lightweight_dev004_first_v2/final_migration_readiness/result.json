@@ -15,5 +15,8 @@
   "service_actions": 0,
   "source_runtime_files_changed": 6,
   "free_bytes": 2798366720,
-  "minimum_correction": "Add a versioned, manifest-scoped production bootstrap profile to the two existing schema owners: exact destination identities/generation, exclusive TRANSFER owner, FK-on, existing file/disk bounds, same schema definitions, fail-closed V1 rejection. Do not bypass checks or use/tmpasproduction. Then complete the prepared final bounded rehearsal in the same DEV004."
+  "minimum_correction": "Add a versioned, manifest-scoped production bootstrap profile to the two existing schema owners: exact destination identities/generation, exclusive TRANSFER owner, FK-on, existing file/disk bounds, same schema definitions, fail-closed V1 rejection. Do not bypass checks or use/tmpasproduction. Then complete the prepared final bounded rehearsal in the same DEV004.",
+  "source_commit": "a805dd49e1b70b84d1b8c7724723a4f28ade2d42",
+  "runtime_manifest_sha256": "8e2b22e4d93ef1867c663941dfa50f3abce57c18ea501a7c0bd34f9fc73b5e0e",
+  "report_sha256": "9a4508f52c6838a991531bae947aba79f45ae9aaf8ffa086c569b63ec92c93d0"
 }

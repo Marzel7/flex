@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "34276f460386139cc5534d36b9d359ee1b0cfb5a",
+    "git_head": "e4f324e0840d040899cd9d23ada451e995eb01ab",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
@@ -42844,6 +42844,56 @@
     "accepted_ATH_relative_tolerance": 0.001,
     "credential_authority": "BIRDEYEonly,unchanged",
     "publication": "Engineering7files byteverified againstorigin/codex/dev004-first-v2-prototype",
-    "next_action": "Resolve acceptedcompatibility/parentauthority for exact retained token_market_cap_peaks mintBEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump missingtracked_tokens parent (indexedV1lookup0). Do notfabricateparent/deletepeak/bypassFK orhistoricalacquisition. Fullseedrehearsalblocked."
+    "next_action": "Resolve acceptedcompatibility/parentauthority for exact retained token_market_cap_peaks mintBEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump missingtracked_tokens parent (indexedV1lookup0). Do notfabricateparent/deletepeak/bypassFK orhistoricalacquisition. Fullseedrehearsalblocked.",
+    "price_blocker_superseded_by": "dev004_price_reference_compatibility: exactpricecasePASS; fullimportnowHOLDatexactWatchtowermembershipreference; bothtransactionsrolledback"
+  },
+  "dev004_price_reference_compatibility": {
+    "status": "PRICE_REFERENCE_PASS_FULL_REHEARSAL_HOLD",
+    "engineering_revision": "e4f324e0840d040899cd9d23ada451e995eb01ab",
+    "qualified_source_revision": "20b0f4e159e2c05b6bfcd54084178ad6a5cc4862",
+    "report": "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/REPORT.md",
+    "manifest": "docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/manifest.json",
+    "manifest_sha256": "f8ca50c76e9d94f0edd979fe0b3d75ca903ad91de2fe16f08a8642f9cb39d7c7",
+    "exact_price_record": "token_market_cap_peaks row13 BEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump; exact canonical token_analysis identity available; tracked_tokens monitoring registry not permanentidentity; no registryrecord invented",
+    "correction": "ExistingdisposableCorebootstrap explicitprice_identity_parent=token_analysis profile; originalcolumns/defaults/PKandvalues unchanged; distinctversionmarker; defaulttracked_tokens contractunchanged; no nonempty reparent/migration",
+    "verification": "21focusedcontrolsPASS includingFKON exactpriceimport,acceptedinstalledreader/UPSERT,missingidentityrejection,freshprocessrestart/idempotency,6Byzantineimports;15originalbootstrapgroupsPASS; ATHrelative0 tolerance0.001; no originalprovenancechanges",
+    "direct_source_gate": "28429indexedsource rows found;29manifestdocumentedsyntheticcontrols excluded;15existing externalreferencerecords retainedunderacceptedauthority",
+    "full_import": "Attempted directV1->compactV2 FKON;constraintsdeferrednotdisabled;27288selectedrows thenfirstunknownmembershipreference; bothdisposabletransactionsrolledback,Corecanonicalrows0OPS memberships0; no pairedactivation",
+    "blocker": {
+      "error": "unknown or ambiguous membership reference",
+      "selection": {
+        "database": "ops",
+        "key": {
+          "mint": "24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump"
+        },
+        "table": "operator_launch_membership"
+      },
+      "source_reference_lookup": {
+        "confirmed_match_rows": 0,
+        "event_id": "38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np",
+        "identity_event_rows": 0,
+        "lookup": "indexed exact event_id/match_id lookups; no replacement or new reference invented",
+        "operator_id": "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "source_population_id": "watchtower_behavioural_paginated_lineage_20260825"
+      },
+      "stage": "direct_import"
+    },
+    "storage": {
+      "sampled_peak_allocated_bytes": 14077952,
+      "disk_free_before": 3833876480,
+      "disk_free_after": 3830632448,
+      "per_file_limit_bytes": 67108864,
+      "floor_bytes": 2000000000,
+      "reserve_bytes": 67108864,
+      "no_full_V1_copies": true,
+      "no_raw_provider_retention": true
+    },
+    "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED;DEVonly,noDEV_COMPLETEorproductioncutoverauthority",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "activation": false,
+    "credential_authority": "BIRDEYEonly;budgets/endpoints/retriesunchanged",
+    "publication": "Engineering9files byteverified againstorigin/codex/dev004-first-v2-prototype",
+    "next_action": "QualifyonlytheacceptedtypedreferenceauthorityforWatchtowermembership24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump,event38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np;indexedV1identityeventandmatchlookups0. Do notinventparent/reopenresolvedpricecase/expandhistoricalresearch."
   }
 }

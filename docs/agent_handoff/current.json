@@ -23374,7 +23374,7 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-10-24T12:52:51.678304+00:00",
+  "last_updated": "2026-10-24T13:13:37.003875+00:00",
   "latest_at_utc": "2026-08-18T14:08:03Z",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "40dd2873a7064ed5361803ed433ec0a53dfd32c5",
+    "git_head": "dab00bbf931e70684228a6195e20268d6557cf5f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T12:52:51.678304+00:00",
-    "working_tree": "DEV004 resumed direct compact migration PASS:37V1rows\u2192774144byteV2pair,11readercomparisons,crash/restart/idempotency,finalizedprice suppression. Disk~4.93GB>2GB+64MiB. No V1copies orproductionchanges."
+    "updated_at_utc": "2026-10-24T13:13:37.003875+00:00",
+    "working_tree": "DEV004 full operational seed HOLD:6newByzantinememberships have nonnullFKeventIDs absent fromsourceoperator_identity_events.6/6exact-schema disposableimports reject. No fullseedmigration/sourcecopy/productionchange. Disk~4.94GBsafe."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -42731,5 +42731,45 @@
     "rollback": "ABORT_BEFORE_ACTIVATION: original V1 pair remains authoritative/unchanged; representative targets never activated. No deletion/source restore/unretire or new rollback copy. Prior complete pair/journal recovery evidence preserved.",
     "historical_report": "docs/dev/lightweight_dev004_first_v2/compact_direct_migration/REPORT.md",
     "scope": "Representative37rowhistoricalclosure only, not global CoreOPSatomicgeneration or full operational footprint. Earlier22.7MBreference/24.1MBwithmappings and32MiB/128MiBplanning allowances remainprovisional; no5GiB lifetimeclaim."
+  },
+  "dev004_full_operational_seed_migration": {
+    "status": "HOLD_MISSING_CANONICAL_EVENT_DEPENDENCIES",
+    "engineering_revision": "dab00bbf931e70684228a6195e20268d6557cf5f",
+    "qualification_source": "ce9604de6a5c73bf2eaec648ba5fc8efb0b00e06",
+    "runtime_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+    "runtime_source_changed": false,
+    "report": "docs/dev/lightweight_dev004_first_v2/full_operational_seed_migration/REPORT.md",
+    "authority_gate_manifest": "docs/dev/lightweight_dev004_first_v2/full_operational_seed_migration/authority_gate_manifest.json",
+    "authority_manifest_sha256": "bc46f194d60a6ce77eec13720ceb1d1c59bda42ddd2972c03fecef13a8ec8eb8",
+    "publication": "All4diagnostic source/report/manifest/evidence files byte-verified against origin/codex/dev004-first-v2-prototype; no databasepayload published.",
+    "current_root_delta": "Current1171canonicalmemberships vsretained1165;Byzantine171vs165.6newmints,events andtheirCore/queue/outcome/pricepopulations absent fromoldseed. No missingoldmembership.",
+    "blocker": "The6newmemberships have non-null event_id REFERENCES operator_identity_events(event_id). Indexed source event lookups all0 in sameROtransaction. Source operator exists; no accepted alternateowner inferred. Cannot import fullcurrentseed withFKenforced without resolving event authority; do not omit memberships/clearIDs/inventevents/disableFKs.",
+    "tests": "6/6deterministic safetydiagnostics pass by rejecting FOREIGN KEY constraint failed. ExactsourceDDL in1tiny disposableDB,PRAGMAforeign_keys=ON,realexistingoperator parent present,savepointrollback aftereach;0invalidmemberships retained. Fullmigration andfunctionalmatrices notrun;earlieraccepted evidence remainsclosed.",
+    "storage": {
+      "full_seed_output_bytes": null,
+      "full_seed_peak_additional_bytes": null,
+      "full_size_status": "NOT_QUALIFIED_GATE_BLOCKED",
+      "previous_reference_pair_bytes": 22724608,
+      "diagnostic_database_bytes": 28672,
+      "final_diagnostic_logical_bytes": 45855,
+      "final_diagnostic_allocated_bytes": 49152,
+      "available_before": 4942516224,
+      "available_after_diagnostic": 4942454784,
+      "available_later_read": 4939649024,
+      "floor_bytes": 2000000000,
+      "reserve_bytes": 67108864,
+      "process_file_limit_bytes": 8000000,
+      "diagnostic_page_cap": 256,
+      "raw_retention": false,
+      "new_unbounded_growth_paths": 0
+    },
+    "full_seed_migration_started": false,
+    "production_mutations": 0,
+    "source_full_copy_snapshot_bytes": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Test-only authority diagnostic/evidence, no executable runtime correction, promotion or deployment.",
+    "production_state": "Unchanged; read-only indexed currentOPSkeys/schema andfiniteDEVreference metadata only; no V1filecopies orwrite/foreignkeyrepair/source/config/service/restart/provider/WS/deletion/cutover actions.",
+    "next_action": "One bounded DEV provenance/event-owner resolution for exactly6listedmemberships andFK-compatibleimportcontract. Ifmissingeventsunavailable,explicitlyqualify preserved-unresolved-statecontract withoutinventingprovenance orchangingcanonicaldecisions. Stop;no productionrepair orpartialseed-as-fullclaim."
   }
 }

@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "a959aff92747a42591cb3f69e3314b896895a113",
+    "git_head": "f9064ac445888959abfa66d4459bfc67109246b5",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T18:13:27.748063+00:00",
-    "working_tree": "DEV004final readiness HOLD_SINGLE_CRITICAL_BLOCKER: Core/typed bootstrap owners reject persistent production roots even with valid TRANSFER authority. Runtime file/auxiliary controls56testsPASS; no final rehearsal or production changes."
+    "updated_at_utc": "2026-10-24T18:55:59.446059+00:00",
+    "working_tree": "DEV004production profile and final integrated rehearsalPASS. Candidatecec3494d;27focusedtests+1integratedscenario+3same-fixture runtime binding childrenPASS. GO_FOR_PRODUCTION_CUTOVER_AUTHORIZATION only; no production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43482,7 +43482,7 @@
     "superseding_execution": "a959aff9: implemented/tested runtime/auxiliary/file controls and bounded state dispositions; final readiness stopped on exact disposable-only bootstrap owner contract. Independent P0deployment remains COMPLETE."
   },
   "dev004_final_migration_readiness": {
-    "status": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "status": "PRIOR_BOOTSTRAP_BLOCKER_RESOLVED_BY_PRODUCTION_PROFILE",
     "engineering_evidence_revision": "a959aff92747a42591cb3f69e3314b896895a113",
     "immutable_source_composition": "a805dd49e1b70b84d1b8c7724723a4f28ade2d42",
     "starting_source": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
@@ -43531,7 +43531,8 @@
       "Core_owner": "runtime/creator_resolution/src/ops/dev004_core_base_schema.py:initialize -> DISPOSABLE_ROOT_REQUIRED",
       "OPS_owner": "runtime/listener/src/ops/dev004_watchtower_references.py:initialize/base.profile -> EXPLICIT_DISPOSABLE_FK_PROFILE_REQUIRED",
       "proof": "Both reject production-style roots with valid paired TRANSFER authority and no schema mutation. Explicit/private/tmp/dev004-*restriction still built into accepted owners.",
-      "impact": "Persistent Core canonical-price and OPS typed-reference schema cannot be initialized through current owners; cannot claim production manifest/rehearsal readiness."
+      "impact": "Persistent Core canonical-price and OPS typed-reference schema cannot be initialized through current owners; cannot claim production manifest/rehearsal readiness.",
+      "resolved_by": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0"
     },
     "final_integrated_rehearsal": "NOT_RUN_ALL_GATES_NOT_QUALIFIED",
     "rollback": "Matched component proofs retained; persistent forward/rollback bootstrap blocked by same owner contract. Do not reactivate retired sources or restore384receiptlimit.",
@@ -43545,7 +43546,73 @@
     "V1_deletion": 0,
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_COMPONENTS__FINAL_BUNDLE_HOLD",
-    "next_action": "SameDEV004: add versioned manifest-scoped production profile to the two existing schema owners, validating exact path/identity/generation and exclusive TRANSFER owner with unchanged schema/FK/file/disk checks and explicitV1rejection. Do not bypass/tmpguard. Then finalize manifest and run prepared single bounded integrated rehearsal. No newDEV/historical research or production activation.",
-    "engineering_publication": "Local immutable source/evidence commits; terminal handoff published separately."
+    "next_action": "See dev004_production_profile_schema_bootstrap GO_FOR_PRODUCTION_CUTOVER_AUTHORIZATION; no production step executed.",
+    "engineering_publication": "Local immutable source/evidence commits; terminal handoff published separately.",
+    "superseded_by": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0"
+  },
+  "dev004_production_profile_schema_bootstrap": {
+    "status": "PASS_DEV_QUALIFICATION",
+    "decision": "GO_FOR_PRODUCTION_CUTOVER_AUTHORIZATION",
+    "engineering_evidence_revision": "f9064ac445888959abfa66d4459bfc67109246b5",
+    "candidate_sha": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+    "starting_source": "a805dd49e1b70b84d1b8c7724723a4f28ade2d42",
+    "starting_evidence": "a959aff92747a42591cb3f69e3314b896895a113",
+    "report": "docs/dev/lightweight_dev004_first_v2/production_profile_bootstrap/REPORT.md",
+    "runtime_plan": "docs/dev/lightweight_dev004_first_v2/production_profile_bootstrap/runtime_plan.json",
+    "runtime_plan_sha256": "42a80f9d72f5dccc2f819d2cd9cb1f5c429fc6cf769bb3af96351416ba042e49",
+    "registered_rehearsal_runtime_sha256": "88e0f61926072e23fc4197fb1d0d802885fb8119d24c8806849a22f3b5977f43",
+    "runtime_files_changed": [
+      "runtime/creator_resolution/src/ops/dev004_core_base_schema.py",
+      "runtime/listener/src/ops/dev004_membership_references.py"
+    ],
+    "profile_contract": "Exact hash-pinned frozen manifest; approved physical root/role/device/inode; same CoreOPSgeneration; exact pair/schema/owner hashes; exclusive TRANSFERowner; predecessor retired; paths/symlinks/substitution/schema/phase/storage mismatch fail closed. LegacyDEVrestrictions unchanged.",
+    "schema_definitions_and_FKs_changed": false,
+    "qualification": {
+      "focused_passed": 27,
+      "focused_failed": 0,
+      "complete_integrated_rehearsals": 1,
+      "integrated_passed": 1,
+      "integrated_failed": 0,
+      "same_completed_fixture_binding_children": 3,
+      "all_three_actual_binding_modules": "PASS",
+      "provider_network": "BLOCKED",
+      "unexpected_threads": 0,
+      "coverage": "Durable birth+signature migration under lease, duplicate admission, interrupted retirement, production-profile CoreOPSmigration, interrupted reconciliation, matched rebind, canonical persistence, Core-beforeOPScrash recovery, journalACK, stale rejection, creatorretry/webhook/operation/Walkback/price state, fresh matched rollback and new rollback canonical write.",
+      "known_functional_proofs": "Prior29633row/100creator/616Watchtower/26Deep/11frozen/nonP3R/Walkback/Birdeye proofs reused with unchanged schema/semantics; not reported as newly executed.",
+      "historical_29633row_reimports": 0
+    },
+    "storage": {
+      "largest_retained_fixture_file_bytes": 610304,
+      "retained_fixture_allocation_bytes": 2506752,
+      "fixture_kernel_hard_file_limit": 16000000,
+      "bootstrap_kernel_file_limit": 67108864,
+      "runtime_kernel_file_limit": 499000000,
+      "rehearsal_final_free_bytes": 2759802880,
+      "final_evidence_free_bytes": 2627411968,
+      "floor": 2000000000,
+      "five_GiB_enforced": false,
+      "new_files_ge500MB": 0
+    },
+    "production_bindings": "Productionpath/generation/source overlay frozen as plan. Real destination physical identities/auxiliary hash registered under separately authorized creation before bootstrap; no fake placeholders accepted by runtime. Same executable binding contract verified with concrete fixture identities.",
+    "live_state": "Existing bounded selection/dispositions reused; no production final-fence/watermark or transfer executed. Revalidate actual current state under production fence during authorized transition; never silently drop pending/quarantine or copy expired active ownership.",
+    "rollback": "PASS fresh compact matched generation bootstrapped through same profile; data/price retained and new canonical write accepted. Prior generations remain retired. No384receipt rollback or unpaired P0fallback into paired runtime.",
+    "baseline_commit": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+    "baseline_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+    "receipt_deployed_correction": "P0b022320c hashverifiedunchanged; DEV0041536andpairedACKunchanged.",
+    "Birdeye": "BIRDEYEexclusive,20global4token60sbudget/checkpoints unchanged, syntheticauthority controlsPASS,0.1%ATHvaluationtolerance retained.",
+    "production_source_changes": 0,
+    "production_database_writes": 0,
+    "production_service_actions": 0,
+    "real_provider_calls": 0,
+    "live_WebSockets": 0,
+    "full_V1_copies": 0,
+    "V1_deletion_or_compaction": 0,
+    "V2_production_cutover": false,
+    "production_authorization": false,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "blocker": null,
+    "next_action": "Obtain separate production cutover authorization for sourcecec3494d and pinned plan. Follow exact sequence in report: revalidate/stage; durable admission; fence/retire; compact direct reconciliation; register exact pair/profile; initialize; seal/ACTIVE; natural acceptance. Failed acceptance uses fresh matched compact rollback with journals retained. Do not execute any production step without authorization.",
+    "engineering_publication": "Local immutable source and evidence commits; terminal handoff published independently."
   }
 }

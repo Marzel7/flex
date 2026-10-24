@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "e4f324e0840d040899cd9d23ada451e995eb01ab",
+    "git_head": "95f3a891b6d422803ec2252d4b251b74641e831c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
@@ -42894,6 +42894,64 @@
     "activation": false,
     "credential_authority": "BIRDEYEonly;budgets/endpoints/retriesunchanged",
     "publication": "Engineering9files byteverified againstorigin/codex/dev004-first-v2-prototype",
-    "next_action": "QualifyonlytheacceptedtypedreferenceauthorityforWatchtowermembership24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump,event38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np;indexedV1identityeventandmatchlookups0. Do notinventparent/reopenresolvedpricecase/expandhistoricalresearch."
+    "next_action": "QualifyonlytheacceptedtypedreferenceauthorityforWatchtowermembership24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump,event38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np;indexedV1identityeventandmatchlookups0. Do notinventparent/reopenresolvedpricecase/expandhistoricalresearch.",
+    "remaining_blocker_consolidated_by": "dev004_seed_reference_preflight:118totallegacytypedreferences,104outbox14fundingsignatures;pricecaseclosedPASS;donotcontinueoneorphanatatime."
+  },
+  "dev004_seed_reference_preflight": {
+    "status": "COMPLETE_READ_ONLY_PREFLIGHT_HOLD_FOR_IMPORT",
+    "engineering_revision": "95f3a891b6d422803ec2252d4b251b74641e831c",
+    "preflight_tool_revision": "f2752eaf7d7bd02e080c18ad6beedeac5b3e263b",
+    "runtime_source_authority": "20b0f4e159e2c05b6bfcd54084178ad6a5cc4862",
+    "runtime_changed": false,
+    "report": "docs/dev/lightweight_dev004_first_v2/seed_reference_preflight/REPORT.md",
+    "findings": "docs/dev/lightweight_dev004_first_v2/seed_reference_preflight/findings.json",
+    "manifest_sha256": "b96f24b538d9e28aab92c25b77213f773f66703f56581711c599cf37118b23a1",
+    "total_selected_rows": 28462,
+    "reference_edges_checked": 3635,
+    "resolved_edges": 3517,
+    "null_references_no_parent_required": 794,
+    "unresolved_edges": 118,
+    "unique_affected_rows": 118,
+    "unresolved_by_table": {
+      "ops.operator_launch_membership": {
+        "LEGACY_REFERENCE_TYPE_UNRESOLVED": 118
+      }
+    },
+    "groups": {
+      "104": "walkback_watchtower_confirmed_projection_v1 membershipcommitIDs; deterministicdurableoutboxsource linksverified;99DELIVERED5PENDING;outsidecurrentlyqualifiedtypedFKbranches",
+      "14": "watchtower_behavioural_paginated_lineage_20260825 funding-signature references;samemintqueue funder_sigandcanonicalWatchtoweroutcomeverified;outsidecurrentlyqualifiedtypedFKbranches"
+    },
+    "source_authority": "0missingselectedsourcerows;0missingselectedparentunderqualifiedtypes;all118absentinidentityevents/confirmedmatchesbutlegacylinksavailable. Notproofthatcanonicalattributionevidenceislost.",
+    "operational_dependencies": "118establishedWatchtowermemberships withselectedWalkbackqueue/outcome;104monitoroutboxlinksincluding5PENDING;10of104coexistwithcurrentUNKNOWN_INFRASTRUCTURE/MEDIUMoutcome. Preservebothmembershipandcounterevidence,nopromotion/revocation. NoothercheckedFK/ownershipreferencefails.",
+    "qualified_mappings": "180confirmedmatch,111identityevent,762explicitNONE;216peakcanonicalidentitylinks. SixByzantineandpricecorrectionsremainclosed.104/14newtypedimportbranchesNOTimplementedorqualified.",
+    "qualified_exclusions": "29previousdocumentedsyntheticcontrols outsideoperationalseed;0newoperationalexclusions;noneof118provenunneeded",
+    "verification": "11groupsPASS;completecounts/digests/uniqueness/indexedplans/checkpoint;15externalretainedpayloadchecks;128keybatches289durablecheckpoints. Allfindingscollected,noearlyexit/fullimport.",
+    "coverage_limit": "All declared FKs under accepted price and typed-membership profiles; all typed membership branches; listed accepted assessment, registry and monitor ownership references. Opaque provenance strings/JSON are retained and hashed, not invented as relational FK contracts. This is not a new full semantic/schema audit.",
+    "snapshot_limit": "Each source uses its own read-only SQLite snapshot; no cross-database atomic generation/cutover authority claimed. Repeat source drift invalidates reuse unless selector row digests verify.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "target_databases_created": 0,
+    "corrections_applied": 0,
+    "new_exclusions": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-onlypreflight/metadataonly;nobehaviourchangeordeployment",
+    "storage": {
+      "before": {
+        "allocated_bytes": 0,
+        "free_bytes": 2676412416,
+        "largest_file_bytes": 0
+      },
+      "after": {
+        "allocated_bytes": 352256,
+        "free_bytes": 2672058368,
+        "largest_file_bytes": 309547
+      },
+      "single_file_limit": 16777216,
+      "metadata_total_budget": 67108864,
+      "raw_source_payloads_retained": false,
+      "new_unbounded_growth_paths": 0
+    },
+    "publication": "Engineering10filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype",
+    "next_action": "OneboundedDEV-onlytypedcompatibilityqualificationcoveringall118together:104existingmembership/outboxidentitiesand14same-mintfundingsignature/outcomeidentities;preserve10currentoutcomediscrepanciesand5pendingadmissions. No parentinvention,IDchanges,FKbypass,orphanexclusions,productionchangesorrepeatedfullimportsfirst."
   }
 }

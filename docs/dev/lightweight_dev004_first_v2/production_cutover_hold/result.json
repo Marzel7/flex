@@ -1,0 +1,30 @@
+{
+  "DEV004_PRODUCTION_CUTOVER_STATUS": "HOLD",
+  "candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+  "accepted_evidence": "f9064ac445888959abfa66d4459bfc67109246b5",
+  "runtime_plan_sha256": "42a80f9d72f5dccc2f819d2cd9cb1f5c429fc6cf769bb3af96351416ba042e49",
+  "installed_preimages_checked": 65,
+  "preimage_mismatches": [],
+  "disk_free_bytes": 4666368000,
+  "exact_blocker": "Current authorization requires rollback to original matched V1 pair. Qualified source permanently retires that pair and validate_pair rejects PAIR_DATABASE_RETIRED. Qualified rollback is a fresh compact matched pair, not original V1. Mandatory rollback authority does not match authorization.",
+  "qualified_rollback": {
+    "mode": "Fresh matched compact pair; never restore a retired generation or384-limit receipt writer",
+    "paths": {
+      "core": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/rollback/core.sqlite",
+      "ops": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/rollback/ops.sqlite"
+    },
+    "source": "Exact payload/preimage inventory above; P0V1fallback is not a V2paired-ack fallback.",
+    "state": "Fresh compact matched target, same scoped owners and generation validator; no unretire or384receipt rollback."
+  },
+  "production_source_changes": 0,
+  "production_database_writes": 0,
+  "production_service_actions": 0,
+  "V2_imports": 0,
+  "provider_calls": 0,
+  "cutover": false,
+  "remaining_live_preflight": "Not completed: stop at rollback authority mismatch. No claim current worker/queue/WAL/provider checks passed.",
+  "next_action": "Explicitly accept the qualified fresh compact matched-pair rollback with V1 retained intact, or separately qualify a rollback meeting the original-V1 requirement. Then rerun immediate live preconditions before any deployment.",
+  "runtime_deployment_gate": "HOLD",
+  "RUNTIME_DEPLOYMENT_REQUIRED": false,
+  "reason": "Read-only preflight stopped before deployment."
+}

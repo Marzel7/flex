@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "a7f96954216e185a69034cb43f80451508f16c6b",
+    "git_head": "34276f460386139cc5534d36b9d359ee1b0cfb5a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
@@ -42771,7 +42771,8 @@
     "runtime_deployment_reason": "Test-only authority diagnostic/evidence, no executable runtime correction, promotion or deployment.",
     "production_state": "Unchanged; read-only indexed currentOPSkeys/schema andfiniteDEVreference metadata only; no V1filecopies orwrite/foreignkeyrepair/source/config/service/restart/provider/WS/deletion/cutover actions.",
     "next_action": "Use byzantine_event_provenance report. No furthergenericlost-eventsearch: qualify only a separately authorized typedlegacyconfirmed-match importcontract preserving IDs/canonicaldecisions/FKs. No productionrepair/fullmigration.",
-    "blocker_refined_by_provenance_closure": "All6IDs are existingconfirmed_operation_matches.match_id, not missingconfirmed evidence. Acceptedproducer puts matchUUID in membership.event_id while FK points toidentityevents. Need acceptedtypedreferencecompatibility; prior exactFKdiagnostic remains valid."
+    "blocker_refined_by_provenance_closure": "All6IDs are existingconfirmed_operation_matches.match_id, not missingconfirmed evidence. Acceptedproducer puts matchUUID in membership.event_id while FK points toidentityevents. Need acceptedtypedreferencecompatibility; prior exactFKdiagnostic remains valid.",
+    "current_gate": "See dev004_final_migration_preparation: sixByzantineFKclosurePASS; fullseedreferenceintegrityHOLDatmissingtracked_tokensparent; fullrehearsalnotrun."
   },
   "dev004_byzantine_event_provenance": {
     "status": "PARTIAL_PROVENANCE_RESOLVED_FK_COMPATIBILITY_HOLD",
@@ -42808,6 +42809,41 @@
     "provider_calls": 0,
     "unchanged_acceptance": "100creator/616Watchtower/26Deep/11frozen/Walkback/Birdeye/freshness reused,notrerun. No sourceDB/schema/config/credential/service/restart/WS/deletion/cutover orbroadhistoricalresearch.",
     "blocker": "No acceptedFKcompatiblemapping fromtheseexistingconfirmedmatchreferencestoidentityeventcontract. All6canonicalassignmentimportsremainHOLD.",
-    "next_action": "DefineandseparatelyqualifyonlyDEVtypedlegacyconfirmed-matchreferencecompatibility, preservingexistingIDs/assignments/evidence/FKs. Do notmanufactureidentityevents,nullIDs,dropassignments,bypassconstraints,repairV1orresumefullseedunderunqualifiedmapping."
+    "next_action": "DefineandseparatelyqualifyonlyDEVtypedlegacyconfirmed-matchreferencecompatibility, preservingexistingIDs/assignments/evidence/FKs. Do notmanufactureidentityevents,nullIDs,dropassignments,bypassconstraints,repairV1orresumefullseedunderunqualifiedmapping.",
+    "superseded_by": "dev004_final_migration_preparation: typed6/6importsPASS; priorprovenanceunchanged"
+  },
+  "dev004_final_migration_preparation": {
+    "status": "HOLD_REFERENCE_INTEGRITY",
+    "engineering_revision": "34276f460386139cc5534d36b9d359ee1b0cfb5a",
+    "qualified_source_revision": "202e30b4f843748926ea088aca988aea6ad9dc45",
+    "report": "docs/dev/lightweight_dev004_first_v2/final_migration_preparation/REPORT.md",
+    "manifest": "docs/dev/lightweight_dev004_first_v2/final_migration_preparation/manifest.json",
+    "manifest_sha256": "39fb791b7d49367186465bb30df5e3f5097e2efcc15151fa75ecaac12264b617",
+    "six_byzantine_assignment_imports": "PASS6/6; original5columns/IDs/provenance/confidence unchanged; real confirmed-match composite FK via atomic typed sidecar; FKON; no manufactured canonical identityevents",
+    "tests": "25final focusedprovider-freecontrols PASS incl6exactimports,6idempotentreplays,wrong/ambiguousnamespace guards,parent/sidecarintegrity,repeatinit,freshprocessrestart; unrelatedacceptedmatricesreused",
+    "full_rehearsal": "NOT_RUN_MANDATORY_COMPLETE_REFERENCE_GATE_FAILED",
+    "blocker": {
+      "action": "HOLD; no parent synthesized, peak deleted or FK bypassed",
+      "indexed_source_plan": [
+        "SEARCH tracked_tokens USING INDEX sqlite_autoindex_tracked_tokens_1 (mint=?)"
+      ],
+      "mint": "BEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump",
+      "missing_parent": "tracked_tokens",
+      "retained_rowid": 13,
+      "source_parent_count": 0,
+      "table": "token_market_cap_peaks"
+    },
+    "complete_runtime_manifest": false,
+    "activation": false,
+    "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED; explicitdisposableowneronly; futuretypedruntimeconnections requireFKON; noDEV_COMPLETE",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "disk_free_before": 3786547200,
+    "disk_free_after": 3786809344,
+    "storage": "81,920byteDB;8,000,000byteprocesscap;1024pageDBcap;2GB+64MiBreservepassed;nofullV1copies/rawretention/deletion/cutover",
+    "accepted_ATH_relative_tolerance": 0.001,
+    "credential_authority": "BIRDEYEonly,unchanged",
+    "publication": "Engineering7files byteverified againstorigin/codex/dev004-first-v2-prototype",
+    "next_action": "Resolve acceptedcompatibility/parentauthority for exact retained token_market_cap_peaks mintBEy3GeKMC3J9dr2eabXYTUuD37YGiSnwWFq13hSgpump missingtracked_tokens parent (indexedV1lookup0). Do notfabricateparent/deletepeak/bypassFK orhistoricalacquisition. Fullseedrehearsalblocked."
   }
 }

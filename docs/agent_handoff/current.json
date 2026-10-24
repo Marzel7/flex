@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "git_head": "c7a8c15323bca39c086d1f53f6043193e509d333",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
@@ -43099,6 +43099,92 @@
     "full_V1_copies": 0,
     "publication": "Engineering15filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;archivedroworaclesarePK/hashonly,nopayloadcopy;runtimeunchanged.",
     "blocker": null,
-    "next_action": "NONE \u2014 requested one full disposable migration rehearsal complete. Stop,preserveV1. Anyproductiontransitionrequiresseparateauthorizationandapplicablefinalauthority/live-statereconciliation;donotdeployautomatically."
+    "next_action": "NONE \u2014 requested one full disposable migration rehearsal complete. Stop,preserveV1. Anyproductiontransitionrequiresseparateauthorizationandapplicablefinalauthority/live-statereconciliation;donotdeployautomatically.",
+    "subsequent_production_preflight": "dev004_final_production_cutover_preflight HOLD on production prerequisites; the disposable rehearsal itself remains PASS and was not repeated."
+  },
+  "dev004_final_production_cutover_preflight": {
+    "status": "HOLD",
+    "engineering_revision": "c7a8c15323bca39c086d1f53f6043193e509d333",
+    "immutable_candidate": "bf0da567634a040c96cc955c9afe165466d94beb",
+    "starting_handoff": "1bf09b12f9f43f627b6f18b08189d6cfb045edec",
+    "report": "docs/dev/lightweight_dev004_first_v2/final_production_preflight/REPORT.md",
+    "production_manifest": "docs/dev/lightweight_dev004_first_v2/final_production_preflight/production_manifest.json",
+    "manifest_sha256": "e8924143cee9b603ae51c8aa09c2912df0cd31e94df42abf793ab0a3fce21dac",
+    "manifest_status": "FrozenimmutablecandidateandobservedV1configurationonly;completeproductiondestination/journal/generation/rollbackbindingsMISSING. Noinventedproductionpathsorgoldenbaselineclaim.",
+    "source_integrity": "Allacceptedancestor/treeidentitiesverified;runtimeunchanged;retainedbf0rehearsalmanifest/oraclehashesPASS;no29,633rowrehearsalormatricesrerun.",
+    "active_services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 94632
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 3874
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 94577
+      }
+    },
+    "dormant_services": "API/monitor/bridge/Funding/Cascade/allotherlistedSupervisorservicesSTOPPED;noactivation/restoration. Historicalmissingrootsnotnewregressions.",
+    "live_V1_authority": "Coreinode549513179,OPS421043107samecanonicaldatabasepaths;no.productionpairedseals/retirementmarkers;WALmode,CoreWALabsent/OPSWAL0sample;noquiescenceassertionorlock/checkpointprobe.",
+    "selected_delta": "28447V1PK/digestcomparisons,0changed0missing;15externalreferencesreused.1171rehearsedmembershipsretained;1additionalcurrentWatchtowermembership3WUfWQADbhWwogJk7Y37o5PUUVEy7KK1xsxB3YTvpump withPENDINGoutboxrequiresfinalreconciliation. Exactglobalbirth/migrationdeltacannotbeprovedwithoutwholesourceadmissionwatermark/consistentgeneration.",
+    "live_state_coverage": {
+      "funding_counts": {
+        "pending": {
+          "count": 3566,
+          "plan": [
+            "SEARCH creator_funding_queue USING COVERING INDEX idx_creator_funding_queue_status (status=?)"
+          ]
+        },
+        "retry": {
+          "count": 59,
+          "plan": [
+            "SEARCH creator_funding_queue USING COVERING INDEX idx_creator_funding_queue_status (status=?)"
+          ]
+        },
+        "running": {
+          "count": 3,
+          "plan": [
+            "SEARCH creator_funding_queue USING COVERING INDEX idx_creator_funding_queue_status (status=?)"
+          ]
+        }
+      },
+      "selected_funding_pending": 136,
+      "pending_outside_selection": 3430,
+      "running_rows_outside_selection": 3,
+      "running_lease_deadlines_expired": true,
+      "webhook_probe": "129rowsunconsumed,113quarantined,truncated;selected0",
+      "lineage_quarantine_probe": "atleast2049current,truncated;selected129",
+      "meaning": "Statecoverageunqualified,notproofeveryadditionalhistoricalrowmustcopy;donotsilentlyexcludeorcarryleasesasactive. Useexistingworkflowpreservationcontracts,nobroadhistoryresearch."
+    },
+    "mandatory_blockers": [
+      "Productionruntime/authoritybundle:installedlistenerlacksnewdurablejournals/functions;3packageslackpairedguardandhavedifferentwriter/DBpreimages;explicitpersistentV2,journal,history/freshness,pairandrollbackbindingsabsent.",
+      "Finallive-statereconciliation:oneadditionaloperationadmission,pending/runningjobsandquarantineoutsideselectedscope;noglobaladmissionwatermark;completepreservation/leasesourceauthorityunqualified.",
+      "Productionadmission/storagebudget:receipt229of256bucketsfull269slotsremaining;noqualifiedproductionnew-file/WALsub500MBenforcement;5GiBgoalnotproven."
+    ],
+    "storage": {
+      "free_after": 3690426368,
+      "floor": 2000000000,
+      "reserve": 268435456,
+      "disk_headroom_gate": "PASS_NOT_HOLD_DISK_HEADROOM",
+      "receipt_files": 102131,
+      "full_buckets": 229,
+      "remaining_shard_slots": 269,
+      "rehearsal_peak_bytes": 41721856,
+      "production_file_growth_cap": "UNQUALIFIED",
+      "five_GiB_cap": "NOT_ENFORCED",
+      "seven_day_retention": "ExistingmaintenanceSQLprunes7daysbutboundedactiveenforcement/30day/lifetimecompatibilitynotproven;notexecuted;nofilenear500MBcreated."
+    },
+    "Birdeye": "BIRDEYEonly;3installedcredentialhelperhashesmatchcandidate;limits20global4token60sunchanged;currentledger1217B10debitsversion1shad5f7f952e5865c7c7b56a7f233031d0449011400c04ef4d392061cccf00bfca1 retained,notreset. Queue/checkpoint/budgetcutoverandrollbackbindingincomplete;nocredentialvaluesread.",
+    "functional_acceptance": "Accepted100creator616Watchtower26Deep11frozen/nonP3R/freshness/Walkback/Birdeyeevidencereused;no newfunctionalregressionalleged. FullrehearsalPASSremainsclosed.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_actions": 0,
+    "imports_rehearsals_rerun": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-onlyproductionpreflight/configurationdocumentationonly;nodeploymentorcorrection.",
+    "publication": "Engineering6filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;runtimeunchanged.",
+    "next_action": "Oneboundedproduction-integrationdeploymentpreflight:exactactive-triopayload/preimages,persistentjournal/paired/historybindings,andexplicitlivestate/receipt/filebudgetgates.KeepV1authoritative,nocutoverorrepeatedfullrehearsalorhistoricalresearch."
   }
 }

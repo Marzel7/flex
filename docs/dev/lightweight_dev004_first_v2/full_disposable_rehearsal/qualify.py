@@ -52,7 +52,7 @@ def publish_authority(path,manifest,phase='ACTIVE'):
 def verify_pair(base,manifest):
  guard=pair_modules();authority=base/'pair-authority.json';set_pair(manifest,authority);generation=guard.validate_pair();m=json.loads(manifest.read_text());oracles=json.loads((base/'row-oracles.json').read_text());checked=0
  for component in ['listener','creator_resolution','walkback']:
-  db=load(ROOT/f'runtime/{component}/src/core/db.py','qualified_db_'+component);assert db.DB_PATH==m['stores']['core']['path'] and db.resolve_ops_db_path()==m['stores']['ops']['path']
+  db=load(ROOT/f'runtime/{component}/src/core/db.py','qualified_db_'+component);assert db.DB_PATH==m['stores']['core']['path'] and (db.resolve_ops_db_path() if hasattr(db,'resolve_ops_db_path') else db.OPS_DB_PATH)==m['stores']['ops']['path']
  for kind in ['core','ops']:
   c=ro(Path(m['stores'][kind]['path']));assert c.execute('PRAGMA quick_check').fetchall()[0][0]=='ok';assert not c.execute('PRAGMA foreign_key_check').fetchall()
   for table,entry in oracles[kind].items():
@@ -91,6 +91,16 @@ def run(base):
  assert len(data['rows'])==1171;captured['ops']['operator_membership_reference_v1']=data;c.close()
  oracles={k:{t:{'keys':entry['keys'],'rows':[{'key':list(pk),'sha256':sha} for pk,sha in sorted(entry['rows'].items())]} for t,entry in ts.items()} for k,ts in captured.items()}
  save(base/'row-oracles.json',oracles);save(base/'reader-oracles.json',frozen_readers);samples.append(storage(base))
+ save(base/'execution-context.json',{'before':before,'original_rows':original_rows,'samples':samples})
+ finish(base)
+
+def finish(base):
+ target=base/'dev004-import';importer=load(ROOT/'docs/dev/lightweight_dev004_first_v2/price_reference_compatibility/compact_rehearsal.py','accepted_compact_importer');result=json.loads((target/'result.json').read_text());assert result['status']=='FULL_REFERENCE_IMPORT_PASS'
+ if (base/'execution-context.json').exists():
+  context=json.loads((base/'execution-context.json').read_text());before=context['before'];original_rows=context['original_rows'];samples=context['samples']
+ else:
+  before={'free_bytes':result['free_before'],'allocated_bytes':0,'largest_file_bytes':0,'files':0};original_rows=sum(len(e['rows']) for kind,tables in json.loads((base/'row-oracles.json').read_text()).items() for table,e in tables.items() if table!='operator_membership_reference_v1');samples=[storage(base),{'allocated_bytes':result['peak_allocated_sampled'],'free_bytes':result['free_after'],'largest_file_bytes':0,'files':0}]
+ assert original_rows==28462
  guard=pair_modules();authority=base/'pair-authority.json';paths={k:target/(k+'.sqlite') for k in ['core','ops']};manifest=base/'v2-runtime-manifest.json';config={'version':1,'authority':{'id':'dev004-full-disposable-rehearsal','path':str(authority),'origin_generation':'disposable-imported-v2'},'generation':'disposable-imported-v2','stores':{k:guard.database_identity(str(p),'disposable-imported-v2',k) for k,p in paths.items()},'predecessor':None};save(manifest,config);guard.seal_manifest(str(manifest));publish_authority(authority,manifest);set_pair(manifest,authority)
  child=subprocess.run([sys.executable,'-B',__file__,'verify',str(base),str(manifest)],capture_output=True,text=True,timeout=45,env=dict(os.environ));save(base/'restart-process.json',{'exit':child.returncode,'stdout':child.stdout[-2000:],'stderr':child.stderr[-3000:]});assert child.returncode==0,child.stderr;restart=json.loads(child.stdout);save(base/'restart-result.json',restart)
  # True managed rollback of staged writes, never altering retained target evidence.
@@ -117,7 +127,9 @@ if __name__=='__main__':
   base=Path(sys.argv[2]);isolate(base,False);print(json.dumps(verify_pair(base,Path(sys.argv[3]))))
  else:
   base=Path(sys.argv[2])
-  try:run(base)
+  try:
+   if sys.argv[1]=='resume-verification':isolate(base,False);finish(base)
+   else:run(base)
   except BaseException as e:
    if base.exists():save(base/'first-blocker.json',{'status':'HOLD','type':type(e).__name__,'detail':str(e)[:3000]})
    raise

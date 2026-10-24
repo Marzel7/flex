@@ -1,0 +1,41 @@
+{
+  "status": "HOLD_DISK_HEADROOM",
+  "source_commit": "eb9e1d35ea0b87ab38d59bb46a2b3fac458884ff",
+  "runtime_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "observed_at_utc": "2026-10-24T12:41:33.509455+00:00",
+  "initial_observed_free_bytes": 3866914816,
+  "gate_failure": "DISK_FLOOR_PLUS_RESERVE",
+  "post_failure_free_bytes": 314187776,
+  "latest_free_bytes": 308727808,
+  "minimum_floor_bytes": 2000000000,
+  "sample_reserve_bytes": 67108864,
+  "required_sample_headroom_bytes": 2067108864,
+  "source_database_opens": 0,
+  "target_rows_written": 0,
+  "generated_files_in_disposable_root": 0,
+  "migration_started": false,
+  "authority_manifest": "NOT_FROZEN: disk gate stopped before source reads/DDL/row hashes",
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "full_source_copy_bytes": 0,
+  "intermediate_source_snapshot_bytes": 0,
+  "measured_reference_seed": {
+    "core_bytes": 8970240,
+    "ops_bytes": 13754368,
+    "combined_bytes": 22724608,
+    "compact_history_bytes": 1218041,
+    "freshness_mapping_bytes": 151878,
+    "combined_with_mappings_bytes": 24094527
+  },
+  "planning": {
+    "qualified_final_full_operational_size": null,
+    "reference_pair_planning_allowance_bytes": 33554432,
+    "whole_migration_additional_planning_allowance_bytes": 134217728,
+    "planning_is_not_enforced_full_migration_guarantee": true,
+    "sample_total_cap_bytes": 67108864,
+    "sample_file_cap_bytes": 8000000,
+    "sample_sqlite_page_cap_each": 1024,
+    "source_full_hash_or_scan_required": false
+  },
+  "next_action": "Restore >=2067108864bytes available, recheck then freeze source-selection authority and run one compact direct-read representative qualification. No cleanup, production actions or full V1 copies authorized."
+}

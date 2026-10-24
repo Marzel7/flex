@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 161, in <module>
+    if a.mode=='freeze':freeze(base)
+                        ^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 72, in freeze
+    require(not base.exists(),'ROOT_ALREADY_EXISTS');base.mkdir();isolate(base);before=space(base);old=json.loads((ROOT/'docs/dev/lightweight_dev004_first_v2/result.json').read_text());cs=source_connections();schemas={};identity={};selectors=[];unique=set();selectedbytes=0
+                                                                                       ^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 22, in space
+    files=[p for p in base.rglob('*') if p.is_file()];require(len(files)<=64,'FILE_COUNT');sizes=[p.stat().st_size for p in files];alloc=sum(p.stat().st_blocks*512 for p in files);require(max(sizes or [0])<FILE and alloc<TOTAL,'STORAGE_BUDGET');free=os.statvfs(base).f_bavail*os.statvfs(base).f_frsize;require(free>=FLOOR+TOTAL,'DISK_FLOOR_PLUS_RESERVE');return {'files':len(files),'allocated_bytes':alloc,'largest_file_bytes':max(sizes or [0]),'free_bytes':free}
+                                                                                                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 12, in require
+    if not ok:raise Hold(code)
+              ^^^^^^^^^^^^^^^^
+Hold: DISK_FLOOR_PLUS_RESERVE
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 167, in <module>
+    if base.exists():save(base/'first-blocker.json',{'status':'HOLD','phase':a.mode,'error':type(e).__name__,'detail':str(e)[:1000]})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 17, in save
+    with Path(path).open('wb') as f:f.write(data);f.flush();os.fsync(f.fileno())
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/anaconda3/envs/algotrader/lib/python3.11/pathlib.py", line 1044, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 35, in audit
+    if flags&(os.O_WRONLY|os.O_RDWR|os.O_CREAT|os.O_APPEND|os.O_TRUNC):require(p.resolve().is_relative_to(base),'PRODUCTION_OR_OUTSIDE_WRITE');space(base)
+                                                                                                                                               ^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 22, in space
+    files=[p for p in base.rglob('*') if p.is_file()];require(len(files)<=64,'FILE_COUNT');sizes=[p.stat().st_size for p in files];alloc=sum(p.stat().st_blocks*512 for p in files);require(max(sizes or [0])<FILE and alloc<TOTAL,'STORAGE_BUDGET');free=os.statvfs(base).f_bavail*os.statvfs(base).f_frsize;require(free>=FLOOR+TOTAL,'DISK_FLOOR_PLUS_RESERVE');return {'files':len(files),'allocated_bytes':alloc,'largest_file_bytes':max(sizes or [0]),'free_bytes':free}
+                                                                                                                                                                                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex/docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py", line 12, in require
+    if not ok:raise Hold(code)
+              ^^^^^^^^^^^^^^^^
+Hold: DISK_FLOOR_PLUS_RESERVE

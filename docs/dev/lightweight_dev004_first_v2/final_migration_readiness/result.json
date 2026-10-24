@@ -1,0 +1,19 @@
+{
+  "decision": "HOLD_SINGLE_CRITICAL_BLOCKER",
+  "exact_blocker": "Accepted Core and typed-reference schema owners reject any persistent production root even with valid paired TRANSFER authority; no explicit production-bootstrap contract exists. A disposable rehearsal cannot certify that production configuration.",
+  "unique_component_tests_passed": 56,
+  "failed": 0,
+  "main_controls": 54,
+  "additional_exact_rejection_cases": 2,
+  "storage_scaled_kernel_boundary": "PASS",
+  "quarantine_rows_accounted": 207116,
+  "quarantine_encoded_bytes": 146296829,
+  "final_integrated_rehearsal": "NOT_RUN_PREREQUISITE_BLOCKER",
+  "new_29633row_imports": 0,
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "service_actions": 0,
+  "source_runtime_files_changed": 6,
+  "free_bytes": 2798366720,
+  "minimum_correction": "Add a versioned, manifest-scoped production bootstrap profile to the two existing schema owners: exact destination identities/generation, exclusive TRANSFER owner, FK-on, existing file/disk bounds, same schema definitions, fail-closed V1 rejection. Do not bypass checks or use/tmpasproduction. Then complete the prepared final bounded rehearsal in the same DEV004."
+}

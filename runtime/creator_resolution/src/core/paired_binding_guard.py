@@ -155,11 +155,30 @@ def validate_pair(*,core_path=None,ops_path=None,write_path=None,purpose='active
     if previous:
         for role in ['core','ops']:
             old=previous['stores'][role]['path'];tracked += [old,old+'.retired']
+    auxiliary_path = None
+    if target is not None and target not in paths.values():
+        # One accepted auxiliary writer, explicitly tied to this exact pair.
+        # Unknown databases remain rejected; no filename-based fallback.
+        if not os.environ.get('FLEX_DB_AUXILIARY_MANIFEST'):
+            _fail('PAIR_WRITE_TARGET_MISMATCH')
+        auxiliary_manifest = _path(os.environ.get('FLEX_DB_AUXILIARY_MANIFEST'))
+        auxiliary, auxiliary_raw = _read(auxiliary_manifest)
+        expected_hash = os.environ.get('FLEX_DB_AUXILIARY_SHA256')
+        if not expected_hash or hashlib.sha256(auxiliary_raw).hexdigest() != expected_hash:
+            _fail('PAIR_AUXILIARY_HASH_MISMATCH')
+        if set(auxiliary) != {'version','generation','pair_manifest_sha256','stores'} or type(auxiliary['version']) is not int or auxiliary['version'] != 1 or auxiliary['generation'] != preliminary['generation'] or auxiliary['pair_manifest_sha256'] != hashlib.sha256(raw).hexdigest() or set(auxiliary['stores']) != {'creator_repository'}:
+            _fail('PAIR_AUXILIARY_AUTHORITY_INVALID')
+        auxiliary_path = _identity(auxiliary['stores']['creator_repository'], preliminary['generation'], 'creator_repository')
+        if auxiliary_path in paths.values() or target != auxiliary_path:
+            _fail('PAIR_WRITE_TARGET_MISMATCH')
+        if os.path.lexists(auxiliary_path + '.retired'):
+            _fail('PAIR_AUXILIARY_RETIRED')
+        tracked += [auxiliary_manifest, auxiliary_path, auxiliary_path + '.retired']
     key=(core,ops,target,purpose,os.environ.get('FLEX_DB_PAIR_ROLE','runtime'),os.environ.get('FLEX_DB_PAIR_OWNER'),tuple((p,_fingerprint(p)) for p in tracked))
     if _CACHE is not None and _CACHE[0]==key:return _CACHE[1]
     manifest=preliminary
     if core!=paths['core'] or ops!=paths['ops']:_fail('PAIR_BINDING_MISMATCH')
-    if target is not None and target not in paths.values():_fail('PAIR_WRITE_TARGET_MISMATCH')
+    if target is not None and target not in list(paths.values()) + [auxiliary_path]:_fail('PAIR_WRITE_TARGET_MISMATCH')
     if authority_path!=manifest['authority']['path']:_fail('PAIR_AUTHORITY_PATH_MISMATCH')
     state,state_raw=_read(authority_path)
     allowed={'version','authority_id','origin_generation','generation','manifest_path','manifest_sha256','phase','owner','transfer_complete'}

@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "scaled_prewrite_cap": 131072,
+  "file_sizes": {
+    "limited.db-wal": 131072,
+    "limited.db": 8192,
+    "limited.db-shm": 32768
+  },
+  "unsafe_transaction_rejected": true,
+  "errors": [
+    {
+      "type": "OperationalError",
+      "code": 778,
+      "name": "SQLITE_IOERR_WRITE"
+    }
+  ],
+  "prior_committed_evidence_preserved": true,
+  "failed_transaction_absent_after_reopen": true,
+  "quick_check": "ok",
+  "controls": "Inherited hard RLIMIT_FSIZE with SIGXFSZ ignored; SQLite receives EFBIG/IOERR rather than allowing a file past limit. Applies per writer process, not only SQLite payloads."
+}

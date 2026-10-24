@@ -34780,12 +34780,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/p0-receipt-capacity",
-    "git_head": "c3b027cd8a43a83c13ac75def8d32ae70f34822d",
+    "branch": "codex/dev004-first-v2-prototype",
+    "git_head": "88b75c7a1b7848fc812db06c216feeeba69389f9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T17:20:35.453832+00:00",
-    "working_tree": "P0 receipt capacity one-file production deployment COMPLETE. Listener97696running; five-minute natural acceptance PASS; resolver92522/Walkback94577unchanged. DEV004 migration unaffected."
+    "updated_at_utc": "2026-10-24T17:28:31.618963+00:00",
+    "working_tree": "DEV004 receipt composition reconciled in DEV; deployed P0capacity remains COMPLETE. FivefocusedtestsPASS. CutoverHOLD on productionbindings/live-state closure/per-fileWAL budgets; no deployment or migration rerun."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43185,10 +43185,32 @@
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-onlyproductionpreflight/configurationdocumentationonly;nodeploymentorcorrection.",
     "publication": "Engineering6filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;runtimeunchanged.",
-    "next_action": "Oneboundedproduction-integrationdeploymentpreflight:exactactive-triopayload/preimages,persistentjournal/paired/historybindings,andexplicitlivestate/receipt/filebudgetgates.KeepV1authoritative,nocutoverorrepeatedfullrehearsalorhistoricalresearch."
+    "next_action": "Oneboundedproduction-integrationdeploymentpreflight:exactactive-triopayload/preimages,persistentjournal/paired/historybindings,andexplicitlivestate/receipt/filebudgetgates.KeepV1authoritative,nocutoverorrepeatedfullrehearsalorhistoricalresearch.",
+    "superseding_reconciliation": "88b75c7a: receipt capacity incident CLOSED; production authority/state/file-budget gates remain, see dev004_post_receipt_bundle_reconciliation."
   },
   "dev004_production_bundle_qualification": {
-    "acceptance": {
+    "activation_authorized": false,
+    "blocker": "Receipt capacity RESOLVED. Three remaining gates: complete production authority/rollback bundle, final operational-state closure, enforceable production file/WAL budgets.",
+    "engineering_publication": "HANDOFF_TRANSPORT_DEGRADED: engineering evidence push rejected by automatic approval review; local commit preserved; no remote verification claimed.",
+    "engineering_source_revision": "88b75c7a1b7848fc812db06c216feeeba69389f9",
+    "live_state": {
+      "disposition": "Preserve pending/retry; owner reconciliation required for expired leases; no reactivation. Webhook/quarantine complete transfer sets remain unqualified.",
+      "expired_running_leases": 3,
+      "funding_pending": 3584,
+      "funding_retry": 59
+    },
+    "manifest_sha256": "c74de7208dadd6750515c2e31b2f7a23f1b3c0b109a75d318f68920653c7fdbc",
+    "next_action": "One bounded production-bundle completion qualification: exact persistent authority/config and active-trio+rollback payload, with explicit live-state selection/lease dispositions and production file/WAL budgets. No deployment or migration rerun.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "report": "docs/dev/lightweight_dev004_first_v2/post_receipt_bundle_reconciliation/REPORT.md",
+    "runtime_deployment_reason": "DEV-only minimal source composition merge qualified; no production deployment permitted.",
+    "runtime_deployment_required": true,
+    "runtime_source_revision": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
+    "service_actions": 0,
+    "status": "PASS_RECONCILIATION__HOLD_THREE_CUTOVER_GATES",
+    "receipt_capacity_gate_resolution": "P0COMPLETE retained unchanged; reconciled into DEV004 source8f21beca without removing paired-ACK guard.",
+    "retained_prior_capacity_observation": {
       "active_receipts": 102214,
       "age_eligible_receipts": 0,
       "available_bytes": 3774103552,
@@ -43203,28 +43225,7 @@
       "remaining_slots": 186,
       "retirement_executed": false,
       "source_packaging": "PASS_SOURCE_COMPOSITION_ONLY"
-    },
-    "activation_authorized": false,
-    "blocker": "Active receipt capacity refusals; all current receipts protected by seven-day contract; retirement reclaims zero slots. Production bindings remain incomplete.",
-    "engineering_publication": "HANDOFF_TRANSPORT_DEGRADED: engineering evidence push rejected by automatic approval review; local commit preserved; no remote verification claimed.",
-    "engineering_source_revision": "ccabf8cf74c72aa8fbbca9732f7f8ab7c3a92c5b",
-    "live_state": {
-      "disposition": "Preserve pending/retry; owner reconciliation required for expired leases; no reactivation. Webhook/quarantine complete transfer sets remain unqualified.",
-      "expired_running_leases": 3,
-      "funding_pending": 3584,
-      "funding_retry": 59
-    },
-    "manifest_sha256": "9a7e0896eac464c6eea8814f2393352d0d74cbc9bd240b82f95d6cb653d26871",
-    "next_action": "Separately authorize bounded non-destructive receipt-capacity extension qualification and controlled deployment preserving retention, deduplication, evidence, file limits, disk floor and rollback. Do not retire young receipts.",
-    "production_mutations": 0,
-    "provider_calls": 0,
-    "report": "docs/dev/lightweight_dev004_first_v2/production_bundle_qualification/REPORT.md",
-    "runtime_deployment_reason": "Read-only assessment and draft manifest only; no executable runtime change.",
-    "runtime_deployment_required": false,
-    "runtime_source_revision": "bf0da567634a040c96cc955c9afe165466d94beb",
-    "service_actions": 0,
-    "status": "HOLD_P0_RECEIPT_CAPACITY",
-    "receipt_capacity_gate_resolution": "Independent P0 one-file deployment COMPLETE / c3b027cd; receipt-capacity blocker resolved. This does not qualify or authorize DEV004 migration or its remaining bindings."
+    }
   },
   "p0_non_destructive_receipt_capacity": {
     "status": "PASS_DEPLOYED",
@@ -43427,5 +43428,56 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE. Leave listener97696running.",
     "engineering_publication": "Local immutable engineering evidence commit; terminal handoff published separately."
+  },
+  "dev004_post_receipt_bundle_reconciliation": {
+    "status": "PASS_RECONCILIATION__HOLD_THREE_CUTOVER_GATES",
+    "engineering_evidence_revision": "88b75c7a1b7848fc812db06c216feeeba69389f9",
+    "immutable_runtime_composition": "8f21becaa7e86f2476282b9d47a3fef546eee3a6",
+    "starting_handoff": "bb1a158fd88d0d24ff95ffe8620eaf4a00433dfd",
+    "report": "docs/dev/lightweight_dev004_first_v2/post_receipt_bundle_reconciliation/REPORT.md",
+    "bundle_manifest": "docs/dev/lightweight_dev004_first_v2/production_bundle_qualification/bundle_manifest.json",
+    "bundle_manifest_sha256": "c74de7208dadd6750515c2e31b2f7a23f1b3c0b109a75d318f68920653c7fdbc",
+    "source_delta": "One DEV004receipt writer: deployed1536capacity+warning merged; paired-ACK record_outcome remains AST-identical. Other runtime files unchanged.",
+    "deployed_V1_writer_sha256": "b022320c55ebedea95153c17c7ad2fb2fc8a6335951a8960dea642e5505e72bf",
+    "DEV004_composed_writer_sha256": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c",
+    "hash_difference_expected": "V2adds paired acknowledgement validation; never overwrite it with whole-file P0writer/fallback.",
+    "verification": {
+      "focused_tests_passed": 5,
+      "failed": 0,
+      "accepted_numeric_fallback_AST_match": true,
+      "P0_32_tests_and_live_5minute_acceptance": "REUSED_PASS",
+      "full29633row_rehearsal": "REUSED_PASS_NOT_RERUN",
+      "historical_functional_matrices": "REUSED_NOT_REOPENED"
+    },
+    "resolved_gates": [
+      "Receipt capacity P0deployment COMPLETE/PASS",
+      "Resolver normal Supervisor replacement authority verified"
+    ],
+    "minimum_remaining_gates": [
+      {
+        "id": "PRODUCTION_RUNTIME_AND_AUTHORITY_BINDINGS",
+        "missing": "Persistent V2pair/generation/seals/transfer owner; independent initialized journals; compact history/freshness/price checkpoint-budget paths; exact active-trio/preimages and matched source/config rollback."
+      },
+      {
+        "id": "FINAL_OPERATIONAL_STATE_RECONCILIATION",
+        "missing": "Complete bounded pending/retry/quarantine/webhook/handoff selection; extra operation admission; expiredlease disposition; final canonical/admission watermark under existing durable owner/fence. Prior counts are historical observations, not final current population."
+      },
+      {
+        "id": "ENFORCEABLE_PRODUCTION_FILE_WAL_BUDGETS",
+        "missing": "Production fail-closed newV2DB/WAL/transient limits below500000000bytes and bounded drain/journal/rollback storage preserving2GBfloor. DEVtestRLIMITnotproduction;5GiBgoalnotmandatoryhardcap."
+      }
+    ],
+    "rollback_rule": "Current V1preimage/fallback must retain1536capacity. P0fallback67b342e7is unpaired-V1only; V2rollback must retain paired-ACKguard plus1536capacity and matchedgeneration/config.",
+    "dormant_components": "RemainSTOPPED; no restoration/P3R/historyresearch gate introduced.",
+    "available_bytes_observed": 2503196672,
+    "production_changes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "migration_reruns": 0,
+    "historical_research": false,
+    "new_files_ge500MB": 0,
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED_FOR_DEV004_BUNDLE",
+    "next_action": "One bounded production-bundle completion qualification: exact persistent authority/config and active-trio+rollback payload, with explicit live-state selection/lease dispositions and production file/WAL budgets. No deployment or migration rerun."
   }
 }

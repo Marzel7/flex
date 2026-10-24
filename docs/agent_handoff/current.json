@@ -23374,7 +23374,7 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-10-24T12:15:42.717346+00:00",
+  "last_updated": "2026-10-24T12:45:14.355021+00:00",
   "latest_at_utc": "2026-08-18T14:08:03Z",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
@@ -34781,11 +34781,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "6e6d1b0729649e7f548cbd7057e39f564b565daa",
+    "git_head": "7dc4f9f34f7e53eecaa7d1fd401a71a3dd6f2934",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T12:15:42.717346+00:00",
-    "working_tree": "DEV004 single disposable migration PASS. Complete manifest remote-verified, actual crash/restart/rebind and fresh rollback passed; runtimecandidate0013ccbd unchanged; no production mutations or deployment."
+    "updated_at_utc": "2026-10-24T12:45:14.355021+00:00",
+    "working_tree": "DEV004 compact direct migration HOLD_DISK_HEADROOM before any source DB open/target write. Current308727808bytes<2GBfloor. Corrected design uses direct indexed V1 reads and compact V2 INSERT only; no full V1 copies. Production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -42640,6 +42640,47 @@
     "scope_limit": "Complete declared compact-reference plus synthetic operational rehearsal, not live daemon/deployment/sustainedproduction growth acceptance. Reproduction requires SHA256-identified retained local DEV inputs, fresh root/inode identities and a new manifest; existingroot refusessecondexecute.5GiBproductionceilingunqualified.",
     "report": "docs/dev/lightweight_dev004_first_v2/rehearsal_authority/REPORT.md",
     "blocker": null,
-    "next_action": "NONE \u2014 requested milestone complete. Stop, preserve V1. Separate explicit authorization required for any production deployment or transition; do not repeat migration or accepted matrices."
+    "next_action": "NONE \u2014 requested milestone complete. Stop, preserve V1. Separate explicit authorization required for any production deployment or transition; do not repeat migration or accepted matrices.",
+    "scope_clarification": "Prior PASS copied only22.7MBalreadycompactDEVfixtures,notfullV1. It does not prove direct selective V1extraction. Latestcompact_direct_migration addresses that distinct boundary; stopped atdiskfloor beforeexecution. Previous boundedPASS remains scoped, not a fullproduction migration authorization."
+  },
+  "dev004_compact_direct_migration": {
+    "status": "HOLD_DISK_HEADROOM",
+    "engineering_revision": "7dc4f9f34f7e53eecaa7d1fd401a71a3dd6f2934",
+    "qualification_source": "eb9e1d35ea0b87ab38d59bb46a2b3fac458884ff",
+    "runtime_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+    "runtime_source_changed": false,
+    "objective": "ReadonlyexistingV1 sources directly into selected compactV2 rows. No fullV1 copy, backupAPI, source snapshot or permanentV1 runtime dependency.",
+    "retention": "Established operations/memberships/confidence/review/roles; required creatorCREATE/migration/funding routes, competing/exclusion/quarantine evidence; compact creator history/dedup/freshness; priceopeningATHlifecycle/provenance/finalization and necessaryobservations; current queue/retry/handoff/checkpoint/budget state. Unknown dependencies protected; no age-onlydisposal.",
+    "omitted_not_deleted": "Bulk unrelatedacquisitionRPCcache/telemetry/rawtransaction/candle/debug/redundantcache andsyntheticcontrols onlywhere dependency closurepermits; counters andpinned canonical/research evidence remainrequired. V1untouched.",
+    "size": {
+      "measured_reference_core_ops_bytes": 22724608,
+      "with_compact_history_freshness_bytes": 24094527,
+      "reference_pair_planning_allowance_bytes": 33554432,
+      "full_final_operational_size": "UNQUALIFIED pending exact selector/currentstate materialization; measured reference is tensofMiB,not48GB",
+      "additional_reference_planning_allowance_bytes": 134217728,
+      "sample_additional_enforced_budget_bytes": 67108864,
+      "single_sample_file_limit_bytes": 8000000,
+      "full_v1_duplicate_bytes": 0
+    },
+    "gate": {
+      "initial_free_bytes": 3866914816,
+      "post_failure_free_bytes": 314187776,
+      "latest_free_bytes": 308727808,
+      "floor_bytes": 2000000000,
+      "required_sample_headroom_bytes": 2067108864,
+      "source_database_opens": 0,
+      "target_rows": 0,
+      "generated_disposable_files": 0,
+      "authority_manifest": "NOT_FROZEN because gate ran before schema/row reads",
+      "migration_started": false
+    },
+    "qualification": "Static source/AST review only. New direct representative continuity/attribution/price/restart/idempotency proof not executed or claimed. Earlier accepted matrices reused and not reopened.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "DEV-only test harness/retention clarification and HOLD evidence; no executable runtime deployment.",
+    "report": "docs/dev/lightweight_dev004_first_v2/compact_direct_migration/REPORT.md",
+    "blocker": "Available308727808bytes below2GBfloor. Failclosedbefore anyproductionDBread/targetfilewrite; no cleanup/audit/repair/provider/service/cutover action.",
+    "next_action": "Restore >=2067108864availablebytes, recheckfloor, then freeze source-selection manifest and qualify one boundeddirect-read compactmigration. Do not copy fullV1 or create large intermediate snapshots; no wider migration or V1 deletion."
   }
 }

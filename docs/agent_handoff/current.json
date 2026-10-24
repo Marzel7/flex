@@ -34781,10 +34781,10 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "dcc1b4119caf38f080d3a440b7ecb624125aed4e",
+    "git_head": "7b9eb4504e62c1917c87f56d9faefd367ea68228",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T08:22:02.664425+00:00",
+    "updated_at_utc": "2026-10-24T09:50:40.314281+00:00",
     "working_tree": "DEV004 Birdeye checkpoint collision PASS in isolated DEV at506fe25c. Canonical observations preserved; independent atomic completion metadata. Production/V1 unchanged; overall cutover not authorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -42462,18 +42462,19 @@
     "next_action": "Qualify controlled writer fence and paired Core/OPS authority transfer using the new stable admission journal. Keep V1 authoritative. Do not deploy/initialize production journal/activate flags or switch databases."
   },
   "dev004_paired_transfer_gate": {
-    "status": "HOLD_BIRTH_ADMISSION_RETIREMENT_FENCE_AND_DISK_FLOOR",
-    "engineering_revision": "dcc1b4119caf38f080d3a440b7ecb624125aed4e",
+    "status": "HOLD_BIRTH_ADMISSION_AND_RETIREMENT_FENCE_DISK_CLEARED",
+    "engineering_revision": "7b9eb4504e62c1917c87f56d9faefd367ea68228",
     "executable_candidate": "a89cf9b6c899060d02a4fd88fc630241f01df746",
-    "result": "Eight existing-interface/fixture controls pass as HOLD diagnostics, not transfer acceptance. Actual lease is transaction serialization, not retired epoch: old V1 handle reacquires lease and commits after release. Same alias rejects rebind; second alias leaves V1 active. Birth retries still require V1; full V1 fence yields explicit UNRECOVERABLE.",
-    "disk_available_bytes": 925532160,
+    "result": "Eight directly affected controls pass as diagnostics. Migration admission during V1 lease now succeeds. Two functional blockers reproduced: full V1 fence prevents durable birth retry; old V1 handle may reacquire lease and commit after release. No paired rebind/rollback acceptance.",
+    "disk_available_bytes": 5167042560,
     "journal_floor_plus_reserve_bytes": 2002000000,
-    "disk_result": "Actual new journal initialization refused DISK_FLOOR; not bypassed. No new migration admission claimed.",
+    "disk_result": "CLEARED on retry: initial5171245056bytes; actual fixture journal initialized/admitted durably under V1 lease with guard intact. No full budget reservation claimed.",
     "scope": "No executable changes. Five runtime files match candidate Git blobs; installed listener still matches accepted65da. Nested pair-lease guard is intended safety, not a new defect. Stop before full rebind/restart/rollback matrix; no new coordinator.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Test/documentation-only prerequisite qualification.",
     "production_state": "Unchanged; no DB connections/writes, service actions, provider calls, live WebSockets, deployment or cutover.",
     "report": "docs/dev/lightweight_dev004_first_v2/paired_transfer_gate/REPORT.md",
-    "next_action": "Restore headroom above2002000000available bytes, retaining V1. Remaining integration is independent durable birth admission and retirement fence enforced by existing writer owners. Do not schedule cutover based on migration journal alone."
+    "next_action": "Complete bounded independent durable birth admission and retirement fence enforced by existing writer owners. No new coordinator, production deployment or cutover. Disk restoration is no longer a blocker/next action.",
+    "retry_evidence": "docs/dev/lightweight_dev004_first_v2/paired_transfer_gate/retry-results.json"
   }
 }

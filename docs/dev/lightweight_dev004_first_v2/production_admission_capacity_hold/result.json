@@ -1,0 +1,63 @@
+{
+  "status": "CRITICAL_CAPACITY_FAILURE_REPRODUCED",
+  "candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+  "root": "/private/tmp/dev004-cutover-journal-capacity-pv1f16ye",
+  "results": {
+    "birth": {
+      "fully_canonical_and_acknowledged": 512,
+      "pending": 0,
+      "next_admission": "JOURNAL_CAPACITY",
+      "after_restart": "JOURNAL_CAPACITY",
+      "file_bytes": 305736,
+      "prior_records_unchanged": true
+    },
+    "migration": {
+      "fully_canonical_and_acknowledged": 512,
+      "pending": 0,
+      "next_admission": "JOURNAL_CAPACITY",
+      "after_restart": "JOURNAL_CAPACITY",
+      "file_bytes": 273188,
+      "prior_records_unchanged": true
+    }
+  },
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "decision": "HOLD_CRITICAL_DURABLE_ADMISSION_CAPACITY",
+  "rollback_authorization": "RESOLVED: user explicitly accepted fresh compact matched-pair rollback",
+  "source_preimages": {
+    "checked": 65,
+    "mismatches": 0
+  },
+  "active_V1": {
+    "core": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+    "ops": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+  },
+  "workers": {
+    "listener": 97696,
+    "resolver": 92522,
+    "walkback": 94577,
+    "supervisord": 1131
+  },
+  "source_and_config_authority": {
+    "candidate": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+    "runtime_plan_sha256": "42a80f9d72f5dccc2f819d2cd9cb1f5c429fc6cf769bb3af96351416ba042e49"
+  },
+  "free_disk_live_sample": 4868902912,
+  "free_disk_evidence_sample": 4845543424,
+  "budget_state_hash_matches": true,
+  "canonical_and_ACK_controls": 1024,
+  "rejections_before_and_after_restart": 4,
+  "production_service_actions": 0,
+  "production_source_changes": 0,
+  "migrated_records": 0,
+  "final_admission_watermark": null,
+  "remaining_live_preflight": "Stopped at deterministic journal capacity defect. Receipt capacity, complete queue reconciliation and live write-lock health not certified.",
+  "next_action": "Qualify a bounded restart-safe completed-record reclamation or generation rollover in the existing journals, preserving pending/quarantined/exhausted state, canonical verification, deduplication and transfer watermarks; do not merely increase the cap. Then resume authorized cutover after immediate preflight.",
+  "runtime_deployment_required": false,
+  "runtime_deployment_reason": "Read-only production preflight plus disposable provider-free counterexample; no executable correction or deployment.",
+  "exact_source_hashes": {
+    "runtime/listener/src/core/birth_admission_journal.py": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8",
+    "runtime/listener/src/core/migration_signature_journal.py": "e63080f4e884cd1b4a13bccf69c3cd75d6131f0eea58b01ebd466f9bcf71a7f0",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "b032eba39e75c951f612491bfbfbee858875129a323efbaae9063461b77a17c4"
+  }
+}

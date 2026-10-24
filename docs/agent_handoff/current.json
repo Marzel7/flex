@@ -34781,7 +34781,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "95f3a891b6d422803ec2252d4b251b74641e831c",
+    "git_head": "4b871217b78829f07adaab7e1f4ae13fc5a92878",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-24T13:28:28.483340+00:00",
@@ -42895,7 +42895,7 @@
     "credential_authority": "BIRDEYEonly;budgets/endpoints/retriesunchanged",
     "publication": "Engineering9files byteverified againstorigin/codex/dev004-first-v2-prototype",
     "next_action": "QualifyonlytheacceptedtypedreferenceauthorityforWatchtowermembership24rX1SutpnUTcDpYLdE6Bg2aK16m2kWYrdyKTfuFpump,event38YEpU7wyRf1hXra7tD9ZfVXhV2QCwRbbitfFD1GcTtFvcf2RUxwMxaVGnQaDYSVeSgY2T6TsVBzgXyZPVh7j9Np;indexedV1identityeventandmatchlookups0. Do notinventparent/reopenresolvedpricecase/expandhistoricalresearch.",
-    "remaining_blocker_consolidated_by": "dev004_seed_reference_preflight:118totallegacytypedreferences,104outbox14fundingsignatures;pricecaseclosedPASS;donotcontinueoneorphanatatime."
+    "remaining_blocker_consolidated_by": "Resolvedbydev004_watchtower_reference_compatibility:all118typedrefsPASS;pricecaseclosedunchanged. FullV2importnotexecutedyet."
   },
   "dev004_seed_reference_preflight": {
     "status": "COMPLETE_READ_ONLY_PREFLIGHT_HOLD_FOR_IMPORT",
@@ -42952,6 +42952,60 @@
       "new_unbounded_growth_paths": 0
     },
     "publication": "Engineering10filesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype",
-    "next_action": "OneboundedDEV-onlytypedcompatibilityqualificationcoveringall118together:104existingmembership/outboxidentitiesand14same-mintfundingsignature/outcomeidentities;preserve10currentoutcomediscrepanciesand5pendingadmissions. No parentinvention,IDchanges,FKbypass,orphanexclusions,productionchangesorrepeatedfullimportsfirst."
+    "next_action": "OneboundedDEV-onlytypedcompatibilityqualificationcoveringall118together:104existingmembership/outboxidentitiesand14same-mintfundingsignature/outcomeidentities;preserve10currentoutcomediscrepanciesand5pendingadmissions. No parentinvention,IDchanges,FKbypass,orphanexclusions,productionchangesorrepeatedfullimportsfirst.",
+    "superseded_by": "dev004_watchtower_reference_compatibility: newexplicitprofilePASS3635/3635,0unresolved. Original118inventoryretainedashistoricalv1-profileevidence;nocorrections/exclusionsinthatpriorread-onlytask."
+  },
+  "dev004_watchtower_reference_compatibility": {
+    "DEV004_STATUS": "PASS",
+    "REFERENCE_COMPATIBILITY": "PASS",
+    "SUPPORTED_REFERENCE_EDGES": 3635,
+    "UNRESOLVED_REFERENCE_COUNT": 0,
+    "MISSING_PARENT_COUNT": 0,
+    "SELECTED_ROWS": 28462,
+    "UNKNOWN_INFRASTRUCTURE_CONFLICTS_RETAINED": 10,
+    "PENDING_OUTBOX_ADMISSIONS_RETAINED": 5,
+    "BYZANTINE_PRICE_REGRESSION": "PASS; unchanged accepted source bytes and original branches/selected real-parent preflight",
+    "IMPORT_EXECUTED": "NO",
+    "PRODUCTION_MUTATIONS": 0,
+    "NEXT_ACTION": "NONE \u2014 requested reference compatibility qualification complete. Full disposable migration requires a separate next task; do not execute it here.",
+    "engineering_revision": "4b871217b78829f07adaab7e1f4ae13fc5a92878",
+    "qualified_source_composition": "483066f625e85994f2fcfc996edf52543ab809e8",
+    "tested_runtime_source": "0ace7186a302d7b04222b4000157f6b61ecde4b9",
+    "report": "docs/dev/lightweight_dev004_first_v2/watchtower_reference_compatibility/REPORT.md",
+    "manifest_sha256": "90a35a46f655e975199f0e62c5a614e1b0919db2444053c54b79d8480d9c8a30",
+    "profile": "DEV004_TYPED_MEMBERSHIP_REFERENCE_V2_WATCHTOWER;explicitfreshdisposablecompanionowner;originaltypedv1andpriceownersunchanged",
+    "reference_groups": "104MEMBERSHIP_COMMITrefs->exactoutboxcompositeidentity+same-mintoutcome;14FUNDING_SIGNATURErefs->same-mintqueuesignature+outcomemint. Notgovernanceeventsorconfirmedmatches. IDs/provenance/confidencemembershipsunchanged.",
+    "preservation": "118membershiphashesexactagainst95f3preflight;10UNKNOWN_INFRASTRUCTURE/MEDIUMoutcomesretained;5PENDINGand99DELIVEREDoutboxstates/identitiesunchanged;14queueLINEAGE_GAPstatesretained;newoperationalexclusions0.",
+    "direct_dependency_correction": "Existingcommit_membership_and_outbox detectsnewextendedsidecaronly;outboxparentbeforemembershipchildinsideSAVEPOINT,callerownedoutercommit;failureatomicrollback. Legacyorderunchanged.",
+    "verification": "26focusedsyntheticgroupsPASS inclFKguards,nullableambiguity,oldbranches,newbranches,conflict/pendingretention,duplicate/restart/processcrash,savepointatomicity/noimplicitcommit,legacywriterorder. Same28462row/3635edgeROpreflightPASS0unsupported/missing. FutureimportownerASTbindingPASS;importernotexecuted.",
+    "accepted_corrections": "3typedv1ownersandcanonicalpricebootstrapbyte-exactunchangedfrom95f3;180CONFIRMED_MATCH,111IDENTITY_EVENT,762NONEand216priceidentitylinksretainacceptedsemantics;ATH0.1%andBIRDEYEauthorityunchanged.",
+    "future_disposable_importer": "Existingcompact_rehearsal.pynowbindsqualifiedextendedowner.Noimportexecutedunderthismilestone.",
+    "storage": {
+      "contract_initializer_required_process_file_limit_bytes": 67108864,
+      "free_bytes_at_preservation_verification": 2670596096,
+      "max_membership_rows": 50000,
+      "new_reference_field_bounds": "mint/operator/reference<=128bytes;outboxevent64hex;assignmentinteger;newsignature/outcome identities constrained tooriginalboundedvalues",
+      "new_unbounded_growth_paths": 0,
+      "preflight_after": {
+        "allocated_bytes": 192512,
+        "free_bytes": 2680107008,
+        "largest_file_bytes": 159753
+      },
+      "preflight_before": {
+        "allocated_bytes": 0,
+        "free_bytes": 2683842560,
+        "largest_file_bytes": 0
+      },
+      "raw_provider_payload_retention": false,
+      "synthetic_fixture_allocated_bytes": 188416,
+      "synthetic_fixture_largest_file_bytes": 118784,
+      "synthetic_process_file_limit_bytes": 8000000
+    },
+    "provider_calls": 0,
+    "activation": false,
+    "runtime_deployment_status": "QUALIFIED_NOT_DEPLOYED;offlineDEVqualificationcomplete;noDEV_COMPLETEproductionclaimorcutoverauthority",
+    "source_snapshot_limit": "Each source uses its own read-only SQLite snapshot; no cross-database atomic generation/cutover authority claimed. Repeat source drift invalidates reuse unless selector row digests verify.",
+    "publication": "Engineering15changedfilesbyteverifiedagainstorigin/codex/dev004-first-v2-prototype;nosourceDBpayloadsorfakeparentspublished",
+    "blocker": null
   }
 }

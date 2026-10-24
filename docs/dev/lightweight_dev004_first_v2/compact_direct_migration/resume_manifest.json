@@ -1,0 +1,1181 @@
+{
+  "ATH_numerical_tolerance_relative": 0.001,
+  "accepted_numerical_oracle": {
+    "canonical_ath_changed": false,
+    "denominator": "accepted historical ATH",
+    "maximum_relative_difference": "0.001",
+    "maximum_relative_difference_percent": "0.1",
+    "relative_difference": "0.00002561652223584471798292797435",
+    "relative_difference_percent": "0.002561652223584471798292797435",
+    "scope": "ATH valuation comparisons exclusively; other canonical evidence retains existing exact requirements",
+    "status": "PASS"
+  },
+  "before": {
+    "allocated_bytes": 0,
+    "files": 0,
+    "free_bytes": 4928602112,
+    "largest_file_bytes": 0
+  },
+  "canonical_price_authority": {
+    "ath_finalization_provenance_digest": "8593a819efe46cdd76cd277435740a2afebf93ef4d4844efe8bf16874e729031",
+    "ath_finalization_request_id": "70ca8541f0e928653eaec5fb4a721fa8196df94b0a78cae0a04eb552999227b4",
+    "ath_finalized_at": 1789592654,
+    "entry_exactness": "ADAPTER_FROZEN",
+    "entry_mc_usd": 124188.60986679113,
+    "entry_method": "FIRST_FULL_POST_MIGRATION_SECOND_MC",
+    "entry_timestamp": 1789574067,
+    "final_ath_bucket_end": 1789582500,
+    "final_ath_bucket_start": 1789581600,
+    "final_ath_evidence": "BIRDEYE_15M_OHLC_HIGH",
+    "final_proven_ath_mc": 1015607.2718995338
+  },
+  "checkpoint": {
+    "commit_rule": "update cursor only after target batch commit; restart rechecks source digest and exact existing PK row",
+    "progress": "/private/tmp/dev004-direct-compact-resume-45ed0080/migration-progress.json",
+    "source": "completed Walkback state and price finalization identity; no invented unfinished checkpoint",
+    "source_views": "independent bounded read-only transactions; representative historical-case closure, not global cross-database cutover generation"
+  },
+  "format": "DEV004_DIRECT_COMPACT_SELECTION_V1",
+  "mint": "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump",
+  "output_digests": {
+    "creator_classification": "7b22d1144ee513e48283e2ab3c7949e2f4aa1a03aaf936de43455af1bf2ff4e4",
+    "creator_funding_history": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "known_subprovider": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa",
+    "known_treasury": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa",
+    "ohlc_reduction": "34d5d101eb31cc58f46fa8f42f6978a95abe056270b2711a4a6f83947a9c297c",
+    "parent_candidates": "ceda45982c7f9b449ee79af6d1263f2bb18396a639ae665f6fd82eeb4ed3bf11",
+    "price_fact": "c34baa314d70e88b8ca9b01e1a0c84b675a7fe01cff250dc681a08123eaf4d96",
+    "price_observations": "46c9995f499a213c3dad7046d1cc9ef0a4fd6ba824740469d0ec50edf791364a",
+    "quarantine": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "retained_outcome": "e6c47ddbdc43a8b177cf51e08ac45571fc1af0491063a038c700d71e22b6eff9",
+    "watchtower_route": "c5d5c66405fa1937fdfe0fe1ea699258e7c771ff26db3400ce568ec1647d149a"
+  },
+  "provenance": "Every selected field retained exactly. Whole V1 tables, raw source rows in intermediate files and raw provider bodies are not copied. Source schema definitions and row hashes are metadata-only authority.",
+  "provider": {
+    "credential_name": "BIRDEYE",
+    "forbidden_fallback": "BIRDEYE_KK",
+    "global_limit": 20,
+    "new_provider_requests": 0,
+    "per_token_limit": 4,
+    "price_state": "accepted finalized historical record remains final; no consumed-budget ledger is reset",
+    "window_seconds": 60
+  },
+  "resume_authority": {
+    "authorization": "Resume one bounded direct-read representative qualification only; no full V1 copies, production changes, deletion or deployment",
+    "current_gate_available_bytes": 4931072000,
+    "prior_attempt": "disk gate before any source DB open or generated target file",
+    "prior_handoff": "45ed008075f8f4cdaa7ca261cec275aef3be4ac7",
+    "required_gate_bytes": 2067108864
+  },
+  "reused_evidence": [
+    "100creator",
+    "616Watchtower",
+    "26Deep",
+    "existing journal/paired guard/queue recovery",
+    "Birdeye acquisition and budget continuity"
+  ],
+  "rollback": {
+    "core_v1": {
+      "device": 16777234,
+      "full_file_hash": "NOT_READ: source logical authority is schemas plus selected-row hashes; live V1 is not a frozen whole-database generation",
+      "header_observation_sha256": "aab97e3dad7af7bd7423cd7f40e38cdf838fd6c49959fd6497cea80b84651750",
+      "inode": 549513179,
+      "observed_file_bytes": 35652194304,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "schema_version": 849,
+      "user_version": 0
+    },
+    "mode": "ABORT_BEFORE_ACTIVATION",
+    "ops_v1": {
+      "device": 16777234,
+      "full_file_hash": "NOT_READ: source logical authority is schemas plus selected-row hashes; live V1 is not a frozen whole-database generation",
+      "header_observation_sha256": "9f73b81b6a3c343527f910f79b6cc4fdd103d2154f149a112bb59c8532376ff0",
+      "inode": 421043107,
+      "observed_file_bytes": 16194387968,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "schema_version": 766,
+      "user_version": 0
+    },
+    "procedure": "Never activate these representative targets. On failure leave both V1 authorities unchanged and retain partial target plus progress for diagnosis. No source restore/copy/unretire required."
+  },
+  "root": "/private/tmp/dev004-direct-compact-resume-45ed0080",
+  "runtime_candidate": "0013ccbde314d0ad124f8ccd2963f15aff437519",
+  "schema_sha256": "adab45f1ac51159954d6bc23b01656adcd1e0d985d057522455acbe6660d1964",
+  "schemas": {
+    "core.creator_funders": {
+      "ddl": "CREATE TABLE creator_funders (\n    creator_address TEXT NOT NULL,\n    funder_address TEXT NOT NULL,\n    amount_sol REAL NOT NULL,\n    first_detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    is_cex BOOLEAN DEFAULT 0,\n    cex_exchange TEXT,\n    cex_type TEXT, source_type TEXT DEFAULT 'original_sender', is_classified INTEGER DEFAULT 0, fully_analyzed INTEGER DEFAULT 0, total_inflows REAL DEFAULT 0, total_outflows REAL DEFAULT 0, net_change REAL DEFAULT 0, last_analyzed TIMESTAMP,\n    PRIMARY KEY(creator_address, funder_address)\n)",
+      "indexes": [
+        "CREATE INDEX idx_cf_funder ON creator_funders(funder_address)",
+        "CREATE INDEX idx_creator_funder ON creator_funders(creator_address)",
+        "CREATE INDEX idx_creator_funders_analyzed ON creator_funders(fully_analyzed)",
+        "CREATE INDEX idx_creator_funders_creator ON creator_funders(creator_address)",
+        "CREATE INDEX idx_creator_funders_funder ON creator_funders(funder_address)",
+        "CREATE INDEX idx_funder_address ON creator_funders(funder_address)",
+        "CREATE INDEX idx_is_cex ON creator_funders(is_cex)"
+      ]
+    },
+    "core.creator_funding_queue": {
+      "ddl": "CREATE TABLE creator_funding_queue (\n                creator_address TEXT NOT NULL,\n                mint TEXT NOT NULL,\n                migration_timestamp TEXT,\n                create_tx_signature TEXT,\n                status TEXT DEFAULT 'pending',\n                next_attempt_at INTEGER DEFAULT 0,\n                locked_until INTEGER DEFAULT 0,\n                attempts INTEGER DEFAULT 0,\n                last_error TEXT,\n                created_at INTEGER DEFAULT (strftime('%s','now')),\n                updated_at INTEGER DEFAULT (strftime('%s','now')), source TEXT, funding_enqueued_at INTEGER, funding_extracted_at INTEGER, curve_completed_slot INTEGER, enqueued_slot INTEGER, priority_reason TEXT, job_priority INTEGER DEFAULT 0, observation_required INTEGER NOT NULL DEFAULT 0,\n                PRIMARY KEY (creator_address, mint)\n            )",
+      "indexes": [
+        "CREATE INDEX idx_creator_funding_queue_created_at ON creator_funding_queue(created_at DESC)",
+        "CREATE INDEX idx_creator_funding_queue_mint\n            ON creator_funding_queue(mint)\n            ",
+        "CREATE INDEX idx_creator_funding_queue_status ON creator_funding_queue(status, next_attempt_at)"
+      ]
+    },
+    "core.creator_resolution_queue": {
+      "ddl": "CREATE TABLE creator_resolution_queue (\n            mint TEXT PRIMARY KEY,\n            status TEXT NOT NULL DEFAULT 'pending',\n            priority INTEGER NOT NULL DEFAULT 100,\n            reason TEXT,\n            source TEXT,\n            attempts INTEGER NOT NULL DEFAULT 0,\n            next_attempt_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            locked_until INTEGER NOT NULL DEFAULT 0,\n            last_error TEXT,\n            resolved_creator TEXT,\n            create_tx_signature TEXT,\n            migrated_at INTEGER,\n            created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            resolved_at INTEGER\n        , sigs_examined INTEGER, pages_examined INTEGER, runtime_secs REAL, skip_reason TEXT, resolution_tier TEXT)",
+      "indexes": [
+        "CREATE INDEX idx_creator_resolution_queue_status\n        ON creator_resolution_queue(status, priority DESC, next_attempt_at, locked_until)\n        ",
+        "CREATE INDEX idx_creator_resolution_queue_updated\n        ON creator_resolution_queue(updated_at DESC)\n        "
+      ]
+    },
+    "core.metadata_cache": {
+      "ddl": "CREATE TABLE metadata_cache (\n                mint TEXT PRIMARY KEY,\n                symbol TEXT NOT NULL,\n                name TEXT NOT NULL,\n                cached_at INTEGER NOT NULL,\n                cached_source TEXT\n            )",
+      "indexes": []
+    },
+    "core.migration_walkback_handoff": {
+      "ddl": "CREATE TABLE migration_walkback_handoff (\n            mint TEXT PRIMARY KEY,\n            creator TEXT,\n            migration_tx TEXT,\n            migrated_at INTEGER NOT NULL,\n            state TEXT NOT NULL DEFAULT 'PENDING',\n            attempt_count INTEGER NOT NULL DEFAULT 0,\n            next_attempt_at INTEGER NOT NULL DEFAULT 0,\n            last_attempt_at INTEGER,\n            last_error_class TEXT,\n            last_error_message TEXT,\n            created_at INTEGER NOT NULL,\n            completed_at INTEGER,\n            terminal_at INTEGER\n        )",
+      "indexes": [
+        "CREATE INDEX idx_migration_walkback_handoff_due\n            ON migration_walkback_handoff(state, next_attempt_at, migrated_at)"
+      ]
+    },
+    "core.token_analysis": {
+      "ddl": "CREATE TABLE token_analysis (\n  mint TEXT UNIQUE PRIMARY KEY,\n  analyzed_at REAL,\n  total_txs INT,\n  total_events INT,\n  events_parsed INT,\n  mint_concentration REAL,\n  unique_minters_ratio REAL,\n  sell_suppression_ratio REAL,\n  mint_velocity_sec REAL,\n  buy_size_variance REAL,\n  sell_volume_concentration REAL,\n  creator_activity_ratio REAL,\n  post_migration_mint_concentration REAL,\n  post_migration_unique_minters_ratio REAL,\n  post_migration_sell_suppression_ratio REAL,\n  post_migration_mint_velocity_sec REAL,\n  post_migration_buy_size_variance REAL,\n  post_migration_sell_volume_concentration REAL,\n  post_migration_creator_activity_ratio REAL,\n  post_migration_coverage REAL,\n  rug_probability REAL,\n  risk_level TEXT,\n  migration_tx TEXT,\n  price_current REAL,\n  price_highest REAL,\n  market_cap_current REAL,\n  market_cap_highest REAL,\n  market_cap_highest_at NUM,\n  price_updated_at NUM,\n  price_source TEXT,\n  pool_address TEXT,\n  created_at NUM,\n  rug_indicator TEXT,\n  earliest_tx_creator TEXT,\n  creator_is_blocked INT,\n  network_risk INT,\n  connected_malicious_count INT,\n  bonding_curve_pda TEXT,\n  create_tx_signature TEXT\n, cluster_id TEXT, cluster_name TEXT, cluster_risk_multiplier REAL DEFAULT 1.0, network_funder_address TEXT, network_name TEXT, network_tier TEXT, network_is_cex INTEGER DEFAULT 0, market_cap_highest_at_ts INTEGER, is_about_to_migrate BOOLEAN DEFAULT 0, migration_progress_pct REAL, migration_band TEXT, migration_signal_updated_at INTEGER, lifecycle_stage TEXT DEFAULT 'migration_pending', migrated_at INTEGER, dex TEXT, pumpswap_pool_address TEXT, source_platform TEXT, is_new INTEGER DEFAULT 0, migration_signal_source TEXT, pf_ws_creator TEXT, creator_mismatch INTEGER DEFAULT 0, first_pre_migration_signal_at INTEGER, curve_complete INTEGER DEFAULT 0, curve_completed_at INTEGER, curve_completed_slot INTEGER, curve_complete_source TEXT, migration_slot INTEGER, creator_resolved_slot INTEGER, funding_job_enqueued_slot INTEGER, funding_extracted_slot INTEGER, first_observed_mc REAL, first_observed_price REAL, first_observed_at INTEGER, first_observed_source TEXT, first_observed_confidence REAL, watchtower_related INTEGER NOT NULL DEFAULT 0, watchtower_evidence_json TEXT, migration_source TEXT)",
+      "indexes": [
+        "CREATE INDEX \"idx_psi0a_token_analysis_migrated_mint\" ON \"token_analysis\" (\"migrated_at\", \"mint\")",
+        "CREATE INDEX \"idx_psi0a_token_analysis_migration_tx\" ON \"token_analysis\" (\"migration_tx\")",
+        "CREATE INDEX idx_ta_analyzed_at ON token_analysis(analyzed_at DESC)",
+        "CREATE INDEX idx_ta_bonding_curve_refresh \nON token_analysis(mint, bonding_curve_pda, source_platform, lifecycle_stage)\nWHERE mint IS NOT NULL",
+        "CREATE INDEX idx_ta_lifecycle ON token_analysis(lifecycle_stage, migrated_at DESC)",
+        "CREATE INDEX idx_ta_migrated_at ON token_analysis(migrated_at DESC)",
+        "CREATE INDEX idx_ta_pf_ws_creator ON token_analysis(pf_ws_creator)",
+        "CREATE INDEX idx_ta_watchtower ON token_analysis(watchtower_related) WHERE watchtower_related=1",
+        "CREATE INDEX idx_token_analysis_created_at ON token_analysis(created_at DESC)",
+        "CREATE INDEX idx_token_analysis_earliest_creator\nON token_analysis(earliest_tx_creator)"
+      ]
+    },
+    "core.token_market_cap_peaks": {
+      "ddl": "CREATE TABLE token_market_cap_peaks (\n  mint TEXT PRIMARY KEY,\n  peak_market_cap REAL DEFAULT 0,\n  peak_market_cap_at INTEGER DEFAULT 0, raw_peak_mc REAL DEFAULT 0, effective_peak_mc REAL DEFAULT 0, candidate_peak_mc REAL, candidate_peak_count INTEGER DEFAULT 0, raw_peak_mc_at INTEGER,\n  FOREIGN KEY(mint) REFERENCES tracked_tokens(mint)\n)",
+      "indexes": []
+    },
+    "core.token_pool_accounts": {
+      "ddl": "CREATE TABLE token_pool_accounts (\n                mint              TEXT NOT NULL,\n                base_account      TEXT NOT NULL,\n                quote_account     TEXT NOT NULL,\n                pool_program      TEXT NOT NULL DEFAULT 'raydium_amm',\n                base_token        TEXT NOT NULL,\n                quote_token       TEXT NOT NULL DEFAULT 'So11111111111111111111111111111111111111112',\n                base_decimals     INTEGER NOT NULL DEFAULT 6,\n                quote_decimals    INTEGER NOT NULL DEFAULT 9,\n                last_reserve_fetch INTEGER DEFAULT 0,\n                is_active         BOOLEAN DEFAULT 1,\n                created_at        INTEGER NOT NULL,\n                updated_at        INTEGER NOT NULL, vault_validation_status TEXT NOT NULL DEFAULT 'pending' CHECK(vault_validation_status IN ('pending', 'validated', 'rejected')), vault_validation_error TEXT, vault_validation_attempts INTEGER DEFAULT 0, last_vault_validation_at INTEGER DEFAULT 0, discovery_method TEXT DEFAULT 'unknown', is_primary BOOLEAN DEFAULT 0, last_ws_update_at INTEGER DEFAULT 0, last_swap_seen_at INTEGER DEFAULT 0, quote_liquidity REAL DEFAULT 0.0, pool_score REAL DEFAULT 0.0, token_supply INTEGER DEFAULT 1000000000, pool_address TEXT DEFAULT NULL, is_legacy INTEGER DEFAULT 1, vault_discovery_time_secs REAL DEFAULT NULL, vault_discovery_attempts INTEGER DEFAULT 0, vault_discovery_strategy TEXT DEFAULT 'unknown', vault_resolution_state TEXT DEFAULT 'pending', vault_resolved_at INTEGER DEFAULT NULL, authority_account TEXT DEFAULT NULL, liquidity_removed BOOLEAN DEFAULT 0, liquidity_removed_at INTEGER,\n                PRIMARY KEY (mint, base_account)\n            )",
+      "indexes": [
+        "CREATE INDEX idx_pool_active ON token_pool_accounts(is_active, vault_validation_status)",
+        "CREATE INDEX idx_pool_mint ON token_pool_accounts(mint)",
+        "CREATE INDEX idx_pool_primary ON token_pool_accounts(mint, is_primary)",
+        "CREATE INDEX idx_pool_validation ON token_pool_accounts(vault_validation_status)",
+        "CREATE INDEX idx_tpa_mint_active\n            ON token_pool_accounts(mint, is_active)\n        ",
+        "CREATE INDEX idx_tpa_pool_address ON token_pool_accounts(pool_address)",
+        "CREATE INDEX idx_tpa_vault_status ON token_pool_accounts(vault_validation_status, last_vault_validation_at)"
+      ]
+    },
+    "core.tracked_tokens": {
+      "ddl": "CREATE TABLE tracked_tokens (\n                mint                TEXT PRIMARY KEY,\n                symbol              TEXT,\n                pair_address        TEXT,\n                priority_level      TEXT DEFAULT 'MEDIUM',\n                last_price_update   INTEGER DEFAULT 0,\n                is_active           BOOLEAN DEFAULT 1,\n                created_at          INTEGER NOT NULL,\n                updated_at          INTEGER NOT NULL\n            , last_activity_at INTEGER, inactive_since INTEGER, stop_reason TEXT, fetch_failures INTEGER DEFAULT 0, boost_until INTEGER DEFAULT 0, tracking_reason TEXT)",
+      "indexes": [
+        "CREATE INDEX idx_tt_boost\n            ON tracked_tokens(boost_until)\n        ",
+        "CREATE INDEX idx_tt_last_update\n            ON tracked_tokens(last_price_update ASC)\n        ",
+        "CREATE INDEX idx_tt_priority\n            ON tracked_tokens(priority_level, is_active)\n        "
+      ]
+    },
+    "core.transfer_index": {
+      "ddl": "CREATE TABLE transfer_index (\n    id                  INTEGER PRIMARY KEY AUTOINCREMENT,\n    signature           TEXT NOT NULL,                       -- Transaction signature\n    source              TEXT NOT NULL,                       -- Source wallet address\n    destination         TEXT NOT NULL,                       -- Destination wallet address\n    amount_lamports     INTEGER NOT NULL,                    -- Transfer amount in lamports (avoid floats)\n    amount_sol          REAL GENERATED ALWAYS AS (amount_lamports / 1e9) STORED,  -- SOL equivalent\n    slot                INTEGER NOT NULL DEFAULT 0,          -- Slot number (0 when unavailable from feed)\n    block_time          INTEGER NOT NULL,                    -- Unix timestamp\n    indexed_at          REAL NOT NULL,                       -- When indexed (time.time())\n    is_valid            BOOLEAN NOT NULL DEFAULT 1,          -- Validation flag (for cleanup)\n    transfer_type       TEXT DEFAULT 'standard',             -- 'standard', 'spl_token', 'rent', etc.\n\n    -- Composite uniqueness: one row per (tx, sender, recipient) pair\n    UNIQUE (signature, source, destination),\n\n    -- Constraints\n    CHECK (amount_lamports > 0),\n    CHECK (block_time > 0)\n)",
+      "indexes": [
+        "CREATE INDEX idx_transfer_block_time\nON transfer_index(block_time DESC)",
+        "CREATE INDEX idx_transfer_destination_time\nON transfer_index(destination, block_time DESC)",
+        "CREATE INDEX idx_transfer_indexed_at\nON transfer_index(indexed_at)",
+        "CREATE INDEX idx_transfer_signature ON transfer_index(signature)",
+        "CREATE INDEX idx_transfer_source_amount_time\nON transfer_index(source, amount_lamports DESC, block_time DESC)",
+        "CREATE INDEX idx_transfer_source_dest ON transfer_index(source, destination) WHERE is_valid=1",
+        "CREATE INDEX idx_transfer_source_time\nON transfer_index(source, block_time DESC)",
+        "CREATE INDEX idx_transfer_valid\nON transfer_index(is_valid) WHERE is_valid = 1",
+        "CREATE INDEX idx_transfer_valid_amount ON transfer_index(is_valid, amount_lamports) WHERE is_valid=1",
+        "CREATE INDEX idx_transfer_valid_dest ON transfer_index(is_valid, destination) WHERE is_valid=1",
+        "CREATE INDEX idx_transfer_valid_signature ON transfer_index(is_valid, signature) WHERE is_valid=1",
+        "CREATE INDEX idx_transfer_valid_source ON transfer_index(is_valid, source) WHERE is_valid=1"
+      ]
+    },
+    "ops.monitor_admission_outbox": {
+      "ddl": "CREATE TABLE monitor_admission_outbox(event_id TEXT PRIMARY KEY,operation_id TEXT NOT NULL,mint TEXT NOT NULL,membership_id TEXT NOT NULL UNIQUE,committed_at INTEGER NOT NULL,semantic_version TEXT NOT NULL,opening_id TEXT,state TEXT NOT NULL DEFAULT 'PENDING',claimed_at INTEGER,delivered_at INTEGER)",
+      "indexes": [
+        "CREATE INDEX ix_monitor_admission_outbox_pending ON monitor_admission_outbox(state,committed_at,event_id)"
+      ]
+    },
+    "ops.operation_monitor_entry_provenance": {
+      "ddl": "CREATE TABLE operation_monitor_entry_provenance (\n operation_id TEXT NOT NULL,mint TEXT NOT NULL,entry_quality TEXT NOT NULL,entry_policy TEXT NOT NULL,evidence_version TEXT NOT NULL,evidence_identity TEXT NOT NULL,\n entry_mc_usd REAL NOT NULL,entry_timestamp INTEGER NOT NULL,entry_slot INTEGER NOT NULL,canonical_create_signature TEXT NOT NULL,canonical_create_slot INTEGER NOT NULL,canonical_create_time INTEGER NOT NULL,reference_slot_offset INTEGER NOT NULL,\n first_available_signature TEXT NOT NULL,first_available_venue TEXT NOT NULL,provider_evidence_identity TEXT NOT NULL,provider_provenance_json TEXT NOT NULL,acquired_at INTEGER NOT NULL,\n PRIMARY KEY(operation_id,mint,entry_quality,entry_policy,evidence_identity))",
+      "indexes": []
+    },
+    "ops.operation_monitor_facts": {
+      "ddl": "CREATE TABLE operation_monitor_facts (\n operation_id TEXT NOT NULL,mint TEXT NOT NULL,cohort_class TEXT NOT NULL,assignment_timestamp INTEGER,assignment_provenance TEXT,\n entry_method TEXT NOT NULL,entry_timestamp INTEGER,entry_mc_usd REAL,entry_status TEXT,entry_exactness TEXT,\n latest_mc_usd REAL,latest_mc_timestamp INTEGER,current_multiple REAL,running_peak_mc_usd REAL,running_peak_timestamp INTEGER,running_peak_multiple REAL,drawdown_percent REAL,\n reached_2x INTEGER,reached_5x INTEGER,reached_10x INTEGER,first_2x_timestamp INTEGER,first_5x_timestamp INTEGER,first_10x_timestamp INTEGER,\n drawdown_25_timestamp INTEGER,drawdown_50_timestamp INTEGER,drawdown_75_timestamp INTEGER,drawdown_85_timestamp INTEGER,monitor_state TEXT NOT NULL,\n monitor_started_at INTEGER,last_observation_at INTEGER,next_observation_at INTEGER,monitor_completed_at INTEGER,provider_call_count INTEGER NOT NULL DEFAULT 0,candles_retained INTEGER NOT NULL DEFAULT 0,candle_resolution TEXT,evidence_status TEXT,provenance_digest TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL, retained_monitor_peak_mc_usd REAL, retained_monitor_peak_evidence TEXT, final_proven_ath_mc REAL, final_ath_multiple REAL, final_ath_evidence TEXT, final_ath_resolution TEXT, final_ath_bucket_start INTEGER, final_ath_bucket_end INTEGER, ath_finalized_at INTEGER, ath_finalization_request_id TEXT, ath_finalization_provenance_digest TEXT, entry_native_mc_sol TEXT,PRIMARY KEY(operation_id,mint))",
+      "indexes": [
+        "CREATE INDEX ix_operation_monitor_due ON operation_monitor_facts(operation_id,monitor_state,next_observation_at)",
+        "CREATE INDEX ix_operation_monitor_updated ON operation_monitor_facts(operation_id,updated_at)"
+      ]
+    },
+    "ops.operation_monitor_observations": {
+      "ddl": "CREATE TABLE operation_monitor_observations (\n operation_id TEXT NOT NULL,mint TEXT NOT NULL,observation_timestamp INTEGER NOT NULL,mc_usd REAL NOT NULL,resolution TEXT NOT NULL,\n source TEXT NOT NULL,request_identity TEXT NOT NULL,provenance_digest TEXT NOT NULL,created_at INTEGER NOT NULL, open_mc_usd REAL, high_mc_usd REAL, low_mc_usd REAL, close_mc_usd REAL,\n PRIMARY KEY(operation_id,mint,observation_timestamp,resolution))",
+      "indexes": [
+        "CREATE INDEX ix_operation_monitor_observation_path ON operation_monitor_observations(operation_id,mint,observation_timestamp)"
+      ]
+    },
+    "ops.operator_entities": {
+      "ddl": "CREATE TABLE operator_entities (\n    operator_id     TEXT NOT NULL REFERENCES operators(operator_id),\n    entity_address  TEXT NOT NULL,\n    entity_type     TEXT NOT NULL DEFAULT 'UNKNOWN',\n    confidence      TEXT NOT NULL DEFAULT 'UNKNOWN',\n    evidence_count  INTEGER NOT NULL DEFAULT 0,\n    first_seen      INTEGER,\n    last_seen       INTEGER,\n    added_at        INTEGER NOT NULL,\n    PRIMARY KEY (operator_id, entity_address)\n)",
+      "indexes": [
+        "CREATE INDEX ix_ope_entity ON operator_entities(entity_address)"
+      ]
+    },
+    "ops.operator_evidence": {
+      "ddl": "CREATE TABLE operator_evidence (\n    evidence_id     TEXT PRIMARY KEY,           -- uuid4\n    operator_id     TEXT NOT NULL REFERENCES operators(operator_id),\n    evidence_type   TEXT NOT NULL,              -- key from EVIDENCE_CATALOGUE\n    evidence_category TEXT NOT NULL,            -- IDENTITY | SUPPORTING | CONTEXT\n    source_operation TEXT,                      -- operation_id that produced this\n    entity_a        TEXT,                       -- first wallet/entity involved\n    entity_b        TEXT,                       -- second wallet/entity involved (if applicable)\n    weight          REAL NOT NULL DEFAULT 0.0,\n    details         TEXT,                       -- JSON: extra fields\n    created_at      INTEGER NOT NULL\n)",
+      "indexes": [
+        "CREATE INDEX ix_oe_entity_a ON operator_evidence(entity_a)",
+        "CREATE INDEX ix_oe_operator ON operator_evidence(operator_id)",
+        "CREATE INDEX ix_oe_type     ON operator_evidence(evidence_type)"
+      ]
+    },
+    "ops.operator_identity_assets": {
+      "ddl": "CREATE TABLE operator_identity_assets (\n    asset_id TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    asset_type TEXT NOT NULL,\n    asset_value TEXT NOT NULL,\n    status TEXT NOT NULL DEFAULT 'ACTIVE',\n    evidence_revision TEXT NOT NULL,\n    added_at INTEGER NOT NULL,\n    event_id TEXT NOT NULL REFERENCES operator_identity_events(event_id),\n    UNIQUE(operator_id, asset_type, asset_value)\n)",
+      "indexes": [
+        "CREATE INDEX ix_operator_identity_assets_value\nON operator_identity_assets(asset_value, status)"
+      ]
+    },
+    "ops.operator_identity_state": {
+      "ddl": "CREATE TABLE operator_identity_state (\n    operator_id TEXT PRIMARY KEY REFERENCES operators(operator_id),\n    identity_status TEXT NOT NULL,\n    activity_status TEXT NOT NULL DEFAULT 'ACTIVE',\n    source_population_id TEXT,\n    source_population_revision TEXT,\n    confirmation_evidence_package TEXT,\n    disposition_at_confirmation TEXT,\n    merged_into_operator_id TEXT,\n    retired_at INTEGER,\n    updated_at INTEGER NOT NULL\n)",
+      "indexes": [
+        "CREATE INDEX ix_operator_identity_state_status\nON operator_identity_state(identity_status, activity_status)"
+      ]
+    },
+    "ops.operator_launch_assignment_history": {
+      "ddl": "CREATE TABLE operator_launch_assignment_history (\n    assignment_id TEXT PRIMARY KEY,\n    mint TEXT NOT NULL,\n    from_operator_id TEXT,\n    to_operator_id TEXT NOT NULL,\n    timestamp INTEGER NOT NULL,\n    analyst TEXT NOT NULL,\n    evidence_revision TEXT NOT NULL,\n    reason TEXT NOT NULL,\n    event_id TEXT NOT NULL REFERENCES operator_identity_events(event_id)\n)",
+      "indexes": [
+        "CREATE INDEX ix_operator_launch_history_mint\nON operator_launch_assignment_history(mint, timestamp)"
+      ]
+    },
+    "ops.operator_launch_membership": {
+      "ddl": "CREATE TABLE operator_launch_membership (\n    mint TEXT PRIMARY KEY,\n    operator_id TEXT NOT NULL REFERENCES operators(operator_id),\n    source_population_id TEXT,\n    assigned_at INTEGER NOT NULL,\n    event_id TEXT REFERENCES operator_identity_events(event_id)\n)",
+      "indexes": [
+        "CREATE INDEX ix_operator_launch_membership_operator\nON operator_launch_membership(operator_id)"
+      ]
+    },
+    "ops.operator_reviews": {
+      "ddl": "CREATE TABLE operator_reviews (\n    review_id       TEXT PRIMARY KEY,           -- uuid4\n    operator_id     TEXT NOT NULL REFERENCES operators(operator_id),\n    decision        TEXT NOT NULL,              -- CONFIRMED | REJECTED | MERGE | SPLIT | FLAGGED\n    reviewer        TEXT,                       -- analyst identifier (optional)\n    timestamp       INTEGER NOT NULL,\n    reason          TEXT,                       -- free-text explanation\n    related_operator_id TEXT                    -- for MERGE/SPLIT decisions\n)",
+      "indexes": [
+        "CREATE INDEX ix_or_operator ON operator_reviews(operator_id)"
+      ]
+    },
+    "ops.operators": {
+      "ddl": "CREATE TABLE operators (\n    operator_id     TEXT PRIMARY KEY,           -- uuid4\n    status          TEXT NOT NULL DEFAULT 'CANDIDATE',\n    confidence      TEXT NOT NULL DEFAULT 'UNKNOWN',\n    first_seen      INTEGER,                    -- unix ts\n    last_seen       INTEGER,                    -- unix ts\n    summary         TEXT,                       -- human-readable one-liner\n    review_state    TEXT NOT NULL DEFAULT 'PENDING',  -- PENDING | IN_REVIEW | REVIEWED\n    display_name    TEXT,                       -- optional analyst-set label\n    created_at      INTEGER NOT NULL,\n    updated_at      INTEGER NOT NULL\n)",
+      "indexes": []
+    },
+    "ops.watchtower_token_attribution": {
+      "ddl": "CREATE TABLE watchtower_token_attribution (\n            mint                TEXT PRIMARY KEY,\n            creator             TEXT,\n            score               REAL    NOT NULL DEFAULT 0,\n            tier                TEXT    NOT NULL DEFAULT 'NONE',  -- STRONG | WEAK | NONE\n            reasons_json        TEXT,\n            ancestry_depth      INTEGER,\n            matched_treasury    TEXT,\n            matched_collector   TEXT,\n            matched_subprov     TEXT,\n            matched_signaller   TEXT,\n            matched_relay       TEXT,\n            evidence_paths_json TEXT,\n            reviewed_status     TEXT    NOT NULL DEFAULT 'AUTO',  -- AUTO|REVIEW|CONFIRMED|REJECTED\n            scored_at           INTEGER NOT NULL\n        )",
+      "indexes": [
+        "CREATE INDEX ix_wta_tier ON watchtower_token_attribution(tier)"
+      ]
+    },
+    "ops.wt_attribution_outcomes": {
+      "ddl": "CREATE TABLE wt_attribution_outcomes (\n    mint                          TEXT PRIMARY KEY,\n    outcome_type                  TEXT NOT NULL CHECK(outcome_type IN ('CANONICAL_OPERATOR_REACHED','KNOWN_MULTI_TOKEN_CREATOR','KNOWN_CEX_REACHED','KNOWN_BRIDGE_REACHED','KNOWN_RELAY_REACHED','UNKNOWN_INFRASTRUCTURE','LINEAGE_GAP','AMBIGUOUS_BRANCH','MAX_DEPTH','INSUFFICIENT_EVIDENCE')),\n    stop_reason                   TEXT NOT NULL,\n    terminal_entity               TEXT,\n    terminal_entity_type          TEXT NOT NULL,\n    confidence                    TEXT NOT NULL,\n    evidence_json                 TEXT NOT NULL,\n    operator_id                   TEXT,\n    should_seed_emerging_operator INTEGER NOT NULL CHECK(should_seed_emerging_operator IN (0,1)),\n    should_retry                  INTEGER NOT NULL CHECK(should_retry IN (0,1)),\n    completed_at                  INTEGER NOT NULL,\n    source_queue_updated_at       INTEGER,\n    materialized_at               INTEGER NOT NULL\n)",
+      "indexes": [
+        "CREATE INDEX ix_wao_completed_at ON wt_attribution_outcomes(completed_at DESC)",
+        "CREATE INDEX ix_wao_terminal\n    ON wt_attribution_outcomes(terminal_entity, outcome_type)",
+        "CREATE INDEX ix_wao_type_time\n    ON wt_attribution_outcomes(outcome_type, completed_at DESC)"
+      ]
+    },
+    "ops.wt_candidate_websocket_watches": {
+      "ddl": "CREATE TABLE wt_candidate_websocket_watches (\n            id                       INTEGER PRIMARY KEY AUTOINCREMENT,\n            candidate_wallet         TEXT NOT NULL,\n            subprov_wallet           TEXT,\n            treasury_wallet          TEXT,\n            wrap_close_signature     TEXT,\n            wrap_wallet              TEXT,\n            temp_wsol_account        TEXT,\n            close_destination        TEXT,\n            funding_amount           REAL,\n            state                    TEXT NOT NULL DEFAULT 'WATCHING',\n            websocket_subscription_id TEXT,\n            detected_at              INTEGER NOT NULL,\n            expires_at               INTEGER,\n            closed_at                INTEGER,\n            close_reason             TEXT, wrap_close_time INTEGER, watch_mode TEXT DEFAULT 'LIVE', funding_mechanism TEXT DEFAULT 'WSOL_WRAP_CLOSE', initial_subprov_funding_sol REAL, initial_subprov_funding_signature TEXT, initial_subprov_funding_time INTEGER, subprov_fanout_count_at_capture INTEGER, subprov_fanout_value_at_capture REAL,\n            UNIQUE(candidate_wallet, wrap_close_signature)\n        )",
+      "indexes": [
+        "CREATE INDEX ix_cand_watch_state ON wt_candidate_websocket_watches(state)",
+        "CREATE INDEX ix_cand_watch_subprov ON wt_candidate_websocket_watches(subprov_wallet)",
+        "CREATE INDEX ix_wc_candidate_detected ON wt_candidate_websocket_watches(candidate_wallet,detected_at DESC)",
+        "CREATE INDEX ix_wc_subprov_time ON wt_candidate_websocket_watches(subprov_wallet, wrap_close_time)"
+      ]
+    },
+    "ops.wt_confirmed_treasuries": {
+      "ddl": "CREATE TABLE wt_confirmed_treasuries (\n  treasury TEXT PRIMARY KEY,\n  transfer_pct INTEGER,\n  out_sol REAL,\n  recipients INTEGER,\n  micro_pings INTEGER,\n  method TEXT,\n  confidence TEXT,\n  confirmed_at INTEGER, provenance TEXT DEFAULT 'CONFIRMED_SEED', no_subscribe INTEGER DEFAULT 0)",
+      "indexes": []
+    },
+    "ops.wt_creator_birth_launch": {
+      "ddl": "CREATE TABLE wt_creator_birth_launch (\n    creator           TEXT PRIMARY KEY,\n    treasury          TEXT,\n    subprov           TEXT,\n    funded_at         INTEGER,        -- creator born (wrap-close funding tx block_time)\n    launched_at       INTEGER,        -- token CREATE block_time\n    birth_to_launch_s INTEGER,        -- THE metric\n    creator_mode      TEXT,           -- INSTANT (<60s) | STAGED (>=60s) | UNKNOWN (no launch yet)\n    token_mint        TEXT,\n    funding_sig       TEXT,\n    launch_sig        TEXT,\n    base_amount_sol   REAL,\n    measured_at       INTEGER\n, launch_mode TEXT)",
+      "indexes": []
+    },
+    "ops.wt_discovered_subprovs": {
+      "ddl": "CREATE TABLE wt_discovered_subprovs (\n            subprov         TEXT PRIMARY KEY,\n            first_creator   TEXT,            -- a creator it provisioned\n            creator_count   INTEGER DEFAULT 1,\n            treasury        TEXT,            -- NULL until traced\n            treasury_known  INTEGER DEFAULT 0,\n            first_seen      INTEGER,\n            last_seen       INTEGER\n        , immediate_funder TEXT, funder_is_subprov INTEGER DEFAULT 0, confidence REAL DEFAULT 0.20, state TEXT DEFAULT 'PROVISION_CANDIDATE', wrap_close_count INTEGER DEFAULT 0, topup_count INTEGER DEFAULT 0, rejected_reason TEXT, buy_swarm_count INTEGER DEFAULT 0, create_count INTEGER DEFAULT 0, buy_swarm_ratio REAL DEFAULT 0.0, subprov_type TEXT DEFAULT 'UNKNOWN', seeded_account_count INTEGER DEFAULT 0, discovery_source TEXT, funding_mechanism TEXT)",
+      "indexes": []
+    },
+    "ops.wt_launch_audit": {
+      "ddl": "CREATE TABLE wt_launch_audit (\n        mint                        TEXT PRIMARY KEY,\n        creator                     TEXT,\n        treasury                    TEXT,\n        subprov                     TEXT,\n        create_signature            TEXT,\n        create_slot                 INTEGER,\n        create_time                 INTEGER,\n\n        -- detection latency (epoch seconds, float where sub-second)\n        ws_seen_at                  REAL,\n        tx_fetched_at               REAL,\n        mint_extracted_at           REAL,\n        alert_emitted_at            REAL,\n        detection_latency_ms        INTEGER,      -- alert_emitted - create_time\n        fetch_latency_ms            INTEGER,      -- tx_fetched - ws_seen\n        alert_latency_ms            INTEGER,      -- alert_emitted - ws_seen\n\n        -- position / tx ordering\n        create_tx_index_in_slot     INTEGER,\n        first_external_buy_sig       TEXT,\n        first_external_buy_slot      INTEGER,\n        first_external_buy_index_in_slot INTEGER,\n        our_possible_buy_slot        INTEGER,\n        our_possible_buy_index_estimate INTEGER,\n        txs_before_first_external_buy   INTEGER,\n        buys_before_first_external_buy  INTEGER,\n        buys_before_detection        INTEGER,\n        buys_before_possible_entry   INTEGER,\n\n        -- market cap (+ provenance per metric)\n        mc_at_create                REAL,\n        mc_at_create_source         TEXT,\n        mc_at_detection             REAL,\n        mc_at_detection_source      TEXT,\n        mc_at_first_external_buy    REAL,\n        mc_at_first_external_buy_source TEXT,\n        peak_mc                     REAL,\n        peak_mc_source              TEXT,\n        current_mc                  REAL,\n        time_to_peak_s              INTEGER,\n        retrace_from_peak_pct       REAL,\n        mc_unavailable_reason       TEXT,\n        curve_virtual_sol           INTEGER,\n        curve_virtual_tokens        INTEGER,\n\n        -- outcome\n        migrated                    INTEGER DEFAULT 0,\n        migration_signature         TEXT,\n        migration_time              INTEGER,\n        dumped_before_migration     INTEGER DEFAULT 0,\n        dump_time                   INTEGER,\n        final_state                 TEXT,        -- INSTANT|STAGED|MIGRATED|DUMPED_BEFORE_MIGRATION|EXPIRED|UNKNOWN\n\n        -- actionability\n        actionable_multiple         REAL,        -- peak_mc / mc_at_detection (the headline KPI)\n        peak_multiple_from_first_external REAL,\n        seconds_from_detection_to_peak    INTEGER,\n\n        -- workflow\n        audit_state                 TEXT DEFAULT 'PENDING',\n        last_checkpoint             INTEGER DEFAULT 0,\n        created_at                  INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n        updated_at                  INTEGER NOT NULL DEFAULT (strftime('%s','now'))\n    , source TEXT DEFAULT 'LIVE_WS_CASCADE', program_log_seen_at REAL, get_transaction_started_at REAL, record_launch_started_at REAL, record_launch_committed_at REAL, block_time_to_ws_seen_ms INTEGER, ws_seen_to_fetch_start_ms INTEGER, fetch_duration_ms INTEGER, fetch_to_mint_extract_ms INTEGER, mint_extract_to_db_start_ms INTEGER, db_commit_duration_ms INTEGER, db_commit_to_alert_ms INTEGER, total_ws_to_commit_ms INTEGER, total_block_time_to_commit_ms INTEGER, program_log_context_slot INTEGER, tx_slot INTEGER, slot_lag INTEGER, estimated_slot_to_ws_ms INTEGER, program_fetch_started_at REAL, program_tx_fetched_at REAL, handoff_to_canonical_at REAL, program_fetch_duration_ms INTEGER, handoff_to_canonical_ms INTEGER, canonical_fetch_skipped INTEGER DEFAULT 0, duplicate_fetch_count INTEGER DEFAULT 0)",
+      "indexes": [
+        "CREATE INDEX ix_launch_audit_created ON wt_launch_audit(created_at DESC)",
+        "CREATE INDEX ix_launch_audit_state ON wt_launch_audit(audit_state)"
+      ]
+    },
+    "ops.wt_lineage_quarantine": {
+      "ddl": "CREATE TABLE wt_lineage_quarantine (\n            quarantine_id TEXT PRIMARY KEY,\n            source_table TEXT NOT NULL,\n            source_row_id INTEGER NOT NULL,\n            subject_wallet TEXT,\n            related_wallet TEXT,\n            signature TEXT,\n            evidence_class TEXT NOT NULL,\n            quarantine_reason TEXT NOT NULL,\n            evidence_source TEXT NOT NULL,\n            evidence_json TEXT NOT NULL DEFAULT '{}',\n            exclude_from_tier1 INTEGER NOT NULL DEFAULT 1,\n            quarantined_at INTEGER NOT NULL,\n            UNIQUE(source_table, source_row_id)\n        )",
+      "indexes": [
+        "CREATE INDEX ix_lineage_quarantine_subject ON wt_lineage_quarantine(subject_wallet, exclude_from_tier1)"
+      ]
+    },
+    "ops.wt_ops_v2": {
+      "ddl": "CREATE TABLE wt_ops_v2 (\n            operation_uuid TEXT PRIMARY KEY,\n            treasury_root  TEXT NOT NULL UNIQUE,\n            family_uuid    TEXT,\n            status         TEXT NOT NULL DEFAULT 'FORMING',\n            confidence     REAL NOT NULL DEFAULT 0.0,\n            first_seen     INTEGER NOT NULL,\n            last_seen      INTEGER NOT NULL,\n            created_at     INTEGER NOT NULL,\n            updated_at     INTEGER NOT NULL,\n            source         TEXT,\n            notes          TEXT\n        , op_type TEXT DEFAULT 'WATCHTOWER')",
+      "indexes": []
+    },
+    "ops.wt_ops_v2_wallets": {
+      "ddl": "CREATE TABLE wt_ops_v2_wallets (\n            operation_uuid TEXT NOT NULL,\n            wallet         TEXT NOT NULL,\n            role           TEXT NOT NULL,\n            first_seen     INTEGER NOT NULL,\n            last_seen      INTEGER NOT NULL,\n            evidence_json  TEXT,\n            PRIMARY KEY (operation_uuid, wallet)\n        )",
+      "indexes": [
+        "CREATE INDEX ix_ov2w_wallet ON wt_ops_v2_wallets(wallet)"
+      ]
+    },
+    "ops.wt_provisioning_sessions": {
+      "ddl": "CREATE TABLE wt_provisioning_sessions (\n    session_id                       TEXT PRIMARY KEY,\n    source_mint                      TEXT NOT NULL UNIQUE,\n    treasury                        TEXT,\n    subprov                         TEXT,\n    creator                         TEXT,\n    treasury_to_subprov_block_time   INTEGER,\n    subprov_to_creator_block_time    INTEGER,\n    creator_launch_time              INTEGER,\n    treasury_to_subprov_latency_seconds INTEGER,\n    subprov_to_creator_latency_seconds  INTEGER,\n    creator_to_launch_latency_seconds   INTEGER,\n    treasury_to_subprov_mechanism    TEXT,\n    subprov_to_creator_mechanism     TEXT,\n    treasury_to_subprov_amount_sol   REAL,\n    subprov_to_creator_amount_sol    REAL,\n    recorded_at                      INTEGER NOT NULL\n)",
+      "indexes": [
+        "CREATE INDEX ix_wps_subprov ON wt_provisioning_sessions(subprov)",
+        "CREATE INDEX ix_wps_treasury ON wt_provisioning_sessions(treasury)"
+      ]
+    },
+    "ops.wt_walkback_atomic_flows": {
+      "ddl": "CREATE TABLE wt_walkback_atomic_flows (\n evidence_key TEXT PRIMARY KEY, mint TEXT, signature TEXT NOT NULL,\n source_wallet TEXT, owner TEXT, temporary_account TEXT NOT NULL, authority TEXT,\n close_destination TEXT, transfer_lamports INTEGER, net_destination_lamports INTEGER,\n has_create INTEGER NOT NULL, has_sync_native INTEGER NOT NULL, has_close INTEGER NOT NULL,\n instruction_order_json TEXT NOT NULL, causal_interpretation TEXT NOT NULL,\n block_time INTEGER, first_observed_at INTEGER NOT NULL, last_observed_at INTEGER NOT NULL,\n observation_count INTEGER NOT NULL DEFAULT 1\n)",
+      "indexes": [
+        "CREATE INDEX ix_wwaf_signature ON wt_walkback_atomic_flows(signature)"
+      ]
+    },
+    "ops.wt_walkback_edge_candidates": {
+      "ddl": "CREATE TABLE wt_walkback_edge_candidates (\n evidence_key TEXT PRIMARY KEY, mint TEXT NOT NULL, wallet TEXT NOT NULL,\n candidate_parent TEXT NOT NULL, signature TEXT NOT NULL, block_time INTEGER,\n amount_lamports INTEGER, mechanism TEXT NOT NULL, instruction_index INTEGER NOT NULL DEFAULT -1,\n inner_instruction_index INTEGER NOT NULL DEFAULT -1, pre_balance INTEGER, post_balance INTEGER,\n net_balance_change INTEGER, anchor_signature TEXT, anchor_block_time INTEGER,\n hop_depth INTEGER NOT NULL, owner TEXT, close_authority TEXT, close_destination TEXT,\n temporary_account TEXT, evidence_strength TEXT NOT NULL, selection_status TEXT NOT NULL,\n rejection_reason TEXT, first_observed_at INTEGER NOT NULL, last_observed_at INTEGER NOT NULL,\n observation_count INTEGER NOT NULL DEFAULT 1\n)",
+      "indexes": [
+        "CREATE INDEX ix_wwec_mint_hop ON wt_walkback_edge_candidates(mint, hop_depth)",
+        "CREATE INDEX ix_wwec_parent ON wt_walkback_edge_candidates(candidate_parent)"
+      ]
+    },
+    "ops.wt_walkback_queue": {
+      "ddl": "CREATE TABLE wt_walkback_queue (\n            mint                TEXT NOT NULL,\n            creator             TEXT,\n            subprov             TEXT,\n            treasury            TEXT,\n            walkback_class      TEXT NOT NULL DEFAULT 'FULL_WALKBACK',\n            attribution_source  TEXT,\n            status              TEXT NOT NULL DEFAULT 'pending',\n            rpc_used            INTEGER NOT NULL DEFAULT 0,\n            attempts            INTEGER NOT NULL DEFAULT 0,\n            last_error          TEXT,\n            enqueued_at         INTEGER NOT NULL DEFAULT (strftime('%s','now')),\n            started_at          INTEGER,\n            completed_at        INTEGER,\n            updated_at          INTEGER NOT NULL DEFAULT (strftime('%s','now')), intelligence_outcome TEXT, funder_wallet TEXT, funding_mechanism TEXT, funder_amount_sol REAL, funder_sig TEXT, funder_slot INTEGER, funder_block_time INTEGER, claimed_by TEXT, claimed_at INTEGER, lease_expires_at INTEGER, next_retry_at INTEGER, path_state TEXT, termination_reason_json TEXT, create_anchor_signature TEXT, create_anchor_slot INTEGER, create_anchor_block_time INTEGER, create_anchor_source TEXT, create_anchor_audit_state TEXT, priority INTEGER NOT NULL DEFAULT 0, priority_reason TEXT, anchor_lookup_attempts INTEGER NOT NULL DEFAULT 0, last_anchor_lookup_at INTEGER, anchor_recovered_at INTEGER, anchor_recovery_source TEXT, anchor_lookup_state TEXT, infrastructure_retry_count INTEGER NOT NULL DEFAULT 0, last_infrastructure_error TEXT,\n            PRIMARY KEY (mint)\n        )",
+      "indexes": [
+        "CREATE INDEX ix_wbq_class\n            ON wt_walkback_queue(walkback_class, status)",
+        "CREATE INDEX ix_wbq_deep_review_page ON wt_walkback_queue(funder_block_time DESC,mint DESC) WHERE status='complete' AND intelligence_outcome='LINEAGE_GAP' AND funding_mechanism='WSOL_WRAP_CLOSE' AND funder_amount_sol>1.1120385 AND funder_amount_sol<1.1120395",
+        "CREATE INDEX ix_wbq_funder\n            ON wt_walkback_queue(funder_wallet)",
+        "CREATE INDEX ix_wbq_outcome ON wt_walkback_queue(intelligence_outcome)",
+        "CREATE INDEX ix_wbq_priority ON wt_walkback_queue(status, priority DESC, enqueued_at ASC)",
+        "CREATE INDEX ix_wbq_status\n            ON wt_walkback_queue(status, enqueued_at)"
+      ]
+    },
+    "ops.wt_watchtower_launches": {
+      "ddl": "CREATE TABLE wt_watchtower_launches (\n            id                        INTEGER PRIMARY KEY AUTOINCREMENT,\n            mint                      TEXT,\n            creator_wallet            TEXT NOT NULL,\n            create_signature          TEXT,\n            create_time               INTEGER,\n            treasury_wallet           TEXT,\n            subprov_wallet            TEXT,\n            wrap_close_signature      TEXT,\n            birth_to_launch_seconds   INTEGER,\n            funding_mechanism         TEXT DEFAULT 'WSOL_WRAP_CLOSE',\n            creator_extraction_method TEXT DEFAULT 'CLOSE_ACCOUNT_DESTINATION',\n            confidence                TEXT DEFAULT 'STRICT',\n            state                     TEXT DEFAULT 'FIRED_CREATE',\n            recorded_at               INTEGER NOT NULL DEFAULT (strftime('%s','now')), create_slot INTEGER, subprov_funding_sol REAL, wrap_close_sol REAL, fanout_time INTEGER, fanout_count INTEGER, fanout_to_create_secs REAL, create_to_migration_secs INTEGER, launch_mode TEXT, detection_source TEXT, detection_delay_seconds INTEGER,\n            UNIQUE(creator_wallet, create_signature)\n        )",
+      "indexes": [
+        "CREATE INDEX ix_launches_creator ON wt_watchtower_launches(creator_wallet)",
+        "CREATE INDEX ix_launches_mint ON wt_watchtower_launches(mint)",
+        "CREATE INDEX ix_launches_treasury ON wt_watchtower_launches(treasury_wallet)"
+      ]
+    },
+    "ops.wt_wrap_close_candidates": {
+      "ddl": "CREATE TABLE wt_wrap_close_candidates (\n            creator                  TEXT PRIMARY KEY,   -- = closeAccount.destination\n            funding_mechanism        TEXT DEFAULT 'WSOL_WRAP_CLOSE',\n            creator_extraction_method TEXT DEFAULT 'CLOSE_ACCOUNT_DESTINATION',\n            subprov_wallet           TEXT,\n            wrap_wallet              TEXT,\n            temp_wsol_account        TEXT,\n            close_destination        TEXT,               -- = creator (explicit, audit)\n            lineage_source_treasury  TEXT,\n            base_amount_sol          REAL,\n            tx_signature             TEXT,\n            funded_at                INTEGER,\n            confidence               TEXT DEFAULT 'STRICT',\n            state                    TEXT DEFAULT 'DETECTED',  -- DETECTED|ARMED|FIRED|EXPIRED\n            detected_at              INTEGER NOT NULL\n        , creator_mode TEXT, birth_to_launch_s INTEGER)",
+      "indexes": [
+        "CREATE INDEX ix_wcc_state ON wt_wrap_close_candidates(state)",
+        "CREATE INDEX ix_wcc_subprov ON wt_wrap_close_candidates(subprov_wallet)"
+      ]
+    }
+  },
+  "scope": "One direct production-read-only compact selection; no rebind, journal relocation, full V1 clone, backup API, VACUUM, source snapshot or production activation",
+  "selected_encoded_bytes": 39287,
+  "selectors": [
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_walkback_queue USING INDEX sqlite_autoindex_wt_walkback_queue_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "2abd2b33016be6a3b0353b962a6535f9a4a9afb96a0d5d6f9bf7e75cc8b46f46"
+      ],
+      "rows": 1,
+      "table": "wt_walkback_queue"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_provisioning_sessions USING INDEX sqlite_autoindex_wt_provisioning_sessions_2 (source_mint=?)"
+      ],
+      "predicate": "source_mint=?",
+      "row_hashes": [
+        "f7f5994a378814105b0ab141bcdab7b12abe8f0378700cbe3bd3d72bf6b79616"
+      ],
+      "rows": 1,
+      "table": "wt_provisioning_sessions"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_walkback_edge_candidates USING INDEX ix_wwec_mint_hop (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "372a5fd9991b40936e2f4b7bfa254a9461b3e4129ff088205a20b02020af287b",
+        "3be89da0df5ef8ee1777536a0aef61c883108717e3c245319dfd02dfeab5b366",
+        "5c62a7ee15f9d9aecd7228d0ae300c831f811cd071a264f3c2884fa5d58cad4a"
+      ],
+      "rows": 3,
+      "table": "wt_walkback_edge_candidates"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_attribution_outcomes USING INDEX sqlite_autoindex_wt_attribution_outcomes_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "e6c47ddbdc43a8b177cf51e08ac45571fc1af0491063a038c700d71e22b6eff9"
+      ],
+      "rows": 1,
+      "table": "wt_attribution_outcomes"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_launch_audit USING INDEX sqlite_autoindex_wt_launch_audit_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "fd89ff695f92fe7e6f9d1e4c94a8e9b8cf8530c4999e6c0b18354b249418e70b"
+      ],
+      "rows": 1,
+      "table": "wt_launch_audit"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_mint (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "5346f9d016192162fe343b1120fc7adf3693136b74ac83faf171a7aceec44f52"
+      ],
+      "rows": 1,
+      "table": "wt_watchtower_launches"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_launch_membership USING INDEX sqlite_autoindex_operator_launch_membership_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "2457724d4d6d48e72eba0cded1f98c12ffcbe246b130babbe61b04a3b99d622b"
+      ],
+      "rows": 1,
+      "table": "operator_launch_membership"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_launch_assignment_history USING INDEX ix_operator_launch_history_mint (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_launch_assignment_history"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH watchtower_token_attribution USING INDEX sqlite_autoindex_watchtower_token_attribution_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "6ba6266aafa9aeff2c6c44ca369fa88eed93cd4ebf1435edae5674d9c1f8cafc"
+      ],
+      "rows": 1,
+      "table": "watchtower_token_attribution"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operators USING INDEX sqlite_autoindex_operators_1 (operator_id=?)"
+      ],
+      "predicate": "operator_id=?",
+      "row_hashes": [
+        "a003e7767a8171145cf1f161f21c781562f82eb4dfbf5144c2f6ba3f270123f8"
+      ],
+      "rows": 1,
+      "table": "operators"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_identity_state USING INDEX sqlite_autoindex_operator_identity_state_1 (operator_id=?)"
+      ],
+      "predicate": "operator_id=?",
+      "row_hashes": [
+        "106ec5dec0321024369d7445dc229cda24cba99b281054a4186c0ba5135623a5"
+      ],
+      "rows": 1,
+      "table": "operator_identity_state"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_evidence USING INDEX ix_oe_operator (operator_id=?)"
+      ],
+      "predicate": "operator_id=?",
+      "row_hashes": [
+        "2a12a009562cb4349ee76aee641f5cf0f86d34ceba42f8889f8d0d747473b694",
+        "579caeaac33419194bdbb015b9c499baf8d5666cff4568330cfecf3ce714d465",
+        "5b6379e41d8bc36bb4e1125cefad2750c42f8c220fe8a7a8ccc600e98019f308",
+        "8835ae11766155438f9ecb67b367dc91daa6528b6a8860c9c5f964fcc6ae6cdc",
+        "a420b4615f6448a5383cbd5756b66f9a0beed845de001c08a1d8d59b47062179"
+      ],
+      "rows": 5,
+      "table": "operator_evidence"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_reviews USING INDEX ix_or_operator (operator_id=?)"
+      ],
+      "predicate": "operator_id=?",
+      "row_hashes": [
+        "c1b7070bfbfb4eba240edab7ec17c78e1688f80829e23402d6eddc77eff9a183"
+      ],
+      "rows": 1,
+      "table": "operator_reviews"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+      ],
+      "predicate": "operator_id=? AND entity_address=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_entities"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_identity_assets USING INDEX ix_operator_identity_assets_value (asset_value=?)"
+      ],
+      "predicate": "asset_value=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_identity_assets"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+      ],
+      "predicate": "operator_id=? AND entity_address=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_entities"
+    },
+    {
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_identity_assets USING INDEX ix_operator_identity_assets_value (asset_value=?)"
+      ],
+      "predicate": "asset_value=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_identity_assets"
+    },
+    {
+      "arguments": [
+        "04265d9f-6eb2-568c-a49e-9253091a4dbb",
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_entities USING INDEX sqlite_autoindex_operator_entities_1 (operator_id=? AND entity_address=?)"
+      ],
+      "predicate": "operator_id=? AND entity_address=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_entities"
+    },
+    {
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operator_identity_assets USING INDEX ix_operator_identity_assets_value (asset_value=?)"
+      ],
+      "predicate": "asset_value=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operator_identity_assets"
+    },
+    {
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_confirmed_treasuries USING INDEX sqlite_autoindex_wt_confirmed_treasuries_1 (treasury=?)"
+      ],
+      "predicate": "treasury=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_confirmed_treasuries"
+    },
+    {
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_discovered_subprovs USING INDEX sqlite_autoindex_wt_discovered_subprovs_1 (subprov=?)"
+      ],
+      "predicate": "subprov=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_discovered_subprovs"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ],
+      "predicate": "wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_ops_v2_wallets"
+    },
+    {
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_ops_v2_wallets USING INDEX ix_ov2w_wallet (wallet=?)"
+      ],
+      "predicate": "wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_ops_v2_wallets"
+    },
+    {
+      "arguments": [
+        ""
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_ops_v2 USING INDEX sqlite_autoindex_wt_ops_v2_1 (operation_uuid=?)"
+      ],
+      "predicate": "operation_uuid=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_ops_v2"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_wrap_close_candidates USING INDEX sqlite_autoindex_wt_wrap_close_candidates_1 (creator=?)"
+      ],
+      "predicate": "creator=?",
+      "row_hashes": [
+        "6974c62d8eb1e555ad96341523b4f9f9b414b6bf7ad05898ba6ea18ae39ef8ca"
+      ],
+      "rows": 1,
+      "table": "wt_wrap_close_candidates"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_creator_birth_launch USING INDEX sqlite_autoindex_wt_creator_birth_launch_1 (creator=?)"
+      ],
+      "predicate": "creator=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_creator_birth_launch"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_candidate_websocket_watches USING INDEX ix_wc_candidate_detected (candidate_wallet=?)"
+      ],
+      "predicate": "candidate_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_candidate_websocket_watches"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_watchtower_launches USING INDEX ix_launches_creator (creator_wallet=?)"
+      ],
+      "predicate": "creator_wallet=?",
+      "row_hashes": [
+        "5346f9d016192162fe343b1120fc7adf3693136b74ac83faf171a7aceec44f52"
+      ],
+      "rows": 1,
+      "table": "wt_watchtower_launches"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ],
+      "predicate": "subject_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ],
+      "predicate": "subject_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ],
+      "predicate": "subject_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "arguments": [
+        "D1fMNtUkuXvxMawc2W7xHJr99ATeC9oZRsYwurLYuQ4o"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ],
+      "predicate": "subject_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "arguments": [
+        "88WRB31nEcBb5PedLzuyZMTd1r2AYD2FJUQSwNugQUqe"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ],
+      "predicate": "subject_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "arguments": [
+        "88WRP6x2xuu36qyGUgrCYD1CV1jV1LuunSu6GkrsQUqe"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_lineage_quarantine USING INDEX ix_lineage_quarantine_subject (subject_wallet=?)"
+      ],
+      "predicate": "subject_wallet=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_lineage_quarantine"
+    },
+    {
+      "arguments": [
+        "rk5GWsahGKzBkWRbM9TiJaQnzhY62kEWa19qfYfP1sj6tNVALkj1kY7vAYznnER3jMxCKbonGJaN9mrb1E2zEh9"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX ix_wwaf_signature (signature=?)"
+      ],
+      "predicate": "signature=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_walkback_atomic_flows"
+    },
+    {
+      "arguments": [
+        "rk5GWsahGKzBkWRbM9TiJaQnzhY62kEWa19qfYfP1sj6tNVALkj1kY7vAYznnER3jMxCKbonGJaN9mrb1E2zEh9"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH transfer_index USING INDEX idx_transfer_signature (signature=?)"
+      ],
+      "predicate": "signature=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "transfer_index"
+    },
+    {
+      "arguments": [
+        "2UxcQEw5d5bzoLQLdYc4KtZo2NLi4MTPrrno48RF5Uzr4EqsvZYNpWbiL6HpYoFvzxHTeJgSfvMkkGUUSF1UjQu"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX ix_wwaf_signature (signature=?)"
+      ],
+      "predicate": "signature=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_walkback_atomic_flows"
+    },
+    {
+      "arguments": [
+        "2UxcQEw5d5bzoLQLdYc4KtZo2NLi4MTPrrno48RF5Uzr4EqsvZYNpWbiL6HpYoFvzxHTeJgSfvMkkGUUSF1UjQu"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH transfer_index USING INDEX idx_transfer_signature (signature=?)"
+      ],
+      "predicate": "signature=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "transfer_index"
+    },
+    {
+      "arguments": [
+        "5pB3cvfxi7cJroPYKbRXNeur1sfK2NGbGQwUnECQbc8B2UWr6QigDRsb7VmS3B5AQ1GT6GbXfMDBHovnxwMzgVTJ"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH wt_walkback_atomic_flows USING INDEX ix_wwaf_signature (signature=?)"
+      ],
+      "predicate": "signature=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "wt_walkback_atomic_flows"
+    },
+    {
+      "arguments": [
+        "5pB3cvfxi7cJroPYKbRXNeur1sfK2NGbGQwUnECQbc8B2UWr6QigDRsb7VmS3B5AQ1GT6GbXfMDBHovnxwMzgVTJ"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH transfer_index USING INDEX idx_transfer_signature (signature=?)"
+      ],
+      "predicate": "signature=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "transfer_index"
+    },
+    {
+      "arguments": [
+        "watchtower",
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operation_monitor_facts USING INDEX sqlite_autoindex_operation_monitor_facts_1 (operation_id=? AND mint=?)"
+      ],
+      "predicate": "operation_id=? AND mint=?",
+      "row_hashes": [
+        "c34baa314d70e88b8ca9b01e1a0c84b675a7fe01cff250dc681a08123eaf4d96"
+      ],
+      "rows": 1,
+      "table": "operation_monitor_facts"
+    },
+    {
+      "arguments": [
+        "watchtower",
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operation_monitor_observations USING INDEX ix_operation_monitor_observation_path (operation_id=? AND mint=?)"
+      ],
+      "predicate": "operation_id=? AND mint=?",
+      "row_hashes": [
+        "06055820c0d90cde9be77d1d32a07e24364b9a0e295aaf247bf6e229d219e517",
+        "0fad4d370bc8a30a5f0270695a5b8947d7a55df53fea0dea5f2628639b201d7b",
+        "42b05cd76638210d4db8aa607ac10e4964e2f70c39f18cb72a923023dd012e28",
+        "5a51f5f46ea9a764b07da8cd4736b14d08aa3c61f7bd9a34817034ebceae97f9",
+        "73732c395cf249375ecbaee3a6b1030ca2b94c0d03676775ffa30bdbd0f614d3",
+        "80bb24c2601754252fe1e82f898fb9c3c1bc8af7868a10556de72d78fb758c7f",
+        "9e9f0d75b5a9fa2345b6f24d2c9ecba6c60efaa84a1b21bab0e74c5770724692",
+        "b07fd3e6df74eab56043baa65e87b1607225876f545da81cc28cb3738724f01c",
+        "c0491afeccbcfe1640008ce76976a8d5a768049789c32f5438c9dc9d4bee43f7",
+        "c73e2098e726bc9069a0b3cef3d4bfed65269505ede42ac6aa349e66335f157d",
+        "c92fcdc9ae5141a0fa1527b990ee3c7beb5d6d0b51a0f9135781f77f6c6d2cc6"
+      ],
+      "rows": 11,
+      "table": "operation_monitor_observations"
+    },
+    {
+      "arguments": [
+        "watchtower",
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "ops",
+      "plan": [
+        "SEARCH operation_monitor_entry_provenance USING INDEX sqlite_autoindex_operation_monitor_entry_provenance_1 (operation_id=? AND mint=?)"
+      ],
+      "predicate": "operation_id=? AND mint=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "operation_monitor_entry_provenance"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH token_analysis USING INDEX sqlite_autoindex_token_analysis_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "9dfefb1b2008b28822f54bb24606a8851e523409a0a710ce684bc34e860f509f"
+      ],
+      "rows": 1,
+      "table": "token_analysis"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH tracked_tokens USING INDEX sqlite_autoindex_tracked_tokens_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "c9d486321ddef6dadbdd6e70a84e58a0f6a6e20c25fd5146a3810c0dbaf90ca1"
+      ],
+      "rows": 1,
+      "table": "tracked_tokens"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH token_market_cap_peaks USING INDEX sqlite_autoindex_token_market_cap_peaks_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "token_market_cap_peaks"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH metadata_cache USING INDEX sqlite_autoindex_metadata_cache_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "903670f85b98f029c0ee3c61628501592a7b7329088784967297212e389c2d56"
+      ],
+      "rows": 1,
+      "table": "metadata_cache"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH token_pool_accounts USING INDEX idx_pool_primary (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "8e5cffc1ddec4241893b202199f13176bbc83661fbf3c663bdd2cfabbe7c6c78"
+      ],
+      "rows": 1,
+      "table": "token_pool_accounts"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH creator_resolution_queue USING INDEX sqlite_autoindex_creator_resolution_queue_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "creator_resolution_queue"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH creator_funding_queue USING INDEX idx_creator_funding_queue_mint (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "93b95f3827f8f417ba41e4ba58c62aad1a39154379155c9da0d5314952dc280e"
+      ],
+      "rows": 1,
+      "table": "creator_funding_queue"
+    },
+    {
+      "arguments": [
+        "HXpDLpoH6Vx6MtqybpmsC6gFFoZpeb6bYTTpkrrypump"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH migration_walkback_handoff USING INDEX sqlite_autoindex_migration_walkback_handoff_1 (mint=?)"
+      ],
+      "predicate": "mint=?",
+      "row_hashes": [
+        "0bdfa14222e81a0c213c89f8160f031fdec80ed3498675eb63e13e06d87a7794"
+      ],
+      "rows": 1,
+      "table": "migration_walkback_handoff"
+    },
+    {
+      "arguments": [
+        "Ad5iNR9HYVzsHhf98NuSXUyx7h19tAPTDVUGCrQF7G4v"
+      ],
+      "database": "core",
+      "plan": [
+        "SEARCH creator_funders USING INDEX idx_creator_funders_creator (creator_address=?)"
+      ],
+      "predicate": "creator_address=?",
+      "row_hashes": [],
+      "rows": 0,
+      "table": "creator_funders"
+    }
+  ],
+  "source_commit": "eb9e1d35ea0b87ab38d59bb46a2b3fac458884ff",
+  "source_files": {
+    "docs/dev/lightweight_dev004_first_v2/compact_direct_migration/qualify.py": "b5f316b5509761b12cd695582a1078db0807555e6edd323fb8a731cca93f6c6f",
+    "docs/dev/lightweight_dev004_first_v2/qualify.py": "5ed7a3956a34e1fe3dd0ce04d9d56cd0b2008f21034ed991f08f08286ed39e18",
+    "runtime/creator_resolution/src/ops/watchtower_price_fact_contract.py": "4603cd20653b7243d723e14d05123020bf869c8bdb0164915c99ec3362268f16",
+    "runtime/creator_resolution/src/ops/watchtower_terminal_ath_finalizer.py": "775597d96cfdb576ee6e2a811726f2a76fbd83edc6d2edd2a208a9bdaeeef480",
+    "runtime/walkback/src/core/walkback_queue.py": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+    "runtime/walkback/src/core/walkback_worker.py": "69006376163723ae1fc6efe339ffb8113d128fc4e9dcb8db388de3074fc7d211",
+    "runtime/walkback/src/core/watchtower_registry_promotion.py": "cd5508da7d20b76a0770eaa44aaa4d694d715e3612c7426a4f850d9b20d28370"
+  },
+  "sources": {
+    "core": {
+      "device": 16777234,
+      "full_file_hash": "NOT_READ: source logical authority is schemas plus selected-row hashes; live V1 is not a frozen whole-database generation",
+      "header_observation_sha256": "aab97e3dad7af7bd7423cd7f40e38cdf838fd6c49959fd6497cea80b84651750",
+      "inode": 549513179,
+      "observed_file_bytes": 35652194304,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+      "schema_version": 849,
+      "user_version": 0
+    },
+    "ops": {
+      "device": 16777234,
+      "full_file_hash": "NOT_READ: source logical authority is schemas plus selected-row hashes; live V1 is not a frozen whole-database generation",
+      "header_observation_sha256": "9f73b81b6a3c343527f910f79b6cc4fdd103d2154f149a112bb59c8532376ff0",
+      "inode": 421043107,
+      "observed_file_bytes": 16194387968,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "schema_version": 766,
+      "user_version": 0
+    }
+  },
+  "storage": {
+    "floor": 2000000000,
+    "max_unique_rows": 2048,
+    "new_unbounded_paths": 0,
+    "page_size": 4096,
+    "raw_retention": false,
+    "required_free_reserve": 67108864,
+    "row_encoded_max": 65536,
+    "rows_per_selector": 128,
+    "selected_encoded_max": 2000000,
+    "single_file_max": 8000000,
+    "sqlite_max_pages": 1024,
+    "total_allocation_max": 67108864
+  },
+  "targets": {
+    "core": {
+      "device": 16777234,
+      "initial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inode": 1050383776,
+      "path": "/private/tmp/dev004-direct-compact-resume-45ed0080/core_v2.sqlite"
+    },
+    "ops": {
+      "device": 16777234,
+      "initial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inode": 1050383777,
+      "path": "/private/tmp/dev004-direct-compact-resume-45ed0080/ops_v2.sqlite"
+    }
+  },
+  "unique_selected_rows": 37
+}

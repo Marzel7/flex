@@ -1,0 +1,86 @@
+{
+  "status": "PASS_DEV_QUALIFICATION",
+  "candidate_sha": "91d3975e77236f601586b1bd8af86544cc97b9de",
+  "handoff_base": "7b9eb4504e62c1917c87f56d9faefd367ea68228",
+  "base_executable": "a89cf9b6c899060d02a4fd88fc630241f01df746",
+  "frozen_baseline": "2d825bbcf27f802bd0bfcef90cedeba43cc968eb",
+  "baseline_manifest_sha256": "f0d3d933109f3572023af677729feef4db6e432657c7b7095b5bae05f2821dc7",
+  "files": {
+    "runtime/creator_resolution/src/core/database_write_service.py": {
+      "sha256": "0d102200b82e50feddc345f5293206881cd97dc98939a5efa505d900f98b8e50",
+      "bytes": 72145
+    },
+    "runtime/creator_resolution/src/utils/db_locking.py": {
+      "sha256": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0",
+      "bytes": 96945
+    },
+    "runtime/listener/src/core/birth_admission_journal.py": {
+      "sha256": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8",
+      "bytes": 6767
+    },
+    "runtime/listener/src/core/database_write_service.py": {
+      "sha256": "0d102200b82e50feddc345f5293206881cd97dc98939a5efa505d900f98b8e50",
+      "bytes": 72145
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "sha256": "1cea4b612f6da9ecd2bc07457a7778edd5b740af0a6f22041c2c352cac37e2ce",
+      "bytes": 14148
+    },
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "sha256": "db38a0bb430db9432f185b14923575606f7696d1c67c723eab0098dddc92a8d2",
+      "bytes": 672083
+    },
+    "runtime/listener/src/utils/db_locking.py": {
+      "sha256": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0",
+      "bytes": 96945
+    },
+    "runtime/walkback/src/core/database_write_service.py": {
+      "sha256": "0d102200b82e50feddc345f5293206881cd97dc98939a5efa505d900f98b8e50",
+      "bytes": 72145
+    },
+    "runtime/walkback/src/utils/db_locking.py": {
+      "sha256": "104ea8c7f6a2dcb2602b02890f71704a456b267eda9e7eeb9b4beb0465e7d7c3",
+      "bytes": 95397
+    },
+    "tests/dev004/test_birth_admission_retirement.py": {
+      "sha256": "9d5f71ce569fcf004d8b24fd1eefa22b501dcf876ae6abfe02a6aadfe8742956",
+      "bytes": 29668
+    },
+    "tests/dev004/test_signature_first_migration_journal.py": {
+      "sha256": "07b9ff5bf1529586c9efe336d8ae86ee93afc6613a516eeb6e2e5e5c1183744a",
+      "bytes": 25491
+    }
+  },
+  "tests": {
+    "focused_and_migration": 127,
+    "additional_flag_off": 2,
+    "existing_writer_tests": 19,
+    "unique_passing": 148,
+    "initial_harness_import_failure_resolved": true
+  },
+  "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+  "production_changes": false,
+  "paired_rebind_performed": false,
+  "provider_calls": 0,
+  "new_unbounded_growth_paths": 0,
+  "storage": {
+    "maximum_fixture_file_bytes": 20480,
+    "fixture_total_bytes": 900927,
+    "journal_file_max_bytes": 2000000,
+    "journal_record_max_bytes": 4096,
+    "record_count_cap": 512,
+    "journal_batch_cap": 20,
+    "journal_attempt_cap": 3,
+    "disk_floor_bytes": 2000000000,
+    "retirement_marker_max_bytes": 2048,
+    "qualification_file_limit_bytes": 16000000
+  },
+  "installed_writer_preimages": {
+    "listener/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "listener/src/utils/db_locking.py": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+    "creator_resolution/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "creator_resolution/src/utils/db_locking.py": "cf60acfa7306b771c3c3bf0e88d3eee0e680a09ee3f5ef1cc64bad2d22332390",
+    "walkback/src/core/database_write_service.py": "4f60028bbc11be14d0c40673df3e04fd68f7aa67723fb433844b6e3baa8c09c2",
+    "walkback/src/utils/db_locking.py": "ecb8d5517cfdf0ca281f867e94c9091eda01387fd76c3d2346e88dbd868bdb89"
+  }
+}

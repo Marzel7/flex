@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "complete_integrated_rehearsals": 1,
+  "seconds": 1.4562811250798404,
+  "trace": [
+    "Disposable V1 base schema and canonical source work prepared",
+    "V1 lease held; birth+migration durably admitted, duplicates coalesced",
+    "Interrupted retirement recovered; both source stores durably fenced",
+    "Both production-profile owners initialized exact paired targets; repeated Core bootstrap passed",
+    "Interrupted final Core/OPS reconciliation resumed idempotently",
+    "Canonical births, Core migration, OPS handoff and durable ACK recovered after Core-first crash",
+    "Actual binding module restart stable; stale source writer rejected",
+    "Creator retry, protected webhook, known-operation typed reference, Walkback queue and canonical price-parent persistence verified",
+    "Fresh matched rollback bootstrapped through production profiles, data/price retained, new canonical write accepted"
+  ],
+  "runtime_generations": [
+    "fixture-v1",
+    "fixture-v2",
+    "fixture-rollback"
+  ],
+  "owner_manifest_hashes": {
+    "v2": "bb1bbb37c25a75283d90a8d5ab4781172f4bb90e281272be355bc1684816c658",
+    "rollback": "363d48638b3ca62fd4e09194ac16da2c8f3bb27ecc4b5f981bd524922adec509"
+  },
+  "matched_restart": {
+    "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-v2/core.sqlite",
+    "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-v2/ops.sqlite"
+  },
+  "journals_pending": 0,
+  "stale_source_write_rejected": true,
+  "foreign_key_violations": 0,
+  "canonical_price_roundtrip": true,
+  "provider_test_calls": 0,
+  "production_paths_opened": 0,
+  "full_V1_copies": 0,
+  "compact_disposable_rollback_copy": true,
+  "largest_file_bytes": 610304,
+  "fixture_allocated_bytes": 2506752,
+  "final_free_bytes": 2759802880,
+  "kernel_file_limit": [
+    16000000,
+    16000000
+  ],
+  "reused_unchanged_qualifications": [
+    "29633row seed/reference integrity",
+    "100creator classifications",
+    "616Watchtower",
+    "26Deep",
+    "11frozen comparisons",
+    "Walkback investigation/projection/provider-outage recovery",
+    "nonP3Rreview",
+    "Birdeye five-window budget/checkpoint/finalization recovery and0.1%ATHtolerance"
+  ],
+  "scope": "Synthetic source transactions over exact accepted base schema; changed production profiles exercised for forward and rollback. Reused matrices explicitly not re-executed."
+}

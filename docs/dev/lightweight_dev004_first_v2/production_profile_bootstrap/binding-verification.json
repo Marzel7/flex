@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "same_rehearsal": true,
+  "additional_migrations": 0,
+  "generation": "fixture-rollback",
+  "all_three_role_boundaries_and_actual_db_bindings": "PASS",
+  "provider_network_blocked": true,
+  "unexpected_threads": 0,
+  "frozen_runtime_path": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/registered-runtime.json",
+  "frozen_runtime_sha256": "88e0f61926072e23fc4197fb1d0d802885fb8119d24c8806849a22f3b5977f43",
+  "production_paths_opened": 0
+}

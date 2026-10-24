@@ -1,0 +1,95 @@
+{
+  "source_commit": "cec3494d0322e8e4e08e7bcd32ceea23d74b02e0",
+  "generation": "fixture-rollback",
+  "environment": {
+    "DB_PATH": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+    "WT_OPS_DB_PATH": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+    "CREATOR_DB_PATH": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/creator-reference.sqlite",
+    "PUMPSWAP_TOKENS_DB_PATH": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/creator-reference.sqlite",
+    "DEV004_PAIRED_BINDING_REQUIRED": "1",
+    "FLEX_DB_PAIR_MANIFEST": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/rollback-runtime-manifest.json",
+    "FLEX_DB_PAIR_AUTHORITY": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/active-pair-authority.json",
+    "FLEX_DB_PAIR_ROLE": "runtime",
+    "FLEX_DB_AUXILIARY_MANIFEST": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/registered-auxiliary.json",
+    "FLEX_DB_AUXILIARY_SHA256": "2a217ebf573f001cbb47f04975857e68d65c8223719f2a0aa78c1d4c413188cf",
+    "BIRTH_JOURNAL_PATH": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/stable-birth.jsonl",
+    "MIGRATION_JOURNAL_PATH": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/stable-migration.jsonl",
+    "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+    "DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED": "1",
+    "DB_WRITE_SERIALIZE": "1",
+    "TMPDIR": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/runtime-tmp",
+    "SQLITE_TMPDIR": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/runtime-tmp",
+    "RPC_COMPACT_ENABLED": "0"
+  },
+  "pair_sha256": "0b57e4486aaacc9ed4e784578df1f77afc9cd49bf5c39af05b47aad5266b5228",
+  "authority_sha256": "7d09b9a09aca8b49171ab8fedfcbf336a3b28396baecc128173117a2e1178b1c",
+  "auxiliary_sha256": "2a217ebf573f001cbb47f04975857e68d65c8223719f2a0aa78c1d4c413188cf",
+  "provider_names_only": [
+    "BIRDEYE"
+  ],
+  "provider_budget": {
+    "global": 20,
+    "per_token": 4,
+    "seconds": 60
+  },
+  "roles": {
+    "listener": {
+      "launch_boundary": {
+        "generation": "fixture-rollback",
+        "kernel_single_file_limit": [
+          16000000,
+          16000000
+        ],
+        "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+        "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+        "creator_repository": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/creator-reference.sqlite"
+      },
+      "actual_binding": {
+        "actual_binding_module": true,
+        "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+        "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+        "threads": 1
+      },
+      "exit_code": 0
+    },
+    "creator_resolution": {
+      "launch_boundary": {
+        "generation": "fixture-rollback",
+        "kernel_single_file_limit": [
+          16000000,
+          16000000
+        ],
+        "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+        "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+        "creator_repository": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/creator-reference.sqlite"
+      },
+      "actual_binding": {
+        "actual_binding_module": true,
+        "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+        "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+        "threads": 1
+      },
+      "exit_code": 0
+    },
+    "walkback": {
+      "launch_boundary": {
+        "generation": "fixture-rollback",
+        "kernel_single_file_limit": [
+          16000000,
+          16000000
+        ],
+        "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+        "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+        "creator_repository": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/creator-reference.sqlite"
+      },
+      "actual_binding": {
+        "actual_binding_module": true,
+        "core": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/core.sqlite",
+        "ops": "/private/tmp/dev004-final-profile-integrated-20261024/test_one_final_integrated_prod0/persistent-production-style-rollback/ops.sqlite",
+        "threads": 1
+      },
+      "exit_code": 0
+    }
+  },
+  "origin": "Verification continuation of same single completed disposable rehearsal; no re-import or rebind executed here."
+}

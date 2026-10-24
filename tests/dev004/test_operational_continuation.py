@@ -58,3 +58,10 @@ def test_page_bytes_refusal(tmp_path,monkeypatch):
  source,cp,s,t=fixture(tmp_path);monkeypatch.setattr(m,'MAX_PAGE_BYTES',1)
  with pytest.raises(m.q.TransferHold,match='PAGE_BYTE_LIMIT'):run(source,cp,s,t)
  assert t.execute('select count(*) from work').fetchone()[0]==0
+
+
+def test_mixed_direction_existing_index(tmp_path):
+ source,cp,s,t=fixture(tmp_path);s.execute('update work set value=cast(id%11 as text)');s.execute('create index existing_desc on work(value desc)');s.commit();observed=[]
+ for row in m.pages(s,source,cp,'work',commit=lambda:None,order=('-value','rowid')):observed.append(row['id'])
+ assert observed==[x[0] for x in s.execute('select id from work order by value desc,rowid')]
+ assert len(observed)==len(set(observed))==13017

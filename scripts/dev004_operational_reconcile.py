@@ -8,7 +8,7 @@ BASE=Path('/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases');S
 CHECKPOINTS=BASE.parent/"checkpoints"/os.environ["DEV004_RECONCILIATION_EPOCH"];CHECKPOINTS.mkdir(exist_ok=True)
 sources={};targets={};counts={};digests={};selected={};total=0;source_absences=set()
 for kind,name in [('core','flex_complete_database.db'),('ops','wt_ops_v2.db')]:
- s=sqlite3.connect((SRC/name).as_uri()+'?mode=ro',uri=True,timeout=1);s.row_factory=sqlite3.Row;s.execute('pragma query_only=on');s.set_progress_handler(lambda:1,2000000);sources[kind]=s
+ s=sqlite3.connect((SRC/name).as_uri()+'?mode=ro',uri=True,timeout=1);s.row_factory=sqlite3.Row;s.execute('pragma query_only=on');sources[kind]=s
  t=sqlite3.connect(BASE/(kind+'.sqlite'));t.row_factory=sqlite3.Row;t.execute('pragma foreign_keys=on');t.execute('pragma max_page_count=117187');targets[kind]=t
 
 def commit_pages():
@@ -19,6 +19,7 @@ def commit_pages():
 def rows(kind,table,where='',args=()):
  c=sources[kind]
  if where in ('mint=?','migration_tx=?'):
+  continuation.bound_query(c)
   found=[dict(r) for r in c.execute('select * from "'+table+'" where '+where+' limit 2',args)]
   if len(found)>1:raise RuntimeError('AMBIGUOUS_IDENTITY:'+table)
   return found
@@ -86,9 +87,12 @@ try:
  # Preserve every canonical admission since journal deployment, including verified completions reclaimed before the fence.
  state_root=BASE.parent
  import time
- low=str(int(state_root.stat().st_birthtime)-10);high=str(int(time.time())+10)
+ boundary=CHECKPOINTS/'boundary.json'
+ if boundary.exists():low,high=json.load(open(boundary))
+ else:
+  low=str(int(state_root.stat().st_birthtime)-10);high=str(int(time.time())+10);continuation.q.write_checkpoint(boundary,[low,high])
  admission_count=0
- for r in continuation.pages(sources['core'],SRC/'flex_complete_database.db',CHECKPOINTS/'canonical-admissions.json','token_analysis',commit=commit_pages,where='created_at>=? AND created_at<=?',args=(low,high),order=('created_at','rowid')):
+ for r in continuation.pages(sources['core'],SRC/'flex_complete_database.db',CHECKPOINTS/'canonical-admissions-desc.json','token_analysis',commit=commit_pages,where='created_at>=? AND created_at<=?',args=(low,high),order=('-created_at','rowid')):
   admission_count+=1;put('core','token_analysis',r)
  witness=json.load(open(state_root/'checkpoints/pre-fence-admission-witness.json'))
  for kind,records in witness.items():
@@ -127,7 +131,8 @@ try:
  result={'status':'PASS_PRELIMINARY_OPERATIONAL_STAGE','final_fence':True,'old_lease_releases':released,'admission_window_rows':admission_count,'reconciled_changes':counts,'selected_rows':total,'digest':{k:v.hexdigest() for k,v in digests.items()},'schema_index_from_V1':sql,'free_bytes':os.statvfs(BASE).f_bavail*os.statvfs(BASE).f_frsize,'database_sizes':{k:(BASE/(k+'.sqlite')).stat().st_size for k in targets},'production_mutations':0,'preserved_source_absence_count':len(source_absences)}
 except Exception as e:
  for t in targets.values():t.rollback()
- result={'status':'HOLD','error':str(e),'production_mutations':0}
+ import traceback
+ result={'status':'HOLD','error':str(e),'traceback':traceback.format_exc(),'production_mutations':0}
 finally:
  for c in list(sources.values())+list(targets.values()):c.close()
 (BASE/'operational-stage.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2));sys.exit(0 if result['status'].startswith('PASS') else 1)

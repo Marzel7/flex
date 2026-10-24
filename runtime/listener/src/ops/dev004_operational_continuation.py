@@ -9,6 +9,14 @@ from . import dev004_quarantine_transfer as q
 BATCH=128
 MAX_PAGE_BYTES=8*1024*1024
 
+def bound_query(connection):
+    ticks=0
+    def progress():
+        nonlocal ticks
+        ticks+=1
+        return ticks>2000
+    connection.set_progress_handler(progress,1000)
+
 def identifier(value):
     if not value or not value.replace('_','').isalnum():raise q.TransferHold('INVALID_IDENTIFIER')
     return '"'+value+'"'
@@ -21,7 +29,10 @@ def _pages(connection,source,checkpoint,table,*,commit,accept=lambda row:True,wh
     """
     tableq=identifier(table);info=connection.execute('pragma table_info('+tableq+')').fetchall()
     keys=[x[1] for x in sorted(info,key=lambda x:x[5]) if x[5]]
-    if order is not None:keys=list(order)
+    descending=set()
+    if order is not None:
+        descending={k[1:] for k in order if k.startswith('-')}
+        keys=[k.lstrip('-') for k in order]
     if not keys:
         # Ordinary SQLite tables have a stable integer rowid; preserve it explicitly.
         keys=['rowid']
@@ -29,6 +40,7 @@ def _pages(connection,source,checkpoint,table,*,commit,accept=lambda row:True,wh
     ddl=connection.execute('select sql from sqlite_schema where type="table" and name=?',(table,)).fetchone()
     if not ddl:raise q.TransferHold('SOURCE_SCHEMA_REQUIRED')
     authority={'source':q.fingerprint(source),'table':table,'keys':keys,'where':where,'args':list(args),'schema':hashlib.sha256(ddl[0].encode()).hexdigest()}
+    if descending:authority['descending']=sorted(descending)
     cp=Path(checkpoint)
     if cp.exists():
         state=json.loads(cp.read_text())
@@ -37,12 +49,19 @@ def _pages(connection,source,checkpoint,table,*,commit,accept=lambda row:True,wh
         state={'authority':authority,'cursor':None,'rows':0,'accepted':0,'digest':'00'*32,'complete':False};q.write_checkpoint(cp,state)
     if state['complete']:return
     while True:
+        bound_query(connection)
         if q.fingerprint(source)!=authority['source']:raise q.TransferHold('CONTINUATION_SOURCE_CHANGED')
         cursor=state['cursor'];pred=[];values=list(args)
         if where:pred.append('('+where+')')
         if cursor is not None:
-            pred.append('('+terms+') > ('+','.join('?' for _ in keys)+')');values.extend(cursor)
-        sql='select rowid as __migration_rowid__,* from '+tableq+(' where '+' and '.join(pred) if pred else '')+' order by '+terms+' limit ?';values.append(BATCH)
+            if descending:
+                branches=[]
+                for i,k in enumerate(keys):
+                    branches.append('('+' and '.join([identifier(keys[j])+'=?' for j in range(i)]+[identifier(k)+(' <?' if k in descending else ' >?')])+')');values.extend(cursor[:i+1])
+                pred.append('('+' or '.join(branches)+')')
+            else:
+                pred.append('('+terms+') > ('+','.join('?' for _ in keys)+')');values.extend(cursor)
+        sql='select rowid as __migration_rowid__,* from '+tableq+(' where '+' and '.join(pred) if pred else '')+' order by '+','.join(identifier(k)+(' DESC' if k in descending else ' ASC') for k in keys)+' limit ?';values.append(BATCH)
         plan=[x[3] for x in connection.execute('explain query plan '+sql,values)]
         if any('TEMP B-TREE' in x for x in plan):raise q.TransferHold('INDEXED_CONTINUATION_REQUIRED:'+table)
         batch=connection.execute(sql,values).fetchmany(BATCH)

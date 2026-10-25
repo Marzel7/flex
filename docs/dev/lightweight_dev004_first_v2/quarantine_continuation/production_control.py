@@ -1,7 +1,16 @@
 import ast,configparser,hashlib,importlib.util,json,os,pathlib,resource,shutil,signal,sqlite3,subprocess,sys,time,uuid
-R=pathlib.Path('/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex');S=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2');CONF=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf');PY='/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python';CTL='/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl'
+S=pathlib.Path(os.environ['FLEX_V2_RUNTIME_STATE_ROOT']);CONF=pathlib.Path(os.environ['FLEX_V2_SUPERVISOR_CONFIG']);PY='/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python';CTL='/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl'
 resource.setrlimit(resource.RLIMIT_FSIZE,(499000000,499000000));signal.signal(signal.SIGXFSZ,signal.SIG_IGN);sys.dont_write_bytecode=True
-P=json.load(open(S/'authority/frozen-runtime-plan.json'));assert len(P['immutable_source_commit'])==40;sys.path.insert(0,str(R/'runtime/listener'))
+P=json.load(open(S/'authority/frozen-runtime-plan.json'))
+def qualified_source_root(plan):
+ root=pathlib.Path(plan['immutable_source_root'])
+ if not root.is_absolute() or str(root.resolve())!=str(root):raise RuntimeError('IMMUTABLE_SOURCE_ROOT_REQUIRED')
+ expected=plan['immutable_source_commit']
+ if not isinstance(expected,str) or len(expected)!=40:raise RuntimeError('IMMUTABLE_SOURCE_COMMIT_REQUIRED')
+ actual=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()
+ if actual!=expected or subprocess.call(['git','-C',str(root),'diff','--quiet','HEAD']):raise RuntimeError('IMMUTABLE_SOURCE_MISMATCH')
+ return root
+R=qualified_source_root(P);sys.path.insert(0,str(R/'runtime/listener'))
 from src.core import paired_binding_guard as g
 from src.core.birth_admission_journal import BirthJournal
 from src.core.migration_signature_journal import MigrationJournal
@@ -35,7 +44,7 @@ def owner(mode,stage):
 # Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
 TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
 TERMINAL_PAYLOAD = {
- 'pumpfun_curve_listener.py':'9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433',
+ 'pumpfun_curve_listener.py':'7669942f9d1955dc3b1bfbfb6873293dedd1fbab270b6ca1e9e3e34ccc639861',
  'migration_signature_journal.py':'65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668',
  'migration_terminal_evidence.py':'0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf',
 }

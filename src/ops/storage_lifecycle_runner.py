@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
@@ -70,7 +71,10 @@ PROTECTED_EXACT_PATHS = frozenset({
     str(ROOT / "database" / "flex_investigation_archive.db"),
 })
 
-MIN_TEMP_FILE_AGE_SECONDS = 24 * 3600  # 1 day minimum age before a temp file is eligible
+MIN_TEMP_FILE_AGE_SECONDS = 7 * 24 * 3600  # Strictly older than seven days.
+MAX_TEMP_ENTRIES = 512
+MAX_TEMP_BATCH = 32
+MAX_TEMP_FILE_BYTES = 64 * 1024 * 1024
 
 
 def _is_protected(path: str) -> bool:
@@ -111,7 +115,7 @@ def _find_abandoned_temp_files(directory: str, *, min_age_seconds: int) -> list[
     """Recognized naming contract: <name>.tmp.<pid>.<time_ns>, matching
     src/ops/intelligence_snapshots.py's write pattern. A file is eligible
     only if its embedded PID is confirmed dead AND it is at least
-    min_age_seconds old -- both checks re-run at VALIDATE time
+    strictly more than min_age_seconds old -- both checks re-run at VALIDATE time
     immediately before deletion, not just at PLAN time."""
     import re
 
@@ -120,22 +124,32 @@ def _find_abandoned_temp_files(directory: str, *, min_age_seconds: int) -> list[
         return actions
     now = time.time()
     pattern = re.compile(r"\.tmp\.(\d+)\.\d+$")
-    for name in os.listdir(directory):
+    # A qualified directory has a finite enumeration envelope. Over-capacity
+    # stops before deletion instead of silently treating a prefix as complete.
+    with os.scandir(directory) as stream:
+        names = []
+        for item in stream:
+            names.append(item.name)
+            if len(names) > MAX_TEMP_ENTRIES:
+                raise RuntimeError("TEMP_DIRECTORY_CAPACITY")
+    for name in sorted(names):
         path = os.path.join(directory, name)
         match = pattern.search(name)
-        if not match or not os.path.isfile(path):
+        if not match or not os.path.isfile(path) or os.path.islink(path):
             continue
         age = now - os.path.getmtime(path)
-        if age < min_age_seconds:
+        if age <= min_age_seconds:
             continue
         pid = int(match.group(1))
-        if _pid_alive(pid):
+        if _pid_alive(pid) or _is_protected(path) or os.path.getsize(path) > MAX_TEMP_FILE_BYTES:
             continue
         actions.append(PlannedAction(
             action_type="DELETE_ABANDONED_TEMP", path=path,
             reason=f"matches tmp.<pid>.<ts> contract, age={age:.0f}s, pid={pid} confirmed dead",
             bytes_estimate=os.path.getsize(path),
         ))
+        if len(actions) >= MAX_TEMP_BATCH:
+            break
     return actions
 
 
@@ -161,6 +175,18 @@ def plan(*, snapshots_dir: str = INTELLIGENCE_SNAPSHOTS_DIR) -> list[PlannedActi
     return actions
 
 
+def _confirmed_closed_file(path: str) -> bool:
+    """A failed/unavailable open-file inspection is protection, not permission."""
+    try:
+        result = subprocess.run(
+            ["/usr/sbin/lsof", "-t", "--", path],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0.5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 1 and not result.stdout and not result.stderr
+
+
 def validate(action: PlannedAction) -> tuple[bool, str]:
     """VALIDATE phase: re-check eligibility immediately before mutation.
     Returns (is_still_eligible, reason)."""
@@ -172,14 +198,18 @@ def validate(action: PlannedAction) -> tuple[bool, str]:
         match = re.search(r"\.tmp\.(\d+)\.\d+$", name)
         if not match:
             return False, "NAMING_CONTRACT_NO_LONGER_MATCHES"
-        if not os.path.isfile(action.path):
+        if not os.path.isfile(action.path) or os.path.islink(action.path):
             return False, "FILE_NO_LONGER_EXISTS"
         age = time.time() - os.path.getmtime(action.path)
-        if age < MIN_TEMP_FILE_AGE_SECONDS:
+        if age <= MIN_TEMP_FILE_AGE_SECONDS:
             return False, "NO_LONGER_OLD_ENOUGH"
         pid = int(match.group(1))
         if _pid_alive(pid):
             return False, "PID_NOW_ALIVE"
+        if os.path.getsize(action.path) > MAX_TEMP_FILE_BYTES:
+            return False, "TEMP_FILE_CAPACITY"
+        if not _confirmed_closed_file(action.path):
+            return False, "OPEN_OR_UNVERIFIED_FILE"
         return True, "ELIGIBLE"
     return False, "UNKNOWN_ACTION_TYPE"
 
@@ -189,8 +219,16 @@ def execute(action: PlannedAction) -> dict:
     SQL DELETE, no VACUUM, ever, anywhere in this function."""
     if action.action_type == "DELETE_ABANDONED_TEMP":
         try:
+            eligible, reason = validate(action)
+            if not eligible:
+                return {"result": "FAILED", "error": reason, "bytes_reclaimed": 0}
             size = os.path.getsize(action.path)
             os.remove(action.path)
+            directory = os.open(os.path.dirname(action.path), os.O_RDONLY)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
             return {"result": "SUCCESS", "bytes_reclaimed": size}
         except OSError as exc:
             return {"result": "FAILED", "error": str(exc), "bytes_reclaimed": 0}

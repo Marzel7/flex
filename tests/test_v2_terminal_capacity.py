@@ -128,9 +128,15 @@ def test_crash_boundaries_restart_exact(case,monkeypatch,point):
             return original(src,dst)
         monkeypatch.setattr(case.jm.os,'replace',fail)
     else:
-        monkeypatch.setattr(case.j,'_sync_dir',lambda:(_ for _ in ()).throw(RuntimeError('CRASH')))
+        original_sync=case.j._sync_dir;sync_calls=[0]
+        def fail_after_replacement():
+            sync_calls[0]+=1
+            if sync_calls[0]==2:raise RuntimeError('CRASH')
+            return original_sync()
+        monkeypatch.setattr(case.j,'_sync_dir',fail_after_replacement)
     with pytest.raises(RuntimeError,match='CRASH'):case.j.reclaim_protected()
     if point!='journal_after_commit':assert case.j.path.read_bytes()==before
+    else:assert case.j.path.read_bytes()==b''  # Rename happened; only directory sync failed.
     monkeypatch.undo()
     j=case.restart()
     if j.tmp.exists():j.recover_reclamation()

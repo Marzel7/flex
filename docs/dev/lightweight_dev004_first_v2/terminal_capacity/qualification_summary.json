@@ -1,0 +1,94 @@
+{
+  "FLEX_V2_TERMINAL_CAPACITY_STATUS": "PASS \u2014 QUALIFIED_NOT_DEPLOYED",
+  "CANDIDATE_SHA": "303f73f77f74d307b0aef18dc81f35fd3bc94892",
+  "base_candidate": "abb72f5746bd4e9d9aaaf976c2b8196b131d179b",
+  "EXACT_SCHEMA_AND_SOURCE_DELTA": {
+    "schema_version": 1,
+    "tables": [
+      "migration_terminal_owner_v1",
+      "migration_terminal_evidence_v1"
+    ],
+    "triggers": [
+      "migration_terminal_budget_v1",
+      "migration_terminal_account_v1",
+      "migration_terminal_preserve_v1",
+      "migration_terminal_immutable_v1"
+    ],
+    "indexes": "Unique identity and signature indexes; signature SEARCH/INDEX query plan verified. No canonical foreign keys invented; existing foreign keys unchanged and enforced.",
+    "contract_sha256": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+    "schema_sql": [
+      "CREATE TABLE migration_terminal_owner_v1 (singleton INTEGER PRIMARY KEY CHECK(singleton=1), version INTEGER NOT NULL CHECK(version=1), contract TEXT NOT NULL, used_records INTEGER NOT NULL CHECK(used_records BETWEEN 0 AND 8192), used_bytes INTEGER NOT NULL CHECK(used_bytes BETWEEN 0 AND 64000000))",
+      "CREATE TABLE migration_terminal_evidence_v1 (identity TEXT PRIMARY KEY, signature TEXT NOT NULL UNIQUE, journal_identity TEXT NOT NULL, journal_path TEXT NOT NULL, transfer_generation TEXT NOT NULL, payload TEXT NOT NULL CHECK(length(CAST(payload AS BLOB))<=4096), evidence_hash TEXT NOT NULL, allocation INTEGER NOT NULL CHECK(allocation BETWEEN 1 AND 8192), recovery_rights TEXT NOT NULL CHECK(recovery_rights='PROTECTED_NO_AUTOMATIC_REPLAY'), transfer_state TEXT NOT NULL CHECK(transfer_state IN ('PERSISTED','VERIFIED')))",
+      "CREATE TRIGGER migration_terminal_budget_v1 BEFORE INSERT ON migration_terminal_evidence_v1 BEGIN SELECT CASE WHEN (SELECT used_records FROM migration_terminal_owner_v1 WHERE singleton=1)>=8192 OR (SELECT used_bytes FROM migration_terminal_owner_v1 WHERE singleton=1)+NEW.allocation>64000000 THEN RAISE(ABORT,'TERMINAL_CAPACITY') END; END",
+      "CREATE TRIGGER migration_terminal_account_v1 AFTER INSERT ON migration_terminal_evidence_v1 BEGIN UPDATE migration_terminal_owner_v1 SET used_records=used_records+1,used_bytes=used_bytes+NEW.allocation WHERE singleton=1; END",
+      "CREATE TRIGGER migration_terminal_preserve_v1 BEFORE DELETE ON migration_terminal_evidence_v1 BEGIN SELECT RAISE(ABORT,'PROTECTED_TERMINAL_EVIDENCE'); END",
+      "CREATE TRIGGER migration_terminal_immutable_v1 BEFORE UPDATE ON migration_terminal_evidence_v1 WHEN OLD.identity IS NOT NEW.identity OR OLD.signature IS NOT NEW.signature OR OLD.journal_identity IS NOT NEW.journal_identity OR OLD.journal_path IS NOT NEW.journal_path OR OLD.transfer_generation IS NOT NEW.transfer_generation OR OLD.payload IS NOT NEW.payload OR OLD.evidence_hash IS NOT NEW.evidence_hash OR OLD.allocation IS NOT NEW.allocation OR OLD.recovery_rights IS NOT NEW.recovery_rights OR NOT (OLD.transfer_state=NEW.transfer_state OR (OLD.transfer_state='PERSISTED' AND NEW.transfer_state='VERIFIED')) BEGIN SELECT RAISE(ABORT,'IMMUTABLE_TERMINAL_EVIDENCE'); END"
+    ],
+    "runtime_files": {
+      "migration_terminal_evidence.py": "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf",
+      "migration_signature_journal.py": "65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668",
+      "pumpfun_curve_listener.py": "9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433"
+    }
+  },
+  "PROTECTED_RECORD_TRANSFER": {
+    "records": 512,
+    "original_snapshot_sha256": "82cb20d631a4b8c16b54787cc333afdeb4d556fe55496f693146d2e42c6bb92c",
+    "original_bytes": 274881,
+    "exact_full_record_readback": true,
+    "source_qualification": "Original journal payload preserved byte-semantically without enrichment or canonical aliasing. notification_mint is an unverified source subject; mint retains journal resolution only, never canonical migration authority. Missing legacy subject evidence remains unknown.",
+    "envelope": "Original full record; deterministic ID/signature; original logical journal path and hash identity; transfer generation; envelope hash; fixed protected recovery rights; PERSISTED/VERIFIED transfer completion. VERIFIED means evidence transfer, not migration completion or attribution.",
+    "source_removal": "Only after FULL OPS commit, independent read connection, durable VERIFIED commit and independent exact readback; source journal remains protected on failure."
+  },
+  "EVENT_513_RESULT": "PASS; full 512-record fixture admitted event 513 after 20 exact verified transfers (493 active entries). All 512 originals then verified independently in OPS.",
+  "DEDUPLICATION_AND_RETRY_INTEGRITY": "Archived signatures return their exact protected record; no new journal slot, reset, attempt or replay. Conflicting supplied mint is refused, original evidence retained. No different-signature equivalence or canonical migration_tx rewrite. Existing known completion/retry rules retained.",
+  "CRASH_RESTART_RECOVERY": "PASS before OPS commit, after OPS commit, after VERIFIED state, journal replacement and post-replacement crash. Interrupted event-513 publication recovers both new pending admission and protected originals. Corrupt destination blocks reclamation and interrupted-publication recovery. Fresh compact matched-pair rollback with actual paired guard preserves terminal deduplication, original transfer generations, canonical fixture and pending post-cutover admission; stale source pair rejected.",
+  "STORAGE_BOUNDS": {
+    "terminal_records": 8192,
+    "terminal_logical_envelope_bytes": 64000000,
+    "payload_record_bytes": 4096,
+    "envelope_allocation_bytes": 8192,
+    "batch_records": 20,
+    "journal_bytes": 2000000,
+    "journal_temporary_bytes": 2000000,
+    "OPS_page_limit_bytes": 480000000,
+    "all_file_kernel_limit_bytes": 499000000,
+    "WAL_admission_threshold_bytes": 8000000,
+    "WAL_autocheckpoint_pages": 32,
+    "disk_floor_bytes": 2000000000,
+    "transaction_disk_reserve_bytes": 2000000,
+    "raw_provider_retention": "NONE",
+    "new_unbounded_growth_paths": 0,
+    "measured_largest_fixture_file_bytes": 2494464,
+    "qualification_terminal_rows": 2512,
+    "additional_sequential_admissions": 2000,
+    "limit_semantics": "8 MB is an admission threshold, not an absolute WAL ceiling under concurrent readers/writers. Each file is kernel-limited to 499 MB; SQLite page cap and pre-write pressure checks refuse unsafe work. No absolute lock duration claimed. Finite protected quota is intentional: exhausted quota refuses further transfer, retains source and requires separately authorized disposition. No archive expiry, deletion or unlimited-capacity claim."
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 33,
+    "failed": 0,
+    "new_terminal_controls": 24,
+    "directly_affected_protected_journal_controls": 9,
+    "seconds": 8.96,
+    "prior_562_completion_tests": "REUSED; not rerun",
+    "command": "python -B -m pytest -q -p no:cacheprovider tests/test_v2_terminal_capacity.py tests/test_v2_protected_journal_capacity.py",
+    "provider_calls": 0,
+    "network": "Socket connections blocked; no acquisition implementation in terminal owner."
+  },
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES \u2014 not authorized or deployed. Requires exact three-file bundle, explicit OPS schema initialization, matched generation and stable journal authority, opt-in flag, and terminal-aware compatible fallback/fresh-pair rollback binding.",
+  "NEXT_ACTION": "Perform a separately requested read-only deployment preflight binding the versioned OPS owner, three-file bundle, DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED=1 and terminal-aware fallback. Do not activate or transfer live records under this qualification.",
+  "production": {
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "phase": "ACTIVE",
+    "schema_changes": 0,
+    "journal_mutations": 0,
+    "source_changes": 0,
+    "service_restarts": 0,
+    "provider_requests": 0,
+    "V1_access": 0,
+    "live_journal_hash_unchanged": true,
+    "installed_listener_sha256": "4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778",
+    "installed_journal_sha256": "d29c1fc033d918dd24795952dc68d9d13072f17611c5fc0901503d33c348a7ed",
+    "BIRDEYE_and_budgets": "UNCHANGED"
+  },
+  "RUNTIME_DEPLOYMENT_GATE": "PASS for isolated DEV owner/journal/listener-factory interfaces. Production QUALIFIED_NOT_DEPLOYED."
+}

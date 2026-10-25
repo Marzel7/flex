@@ -1,0 +1,22 @@
+{
+  "status": "HOLD_MISSING_PROTECTED_TERMINAL_AUTHORITY",
+  "runtime_source_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+  "runtime_code_changed": false,
+  "candidate_sha": null,
+  "new_regression_tests_passed": 9,
+  "test_failures": 0,
+  "event_513_without_destination": "REFUSED_JOURNAL_CAPACITY",
+  "current_protected_records_examined": 512,
+  "canonical_signature_matches": 0,
+  "migration_retry_queue_signature_matches": 0,
+  "quarantine_link": "NO_ACCEPTED_SIGNATURE_TERMINAL_MAPPING; no unindexed historical scan",
+  "safe_protected_transfer_qualified": false,
+  "thousands_of_protected_admissions": "NOT_QUALIFIED_MISSING_DESTINATION",
+  "crash_during_protected_transfer": "NOT_QUALIFIED_NO_TRANSFER_OWNER",
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "service_restarts": 0,
+  "ready_for_deployment_preflight": false,
+  "runtime_deployment_required": false,
+  "reason": "Test-only saturation regression and bounded read-only authority checks; no runtime correction deployed or qualified"
+}

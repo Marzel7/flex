@@ -1,0 +1,59 @@
+{
+  "FLEX_V2_MIGRATION_COMPLETION_STATUS": "PASS \u2014 QUALIFIED_NOT_DEPLOYED",
+  "CANDIDATE_SHA": "abb72f5746bd4e9d9aaaf976c2b8196b131d179b",
+  "KNOWN_MINT_COMPLETION_CORRECTION": "Qualified canonical signature + complete handoff + OPS readback may ACK without acquisition. Other canonical signatures become protected CANONICAL_SIGNATURE_CONFLICT, never aliases or canonical rewrites. Missing handoff remains pending under its existing owner without consuming acquisition attempts.",
+  "SIGNATURE_IDENTITY_SAFETY": "All 426 confirmed guard failures and remaining 20 resolved signature-mismatch identities replayed against minimal disposable relationship fixtures. Different signatures are not ACKed. Fixed signatures/mints and audit classifications reused; canonical mismatch sentinel represents the retained DIFFERENT_SIGNATURE relation, not a reconstruction of historical transactions.",
+  "DEFERRED_RETRY_BEHAVIOUR": "Source-supplied notification_mint is durably admitted before optional lookup, distinct from verified mint. Attempt reservation and retry_not_before are atomically published. Ten-second polling and active delayed tasks cannot consume another attempt during the existing 45-second deferral. Restart retains subject/deadline. Independent transaction proof remains required when canonical authority is absent; a supplied subject is never chain proof.",
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 562,
+    "failed": 0,
+    "completion_controls": 530,
+    "protected_capacity_controls": 9,
+    "CREATE_crash_controls": 23,
+    "seconds": 102.82,
+    "fixed_cohort": {
+      "confirmed_known_guard": 426,
+      "other_signature_mismatch": 20,
+      "unresolved_subjects": 66
+    },
+    "network": "socket.connect blocked; transaction responses synthetic",
+    "command": "python -B -m pytest -q -p no:cacheprovider tests/test_v2_migration_completion.py tests/test_v2_protected_journal_capacity.py tests/test_v2_create_intent_crash_safety.py",
+    "private_cohort_sha256": "c3a084043ec8a1f8f1c4125b09c4f2d0e7d8b61f940be0840aa3c6617b461f93"
+  },
+  "EXISTING_512_RECORD_DISPOSITION": "UNCHANGED / PROTECTED. No live journal mutation, retry reset, replay, reclamation or independent terminal destination claimed. A 512-record disposable exhausted population remains byte-identical after scheduling attempts.",
+  "FUTURE_JOURNAL_CAPACITY": "Prevents the demonstrated no-op/deferred attempt exhaustion. Does not guarantee sustainable admission: distinct conflicting or exhausted protected records still consume the unchanged 512 slots. Event 513 remains refused when all slots are protected.",
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES for the qualified two-file DEV correction; NOT deployed and NOT a live capacity-restoration claim. Preflight must bind both files and a fallback compatible with new optional record fields. The original strict journal reader cannot safely be restored after new-format records are written.",
+  "NEXT_ACTION": "Qualify an independently durable, identity-preserving disposition for the existing protected records before claiming restored live capacity; then separately authorize the compatible deployment. No expansion or terminal archive implemented here.",
+  "authority": {
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "phase": "ACTIVE",
+    "installed_listener_sha256": "4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778",
+    "installed_journal_sha256": "d29c1fc033d918dd24795952dc68d9d13072f17611c5fc0901503d33c348a7ed",
+    "runtime_files": {
+      "migration_signature_journal.py": "73bdbc57639d04237a42a662533bc5162d5ee4792b7c9abc90714c853c38282b",
+      "pumpfun_curve_listener.py": "e30fffeff62e656ddb950e5ec48260d35d0b46c4a8aa848274c01f3693b93a57"
+    }
+  },
+  "storage": {
+    "record_max_bytes": 4096,
+    "journal_max_bytes": 2000000,
+    "transient_publication_max_bytes": 2000000,
+    "record_count": 512,
+    "batch_limit": 20,
+    "retry_ceiling": 3,
+    "disk_floor_bytes": 2000000000,
+    "raw_provider_retention": "NONE",
+    "new_unbounded_growth_paths": 0,
+    "largest_final_fixture_bytes": 212585,
+    "new_archive_or_database": false
+  },
+  "production": {
+    "mutations": 0,
+    "provider_requests": 0,
+    "service_restarts": 0,
+    "V1_access": 0,
+    "deployment": "NOT_AUTHORIZED / NOT_PERFORMED",
+    "BIRDEYE_and_budgets": "UNCHANGED"
+  },
+  "RUNTIME_DEPLOYMENT_GATE": "PASS in isolated disposable interfaces; production QUALIFIED_NOT_DEPLOYED"
+}

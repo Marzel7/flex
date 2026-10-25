@@ -20228,6 +20228,23 @@
     "updated_at_utc": "2026-10-25T18:35:49.235147+00:00",
     "verification": "9provider-free regression/safety tests PASS.511exhausted+unverified/protectedACK and512exhausted refuseevent513withoutchangingoriginal;verifiedordinaryACKcontrol admits513whilepreserving511exhausted. Duplicate/restart/disk/truncation refusals safe. No protected transfer or thousands-of-protected-sequence PASS claimed."
   },
+  "flex_v2_receipt_log_lifecycle": {
+    "blocker": "Existing archive transition removes source-qualified birth proof from reader lookup; duplicate delivery recreates the original identity with a new timestamp. No independent durable receipt replacement/disposal contract is qualified.",
+    "detailed_evidence": "Local only; publication of production-derived operational detail rejected by automatic approval review.",
+    "engineering_source_revision": "cffdb10bdb5a2f82a9dd9e87a9206df936c7b3f8",
+    "implementation": "DEV receipt maintenance protects required birth provenance; baseline counterexample and focused preservation tests added.",
+    "next_action": "Qualify receipt retirement/replay authority preserving immutable provenance and deduplication before reclaiming receipt bytes; then resume log lifecycle. No deployment or golden freeze.",
+    "previous_database_lifecycle_tests": "31 accepted controls reused; unchanged cleanup not rerun.",
+    "production_activation": false,
+    "production_changed": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "status": "HOLD_RECEIPT_RETIREMENT_AUTHORITY",
+    "tests": {
+      "failed": 0,
+      "passed": 9,
+      "provider_free": true
+    }
+  },
   "flex_v2_repeat_creator_rpc_reuse_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Matchingphysicalrequestidentities/historyrangesandhistoricalcacheavailabilitynotretained. Repeatedcreatorwalletaloneisnotredundancyproof.",
@@ -36962,7 +36979,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "14158e4e9191c6cb3074af4b751f8f3b5bd19162",
+    "git_head": "cffdb10bdb5a2f82a9dd9e87a9206df936c7b3f8",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",

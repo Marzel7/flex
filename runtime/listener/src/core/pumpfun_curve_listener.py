@@ -1420,6 +1420,27 @@ def _signature_migration_journal():
                             resolve_completed=_migration_completed_mint)
 
 
+def _migration_notification_disposition(row):
+    """No alias inference: independently committed identity + handoff or protection."""
+    _validate_active_pair()
+    mint = row.get("mint") or row.get("notification_mint")
+    if not mint:
+        return "DEFERRED"
+    import sqlite3 as _sq
+    connection = _sq.connect(f"file:{DB_PATH}?mode=ro", uri=True, timeout=5)
+    try:
+        canonical = connection.execute(
+            "SELECT migration_tx,lifecycle_stage FROM token_analysis WHERE mint=? LIMIT 1", (mint,)).fetchone()
+    finally:
+        connection.close()
+    if not canonical or canonical[1] != "migrated":
+        return "DEFERRED"
+    if canonical[0] != row["signature"]:
+        return "CONFLICTING"
+    qualified = dict(row, mint=mint)
+    return "COMPLETED" if _migration_journal_readback(qualified) else "HANDOFF_PENDING"
+
+
 def _migration_completed_mint(row):
     """Bounded canonical identity lookup after journal completion reclamation.
 
@@ -10756,12 +10777,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         except Exception:
             pass
 
-    def _schedule_journal_migration(self, signature, logs, source="WEBSOCKET", notification_source="PUMPSWAP"):
+    def _schedule_journal_migration(self, signature, logs, source="WEBSOCKET", notification_source="PUMPSWAP", notification_mint=None):
         journal = _signature_migration_journal()
         if journal is None:
             return asyncio.create_task(self.handle_migration(signature, logs, source=source))
         try:
-            row = journal.admit(signature, notification_source, int(time.time()))
+            row = journal.admit(signature, notification_source, int(time.time()), notification_mint=notification_mint)
         except Exception as error:
             if getattr(error, 'admission_durable', False):
                 return None  # Pending input is retained; never dispatch or ACK.
@@ -10777,6 +10798,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
             active = self._signature_journal_active = set()
         if signature in active or row["state"] in {"ACKED", "QUARANTINED", "RETRY_EXHAUSTED"}:
             return None
+        disposition = _migration_notification_disposition(row)
+        if disposition == "CONFLICTING":
+            journal.quarantine(signature, "CANONICAL_SIGNATURE_CONFLICT")
+            return None
+        if disposition == "HANDOFF_PENDING":
+            return None  # Existing handoff owner; no acquisition or no-op attempts.
+        if disposition == "COMPLETED" and not row.get("mint"):
+            row = journal.resolve(signature, row["notification_mint"])
         if _migration_journal_readback(row):
             journal.acknowledge(signature, __import__("hashlib").sha256(__import__("json").dumps([os.path.realpath(DB_PATH), os.path.realpath(_listener_ops_db_path())], separators=(",", ":")).encode()).hexdigest(), _migration_journal_readback)
             return None
@@ -10784,7 +10813,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
         # convergence; do not repeat provider acquisition for that crash window.
         if _migration_journal_readback(row, require_handoff=False):
             return None
-        if not journal.begin_attempt(signature):
+        if signature in self.processing_migrations or signature in self.tx_cache_pending_retries:
+            return None
+        if signature in self.completed_migrations:
+            journal.quarantine(signature, "COMPLETION_UNVERIFIED")
+            return None
+        if not journal.begin_attempt(signature, now=int(time.time()), defer_until=int(time.time()) + 45):
             return None
         active.add(signature)
         try:
@@ -10795,16 +10829,19 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
     async def _run_journal_migration(self, signature, logs, source):
         try:
-            await self.handle_migration(signature, logs, source=source)
+            outcome = await self.handle_migration(signature, logs, source=source)
             journal = _signature_migration_journal()
-            journal.acknowledge(signature, __import__("hashlib").sha256(__import__("json").dumps([os.path.realpath(DB_PATH), os.path.realpath(_listener_ops_db_path())], separators=(",", ":")).encode()).hexdigest(), _migration_journal_readback)
+            if outcome != "COMPLETED":
+                return outcome
+            acknowledged = journal.acknowledge(signature, __import__("hashlib").sha256(__import__("json").dumps([os.path.realpath(DB_PATH), os.path.realpath(_listener_ops_db_path())], separators=(",", ":")).encode()).hexdigest(), _migration_journal_readback)
+            return "COMPLETED" if acknowledged else "DEFERRED"
         finally:
             self._signature_journal_active.discard(signature)
 
     async def _replay_signature_migration_batch(self):
         journal = _signature_migration_journal()
         for row in journal.pending():
-            task = self._schedule_journal_migration(row["signature"], [], notification_source=row["source"])
+            task = self._schedule_journal_migration(row["signature"], [], notification_source=row["source"], notification_mint=row.get("notification_mint"))
             if task is not None:
                 await task  # Existing handler/provider controls, bounded sequential batch.
 
@@ -10813,7 +10850,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         is threaded EXPLICITLY into _process_migration_with_mint — no shared instance var — so
         concurrent WS+reconciler processing can't mislabel migration_source (the burst race)."""
         if signature in self.processing_migrations or signature in self.completed_migrations:
-            return
+            return "DEFERRED"
 
         self.processing_migrations.add(signature)
 
@@ -10869,7 +10906,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                         log_print(f"[MIGRATION] ✅ Delayed re-check succeeded for {signature}: {mint_retry}", flush=True)
                         await self._process_migration_with_mint(signature, logs, mint_retry, tx_data_retry, source=source)
-                        self.completed_migrations.add(signature)
+                        journal = _signature_migration_journal()
+                        row = next((r for r in journal.snapshot() if r['signature'] == signature), None) if journal else None
+                        if journal is None:
+                            self.completed_migrations.add(signature)  # Legacy feature-disabled contract.
+                        elif row:
+                            disposition = _migration_notification_disposition(row)
+                            if disposition == "CONFLICTING":
+                                journal.quarantine(signature, "CANONICAL_SIGNATURE_CONFLICT")
+                            elif disposition == "COMPLETED":
+                                self.completed_migrations.add(signature)
 
                     except Exception as e:
                         log_print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
@@ -10881,21 +10927,31 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 if signature not in self.tx_cache_pending_retries:
                     task = asyncio.create_task(delayed_mint_recheck())
                     self.tx_cache_pending_retries[signature] = task
-                return
+                return "DEFERRED"
 
             # Mint found immediately - continue with normal pipeline
             await self._process_migration_with_mint(signature, logs, mint, tx_data, source=source)
+            journal = _signature_migration_journal()
+            row = next((r for r in journal.snapshot() if r['signature'] == signature), None) if journal else None
+            disposition = _migration_notification_disposition(row) if row else ("COMPLETED" if journal is None else "DEFERRED")
+            if disposition == "CONFLICTING":
+                journal.quarantine(signature, "CANONICAL_SIGNATURE_CONFLICT")
+                return "CONFLICTING"
+            if disposition != "COMPLETED":
+                return "DEFERRED"
             self.completed_migrations.add(signature)
 
             # Cancel any pending delayed retry since migration succeeded
             pending = self.tx_cache_pending_retries.pop(signature, None)
             if pending and not pending.done():
                 pending.cancel()
+            return "COMPLETED"
 
         except Exception as e:
             log_print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback
             traceback.print_exc()
+            return "FAILED"
         finally:
             # Always release processing lock so the sig can be retried (completed_migrations
             # guards against true duplicate processing; processing_migrations is a per-run lock).
@@ -11614,7 +11670,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 pass
                             if sig and sig not in self.completed_migrations:
                                 log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
-                                self._schedule_journal_migration(sig, [], notification_source="PUMPPORTAL_MIGRATION")
+                                self._schedule_journal_migration(sig, [], notification_source="PUMPPORTAL_MIGRATION", notification_mint=mint)
                                 # Unsubscribe from trade tracking for this mint
                                 if mint in tracked_trade_mints:
                                     tracked_trade_mints.discard(mint)

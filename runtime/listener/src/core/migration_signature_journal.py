@@ -157,12 +157,15 @@ class MigrationJournal:
                 'migration_slot': migration_slot, 'conflicting_slot': None}
 
     def _validate(self, row):
-        allowed = {'version','id','signature','notification_identity','source','received_at','mint','state','attempts','error_code','ack','legacy','legacy_duplicates','conflicting_mint','migration_slot','conflicting_slot'}
+        allowed = {'version','id','signature','notification_identity','source','received_at','mint','state','attempts','error_code','ack','legacy','legacy_duplicates','conflicting_mint','migration_slot','conflicting_slot','notification_mint','retry_not_before'}
         if set(row) - allowed or row.get('id') != event_id(row.get('signature')):
             raise JournalHold('RECORD_IDENTITY')
         self._new(row['signature'], row.get('source'), row.get('received_at'), row.get('mint'), row.get('migration_slot'))
         if row.get('state') not in STATES or type(row.get('attempts')) is not int or not 0 <= row['attempts'] <= MAX_ATTEMPTS:
             raise JournalHold('INVALID_STATE')
+        _text(row.get('notification_mint'), 64, optional=True)
+        if type(row.get('retry_not_before', 0)) is not int or not 0 <= row.get('retry_not_before', 0) < 2**63:
+            raise JournalHold('INVALID_RETRY_TIME')
         _text(row.get('error_code'), 80, optional=True)
         _text(row.get('conflicting_mint'), 64, optional=True)
         if row.get('conflicting_slot') is not None and (type(row['conflicting_slot']) is not int or not 0 <= row['conflicting_slot'] < 2**63):
@@ -320,11 +323,22 @@ class MigrationJournal:
             self._sync_dir()
             return True
 
-    def admit(self, signature, source, received_at, mint=None, *, migration_slot=None):
+    def admit(self, signature, source, received_at, mint=None, *, migration_slot=None, notification_mint=None):
         incoming = self._new(signature, source, received_at, mint, migration_slot)
+        if notification_mint is not None:
+            _text(notification_mint, 64)
+            incoming["notification_mint"] = notification_mint
         def change(rows):
             for row in rows:
                 if row['id'] == incoming['id']:
+                    if notification_mint is not None and row['state'] not in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
+                        if row.get('notification_mint') not in (None, notification_mint):
+                            if row.get('conflicting_mint') not in (None, notification_mint):
+                                raise JournalHold('CONFLICT_CAPACITY')
+                            row['conflicting_mint'] = notification_mint
+                            row['state'] = 'QUARANTINED'; row['error_code'] = 'NOTIFICATION_SUBJECT_CONFLICT'
+                        else:
+                            row['notification_mint'] = notification_mint
                     if migration_slot is not None:
                         if row.get('migration_slot') is None:
                             row['migration_slot'] = migration_slot
@@ -363,7 +377,12 @@ class MigrationJournal:
             row = next((r for r in rows if r['id'] == self._key(signature)), None)
             if row is None:
                 return None
-            if row['mint'] and row['mint'] != mint:
+            if row.get('notification_mint') not in (None, mint):
+                if row.get('conflicting_mint') not in (None, mint):
+                    raise JournalHold('CONFLICT_CAPACITY')
+                row['conflicting_mint'] = mint
+                row['state'] = 'QUARANTINED'; row['error_code'] = 'NOTIFICATION_SUBJECT_CONFLICT'
+            elif row['mint'] and row['mint'] != mint:
                 if row.get('conflicting_mint') not in (None, mint):
                     raise JournalHold('CONFLICT_CAPACITY')
                 row['conflicting_mint'] = mint
@@ -373,14 +392,39 @@ class MigrationJournal:
             return dict(row)
         return self._change(change)
 
-    def begin_attempt(self, signature):
+    def retain_subject(self, signature, mint):
+        """Notification subject only; never resolves canonical evidence."""
+        _text(mint, 64)
+        def change(rows):
+            row = next(r for r in rows if r['id'] == self._key(signature))
+            if row['state'] in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
+                return dict(row)
+            if row.get('notification_mint') not in (None, mint):
+                if row.get('conflicting_mint') not in (None, mint):
+                    raise JournalHold('CONFLICT_CAPACITY')
+                row['conflicting_mint'] = mint
+                row['state'] = 'QUARANTINED'; row['error_code'] = 'NOTIFICATION_SUBJECT_CONFLICT'
+            else:
+                row['notification_mint'] = mint
+            return dict(row)
+        return self._change(change)
+
+    def begin_attempt(self, signature, *, now=None, defer_until=None):
+        if defer_until is not None and (type(defer_until) is not int or not 0 < defer_until < 2**63):
+            raise JournalHold("INVALID_RETRY_TIME")
         def change(rows):
             row = next(r for r in rows if r['id'] == self._key(signature))
             if row['state'] in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
                 return False
+            if row.get('retry_not_before', 0):
+                import time
+                if (int(time.time()) if now is None else now) < row['retry_not_before']:
+                    return False
             if row['attempts'] >= MAX_ATTEMPTS:
                 row['state'] = 'RETRY_EXHAUSTED'; row['error_code'] = 'RETRY_CEILING'
                 return False
+            if defer_until is not None:
+                row['retry_not_before'] = defer_until
             row['attempts'] += 1
             row['error_code'] = 'DISPATCH_RESERVED'
             return True

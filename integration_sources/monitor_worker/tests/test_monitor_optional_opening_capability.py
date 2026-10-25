@@ -3,6 +3,7 @@ import json
 import sqlite3
 import sys
 import types
+import time
 
 import pytest
 
@@ -123,6 +124,17 @@ def test_inner_dependency_and_generic_import_errors_are_not_swallowed(tmp_path, 
         worker.process_entry_reference_opening_once(now=11)
 
 
+def _qualified_lifecycle_fixture(queue, envelope):
+    # Current Policy C requires canonical-birth provenance before dispatch.
+    # This synthetic reference exercises the unchanged reducer assertions.
+    envelope = dict(envelope)
+    due = int(time.time())
+    envelope['birth'] = {'create_time': due - 3600,
+                         'birth_evidence_id': 'synthetic-' + envelope['mint']}
+    envelope['policy_c_scheduled_at'] = due
+    return queue.queue.enqueue(envelope)
+
+
 def _committing_writer(path):
     def persist(item):
         connection = sqlite3.connect(path)
@@ -140,7 +152,7 @@ def test_qualified_live_dispatch_continues_after_optional_opening_failure(tmp_pa
     db = tmp_path / 'monitor.db'
     connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
     queue = MonitorQueue(tmp_path / 'queue', enabled=True)
-    queue.queue.enqueue({
+    _qualified_lifecycle_fixture(queue, {
         'operation_id': 'watchtower', 'mint': 'agency', 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
         'entry_method': 'frozen', 'entry_timestamp': 1, 'entry_mc_usd': 100.0,
         'entry_reference_state': 'ENTRY_REFERENCE_QUALIFIED', 'monitor_state': 'ENTRY_REFERENCE_QUALIFIED',
@@ -179,7 +191,7 @@ def test_valid_lifecycle_candles_are_not_rejected_by_normalized_response_size(tm
     db = tmp_path / 'monitor.db'
     connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
     queue = MonitorQueue(tmp_path / 'queue', enabled=True)
-    queue.queue.enqueue({
+    _qualified_lifecycle_fixture(queue, {
         'operation_id': 'watchtower', 'mint': mint, 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
         'entry_method': 'frozen', 'entry_timestamp': 1, 'entry_mc_usd': 10.0,
         'entry_reference_state': 'ENTRY_REFERENCE_QUALIFIED', 'monitor_state': 'ENTRY_REFERENCE_QUALIFIED',
@@ -213,7 +225,7 @@ def test_terminal_transition_semantics_remain_entry_and_peak_based(tmp_path):
     db = tmp_path / 'monitor.db'
     connection = sqlite3.connect(db); _ensure_schema(connection); connection.commit(); connection.close()
     queue = MonitorQueue(tmp_path / 'queue', enabled=True)
-    queue.queue.enqueue({
+    _qualified_lifecycle_fixture(queue, {
         'operation_id': 'watchtower', 'mint': 'terminal-control', 'cohort': 'PROSPECTIVE_MONITOR_COHORT',
         'entry_method': 'frozen', 'entry_timestamp': 1, 'entry_mc_usd': 10.0,
         'entry_reference_state': 'ENTRY_REFERENCE_QUALIFIED', 'monitor_state': 'ENTRY_REFERENCE_QUALIFIED',
@@ -442,6 +454,8 @@ def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavaila
     from src.ops import operation_monitor_service as service
 
     class Queue:
+        def selection_only_mode(self):
+            return False
         def recover_due(self):
             return None
 
@@ -460,6 +474,8 @@ def test_service_continues_to_lifecycle_dispatch_after_optional_opening_unavaila
             return None
         def process_entry_reference_opening_once(self):
             return {'state': 'STRICT_OPENING_OPTIONAL_CAPABILITY_UNAVAILABLE'}
+        def process_current_mc_overlay_once(self):
+            return {"status": "DISABLED"}
         def process_once(self):
             self.dispatched += 1
             return 1

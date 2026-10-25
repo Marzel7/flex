@@ -89,11 +89,119 @@ except Exception:
     _native_connect = sqlite3.dbapi2.connect
 
 
+class DatabaseRetiredError(RuntimeError):
+    """Persistent refusal, independent of transient write-lease ownership."""
+
+
+def assert_database_writable(path, *, _retirement_metadata_only=False):
+    if not path:
+        return
+    try:
+        os.lstat(os.path.realpath(str(path)) + ".retired")
+    except FileNotFoundError:
+        pass
+    except OSError:
+        raise DatabaseRetiredError("RETIREMENT_STATE_UNAVAILABLE") from None
+    else:
+        raise DatabaseRetiredError("DATABASE_RETIRED")
+    if not _retirement_metadata_only:
+        from src.core.paired_binding_guard import validate_pair
+        validate_pair(write_path=os.path.realpath(str(path)), purpose="write")
+
+
+def retire_database(database, path, *, generation, timeout=5.0):
+    """Retire one existing database, not a paired switch or an unretire API.
+
+    Published marker presence is always fail-closed, even if publication was
+    interrupted. The existing write lane and a SQLite reservation drain all
+    current writers before the durable boundary is accepted.
+    """
+    path = os.path.realpath(str(path))
+    marker = path + ".retired"
+    if not isinstance(generation, str) or not 1 <= len(generation.encode()) <= 128:
+        raise ValueError("INVALID_RETIREMENT_GENERATION")
+    expected = {"version": 1, "path": path, "generation": generation, "retired": True}
+    if os.path.lexists(marker):
+        try:
+            with open(marker, "rb") as stream:
+                raw = stream.read(2049)
+            if len(raw) > 2048 or json.loads(raw) != expected:
+                raise ValueError()
+        except Exception:
+            raise DatabaseRetiredError("RETIREMENT_STATE_AMBIGUOUS") from None
+        # Retry may follow failed synchronization after readable publication.
+        fd = os.open(marker, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        directory = os.open(os.path.dirname(path), os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+        return expected
+    if not os.path.isfile(path):
+        raise ValueError("EXISTING_DATABASE_REQUIRED")
+    payload = json.dumps(expected, sort_keys=True, separators=(",", ":")).encode()
+    if len(payload) > 2048:
+        raise ValueError("RETIREMENT_RECORD_CAPACITY")
+    lease = acquire_write_lease(database, path, str(uuid.uuid4()), "retire-database", timeout=timeout, _retirement_metadata_only=True)
+    connection = None
+    try:
+        connection = _native_connect(path, timeout=timeout)
+        connection.execute("BEGIN IMMEDIATE")
+        space = os.statvfs(os.path.dirname(path))
+        if space.f_bavail * space.f_frsize < 2_000_002_048:
+            raise DatabaseRetiredError("RETIREMENT_DISK_FLOOR")
+        fd = os.open(marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        try:
+            if os.write(fd, payload) != len(payload):
+                raise DatabaseRetiredError("RETIREMENT_SHORT_WRITE")
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        directory = os.open(os.path.dirname(path), os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+        return expected
+    finally:
+        if connection is not None:
+            connection.rollback()
+            connection.close()
+        release_write_lease(lease)
+
+
+def assert_connection_writable(connection):
+    path = getattr(connection, "_db_retirement_path", None)
+    if path is None:
+        rows = sqlite3.Connection.execute(connection, "PRAGMA database_list").fetchall()
+        path = next((r[2] for r in rows if r[1] == "main"), "")
+        path = os.path.realpath(path) if path else ""
+        connection._db_retirement_path = path
+    assert_database_writable(path)
+
+
+class _ServiceRetirementCursor(sqlite3.Cursor):
+    def execute(self, sql, parameters=()):
+        if not sql.lstrip().upper().startswith(("SELECT", "EXPLAIN")):
+            assert_connection_writable(self.connection)
+        return super().execute(sql, parameters)
+
+    def executemany(self, sql, parameters):
+        assert_connection_writable(self.connection)
+        return super().executemany(sql, parameters)
+
+
 class _ServiceConnection(sqlite3.Connection):
     """Connection whose transaction boundary belongs exclusively to the service."""
 
     def execute(self, sql, parameters=()):
         """Metadata-only provenance for service-owned native statements."""
+        if not sql.lstrip().upper().startswith(("SELECT", "EXPLAIN")):
+            assert_connection_writable(self)
         try:
             from src.utils import db_locking
             state = db_locking._cf_statement_start(self, sql)
@@ -115,6 +223,13 @@ class _ServiceConnection(sqlite3.Connection):
             except Exception:
                 pass
 
+    def cursor(self, factory=None):
+        return sqlite3.Connection.cursor(self, factory or _ServiceRetirementCursor)
+
+    def executescript(self, sql_script):
+        assert_connection_writable(self)
+        return sqlite3.Connection.executescript(self, sql_script)
+
     def commit(self) -> None:
         # Legacy helpers may still call commit after a statement group.  Inside
         # a managed callback that must not split the service-owned transaction.
@@ -124,7 +239,21 @@ class _ServiceConnection(sqlite3.Connection):
         # The worker performs the single rollback when the callback raises.
         return None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Helpers cannot commit behind the service-owned transaction boundary.
+        if self.in_transaction:
+            try:
+                assert_connection_writable(self)
+            except BaseException:
+                sqlite3.Connection.rollback(self)
+                raise
+        return False
+
     def service_commit(self) -> None:
+        assert_connection_writable(self)
         try:
             from src.utils import db_locking
             if db_locking._sqlite_lifecycle_enabled(self):
@@ -786,6 +915,7 @@ def acquire_write_lease(
     *,
     timeout: float = CROSS_PROCESS_LOCK_TIMEOUT_SEC,
     priority: int = DEFAULT_PRIORITY,
+    _retirement_metadata_only: bool = False,
 ) -> WriteLease:
     """Acquire the database-wide lane used by services and tracked connections.
 
@@ -809,6 +939,7 @@ def acquire_write_lease(
     falls back to today's plain flock() contention for that attempt.
     """
     real_path = os.path.realpath(path)
+    assert_database_writable(real_path, _retirement_metadata_only=_retirement_metadata_only)
     this_thread_ident = threading.get_ident()
     outer = getattr(_thread_write_lease, "owner", None)
     if outer is not None:
@@ -930,6 +1061,12 @@ def acquire_write_lease(
         _record_priority_timeout(priority, command)
         raise exc
 
+    try:
+        assert_database_writable(real_path, _retirement_metadata_only=_retirement_metadata_only)
+    except BaseException:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        lock_file.close()
+        raise
     wait_ms = (time.time() - wait_start_wall) * 1000.0
     _record_priority_acquire(priority, command, wait_ms, blocked_by_lower_priority)
 
@@ -1193,6 +1330,8 @@ class DatabaseWriteService:
         return os.path.realpath(path)
 
     def register_database(self, database: str, path: str) -> None:
+        if os.environ.get("FLEX_DORMANT_QUALIFICATION") == "1":
+            raise RuntimeError("DORMANT_QUALIFICATION_NO_WORKERS")
         key = self._key(path)
         with self._lock:
             existing = self._paths.get(database)

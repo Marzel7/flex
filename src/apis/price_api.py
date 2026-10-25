@@ -33,7 +33,7 @@ _health_cache_lock = threading.Lock()
 _health_refresh_running = False
 
 # Database path (will be initialized when register_price_api is called)
-_db_path = 'database/flex_complete_database.db'
+_db_path = None  # Supplied explicitly by the accepted API registration boundary.
 
 import os as _os
 _WS_STATS_PATH = _os.path.normpath(
@@ -1339,8 +1339,14 @@ def register_price_api(app):
     if hasattr(app, 'config') and 'DATABASE' in app.config:
         _db_path = app.config['DATABASE']
     
-    # Metadata cache bootstrap is read-only first; DDL runs only if missing.
-    _ensure_metadata_cache_table(_db_path)
+    if not _db_path:
+        raise RuntimeError('API_EXPLICIT_DATABASE_REQUIRED')
+    from src.core.paired_binding_guard import validate_pair
+    if validate_pair(core_path=_db_path, purpose='active') is None:
+        raise RuntimeError('API_MATCHED_V2_AUTHORITY_REQUIRED')
+    # Qualification exercises routes against prepared schemas without startup DDL.
+    if _os.environ.get('FLEX_DORMANT_QUALIFICATION') != '1':
+        _ensure_metadata_cache_table(_db_path)
     
     app.register_blueprint(price_api)
     logger.info("Price API routes registered (with Phase 4: Persistent metadata cache)")

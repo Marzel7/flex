@@ -35,6 +35,7 @@ TTLs by method:
 """
 
 import sqlite3
+import os
 import json
 import time
 import logging
@@ -138,6 +139,9 @@ class RPCCache:
 
             # Check if expired
             if now > cached_at + ttl_seconds:
+                if os.environ.get("DEV004_PAIRED_BINDING_REQUIRED") == "1":
+                    conn.close()
+                    return None  # Seven-day lifecycle owns age-based disposal.
                 # Lazy expiry: delete expired entry and return miss
                 conn.execute(
                     "DELETE FROM rpc_response_cache WHERE cache_key = ?",
@@ -244,6 +248,8 @@ class RPCCache:
         Call periodically (e.g., hourly) to reclaim space.
         Returns count of deleted rows.
         """
+        if os.environ.get("DEV004_PAIRED_BINDING_REQUIRED") == "1":
+            return 0
         conn = None
         try:
             conn = self._get_conn()

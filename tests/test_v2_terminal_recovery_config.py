@@ -97,6 +97,7 @@ def test_normal_v2_repairs_missing_legacy_flag_and_preserves_settings(case):
     out=case.output_env()
     assert out['DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED']=='1'
     for key in ['MIGRATION_JOURNAL_PATH','BIRTH_JOURNAL_PATH','DB_PATH','WT_OPS_DB_PATH']:assert out[key]==case.env[key]
+    assert out['RPC_METRICS_DB']==out['DB_PATH']
     assert out['ACCEPTED_SENTINEL']=='unchanged'
     cfg=configparser.ConfigParser(interpolation=None);cfg.read(case.live)
     assert cfg['program:dormant']['command']=='never-start'
@@ -118,6 +119,7 @@ def test_fresh_compact_rollback_and_repeated_restart(case):
         case.ns['write_config']('v2')
         configured=case.output_env()
         assert configured['DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED']=='1'
+        assert configured['RPC_METRICS_DB']==configured['DB_PATH']
         owner=case.tm.TerminalEvidenceStore(paths['ops'],case.journal.path,generation='fresh',validate_record=case.journal._validate,validate_pair=lambda p:case.g.validate_pair(core_path=env['DB_PATH'],ops_path=str(p)))
         j=case.jm.MigrationJournal(case.journal.path,terminal_owner=owner)
         assert j.admit(row['signature'],row['source'],999)==row

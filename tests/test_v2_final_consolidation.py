@@ -86,7 +86,7 @@ def test_interrupted_directory_sync_is_not_false_completion(owner,tmp_path,monke
  assert owner._find_abandoned_temp_files(str(tmp_path),min_age_seconds=owner.MIN_TEMP_FILE_AGE_SECONDS)==[]
 
 
-def test_required_api_default_binding_counterexample_without_opening_database():
+def test_required_api_missing_binding_fails_closed_without_opening_database():
  # Diagnostic evidence for the HOLD, not an API readiness PASS.
  tree=ast.parse((ROOT/'src/apis/price_api.py').read_text())
  assignment=next(n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='_db_path' for t in n.targets))
@@ -99,9 +99,9 @@ def test_required_api_default_binding_counterexample_without_opening_database():
   def register_blueprint(self,*a):pass
  ns={'_ensure_metadata_cache_table':requests.append,'price_api':object(),'logger':Logger()}
  for n in [assignment,register]:exec(compile(ast.Module(body=[n],type_ignores=[]),'<exact-api-binding>','exec'),ns)
- ns['register_price_api'](App())
- assert requests==['database/flex_complete_database.db']
- assert not (ROOT/'src/core/paired_binding_guard.py').exists()
+ with pytest.raises(RuntimeError,match='API_EXPLICIT_DATABASE_REQUIRED'):ns['register_price_api'](App())
+ assert requests==[]
+ assert (ROOT/'src/core/paired_binding_guard.py').exists()
  assert (ROOT/'runtime/listener/src/core/paired_binding_guard.py').is_file()
 
 

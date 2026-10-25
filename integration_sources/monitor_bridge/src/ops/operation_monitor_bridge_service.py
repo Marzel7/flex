@@ -15,7 +15,11 @@ def _bounded_iteration_limit(env):
  return value
 def config(env=None):
  v=dict(os.environ if env is None else env); source=v.get('MONITOR_BRIDGE_SOURCE_DB'); monitor=v.get('MONITOR_BRIDGE_MONITOR_DB'); queue=v.get('MONITOR_BRIDGE_QUEUE_PATH')
- if not source or not monitor or not queue or Path(source).resolve()==Path(monitor).resolve(): raise RuntimeError('MONITOR_BRIDGE_INVALID_CONFIG')
+ if not source or not monitor or not queue: raise RuntimeError('MONITOR_BRIDGE_INVALID_CONFIG')
+ if Path(source).resolve()==Path(monitor).resolve():
+  if os.environ.get('DEV004_PAIRED_BINDING_REQUIRED')!='1':raise RuntimeError('MONITOR_BRIDGE_INVALID_CONFIG')
+  from src.core.paired_binding_guard import validate_pair
+  if validate_pair(ops_path=source,write_path=monitor,purpose='write') is None:raise RuntimeError('MONITOR_BRIDGE_V2_PAIR_REQUIRED')
  return {'source_db':source,'monitor_db':monitor,'queue_path':queue,'cadence':max(1,min(60,int(v.get('MONITOR_BRIDGE_CADENCE_SECONDS','5')))),'health_path':v.get('MONITOR_BRIDGE_HEALTH_PATH',''),'selection_path':v.get('MONITOR_BRIDGE_SELECTION_PATH',''),'max_iterations':_bounded_iteration_limit(v)}
 def run_once(cfg,*,now=None):
  stamp=int(time.time() if now is None else now); selection=Path(cfg['selection_path']) if cfg.get('selection_path') else None; q=MonitorQueue(Path(cfg['queue_path']),enabled=True,soak_selection_path=selection)

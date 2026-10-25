@@ -428,7 +428,24 @@ def serializer_metrics() -> dict:
 # one orderly write lane. Reads (SELECT-only conns) never acquire → read concurrency preserved.
 # Env-flagged so it can be rolled out / backed out without code changes.
 _DB_WRITE_SERIALIZE = os.environ.get("DB_WRITE_SERIALIZE", "1") == "1"
-_WRITE_SQL_PREFIXES = ("INSERT", "UPDATE", "DELETE", "REPLACE", "CREATE", "ALTER", "DROP", "UPSERT")
+# Transaction-control statements that acquire SQLite writer state must enter
+# the application write lane before SQLite sees them.  In particular,
+# ``BEGIN IMMEDIATE`` takes SQLite's RESERVED writer lock even though it does
+# not mutate a table itself.  Omitting BEGIN allowed a connection to hold the
+# SQLite writer while it subsequently waited for the application flock,
+# inverting the lock order used by every normal managed writer.
+_WRITE_SQL_PREFIXES = (
+    "BEGIN IMMEDIATE",
+    "BEGIN EXCLUSIVE",
+    "INSERT",
+    "UPDATE",
+    "DELETE",
+    "REPLACE",
+    "CREATE",
+    "ALTER",
+    "DROP",
+    "UPSERT",
+)
 
 _CF_SQL_DIAGNOSTICS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
@@ -667,10 +684,71 @@ def _is_write_sql(sql) -> bool:
     return s.startswith(_WRITE_SQL_PREFIXES)
 
 
+def _assert_not_retired(connection):
+    # Pin the SQLite-opened database path, not a subsequently changed DB_PATH.
+    path = getattr(connection, "_db_retirement_path", None)
+    if path is None:
+        rows = sqlite3.Connection.execute(connection, "PRAGMA database_list").fetchall()
+        path = next((r[2] for r in rows if r[1] == "main"), "")
+        path = os.path.realpath(path) if path else ""
+        connection._db_retirement_path = path
+    if path:
+        from src.core.database_write_service import assert_database_writable
+        assert_database_writable(path)
+
+
+def _retirement_statement_check(connection, sql):
+    # Only obvious read statements are exempt. WITH, comments, PRAGMA, COMMIT
+    # and autocommit DML must not escape retirement through SQL spelling.
+    if not isinstance(sql, str) or not sql.lstrip().upper().startswith(("SELECT", "EXPLAIN")):
+        _assert_not_retired(connection)
+
+
+def _retirement_native_call(connection, sql, operation):
+    """Fence lane-exempt/native writes at SQLite execution, including cache hits.
+
+    Retirement takes BEGIN IMMEDIATE: an already-active SQLite writer finishes
+    before publication; a writer waiting behind retirement is interrupted at
+    its next opcode before it can commit afterward. Preserve caller callbacks.
+    """
+    if isinstance(sql, str) and sql.lstrip().upper().startswith(("SELECT", "EXPLAIN")):
+        return operation()
+    _assert_not_retired(connection)
+    handler = getattr(connection, "_retirement_user_progress", None)
+    interval = getattr(connection, "_retirement_user_progress_n", 0)
+    steps = 0
+    def progress():
+        nonlocal steps
+        try:
+            _assert_not_retired(connection)
+        except Exception:
+            return 1
+        steps += 1
+        if handler is not None and interval > 0 and steps % interval == 0:
+            return handler() or 0
+        return 0
+    sqlite3.Connection.set_progress_handler(connection, progress, 1)
+    try:
+        return operation()
+    finally:
+        sqlite3.Connection.set_progress_handler(connection, handler, interval)
+
+
+class _RetirementCursor(sqlite3.Cursor):
+    def execute(self, sql, parameters=()):
+        _retirement_statement_check(self.connection, sql)
+        return _retirement_native_call(self.connection, sql, lambda: sqlite3.Cursor.execute(self, sql, parameters))
+
+    def executemany(self, sql, parameters):
+        _retirement_statement_check(self.connection, sql)
+        return _retirement_native_call(self.connection, sql, lambda: sqlite3.Cursor.executemany(self, sql, parameters))
+
+
 class TrackedCursor(sqlite3.Cursor):
     """Cursor that enters the same managed write lane before its first mutation."""
 
     def execute(self, sql, parameters=()):
+        _retirement_statement_check(self.connection, sql)
         is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
         if is_write:
             self.connection._acquire_write_lane()
@@ -678,7 +756,7 @@ class TrackedCursor(sqlite3.Cursor):
         success = False
         error = None
         try:
-            result = super().execute(sql, parameters)
+            result = super().execute(sql, parameters) if _DB_WRITE_SERIALIZE else _retirement_native_call(self.connection, sql, lambda: sqlite3.Cursor.execute(self, sql, parameters))
             success = True
             return result
         except Exception as exc:
@@ -698,13 +776,14 @@ class TrackedCursor(sqlite3.Cursor):
                 self.connection._release_write_lane()
 
     def executemany(self, sql, parameters):
+        _retirement_statement_check(self.connection, sql)
         if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
             self.connection._acquire_write_lane()
         diagnostic = _cf_statement_start(self.connection, sql, many=True)
         success = False
         error = None
         try:
-            result = super().executemany(sql, parameters)
+            result = super().executemany(sql, parameters) if _DB_WRITE_SERIALIZE else _retirement_native_call(self.connection, sql, lambda: sqlite3.Cursor.executemany(self, sql, parameters))
             success = True
             return result
         except Exception as exc:
@@ -721,6 +800,11 @@ class TrackedConnection(sqlite3.Connection):
     """SQLite connection that unregisters itself when closed, tracks lock errors, and (when
     DB_WRITE_SERIALIZE=1) holds the global write lock for the duration of a write transaction so
     concurrent writers across all modules serialize instead of colliding on the file."""
+    def set_progress_handler(self, handler, n):
+        self._retirement_user_progress = handler
+        self._retirement_user_progress_n = n
+        return sqlite3.Connection.set_progress_handler(self, handler, n)
+
 
     def _acquire_write_lane(self):
         """Acquire the global write lock once per write transaction (idempotent within the conn)."""
@@ -923,6 +1007,7 @@ class TrackedConnection(sqlite3.Connection):
                 pass
 
     def execute(self, sql, parameters=()):
+        _retirement_statement_check(self, sql)
         is_write = _DB_WRITE_SERIALIZE and _is_write_sql(sql)
         tx_before = bool(self.in_transaction)
         if is_write:
@@ -931,7 +1016,7 @@ class TrackedConnection(sqlite3.Connection):
         success = False
         error = None
         try:
-            result = super().execute(sql, parameters)
+            result = super().execute(sql, parameters) if _DB_WRITE_SERIALIZE else _retirement_native_call(self, sql, lambda: sqlite3.Connection.execute(self, sql, parameters))
             success = True
             return result
         except sqlite3.OperationalError as e:
@@ -940,19 +1025,27 @@ class TrackedConnection(sqlite3.Connection):
                 record_lock_error(getattr(self, "_db_caller", None))
             raise
         finally:
-            if is_write and not tx_before and bool(self.in_transaction):
+            if not tx_before and bool(self.in_transaction):
                 now = time.time()
                 self._sqlite_tx_begin_at = now
-                self._sqlite_first_write_at = now
-                self._sqlite_last_write_at = now
+                if is_write:
+                    self._sqlite_first_write_at = now
+                    self._sqlite_last_write_at = now
                 if _sqlite_lifecycle_enabled(self):
                     _append_sqlite_lifecycle({
                         "event": "sqlite_tx_begin", "timestamp": now,
                         "connection_id": getattr(self, "_db_connection_id", None),
                         "pid": os.getpid(), "thread": threading.current_thread().name,
-                        "begin_mode": "IMPLICIT", "flock_owned": bool(getattr(self, "_holds_write_lock", False)),
+                        "begin_mode": "WRITE_IMPLICIT" if is_write else "READ_OR_DEFERRED",
+                        "flock_owned": bool(getattr(self, "_holds_write_lock", False)),
                         "flock_transaction_id": getattr(self, "_write_transaction_id", None),
                     })
+                _append_connection_lifecycle({
+                    "event": "sqlite_tx_begin", "timestamp": now,
+                    "connection_id": getattr(self, "_db_connection_id", None),
+                    "pid": os.getpid(), "thread": threading.current_thread().name,
+                    "begin_mode": "WRITE_IMPLICIT" if is_write else "READ_OR_DEFERRED",
+                })
             elif is_write and bool(self.in_transaction):
                 self._sqlite_last_write_at = time.time()
             lease = getattr(self, "_cross_process_lease", None)
@@ -975,6 +1068,7 @@ class TrackedConnection(sqlite3.Connection):
         return super().cursor(factory)
 
     def executescript(self, sql_script):
+        _assert_not_retired(self)
         if _DB_WRITE_SERIALIZE and any(
             _is_write_sql(statement) for statement in sql_script.split(";")
         ):
@@ -982,13 +1076,14 @@ class TrackedConnection(sqlite3.Connection):
         return super().executescript(sql_script)
 
     def executemany(self, sql, parameters):
+        _retirement_statement_check(self, sql)
         if _DB_WRITE_SERIALIZE and _is_write_sql(sql):
             self._acquire_write_lane()
         diagnostic = _cf_statement_start(self, sql, many=True)
         success = False
         error = None
         try:
-            result = super().executemany(sql, parameters)
+            result = super().executemany(sql, parameters) if _DB_WRITE_SERIALIZE else _retirement_native_call(self, sql, lambda: sqlite3.Connection.executemany(self, sql, parameters))
             success = True
             return result
         except sqlite3.OperationalError as e:
@@ -1004,6 +1099,12 @@ class TrackedConnection(sqlite3.Connection):
         # bypass the execute-level acquire, but they ALL funnel through conn.commit(). In WAL mode
         # the commit is where the write lock is held longest, so serializing commits is the
         # high-value catch for cursor-based writers (price_service, etc.). No-op if already held.
+        if self.in_transaction:
+            try:
+                _assert_not_retired(self)
+            except BaseException:
+                self.rollback()
+                raise
         if _DB_WRITE_SERIALIZE and self.in_transaction and not getattr(self, "_holds_write_lock", False):
             self._acquire_write_lane()
         t0 = time.monotonic()
@@ -1021,6 +1122,11 @@ class TrackedConnection(sqlite3.Connection):
                 _append_sqlite_lifecycle({"event": "commit_end", "timestamp": time.time(),
                     "connection_id": getattr(self, "_db_connection_id", None), "pid": os.getpid(),
                     "thread": threading.current_thread().name, "sqlite_tx_active": bool(self.in_transaction)})
+            _append_connection_lifecycle({
+                "event": "commit_end", "timestamp": time.time(),
+                "connection_id": getattr(self, "_db_connection_id", None),
+                "pid": os.getpid(), "thread": threading.current_thread().name,
+            })
             self._write_rolled_back = not committed
             dur_ms = (time.monotonic() - t0) * 1000.0
             caller = getattr(self, "_db_caller", None)
@@ -1042,6 +1148,11 @@ class TrackedConnection(sqlite3.Connection):
                 _append_sqlite_lifecycle({"event": "rollback_end", "timestamp": time.time(),
                     "connection_id": getattr(self, "_db_connection_id", None), "pid": os.getpid(),
                     "thread": threading.current_thread().name, "sqlite_tx_active": bool(self.in_transaction)})
+            _append_connection_lifecycle({
+                "event": "rollback_end", "timestamp": time.time(),
+                "connection_id": getattr(self, "_db_connection_id", None),
+                "pid": os.getpid(), "thread": threading.current_thread().name,
+            })
             self._release_write_lane()
 
     def close(self):
@@ -1400,6 +1511,19 @@ def record_connection_snapshot(*, primary_fd_count: int, extra: Optional[dict] =
     return event
 
 
+def _dormant_database_target(database):
+    if os.environ.get("FLEX_V2_DORMANT_RUNTIME") != "1":
+        return
+    from urllib.parse import unquote
+    text = os.fsdecode(database) if isinstance(database, (str, bytes, os.PathLike)) else str(database)
+    if text == ":memory:" or text.startswith("file::memory:"):
+        return
+    path = unquote(text.removeprefix("file:").split("?", 1)[0])
+    from src.core.paired_binding_guard import validate_pair
+    if validate_pair(write_path=os.path.realpath(path), purpose="write") is None:
+        raise RuntimeError("DORMANT_EXPLICIT_DATABASE_AUTHORITY_REQUIRED")
+
+
 def db_connect(path: str, timeout: int = 30, row_factory=None,
                read_only: bool = False, priority: int | None = None,
                _caller: str | None = None) -> sqlite3.Connection:
@@ -1426,6 +1550,7 @@ def db_connect(path: str, timeout: int = 30, row_factory=None,
     Use this instead of sqlite3.connect() everywhere to avoid "database is locked".
     Logs caller location and elapsed time when acquisition is slow (>1s).
     """
+    _dormant_database_target(path)
     # Identify caller for lock contention diagnostics. X78.5 -- when
     # db_connect() is entered via the global sqlite3.connect() monkeypatch
     # (_patched_connect, below), frame 1 is _patched_connect itself, not
@@ -1738,7 +1863,8 @@ def _start_connection_reaper() -> None:
     threading.Thread(target=_wal_watchdog_loop, daemon=True, name="db-wal-watchdog").start()
 
 
-_start_connection_reaper()
+if os.environ.get("FLEX_DORMANT_QUALIFICATION") != "1":
+    _start_connection_reaper()
 
 
 # ── sqlite3.connect monkey-patch ─────────────────────────────────────────────
@@ -1760,6 +1886,7 @@ _OPS_DB_ABS = _os.path.realpath(_OPS_DB_PATH) if _OPS_DB_PATH else None
 
 
 def _patched_connect(database, timeout=5, *args, **kwargs):
+    _dormant_database_target(database)
     # Only intercept the main flex DB; let everything else (in-memory, other paths) through
     try:
         db_abs = _os.path.realpath(str(database)) if database and database != ":memory:" else None
@@ -1792,13 +1919,19 @@ sqlite3.connect = _patched_connect
 
 class _EmergencyOpsRecoveryConnection(sqlite3.Connection):
     """Fatal-audit exemption with the same metadata-only lifecycle evidence."""
+    def set_progress_handler(self, handler, n):
+        self._retirement_user_progress = handler
+        self._retirement_user_progress_n = n
+        return sqlite3.Connection.set_progress_handler(self, handler, n)
+
 
     def execute(self, sql, parameters=()):
+        _retirement_statement_check(self, sql)
         state = _cf_statement_start(self, sql)
         success = False
         error = None
         try:
-            result = sqlite3.Connection.execute(self, sql, parameters)
+            result = _retirement_native_call(self, sql, lambda: sqlite3.Connection.execute(self, sql, parameters))
             success = True
             return result
         except Exception as exc:
@@ -1808,6 +1941,12 @@ class _EmergencyOpsRecoveryConnection(sqlite3.Connection):
             _cf_statement_end(self, state, success=success, error=error)
 
     def commit(self):
+        if self.in_transaction:
+            try:
+                _assert_not_retired(self)
+            except BaseException:
+                self.rollback()
+                raise
         _append_sqlite_lifecycle({"event": "commit_start", "timestamp": time.time(),
             "connection_id": getattr(self, "_db_connection_id", None), "pid": os.getpid(),
             "thread": threading.current_thread().name, "emergency_exemption": bool(getattr(self, "_emergency_ops_exemption", False))})
@@ -1836,6 +1975,23 @@ class _EmergencyOpsRecoveryConnection(sqlite3.Connection):
                 "connection_id": getattr(self, "_db_connection_id", None), "pid": os.getpid(),
                 "thread": threading.current_thread().name, "emergency_exemption": bool(getattr(self, "_emergency_ops_exemption", False))})
             unregister_external_ops_connection(self, reason="emergency-close")
+
+    def cursor(self, factory=None):
+        return sqlite3.Connection.cursor(self, factory or _RetirementCursor)
+
+    def executescript(self, sql_script):
+        _assert_not_retired(self)
+        return _retirement_native_call(self, sql_script, lambda: sqlite3.Connection.executescript(self, sql_script))
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is None:
+            self.commit()
+        else:
+            self.rollback()
+        return False
+
+    def executemany(self, sql, parameters):
+        return _retirement_native_call(self, sql, lambda: sqlite3.Connection.executemany(self, sql, parameters))
 
 
 def registered_native_ops_connect(path: str, *, timeout: int = 5, caller: str,

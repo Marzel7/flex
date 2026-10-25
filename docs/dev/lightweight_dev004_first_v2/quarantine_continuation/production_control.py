@@ -96,6 +96,7 @@ def write_config(mode):
   if role=='listener':
    env.update(P['roles'][role]['nonsecret_wrapper_environment'])
    env=terminal_environment(env)
+  env['RPC_METRICS_DB']=env['DB_PATH']  # Preserve accepted V2 telemetry authority after role overrides.
   section['environment']=','.join(k+'="'+str(v).replace('\\','\\\\').replace('"','\\"')+'"' for k,v in env.items())
   if mode=='v2':section['command']=' '.join(P['roles'][role]['command'])
  for key in cfg.sections():

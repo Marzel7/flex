@@ -17,6 +17,10 @@ import sqlite3
 import json
 import requests
 from contextlib import contextmanager
+if os.environ.get('FLEX_V2_DORMANT_RUNTIME') == '1':
+    from src.core.paired_binding_guard import validate_pair as _validate_api_pair
+    if _validate_api_pair(purpose='active') is None:
+        raise RuntimeError('API_MATCHED_V2_AUTHORITY_REQUIRED')
 from src.utils.db_locking import db_connect, managed_db_connect
 import threading
 import asyncio
@@ -44,7 +48,10 @@ _REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "../.."))
 _DEFAULT_DB_PATH = os.path.join(_REPO_ROOT, "database", "flex_complete_database.db")
 
 # Database
-DB_PATH = os.path.abspath(os.environ.get('DB_PATH', _DEFAULT_DB_PATH))
+_explicit_core = os.environ.get('DB_PATH')
+if os.environ.get('FLEX_V2_DORMANT_RUNTIME') == '1' and not _explicit_core:
+    raise RuntimeError('API_EXPLICIT_CORE_REQUIRED')
+DB_PATH = os.path.abspath(_explicit_core or _DEFAULT_DB_PATH)
 
 
 def _ui_recovery_mode_enabled() -> bool:
@@ -144,6 +151,7 @@ from src.core.schema_init import ensure_schema as _ensure_schema
 # Flask app - set template folder to project root templates/
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 app = Flask(__name__, template_folder=os.path.join(PROJECT_ROOT, 'templates'), static_folder=os.path.join(PROJECT_ROOT, 'static'))
+app.config['DATABASE'] = DB_PATH
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.jinja_env.auto_reload = True
 Compress(app)  # gzip all text/html and application/json responses automatically
@@ -176,7 +184,8 @@ def _start_db_fd_watchdog():
     t = threading.Thread(target=_loop, daemon=True, name="db_fd_watchdog")
     t.start()
 
-_start_db_fd_watchdog()
+if os.environ.get("FLEX_DORMANT_QUALIFICATION") != "1":
+    _start_db_fd_watchdog()
 
 try:
     from src.core.internal_api import internal_bp
@@ -39408,7 +39417,8 @@ try:
     # -compute cost either. Best-effort/non-fatal.
     try:
         from src.core.operation_dashboard_routes import prewarm_operational_intelligence_cache
-        prewarm_operational_intelligence_cache()
+        if os.environ.get("FLEX_DORMANT_QUALIFICATION") != "1":
+            prewarm_operational_intelligence_cache()
     except Exception as e:
         print(f"[WARNING] Operational Intelligence cache prewarm not started: {e}")
 except Exception as e:

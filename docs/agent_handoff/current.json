@@ -39132,8 +39132,24 @@
     "runtime_deployment_reason": "Read-only dependency audit only; schedule remains enabled.",
     "runtime_deployment_required": false,
     "status": "HOLD_DEPENDENCY_UNKNOWN",
+    "superseded_by": "v1_graph_schedule_retirement: explicit scope authority resolved prior dormant-dependency HOLD; final exact schedule disabled.",
     "updated_at_utc": "2026-10-25T14:32:50.328625+00:00",
     "verification": "Read-only exact cron/runtime/source verification; bounded 10885 analyzer-run rows and log tail; installed static reader inventory. No analyzer execution, provider calls, cron/source/config/service changes or SQL writes. Detailed operational evidence kept local."
+  },
+  "v1_graph_schedule_retirement": {
+    "acceptance_limitations": "Schedule retirement PASS does not assert full intake health. Existing birth-admission pending errors persisted in bounded natural sample; fresh birth/migration and natural V2 telemetry insertion were not observed. Those issues remain separate; no repair/research started.",
+    "authority": "User explicitly retires continuous legacy graph/network/risk/prediction analysis unless direct active Walkback/Potential Operations dependency exists; dormant references are not active requirements.",
+    "blocker": null,
+    "crontab_after_sha256": "e8b36a26ecc6b3bc0d539ae9e6eeec280d94c6ae457923a833e66a55609cc063",
+    "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0; active installed V2 source unchanged",
+    "implementation": "Disabled only exact four-hour scripts/run_graph_analyzers.py cron through supported crontab control. Complete preimage and per-entry restoration preserved locally; every unrelated line byte-identical. No source, SQL, config or service changes.",
+    "next_action": "NONE \u2014 COMPLETE for legacy graph schedule retirement.",
+    "production_state": "V2 remains authoritative. All identified legacy graph/rollover/cache-retention cron writers now disabled. V1 databases, graph code/history, dormant interfaces and rollback evidence preserved.",
+    "runtime_deployment_gate": "PASS_SINGLE_SCHEDULE_CONTROL",
+    "runtime_deployment_required": true,
+    "status": "PASS_EXACT_GRAPH_CRON_DISABLED",
+    "updated_at_utc": "2026-10-25T14:54:55.650776+00:00",
+    "verification": "No direct active Walkback/Potential Operations dependency found in unchanged accepted interfaces. No active duplicate graph scheduler registration or process captured. Matched V2 bindings and three RUNNING services unchanged; review/assessment population hashes unchanged; V1 metrics tail/headers stable during bounded observation. No provider calls initiated."
   },
   "v1_legacy_schedule_isolation": {
     "blocker": "Installed graph/network lifecycle contract still names cron owner; graph-derived V2 dependency/replacement not independently resolved. Do not disable under current condition.",
@@ -39145,15 +39161,16 @@
     "runtime_deployment_gate": "PASS_FOR_20_CHANGED_SCHEDULES; overall PARTIAL",
     "runtime_deployment_required": true,
     "status": "PARTIAL_20_DISABLED_1_DEPENDENCY_HOLD",
+    "superseded_by": "v1_graph_schedule_retirement: explicit scope authority resolved prior dormant-dependency HOLD; final exact schedule disabled.",
     "updated_at_utc": "2026-10-25T14:20:08.125604+00:00",
     "verification": "Cron readback exact; no legacy process or V1 handle captured. Bounded 60-second V1 headers and Core metrics tail unchanged. Three workers RUNNING on unchanged V2 pair and V2 telemetry environment. Journals/queue/receipt structural samples passed; natural V2 telemetry insertion remains unverified. No provider requests for testing."
   },
   "v1_writer_isolation_correction": {
-    "blocker": "Twenty rollover cron entries now disabled under explicit authorization; one graph-writer schedule remains enabled on individual dependency HOLD. Natural V2 telemetry acceptance remains unverified.",
+    "blocker": "Identified legacy scheduled writer authority now closed; previous natural V2 telemetry insertion acceptance remains unverified. See v1_graph_schedule_retirement for exact scope/limitations.",
     "configuration_sha256": "5931b38f82d4ba730cb63668550f33cd7030b3ea9490602ab0e4c238777149e8",
     "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
     "implementation": "Existing telemetry owner initialized two accepted tables/five indexes in active V2 Core. RPC_METRICS_DB corrected globally and explicitly for three active services. Only one verified obsolete V1 cache-retention cron disabled.",
-    "next_action": "Resolve held graph-writer V2 dependency and verify natural telemetry without artificial provider requests.",
+    "next_action": "No further legacy schedule work. Natural telemetry/live intake acceptance remains a separate recorded issue.",
     "production_state": "V2 generation remains authoritative; schema/config correction installed; listener/resolver/Walkback running; dormant services unchanged. Original V1 SQL data not modified by this work.",
     "runtime_deployment_gate": "HOLD_NATURAL_TELEMETRY_UNVERIFIED",
     "runtime_deployment_required": true,

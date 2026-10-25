@@ -20239,6 +20239,178 @@
     "status": "INSUFFICIENT_EVIDENCE_AUDIT_FAILURE_ATTRIBUTION__DATABASE_HEALTH_CLEARED",
     "worker_health": "creator_resolution_worker, walkback_worker, and listener were RUNNING at final check."
   },
+  "flex_v2_terminal_capacity_deployment_preflight": {
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "V1_access": 0,
+    "blocker": "The authoritative fresh-pair recovery configuration is terminal-unaware: dev004_fresh_pair_recovery.py calls dev004_production_control.write_config(), which rebuilds from frozen source-preimages/supervisor.conf and frozen-runtime-plan.json. A bounded in-memory render produces no DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED for watchtower_listener, so the qualified factory defaults to 0 after recovery. The retained qualification does not bind a compatible fallback that corrects this. Post-reclamation rollback would bypass OPS signature deduplication.",
+    "candidate_sha": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+    "engineering_revision": "18e9e233bde79f54b6aaabf6393ca6f880c48bc3",
+    "fallback_authority": {
+      "tool": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tools/dev004_fresh_pair_recovery.py",
+        "sha256": "d70681fd65a3fc4f625ab597e614f9be8134d1d9593c6d87755040992122aae4"
+      },
+      "writer": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tools/dev004_production_control.py",
+        "sha256": "e86274836175d80478535dea302a30f643f0654b5b709ad9d2586ede43f66c41"
+      }
+    },
+    "journal": {
+      "birth_snapshot": {
+        "ACKED": 368,
+        "QUARANTINED": 131,
+        "note": "Existing verified-completion reuse unchanged; no reclamation attempted.",
+        "records": 499,
+        "remaining_raw_slots": 13
+      },
+      "bytes": 274881,
+      "migration_records": 512,
+      "remaining_record_slots": 0,
+      "sha256": "82cb20d631a4b8c16b54787cc333afdeb4d556fe55496f693146d2e42c6bb92c",
+      "stable_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+      "states": {
+        "RETRY_EXHAUSTED": 512
+      },
+      "temporary_publications_present": false
+    },
+    "journal_transfer_or_replay": 0,
+    "next_action": "Qualify and freeze a terminal-aware fallback/recovery configuration that retains the exact three-file payload, opt-in flag=1, stable journal path and terminal tables across fresh matched-pair recovery; prove archived-signature deduplication and pending-admission preservation. Then repeat only this failed preflight gate. No production change is authorized.",
+    "production_activation": false,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "read_only_proof": {
+      "frozen_plan": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/frozen-runtime-plan.json",
+      "listener_flag": "ABSENT => 0",
+      "mode": "AST-extracted configuration renderer only; atomic/save/ctl stubbed in memory, no production write or Supervisor command",
+      "source_preimage": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/source-preimages/supervisor.conf"
+    },
+    "report": "docs/dev/lightweight_dev004_first_v2/terminal_capacity_preflight/REPORT.md",
+    "runtime": {
+      "Core": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+      "OPS": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+      "budget_ledger_hash_matches_frozen_manifest": true,
+      "credential_values_disclosed": false,
+      "entry_wrapper_sha256": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "paired_guard_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "phase": "ACTIVE",
+      "physical_pair_and_seals": "Both current device/inode identities and generation/manifest seals match; authority manifest hash and transfer_complete true. No V1 accessed.",
+      "provider_authority": {
+        "budget_sha256": "d5f7f952e5865c7c7b56a7f233031d0449011400c04ef4d392061cccf00bfca1",
+        "budget_state_path": "/Users/kevinkeaveney/Dev/claude/flex/.dev_runtime/monitor/dev_005a/queue/provider_budget.json",
+        "credential_name": "BIRDEYE",
+        "global": 20,
+        "legacy_fallback": false,
+        "per_token": 4,
+        "rule": "Preserve consumed reservations and checkpoints; no reset, acquisition or provider call.",
+        "window_seconds": 60
+      },
+      "services": {
+        "creator_resolution_worker": {
+          "package": "/Users/kevinkeaveney/Production/flex-main-workers",
+          "pid": 44903,
+          "status": "RUNNING"
+        },
+        "walkback_worker": {
+          "package": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+          "pid": 44919,
+          "status": "RUNNING"
+        },
+        "watchtower_listener": {
+          "package": "/Users/kevinkeaveney/Production/flex-listener",
+          "pid": 83937,
+          "status": "RUNNING"
+        }
+      },
+      "supervisor_parent_pid": 1131
+    },
+    "runtime_deployment_reason": "Read-only production assessment, retained-evidence verification and documentation; no executable implementation changed.",
+    "schema_compatibility": {
+      "accepted_tables": [
+        "migration_terminal_owner_v1",
+        "migration_terminal_evidence_v1"
+      ],
+      "canonical_definitions_and_foreign_keys": "Unchanged; no canonical parents manufactured",
+      "collisions": 0,
+      "current_OPS_journal_mode": "delete",
+      "current_schema_version": 135,
+      "indexed_lookup_and_repeat_init": "Retained targeted tests PASS",
+      "initialization_executed": false,
+      "schema_contract_sha256": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+      "status": "PASS_FOR_EXPLICIT_PREPARATION",
+      "terminal_owner_objects_present": 0,
+      "triggers": [
+        "migration_terminal_budget_v1",
+        "migration_terminal_account_v1",
+        "migration_terminal_preserve_v1",
+        "migration_terminal_immutable_v1"
+      ]
+    },
+    "service_restarts": 0,
+    "status": "HOLD_SINGLE_CRITICAL_BLOCKER \u2014 TERMINAL_UNAWARE_RECOVERY_CONFIGURATION",
+    "storage": {
+      "Core_bytes": 45285376,
+      "OPS_bytes": 151535616,
+      "OPS_owner_page_cap_bytes": 480000000,
+      "OPS_page_count": 36996,
+      "OPS_page_size": 4096,
+      "WAL_note": "Admission threshold, not absolute size cap. Existing OPS is DELETE mode; no journal-mode change proposed. All file caps remain mandatory.",
+      "WAL_threshold_bytes": 8000000,
+      "free_bytes": 5015519232,
+      "kernel_cap_authority": "Actual running entrypoints and installed immutable lightweight_runtime_entry.py match; same-process wrapper irreversibly lowers soft/hard FSIZE before component execution. Retained accepted runtime evidence reused.",
+      "kernel_file_cap_bytes": 499000000,
+      "observed_WAL_and_rollback_journal_bytes": 0,
+      "owner_transaction_reserve_bytes": 2000000,
+      "read_snapshot_acquisition": "PASS with read-only 250ms busy timeout; no checkpoint/maintenance",
+      "receipt_snapshot": {
+        "configured_buckets": 256,
+        "enumeration_bound": 393728,
+        "full_buckets": 0,
+        "max_bucket_occupancy": 481,
+        "occupied_entries": 117577,
+        "per_bucket_limit": 1536,
+        "remaining_entry_slots": 275639,
+        "temporary_entries": 0
+      },
+      "required_free_floor_bytes": 2000000000,
+      "stage_three_files_bytes": 720534,
+      "staging_and_rollback": "Small source payload; preserve V2 journals. Existing fresh compact rollback needs current compact Core/OPS allocation +2GB+64MiB reserve, within observed disk. No copies performed.",
+      "status": "PASS_AT_READ_ONLY_SAMPLE",
+      "terminal_quota_logical_bytes": 64000000,
+      "terminal_quota_records": 8192
+    },
+    "tests": "Retained33 terminal and562 completion controls reused; no test suites rerun. One in-memory-only recovery configuration render, no production writer/control invocation.",
+    "updated_at_utc": "2026-10-25T20:13:46.151664+00:00",
+    "verified_payload": [
+      {
+        "bytes": 682316,
+        "installed_preimage_sha256": "4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778",
+        "permissions": "0644; preserve existing ownership/group; new module match adjacent qualified files",
+        "sha256": "9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433",
+        "source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+        "source_path": "runtime/listener/src/core/pumpfun_curve_listener.py",
+        "target_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py"
+      },
+      {
+        "bytes": 26241,
+        "installed_preimage_sha256": "d29c1fc033d918dd24795952dc68d9d13072f17611c5fc0901503d33c348a7ed",
+        "permissions": "0644; preserve existing ownership/group; new module match adjacent qualified files",
+        "sha256": "65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668",
+        "source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+        "source_path": "runtime/listener/src/core/migration_signature_journal.py",
+        "target_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py"
+      },
+      {
+        "bytes": 11977,
+        "installed_preimage_sha256": null,
+        "permissions": "0644; preserve existing ownership/group; new module match adjacent qualified files",
+        "sha256": "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf",
+        "source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+        "source_path": "runtime/listener/src/core/migration_terminal_evidence.py",
+        "target_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_terminal_evidence.py"
+      }
+    ]
+  },
   "flex_v2_terminal_capacity_recovery": {
     "RUNTIME_DEPLOYMENT_GATE": "PASS for isolated DEV owner/journal/listener-factory interfaces. Production QUALIFIED_NOT_DEPLOYED.",
     "base_candidate": "abb72f5746bd4e9d9aaaf976c2b8196b131d179b",
@@ -20246,6 +20418,7 @@
     "candidate_sha": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
     "crash_and_rollback": "PASS before OPS commit, after OPS commit, after VERIFIED state, journal replacement and post-replacement crash. Interrupted event-513 publication recovers both new pending admission and protected originals. Corrupt destination blocks reclamation and interrupted-publication recovery. Fresh compact matched-pair rollback with actual paired guard preserves terminal deduplication, original transfer generations, canonical fixture and pending post-cutover admission; stale source pair rejected.",
     "deduplication": "Archived signatures return their exact protected record; no new journal slot, reset, attempt or replay. Conflicting supplied mint is refused, original evidence retained. No different-signature equivalence or canonical migration_tx rewrite. Existing known completion/retry rules retained.",
+    "deployment_preflight_result": "HOLD: installed fresh-pair recovery configuration renderer omits mandatory terminal flag; see flex_v2_terminal_capacity_deployment_preflight. DEV qualification remains accepted.",
     "engineering_revision": "750f3ac831e3c7a74b70f440265114615c622cd3",
     "event_513": "PASS; full 512-record fixture admitted event 513 after 20 exact verified transfers (493 active entries). All 512 originals then verified independently in OPS.",
     "live_capacity_restored": false,
@@ -34394,7 +34567,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Perform a separately requested read-only deployment preflight binding the versioned OPS owner, three-file bundle, DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED=1 and terminal-aware fallback. Do not activate or transfer live records under this qualification.",
+  "next_action": "Qualify and freeze a terminal-aware fallback/recovery configuration that retains the exact three-file payload, opt-in flag=1, stable journal path and terminal tables across fresh matched-pair recovery; prove archived-signature deduplication and pending-admission preservation. Then repeat only this failed preflight gate. No production change is authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -36580,7 +36753,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "750f3ac831e3c7a74b70f440265114615c622cd3",
+    "git_head": "18e9e233bde79f54b6aaabf6393ca6f880c48bc3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",
@@ -37986,7 +38159,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_TERMINAL_CAPACITY_QUALIFIED_NOT_DEPLOYED",
+  "status": "FLEX_V2_TERMINAL_PREFLIGHT_HOLD_RECOVERY_FLAG",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -39348,8 +39521,8 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-10-25T19:58:36.094802+00:00",
-  "updated_at_utc": "2026-10-25T19:58:36.094802+00:00",
+  "updated_at": "2026-10-25T20:13:46.151664+00:00",
+  "updated_at_utc": "2026-10-25T20:13:46.151664+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",

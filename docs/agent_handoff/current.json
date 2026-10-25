@@ -39178,6 +39178,19 @@
     "updated_at_utc": "2026-10-25T14:11:08.488219+00:00",
     "verification": "Disposable fresh/repeat/interrupted-DDL rollback/reopen/insert controls and 16 static SQL read preparations pass. Three Supervisor workers RUNNING with V2 environments. Bounded V1 telemetry tail/header unchanged, no V1 handles captured. No natural V2 telemetry insert observed. No synthetic production telemetry or provider requests for testing."
   },
+  "v2_create_anchor_projection_diagnosis": {
+    "blocker": null,
+    "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0; installed runtime unchanged",
+    "exhaustion": "All182jobs GENERIC one-page/15-second policy, skipped SEARCH_BUDGET_EXCEEDED;169inferred-not-strict,13no-create. Provider unavailability/individual deadline attribution not fully retained.177currently lack creator/signature; four later committed receipts postdate exhaustion. No demonstrated duplicate recovery against earlier-birth group.",
+    "finding": "The182earlier-committed-birth cases and182budget-exhausted jobs are disjoint. Earlier-birth group has matching source-qualified PumpPortal receipts/Core identities but no delivery intents or resolver jobs. Existing birth producer returns NOT_MIGRATED before migration; migration fast path returns QUALIFIED_PUMPPORTAL without staging proof. Missing source-qualified OPS projection, not a need for new acquisition.",
+    "next_action": "Authorize only migration fast-path composition correction: stage existing qualified PumpPortal proof before return and use existing bounded dispatcher; separately exact182repair after fresh revalidation if desired. Do not raise budgets or replay exhausted recovery.",
+    "production_state": "No database/source/config/service/queue changes; no provider calls or V1 access. Source-qualified anchor contract allows NULLchain time/slot; independent chain evidence remains unclaimed.",
+    "runtime_deployment_reason": "Read-only diagnosis plus disposable provider-free qualification; no executable correction or production mutation.",
+    "runtime_deployment_required": false,
+    "status": "PASS_DIAGNOSIS_AND_PROVIDER_FREE_FEASIBILITY_NOT_IMPLEMENTED",
+    "updated_at_utc": "2026-10-25T15:36:33.503527+00:00",
+    "verification": "Existing unmodified receipt reader/producer/dispatcher projected182/182disposable cases into accepted OPS signature anchors with NULLslot/blocktime.17focused controls pass,0fail: original gap, batching16,idempotency,post-OPS/pre-ACKcrash/restart,conflict/source/signature guards,unchanged canonical/other OPS fields and synthetic resolver-budget wrapper. Network/provider calls0. Largest final fixture225280bytes."
+  },
   "v2_migration_birth_create_coverage_audit": {
     "blocker": "No retained immutable canonical CREATE-field/provenance snapshot at a reliably identified migration-start boundary; no comparable per-token transport/provider baseline for savings.",
     "counts": {

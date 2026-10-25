@@ -20081,6 +20081,27 @@
       "restoration_started": false
     }
   },
+  "flex_v2_protected_journal_capacity_recovery": {
+    "blocker": "Missing independently durable protected signature-terminal destination with immutable full-record identity/provenance/error/retry/conflict state,verified transfer/readback,durable duplicate suppression andgeneration/fresh-pair recovery authority. Existing birth/lineage quarantine andworker-restart log cannot be relabelled for this purpose.",
+    "candidate_sha": null,
+    "engineering_change": "Regression tests and aggregate evidence only; zero executable/runtime source delta. Published DEV evidence remote-verified; not a deployable fix.",
+    "engineering_revision": "b1b6e7d25a13904d0bc7c33781861fc22aa8ed6a",
+    "event_513_result": "HOLD_JOURNAL_CAPACITY without independently durable terminal authority",
+    "finding": "Journal now512RETRY_EXHAUSTED records. Bounded indexed lookup ofall512signatures found0canonical migration matches and0migration retry-queue counterparts. No accepted signature-terminal quarantine/retained recovery owner or identity mapping established.",
+    "frozen_authority": "Installed194cf66d source hash,existing signature journal owner,active matched V2 generation andfrozen config verified unchanged.",
+    "next_action": "Establish one bounded indexed signature-terminal ownership/transfer/dedup/recovery contract before reclaiming protected records; use existing V2 evidence store only after qualifying these semantics. Do not delete/reset/replay exhausted work or simply increase512.",
+    "previous_coverage_gap": "Prior capacity reuse qualified completed/ACKed records and deliberately preserved exhausted/protected records; it did not qualify a fully protected terminal population. Existing accepted completed-record reuse remains intact.",
+    "private_authority_evidence": "/private/tmp/flex-v2-protected-journal-capacity/AUTHORITY.json",
+    "production_runtime_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+    "ready_for_deployment_preflight": false,
+    "report": "docs/dev/lightweight_dev004_first_v2/protected_journal_capacity/REPORT.md",
+    "runtime_deployment_reason": "Regression/evidence-only qualification; no runtime correction implemented or deployed.",
+    "runtime_deployment_required": false,
+    "safety": "Zero production DB/journal/source/config mutations,restarts,providers,V1 access,history deletion ornewinfrastructure. CREATE,attribution,operations,BIRDEYE,budgets,receipt retention andretirement authority unchanged.",
+    "status": "HOLD_MISSING_PROTECTED_TERMINAL_AUTHORITY",
+    "updated_at_utc": "2026-10-25T18:35:49.235147+00:00",
+    "verification": "9provider-free regression/safety tests PASS.511exhausted+unverified/protectedACK and512exhausted refuseevent513withoutchangingoriginal;verifiedordinaryACKcontrol admits513whilepreserving511exhausted. Duplicate/restart/disk/truncation refusals safe. No protected transfer or thousands-of-protected-sequence PASS claimed."
+  },
   "flex_v2_repeat_creator_rpc_reuse_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Matchingphysicalrequestidentities/historyrangesandhistoricalcacheavailabilitynotretained. Repeatedcreatorwalletaloneisnotredundancyproof.",
@@ -36382,11 +36403,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+    "git_head": "b1b6e7d25a13904d0bc7c33781861fc22aa8ed6a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-25T18:15:56.349016+00:00",
-    "working_tree": "Application/engineering source unchanged194cf66d. Comprehensive bounded read-only architecture audit complete; golden readiness HOLD. Current journal capacity failures are a separate P0 finding; no repair/cleanup/baseline freeze authorized or performed."
+    "updated_at_utc": "2026-10-25T18:35:49.235147+00:00",
+    "working_tree": "Existing isolated DEV004 branch: regression/evidence-onlyb1b6e7d2remote-verified. Production remains194cf66d unchanged. Protected journal recovery HOLD for missing independently durable terminal authority; no deployable candidate."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -39178,6 +39178,18 @@
     "updated_at_utc": "2026-10-25T14:11:08.488219+00:00",
     "verification": "Disposable fresh/repeat/interrupted-DDL rollback/reopen/insert controls and 16 static SQL read preparations pass. Three Supervisor workers RUNNING with V2 environments. Bounded V1 telemetry tail/header unchanged, no V1 handles captured. No natural V2 telemetry insert observed. No synthetic production telemetry or provider requests for testing."
   },
+  "v2_birth_late_and_absent_receipt_diagnosis": {
+    "blocker": "No retained per-token reception/admission or independent CREATE timing establishes why285receipts are absent. Global errors and receipt absence alone cannot prove provider loss, expiry or admission failure.",
+    "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0; installed payloads unchanged",
+    "finding": "Reused fixed559cohort. Of88apparently late acknowledgements,83committed under1second and before precise OPS handoff;68were received within the same whole-second stored migration bucket, so late-delivery inference was unjustified. Five acknowledgements delayed14.84\u201321.19minutes, all completed during recorded22:12:26UTCcutover receipt-completion pass; original Core commit time unknown.",
+    "next_action": "Keep83timing artifacts, five cutover-ack delays, three V2 canonical-retention gaps and one unconfirmed acknowledgement separate. Explain285only from already-retained per-token authority; otherwise preserve UNKNOWN. No new acquisition or automatic repair authorized.",
+    "runtime_deployment_reason": "Read-only cause qualification only.",
+    "runtime_deployment_required": false,
+    "status": "PARTIAL_TIMING_REFINED_285_RECEIPT_ABSENCES_UNKNOWN",
+    "unmatched_refinement": "Bounded complete retained receipt lookup found three pre-cutover COMMITTEDreceipts whose creator/signature fields are absent in V2, plus one UNCONFIRMEDreceipt with matching current fields.285have no retained receipt; cause remains unknown, not proven non-delivery.",
+    "updated_at_utc": "2026-10-25T15:52:12.348019+00:00",
+    "verification": "117643receipt files/65251191bytes/27.1seconds within200000files/64MiB/50s bound; exact digest/mint matching. Bounded logs and existing cutover receipt-completion checkpoint inspected. No provider calls, production mutations, V1 access or analyser/recovery execution. Detailed case evidence local."
+  },
   "v2_create_anchor_projection_diagnosis": {
     "blocker": null,
     "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0; installed runtime unchanged",
@@ -39210,6 +39222,7 @@
     "runtime_deployment_reason": "Strictly read-only fixed-cohort audit only.",
     "runtime_deployment_required": false,
     "status": "PARTIAL_FULL_CREATE_ASOF_COVERAGE_UNVERIFIABLE",
+    "timing_refinement": "See v2_birth_late_and_absent_receipt_diagnosis:88after-integer-timestamp cases are83subsecond acknowledgements before precise handoff plus five cutover-finalisation acknowledgements.289exact-identity misses refine to three committed receipt/canonical gaps, one unconfirmed receipt and285retained-store absences.",
     "updated_at_utc": "2026-10-25T15:25:03.498801+00:00",
     "verification": "559 distinct canonical PumpSwap migrations selected through bounded existing migration-identity index continuation and indexed point joins. Active V2 source/config/pair verified. No V1 access, SQL writes, provider calls or runtime changes; detailed per-mint evidence local.",
     "window_utc": [

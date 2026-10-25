@@ -1,0 +1,104 @@
+{
+  "status": "DEV_QUALIFIED_NOT_GOLDEN",
+  "production_activation": false,
+  "policies": [
+    {
+      "family": "rpc_response_cache",
+      "authoritative_timestamp": "cached_at epoch + ttl_seconds",
+      "eligibility_and_protection": "expired AND cached_at strictly older than 7 days; exact schema, no trigger/inbound FK; invalid or oversized evidence protected",
+      "owner": "v2_storage_lifecycle",
+      "selection_bound": "PK cache_key;64 rows/step;1,000,000 estimated deletion bytes"
+    },
+    {
+      "family": "wss_metrics",
+      "authoritative_timestamp": "ts epoch",
+      "eligibility_and_protection": "strictly older than 7 days; accepted telemetry-only contract; unknown dependencies fail closed",
+      "owner": "v2_storage_lifecycle",
+      "selection_bound": "PK id;64 rows/step;1,000,000 estimated deletion bytes"
+    },
+    {
+      "family": "canonical birth/CREATE/migration; operations/memberships; treasury/funding; attribution; assessments; price/lifecycle",
+      "authoritative_timestamp": "original canonical timestamps",
+      "eligibility_and_protection": "NEVER age-dispose",
+      "owner": "existing evidence owners",
+      "selection_bound": "not selected"
+    },
+    {
+      "family": "pending retries/quarantine; exhausted terminal signatures; budgets/checkpoints",
+      "authoritative_timestamp": "original recovery timestamps",
+      "eligibility_and_protection": "NEVER age-dispose; completion alone is not disposal authority",
+      "owner": "existing durable recovery owners",
+      "selection_bound": "existing quotas preserved"
+    },
+    {
+      "family": "compact birth receipts",
+      "authoritative_timestamp": "receipt reception/commit time",
+      "eligibility_and_protection": "PROTECTED source-qualified provenance; no qualified permanent-evidence replacement permits disposal",
+      "owner": "existing receipt owner",
+      "selection_bound": "existing seven-day retention and protection unchanged"
+    },
+    {
+      "family": "rpc_metrics and compact accounting",
+      "authoritative_timestamp": "timestamp",
+      "eligibility_and_protection": "PROTECTED credit/accounting/API/forensic authority; no raw retirement without separately accepted equivalence",
+      "owner": "existing recorder/compact owner",
+      "selection_bound": "not selected"
+    },
+    {
+      "family": "subprovider DONE dedup records",
+      "authoritative_timestamp": "existing owner timestamp",
+      "eligibility_and_protection": "existing minimum 30 days; never shortened to seven",
+      "owner": "existing retry owner",
+      "selection_bound": "not selected"
+    },
+    {
+      "family": "superseded snapshots/temp provider responses/temporary processing",
+      "authoritative_timestamp": "owner-specific, not inferred",
+      "eligibility_and_protection": "PROTECTED until exact disposal owner/dependencies qualified",
+      "owner": "UNQUALIFIED",
+      "selection_bound": "not selected"
+    },
+    {
+      "family": "custom logs and legacy cleanup audit ledgers",
+      "authoritative_timestamp": "owner-specific",
+      "eligibility_and_protection": "existing rotated logs preserved; unbounded custom-ledger retirement remains unqualified",
+      "owner": "UNQUALIFIED beyond existing log rotation",
+      "selection_bound": "not selected"
+    },
+    {
+      "family": "unknown tables/files and historical research",
+      "authoritative_timestamp": "unknown",
+      "eligibility_and_protection": "PROTECTED; no blanket cleanup or P3R table drop",
+      "owner": "original owner",
+      "selection_bound": "not selected"
+    }
+  ],
+  "execution": {
+    "schedule": "one rendered 15-minute owner; not installed",
+    "steps_per_run": 3,
+    "rows_per_step": 64,
+    "continuation": "fixed per-family cursor/upper key; transactionally committed with deletions and cumulative counts/digest",
+    "failure": "rollback batch and exit HOLD; never delete unknown families",
+    "rollback": "disable only lifecycle schedule; retain lifecycle state and all evidence; never restore sub-seven-day V2 deleters",
+    "audit": "fixed family rows, cumulative examined/deleted/cycles and last batch digest; no append-only audit log"
+  },
+  "storage": {
+    "single_file_kernel_cap_bytes": 499000000,
+    "database_start_ceiling_bytes": 480000000,
+    "wal_start_refusal_bytes": 8000000,
+    "disk_floor_bytes": 2000000000,
+    "additional_reserve_bytes": 2000000,
+    "max_manifest_bytes": 32768,
+    "max_checkpoint_rows": 3,
+    "raw_retention": "no new raw-provider retention; existing retained cache only",
+    "new_unbounded_growth_paths": 0,
+    "absolute_wal_or_lock_duration_guarantee": false,
+    "combined_5gib_enforced": false
+  },
+  "freeze_blockers": [
+    "Complete approved dormant API/monitor/bridge launch and API/UI acceptance profile unavailable.",
+    "Receipt disposal authority and custom-log/audit-ledger retention/budgets incomplete; retained evidence stays protected.",
+    "Sustained all-writer allocation and combined storage ceiling not qualified; per-file cap is not aggregate sustainability.",
+    "New DEV listener hash must be incorporated into terminal-aware recovery bundle before deployment; current accepted production bundle remains unchanged."
+  ]
+}

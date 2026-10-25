@@ -4762,6 +4762,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         last run, then again every 24h.  Results are stored in db_maintenance_log so the
         performance dashboard can surface them.
         """
+        # The paired V2 lifecycle owns age-based disposal. Legacy maintenance
+        # prunes accounting and sub-seven-day evidence outside that contract.
+        if os.environ.get("DEV004_PAIRED_BINDING_REQUIRED") == "1":
+            return
+
         import time as _time
 
         INTERVAL = 6 * 3600

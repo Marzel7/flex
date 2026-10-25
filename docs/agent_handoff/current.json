@@ -39178,6 +39178,32 @@
     "updated_at_utc": "2026-10-25T14:11:08.488219+00:00",
     "verification": "Disposable fresh/repeat/interrupted-DDL rollback/reopen/insert controls and 16 static SQL read preparations pass. Three Supervisor workers RUNNING with V2 environments. Bounded V1 telemetry tail/header unchanged, no V1 handles captured. No natural V2 telemetry insert observed. No synthetic production telemetry or provider requests for testing."
   },
+  "v2_migration_birth_create_coverage_audit": {
+    "blocker": "No retained immutable canonical CREATE-field/provenance snapshot at a reliably identified migration-start boundary; no comparable per-token transport/provider baseline for savings.",
+    "counts": {
+      "committed_birth_before_earliest_retained_mint_migration_marker": 155,
+      "committed_birth_before_stored_migrated_at": 182,
+      "migrations": 559,
+      "ops_waiting_create_anchor": 438,
+      "ops_waiting_with_current_core_signature": 265,
+      "recovery_budget_exceeded": 182,
+      "recovery_complete": 112,
+      "recovery_jobs": 294,
+      "recovery_pending": 0
+    },
+    "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
+    "finding": "Birth overlap is32.5581% against stored migrated_at and27.7281% against earliest retained mint-linked admission marker. Exact full CREATE state before processing cannot be reconstructed from mutable mixed-semantics created_at plus receipts that do not snapshot canonical time/slot/provenance. All559initial full-completeness classifications UNVERIFIABLE; this does not mean zero births or all require RPC.112post-migration strict-RPC completions proven; provider-specific requests/cache/savings not measurable from retained telemetry.",
+    "next_action": "Use explicitly labelled retained overlap/job counts; do not claim exact full coverage or RPC savings. Any prospective admission-snapshot instrumentation requires separate authorization; do not initiate recovery or historical acquisition.",
+    "runtime_deployment_reason": "Strictly read-only fixed-cohort audit only.",
+    "runtime_deployment_required": false,
+    "status": "PARTIAL_FULL_CREATE_ASOF_COVERAGE_UNVERIFIABLE",
+    "updated_at_utc": "2026-10-25T15:25:03.498801+00:00",
+    "verification": "559 distinct canonical PumpSwap migrations selected through bounded existing migration-identity index continuation and indexed point joins. Active V2 source/config/pair verified. No V1 access, SQL writes, provider calls or runtime changes; detailed per-mint evidence local.",
+    "window_utc": [
+      "2026-10-24T21:58:18Z",
+      "2026-10-25T15:10:34Z"
+    ]
+  },
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",

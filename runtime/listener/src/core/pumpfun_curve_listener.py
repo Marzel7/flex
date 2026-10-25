@@ -11302,14 +11302,18 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
                         if not conn.in_transaction:
                             conn.execute("BEGIN IMMEDIATE")
-                        stage_birth_completion(conn, mint, qualified[0], qualified[1],
+                        result = stage_birth_completion(conn, mint, qualified[0], qualified[1],
                                                core_path=DB_PATH, ops_path=_listener_ops_db_path(),
                                                birth_evidence_source="PUMPPORTAL_NEW_TOKEN")
                         conn.commit()
-                await asyncio.to_thread(stage_confirmed_birth)
+                        return result
+                result = await asyncio.to_thread(stage_confirmed_birth)
+                return result in {"PENDING", "DUPLICATE", "NOT_MIGRATED"}
+            return False  # Incomplete or conflicting evidence cannot acknowledge delivery.
         except Exception as error:
             from src.core.pumpportal_birth_audit import receipt_failure_reason
             log_print(f"[PUMPPORTAL] COMPACT_BIRTH_OUTCOME_UNAVAILABLE reason={receipt_failure_reason(error)}",flush=True)
+            return False
 
     async def _handle_pumpportal_create_frame(
         self,
@@ -11890,16 +11894,34 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 log_print(f"[LISTENER] ⚠ migration persist drain error: {exc}", flush=True)
             await asyncio.sleep(10)
 
+    async def _complete_durable_birth(self, row, journal, binding):
+        # Canonical persistence alone is not delivery completion. Keep the existing
+        # journal pending across receipt/SQLite commits until the producer succeeds.
+        # Recreate only the exact admitted receipt identity after an early crash;
+        # the receipt owner preserves an existing receipt and its observation time.
+        audit = self._eb_birth_audit
+        if getattr(audit, "compact_path", None) is None:
+            return False
+        receipt_id = await asyncio.to_thread(audit._compact_record, row["mint"],
+            row["payload"]["traderPublicKey"], row["signature"], row["received_at"])
+        if not receipt_id or receipt_id != row["id"]:
+            return False
+        if await self._record_pp_birth_outcome(receipt_id, row["mint"], True) is not True:
+            return False
+        return journal.acknowledge(row["id"], binding, _birth_journal_readback)
+
     async def _persist_durable_birth(self, row):
         _validate_active_pair()
         journal = _birth_admission_journal()
         binding = __import__("hashlib").sha256(os.path.realpath(DB_PATH).encode()).hexdigest()
         if row["state"] == "ACKED":
-            return row["ack"]["binding"] == binding and _birth_journal_readback(row)
+            if row["ack"]["binding"] != binding or not _birth_journal_readback(row):
+                return False
+            return await self._complete_durable_birth(row, journal, binding)
         if row["state"] in {"QUARANTINED", "RETRY_EXHAUSTED"}:
             return False
         if _birth_journal_readback(row):
-            return journal.acknowledge(row["id"], binding, _birth_journal_readback)
+            return await self._complete_durable_birth(row, journal, binding)
         canonical = _birth_journal_canonical(row)
         payload = row["payload"]
         if canonical is not None:
@@ -11921,7 +11943,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 symbol=payload["symbol"], name=payload["name"], birth_evidence_source="PUMPPORTAL_NEW_TOKEN")
             if committed is not True:
                 return False
-            return journal.acknowledge(row["id"], binding, _birth_journal_readback)
+            return await self._complete_durable_birth(row, journal, binding)
         except Exception as error:
             log_print(f"[BIRTH_JOURNAL] pending error={type(error).__name__}", flush=True)
             return False

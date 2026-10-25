@@ -19655,6 +19655,33 @@
     "runtime_deployment_required": false,
     "status": "PASS_READ_ONLY_COHORT_COVERAGE_MEASURED"
   },
+  "flex_v2_final_consolidation": {
+    "critical_blocker": "Required dormant runtime composition lacks a qualified V2-safe launch/writer contract: API retains a legacy database fallback and shared writer lacks the accepted paired-generation guard. Existing dormant launch roots/configuration assumptions are not an authoritative V2 profile.",
+    "detailed_evidence": "Local only; production-derived runtime metadata and incomplete manifest not published.",
+    "dormant_source_imports": {
+      "api_runtime_readiness": "HOLD",
+      "bridge": "PASS",
+      "monitor": "PASS"
+    },
+    "engineering_branch": "codex/flex-v2-final-consolidation",
+    "engineering_source_revision": "c0682a30c5e9e541fee686761c66e3657108b674",
+    "golden_frozen": false,
+    "implementation": [
+      "Strict seven-day bounded abandoned-temp cleanup in existing owner; open/unknown file protection and durable directory completion.",
+      "Exact current listener recovery pin; explicit immutable source authority replaces stale worktree dependency.",
+      "Protected receipts, existing audit/cache/terminal contracts retained unchanged."
+    ],
+    "next_action": "Compose and qualify retained current API/UI and monitor launchers under explicit matched V2 bindings and accepted write-fence contract, without activating them; then finalize source/config/recovery manifest. No historical or receipt work.",
+    "production_changed": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "status": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "tests": {
+      "api_counterexample_not_readiness_pass": true,
+      "failed": 0,
+      "passed": 53,
+      "provider_free": true
+    }
+  },
   "flex_v2_funding_activation_blocker_correction_20261020": {
     "audit": "docs/audits/flex_v2_funding_activation_blocker_correction_20261020.v1.json",
     "blocker": "Durable authority retention and genuine-new-investigation admission semantics unresolved; existing queue deletion destroys authority.",
@@ -37001,7 +37028,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "b74f69cb4e595859b168ca82359aa91cde857f96",
+    "git_head": "c0682a30c5e9e541fee686761c66e3657108b674",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",

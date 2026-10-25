@@ -19793,6 +19793,33 @@
     "status": "PASS_BOUNDED_EVIDENCE_RETRIEVAL_WITH_RETAINED_LIMITATIONS",
     "strict_and_handoff_evidence": "For all 293 queue-level qualified rows, Core migration_walkback_handoff primary-key lookup reports COMPLETE. Exact unique (epoch,mint) wb_create_delivery lookup reports 153 ACK records with qualification DEV074_STRICT_CREATE and exact mint/creator/signature agreement; 140 otherwise have no current-epoch delivery record. OPS primary-key walkback lookup for the same population reports 153 completed (90 LINEAGE_GAP, 59 NO_ATTRIBUTION_FOUND, 4 WATCHTOWER_CONFIRMED) and 140 skipped. This establishes 153 cross-plane strict deliveries/Walkback terminal outcomes; it does not make absent delivery rows failures."
   },
+  "flex_v2_golden_baseline_lifecycle": {
+    "blockers": [
+      "Receipt/custom-log disposal and storage-admission bounds not fully qualified.",
+      "Approved dormant API/monitor/bridge runtime/configuration acceptance incomplete.",
+      "New DEV listener hash requires compatible terminal-aware recovery bundle before deployment."
+    ],
+    "engineering_source_revision": "14158e4e9191c6cb3074af4b751f8f3b5bd19162",
+    "golden_frozen": false,
+    "implementation": "Bounded seven-day eligible cache/WSS lifecycle; paired-profile competing age deleters disabled in DEV; fixed continuation/accounting; protected evidence excluded.",
+    "next_action": "Qualify remaining receipt/custom-log lifecycle and admission bounds with existing owners; retain protected evidence. Do not deploy or freeze golden baseline.",
+    "physical_page_reuse": {
+      "after_delete": 219,
+      "after_reinsert": 219,
+      "before": 219,
+      "free_after_delete": 192,
+      "free_after_reinsert": 0
+    },
+    "production_activation": false,
+    "production_changed": false,
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "status": "HOLD_GOLDEN_FREEZE",
+    "tests": {
+      "failed": 0,
+      "passed": 31,
+      "provider_free": true
+    }
+  },
   "flex_v2_helius_outage_adjusted_creator_coverage_20261019": {
     "engineering_revision": "read-only retained-evidence audit; fixed cohort and source authorities preserved from flex_v2_end_to_end_creator_coverage_20261019",
     "finding": "The fixed 799-migration cohort remains unchanged. Conservative timestamp partitioning yields 792 HEALTHY migrations and seven UNKNOWN migrations before the first recorded subscription acknowledgement at 2026-10-19T00:09:49Z; there are zero DEGRADED-cohort migrations. Reconnect gaps were classified UNKNOWN, not degraded. The confirmed Helius refusal/credit outage begins 2026-10-20T06:35:08Z and first recovers with a confirmed subscription at 2026-10-20T07:58:52Z, outside the fixed cohort.",
@@ -36935,7 +36962,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "7c3ea6bbe8d8f73abf1fe90f11cb772132d3c0f0",
+    "git_head": "14158e4e9191c6cb3074af4b751f8f3b5bd19162",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",

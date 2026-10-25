@@ -39124,14 +39124,17 @@
   "updated_at_utc": "2026-09-04T15:45:00Z",
   "updated_by": "agent_local",
   "v1_writer_isolation_correction": {
-    "blocker": "No qualified V2 telemetry destination: rpc_metrics schema absent. Explicit stop rule prohibits redirecting recorder. Prior proven V1 telemetry writes remain unresolved.",
-    "checked_at_utc": "2026-10-25T13:58:48.078742+00:00",
+    "blocker": "Complete exclusion cannot be claimed while 20 legacy V1 rollover schedules and one graph-writer schedule remain enabled. Broad disable rejected by automatic approval review as exceeding narrow maintenance authorization; left unchanged.",
+    "configuration_sha256": "5931b38f82d4ba730cb63668550f33cd7030b3ea9490602ab0e4c238777149e8",
     "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
-    "next_action": "Qualify existing telemetry schema-owner initialization and bounded recorder compatibility in disposable data before separately authorizing required V2 schema preparation and resuming binding correction. Maintenance isolation not completed; leave schedules unchanged at stop boundary.",
-    "runtime_deployment_gate": "HOLD",
+    "implementation": "Existing telemetry owner initialized two accepted tables/five indexes in active V2 Core. RPC_METRICS_DB corrected globally and explicitly for three active services. Only one verified obsolete V1 cache-retention cron disabled.",
+    "next_action": "Explicit approval for exact remaining 21 V1-targeted cron entries, then next natural telemetry insertion and bounded exclusion verification. Do not restore legacy V1 telemetry binding.",
+    "production_state": "V2 generation remains authoritative; schema/config correction installed; listener/resolver/Walkback running; dormant services unchanged. Original V1 SQL data not modified by this work.",
+    "runtime_deployment_gate": "HOLD_NATURAL_TELEMETRY_UNVERIFIED",
     "runtime_deployment_required": true,
-    "status": "HOLD_V2_TELEMETRY_SCHEMA_MISSING",
-    "verification": "Read-only sqlite_master checks found rpc_metrics absent from both authoritative V2 databases. Installed recorder requires this table. No binding/configuration/source/service/schedule changes performed. No provider calls or SQL writes."
+    "status": "PARTIAL_SCHEMA_AND_BINDING_INSTALLED_EXCLUSION_HOLD",
+    "updated_at_utc": "2026-10-25T14:11:08.488219+00:00",
+    "verification": "Disposable fresh/repeat/interrupted-DDL rollback/reopen/insert controls and 16 static SQL read preparations pass. Three Supervisor workers RUNNING with V2 environments. Bounded V1 telemetry tail/header unchanged, no V1 handles captured. No natural V2 telemetry insert observed. No synthetic production telemetry or provider requests for testing."
   },
   "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
   "walkback_health_decoupling_deployment": {

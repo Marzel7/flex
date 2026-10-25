@@ -2,7 +2,7 @@
 
 **FLEX_V2_TERMINAL_CAPACITY_STATUS:** PASS — QUALIFIED_NOT_DEPLOYED
 
-**CANDIDATE_SHA:** 303f73f77f74d307b0aef18dc81f35fd3bc94892
+**CANDIDATE_SHA:** 95b65a2e56dcba4be1da0b2bc4f5acc692e040d4
 
 **EVENT_513_RESULT:** PASS; full 512-record fixture admitted event 513 after 20 exact verified transfers (493 active entries). All 512 originals then verified independently in OPS.
 
@@ -24,7 +24,7 @@
 
 **CAPACITY RESULT:** Event 513 succeeds after verified transfer. Another 2,000 sequential admissions reuse active journal capacity while retaining 2,512 distinct protected signatures. Largest sampled/final fixture file: 2,494,464 bytes. No new unbounded growth path, provider payload retention, archive or infrastructure service. The protected quota is finite: exhaustion fails closed and requires a separately authorized disposition, never automatic deletion or retry reset.
 
-**PROVIDER_FREE_TEST_RESULTS:** 33 passed / zero failures in 8.96 seconds: 24 terminal-owner controls and nine directly affected protected-journal controls. Includes exact fixed 512, 513, thousands of admissions, duplicates/conflicts, crashes, corrupt readback, disk/quota/WAL/kernel/version/generation refusal, old-path rejection, indexed lookup, repeated startup, actual listener factory and actual paired-generation fresh compact rollback. Prior 562 completion/retry controls were reused, not rerun. Tests use disposable databases/journals, actual kernel file limits and blocked network. No full production database copies or V1 access; the rollback test copies only compact disposable fixtures.
+**PROVIDER_FREE_TEST_RESULTS:** 33 passed / zero failures in 9.02 seconds: 24 terminal-owner controls and nine directly affected protected-journal controls. Includes exact fixed 512, 513, thousands of admissions, duplicates/conflicts, crashes, corrupt readback, disk/quota/WAL/kernel/version/generation refusal, old-path rejection, indexed lookup, repeated startup, actual listener factory and actual paired-generation fresh compact rollback. Prior 562 completion/retry controls were reused, not rerun. Tests use disposable databases/journals, actual kernel file limits and blocked network. No full production database copies or V1 access; the rollback test copies only compact disposable fixtures.
 
 **ROLLBACK REQUIREMENT:** Fresh compact OPS restoration must retain both new owner tables, their triggers/counters, original transfer generations and stable journal path; the actual matched-pair test verifies this alongside canonical state and pending admission. After the first reclamation, an older terminal-unaware writer is not a safe source fallback: it could re-admit exhausted signatures. Deployment preflight must bind a compatible terminal-aware fallback, not silently restore abb72f57/194cf66d as a complete old journal implementation.
 

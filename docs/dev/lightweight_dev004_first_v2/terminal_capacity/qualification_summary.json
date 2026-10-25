@@ -1,6 +1,6 @@
 {
   "FLEX_V2_TERMINAL_CAPACITY_STATUS": "PASS \u2014 QUALIFIED_NOT_DEPLOYED",
-  "CANDIDATE_SHA": "303f73f77f74d307b0aef18dc81f35fd3bc94892",
+  "CANDIDATE_SHA": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
   "base_candidate": "abb72f5746bd4e9d9aaaf976c2b8196b131d179b",
   "EXACT_SCHEMA_AND_SOURCE_DELTA": {
     "schema_version": 1,
@@ -68,7 +68,7 @@
     "failed": 0,
     "new_terminal_controls": 24,
     "directly_affected_protected_journal_controls": 9,
-    "seconds": 8.96,
+    "seconds": 9.02,
     "prior_562_completion_tests": "REUSED; not rerun",
     "command": "python -B -m pytest -q -p no:cacheprovider tests/test_v2_terminal_capacity.py tests/test_v2_protected_journal_capacity.py",
     "provider_calls": 0,

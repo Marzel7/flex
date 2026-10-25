@@ -49,8 +49,9 @@ def _paired_ack_generation():
 
 class MigrationJournal:
     _key = staticmethod(event_id)
-    def __init__(self, path, *, verify_completed=None, resolve_completed=None):
+    def __init__(self, path, *, verify_completed=None, resolve_completed=None, terminal_owner=None):
         self.verify_completed = verify_completed
+        self.terminal_owner = terminal_owner
         self.resolve_completed = resolve_completed
         self.path = Path(path).absolute()
         self.lock_path = self.path.with_name(self.path.name + '.lock')
@@ -211,23 +212,48 @@ class MigrationJournal:
         self._sync_dir()  # Dispatch is forbidden unless all publication steps succeed.
 
     def snapshot(self):
-        if self.tmp.exists() and self.verify_completed is not None:
+        if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None):
             self.recover_reclamation()
         with self._lock():
             return self._read()
 
     def _change(self, fn):
-        if self.tmp.exists() and self.verify_completed is not None:
+        if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None):
             self.recover_reclamation()
         with self._lock():
             records = self._read()
             result = fn(records)
-            if len(records) > MAX_RECORDS or sum(len(json.dumps(r, sort_keys=True, separators=(',', ':')).encode()) + 1 for r in records) > MAX_JOURNAL_BYTES:
-                if self.verify_completed is None:
-                    raise JournalHold('JOURNAL_CAPACITY')
-                self._reclaim(records, self.verify_completed, MAX_BATCH, keep=result.get('id') if isinstance(result, dict) else None)
+            def over_budget():
+                return len(records)>MAX_RECORDS or sum(len(json.dumps(r,sort_keys=True,separators=(',',':')).encode())+1 for r in records)>MAX_JOURNAL_BYTES
+            if over_budget():
+                keep=result.get('id') if isinstance(result,dict) else None
+                if self.verify_completed is not None:
+                    self._reclaim(records,self.verify_completed,MAX_BATCH,keep=keep)
+                if over_budget() and self.terminal_owner is not None:
+                    self._reclaim_terminal(records,MAX_BATCH,keep=keep)
+                if over_budget():raise JournalHold('JOURNAL_CAPACITY')
             self._publish(records)
             return result
+
+    def _reclaim_terminal(self, rows, limit, keep=None):
+        if self.terminal_owner is None:raise JournalHold('TERMINAL_OWNER_REQUIRED')
+        selected=sorted((r for r in rows if r['id']!=keep and r['state'] in {'RETRY_EXHAUSTED','QUARANTINED'}),key=lambda r:(r['received_at'],r['id']))[:limit]
+        if not selected:return []
+        removed=self.terminal_owner.preserve_batch(selected)
+        if removed!=[r['id'] for r in selected] or any(not self.terminal_owner.verified(r) for r in selected):
+            raise JournalHold('TERMINAL_TRANSFER_UNVERIFIED')
+        identities=set(removed)
+        rows[:]=[r for r in rows if r['id'] not in identities]
+        return removed
+
+    def reclaim_protected(self, *, limit=MAX_BATCH):
+        if type(limit) is not int or not 0<limit<=MAX_BATCH:raise JournalHold('BATCH_CAPACITY')
+        if self.tmp.exists():self.recover_reclamation()
+        with self._lock():
+            rows=self._read()
+            removed=self._reclaim_terminal(rows,limit)
+            self._publish(rows)
+            return removed
 
     @staticmethod
     def _reclaimable(row):
@@ -304,13 +330,13 @@ class MigrationJournal:
                     missing.append(row)
             if len(missing) > MAX_BATCH:
                 raise JournalHold('RECLAMATION_RECOVERY_BATCH_CAPACITY')
-            if any(not self._reclaimable(r) for r in missing):
-                raise JournalHold('RECLAMATION_RECOVERY_PROTECTED')
-            if missing:
-                copy = list(missing)
-                self._reclaim(copy, self.verify_completed, MAX_RECORDS)
-                if copy:
-                    raise JournalHold('RECLAMATION_RECOVERY_UNVERIFIED')
+            for row in missing:
+                if self._reclaimable(row):
+                    copy=[row]
+                    self._reclaim(copy,self.verify_completed,1)
+                    if copy:raise JournalHold('RECLAMATION_RECOVERY_UNVERIFIED')
+                elif self.terminal_owner is None or not self.terminal_owner.verified(row):
+                    raise JournalHold('RECLAMATION_RECOVERY_PROTECTED')
             stat = os.statvfs(self.path.parent)
             if stat.f_bavail * stat.f_frsize < DISK_FLOOR + MAX_JOURNAL_BYTES:
                 raise JournalHold('DISK_FLOOR')
@@ -329,6 +355,17 @@ class MigrationJournal:
             _text(notification_mint, 64)
             incoming["notification_mint"] = notification_mint
         def change(rows):
+            if self.terminal_owner is not None:
+                retained=self.terminal_owner.lookup(signature)
+                if retained is not None:
+                    active=next((r for r in rows if r['id']==retained['id']),None)
+                    if active is not None and active!=retained:raise JournalHold('TERMINAL_ACTIVE_CONFLICT')
+                    known=retained.get('mint') or retained.get('notification_mint')
+                    if ((mint is not None and known is not None and mint!=known)
+                        or (notification_mint is not None and known is not None and notification_mint!=known)
+                        or (migration_slot is not None and retained.get('migration_slot') not in (None,migration_slot))):
+                        raise JournalHold('TERMINAL_NOTIFICATION_CONFLICT')
+                    return dict(retained)  # Protected duplicate, never a fresh retry/admission.
             for row in rows:
                 if row['id'] == incoming['id']:
                     if notification_mint is not None and row['state'] not in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
@@ -413,7 +450,10 @@ class MigrationJournal:
         if defer_until is not None and (type(defer_until) is not int or not 0 < defer_until < 2**63):
             raise JournalHold("INVALID_RETRY_TIME")
         def change(rows):
-            row = next(r for r in rows if r['id'] == self._key(signature))
+            row = next((r for r in rows if r['id'] == self._key(signature)),None)
+            if row is None:
+                if self.terminal_owner is not None and self.terminal_owner.lookup(signature) is not None:return False
+                raise JournalHold('MISSING_ADMISSION')
             if row['state'] in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
                 return False
             if row.get('retry_not_before', 0):

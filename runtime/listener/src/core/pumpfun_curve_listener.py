@@ -1416,8 +1416,18 @@ def _signature_migration_journal():
     path = os.environ.get("MIGRATION_JOURNAL_PATH")
     if not path or not os.path.isabs(path):
         raise JournalHold("EXPLICIT_STABLE_JOURNAL_PATH_REQUIRED")
-    return MigrationJournal(path, verify_completed=_migration_journal_readback,
-                            resolve_completed=_migration_completed_mint)
+    journal = MigrationJournal(path, verify_completed=_migration_journal_readback,
+                               resolve_completed=_migration_completed_mint)
+    if os.environ.get("DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED", "0") == "1":
+        from src.core.migration_terminal_evidence import TerminalEvidenceStore
+        def validate_terminal_pair(ops_path):
+            if os.path.realpath(ops_path) != os.path.realpath(_listener_ops_db_path()):
+                raise JournalHold("TERMINAL_OPS_BINDING_MISMATCH")
+            return _validate_active_pair()
+        journal.terminal_owner = TerminalEvidenceStore(
+            _listener_ops_db_path(), path, generation=_validate_active_pair(),
+            validate_record=journal._validate, validate_pair=validate_terminal_pair)
+    return journal
 
 
 def _migration_notification_disposition(row):

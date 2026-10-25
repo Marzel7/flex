@@ -246,6 +246,13 @@ class CompactReceiptMaintenance:
             return DependencyResult("PROTECTED", "DURABLE_HANDOFF_RETAINED")
         if row.get("persistence_outcome") != "COMMITTED":
             return DependencyResult("PROTECTED", "UNRESOLVED_RECEIPT")
+        # A committed birth is still the accepted_birth() provenance authority.
+        # Canonical fields and drained queues do not replace its reception time,
+        # source qualification or deterministic duplicate history. The current
+        # reader does not resolve .retired; archiving would remove live proof.
+        # No permanent receipt replacement/disposal contract is qualified yet.
+        if row.get("kind") == "PUMPPORTAL_BIRTH":
+            return DependencyResult("PROTECTED", "REQUIRED_BIRTH_PROVENANCE")
         mint = row.get("mint")
         if not isinstance(mint, str) or not mint:
             return DependencyResult("UNKNOWN", "MINT_UNAVAILABLE")

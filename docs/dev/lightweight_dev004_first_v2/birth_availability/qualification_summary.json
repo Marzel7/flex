@@ -1,0 +1,47 @@
+{
+  "status": "PASS_PROVIDER_FREE_265",
+  "cohort": 559,
+  "projected": 265,
+  "prior_valid_ops_anchors": 121,
+  "before_valid_anchor_percent": 21.6458,
+  "after_offline_valid_anchor_percent": 69.0519,
+  "new_receipt_qualification_stages": {
+    "earlier_integer_migration": 182,
+    "subsecond_pre_handoff": 83
+  },
+  "all_core_fields_unchanged": true,
+  "ops_nonprojection_fields_unchanged": true,
+  "unknown_time_slot_unchanged": true,
+  "batch": 16,
+  "rounds": 17,
+  "post_crash_outcomes": {
+    "ALREADY_COMMITTED": 1,
+    "ACTIVATED": 264
+  },
+  "absent_receipt_cases": {
+    "UNKNOWN": 285
+  },
+  "provider_calls": 0,
+  "network_attempts": 0,
+  "production_changes": 0,
+  "sampled_dispatch_wal_peak_bytes": 24752,
+  "fixture_file_sizes": {
+    "core.sqlite": 311296,
+    "ops.sqlite": 118784
+  },
+  "source_sha256": "fcf3cc39cdfbd9239941ce5709fc0a72a2e83ae5e43cc434473fcd0145ad8e74",
+  "source_base": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
+  "focused_tests_passed": 99,
+  "birth_frame_tests_passed": 7,
+  "test_failures": 0,
+  "compatibility_dispositions": {
+    "canonical_restoration_required_before_projection": 1,
+    "canonical_restoration_required_terminal_ops_protected": 2,
+    "unconfirmed_not_promoted": 1
+  },
+  "earlier_controls_reused": 17,
+  "production_deployed": false,
+  "provider_request_savings": "not measured",
+  "raw_provider_retention_added": false,
+  "new_unbounded_growth_paths": 0
+}

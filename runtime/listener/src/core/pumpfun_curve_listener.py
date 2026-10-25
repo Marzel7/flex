@@ -1771,13 +1771,13 @@ def _compact_birth_retry_storage_check(core_path, ops_path):
 
 
 
-def enqueue_prospective_migration(conn, mint, *, core_path, ops_path, ops_row=None, accepted_birth=None):
+def enqueue_prospective_migration(conn, mint, *, core_path, ops_path, ops_row=None, accepted_birth=None, observed_birth=None, birth_receipt_lookup=None):
     """Exact-mint enqueue in the migration's existing shared Core transaction.
 
     No provider, DDL, commit, population discovery or OPS mutation. Prior OPS
     state is read before entering the Core writer, never nested write lanes.
     """
-    from src.ops.walkback_create_handoff import identity, producer_preflight
+    from src.ops.walkback_create_handoff import identity, producer_preflight, stage_birth_completion
     if not conn.in_transaction:
         raise RuntimeError("MIGRATION_TRANSACTION_REQUIRED")
     control = conn.execute("SELECT activated_at,enabled FROM wb_create_control WHERE id=1").fetchone()
@@ -1798,12 +1798,30 @@ def enqueue_prospective_migration(conn, mint, *, core_path, ops_path, ops_row=No
         return "ALREADY_ACTIVE"
     if ops_row and len(ops_row)>4 and ops_row[4]=="VALID" and creators=={ops_row[2]} and token[2]==ops_row[3]:
         return "QUALIFIED_OPS_ANCHOR"
-    # Plain Core fields are not themselves proof of source. Live PumpPortal
-    # evidence must match exactly; a persisted qualified proof also suffices.
+    # Recheck a receipt under the same Core transaction when the earlier
+    # read raced with birth acknowledgement. This is one bounded exact lookup.
+    if not accepted_birth and callable(birth_receipt_lookup) and len(creators) == 1 and token[2]:
+        accepted_birth = birth_receipt_lookup(mint, next(iter(creators)), token[2])
+    # Plain Core fields are not themselves proof of source. The supplied or
+    # rechecked receipt must qualify exact source, identity and commit outcome.
     if accepted_birth and len(accepted_birth)==2:
         creator, signature = accepted_birth
         if creators == {creator} and token[2] == signature and identity(creator,range(32,45),32) and identity(signature,range(64,89),64):
+            # Stage the existing source-qualified delivery in this same Core
+            # transaction; the caller commits it before acknowledging migration.
+            staged = stage_birth_completion(
+                conn, mint, creator, signature, core_path=core_path, ops_path=ops_path,
+                birth_evidence_source="PUMPPORTAL_NEW_TOKEN",
+            )
+            if staged not in {"PENDING", "DUPLICATE"}:
+                raise RuntimeError("PUMPPORTAL_CREATE_DELIVERY_NOT_STAGED")
             return "QUALIFIED_PUMPPORTAL"
+    if observed_birth and len(observed_birth) == 2:
+        creator, signature = observed_birth
+        if creators == {creator} and token[2] == signature and identity(creator,range(32,45),32) and identity(signature,range(64,89),64):
+            # Preserve the existing no-RPC fast path while receipt acknowledgement
+            # is incomplete, without promoting it to an accepted OPS proof.
+            return "BIRTH_RECEIPT_PENDING"
     proof = conn.execute("SELECT creator,signature FROM wb_create_delivery WHERE epoch=(SELECT epoch FROM wb_create_control WHERE id=1) AND mint=?", (mint,)).fetchone()
     if proof and creators == {proof[0]} and token[2] == proof[1]:
         return "QUALIFIED_CORE_PROOF"
@@ -2929,11 +2947,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
             with managed_db_connect(_listener_ops_db_path(), timeout=5, read_only=True) as ops:
                 prior_ops = ops.execute("SELECT status,enqueued_at,creator,create_anchor_signature,create_anchor_audit_state FROM wt_walkback_queue WHERE mint=?", (mint,)).fetchone()
             portal = self._portal_vsol.get(mint) or {}
-            accepted_birth = (portal.get("birth_creator"), portal.get("birth_signature"))
+            observed_birth = (portal.get("birth_creator"), portal.get("birth_signature"))
+            accepted_birth = None
             audit = getattr(self, "_eb_birth_audit", None)
-            # Optional qualified compact evidence survives listener restart. Close
-            # this exact Core read before the shared writer; recheck at enqueue.
-            if not all(accepted_birth) and callable(getattr(audit, "accepted_birth", None)):
+            # A cached notification is not a committed receipt. Qualify exact
+            # retained source/identity before entering the shared Core writer;
+            # enqueue rechecks canonical identity in its transaction.
+            if callable(getattr(audit, "accepted_birth", None)):
                 try:
                     with managed_db_connect(DB_PATH, timeout=5, read_only=True) as read:
                         prior = read.execute("SELECT earliest_tx_creator,pf_ws_creator,create_tx_signature FROM token_analysis WHERE mint=?", (mint,)).fetchone()
@@ -2975,7 +2995,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     ),
                 )
                 enqueue_prospective_migration(conn, mint, core_path=DB_PATH, ops_path=_listener_ops_db_path(),
-                                              ops_row=prior_ops, accepted_birth=accepted_birth)
+                                              ops_row=prior_ops, accepted_birth=accepted_birth,
+                                              observed_birth=observed_birth,
+                                              birth_receipt_lookup=getattr(audit, "accepted_birth", None))
                 conn.commit()
 
         try:
@@ -11269,6 +11291,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
             row=await asyncio.to_thread(readback)
             if row is None or not self._eb_birth_audit.record_outcome(receipt_id,outcome="COMMITTED",canonical=tuple(row)):
                 raise RuntimeError("COMPACT_OUTCOME_UNCONFIRMED")
+            # Receipt confirmation may race with migration. Serialize this
+            # existing producer with the migration writer; never reacquire CREATE.
+            qualified = None
+            if row[0] and row[0] == row[1] and row[2]:
+                qualified = self._eb_birth_audit.accepted_birth(mint, row[0], row[2])
+            if qualified:
+                def stage_confirmed_birth():
+                    from src.ops.walkback_create_handoff import stage_birth_completion
+                    with managed_db_connect(DB_PATH, timeout=30, priority=PRIORITY_P0_CRITICAL_INGESTION) as conn:
+                        if not conn.in_transaction:
+                            conn.execute("BEGIN IMMEDIATE")
+                        stage_birth_completion(conn, mint, qualified[0], qualified[1],
+                                               core_path=DB_PATH, ops_path=_listener_ops_db_path(),
+                                               birth_evidence_source="PUMPPORTAL_NEW_TOKEN")
+                        conn.commit()
+                await asyncio.to_thread(stage_confirmed_birth)
         except Exception as error:
             from src.core.pumpportal_birth_audit import receipt_failure_reason
             log_print(f"[PUMPPORTAL] COMPACT_BIRTH_OUTCOME_UNAVAILABLE reason={receipt_failure_reason(error)}",flush=True)

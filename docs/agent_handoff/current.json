@@ -36352,11 +36352,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
+    "git_head": "ad2dfa7a3ca077410a9f9ba22b9fe4149fbad45a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-24T22:25:12.079182+00:00",
-    "working_tree": "DEV004 production V2 migration PASS; matched V2 pair active, three authorized workers healthy, original V1 preserved and retired from writes. Detailed evidence retained locally."
+    "updated_at_utc": "2026-10-25T16:24:53.722823+00:00",
+    "working_tree": "Existing isolated DEV004 branch: birth-availability DEV correction qualified, local commit only; production remains source86fbf6b8 and unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39177,6 +39177,22 @@
     "status": "PARTIAL_SCHEMA_AND_BINDING_INSTALLED_EXCLUSION_HOLD",
     "updated_at_utc": "2026-10-25T14:11:08.488219+00:00",
     "verification": "Disposable fresh/repeat/interrupted-DDL rollback/reopen/insert controls and 16 static SQL read preparations pass. Three Supervisor workers RUNNING with V2 environments. Bounded V1 telemetry tail/header unchanged, no V1 handles captured. No natural V2 telemetry insert observed. No synthetic production telemetry or provider requests for testing."
+  },
+  "v2_birth_availability_dev_correction": {
+    "coverage": "Frozen OPS VALIDsignature anchors121/559(21.6458%); offline after265disjoint projections386/559(69.0519%). Birth capture itself unchanged.273committed receipts plus1unconfirmed retained; three lacking canonical V2 fields remain guarded;285receipt absences UNKNOWN. No measured HTTP savings claimed.",
+    "engineering_revision": "ad2dfa7a3ca077410a9f9ba22b9fe4149fbad45a",
+    "implementation": "Existing listener root/runtime composition now stages source-qualified CREATE intent in migration transaction; committed receipt validation and bounded recheck, reciprocal post-receipt producer close birth/migration race. Cached-unconfirmed evidence stays pending without new RPC; protected terminal/queue/conflict rules unchanged. No schema, provider budget or credential changes.",
+    "next_action": "Review local immutable DEV candidate; source push awaits explicit approval. Any production preflight/deployment or exact-row repair requires separate authorization; do not replay exhausted recovery or change budgets.",
+    "production_state": "NOT_DEPLOYED. Active production generation/source/config unchanged; no database/source/service/receipt/journal mutations, V1 access or recovery replay.",
+    "remaining_cases": "Three canonical-restoration cases held (two OPS_PROTECTED,one QUEUE_TERMINAL); one UNCONFIRMEDnot promoted;285unknown causes retained.",
+    "report": "docs/dev/lightweight_dev004_first_v2/birth_availability/REPORT.md",
+    "runtime_deployment_gate": "PASS_ISOLATED_DEV_FIXTURE_RUNTIME",
+    "runtime_deployment_required": true,
+    "source_base": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",
+    "source_publication": "LOCAL_COMMIT_ONLY: automatic approval review rejected engineering-branch push because destination-specific source publication not authorized; approval requested separately. Sanitized handoff publication remains required/authorized.",
+    "status": "PASS_DEV_QUALIFIED_NOT_PRODUCTION_DEPLOYED",
+    "updated_at_utc": "2026-10-25T16:24:53.722823+00:00",
+    "verification": "99focused prospective/producer/handoff tests plus7existing birth-frame regressions pass. Fixed559cohort: corrected DEV producer/dispatcher projects265/265pre-handoff source-qualified births, batches16,17rounds; post-OPS/pre-ACKcrash and restart idempotent; canonical and other OPS fields unchanged; unknown slot/time remainNULL. Largest fixture311296bytes, sampled dispatch WAL24752bytes. No provider calls or production changes."
   },
   "v2_birth_late_and_absent_receipt_diagnosis": {
     "blocker": "No retained per-token reception/admission or independent CREATE timing establishes why285receipts are absent. Global errors and receipt absence alone cannot prove provider loss, expiry or admission failure.",

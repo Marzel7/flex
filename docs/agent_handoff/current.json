@@ -19993,6 +19993,65 @@
     "status": "PASS",
     "verification": "96focusedproviderfreetestspasswithactualinstalledwrapper;2lineruntimefixinstalled.601.37sec/21samplessamePID81382/noSQLiteerrors/exits;164births/162COMMITTED/11migrationnotifications/7persistedmints.42quarantineandcanonical/OPSunchanged;36receiptsbyteidentical/6missing."
   },
+  "flex_v2_migration_completion_retry_correction": {
+    "RUNTIME_DEPLOYMENT_GATE": "Isolated DEV qualification PASS; production QUALIFIED_NOT_DEPLOYED. No production activation authorized.",
+    "authority": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "installed_journal_sha256": "d29c1fc033d918dd24795952dc68d9d13072f17611c5fc0901503d33c348a7ed",
+      "installed_listener_sha256": "4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778",
+      "phase": "ACTIVE",
+      "runtime_files": {
+        "migration_signature_journal.py": "73bdbc57639d04237a42a662533bc5162d5ee4792b7c9abc90714c853c38282b",
+        "pumpfun_curve_listener.py": "e30fffeff62e656ddb950e5ec48260d35d0b46c4a8aa848274c01f3693b93a57"
+      }
+    },
+    "blocker": "Live journal admission remains blocked by the unchanged 512 protected records; no terminal authority or safe reclamation is asserted by this DEV correction.",
+    "capacity_limit": "Prevents the demonstrated no-op/deferred attempt exhaustion. Does not guarantee sustainable admission: distinct conflicting or exhausted protected records still consume the unchanged 512 slots. Event 513 remains refused when all slots are protected.",
+    "deployment_preflight": "YES for the qualified two-file DEV correction; NOT deployed and NOT a live capacity-restoration claim. Preflight must bind both files and a fallback compatible with new optional record fields. The original strict journal reader cannot safely be restored after new-format records are written.",
+    "engineering_revision": "fc4a0def3c9f2e16c5364dd853cea2c821f26c9a",
+    "existing_512_disposition": "UNCHANGED / PROTECTED. No live journal mutation, retry reset, replay, reclamation or independent terminal destination claimed. A 512-record disposable exhausted population remains byte-identical after scheduling attempts.",
+    "implementation": "Two DEV runtime files: verified signature-specific completion; protected mismatch disposition; explicit handler outcomes; atomic source-subject admission; durable 45-second retry eligibility; no-op/in-flight checks before attempt reservation.",
+    "next_action": "Qualify an independently durable, identity-preserving disposition for the existing protected records before claiming restored live capacity; then separately authorize the compatible deployment. No expansion or terminal archive implemented here.",
+    "private_fixed_evidence": "/private/tmp/flex-v2-migration-exhaustion-audit/RECORD_CLASSIFICATIONS.json",
+    "production_activation": false,
+    "production_mutations": 0,
+    "provider_requests": 0,
+    "report": "docs/dev/lightweight_dev004_first_v2/migration_completion_retry/REPORT.md",
+    "runtime_source_candidate": "abb72f5746bd4e9d9aaaf976c2b8196b131d179b",
+    "service_restarts": 0,
+    "source_branch": "codex/dev004-first-v2-prototype",
+    "status": "PASS \u2014 QUALIFIED_NOT_DEPLOYED",
+    "storage": {
+      "batch_limit": 20,
+      "disk_floor_bytes": 2000000000,
+      "journal_max_bytes": 2000000,
+      "largest_final_fixture_bytes": 212585,
+      "new_archive_or_database": false,
+      "new_unbounded_growth_paths": 0,
+      "raw_provider_retention": "NONE",
+      "record_count": 512,
+      "record_max_bytes": 4096,
+      "retry_ceiling": 3,
+      "transient_publication_max_bytes": 2000000
+    },
+    "tests": {
+      "CREATE_crash_controls": 23,
+      "command": "python -B -m pytest -q -p no:cacheprovider tests/test_v2_migration_completion.py tests/test_v2_protected_journal_capacity.py tests/test_v2_create_intent_crash_safety.py",
+      "completion_controls": 530,
+      "failed": 0,
+      "fixed_cohort": {
+        "confirmed_known_guard": 426,
+        "other_signature_mismatch": 20,
+        "unresolved_subjects": 66
+      },
+      "network": "socket.connect blocked; transaction responses synthetic",
+      "passed": 562,
+      "private_cohort_sha256": "c3a084043ec8a1f8f1c4125b09c4f2d0e7d8b61f940be0840aa3c6617b461f93",
+      "protected_capacity_controls": 9,
+      "seconds": 102.82
+    },
+    "updated_at_utc": "2026-10-25T19:33:01.611225+00:00"
+  },
   "flex_v2_migration_retry_exhaustion_root_cause_audit": {
     "authority": "Installed listener/journal hashes,MAX_ATTEMPTS3,current V2 physical pair,config andruntime flags verified unchanged.",
     "canonical_nuance": "Earlier0exact incoming-signature matches did not mean0migrated tokens.446notifications map to413already-migrated mints;441canonical handoffs complete,434OPSrows present,not blanket ACKauthority.",
@@ -34253,10 +34312,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": {
-    "instruction": "A separately authorized implementation may relocate current hot/cold lifecycle storage to a current namespace with one writer/reader path; do not delete P5A material in that cutover.",
-    "next_action_code": "P5A_CURRENT_COLD_STORAGE_SINGLE_PATH_CUTOVER"
-  },
+  "next_action": "Qualify an independently durable, identity-preserving disposition for the existing protected records before claiming restored live capacity; then separately authorize the compatible deployment. No expansion or terminal archive implemented here.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -36442,7 +36498,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "b1b6e7d25a13904d0bc7c33781861fc22aa8ed6a",
+    "git_head": "fc4a0def3c9f2e16c5364dd853cea2c821f26c9a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",
@@ -37848,7 +37904,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "STOPPED_SERVICE_RETIREMENT_QUALIFIED",
+  "status": "FLEX_V2_MIGRATION_COMPLETION_QUALIFIED_NOT_DEPLOYED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -39210,8 +39266,8 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-09-04T15:45:00Z",
-  "updated_at_utc": "2026-09-04T15:45:00Z",
+  "updated_at": "2026-10-25T19:33:01.611225+00:00",
+  "updated_at_utc": "2026-10-25T19:33:01.611225+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",

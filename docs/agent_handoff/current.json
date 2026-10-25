@@ -36352,11 +36352,11 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "ad2dfa7a3ca077410a9f9ba22b9fe4149fbad45a",
+    "git_head": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-25T16:41:28.367892+00:00",
-    "working_tree": "Existing isolated DEV004 candidate unchanged. Read-only CREATE availability deployment preflight HOLD for reproduced acknowledgement-before-intent crash; production unchanged."
+    "updated_at_utc": "2026-10-25T16:57:37.133161+00:00",
+    "working_tree": "Existing isolated DEV004 branch; CREATE intent crash-safety correction qualified and remote-verified. Production unchanged; ready for separately authorized preflight, not deployed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39179,11 +39179,12 @@
     "verification": "Disposable fresh/repeat/interrupted-DDL rollback/reopen/insert controls and 16 static SQL read preparations pass. Three Supervisor workers RUNNING with V2 environments. Bounded V1 telemetry tail/header unchanged, no V1 handles captured. No natural V2 telemetry insert observed. No synthetic production telemetry or provider requests for testing."
   },
   "v2_birth_availability_dev_correction": {
+    "corrected_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
     "coverage": "Frozen OPS VALIDsignature anchors121/559(21.6458%); offline after265disjoint projections386/559(69.0519%). Birth capture itself unchanged.273committed receipts plus1unconfirmed retained; three lacking canonical V2 fields remain guarded;285receipt absences UNKNOWN. No measured HTTP savings claimed.",
     "deployment_preflight": "HOLD: newly reproduced acknowledgement-before-intent crash boundary; retained106 qualification remains recorded, production deployment blocked.",
     "engineering_revision": "ad2dfa7a3ca077410a9f9ba22b9fe4149fbad45a",
     "implementation": "Existing listener root/runtime composition now stages source-qualified CREATE intent in migration transaction; committed receipt validation and bounded recheck, reciprocal post-receipt producer close birth/migration race. Cached-unconfirmed evidence stays pending without new RPC; protected terminal/queue/conflict rules unchanged. No schema, provider budget or credential changes.",
-    "next_action": "Review immutable DEV candidate. Any production preflight/deployment or exact-row repair requires separate authorization; do not replay exhausted recovery or change budgets.",
+    "next_action": "Use corrected194cf66d for fresh bounded deployment preflight; production not authorized.",
     "production_state": "NOT_DEPLOYED. Active production generation/source/config unchanged; no database/source/service/receipt/journal mutations, V1 access or recovery replay.",
     "remaining_cases": "Three canonical-restoration cases held (two OPS_PROTECTED,one QUEUE_TERMINAL); one UNCONFIRMEDnot promoted;285unknown causes retained.",
     "report": "docs/dev/lightweight_dev004_first_v2/birth_availability/REPORT.md",
@@ -39228,10 +39229,31 @@
     "production_state": "UNCHANGED; active accepted V2 generation/source/config preserved; zero production mutations, restarts, provider calls, V1 access or recovery replay.",
     "reason": "Read-only preflight and disposable provider-free fault qualification; no deployment authorized.",
     "report_local": "/private/tmp/flex-v2-create-availability-preflight/REPORT.md",
+    "resolution": "Original HOLD retained as evidence; isolated DEV correction qualified. A new deployment preflight is required for the corrected candidate.",
+    "resolved_by_dev_candidate": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
     "runtime_deployment_required": false,
     "status": "HOLD_ACK_BEFORE_INTENT_CRASH_WINDOW",
     "updated_at_utc": "2026-10-25T16:41:28.367892+00:00",
     "verification": "Existing106tests and265qualified case projections reused, not rerun. One new deterministic fault confirms COMMITTED receipt and ACKED birth journal without CREATE intent/recovery job; restart leaves OPS waiting. Prior controls missed this boundary."
+  },
+  "v2_create_intent_crash_safety_correction": {
+    "base_candidate": "ad2dfa7a3ca077410a9f9ba22b9fe4149fbad45a",
+    "blocker": null,
+    "engineering_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+    "implementation": "Single authoritative listener runtime source changed. Existing birth journal remains pending across receipt confirmation and CREATE-intent staging; only completion success allows terminal journal ACK. Exact receipt identity/time reused; existing producer/dispatcher and bounded drainer unchanged. Duplicate ACKED notifications verify delivery before returning success. No schema or provider changes.",
+    "next_action": "Fresh bounded deployment preflight for194cf66d; do not deploy without separate production authorization. No absent-receipt research or historical replay.",
+    "preflight_handoff": "7c558d04e7c88669dc98fcee3f6344fc01863594",
+    "production_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "production_state": "UNCHANGED. Accepted V2 generation ACTIVE; installed listener preimage and frozen configuration verified unchanged. Zero production mutations, restarts, provider requests, V1 access or recovery-job replay. BIRDEYE and budgets unchanged.",
+    "ready_for_deployment_preflight": true,
+    "report": "docs/dev/lightweight_dev004_first_v2/birth_intent_crash_safety/REPORT.md",
+    "runtime_deployment_gate": "PASS_ISOLATED_DEV_FIXTURE_RUNTIME",
+    "runtime_payload_sha256": "4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778",
+    "source_publication": "origin/codex/dev004-first-v2-prototype remote commit and payload hash verified",
+    "status": "PASS_ISOLATED_DEV_QUALIFIED_NOT_DEPLOYED",
+    "storage": "Existing4096byte records/receipts,512record/2000000byte journal and bounded drain reused. No new retention paths; zero new unbounded growth paths. Largest focused fixture229376bytes, fixed265fixture311296bytes. Runtime499000000byte file limit retained.",
+    "updated_at_utc": "2026-10-25T16:57:37.133161+00:00",
+    "verification": "122tests PASS:23new fault/restart/storage/generation controls plus99directly affected retained tests. Seven unchanged legacy birth-frame controls reused. Original ad2dfa7a failure preserved as regression; before/after receipt, intent, journal ACK and OPS commit crashes recover idempotently. All265retained cases pass again, canonical and nonprojection OPS evidence unchanged, unknown slot/time preserved; offline386/559=69.0519%."
   },
   "v2_migration_birth_create_coverage_audit": {
     "blocker": "No retained immutable canonical CREATE-field/provenance snapshot at a reliably identified migration-start boundary; no comparable per-token transport/provider baseline for savings.",

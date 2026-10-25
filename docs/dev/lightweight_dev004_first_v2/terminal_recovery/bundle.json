@@ -1,0 +1,101 @@
+{
+  "OPS_schema_initialization": {
+    "method": "initialize (explicit only; renderer never initializes)",
+    "module": "src.core.migration_terminal_evidence.TerminalEvidenceStore",
+    "owner_sha256": "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf",
+    "owner_source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+    "quota_logical_bytes": 64000000,
+    "quota_records": 8192,
+    "schema_contract_sha256": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+    "tables": [
+      "migration_terminal_owner_v1",
+      "migration_terminal_evidence_v1"
+    ],
+    "version": 1
+  },
+  "activation_order": [
+    "Explicit production authorization and refresh exact preimages",
+    "Stage and verify all four executable files plus nonsecret configuration contract",
+    "Listener-only stop for normal deployment; prepare/verify OPS schema without journal transfer",
+    "Atomically install and hash-readback approved sources; enable listener flag1 only after schema verification",
+    "Listener-only restart and paired/flag verification; then bounded verified journal transfer",
+    "On critical failure use only this terminal-aware fresh-pair recovery contract"
+  ],
+  "completion_base": "abb72f5746bd4e9d9aaaf976c2b8196b131d179b",
+  "corrected_renderer": {
+    "required_preimage_sha256": "e86274836175d80478535dea302a30f643f0654b5b709ad9d2586ede43f66c41",
+    "sha256": "4d95725cd86d37a40fa2cdff234ccbe7901d0d879881f65c70bfac56d8beeed0",
+    "source_commit": "0dc365f98875d2d6bef5f0d472a8a0136cc09d8e",
+    "source_path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tools/dev004_production_control.py"
+  },
+  "feature_configuration": {
+    "path": "docs/dev/lightweight_dev004_first_v2/terminal_recovery/listener_environment.json",
+    "required_flag": "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED=1",
+    "sha256": "6780de727cae392733dfcbed63683a5d822398abe708db56966645aae25bd940"
+  },
+  "format": "FLEX_V2_TERMINAL_AWARE_RECOVERY_BUNDLE_V1",
+  "implementation_commit": "0dc365f98875d2d6bef5f0d472a8a0136cc09d8e",
+  "maximum_configuration_bytes": 1000000,
+  "maximum_configuration_temporary_bytes": 1000000,
+  "new_unbounded_growth_paths": 0,
+  "production_activation": false,
+  "provider_contract": "BIRDEYE only; existing20global/4per-token/60s unchanged",
+  "raw_provider_retention": "NONE",
+  "terminal_aware_fallback": {
+    "existing_fresh_pair_recovery_tool": {
+      "modified": false,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tools/dev004_fresh_pair_recovery.py",
+      "sha256": "d70681fd65a3fc4f625ab597e614f9be8134d1d9593c6d87755040992122aae4"
+    },
+    "existing_rollback_manifest": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/rollback-pair.json",
+      "sha256": "129e27e47346020ec0242df0fdece600d8a489f3f2d8a88f7fee854c73aba16f"
+    },
+    "feature_configuration_sha256": "6780de727cae392733dfcbed63683a5d822398abe708db56966645aae25bd940",
+    "model": "Accepted fresh compact matched-pair recovery with the exact same qualified terminal-aware source payload, corrected renderer and required flag. Not reactivation of retired databases or old terminal-unaware source.",
+    "payload_hashes": [
+      "9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433",
+      "65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668",
+      "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf"
+    ],
+    "preserve": [
+      "Both terminal owner tables/triggers/counters",
+      "Original transfer generations",
+      "Stable journal paths",
+      "Pending admissions",
+      "Protected exhausted identities and unchanged attempt ceilings"
+    ],
+    "prohibited": [
+      "Flag0/terminal-unaware writer",
+      "Missing owner schema",
+      "Unknown/mismatched pair",
+      "Automatic exhausted replay or retry reset"
+    ],
+    "renderer_sha256": "4d95725cd86d37a40fa2cdff234ccbe7901d0d879881f65c70bfac56d8beeed0"
+  },
+  "terminal_candidate": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+  "terminal_payload": [
+    {
+      "preimage_sha256": "4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778",
+      "sha256": "9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433",
+      "source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+      "source_path": "runtime/listener/src/core/pumpfun_curve_listener.py",
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py"
+    },
+    {
+      "preimage_sha256": "d29c1fc033d918dd24795952dc68d9d13072f17611c5fc0901503d33c348a7ed",
+      "sha256": "65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668",
+      "source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+      "source_path": "runtime/listener/src/core/migration_signature_journal.py",
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py"
+    },
+    {
+      "preimage_sha256": null,
+      "sha256": "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf",
+      "source_commit": "95b65a2e56dcba4be1da0b2bc4f5acc692e040d4",
+      "source_path": "runtime/listener/src/core/migration_terminal_evidence.py",
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_terminal_evidence.py"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "OPS_schema_contract_sha256": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+  "database_authority": "Current authorized ACTIVE matched-pair manifest, including a qualified fresh compact recovery generation; no fixed old-generation DB binding.",
+  "existing_configuration_preimage_sha256": "5931b38f82d4ba730cb63668550f33cd7030b3ea9490602ab0e4c238777149e8",
+  "preserve": "All accepted nonterminal environment, source-qualified CREATE, provider/BIRDEYE budgets, RPC telemetry, receipts, queues, attribution and dormant service states.",
+  "required_environment": {
+    "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+    "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED": "1",
+    "DEV004_PAIRED_BINDING_REQUIRED": "1",
+    "DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED": "1",
+    "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl"
+  },
+  "scope": "listener only; apply after source/schema verification",
+  "version": 1
+}

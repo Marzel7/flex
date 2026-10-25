@@ -36355,8 +36355,8 @@
     "git_head": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-25T16:57:37.133161+00:00",
-    "working_tree": "Existing isolated DEV004 branch; CREATE intent crash-safety correction qualified and remote-verified. Production unchanged; ready for separately authorized preflight, not deployed."
+    "updated_at_utc": "2026-10-25T17:11:47.296711+00:00",
+    "working_tree": "Existing isolated DEV004 candidate194cf66d remains unchanged and qualified. Final read-only CREATE availability deployment preflight GO; production not deployed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39236,12 +39236,33 @@
     "updated_at_utc": "2026-10-25T16:41:28.367892+00:00",
     "verification": "Existing106tests and265qualified case projections reused, not rerun. One new deterministic fault confirms COMMITTED receipt and ACKED birth journal without CREATE intent/recovery job; restart leaves OPS waiting. Prior controls missed this boundary."
   },
+  "v2_create_availability_final_deployment_preflight": {
+    "accepted_qualification_handoff": "cf427c33e0a68b08ad58d7c96e6549398be01839",
+    "blocker": null,
+    "candidate_integrity": "Origin candidate and qualified runtime hash verified; all65 installed frozen source preimages match. Reused122tests and265case results, no repeated suites or historical research.",
+    "deployment_plan_local": "/private/tmp/flex-v2-create-final-preflight/DEPLOYMENT_PLAN.json",
+    "deployment_plan_sha256": "0d40c5b97b7a513d52a4efc623779ee16c9b9c4d123592c2fb5de7f7cc58e481",
+    "durability": "Corrected birth journal remains pending through receipt/intent boundary. Existing producer/dispatcher provide idempotent separate-commit recovery. Canonical evidence, attribution, provider budgets and BIRDEYE authority unchanged. No historical job replay or automatic compatibility-case promotion.",
+    "engineering_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+    "live_safety": "Free5429374976bytes above2GB+64MiB. Read-only V2 transactions completed without BUSY; sampled WALs0. Receipt buckets max468/1536, none full. Journals bounded; high migration occupancy noted, bounded completion readbacks confirm reclaimable entries through existing owner. No reclamation performed. Existing blocked/exhausted/quarantine state retained.",
+    "next_action": "Separate authorization for one-file listener-only deployment of194cf66d. Refresh immediate dynamic gates at execution; do not deploy under this preflight.",
+    "payload": "One listener runtime file only. Preimage9781a5f6adb300210d7d5363998d1be08eff48afc275caef39d2e5f3ef967314; candidate4aedc4360883ad323ed2d727d321c6b290e7e9472f624ed31e39b20dcfd82778. Only listener stop/start in separately authorized installation; other workers untouched.",
+    "production_state": "QUALIFIED_NOT_DEPLOYED. Zero production mutations/restarts/provider requests/recovery replay/V1 access.",
+    "reason": "Read-only deployment preflight, not production activation.",
+    "report_local": "/private/tmp/flex-v2-create-final-preflight/REPORT.md",
+    "rollback": "Exact source preimage/config verified; formats unchanged. Guarded rollback only: before older writer resumes, qualified pending admissions must have durable CREATE intent or completed anchor. Otherwise retain corrected recovery authority and fail closed. No database/receipt/journal rollback.",
+    "runtime": "Accepted V2 generation ACTIVE and matched physical Core/OPS identities. Listener/resolver/Walkback Supervisor RUNNING; stable journals and CoreV2 telemetry bindings confirmed. Frozen config unchanged.",
+    "runtime_deployment_required": false,
+    "status": "GO_FOR_CREATE_AVAILABILITY_DEPLOYMENT",
+    "updated_at_utc": "2026-10-25T17:11:47.296711+00:00"
+  },
   "v2_create_intent_crash_safety_correction": {
     "base_candidate": "ad2dfa7a3ca077410a9f9ba22b9fe4149fbad45a",
     "blocker": null,
+    "deployment_preflight": "GO_FOR_CREATE_AVAILABILITY_DEPLOYMENT; no deployment performed.",
     "engineering_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
     "implementation": "Single authoritative listener runtime source changed. Existing birth journal remains pending across receipt confirmation and CREATE-intent staging; only completion success allows terminal journal ACK. Exact receipt identity/time reused; existing producer/dispatcher and bounded drainer unchanged. Duplicate ACKED notifications verify delivery before returning success. No schema or provider changes.",
-    "next_action": "Fresh bounded deployment preflight for194cf66d; do not deploy without separate production authorization. No absent-receipt research or historical replay.",
+    "next_action": "Separately authorized listener-only deployment; refresh immediate source/pair/journal/disk gates.",
     "preflight_handoff": "7c558d04e7c88669dc98fcee3f6344fc01863594",
     "production_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
     "production_state": "UNCHANGED. Accepted V2 generation ACTIVE; installed listener preimage and frozen configuration verified unchanged. Zero production mutations, restarts, provider requests, V1 access or recovery-job replay. BIRDEYE and budgets unchanged.",

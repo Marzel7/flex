@@ -20255,6 +20255,28 @@
     "status": "UNKNOWN_DUPLICATION_HOLD_CHANGES",
     "verification": "Fixed20\u201323UTCindexedcohort125mints;1repeatcreator/3mints.3differentstrictCREATEsand3differentfundingtransactions;3completedWalkbackLINEAGE_GAPattempts1,cumulativeRPC31(notHTTP). NoexactPPproof/cacheentriesfound. ActualduplicateHTTP/ranges/savingsUNKNOWN."
   },
+  "flex_v2_retention_baseline": {
+    "canonical_decision": "Actual unique-mint writer preserves existing canonical timestamp and tuple on duplicate insertion; this alone does not establish full CREATE timestamp/provenance. Insufficiently evidenced receipts remain protected; no new archive or identity store.",
+    "engineering_source_revision": "b74f69cb4e595859b168ca82359aa91cde857f96",
+    "golden_frozen": false,
+    "independent_cleanup": "Existing protected lifecycle audit owner now has fail-closed allocation/entry bounds, durable append, exclusive ownership and interrupted-tail protection. No protected audit age expiry.",
+    "next_action": "Close existing custom-log lifecycle/allocation profile; keep protected receipts intact. No deployment or golden freeze.",
+    "production_changed": false,
+    "remaining_gates": [
+      "Complete remaining custom-log lifecycle and aggregate/sustained storage-admission coverage.",
+      "Approved dormant API/UI/monitor/bridge packaging and acceptance.",
+      "Exact new-hash terminal-aware runtime/recovery bundle composition before immutable freeze."
+    ],
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "status": "HOLD_GOLDEN_FREEZE",
+    "tests": {
+      "accepted_database_controls_reused": 31,
+      "accepted_receipt_controls_reused": 9,
+      "failed": 0,
+      "passed": 40,
+      "provider_free": true
+    }
+  },
   "flex_v2_seven_day_repeat_creator_population_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Seven-dayPumpPortal-only completeness and historicalprior-launch/caching coverage incomplete; populationcounts cannot establish redundantRPCsavings.",
@@ -36979,7 +37001,7 @@
   },
   "project": {
     "branch": "codex/dev004-first-v2-prototype",
-    "git_head": "cffdb10bdb5a2f82a9dd9e87a9206df936c7b3f8",
+    "git_head": "b74f69cb4e595859b168ca82359aa91cde857f96",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",

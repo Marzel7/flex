@@ -1,7 +1,7 @@
 import ast,configparser,hashlib,importlib.util,json,os,pathlib,resource,shutil,signal,sqlite3,subprocess,sys,time,uuid
 R=pathlib.Path('/Users/kevinkeaveney/.codex/worktrees/dev004-first-v2-prototype/flex');S=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2');CONF=pathlib.Path('/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf');PY='/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python';CTL='/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/supervisorctl'
 resource.setrlimit(resource.RLIMIT_FSIZE,(499000000,499000000));signal.signal(signal.SIGXFSZ,signal.SIG_IGN);sys.dont_write_bytecode=True
-P=json.load(open(S/'authority/frozen-runtime-plan.json'));assert P['immutable_source_commit']=='dfb76562efc0aa598c6750ddb36723b9e5e7b06e';sys.path.insert(0,str(R/'runtime/listener'))
+P=json.load(open(S/'authority/frozen-runtime-plan.json'));assert len(P['immutable_source_commit'])==40;sys.path.insert(0,str(R/'runtime/listener'))
 from src.core import paired_binding_guard as g
 from src.core.birth_admission_journal import BirthJournal
 from src.core.migration_signature_journal import MigrationJournal
@@ -32,23 +32,77 @@ def bind(mode,transfer=False):
 def owner(mode,stage):
  pair=S/'authority'/('v1-pair.json' if mode=='v1' else 'pair.json');m=json.load(open(pair));save(S/'authority/owner.json',{'version':1,'authority_id':m['authority']['id'],'origin_generation':m['authority']['origin_generation'],'generation':m['generation'],'manifest_path':str(pair),'manifest_sha256':sha(pair),'phase':stage,'owner':'runtime' if stage=='ACTIVE' else 'DEV004-production-owner','transfer_complete':stage=='ACTIVE'})
 
+# Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
+TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
+TERMINAL_PAYLOAD = {
+ 'pumpfun_curve_listener.py':'9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433',
+ 'migration_signature_journal.py':'65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668',
+ 'migration_terminal_evidence.py':'0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf',
+}
+TERMINAL_SCHEMA_CONTRACT = 'd7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588'
+MAX_RECOVERY_CONFIG_BYTES = 1_000_000
+
+def terminal_environment(env):
+ # Called only for the listener, after every legacy override has been merged.
+ env=dict(env)
+ if env.get(TERMINAL_FLAG) not in (None,'1'):
+  raise RuntimeError('TERMINAL_FLAG_DOWNGRADE')
+ env[TERMINAL_FLAG]='1'
+ for key,name in [('MIGRATION_JOURNAL_PATH','migration.jsonl'),('BIRTH_JOURNAL_PATH','birth.jsonl')]:
+  if env.get(key)!=str(S/'journals'/name):raise RuntimeError('TERMINAL_STABLE_JOURNAL_REQUIRED')
+ for key in ['DB_PATH','WT_OPS_DB_PATH','FLEX_DB_PAIR_MANIFEST','FLEX_DB_PAIR_AUTHORITY']:
+  if not env.get(key) or os.path.realpath(env[key])!=env[key] or os.environ.get(key)!=env[key]:
+   raise RuntimeError('TERMINAL_RECOVERY_BINDING_MISMATCH')
+ if env.get('DEV004_PAIRED_BINDING_REQUIRED')!='1' or env.get('DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED')!='1':
+  raise RuntimeError('TERMINAL_PAIRED_JOURNAL_REQUIRED')
+ package=pathlib.Path(P['roles']['listener']['package'])
+ modules={}
+ for name,expected in TERMINAL_PAYLOAD.items():
+  path=package/'src/core'/name
+  if not path.is_file() or path.is_symlink() or str(path.resolve())!=str(path) or sha(path)!=expected:
+   raise RuntimeError('TERMINAL_UNAWARE_SOURCE_FALLBACK:'+name)
+  if name!='pumpfun_curve_listener.py':
+   spec=importlib.util.spec_from_file_location('terminal_recovery_'+name[:-3],path)
+   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);modules[name]=module
+ terminal=modules['migration_terminal_evidence.py']
+ if terminal.CONTRACT!=TERMINAL_SCHEMA_CONTRACT:raise RuntimeError('TERMINAL_SCHEMA_CONTRACT')
+ generation=g.validate_pair(core_path=env['DB_PATH'],ops_path=env['WT_OPS_DB_PATH'],purpose='active')
+ if not generation:raise RuntimeError('TERMINAL_GENERATION_REQUIRED')
+ def validate_target(ops_path):
+  if str(ops_path)!=env['WT_OPS_DB_PATH']:raise RuntimeError('TERMINAL_OPS_BINDING_MISMATCH')
+  return g.validate_pair(core_path=env['DB_PATH'],ops_path=str(ops_path),purpose='active')
+ journal=modules['migration_signature_journal.py'].MigrationJournal(env['MIGRATION_JOURNAL_PATH'])
+ owner=terminal.TerminalEvidenceStore(env['WT_OPS_DB_PATH'],env['MIGRATION_JOURNAL_PATH'],generation=generation,validate_record=journal._validate,validate_pair=validate_target)
+ # Indexed no-match lookup exercises exact owner version/schema and pair guards.
+ # Existing rows, original transfer generations and quota counters stay untouched.
+ owner.lookup('__TERMINAL_RECOVERY_SCHEMA_PROBE__')
+ return env
+
 def write_config(mode):
+ if mode!='v2':raise RuntimeError('TERMINAL_RECOVERY_V2_ONLY')
  from supervisor.datatypes import dict_of_key_value_pairs
  cfg=configparser.ConfigParser(interpolation=None);cfg.read(S/'source-preimages/supervisor.conf');before={k:dict(cfg[k]) for k in cfg.sections()};mapping={'watchtower_listener':'listener','creator_resolution_worker':'creator_resolution','walkback_worker':'walkback'}
  for service,role in mapping.items():
-  section=cfg['program:'+service];env=dict_of_key_value_pairs(section.get('environment',''));env.update(settings(mode));env['PYTHONPATH']=P['roles'][role]['package']
-  if role=='listener':env.update(P['roles'][role]['nonsecret_wrapper_environment'])
+  section=cfg['program:'+service];env=dict_of_key_value_pairs(section.get('environment',''));env.update(settings(mode));env.update(P['roles'][role].get('runtime_environment_overrides',{}));env['PYTHONPATH']=P['roles'][role]['package']
+  if role=='listener':
+   env.update(P['roles'][role]['nonsecret_wrapper_environment'])
+   env=terminal_environment(env)
   section['environment']=','.join(k+'="'+str(v).replace('\\','\\\\').replace('"','\\"')+'"' for k,v in env.items())
   if mode=='v2':section['command']=' '.join(P['roles'][role]['command'])
  for key in cfg.sections():
   if key not in {'program:'+x for x in mapping}:assert dict(cfg[key])==before[key],'UNRELATED_SUPERVISOR_CHANGE'
  import io
- out=io.StringIO();cfg.write(out);atomic(CONF,out.getvalue().encode())
+ out=io.StringIO();cfg.write(out);payload=out.getvalue().encode()
+ if len(payload)>MAX_RECOVERY_CONFIG_BYTES:raise RuntimeError('RECOVERY_CONFIG_CAPACITY')
+ atomic(CONF,payload)
+ with open(CONF,'rb') as published:
+  if published.read(MAX_RECOVERY_CONFIG_BYTES+1)!=payload:raise RuntimeError('RECOVERY_CONFIG_READBACK')
  result=ctl('reread');print('SUPERVISOR_REREAD '+result,flush=True)
  for line in result.splitlines():
   if ':' in line:assert line.split(':',1)[0] in mapping,'UNEXPECTED_CHANGED_SERVICE'
  print(ctl('update',*mapping),flush=True)
- print(ctl('start',*mapping),flush=True)
+ for name in mapping:
+  if 'RUNNING' not in ctl('status',name):print(ctl('start',name),flush=True)
  save(S/'authority'/('supervisor-'+mode+'-identity.json'),{'configuration_sha256':sha(CONF),'services':ctl('status',*mapping)})
 
 def install_v1():
@@ -104,11 +158,12 @@ def fence():
     h=helpers();witness={};prior=S/'checkpoints/pre-fence-admission-witness.json'
     if prior.exists():witness=json.load(open(prior))
     for kind,cls,verify in [('birth',BirthJournal,h['_birth_journal_readback']),('migration',MigrationJournal,h['_migration_journal_readback'])]:
-        j=cls(S/'journals'/(kind+'.jsonl'),verify_completed=verify);rows=j.snapshot();assert len(rows)<448,'ADMISSION_PRESSURE'
+        j=cls(S/'journals'/(kind+'.jsonl'),verify_completed=verify);rows=j.snapshot()
         seen={r['id']:r for r in witness.get(kind,[])}
         seen.update({r['id']:{'id':r['id'],'signature':r['signature'],'mint':r['mint'],'state':r['state'],'ack':r.get('ack')} for r in rows});witness[kind]=list(seen.values())
         save(prior,witness)
         while j.reclaim_completed():pass
+        assert len(j.snapshot())<448,'ADMISSION_PRESSURE'
     hold_lanes([('core',settings('v1')['DB_PATH']),('ops',settings('v1')['WT_OPS_DB_PATH'])],lambda:owner('v1','TRANSFER'))
     bind('v1',True);assert g.validate_pair(write_path=settings('v1')['DB_PATH'],purpose='write')==P['source_generation'];phase('V1_WRITES_FENCED_NOT_RETIRED',journal_counts={k:len(cls(S/'journals'/(k+'.jsonl')).snapshot()) for k,cls in [('birth',BirthJournal),('migration',MigrationJournal)]})
 

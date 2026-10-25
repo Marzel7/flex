@@ -19484,6 +19484,36 @@
       "syntax_compilation": "PASS"
     }
   },
+  "flex_v2_architecture_redundancy_golden_audit": {
+    "baseline_created": false,
+    "critical_finding": "P0 migration-journal saturation: captured512records including511protected RETRY_EXHAUSTED and1ACKED; bounded recent logs demonstrate JOURNAL_CAPACITY refusals and PumpPortal reconnects. Do not infer lost-event count or delete protected records.",
+    "current_authority": "Accepted active V2 generation and194cf66d one-file listener override verified;65 frozen/approved payload hashes match; all267potential active import-closure files match immutable candidate. Main checkout handoff is stale and not production authority.",
+    "engineering_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+    "golden_baseline_readiness": "HOLD",
+    "inventory": "4181tracked executable files,8047installed executable paths,331live schema objects.70retained qualification report hashes reused; no functional matrices rerun. Three source parse failures recorded as unknown, not assumed active failures.",
+    "manifest_sha256": "71ad86973efa9f3dd589fdfeb9bb9ee12ff01d556dd4da36e94993d5da401f79",
+    "maximum_artifact_bytes": 15873922,
+    "measured_efficiency": "18same unconsumed/non-quarantined webhook retry rows each increased local retry counter31\u201332over~187seconds; no provider-cost inference. Quarantine rows were preserved.",
+    "next_action": "Separately authorize one bounded correction of existing migration-journal protected-terminal capacity lifecycle; qualify full-protected-population admission/restart/dedup/retention safety provider-free. Do not simply increase512 or delete exhausted/quarantined records. No source cleanup or golden freeze under audit authority.",
+    "other_gates": "Missing dormant API/monitor/bridge launch roots; legacy broken cron/failed DEV launchd context; incomplete explicit V2 retention/aggregate growth and intended API/UI acceptance contracts. Three enabled cron entries inventoried, retired graph/rollover execution not reactivated.",
+    "preservation": "Typed V1/milestone-named references,compact creator history,known-operation topology,negative evidence,existing Potential Operations/P3R-named assessment dependencies,price/BIRDEYE/budgets/0.1%ATH andfresh compact rollback remain required; dormant is not obsolete.",
+    "redundancy": "718exact-source-byte groups/2642files,about27.0MBlogical duplicate source. Packaging equivalence only, not removal authority or measured runtime/physical saving. No schema/index drop qualified.",
+    "report_local": "/private/tmp/flex-v2-architecture-audit/REPORT.md",
+    "runtime_deployment_reason": "Read-only source/runtime audit only.",
+    "runtime_deployment_required": false,
+    "safety": "Zero application source/config/schema/database/cron changes,service restarts,provider calls,newWebSocket connections,V1 reads,deletion/compaction,migration rerun or infrastructure changes. Detailed inventories and operational evidence remain local; no production rows/secrets published.",
+    "schema_classifications": {
+      "ACTIVE_REQUIRED": 171,
+      "DORMANT_REQUIRED": 53,
+      "LEGACY_ONLY": 0,
+      "RECOVERY_REQUIRED": 51,
+      "REDUNDANT_VERIFIED": 0,
+      "RESEARCH_PINNED": 2,
+      "UNKNOWN": 54
+    },
+    "status": "COMPLETE_READ_ONLY_WITH_EXPLICIT_UNKNOWNS",
+    "updated_at_utc": "2026-10-25T18:15:56.349016+00:00"
+  },
   "flex_v2_creator_enqueue_gap_attribution_20261019": {
     "admission_and_retry": "Queue deduplication is by mint. Bulk selection excludes active, complete, ignored, and authority-exhausted failed rows; failed non-authority rows become retry on explicit enqueue. There is no separate queue-capacity rejection beyond each caller's bounded selection limit. The sweep returns zero if CRQ_HISTORICAL_DISCOVERY_ENABLED is not '1'; Supervisor configuration does not set that variable, but retained evidence cannot establish the effective historical process environment.",
     "call_paths": "At migration, listener _mark_token_migrated_in_db writes token_analysis then calls enqueue_prospective_migration before committing the same Core transaction. That direct path exits for inactive/historical controls, protected OPS states, creator conflict, existing queue state, qualified PumpPortal/OPS/Core proof, or otherwise INSERT OR IGNOREs a priority-200 migration_direct row. Independently, listener periodic sweep (limit 25) and creator-resolution worker loop (configured limit 50) invoke enqueue_missing_migrated_tokens. The bulk path requires migrated lifecycle and both creator fields blank, then mint-primary-key enqueue_missing_creator; it has no CREATE-signature requirement.",
@@ -36355,8 +36385,8 @@
     "git_head": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-25T17:27:34.092162+00:00",
-    "working_tree": "Engineering194cf66d unchanged. Authorized one-file CREATE availability correction installed in production listener, five-minute natural acceptance PASS. Runtime deployment gate PASS; listener83937 running, resolver/Walkback unchanged. No remaining action for this milestone."
+    "updated_at_utc": "2026-10-25T18:15:56.349016+00:00",
+    "working_tree": "Application/engineering source unchanged194cf66d. Comprehensive bounded read-only architecture audit complete; golden readiness HOLD. Current journal capacity failures are a separate P0 finding; no repair/cleanup/baseline freeze authorized or performed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

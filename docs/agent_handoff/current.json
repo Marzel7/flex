@@ -39123,6 +39123,18 @@
   "updated_at": "2026-09-04T15:45:00Z",
   "updated_at_utc": "2026-09-04T15:45:00Z",
   "updated_by": "agent_local",
+  "v1_graph_analyser_redundancy_audit": {
+    "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
+    "cron_runner_sha256": "d93eb8e9d438075abb62a422c083c87d5a7b9121390bdf776d08189bf4e49ec1",
+    "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0; active installed V2 authority",
+    "finding": "Actual cron runs 19 database-only graph/history/risk stages against retired Core V1. Bounded retained history has no post-cutover analyzer starts; scheduled post-cutover launches skip at queue guard. All 35 enumerated legacy graph outputs absent from current V2 Core. Active canonical Walkback/known-operation/price paths are separate, but installed dormant API/review graph/network/risk/prediction/IRC consumers have no accepted future-refresh retirement or replacement authority. Algorithms are not equivalent to compact creator history or Walkback.",
+    "next_action": "Resolve only the enumerated dormant capability scope; if retired, separately disable exact graph cron preserving script/data; if retained, qualify an appropriate V2 lifecycle owner rather than blindly rebind legacy bulk runner.",
+    "runtime_deployment_reason": "Read-only dependency audit only; schedule remains enabled.",
+    "runtime_deployment_required": false,
+    "status": "HOLD_DEPENDENCY_UNKNOWN",
+    "updated_at_utc": "2026-10-25T14:32:50.328625+00:00",
+    "verification": "Read-only exact cron/runtime/source verification; bounded 10885 analyzer-run rows and log tail; installed static reader inventory. No analyzer execution, provider calls, cron/source/config/service changes or SQL writes. Detailed operational evidence kept local."
+  },
   "v1_legacy_schedule_isolation": {
     "blocker": "Installed graph/network lifecycle contract still names cron owner; graph-derived V2 dependency/replacement not independently resolved. Do not disable under current condition.",
     "engineering_revision": "86fbf6b8ecc1ee6b70ad7986ae7954145cc90fc0",

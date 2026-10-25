@@ -19993,6 +19993,45 @@
     "status": "PASS",
     "verification": "96focusedproviderfreetestspasswithactualinstalledwrapper;2lineruntimefixinstalled.601.37sec/21samplessamePID81382/noSQLiteerrors/exits;164births/162COMMITTED/11migrationnotifications/7persistedmints.42quarantineandcanonical/OPSunchanged;36receiptsbyteidentical/6missing."
   },
+  "flex_v2_migration_retry_exhaustion_root_cause_audit": {
+    "authority": "Installed listener/journal hashes,MAX_ATTEMPTS3,current V2 physical pair,config andruntime flags verified unchanged.",
+    "canonical_nuance": "Earlier0exact incoming-signature matches did not mean0migrated tokens.446notifications map to413already-migrated mints;441canonical handoffs complete,434OPSrows present,not blanket ACKauthority.",
+    "cohort": "512unique signatures,allattempts3/RETRY_CEILING;1536processing reservations.283PP/229PumpSwap account notifications. Terminal state is not underlying cause.",
+    "dominant_pattern": "446resolved/cached mints already migrated inCore withanother canonical signature;426unambiguous already-analyzed guard traces. Handler returns before notification reconciliation,marks completed in memory,strict signature readback fails;later no-op guards stillconsume journal reservations. Do not overwrite canonical IDs orACKsame mint blindly.",
+    "engineering_revision": "b1b6e7d25a13904d0bc7c33781861fc22aa8ed6a",
+    "impact": "Journal full. Bounded currentloghas145capacitymessages;atleast98distinct unambiguous log-correlated refusal identities,not an exactlost-event count. No exact canonical/retry-queue matches for those identities;44shadow census matches,17shadowmint Core rows. Current canonical processing since verified saturation remains unqualified without indexed timestamp query;no historical scan performed.",
+    "manifest_sha256": "7554024f8ecf51f55064ed0658080d33a01e0784526a0d268f20163ef0b11866",
+    "next_action": "Qualify the single migration completion/source-input/idempotency correction inDEV against frozen overlap/deferred cases;do not expandjournal/storage orreplay512before that proof.",
+    "operational_decision": "HOLD_LIVE_MIGRATION_INTAKE",
+    "other_exception": "12retained_token_risk UnboundLocalError messages not safely attributed to512cohort;not counted ascohort cause.",
+    "production_runtime_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
+    "recommended_minimum_correction": "One bounded DEV migration admission/completion/idempotency contract correction:retain notified mint/provenance separately,explicit completed/deferred/conflict outcomes,no attempt consumption forduplicate/in-flight/no-op work without qualified disposition,verify exact canonical/handoff linkage before ACK. Preserve512records andcanonical IDs;no automatic replay/reset orbudget increase. Correct cause before expanding terminal storage.",
+    "report_local": "/private/tmp/flex-v2-migration-exhaustion-audit/REPORT.md",
+    "retry_efficiency": "446resolved records:1338reservations versus449observed cache-fetch cycles;889extra reservations are not889HTTPrequests. Actual per-signature HTTPcounts unknown.10second poll canrace45second detached resolution;per-attempt timestamps notpersisted.",
+    "root_cause_decision": "COMMON_CORRECTABLE_DEFECT",
+    "root_counts": {
+      "application_known_mint_completion_mismatch": {
+        "count": 426,
+        "percent": 83.2031
+      },
+      "other_resolved_completion_mismatch_exact_branch_unknown": {
+        "count": 20,
+        "percent": 3.9062
+      },
+      "unknown_underlying_acquisition_failure": {
+        "count": 66,
+        "percent": 12.8906
+      }
+    },
+    "runtime_deployment_reason": "Read-only root-cause audit; no correction implemented.",
+    "runtime_deployment_required": false,
+    "runtime_health": "Listener83937,resolver44903,Walkback44919RUNNING. Subscriptions/reconnects observed;socket connectivity doesnot prove durable admission.",
+    "safety": "Zero production DB/journal/source/config changes,restarts,provider calls,replay/resets,queue mutations,V1 access,deletion ornewinfrastructure. Detailed signature metadata/log derivations keptlocal;only sanitized aggregates published.",
+    "status": "COMPLETE_READ_ONLY",
+    "timing": "502records predate194cf66d CREATE deployment,10after;source pattern predates latestcorrection. No new failure generation was initiated.",
+    "unresolved_group": "66records allPP-sourced in15:38\u201316:46Zbefore CREATE deployment;all66have retained supplied notification mint discarded byprocessing boundary.3two-iteration fetch exhaustion cycles each;60delayed unusable-TX markers. Precise timeout/429/HTTP/null cause not retained per signature. Shadow census is not durable replay admission orcanonical proof.",
+    "updated_at_utc": "2026-10-25T19:08:35.743882+00:00"
+  },
   "flex_v2_normal_creator_recovery_failure_analysis_20261020": {
     "canonical_writes": 0,
     "curve_evidence": "No retained mint-keyed bonding-curve history page, curve candidate list, curve transaction decode, CREATE version discriminator, or curve strict-validation result exists for these mints. token_analysis has no bonding_curve_pda for all 55. rpc_response_cache is keyed only by opaque cache_key and wt_curve_impact_analysis is a post-create impact table, not a history/strict-CREATE acquisition ledger. Therefore curve-first one-page qualified CREATE recoveries: 0 PROVEN; actual count UNKNOWN for all 55. PDA/migration are not used as a proxy.",
@@ -20089,7 +20128,7 @@
     "event_513_result": "HOLD_JOURNAL_CAPACITY without independently durable terminal authority",
     "finding": "Journal now512RETRY_EXHAUSTED records. Bounded indexed lookup ofall512signatures found0canonical migration matches and0migration retry-queue counterparts. No accepted signature-terminal quarantine/retained recovery owner or identity mapping established.",
     "frozen_authority": "Installed194cf66d source hash,existing signature journal owner,active matched V2 generation andfrozen config verified unchanged.",
-    "next_action": "Establish one bounded indexed signature-terminal ownership/transfer/dedup/recovery contract before reclaiming protected records; use existing V2 evidence store only after qualifying these semantics. Do not delete/reset/replay exhausted work or simply increase512.",
+    "next_action": "Superseded priority by root-cause audit:qualify completion/idempotency andsource-mint preservation before terminal-storage implementation. Existing protected records remain untouched;see flex_v2_migration_retry_exhaustion_root_cause_audit.",
     "previous_coverage_gap": "Prior capacity reuse qualified completed/ACKed records and deliberately preserved exhausted/protected records; it did not qualify a fully protected terminal population. Existing accepted completed-record reuse remains intact.",
     "private_authority_evidence": "/private/tmp/flex-v2-protected-journal-capacity/AUTHORITY.json",
     "production_runtime_revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3",
@@ -36406,8 +36445,8 @@
     "git_head": "b1b6e7d25a13904d0bc7c33781861fc22aa8ed6a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-25T18:35:49.235147+00:00",
-    "working_tree": "Existing isolated DEV004 branch: regression/evidence-onlyb1b6e7d2remote-verified. Production remains194cf66d unchanged. Protected journal recovery HOLD for missing independently durable terminal authority; no deployable candidate."
+    "updated_at_utc": "2026-10-25T19:08:35.743882+00:00",
+    "working_tree": "Engineeringb1b6e7d2andproduction194cf66dunchanged. Read-only512notification root-cause audit complete:COMMON_CORRECTABLE_DEFECT;dominant canonical-versus-notification completion mismatch,66acquisition causes unknown. Live intakeHOLDforcapacity;nextboundedDEVprocessing correction,notstorage expansion."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

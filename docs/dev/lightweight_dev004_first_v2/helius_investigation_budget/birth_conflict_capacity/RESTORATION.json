@@ -1,0 +1,81 @@
+{
+  "HELIUS_RESTORATION_STATUS": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
+  "SOURCE_REVISION": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+  "GATE_BEFORE_AFTER": {
+    "before": "PAYMENT_DENIED",
+    "after": "AUTH_DENIED",
+    "gate_enabled": true,
+    "automatic_reopening": false
+  },
+  "BOUNDED_PROBE": {
+    "attempts": 1,
+    "method": "getTransaction",
+    "http_status": 401,
+    "usable_transaction_verified": false,
+    "worst_case_credits_reserved": 1,
+    "measured_billing_credits": "Not queried or inferred.",
+    "retries": 0,
+    "fallback_requests": 0,
+    "reservation_before_HTTP_dispatch": true,
+    "single_probe_lease_and_cross_worker_owner_lock": true
+  },
+  "BUDGET": {
+    "lifetime_credit_ceiling": 100000,
+    "warning_credits": 50000,
+    "policy_unchanged": true,
+    "counter_reset": false,
+    "shared_reserved_credits": 1,
+    "inflight_requests": 0,
+    "shared_reservations": 1,
+    "shared_outcomes": 1
+  },
+  "WORKERS": {
+    "listener": {
+      "pid": 74589,
+      "state": "RUNNING"
+    },
+    "resolver": {
+      "pid": 74621,
+      "state": "RUNNING"
+    },
+    "walkback": {
+      "pid": 74641,
+      "state": "RUNNING"
+    },
+    "restarts": 0
+  },
+  "DURABLE_WORK": {
+    "birth_journal_records_at_verification": 213,
+    "birth_journal_state": "ACKED=213",
+    "migration_journal_records_at_verification": 512,
+    "migration_states": {
+      "QUARANTINED": 191,
+      "RESOLVED": 1,
+      "RETRY_EXHAUSTED": 190,
+      "PENDING": 130
+    },
+    "birth_terminal_records": 512,
+    "migration_terminal_records": 752,
+    "exhausted_or_quarantined_replay": false,
+    "retry_or_budget_ceilings_reset": false,
+    "note": "Protected populations preserved. Migration journal is full but has existing bounded verified terminal-transfer authority with quota headroom; no manual transfer/replay performed in restoration."
+  },
+  "DISK": {
+    "free_bytes": 3653656576,
+    "required_floor_plus_reserve": 2067108864
+  },
+  "EXACT_BLOCKER": "The one authorized request to the installed paid Helius endpoint/credential returned HTTP401; usable transaction data was not obtained. This proves an authorization failure for this request, not a diagnosis of billing-credit exhaustion.",
+  "NEXT_ACTION": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization.",
+  "SAFETY": {
+    "source_changes": 0,
+    "schema_changes": 0,
+    "service_controls": 0,
+    "credential_changes": 0,
+    "canonical_evidence_mutations_by_probe": 0,
+    "V1_access": 0,
+    "BIRDEYE": "UNCHANGED",
+    "raw_provider_payload_retained": false,
+    "provider_RPC_attempts": 1
+  },
+  "checked_at_utc": "2026-10-26T22:16:35.165060+00:00"
+}

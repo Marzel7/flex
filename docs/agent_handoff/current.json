@@ -37028,7 +37028,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "b91473f7ec8f29a1dd0769b1f353f6e63d824991",
+    "git_head": "9dcf627791e8781fb77fee7556f1a13b56645b90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-26T12:47:05.224470+00:00",
@@ -44879,5 +44879,19 @@
     "current_stability": "Not established; whole listener repeatedly replaced while PumpPortal births otherwise active.",
     "next_action": "Bounded qualification of PumpSwap connection-failure attribution and recovery: retain sanitized underlying exception, establish actual connection cause, and avoid whole-listener termination for recoverable migration-channel outage while preserving durable admission. Do not deploy instrumentation until stable intake established.",
     "detailed_evidence": "Local report only; no private payloads published."
+  },
+  "flex_v2_pumpswap_connection_recovery": {
+    "status": "PASS_DEV_ONLY",
+    "source_revision": "9dcf627791e8781fb77fee7556f1a13b56645b90",
+    "production_changed": false,
+    "deployed": false,
+    "tests": {
+      "new_passed": 22,
+      "unchanged_completion_passed": 530,
+      "failed": 0
+    },
+    "result": "PumpSwap transport outage stays in bounded reconnect task; safe typed diagnostics; confirmed subscription resets; unknown database/storage/authority errors propagate. Unrelated listener contracts byte-identical.",
+    "limitation": "Original network errno/cause remains unproven; no live provider test or claim of restored connection.",
+    "next_action": "Perform exact one-file listener deployment preflight: runtime preimages, disk floor, terminal-aware fallback/recovery pins, affected listener-only restart and natural subscription/intake acceptance. Do not deploy yet."
   }
 }

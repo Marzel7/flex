@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE \u2014 COMPLETE. Leave listener running and preserve protected evidence.",
+  "next_action": "Obtain retained API-key-specific provider request records for 17:14\u201317:44 UTC, including method, client/source address and request time or request ID. Correlate to local retained process evidence before naming a caller. Keep restoration halted.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T12:47:05.224796+00:00",
+  "updated_at_utc": "2026-10-26T17:55:16.104049+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -40013,7 +40013,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "MARKET_PREDICTION_RETIREMENT_COMMIT_PARTIAL",
+  "verdict": "UNATTRIBUTED_RPC_USAGE_NO_PROCESS_PROVEN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -44988,5 +44988,59 @@
     "supervisor_note": "Renderer guard detected pre-existing unrelated pending changes. Native parser proved only3 authorized configurations changed by task; only those3 updated/started. Other pending groups left untouched. Guard/manual completion caveat retained locally.",
     "next_action": "Monitor disk and finite pending-journal capacity. Keep PAYMENT_DENIED; no restoration/probe until separately authorized after provider status is verified. Leave listener/resolver/Walkback running. Retain all gate-aware fallback and preimage artifacts.",
     "detailed_evidence": "Private deployment report, approved source/fallback, preimages and authority receipt retained locally. No sensitive configuration published."
+  },
+  "flex_v2_helius_exact_caller_audit": {
+    "status": "HOLD",
+    "verdict": "UNATTRIBUTED_RPC_USAGE_NO_PROCESS_PROVEN",
+    "engineering_revision": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+    "observed_at_utc": "2026-10-26T17:55:16.104049+00:00",
+    "runtime_pids": {
+      "listener": 16498,
+      "resolver": 16542,
+      "walkback": 16561,
+      "supervisor": 1131
+    },
+    "gate": {
+      "state": "PAYMENT_DENIED",
+      "reservations": 0,
+      "outcomes": 0,
+      "methods": {},
+      "probe_authorized_or_executed": false
+    },
+    "retained_evidence": {
+      "core_v2_indexed_exact_method_rows": 0,
+      "supervisor_role_log_files_examined": 17,
+      "role_log_bytes_examined": 97151484,
+      "exact_method_log_matches": 109,
+      "all_matches_component": "creator_funding_worker",
+      "latest_match_utc": "2026-10-18T07:53:39.507500+00:00",
+      "funding_worker_current_state": "STOPPED",
+      "all_three_roles_stopped_interval_utc": [
+        "2026-10-26T17:14:21.219Z",
+        "2026-10-26T17:18:46.232Z"
+      ],
+      "passive_socket_samples": 10,
+      "resolver_walkback_established_tcp_observed": false
+    },
+    "call_path_found": {
+      "path": "realtime_creator_funding_extractor._run_automatic_cex_detection -> classify_addresses_from_funding(max_addresses=200) -> AutomaticCEXDetector.classify_address -> _score_cex_heuristics -> aiohttp.ClientSession.get",
+      "source": "src/analysis/automatic_cex_detection.py:277",
+      "transport": "Helius enhanced address transactions REST GET; local metric label getTransactionsForAddress",
+      "paid_credential_supplied_by_inspected_batch_path": false,
+      "attribution_to_current_burst": "NOT_ESTABLISHED; historical calls only"
+    },
+    "measurement_limitations": [
+      "Local metric label is not proof of the native RPC method billed by provider.",
+      "Zero instrumented gate counters do not establish account-wide zero dispatch.",
+      "Passive socket snapshots do not exclude short-lived or historical connections.",
+      "No retained request-level provider client attribution available locally.",
+      "Dashboard region labels do not establish client origin."
+    ],
+    "exact_blocker": "No request-level evidence links the October26 billed getTransactionsForAddress calls to a local PID or call stack.",
+    "next_action": "Obtain retained API-key-specific provider request records for 17:14\u201317:44 UTC, including method, client/source address and request time or request ID. Correlate to local retained process evidence before naming a caller. Keep restoration halted.",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "service_controls": 0,
+    "tests": "No software tests needed; read-only indexed telemetry, retained log/source inspection, scheduler/process/socket verification."
   }
 }

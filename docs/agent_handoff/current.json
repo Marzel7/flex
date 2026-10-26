@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "2df7c7e325ac6c7b81969913ac6141d70f7d9e90",
+    "git_head": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T23:35:26.639719+00:00",
-    "working_tree": "455f160d deployment/retirement preflightGO; not executed. Production17a2418e remainsOPEN with3held slots and624reserved credits."
+    "updated_at_utc": "2026-10-26T23:53:36.647279+00:00",
+    "working_tree": "455f160d deployedPASS; old owners kernel-proven exited; three slots reconciled without credit refund; current-key gateOPEN and natural RPC completing."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45129,11 +45129,11 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "DEPLOYED_OPEN_PARTIAL_INFLIGHT_CAPACITY_BLOCKED",
-    "verdict": "PARTIAL",
-    "updated_at_utc": "2026-10-26T23:35:26.639719+00:00",
-    "engineering_revision": "2df7c7e325ac6c7b81969913ac6141d70f7d9e90",
-    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "status": "DEPLOYED_455F160D_PASS",
+    "verdict": "PASS",
+    "updated_at_utc": "2026-10-26T23:53:36.647279+00:00",
+    "engineering_revision": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
+    "source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
     "report_sha256": "0eb7a6797ea71d3953202c98ad6ae156f6961d28ae01c9d69418d98114fdb116",
@@ -45171,13 +45171,13 @@
     },
     "production_flags": {
       "generation": "DEV004-V2-20261024-dfb76562",
-      "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+      "installed_source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
       "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
       "configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
       "gate_state": "OPEN",
       "policy_version": 2,
-      "gate_reservations": 119,
-      "gate_outcomes": 119,
+      "gate_reservations": 1022,
+      "gate_outcomes": 1019,
       "restoration_or_probe": "Single current-key probe HTTP200 and usable transaction verified; normal eligible work resumed under protection.",
       "birth_terminal_schema_initialized": true,
       "birth_protected_records_transferred": 512,
@@ -45192,10 +45192,13 @@
       "provider_probe_attempts": 1,
       "service_controls_this_turn": "Restart only listener/resolver/Walkback",
       "operator_probes_total": 2,
-      "operator_probe_this_authorization": 1
+      "operator_probe_this_authorization": 1,
+      "original_credits_preserved": 624,
+      "original_held_slots_reconciled": 3,
+      "diagnostic_provider_calls": 0
     },
-    "blocker": "Production remains on17a2418e with3held reservations/624reserved credits. DEV candidate455f160d qualifies prevention plus dead-owner-only uncertainty reconciliation; not deployed.",
-    "next_action": "Obtain separate authorization for the exact455f160dsource activation and owner-retirement/CAS reconciliation plan. Do not deploy or clear slots under this preflight.",
+    "blocker": null,
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45566,22 +45569,25 @@
         "gate_unchanged": "OPEN",
         "floor_plus_reserve": 2067108864,
         "free_bytes": 5287284736
-      }
+      },
+      "resolution": "Three old owner processes exited and source455f160d reconciled slots, preserving charges. New120second window showed112natural requests and no long-held slots."
     },
     "completion_candidate_source": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
     "completion_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/REPORT.json",
     "completion_report_sha256": "fb0336b0d6951e873ffd60f4bc2a8d98f890c0d250611508f237c4876fb6e891",
     "completion_qualification": {
-      "status": "QUALIFIED_NOT_DEPLOYED",
+      "status": "DEPLOYED_PASS",
       "candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
       "bundle_sha256": "7a6b18f99bde1867939afac93722464450016fe7178034d4d19ad7258d9bb695",
       "tests_passed": 209,
       "original_counterexamples": 3,
       "live_slots_cleared": 0,
       "credits_refunded": 0,
-      "exact_per_ticket_trigger": "Not retained; lock-loss and preheader exception defects independently reproduced."
+      "exact_per_ticket_trigger": "Not retained; lock-loss and preheader exception defects independently reproduced.",
+      "live_slots_reconciled_with_kernel_absence_proof": 3
     },
-    "completion_preflight": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT_AND_OWNER_RECONCILIATION"
+    "completion_preflight": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT_AND_OWNER_RECONCILIATION",
+    "completion_deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/DEPLOYMENT.json"
   },
   "flex_v2_birth_conflict_capacity": {
     "status": "DEPLOYED_PASS",
@@ -45704,7 +45710,7 @@
   "flex_v2_helius_current_key_restoration": {
     "status": "PASS",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
-    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
+    "engineering_revision": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CURRENT_KEY_RESTORATION.json",
     "report_sha256": "190a16ce193eccaf5beb8cd3ac085e44a51083595d1bdfc6dc31c86b312db1a3",
     "current_key_process_and_recovery_match": true,
@@ -45814,13 +45820,13 @@
       "disk_free_bytes": 5301727232,
       "required_floor_plus_reserve": 2067108864
     },
-    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
     "latest_progress_audit": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/USAGE_AND_PROGRESS.json",
-    "current_runtime_progress": "PARTIAL: credential restoration succeeded, but three durable in-flight reservations now hold newRPC dispatch. No provider or runtime modifications by audit."
+    "current_runtime_progress": "PASS: current-key bindings retained; source455f160d fixed completion. Unknown originals remain review-held; natural RPC progressing."
   },
   "flex_v2_helius_usage_progress_audit": {
     "status": "PARTIAL_RPC_CONCURRENCY_SLOTS_BLOCKED",
-    "engineering_revision": "0ff83b9f2ff6797676b12a5b80cefc2a9d97a3a0",
+    "engineering_revision": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/USAGE_AND_PROGRESS.json",
     "report_sha256": "450d58f07d604f3f72efd423b1537610f37d5f4058788ab8ee47efa8421523f1",
@@ -45865,12 +45871,15 @@
       "floor_plus_reserve": 2067108864,
       "free_bytes": 5287284736
     },
-    "next_action": "Perform bounded read-only deployment preflight for this candidate/current-key configuration and compatible fallback. Any later deployment must be separately authorized and retire/verify the original client PIDs before explicit CAS-protected uncertainty reconciliation. Do not blindly clear slots, refund credits, replay the unknown requests or deploy now.",
-    "qualified_completion_candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1"
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
+    "qualified_completion_candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "resolution_status": "RESOLVED_BY_455F160D_DEPLOYMENT",
+    "resolution_report": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/DEPLOYMENT.json",
+    "current_blocker": null
   },
   "flex_v2_helius_rpc_completion_safety": {
-    "status": "PREFLIGHT_GO_NOT_DEPLOYED",
-    "engineering_revision": "2df7c7e325ac6c7b81969913ac6141d70f7d9e90",
+    "status": "DEPLOYED_PASS",
+    "engineering_revision": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
     "source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
     "accepted_production_source": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "7a6b18f99bde1867939afac93722464450016fe7178034d4d19ad7258d9bb695",
@@ -45908,16 +45917,23 @@
       "gate": "OPEN",
       "live_inflight": 3,
       "reserved_credits": 624,
-      "mutations": 0,
+      "mutations": "Authorized source/owner-reconciliation deployment",
       "provider_calls": 0,
-      "service_controls": 0,
-      "deployment": false,
-      "reconciliation": false,
-      "spending_history": "UNCHANGED"
+      "service_controls": "Only three workers stopped/started",
+      "deployment": true,
+      "reconciliation": true,
+      "spending_history": "Original624preserved; natural subsequent requests add charges.",
+      "installed_source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+      "original_credits_preserved": 624,
+      "reconciled_slots": 3,
+      "current_sample_credits": 1014,
+      "current_sample_inflight": 0,
+      "current_sample_at_utc": "2026-10-26T23:53:36.647279+00:00",
+      "provider_test_calls": 0
     },
-    "remaining_blocker": "The live three reservations remain intact and their owning processes are still running. Qualification is not authority to retire workers or reconcile production state.",
-    "next_action": "Obtain separate authorization for the exact455f160dsource activation and owner-retirement/CAS reconciliation plan. Do not deploy or clear slots under this preflight.",
-    "updated_at_utc": "2026-10-26T23:35:26.639719+00:00",
+    "remaining_blocker": null,
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
+    "updated_at_utc": "2026-10-26T23:53:36.647279+00:00",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/PREFLIGHT.json",
     "preflight_report_sha256": "291069c2fd7d1706809a848fdad26c00caf4d09b01773f85126d41993278fb37",
     "retirement_plan_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/RETIREMENT_PLAN.json",
@@ -45988,22 +46004,230 @@
         "Actual process retirement and kernel absence proof, not performed in preflight",
         "Post-quiescence exact-state CAS and candidate-only fallback before startup"
       ]
+    },
+    "deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/DEPLOYMENT.json",
+    "deployment_report_sha256": "3d6d6394151d6cefc6034c04af6f601b695d52fb6b73b68f1ddb3b6517ae32b2",
+    "acceptance": {
+      "old_owner_absence": [
+        {
+          "pid": 80583,
+          "kernel_result": "PROCESS_NOT_PRESENT",
+          "checked_at_utc": "2026-10-26T23:47:01.981158+00:00"
+        },
+        {
+          "pid": 80604,
+          "kernel_result": "PROCESS_NOT_PRESENT",
+          "checked_at_utc": "2026-10-26T23:47:01.981195+00:00"
+        },
+        {
+          "pid": 80629,
+          "kernel_result": "PROCESS_NOT_PRESENT",
+          "checked_at_utc": "2026-10-26T23:47:01.981203+00:00"
+        }
+      ],
+      "reconciliation": {
+        "original_slots": 3,
+        "reconciled_slots": 3,
+        "status": "OWNER_EXIT_UNCERTAIN",
+        "original_spending": 624,
+        "spending_after_reconciliation_before_restart": 624,
+        "root_child_ownership_and_all_scope_fields_preserved": true,
+        "original_attempts_and_request_metadata_preserved": true,
+        "provider_HTTP_outcomes_or_canonical_success_inferred": false,
+        "refunds": 0,
+        "automatic_original_request_replay": false,
+        "guard": "Actual owner PID absence, exact ticket/PID matching and fresh gate-state SHA per mutation. Age-only release not used."
+      },
+      "workers": {
+        "before": {
+          "listener": 80583,
+          "resolver": 80604,
+          "walkback": 80629
+        },
+        "after": {
+          "listener": 99111,
+          "resolver": 99140,
+          "walkback": 99159
+        },
+        "status": "watchtower_listener              RUNNING   pid 99111, uptime 0:04:08\ncreator_resolution_worker        RUNNING   pid 99140, uptime 0:03:57\nwalkback_worker                  RUNNING   pid 99159, uptime 0:03:51\n",
+        "actual_current_key_pair_and_gate_environments_verified": true,
+        "other_service_states_and_PIDs_unchanged": true
+      },
+      "observation": {
+        "window_seconds": 120,
+        "natural_HTTP_requests": 112,
+        "natural_reserved_credits": 112,
+        "final_sample_total_reserved_credits": 864,
+        "maximum_observed_new_inflight_age_seconds": 0,
+        "final_sample_inflight": 0,
+        "highest_investigation_spend_at_final_sample": 61,
+        "sampling_limit": "Snapshots every20seconds; no absolute latency guarantee claimed.",
+        "error_counts": {
+          "listener.log": {
+            "Traceback": 0,
+            "JOURNAL_CAPACITY": 0,
+            "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+            "HELIUS_REQUEST_STATE": 0,
+            "AUTH_DENIED": 0,
+            "PAYMENT_DENIED": 0,
+            "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+          },
+          "listener_err.log": {
+            "Traceback": 0,
+            "JOURNAL_CAPACITY": 0,
+            "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+            "HELIUS_REQUEST_STATE": 0,
+            "AUTH_DENIED": 0,
+            "PAYMENT_DENIED": 0,
+            "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+          },
+          "creator_resolution_worker_err.log": {
+            "Traceback": 0,
+            "JOURNAL_CAPACITY": 0,
+            "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+            "HELIUS_REQUEST_STATE": 0,
+            "AUTH_DENIED": 0,
+            "PAYMENT_DENIED": 0,
+            "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+          },
+          "walkback_worker_err.log": {
+            "Traceback": 0,
+            "JOURNAL_CAPACITY": 0,
+            "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+            "HELIUS_REQUEST_STATE": 0,
+            "AUTH_DENIED": 0,
+            "PAYMENT_DENIED": 0,
+            "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+          }
+        },
+        "live_no_probe_validation": true
+      },
+      "storage": 3913891840
     }
   },
   "flex_v2_helius_completion_deployment_preflight": {
-    "status": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT_AND_OWNER_RECONCILIATION",
+    "status": "EXECUTED_PASS",
     "candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
-    "engineering_revision": "2df7c7e325ac6c7b81969913ac6141d70f7d9e90",
+    "engineering_revision": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/PREFLIGHT.json",
     "report_sha256": "291069c2fd7d1706809a848fdad26c00caf4d09b01773f85126d41993278fb37",
     "retirement_plan_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/RETIREMENT_PLAN.json",
     "retirement_plan_sha256": "ffd31ccbe7ccaff0387affd5066f188953cae36783c3616a7341448759665861",
-    "retirement_executed": false,
+    "retirement_executed": true,
     "live_slots_released": 0,
     "credits_preserved": 624,
     "ceiling": 100000,
-    "production_changes": 0,
+    "production_changes": "Explicitly authorized deployment completed",
     "provider_calls": 0,
-    "next_action": "Obtain separate authorization for the exact455f160dsource activation and owner-retirement/CAS reconciliation plan. Do not deploy or clear slots under this preflight."
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
+    "live_slots_reconciled": 3,
+    "live_slots_released_with_unknown_review_holds": 3,
+    "provider_test_calls": 0,
+    "deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/DEPLOYMENT.json"
+  },
+  "flex_v2_helius_completion_deployment": {
+    "status": "PASS",
+    "source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "engineering_revision": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/DEPLOYMENT.json",
+    "report_sha256": "3d6d6394151d6cefc6034c04af6f601b695d52fb6b73b68f1ddb3b6517ae32b2",
+    "current_configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "owner_retirement": [
+      {
+        "pid": 80583,
+        "kernel_result": "PROCESS_NOT_PRESENT",
+        "checked_at_utc": "2026-10-26T23:47:01.981158+00:00"
+      },
+      {
+        "pid": 80604,
+        "kernel_result": "PROCESS_NOT_PRESENT",
+        "checked_at_utc": "2026-10-26T23:47:01.981195+00:00"
+      },
+      {
+        "pid": 80629,
+        "kernel_result": "PROCESS_NOT_PRESENT",
+        "checked_at_utc": "2026-10-26T23:47:01.981203+00:00"
+      }
+    ],
+    "original_credits_preserved": 624,
+    "original_unknown_requests_review_held": 3,
+    "workers": {
+      "before": {
+        "listener": 80583,
+        "resolver": 80604,
+        "walkback": 80629
+      },
+      "after": {
+        "listener": 99111,
+        "resolver": 99140,
+        "walkback": 99159
+      },
+      "status": "watchtower_listener              RUNNING   pid 99111, uptime 0:04:08\ncreator_resolution_worker        RUNNING   pid 99140, uptime 0:03:57\nwalkback_worker                  RUNNING   pid 99159, uptime 0:03:51\n",
+      "actual_current_key_pair_and_gate_environments_verified": true,
+      "other_service_states_and_PIDs_unchanged": true
+    },
+    "acceptance": {
+      "window_seconds": 120,
+      "natural_HTTP_requests": 112,
+      "natural_reserved_credits": 112,
+      "final_sample_total_reserved_credits": 864,
+      "maximum_observed_new_inflight_age_seconds": 0,
+      "final_sample_inflight": 0,
+      "highest_investigation_spend_at_final_sample": 61,
+      "sampling_limit": "Snapshots every20seconds; no absolute latency guarantee claimed.",
+      "error_counts": {
+        "listener.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+          "HELIUS_REQUEST_STATE": 0,
+          "AUTH_DENIED": 0,
+          "PAYMENT_DENIED": 0,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+        },
+        "listener_err.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+          "HELIUS_REQUEST_STATE": 0,
+          "AUTH_DENIED": 0,
+          "PAYMENT_DENIED": 0,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+        },
+        "creator_resolution_worker_err.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+          "HELIUS_REQUEST_STATE": 0,
+          "AUTH_DENIED": 0,
+          "PAYMENT_DENIED": 0,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+        },
+        "walkback_worker_err.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+          "HELIUS_REQUEST_STATE": 0,
+          "AUTH_DENIED": 0,
+          "PAYMENT_DENIED": 0,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+        }
+      },
+      "live_no_probe_validation": true
+    },
+    "safety": {
+      "diagnostic_provider_calls": 0,
+      "artificial_notifications": 0,
+      "exhausted_replay": false,
+      "retry_reset": false,
+      "source_scope": "Only approved six runtime replacements plus source-pinned recovery authority; no credential/schema/canonical-definition changes.",
+      "unrelated_service_restarts": 0,
+      "V1_access_or_deletion": 0,
+      "BIRDEYE_authority_and_budgets": "UNCHANGED",
+      "free_bytes": 3913891840,
+      "required_floor_plus_reserve": 2067108864,
+      "no_file_500MB_or_more": true
+    },
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup."
   }
 }

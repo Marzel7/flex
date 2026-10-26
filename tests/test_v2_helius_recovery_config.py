@@ -174,3 +174,20 @@ def test_frozen_configuration_authority_required(case,defect):
  before=e.live.read_bytes()
  with pytest.raises(RuntimeError):e.ns['write_config']('v2')
  assert e.live.read_bytes()==before and not e.controls
+
+
+def test_fresh_pair_preserves_full_rpc_budget_and_ambiguous_reservation(case,monkeypatch):
+ from tests.test_v2_helius_rpc_budget import policy
+ e=case;e.gate.monotonic=lambda:1000
+ e.gate.configure_budget(policy(),hashlib.sha256(e.gate.path.read_bytes()).hexdigest())
+ with e.gate.locked():
+  state=e.gate.read();state['state']='OPEN';e.gate.save(state)
+ e.gate.reserve_http(role='walkback',scopes=('1'*64,),key='2'*64,selector='rpc:getTransaction',origin='3'*64)
+ with e.gate.locked():
+  state=e.gate.read();state['state']='PAYMENT_DENIED';e.gate.save(state)
+ paths,m,dest=target(e);prepared=e.ns['prepare_helius_recovery'](e.env,dest)
+ e.ns['freeze_helius_recovery'](prepared);old=e.gate.read();env=activate(e,paths,m,dest,monkeypatch)
+ e.ns['finish_helius_recovery'](env);fresh=e.module.Gate(e.gate.path,'fresh');new=fresh.read()
+ assert new==dict(old,generation='fresh') and len(new['rpc_budget']['inflight'])==1
+ assert new['rpc_budget']['windows']['day']['credits']==10 and fresh.blocked()
+ e.ns['finish_helius_recovery'](env);assert fresh.read()==new

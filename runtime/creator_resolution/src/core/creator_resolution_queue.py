@@ -8,6 +8,9 @@ creator_funding_queue so funder extraction can proceed normally.
 
 from __future__ import annotations
 
+from src.core.helius_http_protection import scoped as _helius_scoped, install as _helius_install
+_helius_install('creator_resolution')
+
 import asyncio
 import json
 import os
@@ -632,6 +635,7 @@ def _is_high_priority(hot_conn: sqlite3.Connection, mint: str, source: str, prio
     return False
 
 
+@_helius_scoped('creator_resolution','mint')
 def _resolve_creator_rpc(
     mint: str,
     *,
@@ -699,6 +703,7 @@ def process_queue(
     lock_seconds: int = 180,
     schema_ready: bool = False,
 ) -> Dict[str, Any]:
+    _helius_install('creator_resolution')
     from src.core.helius_denial_gate import blocked as _helius_blocked
     if _helius_blocked():return dict(status='deferred',processed=0,resolved=0,failed=0,skipped=0,funding_enqueued=0,errors=[])
     from src.ops.walkback_create_handoff import producer_preflight

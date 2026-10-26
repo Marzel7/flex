@@ -201,6 +201,7 @@ def test_actual_worker_claims_deferred_before_database_mutation(case,monkeypatch
  for filename,name,ns in tests:
   tree=ast.parse((ROOT/filename).read_text());fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name)
   exec(compile(ast.Module(body=[fn],type_ignores=[]),filename,'exec'),ns)
+  ns['_helius_install']=lambda role:None
   result=ns[name](None);assert result['processed']==0
 
 
@@ -237,7 +238,7 @@ def test_no_scope_budget_or_canonical_rewrites():
  old=subprocess.check_output(['git','show','9dcf6277:runtime/listener/src/core/pumpfun_curve_listener.py'],text=True)
  new=(ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text()
  def extract(s,name):return ast.dump(next(n for n in ast.walk(ast.parse(s)) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==name))
- for name in ('_migration_notification_disposition','_migration_journal_readback','_run_journal_migration','_compact_pumpportal_birth_retry'):
+ for name in ('_migration_notification_disposition','_migration_journal_readback','_compact_pumpportal_birth_retry'):
   assert extract(old,name)==extract(new,name)
 
 
@@ -275,4 +276,19 @@ def test_all_other_birth_and_canonical_methods_unchanged():
  def functions(text):return {n.name:ast.dump(n) for n in ast.walk(ast.parse(text)) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
  before,after=functions(old),functions(new)
  changed={name for name in before if before[name]!=after[name]}
- assert changed=={'__internal_rpc','_get_transaction_cached','_process_migration_with_mint','_schedule_journal_migration','handle_migration','listen_pumpswap_websocket','delayed_mint_recheck','_post_rpc_with_fallback'}
+ assert changed=={'__internal_rpc','_get_transaction_cached','_process_migration_with_mint','_schedule_journal_migration','handle_migration','listen_pumpswap_websocket','delayed_mint_recheck','_post_rpc_with_fallback','main','analyze_post_migration','_run_journal_migration'}
+
+
+def test_journal_runner_delta_only_budget_claim_deferral():
+ import subprocess
+ old=subprocess.check_output(['git','show','4f4d2d52:runtime/listener/src/core/pumpfun_curve_listener.py'],text=True)
+ new=(ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_text()
+ def node(text):return next(n for n in ast.walk(ast.parse(text)) if isinstance(n,ast.AsyncFunctionDef) and n.name=='_run_journal_migration')
+ before=node(old);after=node(new)
+ assert [n.arg for n in after.args.args[-2:]]==['expected_attempts','dispatch_until']
+ after.args.args=after.args.args[:-2];after.args.defaults=[]
+ body=after.body[0].body
+ guards=[n for n in body if isinstance(n,ast.If) and isinstance(n.test,ast.BoolOp)]
+ assert len(guards)==1 and 'BUDGET_DEFERRED' in ast.unparse(guards[0].test)
+ assert 'journal.defer_budget' in ast.unparse(guards[0])
+ body.remove(guards[0]);assert ast.dump(before)==ast.dump(after)

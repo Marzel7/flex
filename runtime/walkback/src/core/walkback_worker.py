@@ -18,6 +18,9 @@ selected creator-funding transaction once to retain close-destination proof.
 """
 from __future__ import annotations
 
+from src.core.helius_http_protection import scoped as _helius_scoped, install as _helius_install
+_helius_install('walkback')
+
 import json
 import os
 import time
@@ -1389,6 +1392,7 @@ def _persist_hop1_evidence(ops: sqlite3.Connection, *, mint: str, creator: str, 
 
 # ── per-row processing ─────────────────────────────────────────────────────────
 
+@_helius_scoped('walkback','row')
 def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
     """
     Process one walkback row. Returns RPC credits consumed.
@@ -1655,7 +1659,9 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             if isinstance(e, _HeliusDeferred):
                 # Keep the already-started claim count, but never turn denial
                 # into a negative evidence verdict or retry-budget reset.
-                ops.execute("UPDATE wt_walkback_queue SET status='pending',lease_expires_at=0,next_retry_at=?,last_error='HELIUS_ACQUISITION_DEFERRED',updated_at=? WHERE mint=? AND status='running' AND claimed_by=?",(int(time.time())+300,int(time.time()),mint,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
+                from src.core.helius_denial_gate import BudgetDeferred
+                claim_refund = int(isinstance(e, BudgetDeferred))
+                ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error='HELIUS_ACQUISITION_DEFERRED',updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",(claim_refund,int(time.time())+300,int(time.time()),mint,attempts + 1,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
                 ops.commit();return rpc[0]
         err = str(e)
         print(f"[WALKBACK] error processing {mint[:16]}…: {err}", flush=True)
@@ -1928,6 +1934,7 @@ def _recover_committed_projections(ops: sqlite3.Connection) -> dict:
 
 
 def run_loop() -> None:
+    _helius_install('walkback')
     from src.core.walkback_queue import validate_schema as _validate_walkback_schema
     from src.core import treasury_bank
     from src.ops.walkback_health import recover_stalled_running_jobs

@@ -470,6 +470,21 @@ class MigrationJournal:
             return True
         return self._change(change)
 
+    def defer_budget(self, signature, *, expected_attempts, dispatch_until, not_before):
+        if any(type(v) is not int or not 0 < v < 2**63 for v in (expected_attempts, dispatch_until, not_before)):
+            raise JournalHold('INVALID_BUDGET_DEFERRAL')
+        def change(rows):
+            row = next((r for r in rows if r['id'] == self._key(signature)), None)
+            if row is None or row['state'] not in {'PENDING', 'RESOLVED'}:
+                return False
+            if row['attempts'] != expected_attempts or row.get('retry_not_before') != dispatch_until or row.get('error_code') != 'DISPATCH_RESERVED':
+                return False
+            row['attempts'] -= 1
+            row['error_code'] = 'HELIUS_BUDGET_DEFERRED'
+            row['retry_not_before'] = max(dispatch_until, not_before)
+            return True
+        return self._change(change)
+
     def acknowledge(self, signature, binding, verify):
         pair_generation = _paired_ack_generation()
         _text(binding, 256)

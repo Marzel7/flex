@@ -6,6 +6,9 @@ Detects token migrations from Pump.Fun bonding curve to PumpSwap AMM via WebSock
 When a migration is detected, runs post-migration analyzer to assess risk.
 """
 
+from src.core.helius_http_protection import scoped as _helius_scoped, install as _helius_install
+_helius_install('listener')
+
 import asyncio
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
@@ -7941,6 +7944,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return None
 
     # --- Analyzer ---
+    @_helius_scoped('listener','mint')
     async def analyze_post_migration(self, mint: str, signature: str = None, pool_address: str = None):
         """Analyze token's post-migration activity on PumpSwap"""
         if mint in self.analyzed_tokens:
@@ -8806,6 +8810,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             import traceback as _tb
             log_print(f"[HEAVY_REG] ❌ Unhandled error for {pool_address[:16]}...: {e}\n{_tb.format_exc()}", flush=True)
 
+    @_helius_scoped('listener','mint')
     async def _process_migration_with_mint(self, signature: str, logs: list, mint: str, tx_data: Optional[Dict] = None, source: str = "WEBSOCKET"):
         """Continue migration pipeline once mint is known. `source` (WEBSOCKET/RECONCILER) is passed
         EXPLICITLY — not via a shared instance var — so concurrent WS + reconciler processing of the
@@ -10882,19 +10887,22 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED', '0') != '0':
             from src.core.helius_denial_gate import blocked as _helius_blocked
             if _helius_blocked():return None  # Already durably admitted; no retry charged.
-        if not journal.begin_attempt(signature, now=int(time.time()), defer_until=int(time.time()) + 45):
+        dispatch_until = int(time.time()) + 45
+        if not journal.begin_attempt(signature, now=int(time.time()), defer_until=dispatch_until):
             return None
         active.add(signature)
         try:
-            return asyncio.create_task(self._run_journal_migration(signature, logs, source))
+            return asyncio.create_task(self._run_journal_migration(signature, logs, source, row['attempts'] + 1, dispatch_until))
         except BaseException:
             active.discard(signature)
             raise
 
-    async def _run_journal_migration(self, signature, logs, source):
+    async def _run_journal_migration(self, signature, logs, source, expected_attempts=None, dispatch_until=None):
         try:
             outcome = await self.handle_migration(signature, logs, source=source)
             journal = _signature_migration_journal()
+            if outcome == "BUDGET_DEFERRED" and journal is not None:
+                journal.defer_budget(signature, expected_attempts=expected_attempts, dispatch_until=dispatch_until, not_before=int(time.time()) + 300)
             if outcome != "COMPLETED":
                 return outcome
             acknowledged = journal.acknowledge(signature, __import__("hashlib").sha256(__import__("json").dumps([os.path.realpath(DB_PATH), os.path.realpath(_listener_ops_db_path())], separators=(",", ":")).encode()).hexdigest(), _migration_journal_readback)
@@ -10909,6 +10917,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             if task is not None:
                 await task  # Existing handler/provider controls, bounded sequential batch.
 
+    @_helius_scoped('listener','signature','migration')
     async def handle_migration(self, signature: str, logs: list, source: str = "WEBSOCKET"):
         """Process detected migration. `source` (WEBSOCKET fast-path vs RECONCILER correctness-path)
         is threaded EXPLICITLY into _process_migration_with_mint — no shared instance var — so
@@ -11023,6 +11032,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
                 from src.core.helius_denial_gate import Deferred as _HeliusDeferred
 
+                from src.core.helius_denial_gate import BudgetDeferred
+                if isinstance(e, BudgetDeferred):return "BUDGET_DEFERRED"
                 if isinstance(e, _HeliusDeferred):return "DEFERRED"
             log_print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback
@@ -13094,6 +13105,7 @@ def _get_listener_instance() -> Optional["PumpFunCurveListener"]:
 
 
 async def main():
+    _helius_install('listener')
     # Ensure only one instance runs at a time
     import fcntl
     import os

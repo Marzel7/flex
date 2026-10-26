@@ -43,11 +43,7 @@ def owner(mode,stage):
 
 # Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
 TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
-TERMINAL_PAYLOAD = {
- 'pumpfun_curve_listener.py':'a35ffa0211d0f7bf5d181fbee33e7c5e0995c52d583e57861c74a98e7223fa4e',
- 'migration_signature_journal.py':'65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668',
- 'migration_terminal_evidence.py':'0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf',
-}
+TERMINAL_PAYLOAD = {'pumpfun_curve_listener.py': '724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce', 'migration_signature_journal.py': 'a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c', 'migration_terminal_evidence.py': '0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf'}
 TERMINAL_SCHEMA_CONTRACT = 'd7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588'
 MAX_RECOVERY_CONFIG_BYTES = 1_000_000
 
@@ -117,8 +113,8 @@ def coverage_environment(role,env):
  return env
 
 HELIUS_GATE_FLAG='FLEX_HELIUS_DENIAL_GATE_ENABLED'
-HELIUS_GATE_PAYLOAD={'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': 'be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': 'a35ffa0211d0f7bf5d181fbee33e7c5e0995c52d583e57861c74a98e7223fa4e'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '57b4f8a90113a30f492cf6015e34ecea1fc171ae0f5a42470b3744ffe8c9a418', 'src/core/helius_denial_gate.py': 'be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219'}, 'walkback': {'src/core/helius_denial_gate.py': 'be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219', 'src/core/walkback_worker.py': 'c5c4b102dbee2a1940a8ebcb5f4e0fbb28ee73d44b29f42982a5c5deb3b1c47d'}}
-MAX_HELIUS_RECOVERY_BYTES=16384
+HELIUS_GATE_PAYLOAD = {'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': '52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': '724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce', 'src/core/helius_http_protection.py': '3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97', 'src/core/helius_denial_gate.py': '52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786', 'src/core/helius_http_protection.py': '3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921'}, 'walkback': {'src/core/helius_denial_gate.py': '52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786', 'src/core/walkback_worker.py': '0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7', 'src/core/helius_http_protection.py': '3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921'}}
+MAX_HELIUS_RECOVERY_BYTES=1048576
 
 def helius_module(role):
  package=pathlib.Path(P['roles'][role]['package'])

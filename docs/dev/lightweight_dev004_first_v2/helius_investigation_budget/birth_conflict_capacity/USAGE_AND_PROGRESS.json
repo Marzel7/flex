@@ -1,0 +1,223 @@
+{
+  "HELIUS_USAGE_AND_PROGRESS": "PARTIAL_RPC_CONCURRENCY_SLOTS_BLOCKED",
+  "SOURCE_REVISION": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+  "RESTORATION_WINDOW": {
+    "from_utc": "2026-10-26T22:28:25.620551+00:00",
+    "ledger_sample_to_utc": "2026-10-26T22:43:58.733392+00:00",
+    "seconds": 933.112841,
+    "natural_RPC_requests": 622,
+    "reserved_credits": 622,
+    "average_requests_per_minute": 39.995162814397496,
+    "operator_probes_excluded": 2
+  },
+  "FRESH_MEASURED_WINDOW": {
+    "from_utc": "2026-10-26T22:42:58.679178+00:00",
+    "to_utc": "2026-10-26T22:43:58.733392+00:00",
+    "seconds": 60.05586408311501,
+    "requests": 0,
+    "reserved_credits": 0
+  },
+  "RESERVED_CREDITS_BY_WORKER": {
+    "creator_resolution": 0,
+    "listener": 549,
+    "walkback": 73
+  },
+  "METHODS": {
+    "rpc:getAccountInfo": {
+      "requests": 375,
+      "reserved_credits": 375
+    },
+    "rpc:getMultipleAccounts": {
+      "requests": 119,
+      "reserved_credits": 119
+    },
+    "rpc:getSignaturesForAddress": {
+      "requests": 31,
+      "reserved_credits": 31
+    },
+    "rpc:getTransaction": {
+      "requests": 72,
+      "reserved_credits": 72
+    },
+    "rpc:getTokenAccountsByOwner": {
+      "requests": 10,
+      "reserved_credits": 10
+    },
+    "rpc:getTokenLargestAccounts": {
+      "requests": 15,
+      "reserved_credits": 15
+    }
+  },
+  "INVESTIGATION_SPEND": {
+    "highest_reserved_credits": 52,
+    "lifetime_limit": 100000,
+    "warning": 50000,
+    "origins": 41,
+    "limit_breach_observed": false
+  },
+  "PROCESSING_PROGRESS": {
+    "checked_at_utc": "2026-10-26T22:46:48.808644+00:00",
+    "query_plans": {
+      "resolver_updated": [
+        [
+          5,
+          0,
+          0,
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_updated (updated_at>?)"
+        ]
+      ],
+      "walkback_status": [
+        [
+          5,
+          0,
+          0,
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+        ]
+      ]
+    },
+    "resolver": {
+      "status_counts": {
+        "complete": 241,
+        "skipped": 376
+      },
+      "population_limit_hit": false,
+      "updated_since_restoration": 0,
+      "eligible_pending_or_retry": 0,
+      "interpretation": "RUNNING but idle: no eligible pending/retry work and no RPC credit use."
+    },
+    "walkback": {
+      "status_counts": {
+        "complete": 1730,
+        "failed": 6,
+        "pending": 34,
+        "waiting": 1550
+      },
+      "population_limit_hit": false,
+      "jobs_by_status": {
+        "complete": {
+          "rows_checked": 1730,
+          "row_limit_hit": false,
+          "updated_since_restoration": 3,
+          "completed_since_restoration": 3,
+          "recent_error_codes": {
+            "null": 2,
+            "HELIUS_ACQUISITION_DEFERRED": 1
+          }
+        },
+        "failed": {
+          "rows_checked": 6,
+          "row_limit_hit": false,
+          "updated_since_restoration": 0,
+          "completed_since_restoration": 0,
+          "recent_error_codes": {}
+        },
+        "pending": {
+          "rows_checked": 34,
+          "row_limit_hit": false,
+          "updated_since_restoration": 34,
+          "completed_since_restoration": 0,
+          "recent_error_codes": {
+            "HELIUS_ACQUISITION_DEFERRED": 34
+          }
+        },
+        "waiting": {
+          "rows_checked": 1550,
+          "row_limit_hit": false,
+          "updated_since_restoration": 0,
+          "completed_since_restoration": 0,
+          "recent_error_codes": {}
+        }
+      },
+      "completed_since_restoration_outcomes": {
+        "LINEAGE_GAP": 1,
+        "NO_ATTRIBUTION_FOUND": 2
+      },
+      "completed_since_restoration_with_deferred_error": 1,
+      "interpretation": "Three FULL_WALKBACK jobs reached complete, with terminal outcomes LINEAGE_GAP=1 and NO_ATTRIBUTION_FOUND=2; this is processing progress, not confirmed attribution. One completed row retains a deferral error.34pending rows retain HELIUS_ACQUISITION_DEFERRED."
+    },
+    "migration_journal": {
+      "rows": 510,
+      "states": {
+        "RESOLVED": 1,
+        "QUARANTINED": 172,
+        "RETRY_EXHAUSTED": 275,
+        "ACKED": 37,
+        "PENDING": 25
+      },
+      "received_since_restoration": 12,
+      "source_states_since_restoration": {
+        "PUMPPORTAL_MIGRATION:ACKED": 1,
+        "PUMPPORTAL_MIGRATION:PENDING": 7,
+        "PUMPSWAP_MIGRATION_ACCOUNT:PENDING": 4
+      },
+      "retained_acked": 37,
+      "ACK_timing_limit": "Journal has reception time but not authoritative ACK commit time. Current ACK population is not reported as exact new commits since restoration."
+    },
+    "blocked_inflight": [
+      {
+        "role": "walkback",
+        "method": "rpc:getSignaturesForAddress",
+        "age_seconds": 322,
+        "pid": 80629,
+        "credit_reservation": 1
+      },
+      {
+        "role": "walkback",
+        "method": "rpc:getSignaturesForAddress",
+        "age_seconds": 561,
+        "pid": 80629,
+        "credit_reservation": 1
+      },
+      {
+        "role": "listener",
+        "method": "rpc:getAccountInfo",
+        "age_seconds": 561,
+        "pid": 80583,
+        "credit_reservation": 1
+      }
+    ],
+    "gate_state": "OPEN",
+    "PumpSwap": {
+      "retained_subscription_confirmations": 2,
+      "gate_connection_reservations": 4,
+      "new_account_notifications_received_since_restoration": 4,
+      "new_account_notification_ACKs_since_restoration_by_reception": 0,
+      "timing_limit": "Confirmation log lines have no timestamps; paired gate had zero successful connections before restoration and increased after OPEN. Bounded retained markers demonstrate subscription recovery, not guaranteed current socket liveness."
+    }
+  },
+  "WORKERS": {
+    "listener": {
+      "pid": 80583,
+      "state": "RUNNING"
+    },
+    "resolver": {
+      "pid": 80604,
+      "state": "RUNNING"
+    },
+    "walkback": {
+      "pid": 80629,
+      "state": "RUNNING"
+    }
+  },
+  "EXACT_BLOCKER": "All three durable HTTP in-flight slots remain occupied: two Walkback getSignaturesForAddress reservations and one listener getAccountInfo reservation, aged5\u20139minutes at final progress check. The fresh60second observation made zero new RPC dispatches while gate state remainedOPEN. In-flight admission limit therefore holds new RPC work; completion/cancellation cause has not yet been established. No reservation was cleared or refunded.",
+  "NEXT_ACTION": "Perform a narrowly scoped read-only attribution of these three reservation lifecycles and their response completion paths; then qualify durable, evidence-based completion reconciliation if required. Do not reset budgets, blindly clear slots, replay exhausted work or restart as a workaround.",
+  "LIMITATIONS": [
+    "Reserved worst-case credits, not provider invoice totals.",
+    "Per-method request counts are durable attempt totals. Per-worker credit totals use authoritative per-origin worker counters; per-worker historical request counts are not reconstructed from last-writer request labels.",
+    "Request cache-hit counts are not retained by this ledger.",
+    "No complete since-restoration canonical migration count claimed: deployed Core lacks migration-time index, and journal ACK has no exact commit timestamp. Used bounded journal reception and indexed identity/handoff readbacks instead.",
+    "Snapshot state and queue observations occur at distinct recorded times. Method totals cover the stated ledger window; later queue progress is separately timestamped.",
+    "Gate status counters also include connection outcomes and are not reconstructed as per-worker success/failure histories."
+  ],
+  "SAFETY": {
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_controls": 0,
+    "configuration_or_source_changes": 0,
+    "V1_access": 0,
+    "gate_unchanged": "OPEN",
+    "floor_plus_reserve": 2067108864,
+    "free_bytes": 5287284736
+  },
+  "checked_at_utc": "2026-10-26T22:48:03.399699+00:00"
+}

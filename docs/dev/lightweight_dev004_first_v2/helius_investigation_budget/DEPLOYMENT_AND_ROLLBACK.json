@@ -1,0 +1,382 @@
+{
+  "activation_sequence": [
+    "Recheck exact preimages, source archive, immutable recovery source, pair, disk and journal admission capacity; abort on any mismatch.",
+    "Stage exact payload and same-source compatible fallback; preserve credentials and budgets using current full config preimage without publishing secrets.",
+    "Quiesce only listener, resolver and Walkback; confirm all stopped; preserve admitted durable work.",
+    "Install exact complete payload, update frozen runtime plan source and recovery authority; keep shared gate enabled/path unchanged.",
+    "Under PAYMENT_DENIED configure exact v2 policy once using current state SHA CAS; verify policy and full gate state readback, never reset existing histories.",
+    "Verify all three roles and fallback source hashes, immutable recovery root, config and paired generation before coordinated start.",
+    "Start only the three approved roles; natural acceptance under PAYMENT_DENIED, no probe or provider restoration."
+  ],
+  "configuration": {
+    "config_path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+    "config_sha256": "805fcb0b2aafa45c38825f4a197de2afb0ad3c0dac39591d50fdd34071960632",
+    "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+    "roles": {
+      "creator_resolution": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-main-workers",
+        "program": "creator_resolution_worker"
+      },
+      "listener": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-listener",
+        "program": "watchtower_listener"
+      },
+      "walkback": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+        "program": "walkback_worker"
+      }
+    }
+  },
+  "deployment_readiness": "HOLD_LIVE_BIRTH_ADMISSION_CAPACITY",
+  "fallback": {
+    "config_bindings": {
+      "creator_resolution": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-main-workers",
+        "program": "creator_resolution_worker"
+      },
+      "listener": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-listener",
+        "program": "watchtower_listener"
+      },
+      "walkback": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+        "program": "walkback_worker"
+      }
+    },
+    "forbidden": [
+      "Old 4f4d2d52 fallback after ledger initialization",
+      "Gate flag0, missing policy or automatic reinitialization",
+      "Counter reset, ledger eviction, retired V1 activation"
+    ],
+    "fresh_pair": "Existing generation-only validated state transfer; all investigation histories preserved. New renderer hash pinned in payload.",
+    "limitation": "Compatible containment fallback is this same frozen source under PAYMENT_DENIED; it is not a distinct older software revision.",
+    "payload_sha256": {
+      "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/BILLING_AUTHORITY.json": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/POLICY.json": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+      "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "c4c00fc9ea7ddd5b6ffda72e374b1e60a04d74889532c7c67c278d14196d6d25",
+      "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+      "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+      "runtime/creator_resolution/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+      "runtime/creator_resolution/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+      "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+      "runtime/listener/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+      "runtime/listener/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+      "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+      "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+      "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+      "runtime/listener/src/core/pumpfun_curve_listener.py": "724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce",
+      "runtime/walkback/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+      "runtime/walkback/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+      "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+      "scripts/flex_v2_fresh_pair_recovery.py": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888"
+    },
+    "retain": [
+      "Full gate ledger and checksummed lock publication",
+      "Root/descendant aliases, spend, counters, warnings, ambiguous in-flight reservations",
+      "Terminal evidence, journals, queues, receipts and retry ceilings"
+    ],
+    "source_commit": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+    "type": "SAME_INVESTIGATION_AWARE_SOURCE_RETAIN_SAFE_STATE"
+  },
+  "gate_provisioning": {
+    "expected_preimage_sha256": "68d6a3533eb2b72afd08e88eec195aa3190397ec199c303e5e568eb4a5482274",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "method": "Existing Gate.configure_budget(policy, expected_sha256), only after exact source, pair and state readback; no initialize, restoration or probe. Recheck CAS preimage immediately before execution.",
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+    "permission_to_probe": false,
+    "policy_sha256": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+    "required_state": "PAYMENT_DENIED",
+    "state_after": "PAYMENT_DENIED"
+  },
+  "installed_preconditions": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-containment-4f4d2d52/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "sha256": "8d16e80f691ec51218277b319220561f3bf78f875785fa723fa2b610cc7930a9"
+    },
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py",
+      "sha256": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4"
+    },
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py",
+      "sha256": "57b4f8a90113a30f492cf6015e34ecea1fc171ae0f5a42470b3744ffe8c9a418"
+    },
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_denial_gate.py",
+      "sha256": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219"
+    },
+    "runtime/creator_resolution/src/core/helius_http_protection.py": {
+      "must_be_absent": true,
+      "path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_http_protection.py",
+      "sha256": null
+    },
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/analysis/pump_fun_post_migration_analyzer.py",
+      "sha256": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639"
+    },
+    "runtime/listener/src/core/helius_denial_gate.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py",
+      "sha256": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219"
+    },
+    "runtime/listener/src/core/helius_http_protection.py": {
+      "must_be_absent": true,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_http_protection.py",
+      "sha256": null
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py",
+      "sha256": "65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668"
+    },
+    "runtime/listener/src/core/pool_discovery.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pool_discovery.py",
+      "sha256": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b"
+    },
+    "runtime/listener/src/core/post_migration_pool_discovery.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/post_migration_pool_discovery.py",
+      "sha256": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f"
+    },
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "sha256": "a35ffa0211d0f7bf5d181fbee33e7c5e0995c52d583e57861c74a98e7223fa4e"
+    },
+    "runtime/walkback/src/core/helius_denial_gate.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py",
+      "sha256": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219"
+    },
+    "runtime/walkback/src/core/helius_http_protection.py": {
+      "must_be_absent": true,
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_http_protection.py",
+      "sha256": null
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "sha256": "c5c4b102dbee2a1940a8ebcb5f4e0fbb28ee73d44b29f42982a5c5deb3b1c47d"
+    },
+    "scripts/flex_v2_fresh_pair_recovery.py": {
+      "must_be_absent": false,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-containment-4f4d2d52/source/scripts/flex_v2_fresh_pair_recovery.py",
+      "sha256": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888"
+    }
+  },
+  "kind": "INVESTIGATION_AWARE_DEPLOYMENT_AND_COMPATIBLE_FALLBACK",
+  "payload_sha256": {
+    "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/BILLING_AUTHORITY.json": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+    "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/POLICY.json": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "c4c00fc9ea7ddd5b6ffda72e374b1e60a04d74889532c7c67c278d14196d6d25",
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+    "runtime/listener/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "runtime/listener/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+    "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+    "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+    "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce",
+    "runtime/walkback/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "runtime/walkback/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+    "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+    "scripts/flex_v2_fresh_pair_recovery.py": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888"
+  },
+  "production_changes_authorized": false,
+  "recovery_source_authority": {
+    "commit": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+    "plan_references_must_be_updated_at_authorized_activation": true,
+    "planned_immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-investigation-b8b10192/source",
+    "renderer": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+    "requirement": "Future activation must materialize and verify an immutable clean Git source root at this exact commit and replace frozen plan source/config hash references coherently. The mutable DEV checkout at later evidence HEAD is not the recovery source."
+  },
+  "retained_tests": 188,
+  "runtime_plan_transform": {
+    "base_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/frozen-runtime-plan.json",
+    "base_sha256": "fe01f9255ac5e84401f80c513b473cb843fd2dd20bd296512201bc3037cc992d",
+    "policy_binding_sha256": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+    "preserve_all_unlisted_fields": true,
+    "preserve_recovery_supervisor_preimage": {
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-containment-4f4d2d52/supervisor.preimage.conf",
+      "sha256": "755162b2f92903fd8ad3b9bb90fd549d9d0f1234fb141e5c69da3ab6a69f6831"
+    },
+    "publication": "Qualified existing atomic renderer; all three roles quiesced at separately authorized activation. No secret fields copied into this artifact.",
+    "required_gate_state": "PAYMENT_DENIED",
+    "required_safe_role_bindings": {
+      "creator_resolution": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-main-workers",
+        "program": "creator_resolution_worker"
+      },
+      "listener": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-listener",
+        "program": "watchtower_listener"
+      },
+      "walkback": {
+        "environment": {
+          "BIRTH_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "DEV004_DURABLE_BIRTH_JOURNAL_ENABLED": "1",
+          "DEV004_PAIRED_BINDING_REQUIRED": "1",
+          "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "MIGRATION_JOURNAL_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+        },
+        "package": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+        "program": "walkback_worker"
+      }
+    },
+    "required_same_generation": "DEV004-V2-20261024-dfb76562",
+    "set_top_level": {
+      "immutable_source_commit": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+      "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-investigation-b8b10192/source"
+    }
+  },
+  "source_archive": {
+    "bytes": 1361920,
+    "file": "DEPLOYMENT_SOURCE.tar",
+    "sha256": "282e1ec461b95c192d6cef49428c372a9a659a5d31b8166fea7675b6693b9269"
+  },
+  "source_commit": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+  "unchanged_dependencies": {
+    "runtime/creator_resolution/src/core/paired_binding_guard.py": {
+      "candidate_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "installed_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+    },
+    "runtime/listener/src/core/birth_admission_journal.py": {
+      "candidate_sha256": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8",
+      "installed_sha256": "d212236f9f32d0e2ff3422a7a98628147334039d88929954026d8e7d5d5fd3d8"
+    },
+    "runtime/listener/src/core/birth_retry_quarantine.py": {
+      "candidate_sha256": "42bdcee6b65e12c1987d6473ee8c9af1e06bf9bd4c5fe9d363c5b0f05173293a",
+      "installed_sha256": "42bdcee6b65e12c1987d6473ee8c9af1e06bf9bd4c5fe9d363c5b0f05173293a"
+    },
+    "runtime/listener/src/core/migration_terminal_evidence.py": {
+      "candidate_sha256": "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf",
+      "installed_sha256": "0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf"
+    },
+    "runtime/listener/src/core/paired_binding_guard.py": {
+      "candidate_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "installed_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+    },
+    "runtime/listener/src/core/pumpportal_birth_audit.py": {
+      "candidate_sha256": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c",
+      "installed_sha256": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c"
+    },
+    "runtime/walkback/src/core/paired_binding_guard.py": {
+      "candidate_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "installed_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+    }
+  },
+  "version": 1
+}

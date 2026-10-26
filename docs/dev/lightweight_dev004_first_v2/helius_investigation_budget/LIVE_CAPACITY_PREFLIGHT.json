@@ -1,0 +1,92 @@
+{
+  "accounting_and_recovery": "Reuse 188 passing controls; complete expanded source and v2 policy pinned; fallback now same investigation-aware source, never old denial-only source. No policy provisioned live.",
+  "bundle_freeze": "PASS",
+  "bundle_manifest_sha256": "d31fc5bbba399e56b8a99fcc01996291b329677296ea0cf0000a844e1a6a6f3d",
+  "candidate": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+  "exact_blocker": "Durable birth journal is full at 512/512, all QUARANTINED with CORE_AUTHORITY_CONFLICT, zero ACKED completion candidates. BirthJournal has no terminal owner and completion reclamation only accepts verified ACKED records. Therefore a new unique birth raises JOURNAL_CAPACITY before receipt/canonical persistence; do not deploy while admission safety is blocked.",
+  "gate": {
+    "budget_installed": false,
+    "outcomes": 0,
+    "publication_checksum_valid": true,
+    "reservations": 0,
+    "state": "PAYMENT_DENIED"
+  },
+  "live_capacity": {
+    "birth.jsonl": {
+      "capacity": 512,
+      "errors": {
+        "CORE_AUTHORITY_CONFLICT": 512
+      },
+      "records": 512,
+      "states": {
+        "QUARANTINED": 512
+      },
+      "verified_completion_eligible_by_state": 0
+    },
+    "migration.jsonl": {
+      "capacity": 512,
+      "errors": {
+        "CANONICAL_SIGNATURE_CONFLICT": 180,
+        "DISPATCH_RESERVED": 4,
+        "NOTIFICATION_SUBJECT_CONFLICT": 11,
+        "None": 118,
+        "RETRY_CEILING": 190
+      },
+      "records": 503,
+      "states": {
+        "PENDING": 121,
+        "QUARANTINED": 191,
+        "RESOLVED": 1,
+        "RETRY_EXHAUSTED": 190
+      },
+      "verified_completion_eligible_by_state": 0
+    }
+  },
+  "next_action": "Qualify only the smallest safe disposition/capacity correction for the 512 protected birth-conflict records under existing birth/quarantine authority; preserve all identities and evidence, no reset, deletion or replay. Then refresh this exact bundle preflight.",
+  "payload_file_count": 18,
+  "preimages": "All retained accepted source preimages match; new helper files must be absent before deployment. All unchanged guard/journal/terminal/receipt dependencies match candidate.",
+  "receipts": {
+    "bucket_records_sampled": 134038,
+    "buckets": 256,
+    "full_buckets": 0,
+    "largest_observed_receipt_bytes": 562,
+    "max_observed_bucket": 559,
+    "note": "Sampled directory counts; legacy flat receipts retained separately; no deletions or write probes.",
+    "per_bucket_limit": 1536,
+    "remaining_sharded_slots_at_sample": 259178
+  },
+  "retained_log_tail": {
+    "bytes_max": 1048576,
+    "journal_capacity_mentions": 868,
+    "limitation": "Bounded tail count, not an event denominator or attributed loss count. No raw log or token identities published."
+  },
+  "safety": {
+    "V1_access": 0,
+    "deployment": false,
+    "journal_reclaim": 0,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_controls": 0
+  },
+  "source_archive": {
+    "bytes": 1361920,
+    "file": "DEPLOYMENT_SOURCE.tar",
+    "sha256": "282e1ec461b95c192d6cef49428c372a9a659a5d31b8166fea7675b6693b9269"
+  },
+  "status": "HOLD",
+  "storage": {
+    "absolute_live_WAL_guarantee": false,
+    "free_bytes": 3960147968,
+    "journal_stage_files": [],
+    "new_file_max_bytes": 1361920,
+    "required_floor_bytes": 2067108864
+  },
+  "terminal": {
+    "bytes": 830120,
+    "limit_bytes": 64000000,
+    "limit_records": 8192,
+    "records": 752,
+    "required_triggers_present": 4,
+    "signature_lookup": "Covering UNIQUE signature index"
+  }
+}

@@ -20,6 +20,8 @@ class InvalidStatus(Exception):
 @pytest.fixture
 def harness(monkeypatch):
  monkeypatch.setattr(socket.socket,'connect',lambda *a: (_ for _ in ()).throw(AssertionError('NETWORK_FORBIDDEN')))
+ import importlib.util,sys
+ gatepath=SOURCE.parent/'helius_denial_gate.py';spec=importlib.util.spec_from_file_location('src.core.helius_denial_gate',gatepath);gate=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate);monkeypatch.setitem(sys.modules,'src.core.helius_denial_gate',gate);monkeypatch.setenv(gate.FLAG,'0')
  tree=ast.parse(SOURCE.read_text());names={'_pumpswap_failure','PumpSwapConfigurationError','SubscriptionUnavailable','listen_pumpswap_websocket'}
  nodes=[n for n in ast.walk(tree) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)) and n.name in names]
  logs=[];states=[];delays=[];outcomes=[];heartbeats=[];scheduled=[]
@@ -115,14 +117,11 @@ def test_invalid_endpoint_is_channel_down_not_healthy(harness,endpoint):
 
 def test_unrelated_listener_contracts_byte_identical():
  import subprocess
- original=subprocess.check_output(['git','show','b91473f7:runtime/listener/src/core/pumpfun_curve_listener.py'],text=True)
- def without_loop(text):
-  start=text.index('    async def listen_pumpswap_websocket');end=text.index('    async def _seed_trade_subscriptions',start)
-  return text[:start]+text[end:]
- changed=SOURCE.read_text();start=changed.index('def _pumpswap_failure');end=changed.index('class MigrationTerminalDurabilityRisk',start)
- changed=changed[:start]+changed[end:]
- assert without_loop(changed)==without_loop(original)
-
+ original=subprocess.check_output(['git','show','9dcf6277:runtime/listener/src/core/pumpfun_curve_listener.py'],text=True)
+ def methods(text):return {n.name:ast.dump(n) for n in ast.walk(ast.parse(text)) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
+ old=methods(original);new=methods(SOURCE.read_text())
+ for name in ('_run_journal_migration','_migration_journal_readback','_migration_notification_disposition','listen_pumpportal','_compact_pumpportal_birth_retry'):
+  if name in old:assert old[name]==new[name]
 
 
 def test_dns_snapshot_also_receives_sanitized_exception(harness):

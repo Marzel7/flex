@@ -14,6 +14,7 @@ import logging
 import sqlite3
 import asyncio
 import aiohttp
+from src.core.helius_denial_gate import post as _helius_post
 import json
 from typing import Optional, Dict, Tuple
 from base64 import b64decode
@@ -184,7 +185,7 @@ class PoolDiscovery:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(
+                async with _helius_post(session,
                     self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)
                 ) as resp:
                     result = await resp.json()
@@ -234,7 +235,7 @@ class PoolDiscovery:
                 }
 
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(
+                    async with _helius_post(session,
                         self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)
                     ) as resp:
                         result = await resp.json()
@@ -879,7 +880,7 @@ class PoolDiscovery:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(
+                async with _helius_post(session,
                     self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=5)
                 ) as resp:
                     result = await resp.json()

@@ -27,6 +27,7 @@ CREATOR / CREATE-TX FIXES INCLUDED:
 import asyncio
 import aiohttp
 import requests
+from src.core.helius_denial_gate import post as _helius_post
 import time
 from typing import Dict, List, Optional, Tuple, Any, AsyncGenerator
 from collections import Counter, defaultdict
@@ -97,7 +98,7 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
     for attempt in range(max_retries):
         try:
             start_time = time.time()
-            async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout_s)) as resp:
+            async with _helius_post(session, url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout_s)) as resp:
                 latency_ms = (time.time() - start_time) * 1000
                 rpc_method = payload.get("method", "unknown")
 
@@ -164,6 +165,9 @@ async def _rpc_post(session: aiohttp.ClientSession, url: str, payload: dict, tim
             print(f"❌ RPC timeout after {max_retries} retries", flush=True)
             return None
         except Exception as e:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(e, _HeliusDeferred):raise
             record_request(
                 section="ui_api",
                 provider="helius_rpc" if "helius" in url else "solana_rpc",
@@ -295,6 +299,12 @@ class PostMigrationAnalyzer:
                         return
 
                 except Exception as e:
+
+                    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+
+                        from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+
+                        if isinstance(e, _HeliusDeferred):raise
                     print(f"[HELIUS_ADDR_TX] ⚠ error page={page}: {e}", flush=True)
                     return
 
@@ -306,7 +316,7 @@ class PostMigrationAnalyzer:
             async with aiohttp.ClientSession() as session:
                 for i, rpc_url in enumerate(RPC_URLS):
                     try:
-                        async with session.post(
+                        async with _helius_post(session,
                             rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=timeout)
                         ) as resp:
                             if resp.status == 200:
@@ -318,11 +328,17 @@ class PostMigrationAnalyzer:
                     except asyncio.TimeoutError:
                         if i < len(RPC_URLS) - 1:
                             continue
-                    except Exception:
+                    except Exception as _helius_error:
+                        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                            from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                            if isinstance(_helius_error, _HeliusDeferred):raise
                         if i < len(RPC_URLS) - 1:
                             continue
                 return None
         except Exception as e:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(e, _HeliusDeferred):raise
             print(f"[RPC_ERROR] {e}", flush=True)
             return None
 
@@ -360,6 +376,9 @@ class PostMigrationAnalyzer:
 
                 before = sig_list[-1]
             except Exception as e:
+                if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                    from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                    if isinstance(e, _HeliusDeferred):raise
                 print(f"[SIG_FETCH] ⚠ RPC error: {type(e).__name__}: {str(e)}", flush=True)
                 break
 
@@ -393,7 +412,10 @@ class PostMigrationAnalyzer:
                             successful += 1
                         else:
                             failed += 1
-                    except Exception:
+                    except Exception as _helius_error:
+                        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                            from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                            if isinstance(_helius_error, _HeliusDeferred):raise
                         failed += 1
 
                     total_processed += 1
@@ -422,7 +444,7 @@ class PostMigrationAnalyzer:
                         "params": [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}],
                     }
 
-                    async with session.post(rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)) as resp:
+                    async with _helius_post(session, rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=RPC_TIMEOUT)) as resp:
                         if resp.status != 200:
                             if resp.status in (429,) or resp.status >= 500:
                                 continue
@@ -442,7 +464,10 @@ class PostMigrationAnalyzer:
                         continue
                 except asyncio.TimeoutError:
                     continue
-                except Exception:
+                except Exception as _helius_error:
+                    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                        from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                        if isinstance(_helius_error, _HeliusDeferred):raise
                     continue
 
             if attempt < MAX_RETRIES - 1:
@@ -497,7 +522,10 @@ class PostMigrationAnalyzer:
                         "ts": ts,
                     }
                 )
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             pass
 
     async def fetch_curve_activity_async(self):
@@ -559,7 +587,10 @@ class PostMigrationAnalyzer:
                 return 0.0
             normalized = [a / mean_amount for a in amounts]
             return variance(normalized)
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             return 0.0
 
     def sell_volume_concentration(self) -> float:
@@ -602,6 +633,9 @@ class PostMigrationAnalyzer:
                 return market_cap
             return None
         except Exception as e:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(e, _HeliusDeferred):raise
             print(f"[MARKET_CAP] ⚠ {e}", flush=True)
             return None
 
@@ -652,7 +686,7 @@ class PostMigrationAnalyzer:
             das_url = f"https://mainnet.helius-rpc.com/?api-key={HELIUS_API_KEY}"
             payload = {"jsonrpc": "2.0", "id": 1, "method": "getAsset", "params": {"id": self.token_mint}}
             async with aiohttp.ClientSession() as session:
-                async with session.post(das_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
+                async with _helius_post(session, das_url, json=payload, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                     if resp.status != 200:
                         return None
                     data = await resp.json()
@@ -664,7 +698,10 @@ class PostMigrationAnalyzer:
                         c0 = creators[0] or {}
                         return c0.get("address")
             return None
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             return None
 
     def _normalize_account_keys(self, keys: list) -> list:
@@ -709,7 +746,10 @@ class PostMigrationAnalyzer:
                 return False
             (tag,) = struct.unpack("<I", raw[:4])
             return tag in (0, 3)  # CreateAccount, CreateAccountWithSeed
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             return False
 
     def _decode_system_create_owner_program(self, ix: dict) -> Optional[str]:
@@ -745,7 +785,10 @@ class PostMigrationAnalyzer:
                 return base58.b58encode(owner_bytes).decode("ascii")
 
             return None
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             return None
 
     def _system_create_new_account_pubkey(self, message: dict, instr: dict) -> Optional[str]:
@@ -819,7 +862,10 @@ class PostMigrationAnalyzer:
                         if isinstance(vv, str):
                             accounts.append(vv)
             return accounts if accounts else None
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             return None
 
     def _find_pumpfun_create_outer_index(self, tx: dict) -> Optional[int]:
@@ -856,7 +902,10 @@ class PostMigrationAnalyzer:
                 if self.token_mint in pubkeys:
                     return ix_idx
             return None
-        except Exception:
+        except Exception as _helius_error:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(_helius_error, _HeliusDeferred):raise
             return None
 
     # -------- Strict CREATE validation: bonding curve + mint creation --------
@@ -1119,6 +1168,9 @@ class PostMigrationAnalyzer:
 
             return None
         except Exception as e:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(e, _HeliusDeferred):raise
             print(f"[CREATOR] ⚠ Error in creator inference fallback: {e}", flush=True)
             return None
 
@@ -1135,7 +1187,7 @@ class PostMigrationAnalyzer:
             payload = {"transactions": [create_tx_sig]}
 
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
-                async with session.post(url, json=payload) as resp:
+                async with _helius_post(session, url, json=payload) as resp:
                     if resp.status != 200:
                         print(f"[CREATOR] ⚠ Helius parse returned {resp.status}", flush=True)
                         return None
@@ -1159,6 +1211,9 @@ class PostMigrationAnalyzer:
                         return bonding_curve
                     return None
         except Exception as e:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(e, _HeliusDeferred):raise
             print(f"[CREATOR] ⚠ Helius parse error: {e}", flush=True)
             return None
     
@@ -1496,7 +1551,10 @@ class PostMigrationAnalyzer:
                         last_sig = sigs[-1]["signature"]
                         before = last_sig
                     return last_sig, False, rpc_url
-                except Exception:
+                except Exception as _helius_error:
+                    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                        from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                        if isinstance(_helius_error, _HeliusDeferred):raise
                     continue
 
         return None, False, "none"
@@ -1567,6 +1625,9 @@ class PostMigrationAnalyzer:
                         provenance["validation_notes"].append("Creator inferred from earliest scanned candidate transaction (Tier 2)")
                         return provenance
                 except Exception as e:
+                    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                        from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                        if isinstance(e, _HeliusDeferred):raise
                     print(f"[CREATOR] ⚠ Error during scanned-candidate inference: {e}", flush=True)
 
             # Tier 2B: Fallback to earliest mint transaction lookup
@@ -1598,6 +1659,9 @@ class PostMigrationAnalyzer:
                             provenance["validation_notes"].append("Creator inferred from earliest mint transaction (Tier 2)")
                             return provenance
                 except Exception as e:
+                    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                        from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                        if isinstance(e, _HeliusDeferred):raise
                     print(f"[CREATOR] ⚠ Error during earliest-tx fallback inference: {e}", flush=True)
 
             print(f"[CREATOR] ❌ Fallback inference failed - no creator found", flush=True)

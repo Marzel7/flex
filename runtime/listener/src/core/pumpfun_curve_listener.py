@@ -4504,7 +4504,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         # sock_read caps individual read chunks so a drip-feeding server
                         # can't hold open a connection past the intended timeout.
                         _t = aiohttp.ClientTimeout(total=timeout, connect=3, sock_read=timeout)
-                        async with session.post(rpc_url, json=payload, timeout=_t) as resp:
+                        from src.core.helius_denial_gate import post as _helius_post
+                        async with _helius_post(session, rpc_url, json=payload, timeout=_t) as resp:
                             latency_ms = (time.time() - start_time) * 1000
 
                             if resp.status == 200:
@@ -4574,6 +4575,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         if i < len(_urls) - 1:
                             continue
                     except Exception as e:
+                        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                            from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                            if isinstance(e, _HeliusDeferred):raise
                         latency_ms = (time.time() - start_time) * 1000
                         last_error = str(e)
                         record_request(
@@ -4607,6 +4611,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 return None
         except Exception as e:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(e, _HeliusDeferred):raise
             log_print(f"[RPC_ERROR] {e}", flush=True)
             # Record the outer exception too
             latency_ms = (time.time() - start_time) * 1000 if 'start_time' in locals() else 0
@@ -4746,6 +4753,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return None
 
         except Exception as e:
+
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+
+                if isinstance(e, _HeliusDeferred):raise
             log_print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
             return None
 
@@ -9352,7 +9365,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             import aiohttp
                             try:
                                 async with aiohttp.ClientSession() as session:
-                                    async with session.post(self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10.0)) as resp:
+                                    from src.core.helius_denial_gate import post as _helius_post
+                                    async with _helius_post(session, self.rpc_url, json=payload, timeout=aiohttp.ClientTimeout(total=10.0)) as resp:
                                         return await resp.json()
                             except Exception as e:
                                 return None
@@ -10865,6 +10879,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
         if signature in self.completed_migrations:
             journal.quarantine(signature, "COMPLETION_UNVERIFIED")
             return None
+        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED', '0') != '0':
+            from src.core.helius_denial_gate import blocked as _helius_blocked
+            if _helius_blocked():return None  # Already durably admitted; no retry charged.
         if not journal.begin_attempt(signature, now=int(time.time()), defer_until=int(time.time()) + 45):
             return None
         active.add(signature)
@@ -10965,6 +10982,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 self.completed_migrations.add(signature)
 
                     except Exception as e:
+
+                        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+
+                            from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+
+                            if isinstance(e, _HeliusDeferred):return "DEFERRED"
                         log_print(f"[MIGRATION] ⚠ Delayed re-check failed: {e}", flush=True)
                     finally:
                         self.processing_migrations.discard(signature)
@@ -10995,6 +11018,12 @@ class PumpFunCurveListener(FastLaneDiscovery):
             return "COMPLETED"
 
         except Exception as e:
+
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+
+                if isinstance(e, _HeliusDeferred):return "DEFERRED"
             log_print(f"[MIGRATION] ⚠ Error handling migration: {e}", flush=True)
             import traceback
             traceback.print_exc()
@@ -11035,6 +11064,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         await self._wait_for_launch_toggle("PUMPSWAP")
         log_print(f"\n[WEBSOCKET][PUMPSWAP] Connecting to PumpSwap program...", flush=True)
 
+        from src.core.helius_denial_gate import Deferred as _HeliusDeferred
         endpoints = self._websocket_endpoints()
         if not endpoints:
             self._acquisition_availability.transition("MIGRATION", "DOWN", "PUMPSWAP_CONFIGURATION_ERROR")
@@ -11061,10 +11091,16 @@ class PumpFunCurveListener(FastLaneDiscovery):
         _SILENT_MIGRATION_RESUBSCRIBE_SECS = 600  # 10 minutes
 
         while True:
+            from src.core.helius_denial_gate import blocked as _helius_blocked
+            if _helius_blocked():
+                self._acquisition_availability.transition("MIGRATION", "DOWN", "HELIUS_ACQUISITION_DEFERRED")
+                await asyncio.sleep(60)
+                continue
             _phase = "CONNECT"
             try:
                 endpoint, name = endpoints[current_endpoint_idx]
-                async with websockets.connect(
+                from src.core.helius_denial_gate import websocket as _helius_websocket
+                async with _helius_websocket(websockets.connect,
                     endpoint,
                     # KEEPALIVE — THIS is the migration listener (logsSubscribe on the pump.fun
                     # migration account 39azUYFW…); it detects every graduation in real-time. It had
@@ -11127,6 +11163,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 raise PumpSwapConfigurationError("PUMPSWAP_SUBSCRIPTION_REJECTED")
                             if data.get("id") == _req_id and type(data.get("result")) is int and data["result"] >= 0:
                                 subscription_id = data.get("result")
+                                from src.core.helius_denial_gate import confirm_websocket
+                                confirm_websocket(ws)
                                 # Only reset backoff here — subscription confirmed
                                 reconnect_delay = 5
                                 _consecutive_failures = 0
@@ -11286,6 +11324,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             raise
 
                 raise SubscriptionUnavailable("SUBSCRIPTION_ENDED")
+            except _HeliusDeferred:
+                self.websocket_connected = False
+                self._acquisition_availability.transition("MIGRATION", "DOWN", "HELIUS_ACQUISITION_DEFERRED")
+                await asyncio.sleep(60)
             except Exception as e:
                 self.websocket_connected = False
                 self._acquisition_availability.transition("MIGRATION", "DOWN", f"websocket failure: {type(e).__name__}")

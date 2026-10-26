@@ -699,6 +699,8 @@ def process_queue(
     lock_seconds: int = 180,
     schema_ready: bool = False,
 ) -> Dict[str, Any]:
+    from src.core.helius_denial_gate import blocked as _helius_blocked
+    if _helius_blocked():return dict(status='deferred',processed=0,resolved=0,failed=0,skipped=0,funding_enqueued=0,errors=[])
     from src.ops.walkback_create_handoff import producer_preflight
     with _read_db(db_path) as _handoff_preflight:
         producer_preflight(_handoff_preflight, core_path=db_path, ops_path=_OPS_DB_PATH)
@@ -874,6 +876,13 @@ def process_queue(
                 conn.commit()
 
         except Exception as exc:
+            if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+                from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+                if isinstance(exc, _HeliusDeferred):
+                    with _db(db_path) as conn:
+                        conn.execute("UPDATE creator_resolution_queue SET status='retry',locked_until=0,next_attempt_at=?,last_error='HELIUS_ACQUISITION_DEFERRED',updated_at=? WHERE mint=? AND status='running'",(int(time.time())+300,int(time.time()),mint))
+                        conn.commit()
+                    continue
             failed += 1
             error = str(exc)[:500]
             retry_at = int(time.time()) + min(900, 30 * (attempts + 1))

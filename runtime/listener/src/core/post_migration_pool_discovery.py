@@ -14,6 +14,7 @@ All paths feed results through the same hardened parser/extraction validation.
 import logging
 import asyncio
 import aiohttp
+from src.core.helius_denial_gate import post as _helius_post
 from typing import Optional, Dict, List
 from solders.pubkey import Pubkey
 
@@ -598,7 +599,7 @@ class PostMigrationPoolDiscovery:
                     "params": [[migration_sig], {"searchTransactionHistory": True}],
                 }
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(
+                    async with _helius_post(session,
                         self.rpc_url,
                         json=sig_payload,
                         timeout=aiohttp.ClientTimeout(total=10),
@@ -649,7 +650,7 @@ class PostMigrationPoolDiscovery:
                     }
 
                     async with aiohttp.ClientSession() as session:
-                        async with session.post(
+                        async with _helius_post(session,
                             self.rpc_url,
                             json=sig_payload,
                             timeout=aiohttp.ClientTimeout(total=10),
@@ -715,7 +716,7 @@ class PostMigrationPoolDiscovery:
                             }
 
                             async with aiohttp.ClientSession() as session:
-                                async with session.post(
+                                async with _helius_post(session,
                                     self.rpc_url,
                                     json=tx_payload,
                                     timeout=aiohttp.ClientTimeout(total=10),
@@ -771,7 +772,7 @@ class PostMigrationPoolDiscovery:
                                     }
 
                                     async with aiohttp.ClientSession() as session:
-                                        async with session.post(
+                                        async with _helius_post(session,
                                             self.rpc_url,
                                             json=acct_payload,
                                             timeout=aiohttp.ClientTimeout(total=10),
@@ -1356,7 +1357,7 @@ class PostMigrationPoolDiscovery:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(
+                async with _helius_post(session,
                     self.rpc_url,
                     json=payload,
                     timeout=aiohttp.ClientTimeout(total=30)
@@ -1385,7 +1386,7 @@ class PostMigrationPoolDiscovery:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(
+                async with _helius_post(session,
                     self.rpc_url,
                     json=payload,
                     timeout=aiohttp.ClientTimeout(total=30)
@@ -1439,7 +1440,7 @@ class PostMigrationPoolDiscovery:
                         ]
                     }
                     async with aiohttp.ClientSession() as session:
-                        async with session.post(
+                        async with _helius_post(session,
                             self.rpc_url,
                             json=payload,
                             timeout=aiohttp.ClientTimeout(total=30)
@@ -1536,7 +1537,7 @@ class PostMigrationPoolDiscovery:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(
+                async with _helius_post(session,
                     self.rpc_url,
                     json=payload,
                     timeout=aiohttp.ClientTimeout(total=30)
@@ -1561,7 +1562,7 @@ class PostMigrationPoolDiscovery:
             }
 
             async with aiohttp.ClientSession() as session:
-                async with session.post(
+                async with _helius_post(session,
                     self.rpc_url,
                     json=payload,
                     timeout=aiohttp.ClientTimeout(total=30)

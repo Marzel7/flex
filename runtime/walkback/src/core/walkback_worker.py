@@ -100,7 +100,9 @@ def _rpc(method: str, params: list) -> Optional[object]:
         req = urllib.request.Request(
             RPC_URL, data=body,
             headers={"Content-Type": "application/json", "User-Agent": "walkback-worker/1.0"})
-        envelope = json.loads(urllib.request.urlopen(req, timeout=RPC_TIMEOUT).read())
+        from src.core.helius_denial_gate import urlopen as _helius_urlopen
+        with _helius_urlopen(req, timeout=RPC_TIMEOUT) as response:
+            envelope = json.loads(response.read())
         if not isinstance(envelope, dict) or envelope.get("error") is not None or "result" not in envelope:
             raise ValueError("invalid RPC envelope")
         result = envelope["result"]
@@ -127,6 +129,9 @@ def _rpc(method: str, params: list) -> Optional[object]:
                 raise ValueError("invalid account response")
         return result
     except Exception as exc:
+        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+            from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+            if isinstance(exc, _HeliusDeferred):raise
         # Never retain URL, credentials, response bodies or provider exception text.
         raise AcquisitionUnavailable(f"{method}:{type(exc).__name__}") from None
 
@@ -1645,6 +1650,13 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
         _mark_acquisition_unavailable(ops, mint, rpc[0], str(exc))
 
     except Exception as e:
+        if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
+            from src.core.helius_denial_gate import Deferred as _HeliusDeferred
+            if isinstance(e, _HeliusDeferred):
+                # Keep the already-started claim count, but never turn denial
+                # into a negative evidence verdict or retry-budget reset.
+                ops.execute("UPDATE wt_walkback_queue SET status='pending',lease_expires_at=0,next_retry_at=?,last_error='HELIUS_ACQUISITION_DEFERRED',updated_at=? WHERE mint=? AND status='running' AND claimed_by=?",(int(time.time())+300,int(time.time()),mint,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
+                ops.commit();return rpc[0]
         err = str(e)
         print(f"[WALKBACK] error processing {mint[:16]}…: {err}", flush=True)
         if attempts >= MAX_ATTEMPTS:
@@ -1763,6 +1775,8 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
     Claim up to batch_size pending rows (attempts < MAX_ATTEMPTS) and process them.
     Returns summary: {processed, rpc_used, outcomes}.
     """
+    from src.core.helius_denial_gate import blocked as _helius_blocked
+    if _helius_blocked():return dict(processed=0,rpc_used=0,outcomes={})
     deep_walkback.ensure_schema(ops)
     rows = ops.execute(
         "SELECT mint, creator, subprov, treasury, walkback_class, attempts "

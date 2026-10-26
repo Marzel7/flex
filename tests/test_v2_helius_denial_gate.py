@@ -255,8 +255,8 @@ def test_default_flag_omission_cannot_hide_stable_state(case,monkeypatch):
 
 def test_generation_binding_checked_for_actual_current(case,bound_env,monkeypatch):
  e=case;b=bound_env;monkeypatch.setenv('MIGRATION_JOURNAL_PATH',str(e.root/'migration.jsonl'));monkeypatch.setenv('HELIUS_DENIAL_GATE_PATH',str(e.root/'helius-denial-v1.json'));monkeypatch.setenv(e.m.FLAG,'1')
- gate=e.original_current();assert gate.generation==b.manifest['generation']
- gate.initialize('PAYMENT_DENIED');assert gate.blocked()
+ e.m.Gate(e.root/'helius-denial-v1.json',b.manifest['generation']).initialize('PAYMENT_DENIED')
+ gate=e.original_current();assert gate.generation==b.manifest['generation'] and gate.blocked()
  d=json.loads(b.owner.read_text());d['generation']='wrong';b.save(b.owner,d)
  with pytest.raises(Exception):e.original_current()
 

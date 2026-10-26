@@ -20,11 +20,57 @@ def _hash(value):return hashlib.sha256(value.encode()).hexdigest()
 @contextlib.contextmanager
 def investigation(identity):
  if not isinstance(identity,str) or not identity or len(identity)>512:raise gate.Integrity('HELIUS_INVESTIGATION_REQUIRED')
- scopes=tuple(sorted(set(_scope.get())|{_hash(identity)}))
- if len(scopes)>4:raise gate.Integrity('HELIUS_SCOPE_DEPTH')
+ alias=_hash(identity);scopes=_scope.get();g=gate.current() if gate.enabled() else None
+ if g and g.budget_version()==2:
+  if scopes:
+   root=g.investigation_owner(scopes[0])
+   alias=_hash(identity) if identity.startswith('mint:') else _hash('CHILD_SCOPE_V2:'+root+':'+identity)
+   g.bind_child(scopes[0],alias,_hash('CHILD_SCOPE_V2:'+scopes[0]+':'+identity))
+  else:g.investigation_owner(alias)  # Never creates a root from a caller ID.
+  scopes=(alias,)
+ else:
+  scopes=tuple(sorted(set(scopes)|{alias}))
+  if len(scopes)>4:raise gate.Integrity('HELIUS_SCOPE_DEPTH')
  token=_scope.set(scopes)
  try:yield
  finally:_scope.reset(token)
+
+
+def core_identity_proof(mint):
+ import os,sqlite3
+ from pathlib import Path
+ path=os.environ.get('DB_PATH')
+ if not path or not Path(path).is_absolute():raise gate.BudgetDeferred('HELIUS_ORIGIN_AUTHORITY_MISSING')
+ # current() validates the active matched pair before this indexed lookup.
+ try:
+  with contextlib.closing(sqlite3.connect(Path(path).as_uri()+'?mode=ro',uri=True,timeout=1)) as conn:
+   conn.execute('PRAGMA query_only=ON')
+   row=conn.execute('SELECT mint FROM token_analysis WHERE mint=? LIMIT 1',(mint,)).fetchone()
+ except sqlite3.Error:raise gate.BudgetDeferred('HELIUS_ORIGIN_AUTHORITY_UNAVAILABLE') from None
+ if row is None:raise gate.BudgetDeferred('HELIUS_ORIGIN_UNKNOWN')
+ return _hash('CORE_TOKEN_MINT_V1:solana-mainnet:'+mint)
+
+
+@contextlib.contextmanager
+def owned_context(identity):
+ g=gate.current()
+ if g and g.budget_version()==2 and not _scope.get():
+  if identity.startswith('mint:'):
+   mint=identity[5:];proof=core_identity_proof(mint);g.register_origin(identity,proof)
+  elif identity.startswith('migration:'):
+   import os
+   from src.core.migration_signature_journal import MigrationJournal
+   signature=identity[len('migration:'):]
+   path=os.environ.get('MIGRATION_JOURNAL_PATH')
+   if not path:raise gate.BudgetDeferred('HELIUS_ORIGIN_AUTHORITY_MISSING')
+   row=next((row for row in MigrationJournal(path).snapshot() if row['signature']==signature),None)
+   mint=(row.get('mint') or row.get('notification_mint')) if row else None
+   if not mint:raise gate.BudgetDeferred('HELIUS_ORIGIN_UNKNOWN')
+   proof=core_identity_proof(mint);parent='mint:'+mint;g.register_origin(parent,proof)
+   # This is budget attribution to an admitted subject, never CREATE or
+   # migration confirmation and never a fabricated mint for signature-only work.
+   g.bind_child(_hash(parent),_hash(identity),_hash('ADMITTED_NOTIFICATION_V1:'+row['id']))
+ with investigation(identity):yield
 
 def scoped(role,parameter,prefix='mint'):
  def decorate(fn):
@@ -33,20 +79,27 @@ def scoped(role,parameter,prefix='mint'):
    value=signature.bind(*args,**kwargs).arguments[parameter]
    if parameter=='row':value=value['mint']
    return prefix+':'+str(value)
+  def enter(args,kwargs):
+   context=owned_context(identity(args,kwargs))
+   try:context.__enter__()
+   except gate.BudgetDeferred:return None
+   return context
   if inspect.iscoroutinefunction(fn):
    @functools.wraps(fn)
    async def wrapped(*args,**kwargs):
-    if gate.enabled():
-     install(role)
-     with investigation(identity(args,kwargs)):return await fn(*args,**kwargs)
-    return await fn(*args,**kwargs)
+    if not gate.enabled():return await fn(*args,**kwargs)
+    install(role);context=enter(args,kwargs)
+    try:return await fn(*args,**kwargs)
+    finally:
+     if context is not None:context.__exit__(None,None,None)
   else:
    @functools.wraps(fn)
    def wrapped(*args,**kwargs):
-    if gate.enabled():
-     install(role)
-     with investigation(identity(args,kwargs)):return fn(*args,**kwargs)
-    return fn(*args,**kwargs)
+    if not gate.enabled():return fn(*args,**kwargs)
+    install(role);context=enter(args,kwargs)
+    try:return fn(*args,**kwargs)
+    finally:
+     if context is not None:context.__exit__(None,None,None)
   return wrapped
  return decorate
 
@@ -72,6 +125,13 @@ def _admit(url,verb,body):
  if isinstance(data,dict) and verb.upper()=='POST' and isinstance(data.get('method'),str):
   selector='rpc:'+data['method']
   # Dynamic-cost methods/options require their own verified selector policy.
+  if data['method']=='getTransactionsForAddress':
+   params=data.get('params',[])
+   options=params[1] if len(params)>1 else {}
+   if not isinstance(options,dict) or options.get('transactionDetails','signatures') not in ('signatures','full') or type(options.get('limit',1000)) is not int or not 1<=options.get('limit',1000)<=1000:raise gate.BudgetDeferred('HELIUS_UNKNOWN_REQUEST_COST')
+   details=options.get('transactionDetails','signatures')
+   selector+=':'+details
+   if details=='full':selector+=':band'+str((options.get('limit',1000)+99)//100)
   if data['method']=='getSignatureStatuses':selector+=':history' if any(isinstance(v,dict) and v.get('searchTransactionHistory') for v in data.get('params',[])) else ':recent'
   payload={'method':data['method'],'params':data.get('params',[])}
   page=page or data['method']=='getSignaturesForAddress' or any(isinstance(v,dict) and any(k in v for k in ('before','after','cursor','page','paginationToken')) for v in payload['params'])
@@ -296,3 +356,14 @@ async def websocket_connection(manager):
   import sys
   if not await manager.__aexit__(*sys.exc_info()):raise
  else:await manager.__aexit__(None,None,None)
+
+
+@contextlib.contextmanager
+def resume_investigation(alias):
+ # Durable child-job handoff: the alias must already name an immutable owner.
+ g=gate.current()
+ if g is None:raise gate.Integrity('HELIUS_GATE_REQUIRED')
+ g.investigation_owner(alias)
+ token=_scope.set((alias,))
+ try:yield
+ finally:_scope.reset(token)

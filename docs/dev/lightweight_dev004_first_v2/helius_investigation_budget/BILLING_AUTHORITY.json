@@ -1,0 +1,24 @@
+{
+  "facts": {
+    "getProgramAccounts_credits": 10,
+    "getTransactionsForAddress_full_request_bound": "reserve 10 * ceil(request limit / 100), default/max limit 1000; signatures-only stays 10",
+    "getTransactionsForAddress_full_reserved_upper_bound": 100,
+    "getTransactionsForAddress_full_rule": "10 per 100 returned, rounded up; minimum 10; at most 1000 results",
+    "getTransactionsForAddress_signatures_credits": 10,
+    "historical_getSignaturesForAddress_credits": 1,
+    "historical_getTransaction_credits": 1,
+    "standard_rpc_credits": 1
+  },
+  "refund_policy": "No refunds, including failed calls; reservations remain conservative upper bounds rather than measured invoices.",
+  "scope": "Public documentation only, no authenticated account lookup, RPC call or WebSocket. Dedicated current billing/method documentation is used instead of older FAQ/blog and local telemetry estimates.",
+  "sources": [
+    "https://www.helius.dev/docs/billing/credits",
+    "https://www.helius.dev/docs/api-reference/rpc/http/gettransactionsforaddress"
+  ],
+  "unverified_refused": [
+    "Legacy enhanced REST transaction batch billing unit is not established here.",
+    "Other unlisted selectors, unsupported transactionDetails and limits outside 1..1000."
+  ],
+  "verified_at_utc": "2026-10-26T19:27:15.609422+00:00",
+  "version": 1
+}

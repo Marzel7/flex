@@ -24,14 +24,17 @@ def e(tmp_path,monkeypatch):
  import src.core
  monkeypatch.setitem(sys.modules,'src.core.helius_denial_gate',m);monkeypatch.setattr(src.core,'helius_denial_gate',m,raising=False)
  h=load('budget_fixture_http',ROOT/'runtime/listener/src/core/helius_http_protection.py');monkeypatch.setitem(sys.modules,'src.core.helius_http_protection',h)
+ original_current=m.current
  monkeypatch.setenv(m.FLAG,'1');monkeypatch.setattr(m,'current',lambda:g)
  def provision(p=None):
-  g.configure_budget(p or policy(),hashlib.sha256(g.path.read_bytes()).hexdigest())
+  selected=p or policy()
+  configure=m._configure_legacy_budget if selected.get('version')==1 else type(g).configure_budget
+  configure(g,selected,hashlib.sha256(g.path.read_bytes()).hexdigest())
  def open_fixture():
   with g.locked():s=g.read();s['state']='OPEN';g.save(s)
  def reserve(key='one',scope='mint',role='listener',selector='rpc:getTransaction',page=False,origin='one'):
   return g.reserve_http(role=role,scopes=(h._hash(scope),),key=h._hash(key),selector=selector,page=page,origin=h._hash(origin))
- yield types.SimpleNamespace(m=m,h=h,g=g,now=now,provision=provision,open=open_fixture,reserve=reserve,root=tmp_path)
+ yield types.SimpleNamespace(m=m,h=h,g=g,now=now,provision=provision,open=open_fixture,reserve=reserve,root=tmp_path,original_current=original_current)
  h.uninstall_for_tests()
 
 
@@ -87,6 +90,7 @@ def test_simultaneous_three_worker_global_reservations(e):
    try:return e.reserve(key=str(i),scope=str(i),role=e.m.ROLES[i%3])
    except e.m.Deferred as ex:
     if str(ex)!='HELIUS_GATE_BUSY':return None
+    __import__('time').sleep(.001)
   return None
  with ThreadPoolExecutor(12) as pool:out=list(pool.map(call,range(12)))
  s=e.g.read();assert len([x for x in out if x])==3

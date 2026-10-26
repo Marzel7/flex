@@ -179,7 +179,7 @@ def test_frozen_configuration_authority_required(case,defect):
 def test_fresh_pair_preserves_full_rpc_budget_and_ambiguous_reservation(case,monkeypatch):
  from tests.test_v2_helius_rpc_budget import policy
  e=case;e.gate.monotonic=lambda:1000
- e.gate.configure_budget(policy(),hashlib.sha256(e.gate.path.read_bytes()).hexdigest())
+ e.module._configure_legacy_budget(e.gate,policy(),hashlib.sha256(e.gate.path.read_bytes()).hexdigest())
  with e.gate.locked():
   state=e.gate.read();state['state']='OPEN';e.gate.save(state)
  e.gate.reserve_http(role='walkback',scopes=('1'*64,),key='2'*64,selector='rpc:getTransaction',origin='3'*64)
@@ -191,3 +191,19 @@ def test_fresh_pair_preserves_full_rpc_budget_and_ambiguous_reservation(case,mon
  assert new==dict(old,generation='fresh') and len(new['rpc_budget']['inflight'])==1
  assert new['rpc_budget']['windows']['day']['credits']==10 and fresh.blocked()
  e.ns['finish_helius_recovery'](env);assert fresh.read()==new
+
+
+def test_investigation_v2_owner_warning_and_child_survive_fresh_pair(case,monkeypatch):
+ policy=json.loads((ROOT/'docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/POLICY.json').read_text())
+ e=case;e.gate.monotonic=lambda:1000;e.gate.configure_budget(policy,hashlib.sha256(e.gate.path.read_bytes()).hexdigest())
+ root=e.gate.register_origin('mint:fixture','1'*64);e.gate.bind_child(root,'2'*64,'3'*64)
+ with e.gate.locked():
+  state=e.gate.read();state['state']='OPEN';q=state['rpc_budget']['scopes'][root];q.update(credits=49999);q['workers']['listener']=49999;e.gate.save(state)
+ e.gate.reserve_http(role='walkback',scopes=('2'*64,),key='4'*64,selector='rpc:getTransaction',origin='5'*64)
+ with e.gate.locked():state=e.gate.read();state['state']='PAYMENT_DENIED';e.gate.save(state)
+ paths,m,dest=target(e);prepared=e.ns['prepare_helius_recovery'](e.env,dest);e.ns['freeze_helius_recovery'](prepared);old=e.gate.read()
+ env=activate(e,paths,m,dest,monkeypatch);e.ns['finish_helius_recovery'](env)
+ fresh=e.module.Gate(e.gate.path,'fresh');assert fresh.read()==dict(old,generation='fresh')
+ assert fresh.investigation_owner('2'*64)==root
+ assert fresh.read()['rpc_budget']['scopes'][root]['credits']==50000 and fresh.read()['rpc_budget']['scopes'][root]['warned']
+ assert len(fresh.read()['rpc_budget']['inflight'])==1

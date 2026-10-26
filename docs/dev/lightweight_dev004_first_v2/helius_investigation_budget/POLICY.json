@@ -1,0 +1,124 @@
+{
+  "costs": {
+    "rpc:getAccountInfo": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getBalance": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getBlockTime": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getMultipleAccounts": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getProgramAccounts": {
+      "credits": 10,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getSignatureStatuses:history": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getSignatureStatuses:recent": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getSignaturesForAddress": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getSlot": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTokenAccountsByOwner": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTokenLargestAccounts": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransaction": {
+      "credits": 1,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band1": {
+      "credits": 10,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band10": {
+      "credits": 100,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band2": {
+      "credits": 20,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band3": {
+      "credits": 30,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band4": {
+      "credits": 40,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band5": {
+      "credits": 50,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band6": {
+      "credits": 60,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band7": {
+      "credits": 70,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band8": {
+      "credits": 80,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:full:band9": {
+      "credits": 90,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    },
+    "rpc:getTransactionsForAddress:signatures": {
+      "credits": 10,
+      "evidence_sha256": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "freshness_seconds": 60
+    }
+  },
+  "inflight": 3,
+  "lifetime_credits": 100000,
+  "requests_per_minute": 120,
+  "version": 2,
+  "warning_credits": 50000
+}

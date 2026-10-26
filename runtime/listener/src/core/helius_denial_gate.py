@@ -35,7 +35,7 @@ class Gate:
    info=os.fstat(fd)
    if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1 or info.st_size>128:raise Integrity('HELIUS_GATE_LOCK')
    try:fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
-   except BlockingIOError:raise Deferred('HELIUS_GATE_BUSY') from None
+   except BlockingIOError:raise BudgetDeferred('HELIUS_GATE_BUSY') from None
    yield
   finally:os.close(fd)
  def read(self):
@@ -47,8 +47,8 @@ class Gate:
   fd=os.open(self.path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
   try:
    i=os.fstat(fd)
-   if not stat.S_ISREG(i.st_mode) or i.st_nlink!=1 or i.st_size>262144:raise Integrity('HELIUS_GATE_STATE')
-   raw=os.read(fd,262145)
+   if not stat.S_ISREG(i.st_mode) or i.st_nlink!=1 or i.st_size>16777216:raise Integrity('HELIUS_GATE_STATE')
+   raw=os.read(fd,16777217)
    if published!=b'READY_V1 '+hashlib.sha256(raw).hexdigest().encode()+b'\n':raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
    def unique(items):
     out={}
@@ -71,6 +71,10 @@ class Gate:
   elif len(raw)>MAX_BYTES:raise Integrity('HELIUS_GATE_STATE')
   return s
  def save(self,s):
+  prepared=None
+  if s.get('rpc_budget',{}).get('version')==2:
+   prepared=(json.dumps(s,sort_keys=True)+'\n').encode()
+   if len(prepared)>16777216:raise BudgetDeferred('HELIUS_INVESTIGATION_STATE_CAPACITY')
   # Persist ambiguity before publishing; interrupted fsync/rename cannot be
   # mistaken for fresh allowance after restart.
   lock=os.open(str(self.path)+'.lock',os.O_WRONLY|os.O_NOFOLLOW)
@@ -81,8 +85,8 @@ class Gate:
   try:marker(b'PENDING_V1\n')
   finally:os.close(lock)
   if os.statvfs(self.path.parent).f_bavail*os.statvfs(self.path.parent).f_frsize<2067108864:raise Integrity('DISK_FLOOR')
-  b=(json.dumps(s,sort_keys=True)+'\n').encode()
-  if len(b)>(262144 if 'rpc_budget' in s else MAX_BYTES):raise Integrity('HELIUS_GATE_CAPACITY')
+  b=prepared if prepared is not None else (json.dumps(s,sort_keys=True)+'\n').encode()
+  if len(b)>(16777216 if s.get('rpc_budget',{}).get('version')==2 else 262144 if 'rpc_budget' in s else MAX_BYTES):raise Integrity('HELIUS_GATE_CAPACITY')
   temp=self.path.with_name(self.path.name+'.stage')
   fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
   try:
@@ -154,10 +158,16 @@ def current():
  path=os.environ.get('HELIUS_DENIAL_GATE_PATH')
  journal=os.environ.get('MIGRATION_JOURNAL_PATH')
  if not path or not journal or not os.path.isabs(journal) or path!=str(Path(journal).parent/'helius-denial-v1.json'):raise Integrity('HELIUS_GATE_STABLE_PATH_REQUIRED')
- return Gate(path,authority())
+ g=Gate(path,authority())
+ try:
+  with g.locked():state=g.read()
+ except OSError:raise Integrity('HELIUS_GATE_STATE') from None
+ if 'rpc_budget' in state and state['rpc_budget'].get('version')!=2:raise Integrity('HELIUS_INVESTIGATION_POLICY_V2_REQUIRED')
+ if 'rpc_budget' not in state and state['state'] not in ('PAYMENT_DENIED','AUTH_DENIED'):raise BudgetDeferred('HELIUS_INVESTIGATION_POLICY_V2_REQUIRED')
+ return g
 def blocked():
  try:g=current()
- except Integrity:return True
+ except (Deferred,Integrity,OSError):return True
  if not g:return False
  try:return g.blocked()
  except (Deferred,Integrity,OSError):return True  # Paid channel closed; admission remains live.
@@ -282,6 +292,7 @@ def _digest(value):
  return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
 
 def _policy(p):
+ if isinstance(p,dict) and p.get('version')==2:return _policy2(p)
  if not isinstance(p,dict) or p.get('version')!=1:raise Integrity('HELIUS_BUDGET_POLICY')
  required=('minute','hour','day','inflight','scope_credits','scope_requests','scope_retries','scope_pages','scope_fallbacks')
  if any(type(p.get(k)) is not int or not 0<p[k]<=10**9 for k in required):raise Integrity('HELIUS_BUDGET_POLICY')
@@ -303,6 +314,7 @@ def _policy(p):
 
 def _budget(self,s):
  b=s.get('rpc_budget')
+ if isinstance(b,dict) and b.get('version')==2:return _budget2(self,s)
  if not isinstance(b,dict) or b.get('version')!=1:raise Integrity('HELIUS_RPC_BUDGET_REQUIRED')
  _policy(b['policy'])
  if b['policy_sha256']!=_digest(b['policy']):raise Integrity('HELIUS_BUDGET_POLICY_HASH')
@@ -332,6 +344,7 @@ def _tick(self,b):
  return now
 
 def _configure_budget(self,policy,expected_sha256):
+ if isinstance(policy,dict) and policy.get('version')==2:return _configure2(self,policy,expected_sha256)
  _policy(policy)
  with self.locked():
   s=self.read()
@@ -343,6 +356,7 @@ def _configure_budget(self,policy,expected_sha256):
 def _reserve_http(self,*,role,scopes,key,selector,origin,page=False):
  with self.locked():
   s=self.read()
+  if s.get('rpc_budget',{}).get('version')==2:return _reserve2_locked(self,s,role=role,scopes=scopes,key=key,selector=selector,origin=origin,page=page)
   if s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):raise BudgetDeferred('HELIUS_ACQUISITION_DEFERRED')
   b=_budget(self,s);now=_tick(self,b);p=b['policy']
   if role not in ROLES or not scopes or len(scopes)>4 or any(not isinstance(x,str) or len(x)!=64 for x in scopes):raise Integrity('HELIUS_INVESTIGATION_REQUIRED')
@@ -427,3 +441,143 @@ def _notice_http(self,ticket,status,*,retry_after=60):
   self.save(s)
 
 Gate.notice_http=_notice_http
+
+# Version 2: originating investigations, not aggregate hourly/daily spending.
+INVESTIGATION_STATE_BYTES = 16 * 1024 * 1024
+INVESTIGATION_MAX_ROOTS = 8192
+INVESTIGATION_MAX_IDENTITIES = 32768
+INVESTIGATION_MAX_REQUESTS = 32768
+
+def _policy2(p):
+ expected={'version','lifetime_credits','warning_credits','requests_per_minute','inflight','costs'}
+ if set(p)!=expected or p.get('version')!=2:raise Integrity('HELIUS_INVESTIGATION_POLICY')
+ if p['lifetime_credits']!=100000 or p['warning_credits']!=50000:raise Integrity('HELIUS_INVESTIGATION_ALLOWANCE')
+ if type(p['requests_per_minute']) is not int or not 1<=p['requests_per_minute']<=6000:raise Integrity('HELIUS_REQUEST_RATE_POLICY')
+ if type(p['inflight']) is not int or not 1<=p['inflight']<=32:raise Integrity('HELIUS_INFLIGHT_POLICY')
+ # Reuse the exact cost-entry validation; no price wildcard or guessed default.
+ legacy=dict(version=1,minute=100000,hour=100000,day=300000,inflight=p['inflight'],scope_credits=100000,scope_requests=100000,scope_retries=100000,scope_pages=100000,scope_fallbacks=100000,workers={r:100000 for r in ROLES},costs=p['costs'])
+ _policy(legacy)
+ return p
+
+def _budget2(self,s):
+ b=s['rpc_budget'];_policy2(b['policy'])
+ if b.get('version')!=2 or b.get('policy_sha256')!=_digest(b['policy']):raise Integrity('HELIUS_INVESTIGATION_STATE')
+ for field,cap in [('scopes',INVESTIGATION_MAX_ROOTS),('owners',INVESTIGATION_MAX_IDENTITIES),('keys',INVESTIGATION_MAX_REQUESTS),('inflight',32)]:
+  if not isinstance(b.get(field),dict) or len(b[field])>cap:raise Integrity('HELIUS_INVESTIGATION_STATE')
+ for field in ('wall','mono'):
+  if type(b.get(field)) is not int or b[field]<0:raise Integrity('HELIUS_BUDGET_CLOCK')
+ if set(b['rate'])!={'start','count','previous'} or any(type(v) is not int or v<0 for v in b['rate'].values()):raise Integrity('HELIUS_RATE_STATE')
+ for root,q in b['scopes'].items():
+  if len(root)!=64 or set(q)!={'credits','requests','retries','pages','fallbacks','warned','workers','origin'}:raise Integrity('HELIUS_ROOT_STATE')
+  if any(type(q[n]) is not int or q[n]<0 for n in ('credits','requests','retries','pages','fallbacks')):raise Integrity('HELIUS_ROOT_STATE')
+  if q['credits']>100000 or type(q['warned']) is not bool or q['warned']!=(q['credits']>=50000):raise Integrity('HELIUS_ROOT_STATE')
+  if set(q['workers'])!=set(ROLES) or any(type(v) is not int or v<0 for v in q['workers'].values()) or sum(q['workers'].values())!=q['credits']:raise Integrity('HELIUS_ROOT_STATE')
+  if root not in b['owners'] or b['owners'][root]['root']!=root:raise Integrity('HELIUS_ROOT_AUTHORITY')
+ for alias,owner in b['owners'].items():
+  if len(alias)!=64 or set(owner)!={'root','parent','proof'} or owner['root'] not in b['scopes'] or owner['parent'] not in b['owners'] or len(owner['proof'])!=64:raise Integrity('HELIUS_OWNER_STATE')
+  if b['owners'][owner['parent']]['root']!=owner['root']:raise Integrity('HELIUS_OWNER_STATE')
+ for key,v in b['keys'].items():
+  if len(key)!=64 or v.get('status') not in ('INFLIGHT','HTTP_COMPLETED','DETERMINISTIC_FAILURE','RETRYABLE') or type(v.get('attempts')) is not int or v['attempts']<1 or type(v.get('at')) is not int:raise Integrity('HELIUS_REQUEST_STATE')
+ for ticket,v in b['inflight'].items():
+  if len(ticket)!=32 or v.get('key') not in b['keys'] or b['keys'][v['key']]['status']!='INFLIGHT' or v.get('root') not in b['scopes']:raise Integrity('HELIUS_INFLIGHT_STATE')
+ return b
+
+def _configure2(self,policy,expected_sha256):
+ _policy2(policy)
+ with self.locked():
+  s=self.read()
+  if s['state']!='PAYMENT_DENIED' or 'rpc_budget' in s or hashlib.sha256(self.path.read_bytes()).hexdigest()!=expected_sha256:raise Integrity('HELIUS_BUDGET_CONFIGURATION_AUTHORITY')
+  now=int(self.clock());s['rpc_budget']=dict(version=2,policy=policy,policy_sha256=_digest(policy),wall=now,mono=int(self.monotonic()),rate=dict(start=now,count=0,previous=0),scopes={},owners={},keys={},inflight={})
+  self.save(s)
+
+def _register_origin(self,identity,proof):
+ # Trusted identity-owner callback only. HTTP callers cannot create roots by
+ # supplying an investigation ID: they must resolve a pre-existing binding.
+ if not isinstance(identity,str) or not identity.startswith('mint:') or not 5<len(identity)<=133 or not isinstance(proof,str) or len(proof)!=64:raise Integrity('HELIUS_ORIGIN_PROOF')
+ alias=hashlib.sha256(identity.encode()).hexdigest()
+ with self.locked():
+  s=self.read();b=_budget2(self,s)
+  if alias in b['owners']:return b['owners'][alias]['root']
+  if len(b['scopes'])>=INVESTIGATION_MAX_ROOTS or len(b['owners'])>=INVESTIGATION_MAX_IDENTITIES:raise BudgetDeferred('HELIUS_ORIGIN_CAPACITY')
+  b['owners'][alias]=dict(root=alias,parent=alias,proof=proof)
+  b['scopes'][alias]=dict(credits=0,requests=0,retries=0,pages=0,fallbacks=0,warned=False,workers={r:0 for r in ROLES},origin='')
+  self.save(s);return alias
+
+def _bind_child(self,parent,child,proof):
+ if any(not isinstance(v,str) or len(v)!=64 for v in (parent,child,proof)):raise Integrity('HELIUS_CHILD_PROOF')
+ with self.locked():
+  s=self.read();b=_budget2(self,s)
+  if parent not in b['owners']:raise BudgetDeferred('HELIUS_UNATTRIBUTED_PARENT')
+  root=b['owners'][parent]['root']
+  if child in b['owners']:
+   if b['owners'][child]['root']!=root:raise Integrity('HELIUS_OWNER_REBIND_REFUSED')
+   return root  # Keep the original parent/proof; never rewrite history.
+  if len(b['owners'])>=INVESTIGATION_MAX_IDENTITIES:raise BudgetDeferred('HELIUS_CHILD_IDENTITY_CAPACITY')
+  b['owners'][child]=dict(root=root,parent=parent,proof=proof);self.save(s);return root
+
+def _owner(self,alias):
+ with self.locked():
+  b=_budget2(self,self.read())
+  if alias not in b['owners']:raise BudgetDeferred('HELIUS_UNATTRIBUTED_INVESTIGATION')
+  return b['owners'][alias]['root']
+
+def _reserve2_locked(self,s,*,role,scopes,key,selector,origin,page=False):
+ if s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):raise BudgetDeferred('HELIUS_ACQUISITION_DEFERRED')
+ b=_budget2(self,s);now=_tick(self,b);p=b['policy']
+ if role not in ROLES or not scopes or len(scopes)>4:raise BudgetDeferred('HELIUS_UNATTRIBUTED_INVESTIGATION')
+ if any(alias not in b['owners'] for alias in scopes):raise BudgetDeferred('HELIUS_UNATTRIBUTED_INVESTIGATION')
+ roots={b['owners'][alias]['root'] for alias in scopes}
+ if len(roots)!=1:raise Integrity('HELIUS_AMBIGUOUS_ORIGIN')
+ root=next(iter(roots));q=b['scopes'][root]
+ if len(key)!=64 or len(origin)!=64:raise Integrity('HELIUS_REQUEST_IDENTITY')
+ if selector not in p['costs']:raise BudgetDeferred('HELIUS_UNKNOWN_REQUEST_COST')
+ if now<s['next_at'] or now<s['probe_until']:raise BudgetDeferred('HELIUS_ACQUISITION_DEFERRED')
+ cost=p['costs'][selector]['credits'];prior=b['keys'].get(key)
+ if q['credits']+cost>100000:raise BudgetDeferred('HELIUS_INVESTIGATION_CREDIT_LIMIT')
+ if prior:
+  if prior['status']=='INFLIGHT':raise BudgetDeferred('HELIUS_DUPLICATE_INFLIGHT')
+  if prior['status']=='DETERMINISTIC_FAILURE':raise BudgetDeferred('HELIUS_DETERMINISTIC_FAILURE')
+  if prior['status']=='HTTP_COMPLETED' and now-prior['at']<max(60,p['costs'][selector]['freshness_seconds']):raise BudgetDeferred('HELIUS_REQUEST_COOLDOWN')
+ if len(b['inflight'])>=p['inflight']:raise BudgetDeferred('HELIUS_INFLIGHT_LIMIT')
+ if key not in b['keys'] and len(b['keys'])>=INVESTIGATION_MAX_REQUESTS:raise BudgetDeferred('HELIUS_REQUEST_IDENTITY_CAPACITY')
+ rate=b['rate'];elapsed=now-rate['start']
+ if elapsed>=60:rate.update(start=rate['start']+(elapsed//60)*60,count=0,previous=rate['count'] if elapsed<120 else 0)
+ if rate['count']+rate['previous']+1>p['requests_per_minute']:raise BudgetDeferred('HELIUS_REQUEST_RATE_LIMIT')
+ rate['count']+=1
+ warn=not q['warned'] and q['credits']+cost>=50000
+ q['credits']+=cost;q['requests']+=1;q['workers'][role]+=cost;q['pages']+=int(page)
+ q['retries']+=int(prior is not None);q['fallbacks']+=int(bool(q['origin']) and q['origin']!=origin);q['origin']=q['origin'] or origin;q['warned']=q['credits']>=50000
+ ticket=uuid.uuid4().hex;probe=s['state']!='OPEN'
+ if probe:s.update(probe_until=now+120,next_at=now+300,recover_until=now+300)
+ elif now<s['recover_until']:s['next_at']=now+2
+ b['keys'][key]=dict(attempts=(prior['attempts'] if prior else 0)+1,status='INFLIGHT',at=now,selector=selector,role=role,pid=os.getpid(),credits=cost+(prior.get('credits',0) if prior else 0))
+ b['inflight'][ticket]=dict(key=key,root=root,role=role,credits=cost,probe=probe)
+ s['reservations']+=1;s['methods']['http_budget']=s['methods'].get('http_budget',0)+1
+ self.save(s)
+ if warn:
+  import logging
+  try:logging.getLogger(__name__).warning('HELIUS_INVESTIGATION_WARNING root=%s reserved_credits=%s ceiling=100000',root,q['credits'])
+  except Exception:pass  # Durable warned state remains queryable after restart.
+ return ticket
+
+Gate.register_origin=_register_origin
+Gate.bind_child=_bind_child
+Gate.investigation_owner=_owner
+
+
+# Keep the v1 reader for recovery/reconciliation of retained prototype state,
+# but do not permit its hourly/daily policy to be newly provisioned.
+_configure_legacy_budget=_configure_budget
+
+def _configure_current_budget(self,policy,expected_sha256):
+ if not isinstance(policy,dict) or policy.get('version')!=2:raise Integrity('HELIUS_INVESTIGATION_POLICY_V2_REQUIRED')
+ return _configure2(self,policy,expected_sha256)
+
+Gate.configure_budget=_configure_current_budget
+
+
+def _budget_version(self):
+ with self.locked():return self.read().get('rpc_budget',{}).get('version',0)
+
+Gate.budget_version=_budget_version
+Gate.has_budget=lambda self:bool(self.budget_version())

@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
+    "git_head": "8f5889a0df16bb3066cdbbee13453e7a939e6e6d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T09:29:22.190542+00:00",
+    "updated_at_utc": "2026-10-26T09:59:07.308126+00:00",
     "working_tree": "Qualified isolated DEV dormant runtime composition; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -44694,5 +44694,23 @@
     "next_action": "Qualify current protected retry/disposition cause and capacity headroom with bounded provider-free checks; separately authorize any production correction. No replay, deletion or retry reset. Do not freeze baseline yet.",
     "evidence_sha256": "13608f90dd5ad1190b0a6bd580c7ef1c7ba01c271e5096148e73a17b0bc2470f",
     "disk_recheck": "Floor plus reserve restored in two samples; current storage HOLD cleared. Previous 12-hour floor breach remains recorded."
+  },
+  "flex_v2_intake_stability": {
+    "status": "PASS_DEV_ONLY",
+    "verdict": "HOLD_PENDING_DEPLOYMENT_AND_LIVE_ACCEPTANCE",
+    "engineering_revision": "8f5889a0df16bb3066cdbbee13453e7a939e6e6d",
+    "tests": {
+      "passed": 34,
+      "failed": 0,
+      "deselected_reused": 8,
+      "provider_free": true
+    },
+    "production_changed": false,
+    "golden_frozen": false,
+    "result": "No migration reclamation defect demonstrated; existing verified-completion capacity works. Legacy compact birth queue repeats canonical-conflicting work without qualifying OPS terminal proof. Narrow read-only conflict deferral qualified, retaining original evidence and normal eligibility after authorized authority change.",
+    "source_delta": "Two existing listener runtime files plus focused tests; no schemas, quotas, providers, attribution or terminal-owner changes.",
+    "critical_blocker": "Qualified retry correction is not installed; live no-op warnings remain. Golden acceptance pending controlled preflight and separately authorized deployment.",
+    "detailed_evidence": "Local only; no raw identities or production configuration published.",
+    "next_action": "Run bounded read-only deployment preflight for the two-file conflict-deferral correction; preserve terminal-aware fallback and all protected records. No replay, resets, deletion or freeze."
   }
 }

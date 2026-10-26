@@ -131,3 +131,28 @@ historical acceptance matrices were reused unchanged.
 
 Final disposable suite: 719 files, 39,901,871 bytes combined; largest file
 1,228,800 bytes. These are fixture measurements, not production growth estimates.
+
+### Safe capacity closure
+
+The existing v1 OPS owner now explicitly initializes the additive
+`create_coverage_window_v1` singleton and its irreversible closure triggers.
+An open window admits at most 4,096 events / 4 MiB payload. Reaching either
+exact limit, exceeding remaining byte capacity, or reaching the bounded
+per-transaction evidence allowance commits `CLOSED_CAPACITY` alongside the
+accepted mutation. New optional evidence is then skipped; essential handoffs
+and CREATE activation continue. No catch-and-ignore of storage, schema,
+identity or generation errors is introduced. SQLite writer serialization and
+the existing defensive quota trigger retain hard quota enforcement.
+
+Closure rolls back if the enclosing essential transaction fails and is retried
+on the next accepted mutation; after commit it survives connection replacement.
+No auto-reopen or deletion exists. Original events and their ordering remain
+immutable. The reader marks closed-window results `complete=false`; cases
+without recorded timing are conservatively `UNMEASURED_AFTER_CLOSURE`, which
+means measurement unavailable, not proof of their historical occurrence time.
+Recorded timing remains usable. Exact all-Core query denominators are unchanged.
+
+Fresh compact recovery must preserve the singleton closure row as well as the
+existing commit/event rows. The recovery source pins require this corrected
+module. Deployment still requires explicit owner initialization before coherent
+three-role flag activation. No production initialization was performed.

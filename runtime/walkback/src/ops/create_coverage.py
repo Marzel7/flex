@@ -19,6 +19,9 @@ OBJECTS={
  'create_coverage_owner_v1':"CREATE TABLE create_coverage_owner_v1(id INTEGER PRIMARY KEY CHECK(id=1),version INTEGER NOT NULL CHECK(version=1),activated_utc_ns INTEGER NOT NULL,events INTEGER NOT NULL CHECK(events BETWEEN 0 AND 4096),bytes INTEGER NOT NULL CHECK(bytes BETWEEN 0 AND 4194304))",
  'create_coverage_commits_v1':"CREATE TABLE create_coverage_commits_v1(commit_order INTEGER PRIMARY KEY AUTOINCREMENT,writer_transaction TEXT NOT NULL UNIQUE,generation TEXT NOT NULL,staged_utc_ns INTEGER NOT NULL)",
  'create_coverage_events_v1':"CREATE TABLE create_coverage_events_v1(event_key TEXT PRIMARY KEY,kind TEXT NOT NULL CHECK(kind IN ('HANDOFF','ANCHOR')),mint TEXT NOT NULL,signature TEXT NOT NULL,commit_order INTEGER NOT NULL REFERENCES create_coverage_commits_v1(commit_order),payload TEXT NOT NULL CHECK(length(CAST(payload AS BLOB))<=1024),UNIQUE(kind,mint,signature))",
+ 'create_coverage_window_v1':"CREATE TABLE create_coverage_window_v1(id INTEGER PRIMARY KEY CHECK(id=1),state TEXT NOT NULL CHECK(state IN ('OPEN','CLOSED_CAPACITY')),closed_after_order INTEGER,reason TEXT)",
+ 'create_coverage_no_reopen':"CREATE TRIGGER create_coverage_no_reopen BEFORE UPDATE ON create_coverage_window_v1 WHEN OLD.state='CLOSED_CAPACITY' BEGIN SELECT RAISE(ABORT,'CREATE_AUDIT_WINDOW_IMMUTABLE'); END",
+ 'create_coverage_no_window_delete':"CREATE TRIGGER create_coverage_no_window_delete BEFORE DELETE ON create_coverage_window_v1 BEGIN SELECT RAISE(ABORT,'CREATE_AUDIT_WINDOW_IMMUTABLE'); END",
  'ix_create_coverage_commit':"CREATE INDEX ix_create_coverage_commit ON create_coverage_events_v1(commit_order)",
  'create_coverage_quota':"CREATE TRIGGER create_coverage_quota BEFORE INSERT ON create_coverage_events_v1 BEGIN SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM create_coverage_owner_v1 WHERE id=1) OR NOT EXISTS(SELECT 1 FROM create_coverage_commits_v1 WHERE commit_order=NEW.commit_order) THEN RAISE(ABORT,'CREATE_AUDIT_PARENT_REQUIRED') END; SELECT CASE WHEN (SELECT events FROM create_coverage_owner_v1 WHERE id=1)>=4096 OR (SELECT bytes FROM create_coverage_owner_v1 WHERE id=1)+length(CAST(NEW.payload AS BLOB))>4194304 THEN RAISE(ABORT,'CREATE_AUDIT_CAPACITY') END; END",
  'create_coverage_account':"CREATE TRIGGER create_coverage_account AFTER INSERT ON create_coverage_events_v1 BEGIN UPDATE create_coverage_owner_v1 SET events=events+1,bytes=bytes+length(CAST(NEW.payload AS BLOB)) WHERE id=1; END",
@@ -64,6 +67,7 @@ def validate_schema(conn):
   if not row or norm(row[0])!=norm(sql):raise Hold('CREATE_AUDIT_SCHEMA_REQUIRED:'+name)
  row=conn.execute('SELECT version FROM create_coverage_owner_v1 WHERE id=1').fetchone()
  if not row or row[0]!=VERSION:raise Hold('CREATE_AUDIT_VERSION')
+ if not conn.execute('SELECT 1 FROM create_coverage_window_v1 WHERE id=1').fetchone():raise Hold('CREATE_AUDIT_WINDOW_REQUIRED')
 
 def initialize_ops(conn):
  if not enabled():raise Hold('EXPLICIT_AUDIT_OPT_IN_REQUIRED')
@@ -73,6 +77,7 @@ def initialize_ops(conn):
   row=conn.execute('SELECT sql FROM sqlite_master WHERE name=?',(name,)).fetchone()
   if row and norm(row[0])!=norm(sql):raise Hold('INCOMPATIBLE_AUDIT_SCHEMA')
   if not row:conn.execute(sql)
+ conn.execute("INSERT OR IGNORE INTO create_coverage_window_v1 VALUES(1,'OPEN',NULL,NULL)")
  conn.execute('INSERT OR IGNORE INTO create_coverage_owner_v1 VALUES(1,1,?,0,0)',(time.time_ns(),));validate_schema(conn)
 
 def initialize_core_index(conn):
@@ -89,6 +94,9 @@ class Boundary:
   if not conn.in_transaction:conn.execute('BEGIN')
   self.token=getattr(conn,'_write_transaction_id',None)
   if not isinstance(self.token,str) or not self.token or len(self.token)>128:raise Hold('ACCEPTED_WRITER_BOUNDARY_REQUIRED')
+ def close(self,reason):
+  self.conn.execute("UPDATE create_coverage_window_v1 SET state='CLOSED_CAPACITY',closed_after_order=(SELECT max(commit_order) FROM create_coverage_commits_v1),reason=? WHERE id=1 AND state='OPEN'",(reason,))
+  return 'UNMEASURED_AFTER_CLOSURE'
  def record(self,kind,mint,signature,detail):
   if not isinstance(mint,str) or not 1<=len(mint)<=44 or not isinstance(signature,str) or not 1<=len(signature)<=88:raise Hold('AUDIT_IDENTITY')
   payload=packed(detail);key=event_key(kind,mint,signature)
@@ -97,11 +105,17 @@ class Boundary:
   if old:
    if old[0]!=payload:raise Hold('AUDIT_EVIDENCE_CONFLICT')
    return old[1]
+  state=self.conn.execute('SELECT state FROM create_coverage_window_v1 WHERE id=1').fetchone()[0]
+  if state=='CLOSED_CAPACITY':return 'UNMEASURED_AFTER_CLOSURE'
+  count,size=self.conn.execute('SELECT events,bytes FROM create_coverage_owner_v1 WHERE id=1').fetchone()
+  if count>=MAX_EVENTS or size+len(payload.encode())>MAX_BYTES:return self.close('EVENT_OR_BYTE_QUOTA')
   row=self.conn.execute('SELECT commit_order FROM create_coverage_commits_v1 WHERE writer_transaction=?',(self.token,)).fetchone()
   if row:order=row[0]
   else:order=self.conn.execute('INSERT INTO create_coverage_commits_v1(writer_transaction,generation,staged_utc_ns) VALUES(?,?,?)',(self.token,self.generation,time.time_ns())).lastrowid
-  if self.conn.execute('SELECT count(*) FROM create_coverage_events_v1 INDEXED BY ix_create_coverage_commit WHERE commit_order=?',(order,)).fetchone()[0]>=MAX_BATCH:raise Hold('AUDIT_TRANSACTION_CAPACITY')
-  self.conn.execute('INSERT INTO create_coverage_events_v1 VALUES(?,?,?,?,?,?)',(key,kind,mint,signature,order,payload));return order
+  if self.conn.execute('SELECT count(*) FROM create_coverage_events_v1 INDEXED BY ix_create_coverage_commit WHERE commit_order=?',(order,)).fetchone()[0]>=MAX_BATCH:return self.close('TRANSACTION_QUOTA')
+  self.conn.execute('INSERT INTO create_coverage_events_v1 VALUES(?,?,?,?,?,?)',(key,kind,mint,signature,order,payload))
+  if count+1==MAX_EVENTS or size+len(payload.encode())==MAX_BYTES:self.close('EVENT_OR_BYTE_QUOTA')
+  return order
  def handoff(self,mint,*,existing=False):
   # Read committed Core only, explicitly bound to the same accepted pair.
   path=os.environ['DB_PATH'];core=sqlite3.connect(Path(path).as_uri()+'?mode=ro',uri=True,timeout=2)
@@ -154,8 +168,9 @@ def capture_migrations(conn,start,end):
  finally:conn.rollback()
 
 def read_coverage(core,ops,start,end):
- guard(ops,'ops');validate_schema(ops);rows,plan=capture_migrations(core,start,end);counts={k:0 for k in ('PUMPPORTAL_DIRECT','RPC_RECOVERED','OTHER_VERIFIED_SOURCE','ANCHOR_PRESENT_SOURCE_UNKNOWN','NO_QUALIFIED_ANCHOR')};timing={k:0 for k in ('BEFORE_HANDOFF','AT_HANDOFF','AFTER_HANDOFF','UNVERIFIABLE')};ops.execute('BEGIN')
+ guard(ops,'ops');validate_schema(ops);rows,plan=capture_migrations(core,start,end);counts={k:0 for k in ('PUMPPORTAL_DIRECT','RPC_RECOVERED','OTHER_VERIFIED_SOURCE','ANCHOR_PRESENT_SOURCE_UNKNOWN','NO_QUALIFIED_ANCHOR')};timing={k:0 for k in ('BEFORE_HANDOFF','AT_HANDOFF','AFTER_HANDOFF','UNVERIFIABLE','UNMEASURED_AFTER_CLOSURE')};ops.execute('BEGIN')
  try:
+  window=ops.execute('SELECT state,closed_after_order,reason FROM create_coverage_window_v1 WHERE id=1').fetchone()
   for row in rows:
    w=ops.execute('SELECT creator,create_anchor_signature,create_anchor_audit_state FROM wt_walkback_queue WHERE mint=?',(row['mint'],)).fetchone();category='NO_QUALIFIED_ANCHOR';relation='UNVERIFIABLE'
    if w and w[1] and w[2]=='VALID':
@@ -168,6 +183,7 @@ def read_coverage(core,ops,start,end):
       elif (p.get('source'),p.get('qualification'))==('STRICT_RPC','DEV074_STRICT_CREATE'):category='RPC_RECOVERED'
      h=ops.execute('SELECT e.commit_order,c.generation FROM create_coverage_events_v1 e JOIN create_coverage_commits_v1 c USING(commit_order) WHERE event_key=?',(event_key('HANDOFF',row['mint'],row['migration_tx']),)).fetchone() if row['migration_tx'] else None
      if h and a[2]==h[1]:relation='AT_HANDOFF' if a[1]==h[0] else 'BEFORE_HANDOFF' if a[1]<h[0] else 'AFTER_HANDOFF'
+   if window[0]=='CLOSED_CAPACITY' and relation=='UNVERIFIABLE':relation='UNMEASURED_AFTER_CLOSURE'
    counts[category]+=1;timing[relation]+=1
-  return {'total_canonical_migrations':len(rows),'source':counts,'timing':timing,'complete':True,'core_plan':plan,'semantics':'Core membership snapshot plus OPS evidence snapshot; not cross-database atomic time. UTC commit instants not claimed.'}
+  return {'total_canonical_migrations':len(rows),'source':counts,'timing':timing,'complete':window[0]=='OPEN','observation_state':window[0],'closure_after_order':window[1],'closure_reason':window[2],'core_plan':plan,'semantics':'Core membership snapshot plus OPS evidence snapshot; not cross-database atomic time. UTC commit instants not claimed.'}
  finally:ops.rollback()

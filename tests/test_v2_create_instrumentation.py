@@ -132,10 +132,12 @@ def test_rejects_invalid_authority_before_mutation(env,monkeypatch,case):
  with pytest.raises(Exception):e.enqueue(p)
  assert not sql(e,'SELECT 1 FROM wt_walkback_queue')
 
-def test_quota_refusal_rolls_back_real_enqueue(env):
+def test_quota_closes_without_rolling_back_real_enqueue(env):
  e=env;p=e.proof();e.seed(p);e.write('ops',lambda c:c.execute('UPDATE create_coverage_owner_v1 SET events=4096 WHERE id=1'))
- with pytest.raises(sqlite3.IntegrityError):e.enqueue(p)
- assert not sql(e,'SELECT 1 FROM wt_walkback_queue')
+ e.enqueue(p)
+ assert sql(e,'SELECT 1 FROM wt_walkback_queue')
+ assert sql(e,'SELECT state FROM create_coverage_window_v1')==[('CLOSED_CAPACITY',)]
+ assert not e.read()['complete']
 
 def test_schema_owner_repeat_and_generation_authority(env):
  e=env;e.write('ops',e.ns['ensure_create_coverage_schema']);e.write('core',e.a.initialize_core_index);assert sql(e,'SELECT version FROM create_coverage_owner_v1')==[(1,)]
@@ -183,8 +185,10 @@ def test_core_missing_handoff_still_in_exact_denominator(env):
  e=env;p=e.proof();e.seed(p);r=e.read();assert r['total_canonical_migrations']==1 and r['source']['NO_QUALIFIED_ANCHOR']==1 and r['timing']['UNVERIFIABLE']==1
 
 
-def test_fresh_matched_pair_preserves_original_audit_generation(env,monkeypatch):
+@pytest.mark.parametrize('closed',[False,True])
+def test_fresh_matched_pair_preserves_original_audit_generation(env,monkeypatch,closed):
  e=env;p=e.proof();e.seed(p);e.enqueue(p);e.qualify(p);e.write('ops',lambda c:e.activate(c,p,0))
+ if closed:e.write('ops',lambda c:e.a.Boundary(c).close('EVENT_OR_BYTE_QUOTA'))
  old=sql(e,'SELECT e.event_key,e.payload,c.generation FROM create_coverage_events_v1 e JOIN create_coverage_commits_v1 c USING(commit_order) ORDER BY e.event_key')
  newcore=e.root/'fresh-core.sqlite';newops=e.root/'fresh-ops.sqlite'
  # Only selected synthetic canonical/queue/evidence rows, not full DB copies.
@@ -204,9 +208,10 @@ def test_fresh_matched_pair_preserves_original_audit_generation(env,monkeypatch)
   for name,rows in tables.items():
    for row in rows:c.execute('INSERT INTO '+name+' VALUES('+','.join('?' for _ in row)+')',tuple(row))
  write('ops',transfer)
+ if closed:write('ops',lambda c:e.a.Boundary(c).close('EVENT_OR_BYTE_QUOTA'))
  assert write('ops',lambda c:e.activate(c,p,0))=='ALREADY_COMMITTED'
  with sqlite3.connect(newcore.as_uri()+'?mode=ro',uri=True) as c,sqlite3.connect(newops.as_uri()+'?mode=ro',uri=True) as o:
-  r=e.a.read_coverage(c,o,99,101);assert r['source']['PUMPPORTAL_DIRECT']==1 and r['timing']['AFTER_HANDOFF']==1
+  r=e.a.read_coverage(c,o,99,101);assert r['complete']==(not closed);assert r['source']['PUMPPORTAL_DIRECT']==1 and r['timing']['AFTER_HANDOFF']==1
   assert o.execute('SELECT e.event_key,e.payload,c.generation FROM create_coverage_events_v1 e JOIN create_coverage_commits_v1 c USING(commit_order) ORDER BY e.event_key').fetchall()==old
 
 
@@ -285,3 +290,74 @@ def test_packaged_accepted_callbacks_coexist(role,env):
  p=e.proof();e.seed(p)
  with sqlite3.connect(e.core.as_uri()+'?mode=ro',uri=True) as read:e.write('ops',lambda c:ns['enqueue_migration'](c,mint=p.mint,creator=p.creator,live_conn=read))
  assert len(sql(e,"SELECT 1 FROM create_coverage_events_v1 WHERE kind='HANDOFF'"))==1
+
+
+@pytest.mark.parametrize('large',[False,True])
+def test_actual_capacity_boundaries_preserve_evidence_and_processing(env,large):
+ e=env;detail={'x':'a'*1016} if large else {'x':'a'}
+ for start in range(0,4095,128):
+  def fill(c,start=start):
+   b=e.a.Boundary(c)
+   for i in range(start,min(start+128,4095)):b.record('HANDOFF','m'+str(i),'s'+str(i),detail)
+  e.write('ops',fill)
+ assert sql(e,'SELECT events FROM create_coverage_owner_v1')==[(4095,)]
+ assert sql(e,'SELECT state FROM create_coverage_window_v1')==[('OPEN',)]
+ e.write('ops',lambda c:e.a.Boundary(c).record('HANDOFF','last','last',detail))
+ assert sql(e,'SELECT events FROM create_coverage_owner_v1')==[(4096,)]
+ if large:assert sql(e,'SELECT bytes FROM create_coverage_owner_v1')==[(4194304,)]
+ before=sql(e,'SELECT * FROM create_coverage_events_v1 ORDER BY event_key')
+ p=e.proof();e.seed(p);e.enqueue(p);e.qualify(p)
+ assert e.write('ops',lambda c:e.activate(c,p,0))=='ACTIVATED'
+ assert e.write('ops',lambda c:e.activate(c,p,0))=='ALREADY_COMMITTED'
+ assert before==sql(e,'SELECT * FROM create_coverage_events_v1 ORDER BY event_key')
+ r=e.read();assert not r['complete'] and r['observation_state']=='CLOSED_CAPACITY'
+ assert r['timing']['UNMEASURED_AFTER_CLOSURE']==1
+ assert r['source']['ANCHOR_PRESENT_SOURCE_UNKNOWN']==1
+ e.write('ops',e.ns['ensure_create_coverage_schema'])
+ assert sql(e,'SELECT state FROM create_coverage_window_v1')==[('CLOSED_CAPACITY',)]
+ with pytest.raises(sqlite3.IntegrityError):e.write('ops',lambda c:c.execute("UPDATE create_coverage_window_v1 SET state='OPEN'"))
+
+
+def test_closure_crash_rolls_back_then_restart_closes(env):
+ e=env;e.write('ops',lambda c:c.execute('UPDATE create_coverage_owner_v1 SET events=4096'))
+ def interrupted(c):
+  assert e.a.Boundary(c).record('HANDOFF','x','x',{})=='UNMEASURED_AFTER_CLOSURE'
+  raise RuntimeError('CRASH_BEFORE_COMMIT')
+ with pytest.raises(RuntimeError):e.write('ops',interrupted)
+ assert sql(e,'SELECT state FROM create_coverage_window_v1')==[('OPEN',)]
+ e.write('ops',lambda c:e.a.Boundary(c).record('HANDOFF','x','x',{}))
+ assert sql(e,'SELECT state FROM create_coverage_window_v1')==[('CLOSED_CAPACITY',)]
+ e.write('ops',lambda c:e.a.Boundary(c).record('HANDOFF','x','x',{}))
+ assert sql(e,'SELECT count(*) FROM create_coverage_events_v1')==[(0,)]
+
+
+def test_closed_window_fresh_pair_transfer_preserves_closure(env):
+ e=env;e.write('ops',lambda c:e.a.Boundary(c).close('EVENT_OR_BYTE_QUOTA'))
+ # Existing qualified matched-pair transfer copies all OPS tables; closure is
+ # a singleton owner row, not connection-local state or a source-generation flag.
+ with sqlite3.connect(e.ops) as c:
+  row=c.execute('SELECT * FROM create_coverage_window_v1').fetchone()
+  schema=c.execute("SELECT sql FROM sqlite_master WHERE name='create_coverage_window_v1'").fetchone()[0]
+ with sqlite3.connect(e.root/'recovery-closure.sqlite') as c:
+  c.execute(schema);c.execute('INSERT INTO create_coverage_window_v1 VALUES(?,?,?,?)',row)
+ with sqlite3.connect(e.root/'recovery-closure.sqlite') as c:assert c.execute('SELECT state FROM create_coverage_window_v1').fetchone()==('CLOSED_CAPACITY',)
+
+
+@pytest.mark.parametrize('defect',['schema','storage'])
+def test_closed_window_does_not_bypass_essential_guards(env,monkeypatch,defect):
+ e=env;e.write('ops',lambda c:e.a.Boundary(c).close('EVENT_OR_BYTE_QUOTA'));p=e.proof();e.seed(p)
+ if defect=='schema':e.write('ops',lambda c:c.execute('DROP TRIGGER create_coverage_quota'))
+ else:monkeypatch.setattr(e.a.os,'statvfs',lambda p:types.SimpleNamespace(f_bavail=1,f_frsize=1))
+ with pytest.raises(Exception):e.enqueue(p)
+ assert not sql(e,'SELECT 1 FROM wt_walkback_queue')
+
+
+def test_concurrent_callbacks_at_capacity(env):
+ from concurrent.futures import ThreadPoolExecutor
+ e=env;p=e.proof();q=e.proof(1);e.seed(p);e.seed(q);e.enqueue(q);e.qualify(q)
+ e.write('ops',lambda c:c.execute('UPDATE create_coverage_owner_v1 SET events=4095'))
+ with ThreadPoolExecutor(max_workers=2) as pool:
+  a=pool.submit(e.enqueue,p);b=pool.submit(e.write,'ops',lambda c:e.activate(c,q,0));a.result();assert b.result()=='ACTIVATED'
+ assert sql(e,'SELECT events FROM create_coverage_owner_v1')==[(4096,)]
+ assert sql(e,'SELECT state FROM create_coverage_window_v1')==[('CLOSED_CAPACITY',)]
+ assert len(sql(e,'SELECT 1 FROM wt_walkback_queue'))==2

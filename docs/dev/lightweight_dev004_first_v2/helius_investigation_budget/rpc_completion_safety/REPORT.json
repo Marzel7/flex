@@ -1,0 +1,107 @@
+{
+  "BUNDLE_SHA256": "7a6b18f99bde1867939afac93722464450016fe7178034d4d19ad7258d9bb695",
+  "CANDIDATE_SHA": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "CAUSE": {
+    "confirmed_defects": [
+      "Known response completion and provider-denial notice use non-blocking file-lock acquisition. Contention can raise before terminal evidence is persisted, abandoning the release callback. No durable retry was present.",
+      "aiohttp ClientResponse.start timeout or cancellation before headers can leave status=None; close/release skips finish and start exception had no terminal handler."
+    ],
+    "live_attribution": "Two live requests use Walkback urllib; listener getAccountInfo uses aiohttp. Code defects reproduce their orphaned-reservation symptom. Exact per-ticket network outcome/trigger is not retained, so no claim is made that a particular request succeeded or timed out. Indexed rpc_metrics window lookups yielded no matching records; newest metrics predate these requests.",
+    "original_source_counterexamples": {
+      "failed_before_fix": 3,
+      "paths": [
+        "Real stdlib fake-wire body completion under another gate owner",
+        "aiohttp preheader TimeoutError",
+        "aiohttp preheader CancelledError"
+      ],
+      "source": "17a2418e listener gate60d86e1b/helper3def5921"
+    }
+  },
+  "HELIUS_RPC_COMPLETION_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "LIVE_UNCHANGED": {
+    "configuration_changes": 0,
+    "exhausted_replay": 0,
+    "gate_state": "OPEN",
+    "inflight_count": 3,
+    "installed_runtime_hash_mismatches": 0,
+    "installed_source": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "mutations": 0,
+    "provider_calls": 0,
+    "reserved_credits": 624,
+    "service_controls": 0,
+    "unreconciled_records": [
+      {
+        "age_seconds_at_check": 2314,
+        "method": "rpc:getSignaturesForAddress",
+        "owner_pid": 80629,
+        "reserved_at_utc": "2026-10-26T22:41:26+00:00",
+        "role": "walkback"
+      },
+      {
+        "age_seconds_at_check": 2553,
+        "method": "rpc:getSignaturesForAddress",
+        "owner_pid": 80629,
+        "reserved_at_utc": "2026-10-26T22:37:27+00:00",
+        "role": "walkback"
+      },
+      {
+        "age_seconds_at_check": 2553,
+        "method": "rpc:getAccountInfo",
+        "owner_pid": 80583,
+        "reserved_at_utc": "2026-10-26T22:37:27+00:00",
+        "role": "listener"
+      }
+    ]
+  },
+  "MINIMUM_CORRECTION": {
+    "completion": "Serialize known terminal acknowledgements and denial notices using blocking acquisition of the existing lock. Normal admission/read locks remain non-blocking. Explicit read/header/stream terminal failures release capacity while retaining the paid charge; duplicate closure remains idempotent.",
+    "lock_bounds": "Existing state/quota and transaction work bounds retained. Blocking completion wait is not claimed to have an absolute duration ceiling if an OS owner/storage stalls.",
+    "runtime_roles": "Three identical gate/helper copies plus existing recovery hash pins. No new service, queue or archive.",
+    "safe_existing_orphan_recovery": "Explicit dead-owner-only, CAS-protected reconciliation. No live owner or timeout-based cleanup. Uncertain requests stay review-held, credits never refunded; no exhausted work replay.",
+    "source_files": 7
+  },
+  "NEXT_ACTION": "Perform bounded read-only deployment preflight for this candidate/current-key configuration and compatible fallback. Any later deployment must be separately authorized and retire/verify the original client PIDs before explicit CAS-protected uncertainty reconciliation. Do not blindly clear slots, refund credits, replay the unknown requests or deploy now.",
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "by_file": {
+      "completion_safety": 22,
+      "denial_gate": 41,
+      "investigation_budget": 37,
+      "recovery_config": 31,
+      "rpc_budget": 78
+    },
+    "combined_run": "208passed,1deselected in44.35seconds; final completion file22passed in1.23seconds (21overlap plus1additional operator compatibility control). Same source implementation; only one extra test added afterward.",
+    "coverage": [
+      "Lock contention for completion and denial notices",
+      "Aiohttp timeout/cancellation before headers",
+      "Stdlib header/body failures and HTTPX terminal stream signals",
+      "Three real disposable child-process owner exits; preserve all charges and hold uncertain requests",
+      "Live-owner, wrongPID, missing authority, permissions, generation and state-SHA refusal",
+      "Repeated restart, duplicate completion, crash after durable completion, storage refusal",
+      "100000credit ceiling/warning, child history and unrelated eligible investigation continuation",
+      "Current accepted birth/canonical listener AST exactly equals17a2418e; old preservation-test baseline corrected to recognize already accepted birth factory."
+    ],
+    "failed_after_correction": 0,
+    "reused_without_rerun": "Accepted2000-independent-origin control; policy/ownership algorithm unchanged.",
+    "unique_controls_passed": 209
+  },
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+  "REMAINING_OPERATIONAL_BLOCKER": "The live three reservations remain intact and their owning processes are still running. Qualification is not authority to retire workers or reconcile production state.",
+  "SPENDING_AND_RETRY_SAFETY": {
+    "allowance_reset": false,
+    "finite_ledger": "Existing8192roots/32768aliases/32768request-identities and16MiB publication bound; no eviction or archive growth introduced.",
+    "history_and_child_ownership_unchanged": true,
+    "lifetime_limit": 100000,
+    "provider_replay": false,
+    "refunds": false,
+    "uncertain_original_request": "OWNER_EXIT_UNCERTAIN; paid automatic retries fail closed pending independently authorized review.",
+    "warning": 50000
+  },
+  "STORAGE": {
+    "floor_plus_reserve": 2067108864,
+    "free_bytes": 5128093696,
+    "kernel_test_file_cap": 499000000,
+    "largest_retained_final_fixture_file": 689203,
+    "new_file_500MB_or_more": false
+  },
+  "verified_at_utc": "2026-10-26T23:20:00.454829+00:00"
+}

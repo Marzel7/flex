@@ -1,0 +1,76 @@
+{
+  "accepted_runtime_parent": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+  "compatible_fallback": {
+    "forbid": "Old17a2418e or any reader unaware of OWNER_EXIT_UNCERTAIN after explicit reconciliation.",
+    "retain": "Full ledger, credits, root/child ownership, OWNER_EXIT_UNCERTAIN request receipts, terminal journals and current credential configuration.",
+    "source_payload_sha256": {
+      "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/BILLING_AUTHORITY.json": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+      "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/POLICY.json": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+      "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "673df320cac898fa7e232dbc5a40c0ee35a73ae359bccd85b2d0add10f9db142",
+      "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+      "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+      "runtime/creator_resolution/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+      "runtime/creator_resolution/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+      "runtime/listener/src/core/birth_admission_journal.py": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+      "runtime/listener/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+      "runtime/listener/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+      "runtime/listener/src/core/migration_terminal_evidence.py": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+      "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+      "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+      "runtime/listener/src/core/pumpfun_curve_listener.py": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+      "runtime/walkback/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+      "runtime/walkback/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+      "scripts/flex_v2_fresh_pair_recovery.py": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888"
+    },
+    "source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1"
+  },
+  "complete_inherited_source_payload_sha256": {
+    "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/BILLING_AUTHORITY.json": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+    "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/POLICY.json": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "673df320cac898fa7e232dbc5a40c0ee35a73ae359bccd85b2d0add10f9db142",
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+    "runtime/listener/src/core/birth_admission_journal.py": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+    "runtime/listener/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/listener/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+    "runtime/listener/src/core/migration_terminal_evidence.py": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+    "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+    "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+    "runtime/walkback/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/walkback/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+    "scripts/flex_v2_fresh_pair_recovery.py": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888"
+  },
+  "credential_authority": "Existing current-root .env per-role overrides and recovery preimage; preserve unchanged, never include secrets in this bundle.",
+  "current_credential_configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+  "gate_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "operator_reconciliation_contract": {
+    "effects": [
+      "Preserve all credits, attempts, scopes, warnings, counters and original request metadata.",
+      "Record PROCESS_GONE_OUTCOME_UNKNOWN and original ticket/root/PID/time in existing bounded request-key entry.",
+      "Remove only the dead client owner concurrency entry. Do not record HTTP success, canonical ACK or provider outcome.",
+      "Block automatic dispatch of the uncertain original request; allow unrelated eligible requests within retained budgets."
+    ],
+    "method": "Gate.reconcile_terminated_http(ticket, expected_sha256, expected_pid)",
+    "private_probe_caller_compatibility": "Existing operator held-lock scope must forward keyword arguments (lambda **kwargs: nullcontext()) while actually holding the real gate lock; covered by a provider-free regression. Do not reuse old no-argument private lock shims.",
+    "requires": [
+      "Separate operator authorization; never called by dispatch, timer or startup.",
+      "Validated same-host paired generation and exact gate-state SHA CAS.",
+      "Ticket and PID match retained INFLIGHT entry.",
+      "Kernel os.kill(pid,0) must prove ProcessLookupError; live PID, permission failure, unknown authority or age alone refuse."
+    ]
+  },
+  "policy": "Existing v2 policy/verified weights unchanged:100000 lifetime,50000warning,120requests/minute,3inflight; no daily/hourly credit quota.",
+  "production_activation_authorized": false,
+  "source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "version": 1
+}

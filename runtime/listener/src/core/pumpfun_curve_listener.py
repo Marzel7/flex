@@ -1424,7 +1424,23 @@ def _birth_admission_journal():
     path = os.environ.get("BIRTH_JOURNAL_PATH")
     if not path or not os.path.isabs(path):
         raise JournalHold("EXPLICIT_STABLE_BIRTH_JOURNAL_REQUIRED")
-    return BirthJournal(path, verify_completed=_birth_journal_readback)
+    journal=BirthJournal(path, verify_completed=_birth_journal_readback)
+    flag=os.environ.get('DEV004_BIRTH_TERMINAL_EVIDENCE_ENABLED','0')
+    if flag not in {'0','1'}:raise JournalHold('BIRTH_TERMINAL_FLAG')
+    if flag=='1':
+        from src.core.migration_terminal_evidence import BirthTerminalEvidenceStore
+        def validate_birth_pair(ops_path):
+            if str(ops_path)!=str(_listener_ops_db_path()):raise JournalHold('BIRTH_TERMINAL_OPS_BINDING')
+            return _validate_active_pair()
+        journal.terminal_owner=BirthTerminalEvidenceStore(_listener_ops_db_path(),path,
+            generation=_validate_active_pair(),validate_record=journal._validate,validate_pair=validate_birth_pair)
+        journal.terminal_owner.lookup('__BIRTH_TERMINAL_SCHEMA_READBACK__')
+    else:
+        import sqlite3 as _birth_sqlite
+        with _birth_sqlite.connect('file:'+str(_listener_ops_db_path())+'?mode=ro',uri=True) as connection:
+            if connection.execute("SELECT 1 FROM sqlite_master WHERE name='birth_terminal_owner_v1'").fetchone():
+                raise JournalHold('BIRTH_TERMINAL_FLAG_DOWNGRADE')
+    return journal
 
 
 def _birth_journal_canonical(row):

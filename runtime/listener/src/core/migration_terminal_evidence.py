@@ -45,6 +45,14 @@ def _json(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=True)
 
 class TerminalEvidenceStore:
+    DDL=DDL
+    TABLE=TABLE
+    META=META
+    CONTRACT=CONTRACT
+    SCHEMA_PREFIX='migration_terminal_%'
+    KEY_COLUMN='signature'
+    record_key=staticmethod(lambda row:row['signature'])
+
     def __init__(self, ops_path, journal_path, *, generation, validate_record, validate_pair):
         self.ops_path = Path(ops_path).absolute()
         self.journal_path = str(Path(journal_path).absolute())
@@ -89,12 +97,12 @@ class TerminalEvidenceStore:
         return c
 
     def _schema(self, c):
-        expected={sql.split()[2]:sql for sql in DDL}
-        rows=c.execute("SELECT name,sql FROM sqlite_master WHERE (name LIKE 'migration_terminal_%' OR tbl_name IN ('migration_terminal_owner_v1','migration_terminal_evidence_v1')) AND type IN ('table','trigger')").fetchall()
+        expected={sql.split()[2]:sql for sql in self.DDL}
+        rows=c.execute("SELECT name,sql FROM sqlite_master WHERE (name LIKE ? OR tbl_name IN (?,?)) AND type IN ('table','trigger')",(self.SCHEMA_PREFIX,self.META,self.TABLE)).fetchall()
         if dict(rows)!=expected:
             raise TerminalHold('TERMINAL_SCHEMA_AUTHORITY')
-        meta=c.execute(f'SELECT version,contract,used_records,used_bytes FROM {META} WHERE singleton=1').fetchone()
-        if not meta or meta[:2]!=(1,CONTRACT) or not 0<=meta[2]<=MAX_ROWS or not 0<=meta[3]<=MAX_BYTES:
+        meta=c.execute(f'SELECT version,contract,used_records,used_bytes FROM {self.META} WHERE singleton=1').fetchone()
+        if not meta or meta[:2]!=(1,self.CONTRACT) or not 0<=meta[2]<=MAX_ROWS or not 0<=meta[3]<=MAX_BYTES:
             raise TerminalHold('TERMINAL_VERSION_OR_BUDGET')
         return meta
 
@@ -108,10 +116,10 @@ class TerminalEvidenceStore:
         c=self._connect(write=True)
         try:
             c.execute('BEGIN IMMEDIATE')
-            exists=c.execute("SELECT 1 FROM sqlite_master WHERE name=?",(META,)).fetchone()
+            exists=c.execute("SELECT 1 FROM sqlite_master WHERE name=?",(self.META,)).fetchone()
             if not exists:
-                for sql in DDL:c.execute(sql)
-                c.execute(f'INSERT INTO {META} VALUES(1,1,?,0,0)',(CONTRACT,))
+                for sql in self.DDL:c.execute(sql)
+                c.execute(f'INSERT INTO {self.META} VALUES(1,1,?,0,0)',(self.CONTRACT,))
             self._schema(c)
             self._authority()
             c.execute('COMMIT')
@@ -156,7 +164,7 @@ class TerminalEvidenceStore:
         c=self._connect()
         try:
             self._schema(c)
-            record=c.execute(f'SELECT {COLUMNS} FROM {TABLE} WHERE signature=?',(signature,)).fetchone()
+            record=c.execute(f'SELECT {COLUMNS} FROM {self.TABLE} WHERE {self.KEY_COLUMN}=?',(signature,)).fetchone()
             row=self._decode(record)
             if record and verified_only and record[-1]!='VERIFIED':return None
             self._authority()
@@ -164,7 +172,7 @@ class TerminalEvidenceStore:
         finally:c.close()
 
     def verified(self,row):
-        return self.lookup(row['signature'],verified_only=True)==row
+        return self.lookup(self.record_key(row),verified_only=True)==row
 
     def preserve_batch(self,rows):
         if not 1<=len(rows)<=MAX_BATCH or len({r['id'] for r in rows})!=len(rows):
@@ -175,13 +183,13 @@ class TerminalEvidenceStore:
             c.execute('BEGIN IMMEDIATE');meta=self._schema(c)
             additions=[]
             for row,entry in zip(rows,envelopes):
-                old=c.execute(f'SELECT {COLUMNS} FROM {TABLE} WHERE signature=?',(row['signature'],)).fetchone()
+                old=c.execute(f'SELECT {COLUMNS} FROM {self.TABLE} WHERE {self.KEY_COLUMN}=?',(self.record_key(row),)).fetchone()
                 if old:
                     if self._decode(old)!=row:raise TerminalHold('TERMINAL_IDENTITY_CONFLICT')
                 else:additions.append(entry)
             if meta[2]+len(additions)>MAX_ROWS or meta[3]+sum(e[7] for e in additions)>MAX_BYTES:
                 raise TerminalHold('TERMINAL_CAPACITY')
-            c.executemany(f'INSERT INTO {TABLE} VALUES(?,?,?,?,?,?,?,?,?,?)',additions)
+            c.executemany(f'INSERT INTO {self.TABLE} VALUES(?,?,?,?,?,?,?,?,?,?)',additions)
             self._authority();c.execute('COMMIT')
         except BaseException:
             if c.in_transaction:c.execute('ROLLBACK')
@@ -190,14 +198,14 @@ class TerminalEvidenceStore:
         self._sync_parent()
         # Separate connection/read transaction; commit alone never permits removal.
         for row in rows:
-            if self.lookup(row['signature'])!=row:raise TerminalHold('TERMINAL_READBACK_FAILED')
+            if self.lookup(self.record_key(row))!=row:raise TerminalHold('TERMINAL_READBACK_FAILED')
         c=self._connect(write=True)
         try:
             c.execute('BEGIN IMMEDIATE');self._schema(c)
             for row in rows:
-                old=c.execute(f'SELECT {COLUMNS} FROM {TABLE} WHERE signature=?',(row['signature'],)).fetchone()
+                old=c.execute(f'SELECT {COLUMNS} FROM {self.TABLE} WHERE {self.KEY_COLUMN}=?',(self.record_key(row),)).fetchone()
                 if self._decode(old)!=row:raise TerminalHold('TERMINAL_READBACK_FAILED')
-                c.execute(f"UPDATE {TABLE} SET transfer_state='VERIFIED' WHERE signature=?",(row['signature'],))
+                c.execute(f"UPDATE {self.TABLE} SET transfer_state='VERIFIED' WHERE {self.KEY_COLUMN}=?",(self.record_key(row),))
             self._authority();c.execute('COMMIT')
         except BaseException:
             if c.in_transaction:c.execute('ROLLBACK')
@@ -207,3 +215,30 @@ class TerminalEvidenceStore:
         for row in rows:
             if not self.verified(row):raise TerminalHold('TERMINAL_COMPLETION_UNVERIFIED')
         return [r['id'] for r in rows]
+
+
+class BirthTerminalEvidenceStore(TerminalEvidenceStore):
+    """Typed reuse of the existing bounded protected-evidence owner in OPS.
+
+    Identity is the original birth id, never a canonical mint/signature alias.
+    This preserves conflicts only; it grants no CREATE or retry authority.
+    """
+    DDL=tuple(sql.replace('migration_terminal_', 'birth_terminal_').replace(
+        'signature TEXT NOT NULL UNIQUE', 'signature TEXT NOT NULL') for sql in DDL)
+    TABLE='birth_terminal_evidence_v1'
+    META='birth_terminal_owner_v1'
+    CONTRACT=hashlib.sha256('\n'.join(DDL).encode()).hexdigest()
+    SCHEMA_PREFIX='birth_terminal_%'
+    KEY_COLUMN='identity'
+    record_key=staticmethod(lambda row:row['id'])
+
+    def _envelope(self,row):
+        if row.get('state')!='QUARANTINED' or row.get('error_code')!='CORE_AUTHORITY_CONFLICT':
+            raise TerminalHold('BIRTH_PROTECTED_CONFLICT_REQUIRED')
+        return super()._envelope(row)
+
+    def _decode(self,record):
+        row=super()._decode(record)
+        if row is not None and (row.get('state')!='QUARANTINED' or row.get('error_code')!='CORE_AUTHORITY_CONFLICT'):
+            raise TerminalHold('BIRTH_PROTECTED_CONFLICT_REQUIRED')
+        return row

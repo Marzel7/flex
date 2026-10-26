@@ -43,8 +43,9 @@ def owner(mode,stage):
 
 # Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
 TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
-TERMINAL_PAYLOAD = {'pumpfun_curve_listener.py': '724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce', 'migration_signature_journal.py': 'a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c', 'migration_terminal_evidence.py': '0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf'}
+TERMINAL_PAYLOAD = {'pumpfun_curve_listener.py': '565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256', 'migration_signature_journal.py': 'a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c', 'migration_terminal_evidence.py': '8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1'}
 TERMINAL_SCHEMA_CONTRACT = 'd7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588'
+BIRTH_JOURNAL_SHA256 = '40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289'
 MAX_RECOVERY_CONFIG_BYTES = 1_000_000
 
 def terminal_environment(env):
@@ -81,6 +82,22 @@ def terminal_environment(env):
  # Indexed no-match lookup exercises exact owner version/schema and pair guards.
  # Existing rows, original transfer generations and quota counters stay untouched.
  owner.lookup('__TERMINAL_RECOVERY_SCHEMA_PROBE__')
+ birth_flag='DEV004_BIRTH_TERMINAL_EVIDENCE_ENABLED'
+ planned=P['planned_production_environment'].get(birth_flag,'0')
+ if planned not in ('0','1') or env.get(birth_flag,'0')!=planned:raise RuntimeError('BIRTH_TERMINAL_FLAG_DOWNGRADE')
+ if planned=='1':
+  birth_path=package/'src/core/birth_admission_journal.py'
+  if sha(birth_path)!=BIRTH_JOURNAL_SHA256:raise RuntimeError('BIRTH_TERMINAL_UNAWARE_SOURCE')
+  spec=importlib.util.spec_from_file_location('birth_terminal_recovery_journal',birth_path)
+  birth_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(birth_module)
+  birth_journal=birth_module.BirthJournal(env['BIRTH_JOURNAL_PATH'])
+  birth_owner=terminal.BirthTerminalEvidenceStore(env['WT_OPS_DB_PATH'],env['BIRTH_JOURNAL_PATH'],
+   generation=generation,validate_record=birth_journal._validate,validate_pair=validate_target)
+  birth_owner.lookup('__BIRTH_TERMINAL_SCHEMA_PROBE__')
+  env[birth_flag]='1'
+ else:
+  with sqlite3.connect(pathlib.Path(env['WT_OPS_DB_PATH']).as_uri()+'?mode=ro',uri=True) as connection:
+   if connection.execute("SELECT 1 FROM sqlite_master WHERE name='birth_terminal_owner_v1'").fetchone():raise RuntimeError('BIRTH_TERMINAL_FLAG_DOWNGRADE')
  return env
 
 CREATE_AUDIT_FLAG = "FLEX_V2_CREATE_AUDIT_ENABLED"
@@ -113,7 +130,7 @@ def coverage_environment(role,env):
  return env
 
 HELIUS_GATE_FLAG='FLEX_HELIUS_DENIAL_GATE_ENABLED'
-HELIUS_GATE_PAYLOAD = {'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': '60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': '724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce', 'src/core/helius_http_protection.py': '3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97', 'src/core/helius_denial_gate.py': '60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c', 'src/core/helius_http_protection.py': '3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b'}, 'walkback': {'src/core/helius_denial_gate.py': '60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c', 'src/core/walkback_worker.py': '0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7', 'src/core/helius_http_protection.py': '3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b'}}
+HELIUS_GATE_PAYLOAD = {'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': '60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': '565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256', 'src/core/helius_http_protection.py': '3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b', 'src/core/birth_admission_journal.py': '40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289', 'src/core/migration_terminal_evidence.py': '8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97', 'src/core/helius_denial_gate.py': '60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c', 'src/core/helius_http_protection.py': '3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b'}, 'walkback': {'src/core/helius_denial_gate.py': '60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c', 'src/core/walkback_worker.py': '0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7', 'src/core/helius_http_protection.py': '3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b'}}
 MAX_HELIUS_RECOVERY_BYTES=67108864
 
 def helius_module(role):

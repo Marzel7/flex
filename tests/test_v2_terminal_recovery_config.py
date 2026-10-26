@@ -72,7 +72,7 @@ def case(tmp_path,monkeypatch):
     tree=ast.parse(RENDERER.read_text())
     allowed={'atomic','settings','terminal_environment','coverage_environment','helius_module','helius_environment','prepare_helius_recovery','freeze_helius_recovery','finish_helius_recovery','recovery_config_base','write_config'}
     for node in tree.body:
-        if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id in {'TERMINAL_FLAG','TERMINAL_PAYLOAD','TERMINAL_SCHEMA_CONTRACT','MAX_RECOVERY_CONFIG_BYTES','CREATE_AUDIT_FLAG','CREATE_AUDIT_PAYLOAD','HELIUS_GATE_FLAG','HELIUS_GATE_PAYLOAD','MAX_HELIUS_RECOVERY_BYTES'} for t in node.targets):exec(compile(ast.Module(body=[node],type_ignores=[]),str(RENDERER),'exec'),ns)
+        if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id in {'BIRTH_JOURNAL_SHA256','TERMINAL_FLAG','TERMINAL_PAYLOAD','TERMINAL_SCHEMA_CONTRACT','MAX_RECOVERY_CONFIG_BYTES','CREATE_AUDIT_FLAG','CREATE_AUDIT_PAYLOAD','HELIUS_GATE_FLAG','HELIUS_GATE_PAYLOAD','MAX_HELIUS_RECOVERY_BYTES'} for t in node.targets):exec(compile(ast.Module(body=[node],type_ignores=[]),str(RENDERER),'exec'),ns)
         if isinstance(node,ast.FunctionDef) and node.name in allowed:exec(compile(ast.Module(body=[node],type_ignores=[]),str(RENDERER),'exec'),ns)
     publish(authority_root/'auxiliary.json',{'fixture_only':True})
     def output_env():

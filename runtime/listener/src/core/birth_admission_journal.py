@@ -6,7 +6,7 @@ service/database. Production initialization or transfer is never automatic.
 import hashlib
 import json
 from src.core.migration_signature_journal import (
-    MigrationJournal, JournalHold, MAX_RECORD_BYTES, MAX_JOURNAL_BYTES, MAX_RECORDS,
+    MigrationJournal, JournalHold, MAX_RECORD_BYTES, MAX_JOURNAL_BYTES, MAX_RECORDS, MAX_BATCH,
 )
 
 FIELDS = {'_birth_retry_schema','mint','signature','traderPublicKey','bondingCurveKey','symbol','name','receive_utc_ns','provenance'}
@@ -92,6 +92,15 @@ class BirthJournal(MigrationJournal):
     def admit_birth(self,payload):
         incoming=self._record(payload)
         def change(rows):
+            if self.terminal_owner is not None:
+                old=self.terminal_owner.lookup(incoming['id'])
+                if old is not None:
+                    if not self.terminal_owner.verified(old):raise JournalHold('BIRTH_TERMINAL_TRANSFER_PENDING')
+                    # Reception retries do not reset original time, attempts or rights.
+                    a={k:v for k,v in old['payload'].items() if k!='receive_utc_ns'}
+                    b={k:v for k,v in payload.items() if k!='receive_utc_ns'}
+                    if a!=b:raise JournalHold('BIRTH_TERMINAL_IDENTITY_CONFLICT')
+                    return old
             for row in rows:
                 if row['id']==incoming['id']:
                     old={k:v for k,v in row['payload'].items() if k!='receive_utc_ns'}
@@ -102,3 +111,15 @@ class BirthJournal(MigrationJournal):
                     return dict(row)
             rows.append(incoming);return dict(incoming)
         return self._change(change)
+
+
+    def _reclaim_terminal(self,rows,limit,keep=None):
+        if self.terminal_owner is None:raise JournalHold('TERMINAL_OWNER_REQUIRED')
+        selected=sorted((r for r in rows if r['id']!=keep and r['state']=='QUARANTINED'
+            and r.get('error_code')=='CORE_AUTHORITY_CONFLICT'),key=lambda r:(r['received_at'],r['id']))[:limit]
+        if not selected:return []
+        removed=self.terminal_owner.preserve_batch(selected)
+        if removed!=[r['id'] for r in selected] or any(not self.terminal_owner.verified(r) for r in selected):
+            raise JournalHold('BIRTH_TERMINAL_TRANSFER_UNVERIFIED')
+        identities=set(removed);rows[:]=[r for r in rows if r['id'] not in identities]
+        return removed

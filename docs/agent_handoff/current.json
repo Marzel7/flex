@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "0f56119da746d7381a7db8c8a068f776b402d289",
+    "git_head": "1d92ccec6f82623422af3f261fa28059ac95c13a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T22:17:09.171602+00:00",
+    "updated_at_utc": "2026-10-26T22:23:37.246357+00:00",
     "working_tree": "17a2418e remains deployed; one authorized restoration probe returned401; durable AUTH_DENIED retained."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -45131,8 +45131,8 @@
   "flex_v2_helius_investigation_budget": {
     "status": "DEPLOYED_RESTORATION_HOLD_AUTH_DENIED",
     "verdict": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
-    "updated_at_utc": "2026-10-26T22:17:09.171602+00:00",
-    "engineering_revision": "0f56119da746d7381a7db8c8a068f776b402d289",
+    "updated_at_utc": "2026-10-26T22:23:37.246357+00:00",
+    "engineering_revision": "1d92ccec6f82623422af3f261fa28059ac95c13a",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45193,8 +45193,8 @@
       "provider_probe_attempts": 1,
       "service_controls_this_turn": 0
     },
-    "blocker": "The one authorized request to the installed paid Helius endpoint/credential returned HTTP401; usable transaction data was not obtained. This proves an authorization failure for this request, not a diagnosis of billing-credit exhaustion.",
-    "next_action": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization.",
+    "blocker": "The one restoration probe used the explicit Walkback HELIUS_RPC_URL. Its credential equals the legacy config/.env key and differs from the current root .env HELIUS_API_KEY. All three worker environments contain that same legacy key and RPC/WS URLs. The provider returned401 for this old binding; no request was sent using the newly edited root .env credential.",
+    "next_action": "Keep AUTH_DENIED. Obtain authorization for the narrow three-role credential/recovery binding correction and a subsequent single controlled probe; do not ask for keys in chat.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45346,6 +45346,18 @@
         "free_bytes": 3653656576,
         "required_floor_plus_reserve": 2067108864
       }
+    },
+    "credential_audit_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json",
+    "credential_audit_report_sha256": "c5bf8cbe742090263f27bd0c6f6215d571dc546be501c77f57660df69bcc90a9",
+    "credential_binding_diagnosis": {
+      "result": "STALE_SUPERVISOR_ENVIRONMENT_NOT_CURRENT_ROOT_DOTENV",
+      "all_three_actual_environments_match_old_config_key": true,
+      "all_three_mismatch_current_root_dotenv_key": true,
+      "global_binding": "supervisord.environment supplies old API key and RPC/WS URLs.",
+      "walkback_override": "Explicit old-key HELIUS_RPC_URL; this is the URL used for the rejected probe.",
+      "gate": "AUTH_DENIED",
+      "additional_provider_calls": 0,
+      "changes": 0
     }
   },
   "flex_v2_birth_conflict_capacity": {
@@ -45403,7 +45415,7 @@
   },
   "flex_v2_helius_controlled_restoration": {
     "status": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
-    "engineering_revision": "0f56119da746d7381a7db8c8a068f776b402d289",
+    "engineering_revision": "1d92ccec6f82623422af3f261fa28059ac95c13a",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/RESTORATION.json",
     "report_sha256": "23ab4c0a82bd73f723d6855168c057a147f47cd3eece4eb0f08ec21fb3a76d19",
@@ -45436,7 +45448,25 @@
       "raw_provider_payload_retained": false,
       "provider_RPC_attempts": 1
     },
-    "blocker": "The one authorized request to the installed paid Helius endpoint/credential returned HTTP401; usable transaction data was not obtained. This proves an authorization failure for this request, not a diagnosis of billing-credit exhaustion.",
-    "next_action": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization."
+    "blocker": "The one restoration probe used the explicit Walkback HELIUS_RPC_URL. Its credential equals the legacy config/.env key and differs from the current root .env HELIUS_API_KEY. All three worker environments contain that same legacy key and RPC/WS URLs. The provider returned401 for this old binding; no request was sent using the newly edited root .env credential.",
+    "next_action": "Keep AUTH_DENIED. Obtain authorization for the narrow three-role credential/recovery binding correction and a subsequent single controlled probe; do not ask for keys in chat.",
+    "credential_audit_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json"
+  },
+  "flex_v2_helius_credential_binding_audit": {
+    "status": "CAUSE_IDENTIFIED_READ_ONLY",
+    "engineering_revision": "1d92ccec6f82623422af3f261fa28059ac95c13a",
+    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json",
+    "report_sha256": "c5bf8cbe742090263f27bd0c6f6215d571dc546be501c77f57660df69bcc90a9",
+    "result": "The one restoration probe used the explicit Walkback HELIUS_RPC_URL. Its credential equals the legacy config/.env key and differs from the current root .env HELIUS_API_KEY. All three worker environments contain that same legacy key and RPC/WS URLs. The provider returned401 for this old binding; no request was sent using the newly edited root .env credential.",
+    "minimal_correction": "Separately authorize a coherent credential-only configuration correction for listener/resolver/Walkback: derive API key and HTTP/WS URLs from the current root .env authority, preserve precedence consistently and update frozen gate-aware recovery/renderer configuration so it cannot restore old bindings. Restart only the three affected roles through Supervisor, verify actual environments, then authorize one new controlled probe. No source or budget change is needed to correct the demonstrated binding mismatch.",
+    "production_flags": {
+      "gate": "AUTH_DENIED",
+      "additional_provider_calls": 0,
+      "configuration_changes": 0,
+      "service_controls": 0,
+      "source_changes": 0
+    },
+    "next_action": "Keep AUTH_DENIED. Obtain authorization for the narrow three-role credential/recovery binding correction and a subsequent single controlled probe; do not ask for keys in chat."
   }
 }

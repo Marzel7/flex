@@ -1,0 +1,20 @@
+{
+  "files": {
+    "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/BILLING_AUTHORITY.json": "ff9239069a3b831c7e8729ec5ec164ae8fe3fc8b762c6a7a4b61f21e06085321",
+    "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/POLICY.json": "1cd659bb0441988377af5d2304728df408d48b3b865a066d327a06fea5db7a74",
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "c4c00fc9ea7ddd5b6ffda72e374b1e60a04d74889532c7c67c278d14196d6d25",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+    "runtime/listener/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "runtime/listener/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+    "runtime/walkback/src/core/helius_denial_gate.py": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "runtime/walkback/src/core/helius_http_protection.py": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+    "tests/test_v2_helius_denial_gate.py": "bf02a23ea35d38872139a666fb4778a8a535e9918b2d68abc0a80ddba5b5c3f9",
+    "tests/test_v2_helius_investigation_budget.py": "5fe831a26c750f5c70074205c9cc0b025806dba888a535f54efd3279284a6310",
+    "tests/test_v2_helius_recovery_config.py": "133ed7e843fc633c8fe25f9cc03712460d83b4744949cb5611f3181b34f99e38",
+    "tests/test_v2_helius_rpc_budget.py": "0dbf50257c7598ae82b4bdc38032106f3d66bade20b89c477c022b690e9eeb10"
+  },
+  "production_activation": false,
+  "source_revision": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+  "version": 2
+}

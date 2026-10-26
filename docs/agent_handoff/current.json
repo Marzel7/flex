@@ -44737,7 +44737,7 @@
     "production_changed": true,
     "deployment_authorized": true,
     "blocker": null,
-    "next_action": "Retaininstalledpayloadandverifiedfallback;separateGoldenacceptanceconsolidation.",
+    "next_action": "Retain installed payload and verified fallback; separately consolidate Golden acceptance.",
     "details": "Exact two-file hashes, rollback preimages and detailed report local only."
   },
   "flex_v2_birth_retry_production_deployment": {
@@ -44756,11 +44756,11 @@
       "provider_requests_for_testing": 0,
       "fresh_migration_completion": "UNOBSERVED"
     },
-    "result": "Bothsubscriptionsconfirmed,naturalbirthpersistenceandCREATE-to-OPSdeliveryverified;no retrywarning/capacityorSQLite-lifecycleerrorsobserved. Disk remainedabovefloor. ListenerleftRUNNING;otherworkersunchanged.",
+    "result": "Both subscriptions confirmed. Natural birth persistence and CREATE-to-OPS delivery verified. No retry warnings, capacity refusals or SQLite lifecycle errors observed. Disk stayed above the floor. Listener left RUNNING; other workers unchanged.",
     "rollback": "NOT_REQUIRED this attempt; exactcompatibletwo-filefallbackretained. Priorfailedattemptrollbackevidencepreservedlocally.",
     "golden_frozen": false,
     "blocker": null,
-    "next_action": "Leaveapprovedlistenerrunning;retainfallback/evidence. ResumeGoldenacceptanceconsolidationonlyunderaseparatemilestone;donotactivate dormantcomponentsorclaimfreshmigrationcoveragefromthiswindow.",
+    "next_action": "Leave the approved listener running; retain fallback and evidence. Resume Golden acceptance consolidation under a separate milestone. Do not activate dormant components or claim fresh migration coverage from this window.",
     "evidence": "Detailed operational evidence local only."
   },
   "flex_v2_birth_retry_headroom_recheck": {
@@ -44771,6 +44771,6 @@
     "disk_floor": "FAILED:854106112 bytes available at immediate retry check; required2067108864.",
     "blocker": null,
     "result": "Both installed rollback preimage hashes unchanged. No deployment/restart/queue mutation/provider call; PumpSwap not further qualified after first safety gate failed.",
-    "next_action": "Deploymentaccepted;retainsourcefallbackandevidence.NoGoldenfreezeperformed."
+    "next_action": "Deployment accepted; retain source fallback and evidence. No Golden freeze performed."
   }
 }

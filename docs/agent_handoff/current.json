@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T09:29:22.190542+00:00",
+  "updated_at_utc": "2026-10-26T09:32:47.584821+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44680,8 +44680,8 @@
     "next_action": "Freeze the qualified source/configuration/recovery composition; separately authorize any production installation or dormant activation. Browser-visible acceptance remains unverified."
   },
   "flex_v2_12h_production_health_audit": {
-    "status": "HOLD",
-    "verdict": "HOLD_CRITICAL_RUNTIME_DEFECT",
+    "status": "PARTIAL",
+    "verdict": "PARTIAL_ACCEPTANCE",
     "engineering_revision": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
     "source_changed": false,
     "production_changed": false,
@@ -44689,9 +44689,10 @@
     "golden_frozen": false,
     "window_start_utc": "2026-10-25T21:18:48.178858Z",
     "window_end_utc": "2026-10-26T09:18:48.178858Z",
-    "critical_blocker": "Observed available disk fell below mandatory 2GB safety floor during read-only audit. No cleanup or infrastructure investigation performed.",
-    "result": "Matched V2 remained active; natural canonical births/migrations and Walkback outcomes observed. Detailed operational counts, hashes and evidence remain local. Several timing/completeness measures unverified; no blanket production acceptance.",
-    "next_action": "Restore and verify headroom above 2GB plus 64MiB through separately authorized bounded action, then verify current durable admission/retry health. Do not freeze baseline while storage safety fails.",
-    "evidence_sha256": "13608f90dd5ad1190b0a6bd580c7ef1c7ba01c271e5096148e73a17b0bc2470f"
+    "critical_blocker": null,
+    "result": "Active matched V2 workers running; bounded natural persistence observed, zero new capacity refusals in sample. Protected retry churn and near-full migration journal remain; exact timing and deployed retention acceptance remain incomplete.",
+    "next_action": "Qualify current protected retry/disposition cause and capacity headroom with bounded provider-free checks; separately authorize any production correction. No replay, deletion or retry reset. Do not freeze baseline yet.",
+    "evidence_sha256": "13608f90dd5ad1190b0a6bd580c7ef1c7ba01c271e5096148e73a17b0bc2470f",
+    "disk_recheck": "Floor plus reserve restored in two samples; current storage HOLD cleared. Previous 12-hour floor breach remains recorded."
   }
 }

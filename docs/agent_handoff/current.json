@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "ac0bcbbc1142a5533b49d0cc97a98be0310d76c2",
+    "git_head": "0f56119da746d7381a7db8c8a068f776b402d289",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T22:08:37.423216+00:00",
-    "working_tree": "DEV evidence committed; authorized17a2418e production bundle active, PAYMENT_DENIED retained."
+    "updated_at_utc": "2026-10-26T22:17:09.171602+00:00",
+    "working_tree": "17a2418e remains deployed; one authorized restoration probe returned401; durable AUTH_DENIED retained."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45129,10 +45129,10 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "DEPLOYED_PASS_PAYMENT_DENIED",
-    "verdict": "PASS",
-    "updated_at_utc": "2026-10-26T22:08:37.423216+00:00",
-    "engineering_revision": "ac0bcbbc1142a5533b49d0cc97a98be0310d76c2",
+    "status": "DEPLOYED_RESTORATION_HOLD_AUTH_DENIED",
+    "verdict": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
+    "updated_at_utc": "2026-10-26T22:17:09.171602+00:00",
+    "engineering_revision": "0f56119da746d7381a7db8c8a068f776b402d289",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45174,12 +45174,12 @@
       "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
       "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
       "configuration_sha256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
-      "gate_state": "PAYMENT_DENIED",
+      "gate_state": "AUTH_DENIED",
       "policy_version": 2,
-      "gate_reservations": 0,
-      "gate_outcomes": 0,
-      "provider_calls_for_testing": 0,
-      "restoration_or_probe": false,
+      "gate_reservations": 1,
+      "gate_outcomes": 1,
+      "provider_calls_for_testing": 1,
+      "restoration_or_probe": "One authorized probe rejected HTTP401; not restored.",
       "birth_terminal_schema_initialized": true,
       "birth_protected_records_transferred": 512,
       "services_restarted": [
@@ -45189,10 +45189,12 @@
       ],
       "unrelated_service_restarts": 0,
       "V1_access_or_writes": 0,
-      "BIRDEYE_authority_and_budgets": "UNCHANGED"
+      "BIRDEYE_authority_and_budgets": "UNCHANGED",
+      "provider_probe_attempts": 1,
+      "service_controls_this_turn": 0
     },
-    "blocker": null,
-    "next_action": "Leave all three workers running with PAYMENT_DENIED. Do not restore Helius or replay exhausted/protected work without separate authorization.",
+    "blocker": "The one authorized request to the installed paid Helius endpoint/credential returned HTTP401; usable transaction data was not obtained. This proves an authorization failure for this request, not a diagnosis of billing-credit exhaustion.",
+    "next_action": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45282,12 +45284,74 @@
         "test_or_production_new_file_500MB_or_more": false
       },
       "migration_or_paid_recovery": "Not claimed while PAYMENT_DENIED."
+    },
+    "restoration_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/RESTORATION.json",
+    "restoration_report_sha256": "23ab4c0a82bd73f723d6855168c057a147f47cd3eece4eb0f08ec21fb3a76d19",
+    "controlled_restoration": {
+      "status": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
+      "probe": {
+        "attempts": 1,
+        "method": "getTransaction",
+        "http_status": 401,
+        "usable_transaction_verified": false,
+        "worst_case_credits_reserved": 1,
+        "measured_billing_credits": "Not queried or inferred.",
+        "retries": 0,
+        "fallback_requests": 0,
+        "reservation_before_HTTP_dispatch": true,
+        "single_probe_lease_and_cross_worker_owner_lock": true
+      },
+      "budget": {
+        "lifetime_credit_ceiling": 100000,
+        "warning_credits": 50000,
+        "policy_unchanged": true,
+        "counter_reset": false,
+        "shared_reserved_credits": 1,
+        "inflight_requests": 0,
+        "shared_reservations": 1,
+        "shared_outcomes": 1
+      },
+      "workers": {
+        "listener": {
+          "pid": 74589,
+          "state": "RUNNING"
+        },
+        "resolver": {
+          "pid": 74621,
+          "state": "RUNNING"
+        },
+        "walkback": {
+          "pid": 74641,
+          "state": "RUNNING"
+        },
+        "restarts": 0
+      },
+      "durable_work": {
+        "birth_journal_records_at_verification": 213,
+        "birth_journal_state": "ACKED=213",
+        "migration_journal_records_at_verification": 512,
+        "migration_states": {
+          "QUARANTINED": 191,
+          "RESOLVED": 1,
+          "RETRY_EXHAUSTED": 190,
+          "PENDING": 130
+        },
+        "birth_terminal_records": 512,
+        "migration_terminal_records": 752,
+        "exhausted_or_quarantined_replay": false,
+        "retry_or_budget_ceilings_reset": false,
+        "note": "Protected populations preserved. Migration journal is full but has existing bounded verified terminal-transfer authority with quota headroom; no manual transfer/replay performed in restoration."
+      },
+      "disk": {
+        "free_bytes": 3653656576,
+        "required_floor_plus_reserve": 2067108864
+      }
     }
   },
   "flex_v2_birth_conflict_capacity": {
     "status": "DEPLOYED_PASS",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
-    "engineering_revision": "ac0bcbbc1142a5533b49d0cc97a98be0310d76c2",
+    "engineering_revision": "0f56119da746d7381a7db8c8a068f776b402d289",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "tests": {
       "additional_exact_retained_512_roundtrip": 1,
@@ -45307,10 +45371,10 @@
       "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
       "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
       "configuration_sha256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
-      "gate_state": "PAYMENT_DENIED",
+      "gate_state": "AUTH_DENIED",
       "policy_version": 2,
-      "gate_reservations": 0,
-      "gate_outcomes": 0,
+      "gate_reservations": 1,
+      "gate_outcomes": 1,
       "provider_calls_for_testing": 0,
       "restoration_or_probe": false,
       "birth_terminal_schema_initialized": true,
@@ -45324,7 +45388,7 @@
       "V1_access_or_writes": 0,
       "BIRDEYE_authority_and_budgets": "UNCHANGED"
     },
-    "next_action": "Leave all three workers running with PAYMENT_DENIED. Do not restore Helius or replay exhausted/protected work without separate authorization.",
+    "next_action": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization.",
     "deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/DEPLOYMENT.json",
     "deployment_report_sha256": "f08ee4041f76e35b747a7d9aa8f4a10df3c17a27e849e64f7ab9669e235594f1",
     "acceptance": {
@@ -45336,5 +45400,43 @@
       "all_three_workers_running": true,
       "gate": "PAYMENT_DENIED"
     }
+  },
+  "flex_v2_helius_controlled_restoration": {
+    "status": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
+    "engineering_revision": "0f56119da746d7381a7db8c8a068f776b402d289",
+    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/RESTORATION.json",
+    "report_sha256": "23ab4c0a82bd73f723d6855168c057a147f47cd3eece4eb0f08ec21fb3a76d19",
+    "provider_probe_attempts": 1,
+    "http_status": 401,
+    "gate_state": "AUTH_DENIED",
+    "workers": {
+      "listener": {
+        "pid": 74589,
+        "state": "RUNNING"
+      },
+      "resolver": {
+        "pid": 74621,
+        "state": "RUNNING"
+      },
+      "walkback": {
+        "pid": 74641,
+        "state": "RUNNING"
+      },
+      "restarts": 0
+    },
+    "production_flags": {
+      "source_changes": 0,
+      "schema_changes": 0,
+      "service_controls": 0,
+      "credential_changes": 0,
+      "canonical_evidence_mutations_by_probe": 0,
+      "V1_access": 0,
+      "BIRDEYE": "UNCHANGED",
+      "raw_provider_payload_retained": false,
+      "provider_RPC_attempts": 1
+    },
+    "blocker": "The one authorized request to the installed paid Helius endpoint/credential returned HTTP401; usable transaction data was not obtained. This proves an authorization failure for this request, not a diagnosis of billing-credit exhaustion.",
+    "next_action": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization."
   }
 }

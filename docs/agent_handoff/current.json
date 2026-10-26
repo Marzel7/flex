@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
+    "git_head": "20634adb524c0f5cf32b73741d9aecbac9b1a04c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T22:33:54.045913+00:00",
-    "working_tree": "17a2418e source remains deployed; current-root credential bound to three roles/recovery; controlled probe passed; gate OPEN with100000-credit limit."
+    "updated_at_utc": "2026-10-26T22:49:28.410437+00:00",
+    "working_tree": "Read-only post-restoration audit: gateOPEN, source17a2418e; low reserved spend but3persistent in-flight slots hold newRPC work. No runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45129,10 +45129,10 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "DEPLOYED_HELIUS_RESTORED_PASS",
-    "verdict": "PASS",
-    "updated_at_utc": "2026-10-26T22:33:54.045913+00:00",
-    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
+    "status": "DEPLOYED_OPEN_PARTIAL_INFLIGHT_CAPACITY_BLOCKED",
+    "verdict": "PARTIAL",
+    "updated_at_utc": "2026-10-26T22:49:28.410437+00:00",
+    "engineering_revision": "20634adb524c0f5cf32b73741d9aecbac9b1a04c",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45194,8 +45194,8 @@
       "operator_probes_total": 2,
       "operator_probe_this_authorization": 1
     },
-    "blocker": null,
-    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
+    "blocker": "All three durable HTTP in-flight slots remain occupied: two Walkback getSignaturesForAddress reservations and one listener getAccountInfo reservation, aged5\u20139minutes at final progress check. The fresh60second observation made zero new RPC dispatches while gate state remainedOPEN. In-flight admission limit therefore holds new RPC work; completion/cancellation cause has not yet been established. No reservation was cleared or refunded.",
+    "next_action": "Perform a narrowly scoped read-only attribution of these three reservation lifecycles and their response completion paths; then qualify durable, evidence-based completion reconciliation if required. Do not reset budgets, blindly clear slots, replay exhausted work or restart as a workaround.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45409,7 +45409,165 @@
       "current_root_key_and_recovery_bindings_verified": true
     },
     "current_key_restoration_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CURRENT_KEY_RESTORATION.json",
-    "current_key_restoration_report_sha256": "190a16ce193eccaf5beb8cd3ac085e44a51083595d1bdfc6dc31c86b312db1a3"
+    "current_key_restoration_report_sha256": "190a16ce193eccaf5beb8cd3ac085e44a51083595d1bdfc6dc31c86b312db1a3",
+    "usage_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/USAGE_AND_PROGRESS.json",
+    "usage_report_sha256": "450d58f07d604f3f72efd423b1537610f37d5f4058788ab8ee47efa8421523f1",
+    "latest_usage_audit": {
+      "window": {
+        "from_utc": "2026-10-26T22:28:25.620551+00:00",
+        "ledger_sample_to_utc": "2026-10-26T22:43:58.733392+00:00",
+        "seconds": 933.112841,
+        "natural_RPC_requests": 622,
+        "reserved_credits": 622,
+        "average_requests_per_minute": 39.995162814397496,
+        "operator_probes_excluded": 2
+      },
+      "fresh_window": {
+        "from_utc": "2026-10-26T22:42:58.679178+00:00",
+        "to_utc": "2026-10-26T22:43:58.733392+00:00",
+        "seconds": 60.05586408311501,
+        "requests": 0,
+        "reserved_credits": 0
+      },
+      "worker_reserved_credits": {
+        "creator_resolution": 0,
+        "listener": 549,
+        "walkback": 73
+      },
+      "methods": {
+        "rpc:getAccountInfo": {
+          "requests": 375,
+          "reserved_credits": 375
+        },
+        "rpc:getMultipleAccounts": {
+          "requests": 119,
+          "reserved_credits": 119
+        },
+        "rpc:getSignaturesForAddress": {
+          "requests": 31,
+          "reserved_credits": 31
+        },
+        "rpc:getTransaction": {
+          "requests": 72,
+          "reserved_credits": 72
+        },
+        "rpc:getTokenAccountsByOwner": {
+          "requests": 10,
+          "reserved_credits": 10
+        },
+        "rpc:getTokenLargestAccounts": {
+          "requests": 15,
+          "reserved_credits": 15
+        }
+      },
+      "maximum_investigation": {
+        "highest_reserved_credits": 52,
+        "lifetime_limit": 100000,
+        "warning": 50000,
+        "origins": 41,
+        "limit_breach_observed": false
+      },
+      "inflight": [
+        {
+          "role": "walkback",
+          "method": "rpc:getSignaturesForAddress",
+          "age_seconds": 322,
+          "pid": 80629,
+          "credit_reservation": 1
+        },
+        {
+          "role": "walkback",
+          "method": "rpc:getSignaturesForAddress",
+          "age_seconds": 561,
+          "pid": 80629,
+          "credit_reservation": 1
+        },
+        {
+          "role": "listener",
+          "method": "rpc:getAccountInfo",
+          "age_seconds": 561,
+          "pid": 80583,
+          "credit_reservation": 1
+        }
+      ],
+      "resolver": {
+        "status_counts": {
+          "complete": 241,
+          "skipped": 376
+        },
+        "population_limit_hit": false,
+        "updated_since_restoration": 0,
+        "eligible_pending_or_retry": 0,
+        "interpretation": "RUNNING but idle: no eligible pending/retry work and no RPC credit use."
+      },
+      "walkback": {
+        "status_counts": {
+          "complete": 1730,
+          "failed": 6,
+          "pending": 34,
+          "waiting": 1550
+        },
+        "population_limit_hit": false,
+        "jobs_by_status": {
+          "complete": {
+            "rows_checked": 1730,
+            "row_limit_hit": false,
+            "updated_since_restoration": 3,
+            "completed_since_restoration": 3,
+            "recent_error_codes": {
+              "null": 2,
+              "HELIUS_ACQUISITION_DEFERRED": 1
+            }
+          },
+          "failed": {
+            "rows_checked": 6,
+            "row_limit_hit": false,
+            "updated_since_restoration": 0,
+            "completed_since_restoration": 0,
+            "recent_error_codes": {}
+          },
+          "pending": {
+            "rows_checked": 34,
+            "row_limit_hit": false,
+            "updated_since_restoration": 34,
+            "completed_since_restoration": 0,
+            "recent_error_codes": {
+              "HELIUS_ACQUISITION_DEFERRED": 34
+            }
+          },
+          "waiting": {
+            "rows_checked": 1550,
+            "row_limit_hit": false,
+            "updated_since_restoration": 0,
+            "completed_since_restoration": 0,
+            "recent_error_codes": {}
+          }
+        },
+        "completed_since_restoration_outcomes": {
+          "LINEAGE_GAP": 1,
+          "NO_ATTRIBUTION_FOUND": 2
+        },
+        "completed_since_restoration_with_deferred_error": 1,
+        "interpretation": "Three FULL_WALKBACK jobs reached complete, with terminal outcomes LINEAGE_GAP=1 and NO_ATTRIBUTION_FOUND=2; this is processing progress, not confirmed attribution. One completed row retains a deferral error.34pending rows retain HELIUS_ACQUISITION_DEFERRED."
+      },
+      "PumpSwap": {
+        "retained_subscription_confirmations": 2,
+        "gate_connection_reservations": 4,
+        "new_account_notifications_received_since_restoration": 4,
+        "new_account_notification_ACKs_since_restoration_by_reception": 0,
+        "timing_limit": "Confirmation log lines have no timestamps; paired gate had zero successful connections before restoration and increased after OPEN. Bounded retained markers demonstrate subscription recovery, not guaranteed current socket liveness."
+      },
+      "safety": {
+        "production_mutations": 0,
+        "provider_calls": 0,
+        "service_controls": 0,
+        "configuration_or_source_changes": 0,
+        "V1_access": 0,
+        "gate_unchanged": "OPEN",
+        "floor_plus_reserve": 2067108864,
+        "free_bytes": 5287284736
+      }
+    }
   },
   "flex_v2_birth_conflict_capacity": {
     "status": "DEPLOYED_PASS",
@@ -45642,6 +45800,57 @@
       "disk_free_bytes": 5301727232,
       "required_floor_plus_reserve": 2067108864
     },
-    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery."
+    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
+    "latest_progress_audit": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/USAGE_AND_PROGRESS.json",
+    "current_runtime_progress": "PARTIAL: credential restoration succeeded, but three durable in-flight reservations now hold newRPC dispatch. No provider or runtime modifications by audit."
+  },
+  "flex_v2_helius_usage_progress_audit": {
+    "status": "PARTIAL_RPC_CONCURRENCY_SLOTS_BLOCKED",
+    "engineering_revision": "20634adb524c0f5cf32b73741d9aecbac9b1a04c",
+    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/USAGE_AND_PROGRESS.json",
+    "report_sha256": "450d58f07d604f3f72efd423b1537610f37d5f4058788ab8ee47efa8421523f1",
+    "gate": "OPEN",
+    "workers": {
+      "listener": {
+        "pid": 80583,
+        "state": "RUNNING"
+      },
+      "resolver": {
+        "pid": 80604,
+        "state": "RUNNING"
+      },
+      "walkback": {
+        "pid": 80629,
+        "state": "RUNNING"
+      }
+    },
+    "usage": {
+      "from_utc": "2026-10-26T22:28:25.620551+00:00",
+      "ledger_sample_to_utc": "2026-10-26T22:43:58.733392+00:00",
+      "seconds": 933.112841,
+      "natural_RPC_requests": 622,
+      "reserved_credits": 622,
+      "average_requests_per_minute": 39.995162814397496,
+      "operator_probes_excluded": 2
+    },
+    "credits_by_worker": {
+      "creator_resolution": 0,
+      "listener": 549,
+      "walkback": 73
+    },
+    "max_investigation_credits": 52,
+    "blocker": "All three durable HTTP in-flight slots remain occupied: two Walkback getSignaturesForAddress reservations and one listener getAccountInfo reservation, aged5\u20139minutes at final progress check. The fresh60second observation made zero new RPC dispatches while gate state remainedOPEN. In-flight admission limit therefore holds new RPC work; completion/cancellation cause has not yet been established. No reservation was cleared or refunded.",
+    "production_flags": {
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "service_controls": 0,
+      "configuration_or_source_changes": 0,
+      "V1_access": 0,
+      "gate_unchanged": "OPEN",
+      "floor_plus_reserve": 2067108864,
+      "free_bytes": 5287284736
+    },
+    "next_action": "Perform a narrowly scoped read-only attribution of these three reservation lifecycles and their response completion paths; then qualify durable, evidence-based completion reconciliation if required. Do not reset budgets, blindly clear slots, replay exhausted work or restart as a workaround."
   }
 }

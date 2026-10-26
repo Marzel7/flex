@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T10:59:19.024295+00:00",
+  "updated_at_utc": "2026-10-26T11:27:37.854831+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44772,5 +44772,23 @@
     "blocker": null,
     "result": "Both installed rollback preimage hashes unchanged. No deployment/restart/queue mutation/provider call; PumpSwap not further qualified after first safety gate failed.",
     "next_action": "Deployment accepted; retain source fallback and evidence. No Golden freeze performed."
+  },
+  "flex_v2_create_source_coverage_audit": {
+    "status": "PARTIAL",
+    "verdict": "PARTIAL_EVIDENCE_LIMITED",
+    "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
+    "production_changed": false,
+    "provider_calls": 0,
+    "window_start_utc": "2026-10-25T23:13:40.815305+00:00",
+    "window_end_utc": "2026-10-26T11:13:40.815305+00:00",
+    "result": "Source attribution traced in a bounded indexed owner-selected canonical cohort. Full Core cohort exhaustiveness and precise handoff commit timing cannot be independently certified under current retained contracts. No global exact percentage or request savings claimed.",
+    "limitations": [
+      "Core migration-time selection lacks an index; prohibited historical token-table scan was not executed.",
+      "Handoff marker is pre-submit and delivery timestamp is dispatcher-start, not actual OPS commit.",
+      "Provider metrics lack per-mint/job request attribution."
+    ],
+    "next_action": "Qualify complete indexed cohort and true anchor-activation commit audit authority before exact global/handoff coverage claims; no replay, budget change or reopening completed investigations.",
+    "detailed_evidence": "Local only; no raw identities, production contents or private configuration published.",
+    "report_sha256": "93fd57004fc96de6cc1c5f373642820d050e68c5491c4644d88f8699c4596f59"
   }
 }

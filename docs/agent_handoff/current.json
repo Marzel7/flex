@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "8f5889a0df16bb3066cdbbee13453e7a939e6e6d",
+    "git_head": "ca1678b780696cd62ceb125ef3abe6561198bd12",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T09:59:07.308126+00:00",
+    "updated_at_utc": "2026-10-26T10:18:22.204550+00:00",
     "working_tree": "Qualified isolated DEV dormant runtime composition; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -44719,8 +44719,25 @@
     "engineering_revision": "8f5889a0df16bb3066cdbbee13453e7a939e6e6d",
     "production_changed": false,
     "tests_reused": 34,
-    "blocker": "Installed listener differs from candidate parent by an additional undeployed five-line maintenance-suppression hunk. Exact candidate installation would exceed the retry-only payload. Quarantine helper preimage matches.",
+    "blocker": "Source mismatch resolved by retry-only candidate; remaining preflight blocker is disk headroom below mandatory floor.",
     "next_action": "Compose and qualify a retry-only payload on the exact installed listener preimage, excluding undeployed maintenance suppression; then resume bounded deployment preflight.",
     "details": "Source hashes and operational evidence retained locally; no source/runtime changes or deployment."
+  },
+  "flex_v2_retry_only_source": {
+    "status": "PARTIAL",
+    "verdict": "HOLD_DISK_HEADROOM",
+    "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
+    "source_correction": "PASS: exact installed preimage outside retry-only delta; unrelated maintenance hunk excluded; helper unchanged from qualified correction.",
+    "tests": {
+      "directly_affected_passed": 10,
+      "unchanged_controls_blocked_by_disk_floor": 25,
+      "deselected": 8,
+      "provider_free": true
+    },
+    "production_changed": false,
+    "deployment_authorized": false,
+    "blocker": "Available filesystem headroom below mandatory 2GB floor; journal fixtures failed closed before initialization.",
+    "next_action": "Restore floor plus64MiB, rerun blocked focused checks and refresh live authority/rollback prerequisites for this exact payload. No deployment or unrelated investigation.",
+    "details": "Exact two-file hashes, rollback preimages and detailed report local only."
   }
 }

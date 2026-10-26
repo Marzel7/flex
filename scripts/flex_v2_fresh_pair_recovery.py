@@ -6,9 +6,12 @@ import importlib.util,json,os,pathlib,sqlite3,resource,subprocess,shutil,sys,has
 def execute():
  s=importlib.util.spec_from_file_location('c',pathlib.Path(__file__).resolve().parents[1]/'docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py');c=importlib.util.module_from_spec(s);s.loader.exec_module(c);c.bind('v2');assert c.g.validate_pair()==c.P['generation']
  pair=c.S/'authority/rollback-pair.json';manifest=json.load(open(pair));root=c.S/'rollback';owner_path=c.S/'authority/owner.json';generation=manifest['generation'];assert shutil.disk_usage(c.S).free>sum((c.S/'databases'/(k+'.sqlite')).stat().st_size for k in ['core','ops'])+2_000_000_000+64*1024*1024
+ helius_prepared=c.prepare_helius_recovery(c.settings('v2'),pair)
  c.hold_lanes([('core',c.settings('v2')['DB_PATH']),('ops',c.settings('v2')['WT_OPS_DB_PATH'])],lambda:c.owner('v2','TRANSFER'))
  for name in ['watchtower_listener','creator_resolution_worker','walkback_worker']:
   if 'STOPPED' not in c.ctl('status',name):print(c.ctl('stop',name),flush=True)
+ for name in ['watchtower_listener','creator_resolution_worker','walkback_worker']:assert 'STOPPED' in c.ctl('status',name)
+ c.freeze_helius_recovery(helius_prepared)
  from src.core import database_write_service as dws
  for k in ['core','ops']:dws.retire_database(k,str(c.S/'databases'/(k+'.sqlite')),generation=c.P['generation'],timeout=15)
  aux=json.load(open(c.S/'authority/auxiliary.json'));aux.update(generation=generation,pair_manifest_sha256=c.sha(pair))
@@ -45,6 +48,7 @@ def execute():
     d.commit()
  for name in ['DEV004_PRODUCTION_BOOTSTRAP_MANIFEST','DEV004_PRODUCTION_BOOTSTRAP_SHA256']:os.environ.pop(name,None)
  c.g.seal_manifest(str(pair));state.update(phase='ACTIVE',owner='runtime',transfer_complete=True);c.save(owner_path,state);env.update(FLEX_DB_PAIR_ROLE='runtime',FLEX_DB_PAIR_OWNER='');os.environ.update(env);assert c.g.validate_pair()==generation
+ c.finish_helius_recovery(env)
  c.settings=lambda mode:dict(env);c.write_config('v2');c.phase('FRESH_COMPACT_RECOVERY_ACTIVE',generation=generation,core=str(root/'core.sqlite'),ops=str(root/'ops.sqlite'),original_V1_unchanged=True,journals_preserved=True)
 
 if __name__=='__main__':

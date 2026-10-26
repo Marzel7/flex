@@ -44,7 +44,7 @@ def owner(mode,stage):
 # Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
 TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
 TERMINAL_PAYLOAD = {
- 'pumpfun_curve_listener.py':'747b2d497e707977de6f9e50ba9c81f9d864ee07c837abf57117be5d7bb44f9a',
+ 'pumpfun_curve_listener.py':'a35ffa0211d0f7bf5d181fbee33e7c5e0995c52d583e57861c74a98e7223fa4e',
  'migration_signature_journal.py':'65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668',
  'migration_terminal_evidence.py':'0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf',
 }
@@ -116,24 +116,126 @@ def coverage_environment(role,env):
  env[CREATE_AUDIT_FLAG]='1'
  return env
 
+HELIUS_GATE_FLAG='FLEX_HELIUS_DENIAL_GATE_ENABLED'
+HELIUS_GATE_PAYLOAD={'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': 'be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': 'a35ffa0211d0f7bf5d181fbee33e7c5e0995c52d583e57861c74a98e7223fa4e'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '57b4f8a90113a30f492cf6015e34ecea1fc171ae0f5a42470b3744ffe8c9a418', 'src/core/helius_denial_gate.py': 'be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219'}, 'walkback': {'src/core/helius_denial_gate.py': 'be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219', 'src/core/walkback_worker.py': 'c5c4b102dbee2a1940a8ebcb5f4e0fbb28ee73d44b29f42982a5c5deb3b1c47d'}}
+MAX_HELIUS_RECOVERY_BYTES=16384
+
+def helius_module(role):
+ package=pathlib.Path(P['roles'][role]['package'])
+ for relative,expected in HELIUS_GATE_PAYLOAD[role].items():
+  path=package/relative
+  if not path.is_file() or path.is_symlink() or str(path.resolve())!=str(path) or sha(path)!=expected:raise RuntimeError('HELIUS_GATE_UNAWARE_FALLBACK:'+role+':'+relative)
+ spec=importlib.util.spec_from_file_location('helius_recovery_'+role,package/'src/core/helius_denial_gate.py')
+ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ return module
+
+def helius_environment(role,env):
+ env=dict(env);planned=P['planned_production_environment'].get(HELIUS_GATE_FLAG,'0')
+ stable=str(S/'journals/helius-denial-v1.json')
+ if planned not in ('0','1') or env.get(HELIUS_GATE_FLAG,'0')!=planned:raise RuntimeError('HELIUS_GATE_FLAG_DOWNGRADE')
+ if planned=='0':
+  if env.get('HELIUS_DENIAL_GATE_PATH') or pathlib.Path(stable).exists():raise RuntimeError('HELIUS_GATE_FLAG_DOWNGRADE')
+  return env
+ if env.get('HELIUS_DENIAL_GATE_PATH')!=stable or P['planned_production_environment'].get('HELIUS_DENIAL_GATE_PATH')!=stable or env.get('MIGRATION_JOURNAL_PATH')!=str(S/'journals/migration.jsonl'):raise RuntimeError('HELIUS_GATE_STABLE_PATH_REQUIRED')
+ if os.path.realpath(stable)!=stable:raise RuntimeError('HELIUS_GATE_PHYSICAL_PATH_REQUIRED')
+ for key in ('DB_PATH','WT_OPS_DB_PATH','FLEX_DB_PAIR_MANIFEST','FLEX_DB_PAIR_AUTHORITY'):
+  if not env.get(key) or env[key]!=os.environ.get(key):raise RuntimeError('HELIUS_GATE_BINDING_MISMATCH')
+ if env.get('DEV004_PAIRED_BINDING_REQUIRED')!='1':raise RuntimeError('HELIUS_GATE_PAIR_REQUIRED')
+ generation=g.validate_pair(core_path=env['DB_PATH'],ops_path=env['WT_OPS_DB_PATH'],purpose='active')
+ if not generation:raise RuntimeError('HELIUS_GATE_GENERATION_REQUIRED')
+ module=helius_module(role);gate=module.Gate(stable,generation)
+ with gate.locked():gate.read()  # Never initializes, restores or grants a probe.
+ env[HELIUS_GATE_FLAG]='1';env['HELIUS_DENIAL_GATE_PATH']=stable
+ return env
+
+def prepare_helius_recovery(env,destination):
+ # Before fencing, validate exact installed source, complete source pair and
+ # frozen matched destination. No state/configuration mutation here.
+ for role in ('listener','creator_resolution','walkback'):helius_environment(role,env)
+ if env.get(HELIUS_GATE_FLAG,'0')!='1':return None
+ source=json.load(open(env['FLEX_DB_PAIR_MANIFEST']));target=json.load(open(destination))
+ if source['authority']!=target['authority'] or source['generation']==target['generation']:raise RuntimeError('HELIUS_RECOVERY_AUTHORITY')
+ if set(target['stores'])!={'core','ops'}:raise RuntimeError('HELIUS_RECOVERY_PAIR')
+ for role in ('core','ops'):
+  if target['stores'][role]['generation']!=target['generation']:raise RuntimeError('HELIUS_RECOVERY_PAIR')
+ return {'version':1,'path':env['HELIUS_DENIAL_GATE_PATH'],'source_generation':source['generation'],'authority':source['authority'],'destination_manifest':str(destination),'destination_sha256':sha(destination),'destination_generation':target['generation']}
+
+def freeze_helius_recovery(prepared):
+ # Caller has stopped all affected processes after the writer fence. Capture
+ # the latest state, not an earlier in-flight snapshot. One bounded receipt.
+ if prepared is None:return
+ module=helius_module('listener');gate=module.Gate(prepared['path'],prepared['source_generation'])
+ with gate.locked():state=gate.read()
+ snapshot=dict(prepared,state=state)
+ if len(json.dumps(snapshot).encode())>MAX_HELIUS_RECOVERY_BYTES:raise RuntimeError('HELIUS_RECOVERY_CAPACITY')
+ if shutil.disk_usage(S).free<2067108864:raise RuntimeError('DISK_FLOOR')
+ save(S/'authority/helius-denial-recovery.json',snapshot)
+
+def finish_helius_recovery(env):
+ if env.get(HELIUS_GATE_FLAG,'0')!='1':
+  helius_environment('listener',env);return
+ path=S/'authority/helius-denial-recovery.json'
+ if not path.is_file() or path.is_symlink() or path.stat().st_size>MAX_HELIUS_RECOVERY_BYTES:raise RuntimeError('HELIUS_RECOVERY_RECEIPT_REQUIRED')
+ snapshot=json.load(open(path));destination=pathlib.Path(env['FLEX_DB_PAIR_MANIFEST'])
+ generation=g.validate_pair(core_path=env['DB_PATH'],ops_path=env['WT_OPS_DB_PATH'],purpose='active')
+ target=json.load(open(destination))
+ if snapshot['version']!=1 or str(destination)!=snapshot['destination_manifest'] or sha(destination)!=snapshot['destination_sha256'] or generation!=snapshot['destination_generation'] or target['authority']!=snapshot['authority']:raise RuntimeError('HELIUS_RECOVERY_AUTHORITY')
+ if env['HELIUS_DENIAL_GATE_PATH']!=str(S/'journals/helius-denial-v1.json') or env['HELIUS_DENIAL_GATE_PATH']!=snapshot['path']:raise RuntimeError('HELIUS_RECOVERY_PATH')
+ for role in ('listener','creator_resolution','walkback'):helius_module(role)
+ module=helius_module('listener');old=module.Gate(snapshot['path'],snapshot['source_generation']);new=module.Gate(snapshot['path'],generation)
+ expected=dict(snapshot['state']);expected['generation']=generation
+ with old.locked():
+  try:current=old.read()
+  except module.Integrity:
+   # A crash after publication but before receipt acknowledgement is idempotent.
+   current=new.read()
+   if current!=expected:raise RuntimeError('HELIUS_RECOVERY_STATE_CONFLICT')
+  else:
+   if current!=snapshot['state']:raise RuntimeError('HELIUS_RECOVERY_STATE_CHANGED')
+   old.save(expected)  # Generation-only move; no allowance/counter/state reset.
+ with new.locked():
+  if new.read()!=expected:raise RuntimeError('HELIUS_RECOVERY_READBACK')
+ for role in ('listener','creator_resolution','walkback'):helius_environment(role,env)
+ snapshot['completed_generation']=generation
+ save(path,snapshot)
+
+def recovery_config_base():
+ if P['planned_production_environment'].get(HELIUS_GATE_FLAG,'0')!='1':return S/'source-preimages/supervisor.conf'
+ path=P.get('recovery_supervisor_preimage_path');expected=P.get('recovery_supervisor_preimage_sha256')
+ if not path or not expected:raise RuntimeError('HELIUS_RECOVERY_CONFIG_AUTHORITY_REQUIRED')
+ path=pathlib.Path(path)
+ if not path.is_absolute() or path.is_symlink() or str(path.resolve())!=str(path) or not path.is_file() or sha(path)!=expected:raise RuntimeError('HELIUS_RECOVERY_CONFIG_PREIMAGE')
+ return path
+
 def write_config(mode):
  if mode!='v2':raise RuntimeError('TERMINAL_RECOVERY_V2_ONLY')
  from supervisor.datatypes import dict_of_key_value_pairs
- cfg=configparser.ConfigParser(interpolation=None);cfg.read(S/'source-preimages/supervisor.conf');before={k:dict(cfg[k]) for k in cfg.sections()};mapping={'watchtower_listener':'listener','creator_resolution_worker':'creator_resolution','walkback_worker':'walkback'}
+ current_cfg=configparser.ConfigParser(interpolation=None);current_cfg.read(CONF);helius_transition=False
+ cfg=configparser.ConfigParser(interpolation=None);cfg.read(recovery_config_base());before={k:dict(cfg[k]) for k in cfg.sections()};mapping={'watchtower_listener':'listener','creator_resolution_worker':'creator_resolution','walkback_worker':'walkback'}
  for service,role in mapping.items():
   section=cfg['program:'+service];env=dict_of_key_value_pairs(section.get('environment',''));env.update(settings(mode));env.update(P['roles'][role].get('runtime_environment_overrides',{}));env['PYTHONPATH']=P['roles'][role]['package']
   if role=='listener':
    env.update(P['roles'][role]['nonsecret_wrapper_environment'])
    env=terminal_environment(env)
   env=coverage_environment(role,env)
+  env=helius_environment(role,env)
+  if env.get(HELIUS_GATE_FLAG)=='1':
+   previous=dict_of_key_value_pairs(current_cfg.get('program:'+service,'environment',fallback=''))
+   if any(previous.get(key)!=env.get(key) for key in (HELIUS_GATE_FLAG,'HELIUS_DENIAL_GATE_PATH','DB_PATH','WT_OPS_DB_PATH','FLEX_DB_PAIR_MANIFEST')):helius_transition=True
   env['RPC_METRICS_DB']=env['DB_PATH']  # Preserve accepted V2 telemetry authority after role overrides.
   section['environment']=','.join(k+'="'+str(v).replace('\\','\\\\').replace('"','\\"')+'"' for k,v in env.items())
   if mode=='v2':section['command']=' '.join(P['roles'][role]['command'])
  for key in cfg.sections():
   if key not in {'program:'+x for x in mapping}:assert dict(cfg[key])==before[key],'UNRELATED_SUPERVISOR_CHANGE'
+ for key in set(cfg.sections())|set(current_cfg.sections()):
+  if key not in {'program:'+x for x in mapping}:
+   if not cfg.has_section(key) or not current_cfg.has_section(key) or dict(cfg[key])!=dict(current_cfg[key]):raise RuntimeError('UNRELATED_SUPERVISOR_DRIFT')
  import io
  out=io.StringIO();cfg.write(out);payload=out.getvalue().encode()
  if len(payload)>MAX_RECOVERY_CONFIG_BYTES:raise RuntimeError('RECOVERY_CONFIG_CAPACITY')
+ if helius_transition:
+  for service in mapping:
+   if 'STOPPED' not in ctl('status',service):raise RuntimeError('HELIUS_ACTIVATION_REQUIRES_QUIESCENCE:'+service)
  atomic(CONF,payload)
  with open(CONF,'rb') as published:
   if published.read(MAX_RECOVERY_CONFIG_BYTES+1)!=payload:raise RuntimeError('RECOVERY_CONFIG_READBACK')

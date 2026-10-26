@@ -44904,5 +44904,22 @@
     "next_action": "Separately authorize a controlled pause/circuit-break of paid Helius acquisition at dispatch while preserving PumpPortal births and durable migration journal admission. Do not use a notification-dropping listen toggle or stop whole listener. Do not reconnect exhausted provider. No containment action executed. Qualified reconnect-only patch removes cache-destructive process restarts but is not itself a total RPC-budget fix.",
     "detailed_evidence": "Local aggregate report only.",
     "storage_safety": "Final disk free1049006080 bytes, below established2GB floor. No cleanup performed; stopped further audit reads."
+  },
+  "flex_v2_helius_denial_gate_qualification": {
+    "status": "HOLD",
+    "verdict": "HOLD_DISK_HEADROOM_BEFORE_IMPLEMENTATION",
+    "source_revision": "9dcf627791e8781fb77fee7556f1a13b56645b90",
+    "storage_preflight": {
+      "free_bytes": 1045270528,
+      "required_floor_plus_reserve_bytes": 2067108864,
+      "shortfall_bytes": 1021838336
+    },
+    "implementation_started": false,
+    "tests_run": 0,
+    "production_changed": false,
+    "provider_calls": 0,
+    "new_worktrees": 0,
+    "result": "Storage preflight failed before code edits or fixtures. Existing audit demonstrates outage-amplified listener acquisition, restart cache loss and direct vault/Walkback accounting bypasses; no denial gate implemented or qualified. Ordinary429 remains distinct from confirmed credit denial.",
+    "next_action": "Restore at least2067108864 free bytes plus bounded execution headroom, then resume contract verification and isolated denial-gate qualification in existing DEV worktree. No deployment or provider calls."
   }
 }

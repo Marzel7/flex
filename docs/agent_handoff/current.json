@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Restore and sustain >2,067,108,864 available bytes plus test headroom on the shared /System/Volumes/Data volume. Resume the preserved uncommitted correction in this same worktree, complete focused qualification and source review, then commit a candidate. No deployment or gate restoration.",
+  "next_action": "Freeze that policy while PAYMENT_DENIED, then perform the existing read-only coordinated three-role deployment preflight against this candidate. Do not deploy, restore/probe Helius, replay queues or freeze the Golden Baseline.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+    "git_head": "7bf2ab0974007a8216de6fb4d4370600f3eb42cc",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T12:47:05.224470+00:00",
-    "working_tree": "Qualified isolated DEV dormant runtime composition; production unchanged."
+    "updated_at_utc": "2026-10-26T19:04:47.931845+00:00",
+    "working_tree": "Existing codex/flex-v2-final-consolidation; qualified source/evidence committed; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T18:10:45.012107+00:00",
+  "updated_at_utc": "2026-10-26T19:04:47.931845+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -40013,7 +40013,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_STORAGE_DROPPED_DURING_QUALIFICATION",
+  "verdict": "DEV_QUALIFIED_DEPLOYMENT_POLICY_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -45044,106 +45044,87 @@
     "tests": "No software tests needed; read-only indexed telemetry, retained log/source inspection, scheduler/process/socket verification."
   },
   "flex_v2_helius_universal_rpc_budget": {
-    "status": "PARTIAL",
-    "verdict": "HOLD_STORAGE_DROPPED_DURING_QUALIFICATION",
-    "observed_at_utc": "2026-10-26T18:10:45.012107+00:00",
-    "engineering_revision": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
-    "working_tree": "Existing codex/flex-v2-final-consolidation; uncommitted DEV correction preserved, NOT QUALIFIED",
-    "free_before_bytes": 4637863936,
-    "free_after_bytes": 1431474176,
-    "required_floor_plus_reserve_bytes": 2067108864,
-    "test_fixture_allocation_kib": 57968,
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "DEV_QUALIFIED_DEPLOYMENT_POLICY_HOLD",
+    "observed_at_utc": "2026-10-26T19:04:47.931845+00:00",
+    "engineering_revision": "7bf2ab0974007a8216de6fb4d4370600f3eb42cc",
+    "source_revision": "e6aaf27f7e466e5e26514e55116f72a3e7800d5d",
+    "evidence_revision": "7bf2ab0974007a8216de6fb4d4370600f3eb42cc",
+    "source_publication": "Local engineering commits; only sanitized handoff is published by this step.",
+    "bundle_sha256": "94dfe598b5b25b98678d460d7668bbbcebc059a359927d84edd98f04aab44cee",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_rpc_budget/REPORT.json",
+    "report_sha256": "a6d14f08206bd546b6125f9805d046b1f27d54e2a07f01c55081b198d32c6d0f",
     "tests": {
-      "initial_regression_passed": 39,
-      "initial_regression_failed": 2,
-      "initial_regression_setup_errors": 28,
-      "integration_fixes_applied_after_run": true,
-      "rerun": "NOT_RUN_STORAGE_FLOOR",
-      "syntax_ast": "PASS",
-      "new_budget_acceptance_tests": "NOT_YET_IMPLEMENTED"
-    },
-    "source_delta": [
-      {
-        "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
-        "sha256": "21c3f58f0302762843b236b8e0fc884ee7f0f7bc6885660eecc8010910f948ea",
-        "bytes": 24722
-      },
-      {
-        "path": "runtime/creator_resolution/src/core/creator_resolution_queue.py",
-        "sha256": "c61dbe08cbc186990ae861115fa699a96d2560f15b46d7643d269fd8c19e297a",
-        "bytes": 39908
-      },
-      {
-        "path": "runtime/creator_resolution/src/core/helius_denial_gate.py",
-        "sha256": "ac42488a7ec0419e92e1026b2132e42dc22c86ebacf11f9193b752778bb40d96",
-        "bytes": 22522
-      },
-      {
-        "path": "runtime/listener/src/core/helius_denial_gate.py",
-        "sha256": "ac42488a7ec0419e92e1026b2132e42dc22c86ebacf11f9193b752778bb40d96",
-        "bytes": 22522
-      },
-      {
-        "path": "runtime/listener/src/core/pumpfun_curve_listener.py",
-        "sha256": "f7fef9c1989e3bc1b8c67a8f5635cfb32d6e5773dbc4c62b2e9fb0d9aea6c576",
-        "bytes": 687614
-      },
-      {
-        "path": "runtime/walkback/src/core/helius_denial_gate.py",
-        "sha256": "ac42488a7ec0419e92e1026b2132e42dc22c86ebacf11f9193b752778bb40d96",
-        "bytes": 22522
-      },
-      {
-        "path": "runtime/walkback/src/core/walkback_worker.py",
-        "sha256": "7efdc0692e267aa0a6652af23ed45d5b0552d10ecaba6bd96439fbe338e33df7",
-        "bytes": 112765
-      },
-      {
-        "path": "tests/test_v2_helius_denial_gate.py",
-        "sha256": "8c08668aff691b87366c138c55e79383cc17038f33f93d899bbab1e44a0a7678",
-        "bytes": 15186
-      },
-      {
-        "path": "runtime/creator_resolution/src/core/helius_http_protection.py",
-        "sha256": "1df2add09f92f59992f65f9da853f3024764431e6c9d2b04d995f1569136294e",
-        "bytes": 10511
-      },
-      {
-        "path": "runtime/listener/src/core/helius_http_protection.py",
-        "sha256": "1df2add09f92f59992f65f9da853f3024764431e6c9d2b04d995f1569136294e",
-        "bytes": 10511
-      },
-      {
-        "path": "runtime/walkback/src/core/helius_http_protection.py",
-        "sha256": "1df2add09f92f59992f65f9da853f3024764431e6c9d2b04d995f1569136294e",
-        "bytes": 10511
+      "passed": 149,
+      "failed": 0,
+      "scope": "Bounded HTTP transports, three-role/process concurrency, durable accounting, protected deferrals and accepted denial/recovery controls.",
+      "by_file": {
+        "tests/test_v2_helius_denial_gate.py": 41,
+        "tests/test_v2_helius_recovery_config.py": 30,
+        "tests/test_v2_helius_rpc_budget.py": 78
       }
-    ],
-    "implemented_unqualified": [
-      "Explicit cost/limit policy provisioned while denied; no implicit allowance reset.",
-      "Shared credit ledger extends existing gate: bounded global fixed windows, daily worker allocation, lifetime investigation caps, request identity/in-flight limits, clock checks and charged ambiguous reservations.",
-      "HTTP hooks for http.client/urllib/requests, aiohttp and HTTPX; unknown Helius TLS stacks refused.",
-      "Scoped primary listener/resolver/Walkback acquisition; budget-deferred Walkback claim compensation.",
-      "Existing recovery source pins updated and snapshot cap remains bounded."
-    ],
-    "remaining_qualification": [
-      "Implement and run focused HTTP-boundary, reservation, concurrency, retry, pagination, clock and recovery tests.",
-      "Verify transport closure and non-Helius continuity.",
-      "Qualify a verified billing policy and conservative explicit limits; telemetry estimates are not provider billing authority.",
-      "Review stream lifecycle, error handling, state integrity, and worker deferral before readiness."
-    ],
-    "production_changes": 0,
-    "provider_calls": 0,
-    "service_controls": 0,
-    "gate_restoration": false,
-    "last_production_gate_readback": {
-      "state": "PAYMENT_DENIED",
-      "reservations": 0,
-      "outcomes": 0
     },
-    "candidate_sha": null,
+    "implemented": [
+      "Shared credit reservation policy and counters in existing gate owner; atomic durable before-wire authority.",
+      "Process-wide accepted HTTP transport hooks, exact request hashes, native enhanced-batch size-specific costs and unknown-cost refusal.",
+      "Global/worker/investigation, retry/page/fallback/in-flight ceilings; conservative rolling caps and clock fail-closed checks.",
+      "Immediate denial headers, protected claim deferral, source-pinned fresh-pair recovery and accepted WebSocket handshake without HTTP permit leakage."
+    ],
+    "proposed_not_installed_limits": {
+      "global": {
+        "day": 8000,
+        "hour": 800,
+        "inflight": 3,
+        "minute": 80
+      },
+      "worker_daily": {
+        "creator_resolution": 2000,
+        "listener": 4000,
+        "walkback": 2000
+      },
+      "investigation": {
+        "scope_credits": 80,
+        "scope_fallbacks": 1,
+        "scope_pages": 2,
+        "scope_requests": 8,
+        "scope_retries": 2
+      }
+    },
+    "production_flags": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "installed_source_base": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+      "gate_state": "PAYMENT_DENIED",
+      "gate_reservations": 0,
+      "gate_outcomes": 0,
+      "new_policy_installed": false,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "service_controls": 0,
+      "restoration_or_probe": false,
+      "BIRDEYE_authority_and_budgets": "UNCHANGED"
+    },
+    "storage": {
+      "final_fixture_allocation_bytes": 63873024,
+      "final_fixture_logical_bytes": 60892671,
+      "final_observed_available_bytes": 2772111360,
+      "kernel_test_file_limit_bytes": 499000000,
+      "largest_generated_fixture_file_bytes": 688129,
+      "lowest_retained_pre_or_post_check_bytes": 2274373632,
+      "new_database_or_wal_allocation": "No new live database or WAL owner; all SQLite fixtures disposable. No absolute live WAL guarantee claimed.",
+      "prior_iterations_cleanup": "Only these task-owned synthetic fixtures removed after allocation recording; no historical/production data deleted.",
+      "prior_iterations_task_owned_fixture_allocation_bytes": 567390208,
+      "required_floor_plus_reserve_bytes": 2067108864,
+      "sampling_limit": "Not a continuous guarantee against unrelated disk users; each real gate publication enforces its floor.",
+      "start_available_bytes": 3521613824
+    },
     "ready_for_deployment_preflight": false,
-    "exact_blocker": "Shared disk fell below the accepted 2 GB + 64 MiB floor during qualification; immediate recheck after operator update still below floor.",
-    "next_action": "Restore and sustain >2,067,108,864 available bytes plus test headroom on the shared /System/Volumes/Data volume. Resume the preserved uncommitted correction in this same worktree, complete focused qualification and source review, then commit a candidate. No deployment or gate restoration."
-  }
+    "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
+    "known_limitations": [
+      "No verified live billing weights included; synthetic test units are not Helius prices.",
+      "Finite 128-scope / 512-request-identity ledger refuses when full; no automatic retirement or allowance reset. Production policy must explicitly accept/reconcile that bound.",
+      "Protects the frozen Flex Python worker composition, not unrelated processes or other users of a shared API key. The October26 billed caller is still not proven."
+    ],
+    "next_action": "Freeze that policy while PAYMENT_DENIED, then perform the existing read-only coordinated three-role deployment preflight against this candidate. Do not deploy, restore/probe Helius, replay queues or freeze the Golden Baseline."
+  },
+  "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed."
 }

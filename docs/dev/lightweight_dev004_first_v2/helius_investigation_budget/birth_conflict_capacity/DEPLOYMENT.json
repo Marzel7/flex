@@ -1,0 +1,114 @@
+{
+  "BIRTH_SCHEMA": {
+    "contract_sha256": "f0bfbf5ae463fd61e6b8d2e700687265b50928c7966199a2c8a15eba647d240c",
+    "status": "Initialized and independently read-verified",
+    "tables": [
+      "birth_terminal_owner_v1",
+      "birth_terminal_evidence_v1"
+    ],
+    "triggers": 4
+  },
+  "DEPLOYMENT_STATUS": "PASS",
+  "GATE": {
+    "daily_hourly_quotas": false,
+    "lifetime_credits": 100000,
+    "new_ledger_origins": 0,
+    "outcomes": 0,
+    "policy_sha256": "ebc28131ddceb2f6f9fdb8f310f55c0399b0bd3d2a1f489c88b69ccac9b1d93a",
+    "policy_version": 2,
+    "reservations": 0,
+    "restoration_or_probe": false,
+    "state": "PAYMENT_DENIED",
+    "warning_credits": 50000
+  },
+  "IMMUTABLE_RECOVERY_SOURCE": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-investigation-17a2418e/source",
+  "INSTALLED_BUNDLE_SHA256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
+  "INSTALLED_CONFIGURATION_SHA256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
+  "INSTALLED_RUNTIME_FILE_COUNT": 16,
+  "JOURNAL_CAPACITY": {
+    "birth_after_transfer": 0,
+    "birth_at_end_of_observation": 82,
+    "birth_states_at_observation_end": {
+      "ACKED": 82
+    },
+    "latest_birth_count": 104,
+    "latest_birth_states": {
+      "ACKED": 104
+    },
+    "latest_migration_count": 508,
+    "latest_migration_states": {
+      "PENDING": 126,
+      "QUARANTINED": 191,
+      "RESOLVED": 1,
+      "RETRY_EXHAUSTED": 190
+    },
+    "limit": 512
+  },
+  "MINOR_OBSERVATIONS": [
+    "Supervisor reread reported additional definition differences; only the three approved groups were updated. All other service states/PIDs verified unchanged.",
+    "Frozen-plan historical metadata fields were preserved per qualified transformation; current installed configuration authority is recorded in supervisor-v2-identity.json and new installed-authority.json."
+  ],
+  "NATURAL_INTAKE": {
+    "canonical_birth_and_committed_receipt_matches": 82,
+    "migration_processing_or_OPS_anchor_delivery": "Not asserted while PAYMENT_DENIED; no provider-dependent recovery activated.",
+    "new_tracebacks_or_capacity_errors_in_observation": false,
+    "observation_begins_after_startup": true,
+    "observation_seconds": 60
+  },
+  "NEXT_ACTION": "Leave all three workers running with PAYMENT_DENIED. Do not restore Helius or replay exhausted/protected work without separate authorization.",
+  "PROTECTED_RECORD_TRANSFER": {
+    "acknowledged_or_replayed": false,
+    "all_original_snapshots_independently_exact_verified": true,
+    "batches": 26,
+    "maximum_batch": 20,
+    "original_bytes_preimage_retained_locally": true,
+    "records": 512,
+    "retained_state": "QUARANTINED / CORE_AUTHORITY_CONFLICT; protected no-automatic-replay rights unchanged"
+  },
+  "RECOVERY": {
+    "compatible_source": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "fresh_pair": "Qualified full compact matched-pair recovery retained; not executed during this deployment.",
+    "gate_and_histories": "Retain PAYMENT_DENIED, full ledger, all terminal evidence, journals and original transfer generations.",
+    "state": "Ready under same-source investigation-aware/birth-aware containment fallback; original preimages forbidden after reclamation."
+  },
+  "SAFETY": {
+    "BIRDEYE_credentials_and_budgets": "UNCHANGED",
+    "Helius_dispatched_requests_recorded": 0,
+    "V1_access_or_writes": 0,
+    "exhausted_or_quarantined_replay": 0,
+    "provider_test_calls": 0,
+    "source_scope": "Exact frozen runtime payload plus immutable recovery/policy/configuration authority only.",
+    "unrelated_service_restarts": 0
+  },
+  "SOURCE_REVISION": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+  "STORAGE": {
+    "WAL_absolute_limit_claimed": false,
+    "database_sizes": {
+      "core.sqlite": 61558784,
+      "core.sqlite-shm": 32768,
+      "core.sqlite-wal": 0,
+      "ops.sqlite": 157954048
+    },
+    "free_bytes": 3473776640,
+    "required_floor_plus_reserve": 2067108864,
+    "test_or_production_new_file_500MB_or_more": false
+  },
+  "V2_GENERATION": "DEV004-V2-20261024-dfb76562",
+  "WORKERS": {
+    "actual_process_environments_verified": true,
+    "after": {
+      "listener": 74589,
+      "resolver": 74621,
+      "walkback": 74641
+    },
+    "before": {
+      "listener": 16498,
+      "resolver": 16542,
+      "walkback": 16561
+    },
+    "other_service_states_and_PIDs_unchanged": true,
+    "shared_gate_and_Core_OPS_bindings_verified": true,
+    "status": "watchtower_listener              RUNNING   pid 74589, uptime 0:03:42\ncreator_resolution_worker        RUNNING   pid 74621, uptime 0:03:31\nwalkback_worker                  RUNNING   pid 74641, uptime 0:03:25\n"
+  },
+  "verified_at_utc": "2026-10-26T22:08:09.191699+00:00"
+}

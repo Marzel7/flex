@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "7bf2ab0974007a8216de6fb4d4370600f3eb42cc",
+    "git_head": "809e6ac19898f0a5f969ef28fa9fa37f40da3bc1",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T19:04:47.931845+00:00",
-    "working_tree": "Existing codex/flex-v2-final-consolidation; qualified source/evidence committed; production unchanged."
+    "updated_at_utc": "2026-10-26T20:17:43.049777+00:00",
+    "working_tree": "Existing codex/flex-v2-final-consolidation; DEV source/evidence committed; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45044,7 +45044,7 @@
     "tests": "No software tests needed; read-only indexed telemetry, retained log/source inspection, scheduler/process/socket verification."
   },
   "flex_v2_helius_universal_rpc_budget": {
-    "status": "QUALIFIED_NOT_DEPLOYED",
+    "status": "SUPERSEDED_BY_INVESTIGATION_POLICY_V2",
     "verdict": "DEV_QUALIFIED_DEPLOYMENT_POLICY_HOLD",
     "observed_at_utc": "2026-10-26T19:04:47.931845+00:00",
     "engineering_revision": "7bf2ab0974007a8216de6fb4d4370600f3eb42cc",
@@ -45124,7 +45124,64 @@
       "Finite 128-scope / 512-request-identity ledger refuses when full; no automatic retirement or allowance reset. Production policy must explicitly accept/reconcile that bound.",
       "Protects the frozen Flex Python worker composition, not unrelated processes or other users of a shared API key. The October26 billed caller is still not proven."
     ],
-    "next_action": "Freeze that policy while PAYMENT_DENIED, then perform the existing read-only coordinated three-role deployment preflight against this candidate. Do not deploy, restore/probe Helius, replay queues or freeze the Golden Baseline."
+    "next_action": "Perform bounded read-only multi-role deployment preflight against this exact source/policy and gate-aware recovery. Keep PAYMENT_DENIED; do not deploy or restore Helius.",
+    "superseded_by_source": "b8b101922bcc59f9c456c49a3f82a9938dc63a04"
   },
-  "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed."
+  "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
+  "flex_v2_helius_investigation_budget": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "PASS",
+    "updated_at_utc": "2026-10-26T20:17:43.049777+00:00",
+    "engineering_revision": "809e6ac19898f0a5f969ef28fa9fa37f40da3bc1",
+    "source_revision": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+    "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
+    "report_sha256": "0eb7a6797ea71d3953202c98ad6ae156f6961d28ae01c9d69418d98114fdb116",
+    "tests": {
+      "coverage": [
+        "100000-credit origin stops; unrelated origin continues",
+        "2000 independent origins reserve 200000 total without daily/hourly quota",
+        "Cross-role children, descendants, repeated signatures and relaunch ownership",
+        "Concurrent last-credit reservation, crashes, restart, missing ownership/cost, full ledger refusal",
+        "Real HTTP wire simulation verifies charge before dispatch and zero bytes on refusal",
+        "Fresh matched-pair preserves counters, ownership and denial"
+      ],
+      "failed": 0,
+      "files": {
+        "denial_gate": 41,
+        "investigation_budget": 38,
+        "recovery_config": 31,
+        "rpc_budget": 78
+      },
+      "passed": 188
+    },
+    "policy": {
+      "hourly_daily_worker_credit_quotas": false,
+      "lifetime_reserved_worst_case_credits": 100000,
+      "warning": 50000
+    },
+    "ledger": {
+      "aliases": 32768,
+      "full_behaviour": "Explicit refusal before publication; no eviction, expiry or spending reset.",
+      "recovery_receipt_max_bytes": 67108864,
+      "request_identities": 32768,
+      "roots": 8192,
+      "state_bytes": 16777216,
+      "temporary_publication_bytes": 16777216
+    },
+    "production_flags": {
+      "BIRDEYE": "UNCHANGED",
+      "gate": "PAYMENT_DENIED",
+      "gate_outcomes": 0,
+      "gate_reservations": 0,
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "installed_hash_mismatches": 0,
+      "installed_runtime_hashes_verified": 10,
+      "mutations": 0,
+      "provider_RPC_or_WS_calls": 0,
+      "service_controls": 0
+    },
+    "blocker": null,
+    "next_action": "Perform bounded read-only multi-role deployment preflight against this exact source/policy and gate-aware recovery. Keep PAYMENT_DENIED; do not deploy or restore Helius."
+  }
 }

@@ -44959,5 +44959,34 @@
     "provider_evidence": "Operator-reported denial only; no live billing or HTTP classification inferred from429.",
     "next_action": "Obtain separate production deployment authorization for this exact12-file source/recovery bundle and frozen plan. Immediately recheck disk, source preimages and journal/terminal capacity; stage immutable preimage, quiesce all3 roles, initialize confirmed-denial control, install coherently, render/start qualified roles and verify natural birth/durable migration admission without Helius probes. No deployment under this task.",
     "detailed_evidence": "Private local frozen bundle, runtime plan, protected configuration preimage and report; no credentials published."
+  },
+  "flex_v2_helius_containment_deployment": {
+    "status": "PASS",
+    "source_revision": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+    "installed_bundle_sha256": "9ba4be1871b8e0116e7fea356ab043fcdd2ddf24d4eafb93dbfaa373e9291e95",
+    "configuration_sha256": "805fcb0b2aafa45c38825f4a197de2afb0ad3c0dac39591d50fdd34071960632",
+    "production_changed": true,
+    "authorized_payload_files": 12,
+    "provider_calls_for_testing": 0,
+    "dormant_services_activated": 0,
+    "pids": {
+      "watchtower_listener": 16498,
+      "creator_resolution_worker": 16542,
+      "walkback_worker": 16561
+    },
+    "gate": "PAYMENT_DENIED;0 reservations;0 outcomes;no probe/reset",
+    "natural_acceptance": {
+      "seconds": 306.4,
+      "canonical_birth_receipt_matches": 147,
+      "new_durable_migrations": 7,
+      "new_attempts": 0,
+      "protected_birth_records_unchanged": 474,
+      "protected_migration_records_unchanged": 496,
+      "missing_protected_records": 0
+    },
+    "storage": "Lowest retained acceptance sample2.208GB above2.067GB floor+reserve; latest2.433GB. Journal509/512; further slots require verified terminal preservation.",
+    "supervisor_note": "Renderer guard detected pre-existing unrelated pending changes. Native parser proved only3 authorized configurations changed by task; only those3 updated/started. Other pending groups left untouched. Guard/manual completion caveat retained locally.",
+    "next_action": "Monitor disk and finite pending-journal capacity. Keep PAYMENT_DENIED; no restoration/probe until separately authorized after provider status is verified. Leave listener/resolver/Walkback running. Retain all gate-aware fallback and preimage artifacts.",
+    "detailed_evidence": "Private deployment report, approved source/fallback, preimages and authority receipt retained locally. No sensitive configuration published."
   }
 }

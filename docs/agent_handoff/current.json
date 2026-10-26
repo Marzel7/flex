@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "2623515b30e4a1e6c7e011cc261c6a8686378acb",
+    "git_head": "ac0bcbbc1142a5533b49d0cc97a98be0310d76c2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T21:53:58.366094+00:00",
-    "working_tree": "Existing codex/flex-v2-final-consolidation; DEV source/evidence committed; production unchanged."
+    "updated_at_utc": "2026-10-26T22:08:37.423216+00:00",
+    "working_tree": "DEV evidence committed; authorized17a2418e production bundle active, PAYMENT_DENIED retained."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45129,10 +45129,10 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "QUALIFIED_NOT_DEPLOYED",
-    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
-    "updated_at_utc": "2026-10-26T21:53:58.366094+00:00",
-    "engineering_revision": "2623515b30e4a1e6c7e011cc261c6a8686378acb",
+    "status": "DEPLOYED_PASS_PAYMENT_DENIED",
+    "verdict": "PASS",
+    "updated_at_utc": "2026-10-26T22:08:37.423216+00:00",
+    "engineering_revision": "ac0bcbbc1142a5533b49d0cc97a98be0310d76c2",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45170,19 +45170,29 @@
       "temporary_publication_bytes": 16777216
     },
     "production_flags": {
-      "BIRDEYE": "UNCHANGED",
-      "gate": "PAYMENT_DENIED",
-      "gate_outcomes": 0,
-      "gate_reservations": 0,
       "generation": "DEV004-V2-20261024-dfb76562",
-      "installed_hash_mismatches": 0,
-      "installed_runtime_hashes_verified": 10,
-      "mutations": 0,
-      "provider_RPC_or_WS_calls": 0,
-      "service_controls": 0
+      "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+      "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
+      "configuration_sha256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
+      "gate_state": "PAYMENT_DENIED",
+      "policy_version": 2,
+      "gate_reservations": 0,
+      "gate_outcomes": 0,
+      "provider_calls_for_testing": 0,
+      "restoration_or_probe": false,
+      "birth_terminal_schema_initialized": true,
+      "birth_protected_records_transferred": 512,
+      "services_restarted": [
+        "listener",
+        "creator_resolution",
+        "walkback"
+      ],
+      "unrelated_service_restarts": 0,
+      "V1_access_or_writes": 0,
+      "BIRDEYE_authority_and_budgets": "UNCHANGED"
     },
     "blocker": null,
-    "next_action": "Obtain separate production authorization for this exact expanded bundle, schema and <=20-record transfer procedure. Immediately recheck disk and state/preimages, retain PAYMENT_DENIED, then execute only the approved coordinated procedure. No provider restoration or replay.",
+    "next_action": "Leave all three workers running with PAYMENT_DENIED. Do not restore Helius or replay exhausted/protected work without separate authorization.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45226,19 +45236,58 @@
       "source_journal_unchanged": true,
       "source_journal_sha256": "4cf59ac47ead9ea06b8620bbd8d07c4fc6ef64de4590ddc55c42f5d3e8c9c79e",
       "schema": "Typed reuse of existing OPS terminal owner: birth_terminal_owner_v1 and birth_terminal_evidence_v1,4triggers,8192records/64MB. Original identities/conflicts/retry/provenance preserved; no automatic replay.",
-      "live_capacity_still_full_until_separately_authorized_schema_transfer": true
+      "live_capacity_still_full_until_separately_authorized_schema_transfer": false,
+      "production_transfer_completed": true
     },
     "live_disk_preflight": {
       "free_bytes": 2375753728,
       "required_with_rollback_and_reserve": 2324692224,
       "margin_bytes_at_sample": 51061504,
       "required_immediate_recheck": true
+    },
+    "deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/DEPLOYMENT.json",
+    "deployment_report_sha256": "f08ee4041f76e35b747a7d9aa8f4a10df3c17a27e849e64f7ab9669e235594f1",
+    "production_acceptance": {
+      "workers": {
+        "actual_process_environments_verified": true,
+        "after": {
+          "listener": 74589,
+          "resolver": 74621,
+          "walkback": 74641
+        },
+        "before": {
+          "listener": 16498,
+          "resolver": 16542,
+          "walkback": 16561
+        },
+        "other_service_states_and_PIDs_unchanged": true,
+        "shared_gate_and_Core_OPS_bindings_verified": true,
+        "status": "watchtower_listener              RUNNING   pid 74589, uptime 0:03:42\ncreator_resolution_worker        RUNNING   pid 74621, uptime 0:03:31\nwalkback_worker                  RUNNING   pid 74641, uptime 0:03:25\n"
+      },
+      "natural_birth_receipt_core_matches": 82,
+      "all_512_original_protected_snapshots_independently_verified": true,
+      "denial_gate_retained": true,
+      "observation_seconds": 60,
+      "no_new_errors_in_observation": true,
+      "disk": {
+        "WAL_absolute_limit_claimed": false,
+        "database_sizes": {
+          "core.sqlite": 61558784,
+          "core.sqlite-shm": 32768,
+          "core.sqlite-wal": 0,
+          "ops.sqlite": 157954048
+        },
+        "free_bytes": 3473776640,
+        "required_floor_plus_reserve": 2067108864,
+        "test_or_production_new_file_500MB_or_more": false
+      },
+      "migration_or_paid_recovery": "Not claimed while PAYMENT_DENIED."
     }
   },
   "flex_v2_birth_conflict_capacity": {
-    "status": "QUALIFIED_NOT_DEPLOYED",
+    "status": "DEPLOYED_PASS",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
-    "engineering_revision": "2623515b30e4a1e6c7e011cc261c6a8686378acb",
+    "engineering_revision": "ac0bcbbc1142a5533b49d0cc97a98be0310d76c2",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "tests": {
       "additional_exact_retained_512_roundtrip": 1,
@@ -45254,13 +45303,38 @@
       "prior_investigation_tests_reused": 188
     },
     "production_flags": {
-      "BIRDEYE": "UNCHANGED",
-      "V1_access": 0,
-      "production_journal_reclamation": 0,
-      "production_mutations": 0,
-      "provider_calls": 0,
-      "service_controls": 0
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+      "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
+      "configuration_sha256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
+      "gate_state": "PAYMENT_DENIED",
+      "policy_version": 2,
+      "gate_reservations": 0,
+      "gate_outcomes": 0,
+      "provider_calls_for_testing": 0,
+      "restoration_or_probe": false,
+      "birth_terminal_schema_initialized": true,
+      "birth_protected_records_transferred": 512,
+      "services_restarted": [
+        "listener",
+        "creator_resolution",
+        "walkback"
+      ],
+      "unrelated_service_restarts": 0,
+      "V1_access_or_writes": 0,
+      "BIRDEYE_authority_and_budgets": "UNCHANGED"
     },
-    "next_action": "Obtain separate production authorization for this exact expanded bundle, schema and <=20-record transfer procedure. Immediately recheck disk and state/preimages, retain PAYMENT_DENIED, then execute only the approved coordinated procedure. No provider restoration or replay."
+    "next_action": "Leave all three workers running with PAYMENT_DENIED. Do not restore Helius or replay exhausted/protected work without separate authorization.",
+    "deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/DEPLOYMENT.json",
+    "deployment_report_sha256": "f08ee4041f76e35b747a7d9aa8f4a10df3c17a27e849e64f7ab9669e235594f1",
+    "acceptance": {
+      "records_preserved": 512,
+      "batches": 26,
+      "max_batch": 20,
+      "journal_after_transfer": 0,
+      "new_births_receipt_core_matched": 82,
+      "all_three_workers_running": true,
+      "gate": "PAYMENT_DENIED"
+    }
   }
 }

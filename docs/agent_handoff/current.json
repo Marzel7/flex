@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "20634adb524c0f5cf32b73741d9aecbac9b1a04c",
+    "git_head": "0ff83b9f2ff6797676b12a5b80cefc2a9d97a3a0",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T22:49:28.410437+00:00",
-    "working_tree": "Read-only post-restoration audit: gateOPEN, source17a2418e; low reserved spend but3persistent in-flight slots hold newRPC work. No runtime changes."
+    "updated_at_utc": "2026-10-26T23:20:55.786621+00:00",
+    "working_tree": "DEV completion/reconciliation correction qualified; production17a2418e unchanged, gateOPEN, three reservations still held."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45131,8 +45131,8 @@
   "flex_v2_helius_investigation_budget": {
     "status": "DEPLOYED_OPEN_PARTIAL_INFLIGHT_CAPACITY_BLOCKED",
     "verdict": "PARTIAL",
-    "updated_at_utc": "2026-10-26T22:49:28.410437+00:00",
-    "engineering_revision": "20634adb524c0f5cf32b73741d9aecbac9b1a04c",
+    "updated_at_utc": "2026-10-26T23:20:55.786621+00:00",
+    "engineering_revision": "0ff83b9f2ff6797676b12a5b80cefc2a9d97a3a0",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45194,8 +45194,8 @@
       "operator_probes_total": 2,
       "operator_probe_this_authorization": 1
     },
-    "blocker": "All three durable HTTP in-flight slots remain occupied: two Walkback getSignaturesForAddress reservations and one listener getAccountInfo reservation, aged5\u20139minutes at final progress check. The fresh60second observation made zero new RPC dispatches while gate state remainedOPEN. In-flight admission limit therefore holds new RPC work; completion/cancellation cause has not yet been established. No reservation was cleared or refunded.",
-    "next_action": "Perform a narrowly scoped read-only attribution of these three reservation lifecycles and their response completion paths; then qualify durable, evidence-based completion reconciliation if required. Do not reset budgets, blindly clear slots, replay exhausted work or restart as a workaround.",
+    "blocker": "Production remains on17a2418e with3held reservations/624reserved credits. DEV candidate455f160d qualifies prevention plus dead-owner-only uncertainty reconciliation; not deployed.",
+    "next_action": "Perform bounded read-only deployment preflight for this candidate/current-key configuration and compatible fallback. Any later deployment must be separately authorized and retire/verify the original client PIDs before explicit CAS-protected uncertainty reconciliation. Do not blindly clear slots, refund credits, replay the unknown requests or deploy now.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45567,6 +45567,19 @@
         "floor_plus_reserve": 2067108864,
         "free_bytes": 5287284736
       }
+    },
+    "completion_candidate_source": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "completion_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/REPORT.json",
+    "completion_report_sha256": "fb0336b0d6951e873ffd60f4bc2a8d98f890c0d250611508f237c4876fb6e891",
+    "completion_qualification": {
+      "status": "QUALIFIED_NOT_DEPLOYED",
+      "candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+      "bundle_sha256": "7a6b18f99bde1867939afac93722464450016fe7178034d4d19ad7258d9bb695",
+      "tests_passed": 209,
+      "original_counterexamples": 3,
+      "live_slots_cleared": 0,
+      "credits_refunded": 0,
+      "exact_per_ticket_trigger": "Not retained; lock-loss and preheader exception defects independently reproduced."
     }
   },
   "flex_v2_birth_conflict_capacity": {
@@ -45806,7 +45819,7 @@
   },
   "flex_v2_helius_usage_progress_audit": {
     "status": "PARTIAL_RPC_CONCURRENCY_SLOTS_BLOCKED",
-    "engineering_revision": "20634adb524c0f5cf32b73741d9aecbac9b1a04c",
+    "engineering_revision": "0ff83b9f2ff6797676b12a5b80cefc2a9d97a3a0",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/USAGE_AND_PROGRESS.json",
     "report_sha256": "450d58f07d604f3f72efd423b1537610f37d5f4058788ab8ee47efa8421523f1",
@@ -45851,6 +45864,57 @@
       "floor_plus_reserve": 2067108864,
       "free_bytes": 5287284736
     },
-    "next_action": "Perform a narrowly scoped read-only attribution of these three reservation lifecycles and their response completion paths; then qualify durable, evidence-based completion reconciliation if required. Do not reset budgets, blindly clear slots, replay exhausted work or restart as a workaround."
+    "next_action": "Perform bounded read-only deployment preflight for this candidate/current-key configuration and compatible fallback. Any later deployment must be separately authorized and retire/verify the original client PIDs before explicit CAS-protected uncertainty reconciliation. Do not blindly clear slots, refund credits, replay the unknown requests or deploy now.",
+    "qualified_completion_candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1"
+  },
+  "flex_v2_helius_rpc_completion_safety": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "0ff83b9f2ff6797676b12a5b80cefc2a9d97a3a0",
+    "source_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "accepted_production_source": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "bundle_sha256": "7a6b18f99bde1867939afac93722464450016fe7178034d4d19ad7258d9bb695",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/REPORT.json",
+    "report_sha256": "fb0336b0d6951e873ffd60f4bc2a8d98f890c0d250611508f237c4876fb6e891",
+    "confirmed_defects": [
+      "Known response completion and provider-denial notice use non-blocking file-lock acquisition. Contention can raise before terminal evidence is persisted, abandoning the release callback. No durable retry was present.",
+      "aiohttp ClientResponse.start timeout or cancellation before headers can leave status=None; close/release skips finish and start exception had no terminal handler."
+    ],
+    "tests": {
+      "by_file": {
+        "completion_safety": 22,
+        "denial_gate": 41,
+        "investigation_budget": 37,
+        "recovery_config": 31,
+        "rpc_budget": 78
+      },
+      "combined_run": "208passed,1deselected in44.35seconds; final completion file22passed in1.23seconds (21overlap plus1additional operator compatibility control). Same source implementation; only one extra test added afterward.",
+      "coverage": [
+        "Lock contention for completion and denial notices",
+        "Aiohttp timeout/cancellation before headers",
+        "Stdlib header/body failures and HTTPX terminal stream signals",
+        "Three real disposable child-process owner exits; preserve all charges and hold uncertain requests",
+        "Live-owner, wrongPID, missing authority, permissions, generation and state-SHA refusal",
+        "Repeated restart, duplicate completion, crash after durable completion, storage refusal",
+        "100000credit ceiling/warning, child history and unrelated eligible investigation continuation",
+        "Current accepted birth/canonical listener AST exactly equals17a2418e; old preservation-test baseline corrected to recognize already accepted birth factory."
+      ],
+      "failed_after_correction": 0,
+      "reused_without_rerun": "Accepted2000-independent-origin control; policy/ownership algorithm unchanged.",
+      "unique_controls_passed": 209
+    },
+    "safe_existing_orphan_recovery": "Explicit dead-owner-only, CAS-protected reconciliation. No live owner or timeout-based cleanup. Uncertain requests stay review-held, credits never refunded; no exhausted work replay.",
+    "production_flags": {
+      "gate": "OPEN",
+      "live_inflight": 3,
+      "reserved_credits": 624,
+      "mutations": 0,
+      "provider_calls": 0,
+      "service_controls": 0,
+      "deployment": false,
+      "reconciliation": false,
+      "spending_history": "UNCHANGED"
+    },
+    "remaining_blocker": "The live three reservations remain intact and their owning processes are still running. Qualification is not authority to retire workers or reconcile production state.",
+    "next_action": "Perform bounded read-only deployment preflight for this candidate/current-key configuration and compatible fallback. Any later deployment must be separately authorized and retire/verify the original client PIDs before explicit CAS-protected uncertainty reconciliation. Do not blindly clear slots, refund credits, replay the unknown requests or deploy now."
   }
 }

@@ -1367,6 +1367,43 @@ def _fallback_file_path() -> str:
     return f"{base}.birth_fallback.jsonl"
 
 
+def _pumpswap_failure(exc, phase, endpoint_index, failures, delay):
+    """Closed diagnostic vocabulary: never serialize exception text or URLs."""
+    import ssl
+    import errno
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+    status = status if type(status) is int and 100 <= status <= 599 else None
+    code = getattr(exc, "errno", None)
+    code = code if type(code) is int else None
+    kind = type(exc).__name__
+    # Recover only positively recognized transport/protocol failures. Unknown
+    # exceptions (including database, journal and authority failures) propagate.
+    configuration = isinstance(exc, (ssl.SSLCertVerificationError, PumpSwapConfigurationError)) or kind in ("InvalidURI", "InvalidProxy") or status in (400, 401, 403, 404)
+    network_errno = code in {errno.ECONNREFUSED, errno.ECONNRESET, errno.ECONNABORTED, errno.ETIMEDOUT, errno.ENETUNREACH, errno.EHOSTUNREACH, errno.ENETDOWN, errno.EPIPE}
+    transport = isinstance(exc, (socket.gaierror, ssl.SSLError, TimeoutError, ConnectionError, json.JSONDecodeError)) or (isinstance(exc, OSError) and network_errno) or kind in ("ConnectionClosed", "ConnectionClosedOK", "ConnectionClosedError", "InvalidStatus", "InvalidStatusCode", "InvalidHandshake", "InvalidMessage", "SubscriptionUnavailable")
+    if isinstance(exc, socket.gaierror): stage = "DNS"
+    elif isinstance(exc, ssl.SSLError): stage = "TLS"
+    elif status is not None: stage = "WEBSOCKET_HANDSHAKE" if phase == "CONNECT" else phase
+    elif isinstance(exc, ConnectionError): stage = "TCP" if phase == "CONNECT" else phase
+    else: stage = phase
+    return {"exception_type": kind if kind.isidentifier() and len(kind) <= 64 else "UNKNOWN",
+            "errno": code, "http_status": status, "phase": stage,
+            "connection_identity": "pumpswap-endpoint-" + str(endpoint_index),
+            "consecutive_failures": failures, "retry_seconds": delay,
+            "recoverable": transport and not configuration,
+            "configuration_error": configuration}
+
+
+class PumpSwapConfigurationError(ValueError):
+    pass
+
+
+class SubscriptionUnavailable(ConnectionError):
+    pass
+
+
 class MigrationTerminalDurabilityRisk(RuntimeError):
     """The migration could not be made durable by either persistence layer."""
 
@@ -10999,6 +11036,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
         log_print(f"\n[WEBSOCKET][PUMPSWAP] Connecting to PumpSwap program...", flush=True)
 
         endpoints = self._websocket_endpoints()
+        if not endpoints:
+            self._acquisition_availability.transition("MIGRATION", "DOWN", "PUMPSWAP_CONFIGURATION_ERROR")
+            return
+        from urllib.parse import urlsplit
+        for value, _label in endpoints:
+            parsed = urlsplit(value)
+            if parsed.scheme not in ("ws", "wss") or not parsed.hostname:
+                self._acquisition_availability.transition("MIGRATION", "DOWN", "PUMPSWAP_CONFIGURATION_ERROR")
+                return
         current_endpoint_idx = 0
         reconnect_delay = 5
         _consecutive_failures = 0
@@ -11015,6 +11061,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         _SILENT_MIGRATION_RESUBSCRIBE_SECS = 600  # 10 minutes
 
         while True:
+            _phase = "CONNECT"
             try:
                 endpoint, name = endpoints[current_endpoint_idx]
                 async with websockets.connect(
@@ -11065,6 +11112,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         }
                         await ws.send(json.dumps(subscribe_msg))
 
+                    _phase = "SUBSCRIPTION"
                     await _send_subscribe(ws, _req_id)
                     log_print(f"[WEBSOCKET][PUMPSWAP] Subscribed to PumpFun migration account", flush=True)
                     premig_log("[WS_SUBSCRIBED] program=pumpswap waiting for confirmation")
@@ -11075,7 +11123,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         try:
                             msg = await asyncio.wait_for(ws.recv(), timeout=10)
                             data = json.loads(msg)
-                            if "result" in data and data.get("id") == _req_id:
+                            if data.get("id") == _req_id and "error" in data:
+                                raise PumpSwapConfigurationError("PUMPSWAP_SUBSCRIPTION_REJECTED")
+                            if data.get("id") == _req_id and type(data.get("result")) is int and data["result"] >= 0:
                                 subscription_id = data.get("result")
                                 # Only reset backoff here — subscription confirmed
                                 reconnect_delay = 5
@@ -11091,22 +11141,15 @@ class PumpFunCurveListener(FastLaneDiscovery):
                             log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ No subscription confirmation after 10s (attempt {_sub_attempts})", flush=True)
                             if _sub_attempts >= 3:
                                 log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Subscription never confirmed — backing off {reconnect_delay}s", flush=True)
-                                try:
-                                    await asyncio.wait_for(ws.close(), timeout=2)
-                                except Exception:
-                                    pass
-                                # Apply backoff before reconnecting (don't just continue)
-                                await asyncio.sleep(reconnect_delay)
-                                reconnect_delay = min(reconnect_delay * 2, 60)
-                                break
+                                raise SubscriptionUnavailable("SUBSCRIPTION_TIMEOUT")
                             await asyncio.sleep(5)
                         except websockets.exceptions.ConnectionClosed as e:
-                            log_print(f"[WEBSOCKET][PUMPSWAP] 🔌 Connection closed during subscription ({e}), reconnecting...", flush=True)
-                            break
+                            raise
 
                     if subscription_id is None:
                         continue
 
+                    _phase = "RECEIVE"
                     _consecutive_timeouts = 0
                     while True:
                         try:
@@ -11214,7 +11257,9 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                             pass
                                         break
                                 except Exception as _resub_err:
-                                    log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Re-subscribe failed ({_resub_err}) — reconnecting", flush=True)
+                                    if not _pumpswap_failure(_resub_err, "SUBSCRIPTION", current_endpoint_idx, _consecutive_failures, reconnect_delay)["recoverable"]:
+                                        raise
+                                    log_print(f"[WEBSOCKET][PUMPSWAP] ✗ Re-subscribe failed ({type(_resub_err).__name__}) — reconnecting", flush=True)
                                     try:
                                         await asyncio.wait_for(ws.close(), timeout=2)
                                     except Exception:
@@ -11234,16 +11279,13 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         except json.JSONDecodeError:
                             continue
                         except websockets.exceptions.ConnectionClosed as e:
-                            log_print(f"[WEBSOCKET][PUMPSWAP] 🔌 Connection closed ({e.code if hasattr(e, 'code') else e}), reconnecting...", flush=True)
-                            break
-                        except Exception as e:
-                            error_msg = str(e).lower()
-                            if "keepalive" not in error_msg and "close frame" not in error_msg:
-                                log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Error processing message: {e}", flush=True)
-                            if "close frame" in error_msg or "connection closed" in error_msg or "going away" in error_msg:
-                                break
-                            continue
+                            raise
+                        except Exception:
+                            # Let the outer typed boundary distinguish transport
+                            # recovery from essential writer/authority failure.
+                            raise
 
+                raise SubscriptionUnavailable("SUBSCRIPTION_ENDED")
             except Exception as e:
                 self.websocket_connected = False
                 self._acquisition_availability.transition("MIGRATION", "DOWN", f"websocket failure: {type(e).__name__}")
@@ -11251,35 +11293,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     _resolver_failure_seen = True
                     _record_resolver_snapshot(
                         provider="PUMPSWAP_HELIUS", endpoint=endpoint,
-                        event="resolver_failure", exc=e,
+                        event="resolver_failure", exc=socket.gaierror(e.errno, "DNS_FAILURE"),
                         attempt_number=_consecutive_failures + 1,
                         backoff_seconds=reconnect_delay,
                     )
-                error_str = str(e).lower()
-                if "401" in str(e) or "unauthorized" in error_str:
-                    log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Auth error (401) - falling back to public RPC", flush=True)
-                    current_endpoint_idx = 1
-                    reconnect_delay = 5
-                elif "connection" in error_str or "refused" in error_str:
-                    log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ Connection refused, retrying in {reconnect_delay}s...", flush=True)
-                elif "close frame" not in error_str:
-                    log_print(f"[WEBSOCKET][PUMPSWAP] ⚠ {name} connection error: {e}", flush=True)
-                    log_print(f"[WEBSOCKET][PUMPSWAP] Retrying in {reconnect_delay}s...", flush=True)
-
-                _consecutive_failures += 1
-                if _consecutive_failures >= 10:
-                    if isinstance(e, socket.gaierror):
-                        _record_resolver_snapshot(
-                            provider="PUMPSWAP_HELIUS", endpoint=endpoint,
-                            event="fatal_exhaustion", exc=e,
-                            attempt_number=_consecutive_failures,
-                        )
-                    msg = (
-                        f"[WEBSOCKET][PUMPSWAP] FATAL: {_consecutive_failures} consecutive failures "
-                        f"— exiting for supervisord restart"
-                    )
-                    log_print(msg, flush=True)
-                    os._exit(1)
+                _consecutive_failures = min(_consecutive_failures + 1, 2147483647)
+                detail = _pumpswap_failure(e, _phase, current_endpoint_idx,
+                                          _consecutive_failures, reconnect_delay)
+                log_print("[PUMPSWAP_RECOVERY] " + json.dumps(detail, sort_keys=True), flush=True)
+                if detail["configuration_error"]:
+                    # Preserve existing authenticated-to-public fallback only.
+                    if detail["http_status"] in (401, 403) and current_endpoint_idx == 0 and len(endpoints) > 1:
+                        current_endpoint_idx = 1
+                    else:
+                        self._acquisition_availability.transition("MIGRATION", "DOWN", "PUMPSWAP_CONFIGURATION_ERROR")
+                        return
+                elif not detail["recoverable"]:
+                    raise
                 await asyncio.sleep(reconnect_delay)
                 reconnect_delay = min(reconnect_delay * 1.5, 60)
 

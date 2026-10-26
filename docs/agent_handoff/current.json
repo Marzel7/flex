@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T10:26:39.873984+00:00",
+  "updated_at_utc": "2026-10-26T10:35:55.580695+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44739,5 +44739,18 @@
     "blocker": null,
     "next_action": "Separately authorize exact two-file listener-only deployment and bounded natural acceptance; preserve terminal-aware configuration and verified fallback. No baseline freeze yet.",
     "details": "Exact two-file hashes, rollback preimages and detailed report local only."
+  },
+  "flex_v2_birth_retry_production_deployment": {
+    "status": "HOLD",
+    "verdict": "ROLLED_BACK_AFTER_CRITICAL_ACCEPTANCE_FAILURE",
+    "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
+    "production_changed": true,
+    "final_source": "Both exact pre-deployment source files restored; terminal-aware runtime configuration unchanged.",
+    "rollback": "COMPLETE_SOURCE_ONLY; no database/evidence reversion or V1 reactivation.",
+    "golden_frozen": false,
+    "result": "Approved two-file candidate installed and listener-only restart completed. Natural birth persistence and protected-conflict preservation observed. Five-minute acceptance aborted when disk fell below mandatory floor; PumpSwap subscription also remained connection-refused. Only listener restarted for install/rollback; other workers unchanged.",
+    "blocker": "Disk safety floor breached during live acceptance; full natural-intake acceptance not qualified.",
+    "next_action": "Stabilize required headroom and verify existing PumpSwap connection prerequisite before another controlled deployment attempt. No unrelated infrastructure work, cleanup, replay or source redesign.",
+    "evidence": "Detailed operational report local only; no raw identities/configuration published."
   }
 }

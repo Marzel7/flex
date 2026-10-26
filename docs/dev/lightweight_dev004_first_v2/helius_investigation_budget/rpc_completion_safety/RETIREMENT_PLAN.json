@@ -1,0 +1,175 @@
+{
+  "baseline_snapshot_sha256": "d353701d7dbeb7291041e4cfdbd0e96de2f2e6a399bbb13f9f351bdf33eb222d",
+  "baseline_use": "Identification/evidence only. Do not use this live pre-stop digest as later CAS authority: WebSocket/control activity may still change it.",
+  "candidate": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "configuration_authority": {
+    "current_root_key_matches_all_three_processes": true,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+    "provider_secret_values_in_manifest": false,
+    "recovery_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-investigation-17a2418e/current-root-credential/supervisor.current-root.conf",
+    "recovery_preimage_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579"
+  },
+  "current_owner_identities": {
+    "creator_resolution_worker": {
+      "owned_slots": 0,
+      "pid": 80604,
+      "ppid": 1131,
+      "started_local": "2026-10-26 22:27:25"
+    },
+    "walkback_worker": {
+      "owned_slots": 2,
+      "pid": 80629,
+      "ppid": 1131,
+      "started_local": "2026-10-26 22:27:30"
+    },
+    "watchtower_listener": {
+      "owned_slots": 1,
+      "pid": 80583,
+      "ppid": 1131,
+      "started_local": "2026-10-26 22:27:14"
+    }
+  },
+  "forbidden": [
+    "Blind dictionary/slot clearing",
+    "Credit refunds or allowance/counter reset",
+    "Age-only or PID-permission-failure retirement",
+    "Old17a2418e fallback afterOWNER_EXIT_UNCERTAIN exists",
+    "Replaying the three uncertain original requests or exhausted jobs"
+  ],
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "immutable_recovery_source_planned": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-completion-455f160d/source",
+  "procedure": [
+    "Immediately recheck all candidate/installed hashes, paired active generation, key bindings, quotas and disk. Stage candidate-aware fallback; hold on unexplained differences.",
+    "Record actual current Supervisor worker identity/PID/start/source. Stop only listener, creator resolver and Walkback using accepted Supervisor controls; verify all3STOPPED and absence of original80583/80629 using kernel presence checks. A permission failure or reused/live PID is a HOLD.",
+    "After quiescence, capture the complete checksummed gate state and the exact three known ticket/role/PID/key identities. Preserve all roots, aliases, charged credits, requests, attempts, warnings, provider counters, queues and journals. Do not reuse a stale pre-stop digest.",
+    "Install only6 changed runtime gate/helper modules and the source-pinned existing recovery renderer/immutable source authority. Hash-check unchanged inherited dependencies. Keep the current root-key overrides and same paired generation. No source17a worker may resume after new uncertainty markers exist.",
+    "Invoke Gate.reconcile_terminated_http explicitly for each identified ticket, using its original PID and a freshly read state SHA before each call. The method must itself prove process absence; do not bypass it or infer death from age.",
+    "Read back all3OWNER_EXIT_UNCERTAIN receipts independently. Require original request metadata, all624(or any separately verified legitimate final)charged credits, root/child histories and counter values preserved; HTTP outcomes/ACKs must not be manufactured. Unknown original requests remain review-held, not replayed.",
+    "Pin frozen runtime plan to immutable455f160d source and candidate-aware fallback, retaining current root credential recovery preimage and100000-credit policy. Validate rendering/source/generation/denial flags before starting only the3approved roles.",
+    "Observe normal eligible activity only after separately authorized activation. Verify completion acknowledgements drain new slots, quota/accounting remain durable, all workers remain healthy and no protected/exhausted work replays. No artificial provider probes are needed for this fix."
+  ],
+  "production_execution": false,
+  "recovery": "Keep only candidate-aware source/config. Preserve new uncertainty receipts and full accounting across fresh compact matched-pair recovery. If authority, publication or source is ambiguous, remain fail closed; never reinitialize the gate or restore the old reader.",
+  "reservation_scope_hashes": [
+    {
+      "method": "rpc:getSignaturesForAddress",
+      "pid": 80629,
+      "request_key_sha256": "64df93de67b2a46a4d7f60cc8b5652779634f937d88d067d8c8ef132508b18d5",
+      "role": "walkback",
+      "ticket_sha256": "851f4bbbd94cf8c805206a861f949b68c2b85d0799d9880dbeeee0ca9afdee27"
+    },
+    {
+      "method": "rpc:getSignaturesForAddress",
+      "pid": 80629,
+      "request_key_sha256": "802e06fb8fe82543b9094b665e80534863bf896e0674d648c35e1694de5dada0",
+      "role": "walkback",
+      "ticket_sha256": "bf0cab78fe3e34b6754d3173c3d04a46f39657292ae57e26a1a029cab0487bdf"
+    },
+    {
+      "method": "rpc:getAccountInfo",
+      "pid": 80583,
+      "request_key_sha256": "a4824a0051131092740bda8e8e0f0b180684f1587d7520b2bda62f59b66b0aa8",
+      "role": "listener",
+      "ticket_sha256": "50763ef06b4e9763b99a8c66a5a73c0fb8031f134dc8ac23b19c97d454f07cc5"
+    }
+  ],
+  "source_stage": {
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": {
+      "candidate_sha256": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+      "installed_preimage_sha256": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/analysis/pump_fun_post_migration_analyzer.py"
+    },
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": {
+      "candidate_sha256": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+      "installed_preimage_sha256": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py"
+    },
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+      "installed_preimage_sha256": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+      "replace_required": true,
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_denial_gate.py"
+    },
+    "runtime/creator_resolution/src/core/helius_http_protection.py": {
+      "candidate_sha256": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "installed_preimage_sha256": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+      "replace_required": true,
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_http_protection.py"
+    },
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": {
+      "candidate_sha256": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+      "installed_preimage_sha256": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/analysis/pump_fun_post_migration_analyzer.py"
+    },
+    "runtime/listener/src/core/birth_admission_journal.py": {
+      "candidate_sha256": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+      "installed_preimage_sha256": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/birth_admission_journal.py"
+    },
+    "runtime/listener/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+      "installed_preimage_sha256": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+      "replace_required": true,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py"
+    },
+    "runtime/listener/src/core/helius_http_protection.py": {
+      "candidate_sha256": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "installed_preimage_sha256": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+      "replace_required": true,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_http_protection.py"
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "candidate_sha256": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+      "installed_preimage_sha256": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py"
+    },
+    "runtime/listener/src/core/migration_terminal_evidence.py": {
+      "candidate_sha256": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+      "installed_preimage_sha256": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_terminal_evidence.py"
+    },
+    "runtime/listener/src/core/pool_discovery.py": {
+      "candidate_sha256": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+      "installed_preimage_sha256": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pool_discovery.py"
+    },
+    "runtime/listener/src/core/post_migration_pool_discovery.py": {
+      "candidate_sha256": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+      "installed_preimage_sha256": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/post_migration_pool_discovery.py"
+    },
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "candidate_sha256": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+      "installed_preimage_sha256": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py"
+    },
+    "runtime/walkback/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+      "installed_preimage_sha256": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+      "replace_required": true,
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py"
+    },
+    "runtime/walkback/src/core/helius_http_protection.py": {
+      "candidate_sha256": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "installed_preimage_sha256": "3def5921165d57f8278efdd3c3c79782edfd21ee56af03f1e6fe6b8048eed46b",
+      "replace_required": true,
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_http_protection.py"
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+      "installed_preimage_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+      "replace_required": false,
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py"
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "CANDIDATE": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "CANDIDATE_BUNDLE_SHA256": "7a6b18f99bde1867939afac93722464450016fe7178034d4d19ad7258d9bb695",
+  "CANDIDATE_INTEGRITY": "Complete20-file inherited source payload matches immutable candidate;6runtime replacements plus existing recovery source/hash pins. No canonical/listener-method/schema/credential changes.209acceptedprovider-free controls reused.",
+  "CAPACITY": {
+    "birth_journal": {
+      "ACKED": 469,
+      "limit": 512,
+      "meaning": "ACKED candidates exist; any reclaim still requires current exact canonical/receipt readback. No reclaim performed.",
+      "protected": 25,
+      "records_at_check": 494
+    },
+    "current_live_slots": "Still3/3; only the separately authorized retirement/reconciliation procedure can release them.",
+    "migration_journal": {
+      "limit": 512,
+      "records_at_check": 493
+    },
+    "terminal": {
+      "birth_records": 512,
+      "each_record_limit": 8192,
+      "migration_records": 812
+    }
+  },
+  "CURRENT_AUTHORITY": {
+    "all_three_supervisor_owned_and_running": true,
+    "current_key_matches_actual_workers_and_recovery": true,
+    "gate": "OPEN",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "inflight_limit": 3,
+    "limit": 100000,
+    "occupied_inflight_slots": 3,
+    "owner_phase": "ACTIVE",
+    "request_rate_limit_per_minute": 120,
+    "reserved_credits": 624,
+    "warning": 50000,
+    "workers": {
+      "creator_resolution_worker": {
+        "owned_slots": 0,
+        "pid": 80604,
+        "ppid": 1131,
+        "started_local": "2026-10-26 22:27:25"
+      },
+      "walkback_worker": {
+        "owned_slots": 2,
+        "pid": 80629,
+        "ppid": 1131,
+        "started_local": "2026-10-26 22:27:30"
+      },
+      "watchtower_listener": {
+        "owned_slots": 1,
+        "pid": 80583,
+        "ppid": 1131,
+        "started_local": "2026-10-26 22:27:14"
+      }
+    }
+  },
+  "HELIUS_COMPLETION_DEPLOYMENT_PREFLIGHT": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT_AND_OWNER_RECONCILIATION",
+  "INSTALLED_PREIMAGES": "All16installed runtime hashes match17a2418e accepted installed authority. Exact per-file preimages and target hashes in retirement plan.",
+  "LIVE_SLOTS_RELEASED": 0,
+  "NEXT_ACTION": "Obtain separate authorization for the exact455f160dsource activation and owner-retirement/CAS reconciliation plan. Do not deploy or clear slots under this preflight.",
+  "PRODUCTION_CHANGES": 0,
+  "PROVIDER_CALLS": 0,
+  "RECOVERY_AND_FALLBACK": {
+    "candidate_aware_fallback": "455f160d exact full source pins with current-key recovery bindings",
+    "fresh_generation_simulation": "Passed with624credit history and all3review-held requests retained.",
+    "old_source_after_reconciliation": "Rejected;17a2418e cannot understand new uncertainty records.",
+    "operator_probe_compatibility": "Existing operator held-lock wrappers must accept blocking keyword mode, as covered by the qualified compatibility test. No probe is part of this deployment preflight or required deployment sequence."
+  },
+  "REMAINING_DEPLOYMENT_GATES": [
+    "Separate execution authorization",
+    "Refresh runtime identities/state/hash/disk immediately before execution",
+    "Actual process retirement and kernel absence proof, not performed in preflight",
+    "Post-quiescence exact-state CAS and candidate-only fallback before startup"
+  ],
+  "RETIREMENT_PLAN_PATH": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/RETIREMENT_PLAN.json",
+  "RETIREMENT_PLAN_SHA256": "ffd31ccbe7ccaff0387affd5066f188953cae36783c3616a7341448759665861",
+  "SAFE_RETIREMENT_AND_RECONCILIATION": {
+    "after_reconciliation_spending": 624,
+    "all_other_accounting_and_control_fields_unchanged": true,
+    "candidate_fresh_generation_history_preserved": true,
+    "capacity_recovered_in_disposable_copy": 3,
+    "live_owner_refusal": true,
+    "old17a_fallback_rejected": true,
+    "original_requests_review_held": 3,
+    "original_spending": 624,
+    "production_owners_not_retired": true,
+    "provider_calls": 0,
+    "repeat_reconciliation_idempotent": true,
+    "simulation_only_OS_absence_stub": true,
+    "snapshot_specs": [
+      {
+        "method": "rpc:getSignaturesForAddress",
+        "pid": 80629,
+        "request_key_sha256": "64df93de67b2a46a4d7f60cc8b5652779634f937d88d067d8c8ef132508b18d5",
+        "role": "walkback",
+        "ticket_sha256": "851f4bbbd94cf8c805206a861f949b68c2b85d0799d9880dbeeee0ca9afdee27"
+      },
+      {
+        "method": "rpc:getSignaturesForAddress",
+        "pid": 80629,
+        "request_key_sha256": "802e06fb8fe82543b9094b665e80534863bf896e0674d648c35e1694de5dada0",
+        "role": "walkback",
+        "ticket_sha256": "bf0cab78fe3e34b6754d3173c3d04a46f39657292ae57e26a1a029cab0487bdf"
+      },
+      {
+        "method": "rpc:getAccountInfo",
+        "pid": 80583,
+        "request_key_sha256": "a4824a0051131092740bda8e8e0f0b180684f1587d7520b2bda62f59b66b0aa8",
+        "role": "listener",
+        "ticket_sha256": "50763ef06b4e9763b99a8c66a5a73c0fb8031f134dc8ac23b19c97d454f07cc5"
+      }
+    ],
+    "source_live_HTTP_credit_total_at_final_check": 624,
+    "source_snapshot_sha256": "d353701d7dbeb7291041e4cfdbd0e96de2f2e6a399bbb13f9f351bdf33eb222d",
+    "status": "PASS_DISPOSABLE_EXACT_LEDGER_PREFLIGHT",
+    "unrelated_simulated_request_spends_additional_credit": true
+  },
+  "SERVICE_CONTROLS": 0,
+  "SPENDING_HISTORY_RESET": false,
+  "STORAGE": {
+    "Core_WAL_bytes_at_check": 0,
+    "OPS_WAL_bytes_at_check": 0,
+    "floor_plus_reserve": 2067108864,
+    "free_bytes": 5117616128,
+    "fresh_pair_allocation": 220901376,
+    "gate_and_stage_reserve": 33554432,
+    "immutable_source_stage_reserve": 150000000,
+    "margin": 2642051456,
+    "no_absolute_WAL_lock_duration_claim": true,
+    "other_small_staging_reserve": 4000000,
+    "single_file_limit": 499000000,
+    "total_required": 2475564672
+  },
+  "UNCERTAINTY": "The three network results remain unknown. Reconciliation retires dead client capacity and preserves paid review-held history; it does not assert HTTP success, canonical completion or permission to reacquire those exact requests.",
+  "checked_at_utc": "2026-10-26T23:34:12.473496+00:00"
+}

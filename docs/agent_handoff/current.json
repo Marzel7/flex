@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T10:48:11.500286+00:00",
+  "updated_at_utc": "2026-10-26T10:59:19.024295+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44724,8 +44724,8 @@
     "details": "Exact preimages,pair,runtime,receipt/journal quotas and terminal-aware rollback verified; detailed evidence local."
   },
   "flex_v2_retry_only_source": {
-    "status": "PASS",
-    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
+    "status": "DEPLOYED_PASS",
+    "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED",
     "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
     "source_correction": "PASS: exact installed preimage outside retry-only delta; unrelated maintenance hunk excluded; helper unchanged from qualified correction.",
     "tests": {
@@ -44734,33 +44734,43 @@
       "provider_free": true,
       "heavier_unrelated_deselected": 8
     },
-    "production_changed": false,
-    "deployment_authorized": false,
+    "production_changed": true,
+    "deployment_authorized": true,
     "blocker": null,
-    "next_action": "Separately authorize exact two-file listener-only deployment and bounded natural acceptance; preserve terminal-aware configuration and verified fallback. No baseline freeze yet.",
+    "next_action": "Retaininstalledpayloadandverifiedfallback;separateGoldenacceptanceconsolidation.",
     "details": "Exact two-file hashes, rollback preimages and detailed report local only."
   },
   "flex_v2_birth_retry_production_deployment": {
-    "status": "HOLD",
-    "verdict": "ROLLED_BACK_AFTER_CRITICAL_ACCEPTANCE_FAILURE",
+    "status": "PASS",
+    "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED",
     "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
     "production_changed": true,
-    "final_source": "Both exact pre-deployment source files restored; terminal-aware runtime configuration unchanged.",
-    "rollback": "COMPLETE_SOURCE_ONLY; no database/evidence reversion or V1 reactivation.",
+    "runtime_scope": "Exactly approved listener/helper payload installed; configuration,schemas,otherpackagesunchanged.",
+    "acceptance": {
+      "seconds": 300.022735,
+      "natural_receipts": 58,
+      "exact_committed_core_matches": 57,
+      "new_conflict_protected": 1,
+      "original_retry_identities_unchanged": 18,
+      "original_terminal_records_preserved": 512,
+      "provider_requests_for_testing": 0,
+      "fresh_migration_completion": "UNOBSERVED"
+    },
+    "result": "Bothsubscriptionsconfirmed,naturalbirthpersistenceandCREATE-to-OPSdeliveryverified;no retrywarning/capacityorSQLite-lifecycleerrorsobserved. Disk remainedabovefloor. ListenerleftRUNNING;otherworkersunchanged.",
+    "rollback": "NOT_REQUIRED this attempt; exactcompatibletwo-filefallbackretained. Priorfailedattemptrollbackevidencepreservedlocally.",
     "golden_frozen": false,
-    "result": "Approved two-file candidate installed and listener-only restart completed. Natural birth persistence and protected-conflict preservation observed. Five-minute acceptance aborted when disk fell below mandatory floor; PumpSwap subscription also remained connection-refused. Only listener restarted for install/rollback; other workers unchanged.",
-    "blocker": "Disk safety floor breached during live acceptance; full natural-intake acceptance not qualified.",
-    "next_action": "Stabilize required headroom and verify existing PumpSwap connection prerequisite before another controlled deployment attempt. No unrelated infrastructure work, cleanup, replay or source redesign.",
-    "evidence": "Detailed operational report local only; no raw identities/configuration published."
+    "blocker": null,
+    "next_action": "Leaveapprovedlistenerrunning;retainfallback/evidence. ResumeGoldenacceptanceconsolidationonlyunderaseparatemilestone;donotactivate dormantcomponentsorclaimfreshmigrationcoveragefromthiswindow.",
+    "evidence": "Detailed operational evidence local only."
   },
   "flex_v2_birth_retry_headroom_recheck": {
-    "status": "HOLD",
-    "verdict": "HOLD_DISK_HEADROOM",
+    "status": "PASS",
+    "verdict": "PREREQUISITES_RECOVERED_AND_DEPLOYMENT_ACCEPTED",
     "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
     "production_changed": false,
     "disk_floor": "FAILED:854106112 bytes available at immediate retry check; required2067108864.",
-    "blocker": "Available disk below mandatory floor; stopped before deployment or service control.",
+    "blocker": null,
     "result": "Both installed rollback preimage hashes unchanged. No deployment/restart/queue mutation/provider call; PumpSwap not further qualified after first safety gate failed.",
-    "next_action": "Restore and maintain headroom above2GB+64MiB, then repeat immediate prerequisites for exact approved payload."
+    "next_action": "Deploymentaccepted;retainsourcefallbackandevidence.NoGoldenfreezeperformed."
   }
 }

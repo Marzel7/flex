@@ -276,7 +276,10 @@ def test_all_other_birth_and_canonical_methods_unchanged():
  def functions(text):return {n.name:ast.dump(n) for n in ast.walk(ast.parse(text)) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
  before,after=functions(old),functions(new)
  changed={name for name in before if before[name]!=after[name]}
- assert changed=={'__internal_rpc','_get_transaction_cached','_process_migration_with_mint','_schedule_journal_migration','handle_migration','listen_pumpswap_websocket','delayed_mint_recheck','_post_rpc_with_fallback','main','analyze_post_migration','_run_journal_migration'}
+ accepted=functions(subprocess.check_output(['git','show','17a2418e:runtime/listener/src/core/pumpfun_curve_listener.py'],text=True))
+ # Retain the independently accepted typed birth-owner factory correction.
+ assert after==accepted
+ assert changed=={'__internal_rpc','_get_transaction_cached','_process_migration_with_mint','_schedule_journal_migration','handle_migration','listen_pumpswap_websocket','delayed_mint_recheck','_post_rpc_with_fallback','main','analyze_post_migration','_run_journal_migration','_birth_admission_journal'}
 
 
 def test_journal_runner_delta_only_budget_claim_deferral():

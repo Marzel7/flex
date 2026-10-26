@@ -29,12 +29,12 @@ class Gate:
   self.path=Path(path);self.generation=generation;self.clock=clock
   if not self.path.is_absolute() or str(self.path.resolve())!=str(self.path) or not generation:raise Integrity('HELIUS_GATE_AUTHORITY')
  @contextlib.contextmanager
- def locked(self):
+ def locked(self,*,blocking=False):
   fd=os.open(str(self.path)+'.lock',os.O_RDWR|os.O_NOFOLLOW|os.O_NONBLOCK)
   try:
    info=os.fstat(fd)
    if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1 or info.st_size>128:raise Integrity('HELIUS_GATE_LOCK')
-   try:fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+   try:fcntl.flock(fd,fcntl.LOCK_EX|(0 if blocking else fcntl.LOCK_NB))
    except BlockingIOError:raise BudgetDeferred('HELIUS_GATE_BUSY') from None
    yield
   finally:os.close(fd)
@@ -401,7 +401,7 @@ def _reserve_http(self,*,role,scopes,key,selector,origin,page=False):
 def _finish_http(self,ticket,status,*,transport_failure=False):
  # Outcomes do not refund credits. A crashed/ambiguous reservation is never
  # timed out or released automatically; it remains charged and in-flight.
- with self.locked():
+ with self.locked(blocking=True):
   s=self.read();b=_budget(self,s);now=_tick(self,b)
   v=b['inflight'].get(ticket)
   if v is None:return  # duplicate local close/read completion
@@ -432,7 +432,7 @@ def _notice_http(self,ticket,status,*,retry_after=60):
  # A denial is authoritative as soon as response headers arrive. Do not wait
  # for a body, and do not release the in-flight slot before local completion.
  if status not in (401,402,403,429):return
- with self.locked():
+ with self.locked(blocking=True):
   s=self.read();b=_budget(self,s);now=_tick(self,b)
   if ticket not in b['inflight'] or s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):return
   if status==402:s.update(state='PAYMENT_DENIED',probe_until=0)
@@ -477,7 +477,10 @@ def _budget2(self,s):
   if len(alias)!=64 or set(owner)!={'root','parent','proof'} or owner['root'] not in b['scopes'] or owner['parent'] not in b['owners'] or len(owner['proof'])!=64:raise Integrity('HELIUS_OWNER_STATE')
   if b['owners'][owner['parent']]['root']!=owner['root']:raise Integrity('HELIUS_OWNER_STATE')
  for key,v in b['keys'].items():
-  if len(key)!=64 or v.get('status') not in ('INFLIGHT','HTTP_COMPLETED','DETERMINISTIC_FAILURE','RETRYABLE') or type(v.get('attempts')) is not int or v['attempts']<1 or type(v.get('at')) is not int:raise Integrity('HELIUS_REQUEST_STATE')
+  if len(key)!=64 or v.get('status') not in ('INFLIGHT','HTTP_COMPLETED','DETERMINISTIC_FAILURE','RETRYABLE','OWNER_EXIT_UNCERTAIN') or type(v.get('attempts')) is not int or v['attempts']<1 or type(v.get('at')) is not int:raise Integrity('HELIUS_REQUEST_STATE')
+  if v.get('status')=='OWNER_EXIT_UNCERTAIN':
+   receipt=v.get('owner_exit')
+   if not isinstance(receipt,dict) or set(receipt)!={'ticket','root','pid','original_at','retired_at','reason'} or len(receipt.get('ticket',''))!=32 or receipt.get('root') not in b['scopes'] or receipt.get('pid')!=v.get('pid') or receipt.get('original_at')!=v['at'] or type(receipt.get('retired_at')) is not int or receipt['retired_at']<v['at'] or receipt.get('reason')!='PROCESS_GONE_OUTCOME_UNKNOWN':raise Integrity('HELIUS_OWNER_EXIT_EVIDENCE')
  for ticket,v in b['inflight'].items():
   if len(ticket)!=32 or v.get('key') not in b['keys'] or b['keys'][v['key']]['status']!='INFLIGHT' or v.get('root') not in b['scopes']:raise Integrity('HELIUS_INFLIGHT_STATE')
  return b
@@ -536,6 +539,7 @@ def _reserve2_locked(self,s,*,role,scopes,key,selector,origin,page=False):
  if q['credits']+cost>100000:raise BudgetDeferred('HELIUS_INVESTIGATION_CREDIT_LIMIT')
  if prior:
   if prior['status']=='INFLIGHT':raise BudgetDeferred('HELIUS_DUPLICATE_INFLIGHT')
+  if prior['status']=='OWNER_EXIT_UNCERTAIN':raise BudgetDeferred('HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW')
   if prior['status']=='DETERMINISTIC_FAILURE':raise BudgetDeferred('HELIUS_DETERMINISTIC_FAILURE')
   if prior['status']=='HTTP_COMPLETED' and now-prior['at']<max(60,p['costs'][selector]['freshness_seconds']):raise BudgetDeferred('HELIUS_REQUEST_COOLDOWN')
  if len(b['inflight'])>=p['inflight']:raise BudgetDeferred('HELIUS_INFLIGHT_LIMIT')
@@ -581,3 +585,35 @@ def _budget_version(self):
 
 Gate.budget_version=_budget_version
 Gate.has_budget=lambda self:bool(self.budget_version())
+
+
+
+def _reconcile_terminated_http(self,ticket,*,expected_sha256,expected_pid):
+ # Explicit offline/operator action, never invoked by a timer, dispatch, or
+ # startup. Process absence is necessary; age/timeout alone grants nothing.
+ if not isinstance(ticket,str) or len(ticket)!=32 or type(expected_pid) is not int or expected_pid<=1 or not isinstance(expected_sha256,str) or len(expected_sha256)!=64:raise Integrity('HELIUS_RETIREMENT_AUTHORITY')
+ with self.locked():
+  state=self.read()
+  if hashlib.sha256(self.path.read_bytes()).hexdigest()!=expected_sha256:raise Integrity('HELIUS_RETIREMENT_STATE_CHANGED')
+  if state.get('rpc_budget',{}).get('version')!=2:raise Integrity('HELIUS_RETIREMENT_VERSION')
+  budget=_budget2(self,state);entry=budget['inflight'].get(ticket)
+  if entry is None:
+   prior=next((value for value in budget['keys'].values() if value.get('status')=='OWNER_EXIT_UNCERTAIN' and value.get('owner_exit',{}).get('ticket')==ticket),None)
+   if prior and prior['pid']==expected_pid:return 'ALREADY_RECONCILED'
+   raise Integrity('HELIUS_RETIREMENT_TICKET_UNKNOWN')
+  key=budget['keys'][entry['key']]
+  if key.get('pid')!=expected_pid or key['status']!='INFLIGHT':raise Integrity('HELIUS_RETIREMENT_OWNER_MISMATCH')
+  try:os.kill(expected_pid,0)
+  except ProcessLookupError:pass
+  except OSError:raise Integrity('HELIUS_RETIREMENT_OWNER_UNVERIFIED') from None
+  else:raise Integrity('HELIUS_RETIREMENT_OWNER_STILL_PRESENT')
+  now=_tick(self,budget)
+  key['status']='OWNER_EXIT_UNCERTAIN'
+  key['owner_exit']=dict(ticket=ticket,root=entry['root'],pid=expected_pid,original_at=key['at'],retired_at=now,reason='PROCESS_GONE_OUTCOME_UNKNOWN')
+  del budget['inflight'][ticket]
+  # No credit refund, retry reset, HTTP outcome, success, canonical ACK or
+  # allowance reset is inferred. The original request remains paid-blocked.
+  self.save(state)
+  return 'RECONCILED_UNCERTAIN_NO_REFUND'
+
+Gate.reconcile_terminated_http=_reconcile_terminated_http

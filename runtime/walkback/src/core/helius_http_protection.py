@@ -213,7 +213,10 @@ def _install(role):
    def finish():
     if not done[0]:_finish(reservation,status);done[0]=True
    def read_body(*a,**kw):
-    result=read(*a,**kw)
+    try:result=read(*a,**kw)
+    except BaseException:
+     if not done[0]:_finish(reservation,0,True);done[0]=True
+     raise
     if response.isclosed():finish()
     return result
    def close_body():
@@ -248,9 +251,9 @@ def _install(role):
    _finish(reservation,0,True);raise
   if reservation:
    done=[False]
-   def finish():
-    if not done[0] and response.status is not None:
-     _finish(reservation,response.status);done[0]=True
+   def finish(*,terminal_error=False):
+    if not done[0] and (response.status is not None or terminal_error):
+     _finish(reservation,0 if terminal_error else response.status,terminal_error);done[0]=True
    for name in ('release','close','_release_connection'):
     original=getattr(response,name)
     def closing(original=original):
@@ -262,7 +265,10 @@ def _install(role):
  _patch(aiohttp.client_reqrep.ClientRequest,'send',async_send)
  response_start=aiohttp.client_reqrep.ClientResponse.start
  async def start(self,*a,**kw):
-  result=await response_start(self,*a,**kw)
+  try:result=await response_start(self,*a,**kw)
+  except BaseException:
+   if getattr(self,'_helius_reservation',None):self._helius_finish(terminal_error=True)
+   raise
   reservation=getattr(self,'_helius_reservation',None)
   if reservation:
    _notice(reservation,self.status,self.headers)
@@ -287,7 +293,10 @@ def _install(role):
    elif reservation:
     stream=response.stream
     class ChargedStream(httpx.SyncByteStream):
-     def __iter__(self):yield from stream
+     def __iter__(self):
+      try:yield from stream
+      except BaseException:_finish(reservation,0,True);raise
+      else:_finish(reservation,response.status_code)
      def close(self):
       try:stream.close()
       finally:_finish(reservation,response.status_code)
@@ -309,7 +318,10 @@ def _install(role):
     stream=response.stream
     class ChargedAsyncStream(httpx.AsyncByteStream):
      async def __aiter__(self):
-      async for item in stream:yield item
+      try:
+       async for item in stream:yield item
+      except BaseException:_finish(reservation,0,True);raise
+      else:_finish(reservation,response.status_code)
      async def aclose(self):
       try:await stream.aclose()
       finally:_finish(reservation,response.status_code)

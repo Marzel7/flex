@@ -1,0 +1,147 @@
+{
+  "HELIUS_CREDENTIAL_REBIND_AND_RESTORATION": "PASS",
+  "SOURCE_REVISION": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+  "CONFIGURATION_SHA256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+  "RECOVERY_CONFIGURATION_SHA256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+  "CREDENTIAL_AUTHORITY": {
+    "file": "/Users/kevinkeaveney/Dev/claude/flex/.env",
+    "variable": "HELIUS_API_KEY",
+    "three_actual_process_bindings_match": true,
+    "recovery_render_matches": true,
+    "role_override_names": [
+      "HELIUS_API_KEY",
+      "HELIUS_MONITORING_API_KEY",
+      "HELIUS_RPC_URL",
+      "HELIUS_WS_URL",
+      "RPC_HTTP",
+      "RPC_URL"
+    ],
+    "credentials_or_credential_URLs_in_report": false,
+    "scope": "Only three active roles and their existing recovery configuration; unrelated global defaults and dormant definitions unchanged.",
+    "future_rotation": "Root .env changes require the same coherent runtime/recovery binding refresh; workers do not hot-reload this file."
+  },
+  "WORKERS": {
+    "before": {
+      "listener": 74589,
+      "resolver": 74621,
+      "walkback": 74641
+    },
+    "after": {
+      "watchtower_listener": 80583,
+      "creator_resolution_worker": 80604,
+      "walkback_worker": 80629
+    },
+    "status": "watchtower_listener              RUNNING   pid 80583, uptime 0:03:12\ncreator_resolution_worker        RUNNING   pid 80604, uptime 0:03:01\nwalkback_worker                  RUNNING   pid 80629, uptime 0:02:56\n",
+    "other_services_untouched": true
+  },
+  "CONTROLLED_PROBE": {
+    "operator_probe_attempts_this_authorization": 1,
+    "method": "getTransaction",
+    "http_status": 200,
+    "usable_transaction_verified": true,
+    "credits_reserved_this_probe": 1,
+    "origin_total_immediately_after_probe": 2,
+    "previous_failed_probe_history_preserved": true,
+    "retries": 0,
+    "raw_provider_response_retained": false
+  },
+  "GATE_AND_LIMITS": {
+    "state": "OPEN",
+    "feature_flag": "1",
+    "lifetime_credits": 100000,
+    "warning_credits": 50000,
+    "requests_per_minute": 120,
+    "inflight_limit": 3,
+    "daily_or_hourly_credit_quotas": false,
+    "counter_or_allowance_reset": false,
+    "existing_original_scopes_and_history_retained": true,
+    "paced_recovery_seconds": 300
+  },
+  "BOUNDED_NATURAL_OBSERVATION": {
+    "seconds": 60,
+    "HTTP_requests_delta": 26,
+    "reserved_credits_delta": 26,
+    "maximum_origin_credits_at_end": 11,
+    "cumulative_HTTP_methods_at_observation_end": {
+      "rpc:getAccountInfo": {
+        "requests": 31,
+        "reserved_credits": 31
+      },
+      "rpc:getTransaction": {
+        "requests": 9,
+        "reserved_credits": 9
+      },
+      "rpc:getMultipleAccounts": {
+        "requests": 11,
+        "reserved_credits": 11
+      },
+      "rpc:getTokenLargestAccounts": {
+        "requests": 1,
+        "reserved_credits": 1
+      }
+    },
+    "cumulative_role_accounting_at_observation_end": {
+      "listener": {
+        "requests": 50,
+        "reserved_credits": 50
+      },
+      "walkback": {
+        "requests": 2,
+        "reserved_credits": 2
+      }
+    },
+    "errors": {
+      "listener.log": {
+        "tracebacks": 0,
+        "capacity_refusals": 0,
+        "authentication_denials": 0,
+        "payment_denials": 0,
+        "subscription_confirmations": 0
+      },
+      "listener_err.log": {
+        "tracebacks": 0,
+        "capacity_refusals": 0,
+        "authentication_denials": 0,
+        "payment_denials": 0,
+        "subscription_confirmations": 0
+      },
+      "creator_resolution_worker_err.log": {
+        "tracebacks": 0,
+        "capacity_refusals": 0,
+        "authentication_denials": 0,
+        "payment_denials": 0,
+        "subscription_confirmations": 0
+      },
+      "walkback_worker_err.log": {
+        "tracebacks": 0,
+        "capacity_refusals": 0,
+        "authentication_denials": 0,
+        "payment_denials": 0,
+        "subscription_confirmations": 0
+      }
+    },
+    "billing_note": "Reserved worst-case costs and measured local HTTP attempt counts, not provider invoice totals. Cumulative role totals include the two operator probes charged under Walkback. No separate resolver/Walkback acquisition activity claimed beyond observed accounting."
+  },
+  "CURRENT_LEDGER_SAMPLE": {
+    "gate_reservations": 119,
+    "gate_outcomes": 119,
+    "roots": 17,
+    "reserved_credits": 118,
+    "maximum_origin_credits": 14
+  },
+  "SAFETY": {
+    "source_changes": 0,
+    "schema_changes": 0,
+    "V1_access": 0,
+    "exhausted_or_quarantined_replay": false,
+    "retry_reset_or_budget_increase": false,
+    "manual_provider_probe_calls": 1,
+    "provider_calls_for_observation": 0,
+    "unrelated_service_restarts": 0,
+    "BIRDEYE_credentials_and_budgets": "UNCHANGED",
+    "disk_free_bytes": 5301727232,
+    "required_floor_plus_reserve": 2067108864
+  },
+  "NEXT_ACTION": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
+  "verified_at_utc": "2026-10-26T22:32:56.499465+00:00"
+}

@@ -1,0 +1,118 @@
+{
+  "BIRTH_CONFLICT_CAPACITY_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "BUNDLE_SHA256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
+  "DEPLOYMENT_SCOPE_REQUIRING_SEPARATE_AUTHORIZATION": [
+    "Exact complete expanded bundle",
+    "Explicit birth OPS schema initialization",
+    "Verified bounded transfer of existing conflicts",
+    "Birth terminal opt-in, v2 budget provisioning under PAYMENT_DENIED and coordinated three-role activation"
+  ],
+  "EXACT_CORRECTION": "Four existing source owners only: typed bounded birth subowner in existing OPS terminal module, birth journal dedup/reclaim, listener opt-in factory and existing recovery renderer. No canonical schema, confidence, provider budget or attribution change.",
+  "LIVE_PREFLIGHT": {
+    "additional_gate_schema_archive_reserve": 38947072,
+    "birth_capacity_note": "Still full live. No claim capacity is restored: explicit schema initialization and verified bounded transfer must occur while roles are quiesced before listener activation. Exact 512-record disposable qualification proves that procedure; changes not executed.",
+    "birth_journal_sha256": "4cf59ac47ead9ea06b8620bbd8d07c4fc6ef64de4590ddc55c42f5d3e8c9c79e",
+    "birth_terminal_schema_installed": false,
+    "budget_installed": false,
+    "database_files": {
+      "core.sqlite": 61435904,
+      "core.sqlite-shm": 32768,
+      "core.sqlite-wal": 0,
+      "ops.sqlite": 157200384
+    },
+    "floor_plus_reserve": 2067108864,
+    "free_bytes": 2375753728,
+    "fresh_compact_rollback_pair_allocation": 218636288,
+    "gate": "PAYMENT_DENIED",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "installed_preimages": "All exact preimages match; new HTTP helpers absent as required.",
+    "journals": {
+      "birth.jsonl": {
+        "limit": 512,
+        "records": 512,
+        "states": {
+          "QUARANTINED": 512
+        }
+      },
+      "migration.jsonl": {
+        "limit": 512,
+        "records": 504,
+        "states": {
+          "PENDING": 122,
+          "QUARANTINED": 191,
+          "RESOLVED": 1,
+          "RETRY_EXHAUSTED": 190
+        }
+      }
+    },
+    "margin_bytes_at_sample": 51061504,
+    "migration_terminal": {
+      "bytes": 830120,
+      "limit_bytes": 64000000,
+      "limit_records": 8192,
+      "records": 752
+    },
+    "outcomes": 0,
+    "owner_phase": "ACTIVE",
+    "required_with_rollback_and_reserve": 2324692224,
+    "reservations": 0,
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "worker_pids": {
+      "listener": 16498,
+      "resolver": 16542,
+      "supervisor": 1131,
+      "walkback": 16561
+    }
+  },
+  "NEXT_ACTION": "Obtain separate production authorization for this exact expanded bundle, schema and <=20-record transfer procedure. Immediately recheck disk and state/preimages, retain PAYMENT_DENIED, then execute only the approved coordinated procedure. No provider restoration or replay.",
+  "PRESERVED_EVIDENCE": {
+    "all_512_duplicate_admissions_preserve_original_state": true,
+    "batch_max": 20,
+    "batches": 26,
+    "canonical_fixture_unchanged": true,
+    "event_513": "RESOLVED_NOT_ACKED",
+    "exact_records_verified": 512,
+    "foreign_key_violations": 0,
+    "live_journal_unchanged": true,
+    "ops_bytes": 765952,
+    "provider_calls": 0,
+    "result": "PASS",
+    "source_journal_sha256": "4cf59ac47ead9ea06b8620bbd8d07c4fc6ef64de4590ddc55c42f5d3e8c9c79e",
+    "terminal_allocated_bytes": 686991
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "additional_exact_retained_512_roundtrip": 1,
+    "by_file": {
+      "birth_conflict_capacity": 29,
+      "helius_recovery": 31,
+      "migration_terminal_capacity": 24,
+      "protected_journal_capacity": 9,
+      "terminal_recovery": 13
+    },
+    "failed": 0,
+    "passed": 106,
+    "prior_investigation_tests_reused": 188
+  },
+  "RECOVERY_COMPATIBILITY": "Same-source investigation-aware AND birth-terminal-aware containment fallback; reject old source/flag0 after reclaim. Fresh compact copies preserve all birth/migration terminal tables and original transfer generations. Required OPS read/schema/pair authority fails closed.",
+  "REMAINING_BLOCKERS": [],
+  "SAFETY": {
+    "BIRDEYE": "UNCHANGED",
+    "V1_access": 0,
+    "production_journal_reclamation": 0,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_controls": 0
+  },
+  "SOURCE_COMMIT": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+  "STORAGE_BOUNDS": {
+    "OPS_allocation_guard": 480000000,
+    "WAL_admission_threshold": 8000000,
+    "absolute_WAL_ceiling_claimed": false,
+    "kernel_file_cap": 499000000,
+    "quota_full": "Fail closed; no protected-evidence deletion or retry reset. This is finite capacity, not an unbounded lifetime archive.",
+    "record_bytes": 4096,
+    "terminal_bytes": 64000000,
+    "terminal_rows": 8192,
+    "transfer_batch": 20
+  }
+}

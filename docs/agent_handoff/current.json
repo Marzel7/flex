@@ -44858,5 +44858,16 @@
     "verdict": "READY_FOR_READ_ONLY_DEPLOYMENT_PREFLIGHT",
     "result": "Existing OPS owner adds irreversible CLOSED_CAPACITY singleton. Exact event/byte limits and per-transaction limits close optional measurement atomically with essential mutation; subsequent handoff/activation continues. Immutable evidence retained; reader complete=false and UNMEASURED_AFTER_CLOSURE for unavailable timing. Generation/schema/storage failures remain fail-closed. Recovery pins updated.",
     "next_action": "Resume strictly read-only deployment preflight against this candidate; verify explicit additive owner preparation, coherent three-role activation and closure-aware recovery. Do not deploy."
+  },
+  "flex_v2_create_instrumentation_final_preflight": {
+    "status": "HOLD",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "source_revision": "b91473f7ec8f29a1dd0769b1f353f6e63d824991",
+    "candidate_integrity": "12/12 exact Git payload objects; installed six callback preimages match accepted base",
+    "capacity": "94 passing controls reused; no rerun",
+    "production_changed": false,
+    "blocker": "Current listener unexpectedly exited status1 twice in Supervisor lifecycle log and respawned during preflight; stable listener health not established. Root cause not investigated.",
+    "next_action": "Bounded read-only diagnosis of current listener exit-status1; establish stable natural intake, then resume deployment preflight. No deployment.",
+    "evidence": "Detailed operational report retained locally only."
   }
 }

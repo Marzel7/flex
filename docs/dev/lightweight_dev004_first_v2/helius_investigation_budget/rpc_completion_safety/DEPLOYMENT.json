@@ -1,0 +1,136 @@
+{
+  "DEPLOYMENT_STATUS": "PASS",
+  "SOURCE_REVISION": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "CONFIGURATION_SHA256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+  "IMMUTABLE_RECOVERY_SOURCE": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-completion-455f160d/source",
+  "V2_GENERATION": "DEV004-V2-20261024-dfb76562",
+  "INSTALLED_RUNTIME_FILES_VERIFIED": 16,
+  "RUNTIME_FILES_REPLACED": 6,
+  "RECOVERY_RENDERER": "Existing renderer pinned to immutable455f160d and new helper/gate hashes; current-root credential overrides preserved.",
+  "OWNER_RETIREMENT_PROOF": [
+    {
+      "pid": 80583,
+      "kernel_result": "PROCESS_NOT_PRESENT",
+      "checked_at_utc": "2026-10-26T23:47:01.981158+00:00"
+    },
+    {
+      "pid": 80604,
+      "kernel_result": "PROCESS_NOT_PRESENT",
+      "checked_at_utc": "2026-10-26T23:47:01.981195+00:00"
+    },
+    {
+      "pid": 80629,
+      "kernel_result": "PROCESS_NOT_PRESENT",
+      "checked_at_utc": "2026-10-26T23:47:01.981203+00:00"
+    }
+  ],
+  "RECONCILIATION": {
+    "original_slots": 3,
+    "reconciled_slots": 3,
+    "status": "OWNER_EXIT_UNCERTAIN",
+    "original_spending": 624,
+    "spending_after_reconciliation_before_restart": 624,
+    "root_child_ownership_and_all_scope_fields_preserved": true,
+    "original_attempts_and_request_metadata_preserved": true,
+    "provider_HTTP_outcomes_or_canonical_success_inferred": false,
+    "refunds": 0,
+    "automatic_original_request_replay": false,
+    "guard": "Actual owner PID absence, exact ticket/PID matching and fresh gate-state SHA per mutation. Age-only release not used."
+  },
+  "WORKERS": {
+    "before": {
+      "listener": 80583,
+      "resolver": 80604,
+      "walkback": 80629
+    },
+    "after": {
+      "listener": 99111,
+      "resolver": 99140,
+      "walkback": 99159
+    },
+    "status": "watchtower_listener              RUNNING   pid 99111, uptime 0:04:08\ncreator_resolution_worker        RUNNING   pid 99140, uptime 0:03:57\nwalkback_worker                  RUNNING   pid 99159, uptime 0:03:51\n",
+    "actual_current_key_pair_and_gate_environments_verified": true,
+    "other_service_states_and_PIDs_unchanged": true
+  },
+  "ACCEPTANCE": {
+    "window_seconds": 120,
+    "natural_HTTP_requests": 112,
+    "natural_reserved_credits": 112,
+    "final_sample_total_reserved_credits": 864,
+    "maximum_observed_new_inflight_age_seconds": 0,
+    "final_sample_inflight": 0,
+    "highest_investigation_spend_at_final_sample": 61,
+    "sampling_limit": "Snapshots every20seconds; no absolute latency guarantee claimed.",
+    "error_counts": {
+      "listener.log": {
+        "Traceback": 0,
+        "JOURNAL_CAPACITY": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "HELIUS_REQUEST_STATE": 0,
+        "AUTH_DENIED": 0,
+        "PAYMENT_DENIED": 0,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+      },
+      "listener_err.log": {
+        "Traceback": 0,
+        "JOURNAL_CAPACITY": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "HELIUS_REQUEST_STATE": 0,
+        "AUTH_DENIED": 0,
+        "PAYMENT_DENIED": 0,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+      },
+      "creator_resolution_worker_err.log": {
+        "Traceback": 0,
+        "JOURNAL_CAPACITY": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "HELIUS_REQUEST_STATE": 0,
+        "AUTH_DENIED": 0,
+        "PAYMENT_DENIED": 0,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+      },
+      "walkback_worker_err.log": {
+        "Traceback": 0,
+        "JOURNAL_CAPACITY": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "HELIUS_REQUEST_STATE": 0,
+        "AUTH_DENIED": 0,
+        "PAYMENT_DENIED": 0,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 0
+      }
+    },
+    "live_no_probe_validation": true
+  },
+  "GATE": {
+    "state": "OPEN",
+    "lifetime_limit": 100000,
+    "warning": 50000,
+    "concurrency_limit": 3,
+    "request_rate_limit_per_minute": 120,
+    "policy_unchanged": true,
+    "daily_or_hourly_credit_quota": false,
+    "history_or_allowance_reset": false
+  },
+  "RECOVERY_AND_ROLLBACK": {
+    "compatible_source": "455f160d",
+    "configuration": "Current-root .env role/recovery overrides unchanged; source/state fallback must understandOWNER_EXIT_UNCERTAIN.",
+    "forbidden": "17a2418e or any uncertainty-unaware source after reconciliation; old preimages preserved for forensic evidence only.",
+    "fresh_compact_matched_pair": "Previously qualified recovery retained; not executed during this deployment.",
+    "three_original_requests": "Remain unconsumed/review-held; separate independent evidence/authorization required before any paid re-acquisition."
+  },
+  "SAFETY": {
+    "diagnostic_provider_calls": 0,
+    "artificial_notifications": 0,
+    "exhausted_replay": false,
+    "retry_reset": false,
+    "source_scope": "Only approved six runtime replacements plus source-pinned recovery authority; no credential/schema/canonical-definition changes.",
+    "unrelated_service_restarts": 0,
+    "V1_access_or_deletion": 0,
+    "BIRDEYE_authority_and_budgets": "UNCHANGED",
+    "free_bytes": 3913891840,
+    "required_floor_plus_reserve": 2067108864,
+    "no_file_500MB_or_more": true
+  },
+  "NEXT_ACTION": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
+  "verified_at_utc": "2026-10-26T23:52:32.598630+00:00"
+}

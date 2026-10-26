@@ -44927,5 +44927,18 @@
     "next_action": "Read-only deployment preflight for the exact multi-role containment bundle, with confirmed-denial initialization, stable state path, preserved protected queues, compatible gate-aware rollback/recovery and current storage gates. Do not deploy or reconnect under this qualification.",
     "limitations": "Current live runtime remains uncontained. Provider credit-code evidence and live recovery not proven; gate-aware recovery/fallback/state bindings require production preflight.",
     "detailed_evidence": "Local report and frozen source-hash bundle; no production contents or credentials published."
+  },
+  "flex_v2_provider_containment_preflight": {
+    "status": "HOLD",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "source_revision": "e7e72513c15c98f8629377099dc47db8a61e0fa4",
+    "production_changed": false,
+    "provider_calls": 0,
+    "candidate_integrity": "10/10 payload hashes and7/7 installed preimages match; new gate modules not installed.",
+    "blocker": "No qualified immutable gate-aware recovery/fallback bundle: recovery renderer rejects the candidate listener and does not bind/preserve Helius denial authority.",
+    "evidence": "Candidate recovery renderer listener pin747b2d49 differs from candidatea35ffa02; no denial-gate flag/path/state validation or frozen compatible fallback.",
+    "live_sample": "Matched activeV2 pair; disk2.81GB; migration journal510/512; terminal592/8192. No live transfer or capacity mutation.",
+    "next_action": "Bounded DEV correction of existing recovery/configuration renderer and frozen source pins to preserve stable denial state, counters and generation authority across restart/fresh-pair recovery; reject gate-unaware fallback. Run only focused recovery controls, then resume this deployment preflight.",
+    "detailed_evidence": "Local aggregate report; sensitive operational detail not published."
   }
 }

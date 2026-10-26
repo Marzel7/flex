@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "edadbfaf8b603375e52910ff186ebc5a635a1615",
+    "git_head": "2623515b30e4a1e6c7e011cc261c6a8686378acb",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T21:40:06.463249+00:00",
+    "updated_at_utc": "2026-10-26T21:53:58.366094+00:00",
     "working_tree": "Existing codex/flex-v2-final-consolidation; DEV source/evidence committed; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -45129,11 +45129,11 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "HOLD",
-    "verdict": "BUNDLE_FROZEN_HOLD_BIRTH_ADMISSION_CAPACITY",
-    "updated_at_utc": "2026-10-26T21:40:06.463249+00:00",
-    "engineering_revision": "edadbfaf8b603375e52910ff186ebc5a635a1615",
-    "source_revision": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "updated_at_utc": "2026-10-26T21:53:58.366094+00:00",
+    "engineering_revision": "2623515b30e4a1e6c7e011cc261c6a8686378acb",
+    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
     "report_sha256": "0eb7a6797ea71d3953202c98ad6ae156f6961d28ae01c9d69418d98114fdb116",
@@ -45181,50 +45181,86 @@
       "provider_RPC_or_WS_calls": 0,
       "service_controls": 0
     },
-    "blocker": "Durable birth journal is full at 512/512, all QUARANTINED with CORE_AUTHORITY_CONFLICT, zero ACKED completion candidates. BirthJournal has no terminal owner and completion reclamation only accepts verified ACKED records. Therefore a new unique birth raises JOURNAL_CAPACITY before receipt/canonical persistence; do not deploy while admission safety is blocked.",
-    "next_action": "Qualify only the smallest safe disposition/capacity correction for the 512 protected birth-conflict records under existing birth/quarantine authority; preserve all identities and evidence, no reset, deletion or replay. Then refresh this exact bundle preflight.",
-    "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/LIVE_CAPACITY_PREFLIGHT.json",
-    "preflight_report_sha256": "28b389cacec816afe5e761d7a59b1a0b15014388dbc89d643463b59714d1f197",
+    "blocker": null,
+    "next_action": "Obtain separate production authorization for this exact expanded bundle, schema and <=20-record transfer procedure. Immediately recheck disk and state/preimages, retain PAYMENT_DENIED, then execute only the approved coordinated procedure. No provider restoration or replay.",
+    "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
+    "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
       "birth.jsonl": {
-        "capacity": 512,
-        "errors": {
-          "CORE_AUTHORITY_CONFLICT": 512
-        },
+        "limit": 512,
         "records": 512,
         "states": {
           "QUARANTINED": 512
-        },
-        "verified_completion_eligible_by_state": 0
+        }
       },
       "migration.jsonl": {
-        "capacity": 512,
-        "errors": {
-          "CANONICAL_SIGNATURE_CONFLICT": 180,
-          "DISPATCH_RESERVED": 4,
-          "NOTIFICATION_SUBJECT_CONFLICT": 11,
-          "None": 118,
-          "RETRY_CEILING": 190
-        },
-        "records": 503,
+        "limit": 512,
+        "records": 504,
         "states": {
-          "PENDING": 121,
+          "PENDING": 122,
           "QUARANTINED": 191,
           "RESOLVED": 1,
           "RETRY_EXHAUSTED": 190
-        },
-        "verified_completion_eligible_by_state": 0
+        }
       }
     },
-    "production_deployment_bundle_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/DEPLOYMENT_AND_ROLLBACK.json",
-    "production_deployment_bundle_sha256": "d31fc5bbba399e56b8a99fcc01996291b329677296ea0cf0000a844e1a6a6f3d",
+    "production_deployment_bundle_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/BUNDLE.json",
+    "production_deployment_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
     "deployment_bundle_freeze": {
       "status": "PASS",
-      "source_commit": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
-      "payload_files": 18,
-      "archive_bytes": 1361920,
-      "fallback": "Same investigation-aware source with ledger and PAYMENT_DENIED retained; old fallback prohibited.",
-      "validation": "Archive/file SHA verification, renderer pins, compatible fallback equality and v2 policy checks passed;188 qualification tests reused."
+      "source_commit": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+      "payload_files": 20,
+      "archive_bytes": 1392640,
+      "fallback": "Same-source investigation-aware and birth-terminal-aware fallback; old source or flag0 forbidden after reclamation.",
+      "validation": "106 focused tests, exact512 retained snapshot roundtrip, archive/renderer source pins, fallback equality and immutable preimages. Prior188 Helius controls reused."
+    },
+    "prior_budget_source": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+    "birth_capacity_qualification": {
+      "status": "PASS",
+      "focused_pytest_passed": 106,
+      "failed": 0,
+      "exact_retained_population_roundtrip": 512,
+      "event_513": "Admitted, not acknowledged, in disposable fixture only.",
+      "batches": 26,
+      "batch_max": 20,
+      "source_journal_unchanged": true,
+      "source_journal_sha256": "4cf59ac47ead9ea06b8620bbd8d07c4fc6ef64de4590ddc55c42f5d3e8c9c79e",
+      "schema": "Typed reuse of existing OPS terminal owner: birth_terminal_owner_v1 and birth_terminal_evidence_v1,4triggers,8192records/64MB. Original identities/conflicts/retry/provenance preserved; no automatic replay.",
+      "live_capacity_still_full_until_separately_authorized_schema_transfer": true
+    },
+    "live_disk_preflight": {
+      "free_bytes": 2375753728,
+      "required_with_rollback_and_reserve": 2324692224,
+      "margin_bytes_at_sample": 51061504,
+      "required_immediate_recheck": true
     }
+  },
+  "flex_v2_birth_conflict_capacity": {
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "engineering_revision": "2623515b30e4a1e6c7e011cc261c6a8686378acb",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
+    "tests": {
+      "additional_exact_retained_512_roundtrip": 1,
+      "by_file": {
+        "birth_conflict_capacity": 29,
+        "helius_recovery": 31,
+        "migration_terminal_capacity": 24,
+        "protected_journal_capacity": 9,
+        "terminal_recovery": 13
+      },
+      "failed": 0,
+      "passed": 106,
+      "prior_investigation_tests_reused": 188
+    },
+    "production_flags": {
+      "BIRDEYE": "UNCHANGED",
+      "V1_access": 0,
+      "production_journal_reclamation": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "service_controls": 0
+    },
+    "next_action": "Obtain separate production authorization for this exact expanded bundle, schema and <=20-record transfer procedure. Immediately recheck disk and state/preimages, retain PAYMENT_DENIED, then execute only the approved coordinated procedure. No provider restoration or replay."
   }
 }

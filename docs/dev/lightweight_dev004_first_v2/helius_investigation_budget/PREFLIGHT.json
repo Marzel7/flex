@@ -1,0 +1,75 @@
+{
+  "HELIUS_INVESTIGATION_DEPLOYMENT_PREFLIGHT": "HOLD",
+  "checked_at_utc": "2026-10-26T21:31:20.730166+00:00",
+  "candidate": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
+  "candidate_bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
+  "candidate_integrity": "All 13 frozen source/policy/test file hashes match; retained 188 passing tests reused, none repeated.",
+  "installed_preimages": {
+    "checked_runtime_files": 10,
+    "mismatches": 0,
+    "installed_source": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99"
+  },
+  "shared_investigation_accounting": {
+    "DEV_qualified": true,
+    "live_installed": false,
+    "all_three_configured_gate_paths_identical": true,
+    "shared_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+    "policy_on_live_gate": false,
+    "contract": "100000 lifetime reserved credits, warning50000; immutable originating mint and descendants across three workers;120 request/minute,3inflight; no hourly/daily credit quota. Finite ledger refuses without eviction."
+  },
+  "runtime": {
+    "supervisor_pid": 1131,
+    "listener_pid": 16498,
+    "resolver_pid": 16542,
+    "walkback_pid": 16561,
+    "same_supervisor_parent": true,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "Core_OPS_inode_and_device_match_manifest": true,
+    "gate_state": "PAYMENT_DENIED",
+    "gate_publication_checksum_valid": true,
+    "reservations": 0,
+    "outcomes": 0
+  },
+  "storage": {
+    "observed_free_bytes": 3972722688,
+    "required_floor_bytes": 2067108864,
+    "core_bytes": 61329408,
+    "core_wal_bytes": 0,
+    "ops_bytes": 157200384,
+    "ops_wal_observed": false,
+    "no_checkpoint_or_write_lock_probe": true
+  },
+  "journal_observation": {
+    "birth_records": 512,
+    "birth_states": {
+      "QUARANTINED": 512
+    },
+    "migration_records": 502,
+    "migration_states": {
+      "QUARANTINED": 191,
+      "RESOLVED": 1,
+      "RETRY_EXHAUSTED": 190,
+      "PENDING": 120
+    },
+    "qualification": "Counts only; no record disposition, reclaimability or admission-headroom PASS inferred. No journals modified."
+  },
+  "gate_aware_rollback": {
+    "denial_aware": true,
+    "investigation_budget_aware": false,
+    "retained_bundle_sha256": "9ba4be1871b8e0116e7fea356ab043fcdd2ddf24d4eafb93dbfaa373e9291e95",
+    "retained_fallback_gate_sha256": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219",
+    "candidate_gate_sha256": "60d86e1bc0e52a60c89c555bfdd4b217729aad8e3c46fa550828b63f68724d5c",
+    "evidence": "Retained production BUNDLE fallback pins the old gate. Installed fallback has no rpc_budget handling. It cannot enforce the new lifetime ledger if restored after activation. Candidate recovery source is qualified, but the complete investigation-aware deployment/fallback/config authority has not been frozen as a production-bound bundle."
+  },
+  "EXACT_BLOCKER": "Retained production fallback is denial-aware but investigation-budget-unaware. No exact production-bound investigation-aware recovery/fallback bundle replaces that authority.",
+  "NEXT_ACTION": "Freeze one complete deployment and compatible fallback manifest from b8b10192 plus its accepted parent composition, explicit v2 policy provisioning under PAYMENT_DENIED, three-role shared state/config and new recovery hash pins. Reject legacy fallback after ledger initialization. Then recheck remaining live capacity gates. No new code qualification, deployment or provider restoration in this preflight.",
+  "safety": {
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_controls": 0,
+    "V1_access": 0,
+    "gate_unchanged": true,
+    "tests_reused": 188,
+    "scope_stop": "First precise rollback blocker; remaining capacity gates not certified."
+  }
+}

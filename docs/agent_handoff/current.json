@@ -37028,7 +37028,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "9dcf627791e8781fb77fee7556f1a13b56645b90",
+    "git_head": "e7e72513c15c98f8629377099dc47db8a61e0fa4",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-26T12:47:05.224470+00:00",
@@ -44906,20 +44906,26 @@
     "storage_safety": "Final disk free1049006080 bytes, below established2GB floor. No cleanup performed; stopped further audit reads."
   },
   "flex_v2_helius_denial_gate_qualification": {
-    "status": "HOLD",
-    "verdict": "HOLD_DISK_HEADROOM_BEFORE_IMPLEMENTATION",
-    "source_revision": "9dcf627791e8781fb77fee7556f1a13b56645b90",
-    "storage_preflight": {
-      "free_bytes": 1045270528,
-      "required_floor_plus_reserve_bytes": 2067108864,
-      "shortfall_bytes": 1021838336
-    },
-    "implementation_started": false,
-    "tests_run": 0,
+    "status": "QUALIFIED_NOT_DEPLOYED",
+    "verdict": "PASS_DEV_ONLY",
+    "source_revision": "e7e72513c15c98f8629377099dc47db8a61e0fa4",
+    "bundle_sha256": "56884e81a7c0267387b485eeaa6e73dc48585c3b735ec2afebb02feec8a49249",
     "production_changed": false,
     "provider_calls": 0,
-    "new_worktrees": 0,
-    "result": "Storage preflight failed before code edits or fixtures. Existing audit demonstrates outage-amplified listener acquisition, restart cache loss and direct vault/Walkback accounting bypasses; no denial gate implemented or qualified. Ordinary429 remains distinct from confirmed credit denial.",
-    "next_action": "Restore at least2067108864 free bytes plus bounded execution headroom, then resume contract verification and isolated denial-gate qualification in existing DEV worktree. No deployment or provider calls."
+    "service_control": false,
+    "tests": {
+      "focused_passed": 62,
+      "unchanged_completion_reused": 530,
+      "failed": 0
+    },
+    "result": "Bounded shared durable Helius denial state integrated with dispatcher, direct vault/pool/analyzer, Walkback and PumpSwap paths; explicit payment/auth denial remains closed,429 is not equated with exhausted credits. Pending durable admission precedes gate; preclaims defer; restart cannot reset counters. Provider-specific reservation/outcome accounting, no billed-credit claim.",
+    "storage": {
+      "initial_free_bytes": 5372751872,
+      "final_measured_free_bytes": 3017310208,
+      "max_fixture_bytes": 655360
+    },
+    "next_action": "Read-only deployment preflight for the exact multi-role containment bundle, with confirmed-denial initialization, stable state path, preserved protected queues, compatible gate-aware rollback/recovery and current storage gates. Do not deploy or reconnect under this qualification.",
+    "limitations": "Current live runtime remains uncontained. Provider credit-code evidence and live recovery not proven; gate-aware recovery/fallback/state bindings require production preflight.",
+    "detailed_evidence": "Local report and frozen source-hash bundle; no production contents or credentials published."
   }
 }

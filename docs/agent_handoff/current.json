@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "1d92ccec6f82623422af3f261fa28059ac95c13a",
+    "git_head": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T22:23:37.246357+00:00",
-    "working_tree": "17a2418e remains deployed; one authorized restoration probe returned401; durable AUTH_DENIED retained."
+    "updated_at_utc": "2026-10-26T22:33:54.045913+00:00",
+    "working_tree": "17a2418e source remains deployed; current-root credential bound to three roles/recovery; controlled probe passed; gate OPEN with100000-credit limit."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45129,10 +45129,10 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "DEPLOYED_RESTORATION_HOLD_AUTH_DENIED",
-    "verdict": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
-    "updated_at_utc": "2026-10-26T22:23:37.246357+00:00",
-    "engineering_revision": "1d92ccec6f82623422af3f261fa28059ac95c13a",
+    "status": "DEPLOYED_HELIUS_RESTORED_PASS",
+    "verdict": "PASS",
+    "updated_at_utc": "2026-10-26T22:33:54.045913+00:00",
+    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45173,13 +45173,12 @@
       "generation": "DEV004-V2-20261024-dfb76562",
       "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
       "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
-      "configuration_sha256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
-      "gate_state": "AUTH_DENIED",
+      "configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+      "gate_state": "OPEN",
       "policy_version": 2,
-      "gate_reservations": 1,
-      "gate_outcomes": 1,
-      "provider_calls_for_testing": 1,
-      "restoration_or_probe": "One authorized probe rejected HTTP401; not restored.",
+      "gate_reservations": 119,
+      "gate_outcomes": 119,
+      "restoration_or_probe": "Single current-key probe HTTP200 and usable transaction verified; normal eligible work resumed under protection.",
       "birth_terminal_schema_initialized": true,
       "birth_protected_records_transferred": 512,
       "services_restarted": [
@@ -45191,10 +45190,12 @@
       "V1_access_or_writes": 0,
       "BIRDEYE_authority_and_budgets": "UNCHANGED",
       "provider_probe_attempts": 1,
-      "service_controls_this_turn": 0
+      "service_controls_this_turn": "Restart only listener/resolver/Walkback",
+      "operator_probes_total": 2,
+      "operator_probe_this_authorization": 1
     },
-    "blocker": "The one restoration probe used the explicit Walkback HELIUS_RPC_URL. Its credential equals the legacy config/.env key and differs from the current root .env HELIUS_API_KEY. All three worker environments contain that same legacy key and RPC/WS URLs. The provider returned401 for this old binding; no request was sent using the newly edited root .env credential.",
-    "next_action": "Keep AUTH_DENIED. Obtain authorization for the narrow three-role credential/recovery binding correction and a subsequent single controlled probe; do not ask for keys in chat.",
+    "blocker": null,
+    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
     "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "preflight_report_sha256": "a411fe5f234a6d7703b47af206e1c40d30ec501e93d8c862b782ddf2b323502c",
     "preflight_journal_counts": {
@@ -45288,82 +45289,132 @@
     "restoration_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/RESTORATION.json",
     "restoration_report_sha256": "23ab4c0a82bd73f723d6855168c057a147f47cd3eece4eb0f08ec21fb3a76d19",
     "controlled_restoration": {
-      "status": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
+      "status": "PASS",
       "probe": {
-        "attempts": 1,
+        "operator_probe_attempts_this_authorization": 1,
         "method": "getTransaction",
-        "http_status": 401,
-        "usable_transaction_verified": false,
-        "worst_case_credits_reserved": 1,
-        "measured_billing_credits": "Not queried or inferred.",
+        "http_status": 200,
+        "usable_transaction_verified": true,
+        "credits_reserved_this_probe": 1,
+        "origin_total_immediately_after_probe": 2,
+        "previous_failed_probe_history_preserved": true,
         "retries": 0,
-        "fallback_requests": 0,
-        "reservation_before_HTTP_dispatch": true,
-        "single_probe_lease_and_cross_worker_owner_lock": true
+        "raw_provider_response_retained": false
       },
       "budget": {
-        "lifetime_credit_ceiling": 100000,
+        "state": "OPEN",
+        "feature_flag": "1",
+        "lifetime_credits": 100000,
         "warning_credits": 50000,
-        "policy_unchanged": true,
-        "counter_reset": false,
-        "shared_reserved_credits": 1,
-        "inflight_requests": 0,
-        "shared_reservations": 1,
-        "shared_outcomes": 1
+        "requests_per_minute": 120,
+        "inflight_limit": 3,
+        "daily_or_hourly_credit_quotas": false,
+        "counter_or_allowance_reset": false,
+        "existing_original_scopes_and_history_retained": true,
+        "paced_recovery_seconds": 300
       },
       "workers": {
-        "listener": {
-          "pid": 74589,
-          "state": "RUNNING"
+        "before": {
+          "listener": 74589,
+          "resolver": 74621,
+          "walkback": 74641
         },
-        "resolver": {
-          "pid": 74621,
-          "state": "RUNNING"
+        "after": {
+          "watchtower_listener": 80583,
+          "creator_resolution_worker": 80604,
+          "walkback_worker": 80629
         },
-        "walkback": {
-          "pid": 74641,
-          "state": "RUNNING"
-        },
-        "restarts": 0
+        "status": "watchtower_listener              RUNNING   pid 80583, uptime 0:03:12\ncreator_resolution_worker        RUNNING   pid 80604, uptime 0:03:01\nwalkback_worker                  RUNNING   pid 80629, uptime 0:02:56\n",
+        "other_services_untouched": true
       },
-      "durable_work": {
-        "birth_journal_records_at_verification": 213,
-        "birth_journal_state": "ACKED=213",
-        "migration_journal_records_at_verification": 512,
-        "migration_states": {
-          "QUARANTINED": 191,
-          "RESOLVED": 1,
-          "RETRY_EXHAUSTED": 190,
-          "PENDING": 130
+      "observation": {
+        "seconds": 60,
+        "HTTP_requests_delta": 26,
+        "reserved_credits_delta": 26,
+        "maximum_origin_credits_at_end": 11,
+        "cumulative_HTTP_methods_at_observation_end": {
+          "rpc:getAccountInfo": {
+            "requests": 31,
+            "reserved_credits": 31
+          },
+          "rpc:getTransaction": {
+            "requests": 9,
+            "reserved_credits": 9
+          },
+          "rpc:getMultipleAccounts": {
+            "requests": 11,
+            "reserved_credits": 11
+          },
+          "rpc:getTokenLargestAccounts": {
+            "requests": 1,
+            "reserved_credits": 1
+          }
         },
-        "birth_terminal_records": 512,
-        "migration_terminal_records": 752,
-        "exhausted_or_quarantined_replay": false,
-        "retry_or_budget_ceilings_reset": false,
-        "note": "Protected populations preserved. Migration journal is full but has existing bounded verified terminal-transfer authority with quota headroom; no manual transfer/replay performed in restoration."
+        "cumulative_role_accounting_at_observation_end": {
+          "listener": {
+            "requests": 50,
+            "reserved_credits": 50
+          },
+          "walkback": {
+            "requests": 2,
+            "reserved_credits": 2
+          }
+        },
+        "errors": {
+          "listener.log": {
+            "tracebacks": 0,
+            "capacity_refusals": 0,
+            "authentication_denials": 0,
+            "payment_denials": 0,
+            "subscription_confirmations": 0
+          },
+          "listener_err.log": {
+            "tracebacks": 0,
+            "capacity_refusals": 0,
+            "authentication_denials": 0,
+            "payment_denials": 0,
+            "subscription_confirmations": 0
+          },
+          "creator_resolution_worker_err.log": {
+            "tracebacks": 0,
+            "capacity_refusals": 0,
+            "authentication_denials": 0,
+            "payment_denials": 0,
+            "subscription_confirmations": 0
+          },
+          "walkback_worker_err.log": {
+            "tracebacks": 0,
+            "capacity_refusals": 0,
+            "authentication_denials": 0,
+            "payment_denials": 0,
+            "subscription_confirmations": 0
+          }
+        },
+        "billing_note": "Reserved worst-case costs and measured local HTTP attempt counts, not provider invoice totals. Cumulative role totals include the two operator probes charged under Walkback. No separate resolver/Walkback acquisition activity claimed beyond observed accounting."
       },
-      "disk": {
-        "free_bytes": 3653656576,
-        "required_floor_plus_reserve": 2067108864
-      }
+      "disk_free_bytes": 5301727232
     },
     "credential_audit_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json",
     "credential_audit_report_sha256": "c5bf8cbe742090263f27bd0c6f6215d571dc546be501c77f57660df69bcc90a9",
     "credential_binding_diagnosis": {
       "result": "STALE_SUPERVISOR_ENVIRONMENT_NOT_CURRENT_ROOT_DOTENV",
-      "all_three_actual_environments_match_old_config_key": true,
-      "all_three_mismatch_current_root_dotenv_key": true,
+      "all_three_actual_environments_match_old_config_key": false,
+      "all_three_mismatch_current_root_dotenv_key": false,
       "global_binding": "supervisord.environment supplies old API key and RPC/WS URLs.",
       "walkback_override": "Explicit old-key HELIUS_RPC_URL; this is the URL used for the rejected probe.",
-      "gate": "AUTH_DENIED",
+      "gate": "OPEN",
       "additional_provider_calls": 0,
-      "changes": 0
-    }
+      "changes": 0,
+      "status": "RESOLVED_CURRENT_ROOT_KEY_BOUND",
+      "current_root_key_and_recovery_bindings_verified": true
+    },
+    "current_key_restoration_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CURRENT_KEY_RESTORATION.json",
+    "current_key_restoration_report_sha256": "190a16ce193eccaf5beb8cd3ac085e44a51083595d1bdfc6dc31c86b312db1a3"
   },
   "flex_v2_birth_conflict_capacity": {
     "status": "DEPLOYED_PASS",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
-    "engineering_revision": "0f56119da746d7381a7db8c8a068f776b402d289",
+    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/REPORT.json",
     "tests": {
       "additional_exact_retained_512_roundtrip": 1,
@@ -45382,8 +45433,8 @@
       "generation": "DEV004-V2-20261024-dfb76562",
       "installed_source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
       "installed_bundle_sha256": "74040231f3497f72539cdeb4a36da02bef61e41e42a0aa4f1b5675d94155f347",
-      "configuration_sha256": "8026df70b03a17208fdb5498f360d7f245d27c2240207b97bc59a4db20e1fa50",
-      "gate_state": "AUTH_DENIED",
+      "configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+      "gate_state": "OPEN",
       "policy_version": 2,
       "gate_reservations": 1,
       "gate_outcomes": 1,
@@ -45400,7 +45451,7 @@
       "V1_access_or_writes": 0,
       "BIRDEYE_authority_and_budgets": "UNCHANGED"
     },
-    "next_action": "Verify the configured Helius endpoint/credential authorization through the operator/account authority. Do not send credentials in chat. Keep the durable gate closed; any credential/configuration change and another probe require separate authorization.",
+    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
     "deployment_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/DEPLOYMENT.json",
     "deployment_report_sha256": "f08ee4041f76e35b747a7d9aa8f4a10df3c17a27e849e64f7ab9669e235594f1",
     "acceptance": {
@@ -45414,47 +45465,53 @@
     }
   },
   "flex_v2_helius_controlled_restoration": {
-    "status": "HOLD_PROVIDER_AUTHORIZATION_DENIED",
-    "engineering_revision": "1d92ccec6f82623422af3f261fa28059ac95c13a",
+    "status": "PASS_RESTORED_CURRENT_KEY",
+    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
-    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/RESTORATION.json",
-    "report_sha256": "23ab4c0a82bd73f723d6855168c057a147f47cd3eece4eb0f08ec21fb3a76d19",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CURRENT_KEY_RESTORATION.json",
+    "report_sha256": "190a16ce193eccaf5beb8cd3ac085e44a51083595d1bdfc6dc31c86b312db1a3",
     "provider_probe_attempts": 1,
-    "http_status": 401,
-    "gate_state": "AUTH_DENIED",
+    "http_status": 200,
+    "gate_state": "OPEN",
     "workers": {
-      "listener": {
-        "pid": 74589,
-        "state": "RUNNING"
+      "before": {
+        "listener": 74589,
+        "resolver": 74621,
+        "walkback": 74641
       },
-      "resolver": {
-        "pid": 74621,
-        "state": "RUNNING"
+      "after": {
+        "watchtower_listener": 80583,
+        "creator_resolution_worker": 80604,
+        "walkback_worker": 80629
       },
-      "walkback": {
-        "pid": 74641,
-        "state": "RUNNING"
-      },
-      "restarts": 0
+      "status": "watchtower_listener              RUNNING   pid 80583, uptime 0:03:12\ncreator_resolution_worker        RUNNING   pid 80604, uptime 0:03:01\nwalkback_worker                  RUNNING   pid 80629, uptime 0:02:56\n",
+      "other_services_untouched": true
     },
     "production_flags": {
       "source_changes": 0,
       "schema_changes": 0,
-      "service_controls": 0,
-      "credential_changes": 0,
-      "canonical_evidence_mutations_by_probe": 0,
       "V1_access": 0,
-      "BIRDEYE": "UNCHANGED",
-      "raw_provider_payload_retained": false,
-      "provider_RPC_attempts": 1
+      "exhausted_or_quarantined_replay": false,
+      "retry_reset_or_budget_increase": false,
+      "manual_provider_probe_calls": 1,
+      "provider_calls_for_observation": 0,
+      "unrelated_service_restarts": 0,
+      "BIRDEYE_credentials_and_budgets": "UNCHANGED",
+      "disk_free_bytes": 5301727232,
+      "required_floor_plus_reserve": 2067108864
     },
-    "blocker": "The one restoration probe used the explicit Walkback HELIUS_RPC_URL. Its credential equals the legacy config/.env key and differs from the current root .env HELIUS_API_KEY. All three worker environments contain that same legacy key and RPC/WS URLs. The provider returned401 for this old binding; no request was sent using the newly edited root .env credential.",
-    "next_action": "Keep AUTH_DENIED. Obtain authorization for the narrow three-role credential/recovery binding correction and a subsequent single controlled probe; do not ask for keys in chat.",
-    "credential_audit_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json"
+    "blocker": null,
+    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
+    "credential_audit_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json",
+    "previous_failed_probe": {
+      "http_status": 401,
+      "old_credential_binding": true,
+      "spend_history_retained": true
+    }
   },
   "flex_v2_helius_credential_binding_audit": {
-    "status": "CAUSE_IDENTIFIED_READ_ONLY",
-    "engineering_revision": "1d92ccec6f82623422af3f261fa28059ac95c13a",
+    "status": "CORRECTED_AND_PROCESS_VERIFIED",
+    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
     "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CREDENTIAL_BINDING_AUDIT.json",
     "report_sha256": "c5bf8cbe742090263f27bd0c6f6215d571dc546be501c77f57660df69bcc90a9",
@@ -45467,6 +45524,124 @@
       "service_controls": 0,
       "source_changes": 0
     },
-    "next_action": "Keep AUTH_DENIED. Obtain authorization for the narrow three-role credential/recovery binding correction and a subsequent single controlled probe; do not ask for keys in chat."
+    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery.",
+    "correction_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CURRENT_KEY_RESTORATION.json",
+    "current_configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "correction": "Three explicit role and recovery bindings now match current root .env HEllUS_API_KEY; no source/schema change; unrelated defaults/services unchanged."
+  },
+  "flex_v2_helius_current_key_restoration": {
+    "status": "PASS",
+    "source_revision": "17a2418e8a7bcc51a2830552c5b8e97894ed06c9",
+    "engineering_revision": "f8606fdfb6bce578f9509eaa6d8ae2d53cf1ac49",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/birth_conflict_capacity/CURRENT_KEY_RESTORATION.json",
+    "report_sha256": "190a16ce193eccaf5beb8cd3ac085e44a51083595d1bdfc6dc31c86b312db1a3",
+    "current_key_process_and_recovery_match": true,
+    "gate": "OPEN",
+    "investigation_limit": 100000,
+    "warning": 50000,
+    "probe": {
+      "operator_probe_attempts_this_authorization": 1,
+      "method": "getTransaction",
+      "http_status": 200,
+      "usable_transaction_verified": true,
+      "credits_reserved_this_probe": 1,
+      "origin_total_immediately_after_probe": 2,
+      "previous_failed_probe_history_preserved": true,
+      "retries": 0,
+      "raw_provider_response_retained": false
+    },
+    "workers": {
+      "before": {
+        "listener": 74589,
+        "resolver": 74621,
+        "walkback": 74641
+      },
+      "after": {
+        "watchtower_listener": 80583,
+        "creator_resolution_worker": 80604,
+        "walkback_worker": 80629
+      },
+      "status": "watchtower_listener              RUNNING   pid 80583, uptime 0:03:12\ncreator_resolution_worker        RUNNING   pid 80604, uptime 0:03:01\nwalkback_worker                  RUNNING   pid 80629, uptime 0:02:56\n",
+      "other_services_untouched": true
+    },
+    "natural_observation": {
+      "seconds": 60,
+      "HTTP_requests_delta": 26,
+      "reserved_credits_delta": 26,
+      "maximum_origin_credits_at_end": 11,
+      "cumulative_HTTP_methods_at_observation_end": {
+        "rpc:getAccountInfo": {
+          "requests": 31,
+          "reserved_credits": 31
+        },
+        "rpc:getTransaction": {
+          "requests": 9,
+          "reserved_credits": 9
+        },
+        "rpc:getMultipleAccounts": {
+          "requests": 11,
+          "reserved_credits": 11
+        },
+        "rpc:getTokenLargestAccounts": {
+          "requests": 1,
+          "reserved_credits": 1
+        }
+      },
+      "cumulative_role_accounting_at_observation_end": {
+        "listener": {
+          "requests": 50,
+          "reserved_credits": 50
+        },
+        "walkback": {
+          "requests": 2,
+          "reserved_credits": 2
+        }
+      },
+      "errors": {
+        "listener.log": {
+          "tracebacks": 0,
+          "capacity_refusals": 0,
+          "authentication_denials": 0,
+          "payment_denials": 0,
+          "subscription_confirmations": 0
+        },
+        "listener_err.log": {
+          "tracebacks": 0,
+          "capacity_refusals": 0,
+          "authentication_denials": 0,
+          "payment_denials": 0,
+          "subscription_confirmations": 0
+        },
+        "creator_resolution_worker_err.log": {
+          "tracebacks": 0,
+          "capacity_refusals": 0,
+          "authentication_denials": 0,
+          "payment_denials": 0,
+          "subscription_confirmations": 0
+        },
+        "walkback_worker_err.log": {
+          "tracebacks": 0,
+          "capacity_refusals": 0,
+          "authentication_denials": 0,
+          "payment_denials": 0,
+          "subscription_confirmations": 0
+        }
+      },
+      "billing_note": "Reserved worst-case costs and measured local HTTP attempt counts, not provider invoice totals. Cumulative role totals include the two operator probes charged under Walkback. No separate resolver/Walkback acquisition activity claimed beyond observed accounting."
+    },
+    "production_flags": {
+      "source_changes": 0,
+      "schema_changes": 0,
+      "V1_access": 0,
+      "exhausted_or_quarantined_replay": false,
+      "retry_reset_or_budget_increase": false,
+      "manual_provider_probe_calls": 1,
+      "provider_calls_for_observation": 0,
+      "unrelated_service_restarts": 0,
+      "BIRDEYE_credentials_and_budgets": "UNCHANGED",
+      "disk_free_bytes": 5301727232,
+      "required_floor_plus_reserve": 2067108864
+    },
+    "next_action": "Leave the three workers running with shared gate and100000-credit investigation protection enabled. Observe normal eligible work; do not replay exhausted or protected populations. Retain the current root-key overrides in recovery."
   }
 }

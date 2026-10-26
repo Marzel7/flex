@@ -1,0 +1,24 @@
+{
+  "billing_authority": "NOT_VERIFIED; costs intentionally empty; Gate.configure_budget refuses this template.",
+  "policy": {
+    "costs": {},
+    "day": 8000,
+    "hour": 800,
+    "inflight": 3,
+    "minute": 80,
+    "scope_credits": 80,
+    "scope_fallbacks": 1,
+    "scope_pages": 2,
+    "scope_requests": 8,
+    "scope_retries": 2,
+    "version": 1,
+    "workers": {
+      "creator_resolution": 2000,
+      "listener": 4000,
+      "walkback": 2000
+    }
+  },
+  "rationale": "80-credit accepted Walkback batch is a conservative design reference. The proposed stricter global and investigation limits do not change installed budgets. Existing high-priority page ceilings are not treated as paid-credit authority.",
+  "required_before_use": "Verify worst-case cost for every allowed request variant and batch size; freeze the evidence hashes and operator-approved allocations. Unknown costs refuse dispatch.",
+  "status": "PROPOSED_ONLY_NOT_A_DEPLOYABLE_POLICY"
+}

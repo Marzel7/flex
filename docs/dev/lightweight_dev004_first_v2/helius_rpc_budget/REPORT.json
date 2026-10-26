@@ -1,0 +1,142 @@
+{
+  "ACTUAL_HTTP_DISPATCH_BOUNDARIES": {
+    "aiohttp": "ClientRequest.send per actual request; ClientResponse.start notices denial at headers; complete body/release closes accounting.",
+    "httpx": "HTTPTransport.handle_request and AsyncHTTPTransport.handle_async_request; response stream close completes accounting.",
+    "shared_adapters_and_analyzers": "Process-wide hooks installed at the start of the three accepted role modules, covering direct GET/POST, redirects, retry and fallback transports regardless of application RPC label.",
+    "stdlib_requests_urllib3": "HTTPConnection.putrequest/endheaders/getresponse; urllib3 prepared body captured before first HTTP bytes. Every wire retry re-enters.",
+    "tls_backstop": "Unknown Python SSLContext Helius clients refuse; accepted gated WebSocket handshakes have a non-leaking connection-only permit.",
+    "versions": {
+      "aiohttp": "3.9.3",
+      "httpx": "0.28.1",
+      "requests": "2.31.0",
+      "urllib3": "2.2.1"
+    }
+  },
+  "CANDIDATE_SHA": "e6aaf27f7e466e5e26514e55116f72a3e7800d5d",
+  "DURABLE_RESERVATION_ACCOUNTING": {
+    "atomicity": "Exclusive cross-process flock; PENDING marker fsync, bounded stage fsync, atomic replace, directory fsync, READY checksum fsync before wire dispatch.",
+    "maximum_control_bytes": 262144,
+    "maximum_inflight_supported": 32,
+    "maximum_investigation_identities": 128,
+    "maximum_lock_bytes": 128,
+    "maximum_policy_cost_entries": 64,
+    "maximum_request_identities": 512,
+    "maximum_stage_bytes": 262144,
+    "owner": "Existing helius_denial_gate.Gate and existing stable JSON/lock files; no new database/service.",
+    "privacy": "Only hashes, counters, role, PID, selector and state; no credentials, raw RPC payloads or canonical evidence.",
+    "quota_full": "Explicit fail-closed deferral, never silent pruning, identity reuse, archive growth or allowance reset. Finite identity capacity must be part of production policy review.",
+    "refunds": "No credit refunds implemented. Processing-claim compensation after budget refusal is distinct from spending refunds.",
+    "restart": "No initialization from missing/corrupt state; no automatic counter reset; ambiguous/crashed reservations remain charged and occupy in-flight capacity."
+  },
+  "EXACT_REMAINING_GATE": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
+  "FLEX_V2_HELIUS_RPC_BUDGET_STATUS": "QUALIFIED_NOT_DEPLOYED",
+  "GLOBAL_CREDIT_LIMITS": {
+    "billing": "No live billing weights are claimed verified. Unknown selectors and batch sizes refuse; tests use labelled synthetic units only.",
+    "clock_contract": "Persist wall and monotonic high-water marks. Rollback, reboot/monotonic regression, or >5-second elapsed-clock divergence refuses admission.",
+    "configurable": true,
+    "proposed_not_active": {
+      "day": 8000,
+      "hour": 800,
+      "inflight": 3,
+      "minute": 80
+    },
+    "window_contract": "Conservative rolling upper bounds: charge current plus previous anchored bucket. May defer longer than an exact sliding window; never grants a boundary double-burst."
+  },
+  "NEXT_ACTION": "Freeze that policy while PAYMENT_DENIED, then perform the existing read-only coordinated three-role deployment preflight against this candidate. Do not deploy, restore/probe Helius, replay queues or freeze the Golden Baseline.",
+  "PER_TOKEN_AND_INVESTIGATION_LIMITS": {
+    "identity": "Nested shared mint and signature-investigation scopes. Unknown mint stays unknown; signature-only work is scoped as an investigation until independently resolved. Exact request hashes keep distinct signatures, ranges, endpoints and batch membership distinct.",
+    "proposed_not_active": {
+      "scope_credits": 80,
+      "scope_fallbacks": 1,
+      "scope_pages": 2,
+      "scope_requests": 8,
+      "scope_retries": 2
+    },
+    "scope_lifetime": "No automatic reset or expiry of investigation counters."
+  },
+  "PER_WORKER_LIMITS": {
+    "allocation_window": "Conservative rolling daily worker allocation; cannot borrow another role allocation.",
+    "proposed_not_active": {
+      "creator_resolution": 2000,
+      "listener": 4000,
+      "walkback": 2000
+    },
+    "shared_authority": true
+  },
+  "PRODUCTION_AUTHORITY": {
+    "BIRDEYE": "Authority and budgets unchanged; no credential values read or published.",
+    "control_checksum_verified": true,
+    "gate_outcomes": 0,
+    "gate_reservations": 0,
+    "gate_restoration": false,
+    "gate_state": "PAYMENT_DENIED",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "installed_base_source": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+    "installed_runtime_preimages_verified": {
+      "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+      "runtime/creator_resolution/src/core/creator_resolution_queue.py": "57b4f8a90113a30f492cf6015e34ecea1fc171ae0f5a42470b3744ffe8c9a418",
+      "runtime/creator_resolution/src/core/helius_denial_gate.py": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219",
+      "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+      "runtime/listener/src/core/helius_denial_gate.py": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219",
+      "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+      "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+      "runtime/listener/src/core/pumpfun_curve_listener.py": "a35ffa0211d0f7bf5d181fbee33e7c5e0995c52d583e57861c74a98e7223fa4e",
+      "runtime/walkback/src/core/helius_denial_gate.py": "be069bcb195d4059817a8e2836da56c9852672767fac4c53d571053ccaa04219",
+      "runtime/walkback/src/core/walkback_worker.py": "c5c4b102dbee2a1940a8ebcb5f4e0fbb28ee73d44b29f42982a5c5deb3b1c47d"
+    },
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "service_controls": 0
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "by_file": {
+      "tests/test_v2_helius_denial_gate.py": 41,
+      "tests/test_v2_helius_recovery_config.py": 30,
+      "tests/test_v2_helius_rpc_budget.py": 78
+    },
+    "coverage": [
+      "2000 attempted requests from one investigation",
+      "Shared global/worker/scope, retry/page/fallback/in-flight ceilings",
+      "Three separate worker roles/processes reserving concurrently",
+      "requests/stdlib, aiohttp and sync/async HTTPX boundaries",
+      "Direct GET, native RPC POST, enhanced batches 1/2/100 and unknown-cost refusal",
+      "Crash before/after reservation; publication/fsync failures; missing/corrupt state",
+      "Restart, clock rollback/forward-jump/reboot ambiguity",
+      "Immediate HTTP denial headers, aiohttp early EOF, safe WebSocket handshake, hostname aliases",
+      "Durable admission, protected conflicts, exact claim compensation, canonical no-rewrite controls",
+      "Fresh compact matched-pair recovery with counters, policy and ambiguous in-flight preservation"
+    ],
+    "duration_seconds": 18.69,
+    "failed": 0,
+    "network": "Socket connection paths forbidden in fixtures; fake HTTP wires and separate budget-only worker processes. Zero provider calls.",
+    "passed": 149,
+    "unchanged_acceptance": "Existing broader CREATE, terminal, Walkback, operation and Birdeye matrices retained; no historical audit or migration rerun."
+  },
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": false,
+  "RETRY_AND_PAGINATION_BOUNDS": {
+    "deduplication": "Shared simultaneous exact-request suppression; bounded >=60-second post-completion cooldown and retry charging. HTTP completion is not a claim that canonical evidence is retained. Existing canonical readers and caches are unchanged.",
+    "denial": "402 PAYMENT_DENIED; 401/403 AUTH_DENIED; 429 RATE_LIMITED with bounded Retry-After. Denial persists at response headers without premature in-flight release.",
+    "pending_work": "PumpPortal independent intake unchanged. Migration journal admission remains before acquisition. Budget-only journal claim compensation is compare-and-set against attempt count and dispatch fence. Walkback compensates only its own claimed attempt; creator Deferred path preserves attempts. No canonical overwrite, acknowledgement, retry reset or replay.",
+    "recovery": "Completed HTTP response may be reacquired after cooldown within existing hard retry/credit limits, allowing recovery after process-local cache loss. HTTP404 stays bounded-retryable, not invented permanent evidence failure.",
+    "reservation": "Each actual HTTP attempt, redirect, fallback and page reserves credits; enhanced POST batches require an entire-batch cost selector bound to submitted count."
+  },
+  "STORAGE_HEADROOM": {
+    "final_fixture_allocation_bytes": 63873024,
+    "final_fixture_logical_bytes": 60892671,
+    "final_observed_available_bytes": 2772111360,
+    "kernel_test_file_limit_bytes": 499000000,
+    "largest_generated_fixture_file_bytes": 688129,
+    "lowest_retained_pre_or_post_check_bytes": 2274373632,
+    "new_database_or_wal_allocation": "No new live database or WAL owner; all SQLite fixtures disposable. No absolute live WAL guarantee claimed.",
+    "prior_iterations_cleanup": "Only these task-owned synthetic fixtures removed after allocation recording; no historical/production data deleted.",
+    "prior_iterations_task_owned_fixture_allocation_bytes": 567390208,
+    "required_floor_plus_reserve_bytes": 2067108864,
+    "sampling_limit": "Not a continuous guarantee against unrelated disk users; each real gate publication enforces its floor.",
+    "start_available_bytes": 3521613824
+  },
+  "UNGUARDED_PATHS": {
+    "limits": "Application-process protection, not an account-wide network firewall. Unrelated processes, shared-key users and native/raw-IP transports outside the frozen source are not controlled. The October26 billed caller remains unattributed.",
+    "qualified_registered_python_transports": "No bypass observed in the provider-free boundary tests.",
+    "source_inventory": "All directly imported HTTP libraries in the three runtime src trees are requests, urllib/urllib3, aiohttp and httpx. No direct raw socket/curl/native HTTP transport was found in those trees."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "activation_contract": [
+    "Separate deployment authorization required.",
+    "Verify all installed preimages, library versions, disk floor and protected queues/journals.",
+    "Stop only listener/resolver/Walkback and verify all three stopped; never mix budget-aware and older running roles.",
+    "Preserve shared denial file and counters; explicitly provision a verified policy against the exact current state SHA while PAYMENT_DENIED.",
+    "Install coherent source and the exact source-pinned recovery owner; preserve all credential, journal and paired-generation bindings.",
+    "Read back denial, policy hash and counters; restart only the three approved roles.",
+    "No provider restoration, probe, retry reset or exhausted-work replay is implied."
+  ],
+  "base_revision": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+  "changed_source_payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "13b123196aeb37bb55c7f6f24da75691f9cf68ffd929f539f568335994ec4726",
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921",
+    "runtime/listener/src/core/helius_denial_gate.py": "52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786",
+    "runtime/listener/src/core/helius_http_protection.py": "3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921",
+    "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce",
+    "runtime/walkback/src/core/helius_denial_gate.py": "52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786",
+    "runtime/walkback/src/core/helius_http_protection.py": "3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921",
+    "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7"
+  },
+  "configuration": {
+    "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+    "HELIUS_DENIAL_GATE_PATH": "unchanged shared stable path beside MIGRATION_JOURNAL_PATH",
+    "automatic_restore_or_probe": false,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "policy_status": "NOT_INSTALLED; verified production policy still required"
+  },
+  "fallback": "Only this budget-aware composition; never restore count-only source or older recovery pins after provisioning. Fresh-pair recovery changes generation only and retains charges, scopes, identities and in-flight reservations.",
+  "python": "3.11.5",
+  "qualified_transport_versions": {
+    "aiohttp": "3.9.3",
+    "httpx": "0.28.1",
+    "requests": "2.31.0",
+    "urllib3": "2.2.1"
+  },
+  "source_composition": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "13b123196aeb37bb55c7f6f24da75691f9cf68ffd929f539f568335994ec4726",
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921",
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+    "runtime/listener/src/core/helius_denial_gate.py": "52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786",
+    "runtime/listener/src/core/helius_http_protection.py": "3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921",
+    "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+    "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+    "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "724b9335046e6bdb6f89e33353a1a59dc5a576b62c0fd0d33b2ecbf4e54f67ce",
+    "runtime/walkback/src/core/helius_denial_gate.py": "52b17bb34551723a6dc190c92d4991886124926657e4364959fd07e09d88d786",
+    "runtime/walkback/src/core/helius_http_protection.py": "3df67bb39e1493345f149e505a188bdfc95ed53da781c900eb66394a640d3921",
+    "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+    "scripts/flex_v2_fresh_pair_recovery.py": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888"
+  },
+  "source_revision": "e6aaf27f7e466e5e26514e55116f72a3e7800d5d",
+  "tests": {
+    "tests/test_v2_helius_denial_gate.py": "8f098b870021e9a300c649dfd9cb6accded31a1d33d303218226530f3d2c9cd5",
+    "tests/test_v2_helius_recovery_config.py": "c66abbf60057f3071c943418413f1e5e00924c41d8ac14820bd3f1364ce417f9",
+    "tests/test_v2_helius_rpc_budget.py": "6a457747810d9b7409580cf0f8bd7f5d021aabf4e7ced7480ae9bd25f002ca66"
+  },
+  "version": 1
+}

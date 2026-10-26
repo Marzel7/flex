@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T09:32:47.584821+00:00",
+  "updated_at_utc": "2026-10-26T10:04:28.057030+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44712,5 +44712,15 @@
     "critical_blocker": "Qualified retry correction is not installed; live no-op warnings remain. Golden acceptance pending controlled preflight and separately authorized deployment.",
     "detailed_evidence": "Local only; no raw identities or production configuration published.",
     "next_action": "Run bounded read-only deployment preflight for the two-file conflict-deferral correction; preserve terminal-aware fallback and all protected records. No replay, resets, deletion or freeze."
+  },
+  "flex_v2_birth_retry_deployment_preflight": {
+    "status": "HOLD",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "engineering_revision": "8f5889a0df16bb3066cdbbee13453e7a939e6e6d",
+    "production_changed": false,
+    "tests_reused": 34,
+    "blocker": "Installed listener differs from candidate parent by an additional undeployed five-line maintenance-suppression hunk. Exact candidate installation would exceed the retry-only payload. Quarantine helper preimage matches.",
+    "next_action": "Compose and qualify a retry-only payload on the exact installed listener preimage, excluding undeployed maintenance suppression; then resume bounded deployment preflight.",
+    "details": "Source hashes and operational evidence retained locally; no source/runtime changes or deployment."
   }
 }

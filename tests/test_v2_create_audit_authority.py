@@ -248,3 +248,11 @@ def test_accepted_dispatcher_commit_before_core_ack(stores,monkeypatch,crash_poi
     assert o.execute("SELECT commit_order,payload FROM create_audit_events_v1 WHERE kind='ANCHOR'").fetchone()==original
     assert json.loads(original[1])['proof']['source']=='PUMPPORTAL'
     assert P.availability(o,'fixture-v2',p.mint,'migration-'+p.mint,p.signature)=='AFTER_HANDOFF';c.close()
+
+
+def test_fractional_utc_bounds_preserve_integer_canonical_membership(stores):
+    c,*_=stores;c.executemany('INSERT INTO token_analysis VALUES(?,?,?)',[(proof(i).mint,stamp,None) for i,stamp in enumerate((100,101,102,103))]);c.commit()
+    result=P.capture_core(c,100.25,102.75)
+    assert [r[1] for r in result['rows']]==[101,102]
+    assert result['integer_bounds']==(101,103)
+    with pytest.raises(P.Hold,match='INVALID_CAPTURE'):P.capture_core(c,float('nan'),103)

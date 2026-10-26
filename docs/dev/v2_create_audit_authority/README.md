@@ -47,6 +47,10 @@ ORDER BY migrated_at,mint
 LIMIT ?;
 ```
 
+Fractional audit endpoints are converted to integer bounds with `ceil` on both
+ends, preserving exact membership of integer canonical timestamps; they are not
+rounded down or assigned manufactured times.
+
 The query selects every canonical row in the half-open **logical UTC migration
 window**, including rows lacking signatures, handoffs or OPS work. It does not
 use operational-owner selection as a proxy. The measured plan is:
@@ -148,7 +152,7 @@ are fixture results, not production size estimates.
 
 ## Qualification and limits
 
-`tests/test_v2_create_audit_authority.py`: **26 passed, zero failures**.
+`tests/test_v2_create_audit_authority.py`: **27 passed, zero failures**.
 Controls cover complete indexed membership, absent operational dependencies,
 concurrent migration/read snapshot, interrupted capture/restart, delayed delivery,
 before/at/after handoff, concurrent OPS writers, no uncommitted visibility,

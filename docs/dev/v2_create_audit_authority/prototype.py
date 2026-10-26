@@ -7,6 +7,7 @@ import contextlib
 import hashlib
 import json
 import os
+import math
 from pathlib import Path
 import sqlite3
 import time
@@ -65,8 +66,12 @@ def capture_core(conn,start,end,*,max_rows=MAX_ROWS,between_batches=lambda:None)
     missing migration signatures or handoffs. No operational-owner proxy.
     """
     dev_store(conn)
-    if conn.in_transaction or not isinstance(start,int) or not isinstance(end,int) or start>=end or not 1<=max_rows<=MAX_ROWS:
+    if conn.in_transaction or any(type(x) not in (int,float) or not -2**62<=x<=2**62 or not math.isfinite(x) for x in (start,end)) or start>=end or not 1<=max_rows<=MAX_ROWS:
         raise Hold('INVALID_CAPTURE')
+    original_window=(start,end)
+    # Canonical migration times are integer UTC seconds. Ceil preserves exact
+    # membership in the caller's fractional half-open audit window.
+    start,end=math.ceil(start),math.ceil(end)
     sql=conn.execute('SELECT sql FROM sqlite_master WHERE name=?',(INDEX,)).fetchone()
     if not sql or norm(sql[0])!=norm(INDEX_SQL):raise Hold('INDEX_REQUIRED')
     query=f'SELECT mint,migrated_at FROM token_analysis INDEXED BY {INDEX} WHERE migrated_at>=? AND migrated_at<? ORDER BY migrated_at,mint LIMIT ?'
@@ -86,7 +91,7 @@ def capture_core(conn,start,end,*,max_rows=MAX_ROWS,between_batches=lambda:None)
             dev_store(conn)
             if time.monotonic()-began>2:raise Hold('CAPTURE_TIME_BUDGET')
             between_batches()
-        return {'rows':result,'plan':plan,'snapshot':'single SQLite read transaction','complete':True,'bytes':size}
+        return {'rows':result,'plan':plan,'snapshot':'single SQLite read transaction','complete':True,'bytes':size,'requested_window':original_window,'integer_bounds':(start,end)}
     finally:
         conn.rollback()
 

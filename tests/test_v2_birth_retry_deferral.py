@@ -87,3 +87,13 @@ def test_existing_valid_anchor_quarantine_contract_preserved(case):
         o.execute('INSERT INTO wt_walkback_queue VALUES(?,?,?,?,?)',(d['mint'],'complete','creator','canonical','VALID'))
         assert case.m.quarantine(c,o,1,d['signature'],raw,d)
         assert c.execute('SELECT consumed,quarantine_reason,retry_count FROM webhook_birth_queue').fetchone()==(0,'CORE_AUTHORITY_CONFLICT',3)
+
+
+def test_retry_only_payload_exact_installed_preimage():
+    import hashlib
+    text=SOURCE.read_text()
+    edits=[("                                            if quarantine(_core, _ops, row_id, sig, raw, data):\n                                                return 'QUARANTINED'\n                                            from src.core.birth_retry_quarantine import defer_canonical_conflict\n                                            if defer_canonical_conflict(_core, data):\n                                                return 'DEFERRED_CONFLICT'\n                                            return None", '                                            return quarantine(_core, _ops, row_id, sig, raw, data)'), ('                                disposition = await asyncio.to_thread(_quarantine_conflict)\n                                if disposition == \'QUARANTINED\':\n                                    log_print(f"[WEBHOOK_BIRTH] QUARANTINED sig={sig[:16]} reason=CORE_AUTHORITY_CONFLICT", flush=True)\n                                    continue\n                                if disposition == \'DEFERRED_CONFLICT\':\n                                    # Keep exact queue evidence; no canonical write, warning churn,\n                                    # attempt increment, consumption or unqualified quarantine.\n                                    continue', '                                if await asyncio.to_thread(_quarantine_conflict):\n                                    log_print(f"[WEBHOOK_BIRTH] QUARANTINED sig={sig[:16]} reason=CORE_AUTHORITY_CONFLICT", flush=True)\n                                    continue')]
+    for new,old in edits:
+        assert text.count(new)==1
+        text=text.replace(new,old)
+    assert hashlib.sha256(text.encode()).hexdigest()=="9b09f8e9bd6888302298f94138965d0ff4457254695e5adc244cd9ee29e6f433"

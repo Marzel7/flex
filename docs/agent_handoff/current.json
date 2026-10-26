@@ -44869,5 +44869,15 @@
     "blocker": "Current listener unexpectedly exited status1 twice in Supervisor lifecycle log and respawned during preflight; stable listener health not established. Root cause not investigated.",
     "next_action": "Bounded read-only diagnosis of current listener exit-status1; establish stable natural intake, then resume deployment preflight. No deployment.",
     "evidence": "Detailed operational report retained locally only."
+  },
+  "flex_v2_listener_exit_diagnosis": {
+    "status": "HOLD",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "source_revision": "b91473f7ec8f29a1dd0769b1f353f6e63d824991",
+    "production_changed": false,
+    "cause": "Installed PumpSwap WS reconnect loop explicitly os._exit(1) after10 consecutive failures; fatal logs align with two original exits. Recurred during bounded observation. Underlying exception masked by broad connection/refused log classifier; network root cause unproven.",
+    "current_stability": "Not established; whole listener repeatedly replaced while PumpPortal births otherwise active.",
+    "next_action": "Bounded qualification of PumpSwap connection-failure attribution and recovery: retain sanitized underlying exception, establish actual connection cause, and avoid whole-listener termination for recoverable migration-channel outage while preserving durable admission. Do not deploy instrumentation until stable intake established.",
+    "detailed_evidence": "Local report only; no private payloads published."
   }
 }

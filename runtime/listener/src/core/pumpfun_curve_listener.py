@@ -11816,13 +11816,23 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                         _ops = _sq.connect(Path(_listener_ops_db_path()).resolve().as_uri() + "?mode=ro", uri=True, timeout=5)
                                         with _core:
                                             _core.execute("BEGIN IMMEDIATE")
-                                            return quarantine(_core, _ops, row_id, sig, raw, data)
+                                            if quarantine(_core, _ops, row_id, sig, raw, data):
+                                                return 'QUARANTINED'
+                                            from src.core.birth_retry_quarantine import defer_canonical_conflict
+                                            if defer_canonical_conflict(_core, data):
+                                                return 'DEFERRED_CONFLICT'
+                                            return None
                                     finally:
                                         if _ops is not None:
                                             _ops.close()
                                         _core.close()
-                                if await asyncio.to_thread(_quarantine_conflict):
+                                disposition = await asyncio.to_thread(_quarantine_conflict)
+                                if disposition == 'QUARANTINED':
                                     log_print(f"[WEBHOOK_BIRTH] QUARANTINED sig={sig[:16]} reason=CORE_AUTHORITY_CONFLICT", flush=True)
+                                    continue
+                                if disposition == 'DEFERRED_CONFLICT':
+                                    # Keep exact queue evidence; no canonical write, warning churn,
+                                    # attempt increment, consumption or unqualified quarantine.
                                     continue
                             _mint    = data.get("mint", "")
                             _creator = data.get("traderPublicKey")

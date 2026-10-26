@@ -58,3 +58,21 @@ def quarantine(conn, ops, row_id, signature, raw_payload, data):
                            "AND consumed=0 AND quarantine_reason IS NULL",
                            (REASON, row_id, signature, raw_payload))
     return changed.rowcount == 1
+
+
+def defer_canonical_conflict(conn, data):
+    """Park conflicting compact retries without terminal disposition or attempts.
+
+    The durable queue remains unconsumed. Recheck on each bounded poll so an
+    independently authorized authority correction can make it eligible again.
+    This is not sufficient evidence for quarantine, acknowledgement or overwrite.
+    Caller has already decoded the compact envelope; repeat its provenance gate.
+    """
+    if (data.get('_birth_retry_schema') != 1
+            or data.get('provenance') != 'PUMPPORTAL_NEW_TOKEN'
+            or not data.get('mint') or not data.get('signature')):
+        return False
+    row = conn.execute('SELECT earliest_tx_creator,pf_ws_creator,create_tx_signature '
+                       'FROM token_analysis WHERE mint=?', (data['mint'],)).fetchone()
+    return bool(row and row[2] and row[2] != data['signature']
+                and any(row[:2]))

@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "81db1d5dce7a5a8fdf4e0d9c6c53b27872fb3167",
+    "git_head": "decbfa85e673963acc5f58c635497a31ebf8cda3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T11:56:32.366091+00:00",
+    "updated_at_utc": "2026-10-26T12:47:05.224470+00:00",
     "working_tree": "Qualified isolated DEV dormant runtime composition; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T11:56:32.367032+00:00",
+  "updated_at_utc": "2026-10-26T12:47:05.224796+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44810,5 +44810,28 @@
     "next_action": "Stop after qualification. Separately review/authorize bounded schema-owner/shared-writer integration; no deployment, promotion or Golden freeze.",
     "evidence": "Generic contract and tests in source; detailed evidence local.",
     "report_sha256": "5e27ee6281d300afdd6734d1f63e82f3ed3cb11553bfdd35b7aa2a84a975d8bb"
+  },
+  "flex_v2_prospective_create_instrumentation": {
+    "status": "PASS_DEV_ONLY",
+    "verdict": "READY_FOR_READ_ONLY_DEPLOYMENT_PREFLIGHT",
+    "engineering_revision": "decbfa85e673963acc5f58c635497a31ebf8cda3",
+    "tests": {
+      "passed": 86,
+      "failed": 0,
+      "provider_free": true,
+      "existing_audit_controls": 27,
+      "new_integration_controls": 33,
+      "direct_recovery_consolidation_controls": 26
+    },
+    "production_changed": false,
+    "deployed": false,
+    "golden_frozen": false,
+    "ops_schema_version": 1,
+    "bundle_sha256": "5933853cc69cc3a6038d5de0759fe93d56773232687331f59f9fc4015d4d5c11",
+    "result": "Existing schema-owner extensions and accepted shared-writer enqueue/activation callbacks integrated behind explicit opt-in. Exact bounded Core reader, immutable first-source receipts and same-transaction handoff ordering qualified. Legacy/missing timing remains unknown; no backfill.",
+    "recovery": "Terminal-aware renderer preserves audit flag and schema/index/source pins; selected-row fresh-pair recovery preserves original receipt generations. Audit-unaware fallback rejected.",
+    "storage_limit": "Finite audit/capture quotas; saturation fails closed. Observation horizon and capacity remain mandatory production preflight gates, not indefinite-retention claims.",
+    "next_action": "Stop after qualification. Perform a separately scoped read-only preflight for this exact frozen bundle, including initial schema/index preparation, coherent affected-worker activation and coverage-aware fallback. No deployment or Golden freeze.",
+    "detailed_evidence": "Local report and frozen bundle; no production contents or private configuration published."
   }
 }

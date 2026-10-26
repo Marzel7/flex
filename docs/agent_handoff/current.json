@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T10:04:28.057030+00:00",
+  "updated_at_utc": "2026-10-26T10:26:39.873984+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -44714,30 +44714,30 @@
     "next_action": "Run bounded read-only deployment preflight for the two-file conflict-deferral correction; preserve terminal-aware fallback and all protected records. No replay, resets, deletion or freeze."
   },
   "flex_v2_birth_retry_deployment_preflight": {
-    "status": "HOLD",
-    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
-    "engineering_revision": "8f5889a0df16bb3066cdbbee13453e7a939e6e6d",
+    "status": "PASS",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
+    "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
     "production_changed": false,
-    "tests_reused": 34,
-    "blocker": "Source mismatch resolved by retry-only candidate; remaining preflight blocker is disk headroom below mandatory floor.",
-    "next_action": "Compose and qualify a retry-only payload on the exact installed listener preimage, excluding undeployed maintenance suppression; then resume bounded deployment preflight.",
-    "details": "Source hashes and operational evidence retained locally; no source/runtime changes or deployment."
+    "tests_reused": 35,
+    "blocker": null,
+    "next_action": "Separate authorization for exact retry-only listener/helper installation and bounded natural acceptance. Production unchanged.",
+    "details": "Exact preimages,pair,runtime,receipt/journal quotas and terminal-aware rollback verified; detailed evidence local."
   },
   "flex_v2_retry_only_source": {
-    "status": "PARTIAL",
-    "verdict": "HOLD_DISK_HEADROOM",
+    "status": "PASS",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
     "engineering_revision": "ca1678b780696cd62ceb125ef3abe6561198bd12",
     "source_correction": "PASS: exact installed preimage outside retry-only delta; unrelated maintenance hunk excluded; helper unchanged from qualified correction.",
     "tests": {
-      "directly_affected_passed": 10,
-      "unchanged_controls_blocked_by_disk_floor": 25,
-      "deselected": 8,
-      "provider_free": true
+      "passed": 35,
+      "failed": 0,
+      "provider_free": true,
+      "heavier_unrelated_deselected": 8
     },
     "production_changed": false,
     "deployment_authorized": false,
-    "blocker": "Available filesystem headroom below mandatory 2GB floor; journal fixtures failed closed before initialization.",
-    "next_action": "Restore floor plus64MiB, rerun blocked focused checks and refresh live authority/rollback prerequisites for this exact payload. No deployment or unrelated investigation.",
+    "blocker": null,
+    "next_action": "Separately authorize exact two-file listener-only deployment and bounded natural acceptance; preserve terminal-aware configuration and verified fallback. No baseline freeze yet.",
     "details": "Exact two-file hashes, rollback preimages and detailed report local only."
   }
 }

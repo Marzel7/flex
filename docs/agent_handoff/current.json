@@ -37028,7 +37028,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "decbfa85e673963acc5f58c635497a31ebf8cda3",
+    "git_head": "b91473f7ec8f29a1dd0769b1f353f6e63d824991",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-26T12:47:05.224470+00:00",
@@ -44844,5 +44844,19 @@
     "tests_rerun": false,
     "runtime_verification": "Not refreshed after decisive candidate capacity failure; production readiness not claimed.",
     "next_action": "Separately authorize bounded DEV correction: durable observation-window closure at quota, preserving retained evidence and explicitly marking subsequent measurement unavailable while allowing normal canonical processing; qualify atomic closure, restart and recovery before resuming preflight."
+  },
+  "flex_v2_create_audit_capacity": {
+    "status": "PASS_DEV_ONLY",
+    "source_revision": "b91473f7ec8f29a1dd0769b1f353f6e63d824991",
+    "tests": {
+      "passed": 94,
+      "failed": 0,
+      "provider_free": true
+    },
+    "production_changed": false,
+    "deployed": false,
+    "verdict": "READY_FOR_READ_ONLY_DEPLOYMENT_PREFLIGHT",
+    "result": "Existing OPS owner adds irreversible CLOSED_CAPACITY singleton. Exact event/byte limits and per-transaction limits close optional measurement atomically with essential mutation; subsequent handoff/activation continues. Immutable evidence retained; reader complete=false and UNMEASURED_AFTER_CLOSURE for unavailable timing. Generation/schema/storage failures remain fail-closed. Recovery pins updated.",
+    "next_action": "Resume strictly read-only deployment preflight against this candidate; verify explicit additive owner preparation, coherent three-role activation and closure-aware recovery. Do not deploy."
   }
 }

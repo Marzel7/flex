@@ -78,7 +78,7 @@ def activate(e,paths,manifest,destination,monkeypatch):
 
 
 def test_fresh_pair_generation_only_move_and_repeat(case,monkeypatch):
- e=case;paths,m,dest=target(e);prepared=e.ns['prepare_helius_recovery'](e.env,dest);e.ns['freeze_helius_recovery'](prepared);old=e.gate.read();env=activate(e,paths,m,dest,monkeypatch)
+ e=case;protected,pending=seed_and_reclaim(e);paths,m,dest=target(e);prepared=e.ns['prepare_helius_recovery'](e.env,dest);e.ns['freeze_helius_recovery'](prepared);old=e.gate.read();env=activate(e,paths,m,dest,monkeypatch)
  # Crash between paired rebind and gate move is explicitly refused.
  with pytest.raises(Exception,match='HELIUS_GATE_STATE'):e.ns['helius_environment']('listener',env)
  e.ns['finish_helius_recovery'](env);fresh=e.module.Gate(e.gate.path,'fresh');new=fresh.read();assert new==dict(old,generation='fresh') and fresh.blocked()
@@ -86,6 +86,12 @@ def test_fresh_pair_generation_only_move_and_repeat(case,monkeypatch):
  with pytest.raises(e.module.Deferred):fresh.reserve('getTransaction')
  assert fresh.read()['reservations']==old['reservations']
  for role in e.plan['roles']:e.ns['helius_environment'](role,env)
+ e.ns['settings']=lambda mode:dict(env);e.ns['write_config']('v2')
+ assert e.output_env()['FLEX_HELIUS_DENIAL_GATE_ENABLED']=='1' and e.output_env()['DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED']=='1'
+ terminal=e.tm.TerminalEvidenceStore(paths['ops'],e.journal.path,generation='fresh',validate_record=e.journal._validate,validate_pair=lambda p:e.g.validate_pair(core_path=env['DB_PATH'],ops_path=str(p)))
+ journal=e.jm.MigrationJournal(e.journal.path,terminal_owner=terminal)
+ assert journal.admit(protected['signature'],protected['source'],999)==protected
+ assert journal.snapshot()==[pending] and not journal.begin_attempt(protected['signature'])
 
 
 def test_snapshot_after_stop_includes_latest_counters(case,monkeypatch):

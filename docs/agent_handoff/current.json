@@ -37028,7 +37028,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "e7e72513c15c98f8629377099dc47db8a61e0fa4",
+    "git_head": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-26T12:47:05.224470+00:00",
@@ -44940,5 +44940,24 @@
     "live_sample": "Matched activeV2 pair; disk2.81GB; migration journal510/512; terminal592/8192. No live transfer or capacity mutation.",
     "next_action": "Bounded DEV correction of existing recovery/configuration renderer and frozen source pins to preserve stable denial state, counters and generation authority across restart/fresh-pair recovery; reject gate-unaware fallback. Run only focused recovery controls, then resume this deployment preflight.",
     "detailed_evidence": "Local aggregate report; sensitive operational detail not published."
+  },
+  "flex_v2_helius_recovery_compatibility": {
+    "status": "PASS_DEV_ONLY",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "source_revision": "4f4d2d52fdb6d0b1d3c2720b6e349a772fcf5f99",
+    "frozen_bundle_sha256": "9ba4be1871b8e0116e7fea356ab043fcdd2ddf24d4eafb93dbfaa373e9291e95",
+    "tests": {
+      "passed": 83,
+      "failed": 0,
+      "provider_free": true
+    },
+    "production_changed": false,
+    "provider_calls": 0,
+    "service_restarts": 0,
+    "result": "Exact gate-aware source/config renderer; stopped three-role activation; immutable current configuration preimage; matched-pair recovery changes only gate generation, preserving denial/counters/deadlines and terminal/pending rights. No allowance reset or gate-unaware fallback.",
+    "live_safety": "Disk4.43GB; migration508/512,0 ACK reclaim,504 protected terminal-eligible with no indexed target conflicts; terminal612/8192. Existing <=20 verified transfer per batch is required beyond4 raw slots; no live transfer executed.",
+    "provider_evidence": "Operator-reported denial only; no live billing or HTTP classification inferred from429.",
+    "next_action": "Obtain separate production deployment authorization for this exact12-file source/recovery bundle and frozen plan. Immediately recheck disk, source preimages and journal/terminal capacity; stage immutable preimage, quiesce all3 roles, initialize confirmed-denial control, install coherently, render/start qualified roles and verify natural birth/durable migration admission without Helius probes. No deployment under this task.",
+    "detailed_evidence": "Private local frozen bundle, runtime plan, protected configuration preimage and report; no credentials published."
   }
 }

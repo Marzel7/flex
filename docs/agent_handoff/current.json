@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "809e6ac19898f0a5f969ef28fa9fa37f40da3bc1",
+    "git_head": "33554cecac7ea29494bf63851e363b48e931f789",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T20:17:43.049777+00:00",
+    "updated_at_utc": "2026-10-26T21:31:31.582418+00:00",
     "working_tree": "Existing codex/flex-v2-final-consolidation; DEV source/evidence committed; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -45129,10 +45129,10 @@
   },
   "blocker": "Freeze a verified production cost/limit policy: accepted billing evidence and worst-case weights for every permitted request variant/batch size, operator-approved allocations, and explicit finite ledger capacity disposition. The empty-cost proposal is intentionally rejected by configure_budget. No guessed pricing or production allowance is installed.",
   "flex_v2_helius_investigation_budget": {
-    "status": "QUALIFIED_NOT_DEPLOYED",
-    "verdict": "PASS",
-    "updated_at_utc": "2026-10-26T20:17:43.049777+00:00",
-    "engineering_revision": "809e6ac19898f0a5f969ef28fa9fa37f40da3bc1",
+    "status": "HOLD",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "updated_at_utc": "2026-10-26T21:31:31.582418+00:00",
+    "engineering_revision": "33554cecac7ea29494bf63851e363b48e931f789",
     "source_revision": "b8b101922bcc59f9c456c49a3f82a9938dc63a04",
     "bundle_sha256": "b1a372cb729e2b0c397550ad8bcff8154dba8841f7b78dc7382b28761bd11815",
     "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/REPORT.json",
@@ -45181,7 +45181,23 @@
       "provider_RPC_or_WS_calls": 0,
       "service_controls": 0
     },
-    "blocker": null,
-    "next_action": "Perform bounded read-only multi-role deployment preflight against this exact source/policy and gate-aware recovery. Keep PAYMENT_DENIED; do not deploy or restore Helius."
+    "blocker": "Retained production fallback is denial-aware but investigation-budget-unaware. No exact production-bound investigation-aware recovery/fallback bundle replaces that authority.",
+    "next_action": "Freeze one complete deployment and compatible fallback manifest from b8b10192 plus its accepted parent composition, explicit v2 policy provisioning under PAYMENT_DENIED, three-role shared state/config and new recovery hash pins. Reject legacy fallback after ledger initialization. Then recheck remaining live capacity gates. No new code qualification, deployment or provider restoration in this preflight.",
+    "preflight_report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-final-consolidation/flex/docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/PREFLIGHT.json",
+    "preflight_report_sha256": "3549a9cf97fcf9cceb0ecbc20020adfe35c9dd1537128adfe59217a0252aa15c",
+    "preflight_journal_counts": {
+      "birth_records": 512,
+      "birth_states": {
+        "QUARANTINED": 512
+      },
+      "migration_records": 502,
+      "migration_states": {
+        "QUARANTINED": 191,
+        "RESOLVED": 1,
+        "RETRY_EXHAUSTED": 190,
+        "PENDING": 120
+      },
+      "qualification": "Counts only; no record disposition, reclaimability or admission-headroom PASS inferred. No journals modified."
+    }
   }
 }

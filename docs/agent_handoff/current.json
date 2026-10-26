@@ -44902,6 +44902,7 @@
     "result": "Installed listener unchanged; paid acquisition continues retries amid PumpSwap process restart/cache-loss loop. Listener DBmetrics disabled, latest V2telemetry13:53; later stdout accounting550/hour getTransaction entries are not distinct/billed requests. Direct vault/Walkback transports lack complete request accounting. Resolver currently idle; Walkback empty/disk-blocked.",
     "regression": "No proven V2 regression or introducing revision; new recovery/audit candidates not deployed.",
     "next_action": "Separately authorize a controlled pause/circuit-break of paid Helius acquisition at dispatch while preserving PumpPortal births and durable migration journal admission. Do not use a notification-dropping listen toggle or stop whole listener. Do not reconnect exhausted provider. No containment action executed. Qualified reconnect-only patch removes cache-destructive process restarts but is not itself a total RPC-budget fix.",
-    "detailed_evidence": "Local aggregate report only."
+    "detailed_evidence": "Local aggregate report only.",
+    "storage_safety": "Final disk free1049006080 bytes, below established2GB floor. No cleanup performed; stopped further audit reads."
   }
 }

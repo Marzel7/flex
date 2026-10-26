@@ -44,7 +44,7 @@ def owner(mode,stage):
 # Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
 TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
 TERMINAL_PAYLOAD = {
- 'pumpfun_curve_listener.py':'7669942f9d1955dc3b1bfbfb6873293dedd1fbab270b6ca1e9e3e34ccc639861',
+ 'pumpfun_curve_listener.py':'747b2d497e707977de6f9e50ba9c81f9d864ee07c837abf57117be5d7bb44f9a',
  'migration_signature_journal.py':'65e012a0eac3e1aefc48b870ecd878d2eee870d6f91c459e789118c0062e3668',
  'migration_terminal_evidence.py':'0262a5bdf3d4cb179d8c4ef9f1fccd96cac306a6f5dc80074258443c0c090ecf',
 }
@@ -87,6 +87,35 @@ def terminal_environment(env):
  owner.lookup('__TERMINAL_RECOVERY_SCHEMA_PROBE__')
  return env
 
+CREATE_AUDIT_FLAG = "FLEX_V2_CREATE_AUDIT_ENABLED"
+CREATE_AUDIT_PAYLOAD = {'listener': {'src/ops/create_coverage.py': '9f2f1cc236a173975d98a1ed62c072fccddea160c875020e60fd440368bb590d', 'src/ops/walkback_create_handoff.py': 'd88130291188c6bdfd72ad3366233dd8f52d49a8411e8eb197cca211d584afd1', 'src/core/walkback_queue.py': '3ee78cfe768ed94b9d9cac9d5e77f8f1b83a74a5afa4d1b422b26bad7167f8b7'}, 'creator_resolution': {'src/ops/create_coverage.py': '9f2f1cc236a173975d98a1ed62c072fccddea160c875020e60fd440368bb590d', 'src/ops/walkback_create_handoff.py': 'd88130291188c6bdfd72ad3366233dd8f52d49a8411e8eb197cca211d584afd1', 'src/core/walkback_queue.py': '3ee78cfe768ed94b9d9cac9d5e77f8f1b83a74a5afa4d1b422b26bad7167f8b7'}, 'walkback': {'src/ops/create_coverage.py': '9f2f1cc236a173975d98a1ed62c072fccddea160c875020e60fd440368bb590d', 'src/ops/walkback_create_handoff.py': 'd88130291188c6bdfd72ad3366233dd8f52d49a8411e8eb197cca211d584afd1', 'src/core/walkback_queue.py': '062c0ecc57d5b82579b24984f65b8426759c87a90c3706bbc4c9a37787d8f5b6'}}
+
+def coverage_environment(role,env):
+ env=dict(env)
+ planned=P['planned_production_environment'].get(CREATE_AUDIT_FLAG,'0')
+ if planned not in ('0','1') or env.get(CREATE_AUDIT_FLAG,'0')!=planned:
+  raise RuntimeError('CREATE_AUDIT_FLAG_DOWNGRADE')
+ path=env.get('WT_OPS_DB_PATH')
+ if not path or not os.path.isabs(path) or os.path.realpath(path)!=path:raise RuntimeError('CREATE_AUDIT_OPS_REQUIRED')
+ if planned=='0':
+  with sqlite3.connect(pathlib.Path(path).as_uri()+'?mode=ro',uri=True) as conn:
+   if conn.execute("SELECT 1 FROM sqlite_master WHERE name='create_coverage_owner_v1'").fetchone():raise RuntimeError('CREATE_AUDIT_FLAG_DOWNGRADE')
+  return env
+ for name in ['DB_PATH','WT_OPS_DB_PATH','FLEX_DB_PAIR_MANIFEST','FLEX_DB_PAIR_AUTHORITY']:
+  if not env.get(name) or env[name]!=os.environ.get(name):raise RuntimeError('CREATE_AUDIT_RECOVERY_BINDING')
+ if g.validate_pair(core_path=env['DB_PATH'],ops_path=env['WT_OPS_DB_PATH'],purpose='active') is None:raise RuntimeError('CREATE_AUDIT_GENERATION_REQUIRED')
+ package=pathlib.Path(P['roles'][role]['package'])
+ for relative,expected in CREATE_AUDIT_PAYLOAD[role].items():
+  f=package/relative
+  if f.is_symlink() or str(f.resolve())!=str(f) or sha(f)!=expected:raise RuntimeError('CREATE_AUDIT_UNAWARE_FALLBACK')
+ spec=importlib.util.spec_from_file_location('recovery_create_coverage',package/'src/ops/create_coverage.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ with sqlite3.connect(pathlib.Path(path).as_uri()+'?mode=ro',uri=True) as conn:module.validate_schema(conn)
+ with sqlite3.connect(pathlib.Path(env['DB_PATH']).as_uri()+'?mode=ro',uri=True) as conn:
+  row=conn.execute('SELECT sql FROM sqlite_master WHERE name=?',(module.INDEX,)).fetchone()
+  if not row or module.norm(row[0])!=module.norm(module.INDEX_SQL):raise RuntimeError('CREATE_AUDIT_INDEX_REQUIRED')
+ env[CREATE_AUDIT_FLAG]='1'
+ return env
+
 def write_config(mode):
  if mode!='v2':raise RuntimeError('TERMINAL_RECOVERY_V2_ONLY')
  from supervisor.datatypes import dict_of_key_value_pairs
@@ -96,6 +125,7 @@ def write_config(mode):
   if role=='listener':
    env.update(P['roles'][role]['nonsecret_wrapper_environment'])
    env=terminal_environment(env)
+  env=coverage_environment(role,env)
   env['RPC_METRICS_DB']=env['DB_PATH']  # Preserve accepted V2 telemetry authority after role overrides.
   section['environment']=','.join(k+'="'+str(v).replace('\\','\\\\').replace('"','\\"')+'"' for k,v in env.items())
   if mode=='v2':section['command']=' '.join(P['roles'][role]['command'])

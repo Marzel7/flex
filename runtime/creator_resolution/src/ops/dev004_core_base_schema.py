@@ -265,3 +265,9 @@ def main():
     print(json.dumps(initialize(args.core,disposable_root=args.disposable_root,allow_disposable_v2=args.allow_disposable_v2),sort_keys=True))
 
 if __name__=='__main__':main()
+
+
+def initialize_create_coverage_index(conn):
+    """Explicit extension on an already authorized Core shared-writer transaction."""
+    from src.ops.create_coverage import initialize_core_index
+    initialize_core_index(conn)

@@ -210,6 +210,12 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+def ensure_create_coverage_schema(conn):
+    """Explicit versioned OPS extension; caller retains shared commit ownership."""
+    from src.ops.create_coverage import initialize_ops
+    initialize_ops(conn)
+
+
 # ── classification logic (zero RPC) ────────────────────────────────────────
 
 def _resolve_treasury_via_op_graph(
@@ -379,11 +385,18 @@ def enqueue_migration(conn: sqlite3.Connection, *,
     Returns the walkback_class assigned, or None if already queued and force=False.
     Idempotent on (mint) — uses INSERT OR IGNORE unless force=True.
     """
+    _coverage = None
+    if os.environ.get('FLEX_V2_CREATE_AUDIT_ENABLED', '0') != '0':
+        from src.ops.create_coverage import Boundary
+        _coverage = Boundary(conn)
+    elif conn.execute("SELECT 1 FROM sqlite_master WHERE name='create_coverage_owner_v1'").fetchone():
+        raise RuntimeError('CREATE_AUDIT_FLAG_DOWNGRADE')
     if not force:
         existing = conn.execute(
             "SELECT walkback_class, status FROM wt_walkback_queue WHERE mint=?",
             (mint,)).fetchone()
         if existing:
+            if _coverage is not None:_coverage.handoff(mint, existing=True)
             try:
                 from src.ops.watchtower_candidates import evaluate_and_enqueue_candidate
                 evaluate_and_enqueue_candidate(
@@ -465,6 +478,8 @@ def enqueue_migration(conn: sqlite3.Connection, *,
          initial_outcome, initial_status, now, now, create_signature if anchor_valid else None,
          create_slot, create_block_time, create_source,
          "VALID" if anchor_valid else "MISSING_OR_MALFORMED", path_state))
+    if _coverage is not None:
+        _coverage.handoff(mint)
     try:
         from src.ops.watchtower_candidates import evaluate_and_enqueue_candidate
         evaluate_and_enqueue_candidate(conn, mint=mint, creator=r_creator or creator, live_conn=live_conn)

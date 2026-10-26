@@ -9,6 +9,7 @@ from pathlib import Path
 import resource
 import shutil
 import socket
+import sqlite3
 import types
 import pytest
 from supervisor.datatypes import dict_of_key_value_pairs
@@ -67,11 +68,11 @@ def case(tmp_path,monkeypatch):
     def ctl(*args):
         controls.append(args)
         return 'RUNNING' if args[0]=='status' else ''
-    ns={'P':plan,'S':root,'CONF':live,'os':os,'pathlib':__import__('pathlib'),'json':json,'configparser':configparser,'hashlib':hashlib,'importlib':__import__('importlib'),'g':g,'sha':lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest(),'ctl':ctl,'save':lambda *a:None,'print':lambda *a,**k:None}
+    ns={'P':plan,'S':root,'CONF':live,'os':os,'pathlib':__import__('pathlib'),'json':json,'configparser':configparser,'hashlib':hashlib,'importlib':__import__('importlib'),'g':g,'sha':lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest(),'ctl':ctl,'save':lambda *a:None,'print':lambda *a,**k:None,'sqlite3':sqlite3}
     tree=ast.parse(RENDERER.read_text())
-    allowed={'atomic','settings','terminal_environment','write_config'}
+    allowed={'atomic','settings','terminal_environment','coverage_environment','write_config'}
     for node in tree.body:
-        if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id in {'TERMINAL_FLAG','TERMINAL_PAYLOAD','TERMINAL_SCHEMA_CONTRACT','MAX_RECOVERY_CONFIG_BYTES'} for t in node.targets):exec(compile(ast.Module(body=[node],type_ignores=[]),str(RENDERER),'exec'),ns)
+        if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id in {'TERMINAL_FLAG','TERMINAL_PAYLOAD','TERMINAL_SCHEMA_CONTRACT','MAX_RECOVERY_CONFIG_BYTES','CREATE_AUDIT_FLAG','CREATE_AUDIT_PAYLOAD'} for t in node.targets):exec(compile(ast.Module(body=[node],type_ignores=[]),str(RENDERER),'exec'),ns)
         if isinstance(node,ast.FunctionDef) and node.name in allowed:exec(compile(ast.Module(body=[node],type_ignores=[]),str(RENDERER),'exec'),ns)
     publish(authority_root/'auxiliary.json',{'fixture_only':True})
     def output_env():

@@ -37031,8 +37031,8 @@
     "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T21:09:02.402682+00:00",
-    "working_tree": "Replacement probe PASS with durable validation, then critical disk floor breach during natural acceptance: gate PENDING_V1 fail-closed. All workers RUNNING; one live reservation protected; no further probes/replay/reset."
+    "updated_at_utc": "2026-10-27T21:18:43.243573+00:00",
+    "working_tree": "Disk restored6.25GB; gate publication recovered conservatively and old-owner reservation retired without refund. All3workersRUNNING, 63877credits and100kcap preserved, five review-held requests, zero inflight. Helius closed; no probe issued."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T20:51:19.998415+00:00",
+  "updated_at_utc": "2026-10-27T21:18:43.243573+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -47064,5 +47064,67 @@
     "no_exhausted_replay_or_retry_reset": true,
     "blocker": "Available disk fell below required floor; existing gate publication interrupted and now fail-closed. Do not infer provider outcome from PENDING marker. One live-owner reservation remains protected.",
     "next_action": "Restore verified disk above 2GB+64MiB plus recovery reserve, then perform evidence-verified gate publication recovery preserving the live/uncertain reservation and all spending. No automatic additional probe or marker clearing."
+  },
+  "flex_v2_post_disk_gate_recovery": {
+    "status": "PARTIAL_RECOVERY_PASS_PROVIDER_CLOSED",
+    "qualification_tests": 11,
+    "gate_state": "PAYMENT_DENIED",
+    "marker_verified": true,
+    "credits_before_after": [
+      63877,
+      63877
+    ],
+    "review_held": 5,
+    "inflight": 0,
+    "limit": 100000,
+    "retirement": [
+      "RECONCILED_UNCERTAIN_NO_REFUND"
+    ],
+    "services_before": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 68113
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 61516
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 61539
+      }
+    },
+    "services_after": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 70948
+      }
+    },
+    "disk_free_bytes": 6251208704,
+    "provider_requests": 0,
+    "exhausted_replay": false,
+    "source_config_schema_changes": 0,
+    "completed_utc": "2026-10-27T21:17:05.279810+00:00",
+    "next_action": "Obtain authorization for one fresh bounded provider probe, retaining durable validation before finalization; no automatic request or exhausted replay.",
+    "stability_seconds": 30,
+    "stable_worker_pids": true,
+    "blocker": "FRESH_BOUNDED_RESTORATION_PROBE_NOT_AUTHORIZED_AFTER_PREVIOUS_ONE_WAS_USED",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "recovery_tool_sha256": "4382fc17994b389cf0bfabb84c181fe533c4edffbd602775f2fd7a6b3b5b2dc1",
+    "production_flags": {
+      "shared_gate_enabled": true,
+      "deferred_listener_enabled": true,
+      "state": "PAYMENT_DENIED",
+      "lifetime_limit": 100000
+    }
   }
 }

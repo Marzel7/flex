@@ -1,0 +1,155 @@
+{
+  "FLEX_V2_MIGRATION_RETRY_DEPLOYMENT_STATUS": "PASS",
+  "INSTALLED_SOURCE_HASHES": {
+    "source_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "listener_qualified_commit": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+    "bundle_sha256": "2abc16d7d6b335fd401fe05312552d8b4badfa9574a8ebc33e2a8e2629202520",
+    "listener_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+    "recovery_renderer_sha256": "a5def40d99e887cfe2e8a7881ddfc803436532f0239bbb21b629085b25a25ffd",
+    "configuration_unchanged": true,
+    "configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579"
+  },
+  "LISTENER_PID_BEFORE_AFTER": [
+    99111,
+    6860
+  ],
+  "UNDEFINED_LOGGER_ERRORS": {
+    "post_restart_lines": 631,
+    "undefined_logger_errors": 0,
+    "typed_discovery_budget_deferral_lines": 6,
+    "PumpSwap_subscription_confirmed": true,
+    "PumpPortal_subscription_confirmed": true,
+    "post_restart_JOURNAL_CAPACITY_refusals": 0,
+    "post_restart_birth_journal_capacity_refusals": 0
+  },
+  "BUDGET_DEFERRAL_ATTEMPT_INTEGRITY": {
+    "new_zero_attempt_durable_deferrals": 4,
+    "acknowledgements_for_deferrals": 0,
+    "protected_exhausted_records_verified_unchanged": 1319,
+    "no_attempt_reset": true
+  },
+  "NATURAL_BIRTH_AND_MIGRATION_ACTIVITY": {
+    "birth_receipts": 126,
+    "verified_committed_births": 125,
+    "retained_new_notification_states": {
+      "PENDING": 4
+    },
+    "new_migration_ACKs_verified": 0,
+    "completed_handoffs": 0,
+    "CREATE_delivery_ACKs": 0,
+    "migration_completion_observed": false,
+    "noncommitted_receipt_durable_states": [
+      {
+        "receipt_outcome": "RETRY_PENDING",
+        "exact_mint_signature_creator_journal_match": true,
+        "durable_birth_journal_states": [
+          "QUARANTINED"
+        ]
+      }
+    ]
+  },
+  "NEW_RETRY_EXHAUSTION": 0,
+  "HELIUS_REQUEST_ACCOUNTING": {
+    "natural_HTTP_requests": 298,
+    "reserved_credits_delta": 298,
+    "worker_credit_deltas": {
+      "listener": 0,
+      "creator_resolution": 0,
+      "walkback": 298
+    },
+    "method_request_deltas": {
+      "rpc:getAccountInfo": 79,
+      "rpc:getSignaturesForAddress": 86,
+      "rpc:getTransaction": 133
+    },
+    "max_sampled_inflight_age_seconds": 0,
+    "final_inflight": 0,
+    "lifetime_limit": 100000,
+    "gate_state": "OPEN",
+    "historical_spending_preserved": true,
+    "original_uncertain_requests_held": 3,
+    "no_gate_or_policy_reset": true,
+    "note": "Local reserved worst-case credits, not provider invoice totals."
+  },
+  "JOURNAL_AND_TERMINAL_CAPACITY": {
+    "journals": {
+      "migration": {
+        "records": 510,
+        "bytes": 287981,
+        "free_slots": 2
+      },
+      "birth": {
+        "records": 493,
+        "bytes": 451496,
+        "free_slots": 19
+      }
+    },
+    "terminal": {
+      "migration_terminal_owner_v1": [
+        1272,
+        1425251
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "existing_verified_reclamation_preserved": true
+  },
+  "DISK_AND_WAL_HEALTH": {
+    "disk_free_bytes": 3813294080,
+    "lowest_observed_free_bytes": 3812843520,
+    "database_sizes": {
+      "core": {
+        "bytes": 68513792,
+        "wal_bytes": 4152
+      },
+      "ops": {
+        "bytes": 160227328,
+        "wal_bytes": 0
+      }
+    },
+    "floor_bytes": 2067108864,
+    "file_cap_bytes": 499000000,
+    "new_code_checkout_largest_file_bytes": 17014469,
+    "limits": "WAL sizes and in-flight ages are sampled, not absolute guarantees."
+  },
+  "services": {
+    "watchtower_listener": {
+      "state": "RUNNING",
+      "pid": 6860
+    },
+    "creator_resolution_worker": {
+      "state": "RUNNING",
+      "pid": 76370
+    },
+    "walkback_worker": {
+      "state": "RUNNING",
+      "pid": 99159
+    }
+  },
+  "ROLLBACK_STATUS": {
+    "executed": false,
+    "compatible_explicit_profile": {
+      "source_commit": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+      "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-completion-455f160d/source",
+      "renderer_sha256": "673df320cac898fa7e232dbc5a40c0ee35a73ae359bccd85b2d0add10f9db142",
+      "listener_sha256": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+      "configuration_preimage_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+      "rule": "Fallback uses the exact455source AND its matching455renderer/source-plan, preserving current gate state, counters, owner tombstones, terminal evidence and journals. Never mix listener and renderer profiles; never reset/replay11 exhausted records. Prior retry defect returns under fallback."
+    },
+    "preserves_gate_terminal_journal_evidence": true
+  },
+  "observation": {
+    "seconds": 300.4628710746765,
+    "start_utc": "2026-10-27T08:05:11.158622+00:00",
+    "end_utc": "2026-10-27T08:10:11.621493+00:00"
+  },
+  "NEXT_ACTION": "Leave listener6860and unchanged resolver/Walkback running; monitor normal migration completion. Keep all exhausted work protected; no replay/reset authorized.",
+  "provider_calls_initiated_for_testing": 0,
+  "exhausted_replay": false,
+  "unrelated_service_restarts": 0,
+  "V1_access": 0,
+  "NEW_RETRY_EXHAUSTION_ALL_RECEIVED_DATES_POSTCHECK": 0,
+  "protected_exhausted_total_postcheck": 1319
+}

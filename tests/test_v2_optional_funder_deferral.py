@@ -4,7 +4,7 @@ import pytest
 from tests.test_v2_helius_investigation_budget import v,legacy
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 WORKER=ROOT/'runtime/walkback/src/core/walkback_worker.py'
-FUNCTIONS={'promote_recurring_funders','_is_known_treasury','_is_known_subprov','_is_program_owned','_get_account_owner','_rpc','drain_batch'}
+FUNCTIONS={'promote_recurring_funders','_is_known_treasury','_is_known_subprov','_is_program_owned','_get_account_owner','_rpc','_rpc_uncached','drain_batch'}
 
 @pytest.fixture
 def case(v,monkeypatch):
@@ -12,6 +12,7 @@ def case(v,monkeypatch):
  ticket=e.reserve2(key='retained-history',role='walkback');e.g.finish_http(ticket,200)
  tree=ast.parse(WORKER.read_text());nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in FUNCTIONS]
  ns={'_SYSTEM_PROGRAM':'11111111111111111111111111111111','sqlite3':sqlite3,'Optional':typing.Optional,'RpcTransport':typing.Callable,'json':json,'os':os,'urllib':urllib,'time':time,'RPC_URL':'https://mainnet.helius-rpc.com/?api-key=FIXTURE_NOT_REAL','RPC_TIMEOUT':1,'BATCH_SIZE':5,'RPC_BUDGET_BATCH':25,'MAX_ATTEMPTS':5,'_FUNDER_BLOCKLIST':set(),'_is_known_infrastructure':lambda _:False,'AcquisitionUnavailable':type('AcquisitionUnavailable',(RuntimeError,),{}),'deep_walkback':types.SimpleNamespace(ensure_schema=lambda _:None)}
+ memo_node=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='QualifiedResultMemo');exec(compile(ast.Module(body=[memo_node],type_ignores=[]),str(WORKER),'exec'),ns)
  exec(compile(ast.Module(body=nodes,type_ignores=[]),str(WORKER),'exec'),ns)
  schema_tree=ast.parse((ROOT/'tests/test_x26_3_subprov_infrastructure_exclusion.py').read_text());schema=ast.literal_eval(next(n.value for n in schema_tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SCHEMA' for t in n.targets)))
  path=e.root/'ops.sqlite';ops=sqlite3.connect(path);ops.row_factory=sqlite3.Row;ops.executescript(schema);ops.executescript('ALTER TABLE wt_walkback_queue ADD COLUMN lease_expires_at INTEGER;ALTER TABLE wt_walkback_queue ADD COLUMN next_retry_at INTEGER;ALTER TABLE wt_walkback_queue ADD COLUMN priority INTEGER DEFAULT 0;CREATE TABLE wt_treasury_review(detected_via TEXT,status TEXT);')
@@ -100,7 +101,10 @@ def test_unchanged_row_attribution_and_gate_owners():
  import subprocess
  before=ast.parse(subprocess.check_output(['git','show','7cda51e3809c74d149f599870c01dbf276a18e64:runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT,text=True));after=ast.parse(WORKER.read_text())
  b={n.name:ast.dump(n) for n in before.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))};a={n.name:ast.dump(n) for n in after.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
- assert {k for k in b if b[k]!=a[k]}=={'promote_recurring_funders'}
+ assert {k for k in b if b[k]!=a[k]}=={'promote_recurring_funders','_rpc','_process_row','run_loop'}
+ accepted=ast.parse(subprocess.check_output(['git','show','53a7d8ad:runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT,text=True))
+ original=next(n for n in accepted.body if isinstance(n,ast.FunctionDef) and n.name=='promote_recurring_funders')
+ assert ast.dump(original)==a['promote_recurring_funders']
 
 @pytest.mark.parametrize('guard',['static_blocklist','known_infrastructure','confirmed_treasury'])
 def test_existing_exclusions_unchanged(case,guard):
@@ -119,6 +123,7 @@ def test_rejected_candidate_protected_when_unowned(case):
 def test_owned_program_check_restart_cannot_duplicate_request(case,monkeypatch):
  e=case;e.seed('program-candidate');e.owner[0]='FixtureTokenProgram';alias=e.h._hash('mint:root')
  with e.h.resume_investigation(alias):assert e.ns['promote_recurring_funders'](e.ops)==0
+ e.ns.pop('_WALKBACK_RPC_MEMO',None) # process restart discards the bounded RAM memo
  money=budgets(e);fresh=e.m.Gate(e.g.path,'fixture',clock=lambda:e.now[0]);fresh.monotonic=lambda:e.now[0];monkeypatch.setattr(e.m,'current',lambda:fresh)
  with e.h.resume_investigation(alias):
   with pytest.raises(e.m.BudgetDeferred,match='HELIUS_REQUEST_COOLDOWN'):e.ns['promote_recurring_funders'](e.ops)

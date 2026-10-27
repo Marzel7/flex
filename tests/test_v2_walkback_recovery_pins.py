@@ -7,13 +7,19 @@ from tests.test_v2_pending_recovery import prepare
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RENDERER=ROOT/'docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py'
 OLD='0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7'
-NEW='41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914'
+NEW='7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501'
 BASE='c4ae598c7db29147a17b43f95cc59fc8eb5304d3'
 
 def test_only_required_renderer_pin_changes():
- before=subprocess.check_output(['git','show',BASE+':'+str(RENDERER.relative_to(ROOT))],cwd=ROOT)
- assert hashlib.sha256(before).hexdigest()=='d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45'
- assert before.decode().replace(OLD,NEW)==RENDERER.read_text()
+ before=ast.parse(subprocess.check_output(['git','show','53a7d8ad:'+str(RENDERER.relative_to(ROOT))],cwd=ROOT,text=True));after=ast.parse(RENDERER.read_text())
+ def pins_node(tree):return next(n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='HELIUS_GATE_PAYLOAD' for t in n.targets))
+ b=pins_node(before);a=pins_node(after);old=ast.literal_eval(b.value);new=ast.literal_eval(a.value)
+ assert old['listener']==new['listener'] and old['creator_resolution']==new['creator_resolution']
+ for relative in ['src/core/walkback_worker.py','src/ops/anchor_reconciliation.py']:
+  old['walkback'][relative]=hashlib.sha256((ROOT/'runtime/walkback'/relative).read_bytes()).hexdigest()
+ assert old==new
+ b.value=a.value
+ assert ast.dump(before)==ast.dump(after)
  assert hashlib.sha256((ROOT/'runtime/walkback/src/core/walkback_worker.py').read_bytes()).hexdigest()==NEW
 
 def test_candidate_profile_restarts_and_readbacks(case):
@@ -61,3 +67,29 @@ def test_exact_immutable_source_authority_rejects_ambiguity(tmp_path,defect):
  if defect=='symlink':path=tmp_path/'alias';path.symlink_to(root,target_is_directory=True)
  fake=types.SimpleNamespace(check_output=lambda *a,**k:'a'*40+'\n',call=lambda *a,**k:int(defect=='dirty'));ns={'pathlib':pathlib,'subprocess':fake};exec(compile(ast.Module(body=[fn],type_ignores=[]),str(RENDERER),'exec'),ns)
  with pytest.raises(RuntimeError):ns['qualified_source_root']({'immutable_source_root':str(path),'immutable_source_commit':('b' if defect=='wrong_commit' else 'a')*40})
+
+
+@pytest.mark.parametrize('relative',['src/ops/anchor_reconciliation.py'])
+def test_missing_or_stale_progress_dependencies_fail_closed(case,relative):
+ e=case;path=pathlib.Path(e.plan['roles']['walkback']['package'])/relative;path.write_text('# incompatible source')
+ before=e.live.read_bytes()
+ with pytest.raises(RuntimeError,match='HELIUS_GATE_UNAWARE_FALLBACK'):e.ns['write_config']('v2')
+ assert e.live.read_bytes()==before
+
+
+def test_fresh_compact_pair_preserves_continuation_metadata(case,monkeypatch):
+ import sqlite3,importlib.util
+ e=case
+ spec=importlib.util.spec_from_file_location('qualified_progress_owner',ROOT/'runtime/walkback/src/ops/anchor_reconciliation.py');owner=importlib.util.module_from_spec(spec);spec.loader.exec_module(owner)
+ with sqlite3.connect(e.ops) as conn:
+  # This fixture has only custody tables; add the minimal synthetic queue.
+  conn.execute("CREATE TABLE IF NOT EXISTS wt_walkback_queue(mint TEXT PRIMARY KEY,status TEXT,path_state TEXT,enqueued_at INTEGER)")
+  owner.ensure_schema(conn)
+  conn.execute("INSERT INTO wt_anchor_reconciliation_cursor_v1 VALUES(1,10,'mint-a',20,'mint-z')")
+ paths,manifest,destination=target(e)
+ with sqlite3.connect(paths['ops']) as conn:
+  assert conn.execute('SELECT * FROM wt_anchor_reconciliation_cursor_v1').fetchone()==(1,10,'mint-a',20,'mint-z')
+ before=e.gate.read();e.ns['freeze_helius_recovery'](e.ns['prepare_helius_recovery'](e.env,destination));env=activate(e,paths,manifest,destination,monkeypatch);e.ns['finish_helius_recovery'](env)
+ assert e.module.Gate(e.gate.path,'fresh').read()==dict(before,generation='fresh')
+ e.ns['settings']=lambda _:dict(env);e.ns['write_config']('v2')
+ assert e.output_env()['FLEX_HELIUS_DENIAL_GATE_ENABLED']=='1'

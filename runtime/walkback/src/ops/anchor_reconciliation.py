@@ -42,6 +42,7 @@ EXPIRED_MISSING = "EXPIRED_MISSING"
 
 _ANCHOR_LOOKUP_STATES = frozenset({
     PENDING_NOT_VISIBLE, PRESENT_VALID, PRESENT_INVALID, EXPIRED_MISSING,
+    "UNQUALIFIED_ANCHOR", "MISSING_CREATE_EVIDENCE",
 })
 
 _REQUIRED_QUEUE_COLUMNS = {
@@ -65,6 +66,12 @@ def validate_schema(conn: sqlite3.Connection) -> str:
     missing_log = sorted(required_log - log_columns)
     if missing_log:
         return f"ANCHOR_RECONCILIATION_SCHEMA_MISMATCH:wt_anchor_reconciliation_log:missing={','.join(missing_log)}"
+    cursor_columns = {row[1] for row in conn.execute("PRAGMA table_info(wt_anchor_reconciliation_cursor_v1)")}
+    if cursor_columns != {"singleton", "after_time", "after_mint", "through_time", "through_mint"}:
+        return "ANCHOR_RECONCILIATION_CURSOR_SCHEMA_MISMATCH"
+    index_columns = [row[2] for row in conn.execute("PRAGMA index_info(ix_anchor_waiting_cursor_v1)")]
+    if index_columns != ["status", "path_state", "enqueued_at", "mint"]:
+        return "ANCHOR_RECONCILIATION_CURSOR_INDEX_MISMATCH"
     return "VALID"
 
 
@@ -110,6 +117,11 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS ix_anchor_recon_mint "
         "ON wt_anchor_reconciliation_log(mint)"
     )
+    conn.execute("""CREATE TABLE IF NOT EXISTS wt_anchor_reconciliation_cursor_v1 (
+        singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+        after_time INTEGER NOT NULL, after_mint TEXT NOT NULL,
+        through_time INTEGER NOT NULL, through_mint TEXT NOT NULL)""")
+    conn.execute("CREATE INDEX IF NOT EXISTS ix_anchor_waiting_cursor_v1 ON wt_walkback_queue(status,path_state,enqueued_at,mint)")
     conn.commit()
 
 
@@ -220,7 +232,56 @@ def dry_run_report(
     }
 
 
-def reconcile_waiting_create_anchors(
+def reconcile_waiting_create_anchors(ops_conn, live_conn, *, dry_run=False,
+                                     ensure_schema_first=True, limit=None):
+    """One bounded FIFO sweep, with selection and continuation committed together.
+
+    A fixed high-water key closes each sweep even under continuous arrivals.
+    BEGIN IMMEDIATE serializes concurrent reconcilers; a crash rolls back both
+    examination and cursor. This is continuation metadata, not a work queue.
+    """
+    if ops_conn.in_transaction:
+        raise RuntimeError("ANCHOR_RECONCILIATION_REQUIRES_OWN_TRANSACTION")
+    if ensure_schema_first:
+        if dry_run:
+            schema = validate_schema(ops_conn)
+            if schema != "VALID":
+                raise RuntimeError(schema)
+        else:
+            ensure_schema(ops_conn)
+    ops_conn.execute("BEGIN IMMEDIATE" if not dry_run else "BEGIN")
+    try:
+        result = _reconcile_waiting_create_anchors(
+            ops_conn, live_conn, dry_run=dry_run, ensure_schema_first=False,
+            limit=min(128, max(1, int(limit if limit is not None else 32))))
+        if dry_run:
+            ops_conn.rollback()
+        else:
+            ops_conn.commit()
+        return result
+    except BaseException:
+        ops_conn.rollback()
+        raise
+
+
+def _fair_stuck_rows(conn, limit, *, dry_run=False):
+    predicate = "status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR' AND (create_anchor_signature IS NULL OR create_anchor_audit_state='MISSING_OR_MALFORMED')"
+    state = conn.execute("SELECT after_time,after_mint,through_time,through_mint FROM wt_anchor_reconciliation_cursor_v1 WHERE singleton=1").fetchone()
+    def select(state):
+        return conn.execute("SELECT mint,creator,create_anchor_signature,create_anchor_audit_state,attempts,enqueued_at FROM wt_walkback_queue WHERE " + predicate + " AND (enqueued_at,mint)>(?,?) AND (enqueued_at,mint)<=(?,?) ORDER BY enqueued_at,mint LIMIT ?", (*state, limit)).fetchall()
+    rows = select(tuple(state)) if state else []
+    if not rows:
+        high = conn.execute("SELECT enqueued_at,mint FROM wt_walkback_queue WHERE " + predicate + " ORDER BY enqueued_at DESC,mint DESC LIMIT 1").fetchone()
+        if not high:
+            return []
+        state = (-9223372036854775808, '', high[0], high[1])
+        rows = select(state)
+    if rows and not dry_run:
+        conn.execute("INSERT INTO wt_anchor_reconciliation_cursor_v1 VALUES(1,?,?,?,?) ON CONFLICT(singleton) DO UPDATE SET after_time=excluded.after_time,after_mint=excluded.after_mint,through_time=excluded.through_time,through_mint=excluded.through_mint", (rows[-1]['enqueued_at'], rows[-1]['mint'], state[2], state[3]))
+    return rows
+
+
+def _reconcile_waiting_create_anchors(
     ops_conn: sqlite3.Connection, live_conn: sqlite3.Connection,
     *, dry_run: bool = False, ensure_schema_first: bool = True,
     limit: Optional[int] = None,
@@ -252,7 +313,7 @@ def reconcile_waiting_create_anchors(
     """
     if ensure_schema_first:
         ensure_schema(ops_conn)
-    rows = _stuck_rows(ops_conn, limit=limit)
+    rows = _fair_stuck_rows(ops_conn, limit, dry_run=dry_run)
     now = int(time.time())
     recovered: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
@@ -264,22 +325,23 @@ def reconcile_waiting_create_anchors(
         # X64.7A Phase 4 — the ordinary worker-cycle reconciliation path
         # must itself consult the canonical ledger, not only a standalone
         # helper nothing in production calls. resolve_anchor_with_priority
-        # checks wt_create_event_ledger FIRST; only when it has nothing
-        # (confidence != SAFE) do we fall back to the pre-existing
-        # classify_stuck_row() widened-source search, preserving every
-        # existing classification label and behavior for backward
-        # compatibility with X64.5/X64.6 callers/tests.
+        # checks wt_create_event_ledger FIRST. Wider stored signatures remain
+        # candidates until the accepted CREATE producer independently qualifies
+        # them; a syntactically valid signature alone is not CREATE authority.
         priority_result = resolve_anchor_with_priority(
             live_conn, ops_conn, mint, queue_creator=row["creator"],
             ensure_schema_first=ensure_schema_first,
         )
-        if priority_result["confidence"] == "SAFE" and priority_result["source"] == "canonical_create_ledger":
+        if (priority_result["confidence"] == "SAFE" and priority_result["source"] == "canonical_create_ledger"
+                and valid_signature(priority_result["signature"])):
             result = {"classification": "RECOVERABLE_VALID_ANCHOR",
                       "signature": priority_result["signature"], "source": "canonical_create_ledger"}
         elif priority_result["confidence"] == "CONFLICT":
             result = {"classification": "AMBIGUOUS_MULTIPLE_ROWS", "signature": None, "source": None}
         else:
-            result = classify_stuck_row(live_conn, mint)
+            # A stored signature is a candidate, not instruction-qualified OPS
+            # CREATE authority. Leave it waiting for the accepted producer.
+            result = {"classification": "UNQUALIFIED_ANCHOR" if priority_result["confidence"] == "SAFE" else "MISSING_CREATE_EVIDENCE", "signature": None, "source": None}
 
         # anchor_lookup bookkeeping — every row we examine gets this touched,
         # regardless of outcome, using the NEW dedicated column (never the
@@ -293,6 +355,8 @@ def reconcile_waiting_create_anchors(
                 "ANCHOR_STILL_MISSING": PENDING_NOT_VISIBLE,
                 "AMBIGUOUS_MULTIPLE_ROWS": PENDING_NOT_VISIBLE,
                 "MINT_NOT_FOUND": PENDING_NOT_VISIBLE,
+                "UNQUALIFIED_ANCHOR": "UNQUALIFIED_ANCHOR",
+                "MISSING_CREATE_EVIDENCE": "MISSING_CREATE_EVIDENCE",
             }[result["classification"]], mint),
         )
 
@@ -329,8 +393,6 @@ def reconcile_waiting_create_anchors(
             (result["signature"], result["source"], now, result["source"], now,
              mint, WAITING_STATUS, WAITING_PATH_STATE),
         )
-        if ops_conn.total_changes:  # best-effort; real guard is the WHERE clause itself
-            pass
         ops_conn.execute(
             "INSERT INTO wt_anchor_reconciliation_log "
             "(mint, creator, recovered_signature, original_state, recovery_source, recovery_timestamp) "
@@ -348,9 +410,6 @@ def reconcile_waiting_create_anchors(
             f"source={result['source']} original_state={original_state}",
             flush=True,
         )
-
-    if not dry_run:
-        ops_conn.commit()
 
     return {
         "examined": len(rows),

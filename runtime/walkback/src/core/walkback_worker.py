@@ -96,7 +96,84 @@ class AcquisitionUnavailable(RuntimeError):
     """A request failed; absence of evidence has not been established."""
 
 
+class QualifiedResultMemo:
+    """Small process-local reuse of already validated Walkback responses.
+
+    No persistence, new database, authority creation or accounting refund.
+    Restart is a miss; the durable gate still enforces spending and cooldown.
+    Failed/empty/partial responses never enter the memo. Values are copied.
+    """
+    MAX_ENTRIES = 256
+    MAX_BYTES = 2 * 1024 * 1024
+    MAX_RESULT_BYTES = 128 * 1024
+    TTLS = {'getTransaction': 60, 'getAccountInfo': 60,
+            'getSignaturesForAddress': 15}
+
+    def __init__(self, clock=time.monotonic):
+        import threading
+        self.clock = clock
+        self.lock = threading.RLock()
+        self.entries = {}
+        self.bytes = 0
+
+    def call(self, authority, endpoint, method, params, acquire):
+        import hashlib
+        key = hashlib.sha256(json.dumps([authority, endpoint, method, params],
+                sort_keys=True, separators=(',', ':'), allow_nan=False).encode()).hexdigest()
+        with self.lock:
+            now = self.clock()
+            for old in list(self.entries):
+                if self.entries[old][0] <= now:
+                    self.bytes -= len(self.entries.pop(old)[1])
+            if key in self.entries:
+                return json.loads(self.entries[key][1])
+            result = acquire()
+            ttl = self.TTLS.get(method)
+            qualified = (method == 'getTransaction' and isinstance(result, dict)
+                and isinstance(result.get('slot'), int) and result['slot'] >= 0
+                and isinstance(result.get('meta'), dict) and result['meta'].get('err') is None
+                and isinstance(result['meta'].get('preBalances'), list)
+                and isinstance(result['meta'].get('postBalances'), list)
+                and isinstance(result.get('transaction'), dict)
+                and result['transaction'].get('signatures', [])[:1] == params[:1]
+                and isinstance(result['transaction'].get('message', {}).get('accountKeys'), list)
+                and isinstance(result['transaction'].get('message', {}).get('instructions'), list))
+            qualified |= (method == 'getAccountInfo' and isinstance(result, dict)
+                and isinstance(result.get('value'), dict)
+                and isinstance(result['value'].get('owner'), str))
+            qualified |= (method == 'getSignaturesForAddress' and isinstance(result, list)
+                and bool(result) and all(isinstance(x, dict) and isinstance(x.get('slot'), int)
+                    and isinstance(x.get('signature'), str) and x.get('err') is None for x in result))
+            if ttl and qualified:
+                raw = json.dumps(result, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
+                if len(raw) <= self.MAX_RESULT_BYTES:
+                    while self.entries and (len(self.entries) >= self.MAX_ENTRIES or self.bytes + len(raw) > self.MAX_BYTES):
+                        self.bytes -= len(self.entries.pop(next(iter(self.entries)))[1])
+                    self.entries[key] = (now + ttl, raw)
+                    self.bytes += len(raw)
+            return result
+
+
 def _rpc(method: str, params: list) -> Optional[object]:
+    # Validate the live paired authority and durable investigation owner even
+    # on a reuse hit. No memo can create an allowance or bypass dispatch gates.
+    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') != '1':
+        return _rpc_uncached(method, params)
+    from src.core import helius_http_protection as protection
+    gate = protection.gate.current()
+    scopes = protection._scope.get()
+    if not scopes:
+        return _rpc_uncached(method, params)  # existing gate refuses unowned work
+    owners = tuple(gate.investigation_owner(alias) for alias in scopes)
+    global _WALKBACK_RPC_MEMO
+    if '_WALKBACK_RPC_MEMO' not in globals():
+        _WALKBACK_RPC_MEMO = QualifiedResultMemo()
+    authority = (gate.generation, str(gate.path), owners, scopes)
+    return _WALKBACK_RPC_MEMO.call(authority, RPC_URL, method, params,
+                                  lambda: _rpc_uncached(method, params))
+
+
+def _rpc_uncached(method: str, params: list) -> Optional[object]:
     try:
         body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": method,
                            "params": params}).encode()
@@ -1661,7 +1738,10 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 # into a negative evidence verdict or retry-budget reset.
                 from src.core.helius_denial_gate import BudgetDeferred
                 claim_refund = int(isinstance(e, BudgetDeferred))
-                ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error='HELIUS_ACQUISITION_DEFERRED',updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",(claim_refund,int(time.time())+300,int(time.time()),mint,attempts + 1,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
+                reason = str(e)
+                if not reason.startswith('HELIUS_') or len(reason) > 100 or not all(c.isupper() or c.isdigit() or c == '_' for c in reason):
+                    reason = 'HELIUS_ACQUISITION_DEFERRED'
+                ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error=?,rpc_used=rpc_used+?,updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",(claim_refund,int(time.time())+300,reason,rpc[0],int(time.time()),mint,attempts + 1,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
                 ops.commit();return rpc[0]
         err = str(e)
         print(f"[WALKBACK] error processing {mint[:16]}…: {err}", flush=True)
@@ -2065,7 +2145,7 @@ def run_loop() -> None:
                     _live = sqlite3.connect(f"file:{LIVE_DB_PATH}?mode=ro", uri=True, timeout=5)
                     try:
                         recon = anchor_reconciliation.reconcile_waiting_create_anchors(
-                            ops, _live, ensure_schema_first=False, limit=1,
+                            ops, _live, ensure_schema_first=False, limit=32,
                         )
                         if recon["recovered"]:
                             print(f"[WALKBACK] anchor reconciliation: recovered "

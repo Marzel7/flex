@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separately authorize exact frozenf2ec25fa listener+7ddf5312recovery bundle; refresh immediate preimages/disk/capacity first. Preserve exhausted records; no replay/reset.",
+  "next_action": "Leave listener6860and unchanged resolver/Walkback running. Observe canonical migration completion separately; four naturally observed notifications remain budget-deferred at0attempts. Preserve exhausted work; no replay/reset.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "32037e4bf06fd0596f17b85a7720f5ce8695c52a",
+    "git_head": "e7bca4507997330388ec61766e9122320049d3cd",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T07:52:35.842302+00:00",
-    "working_tree": "Exact existing logger/deferral+recovery bundle requalified; refreshed production preflightGO; no runtime changes."
+    "updated_at_utc": "2026-10-27T08:14:20.394175+00:00",
+    "working_tree": "Qualifiedlistener/recovery bundle deployedPASS; listener6860running; resolver/Walkbackunchanged;125birthsverified and4zeroattemptdeferrals; no newexhaustion."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46479,5 +46479,63 @@
     "blocker": null,
     "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/MIGRATION_DEFERRAL_PRODUCTION_READINESS.json",
     "next_action": "Separately authorize exact frozenf2ec25fa listener+7ddf5312recovery bundle; refresh immediate preimages/disk/capacity first. Preserve exhausted records; no replay/reset."
+  },
+  "flex_v2_migration_retry_production_deployment": {
+    "status": "PASS_DEPLOYED",
+    "engineering_revision": "e7bca4507997330388ec61766e9122320049d3cd",
+    "installed_source_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "listener_qualified_commit": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+    "bundle_sha256": "2abc16d7d6b335fd401fe05312552d8b4badfa9574a8ebc33e2a8e2629202520",
+    "listener_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+    "recovery_renderer_sha256": "a5def40d99e887cfe2e8a7881ddfc803436532f0239bbb21b629085b25a25ffd",
+    "configuration_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "active_generation": "DEV004-V2-20261024-dfb76562",
+    "authority_directory": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-rpc-f2ec25fa",
+    "listener_pid_before": 99111,
+    "listener_pid_after": 6860,
+    "resolver_pid_unchanged": 76370,
+    "Walkback_pid_unchanged": 99159,
+    "acceptance": {
+      "start_utc": "2026-10-27T08:05:11.158622+00:00",
+      "end_utc": "2026-10-27T08:10:11.621493+00:00",
+      "seconds": 300.4628710746765,
+      "undefined_logger_errors": 0,
+      "new_budget_deferred_zero_attempts": 4,
+      "new_retry_exhaustion_all_dates": 0,
+      "birth_receipts": 126,
+      "verified_committed_births": 125,
+      "remaining_receipt": "1RETRY_PENDINGwith exactmint/signature/creator durableQUARANTINEDjournalmatch",
+      "canonical_migration_completions": "UNOBSERVED",
+      "natural_RPC_requests": 298,
+      "reserved_credits": 298,
+      "worker_credit_deltas": {
+        "listener": 0,
+        "creator_resolution": 0,
+        "walkback": 298
+      },
+      "protected_exhausted_records_verified_unchanged": 1319,
+      "original_uncertain_requests_still_held": 3,
+      "subscriptions": "PumpPortal andPumpSwap confirmed",
+      "all3workers_running": true,
+      "final_inflight": 0,
+      "lowest_free_disk_bytes": 3812843520,
+      "migration_journal_records": 510,
+      "birth_journal_records": 493,
+      "terminal_migration_records": 1272
+    },
+    "lifetime_limit": 100000,
+    "gate_state": "OPEN",
+    "gate_policy_or_counters_reset": false,
+    "runtime_files_changed": 1,
+    "recovery_plan_authority_updated": true,
+    "production_schema_changes": 0,
+    "unrelated_service_restarts": 0,
+    "provider_calls_for_testing": 0,
+    "exhausted_replay_or_reset": false,
+    "rollback": "Not executed; exact455source+matching455renderer/config retained, gate/terminal-aware, current evidence preserved.",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/MIGRATION_RETRY_DEPLOYMENT.json",
+    "blocker": null,
+    "limitation": "Deployment safety and deferral behavior proven; canonical migration/handoff completion notnaturallyobserved in5minute window.",
+    "next_action": "Leave listener6860and unchanged resolver/Walkback running. Observe canonical migration completion separately; four naturally observed notifications remain budget-deferred at0attempts. Preserve exhausted work; no replay/reset."
   }
 }

@@ -37031,8 +37031,8 @@
     "git_head": "00f241f8a3a870fa02913b3216a06a78cce0b40c",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T21:51:56.143884+00:00",
-    "working_tree": "Qualified one-runtime-file DEV optional-funder deferral correction; exactinstalledpreimage preservedoutside12-linehandler;19focusedprovider-freecontrolsPASS. Productionuntouched;readyforWalkback-onlyread-onlydeploymentpreflight includingrecoveryhashpins."
+    "updated_at_utc": "2026-10-27T21:55:42.691932+00:00",
+    "working_tree": "Strictlyread-only Walkback-only preflight HOLD: exact candidate/preimages andlive safety pass; current recoveryrenderer/source authority notqualified for candidateWalkbackhash. Reused19tests, two disposablepinchecks. Productionunchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T21:51:56.144181+00:00",
+  "updated_at_utc": "2026-10-27T21:55:42.692156+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -47942,5 +47942,142 @@
     },
     "blocker": null,
     "next_action": "Run bounded read-only Walkback-only deployment preflight for the immutable candidate, verifying installed preimage, exact source payload, matching recovery hash pins/fallback, runtime generation, queue and storage safety. No deployment under this milestone."
+  },
+  "flex_v2_optional_funder_walkback_deployment_preflight": {
+    "status": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "engineering_revision": "00f241f8a3a870fa02913b3216a06a78cce0b40c",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "tests": {
+      "accepted_provider_free_controls_reused": 19,
+      "new_disposable_recovery_pin_controls": 2,
+      "outcome": "Installed preimage accepted; candidate rejected by current recovery pin"
+    },
+    "production_flags": {
+      "unchanged": true,
+      "shared_gate": "OPEN",
+      "lifetime_limit": 100000,
+      "no_deployment": true,
+      "no_provider_calls": true,
+      "no_replay": true
+    },
+    "result": {
+      "FLEX_V2_WALKBACK_PREFLIGHT_STATUS": "HOLD_SINGLE_CRITICAL_BLOCKER",
+      "CANDIDATE_INTEGRITY": {
+        "revision": "00f241f8a3a870fa02913b3216a06a78cce0b40c",
+        "runtime_payload": "runtime/walkback/src/core/walkback_worker.py",
+        "candidate_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+        "source_delta": "Only optional recurring-funder error boundary;19accepted tests reused",
+        "unrelated_runtime_differences": false
+      },
+      "INSTALLED_PREIMAGE_MATCH": {
+        "verified": true,
+        "sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+        "all_current_installed_payload_hashes_match": true,
+        "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320"
+      },
+      "OPTIONAL_FUNDER_DEFERRAL": {
+        "only_exact_code_caught": "HELIUS_INVESTIGATION_REQUIRED",
+        "candidate_evidence_and_attribution_unchanged": true,
+        "no_owner_borrowing": true,
+        "other_typed_errors_propagate": true
+      },
+      "HELIUS_BUDGET_INTEGRITY": {
+        "gate_state": "OPEN",
+        "lifetime_limit": 100000,
+        "warning_limit": 50000,
+        "reserved_credits": 65183,
+        "review_held": 5,
+        "inflight": [],
+        "no_state_mutation": true
+      },
+      "RECOVERY_AND_ROLLBACK": {
+        "current_renderer_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+        "current_source_root_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+        "pinned_walkback_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+        "new_candidate_rejected_by_existing_guard": "HELIUS_GATE_UNAWARE_FALLBACK:walkback:src/core/walkback_worker.py",
+        "current_gate_aware_preimage_fallback_accepted": true,
+        "fresh_pair_recovery_uses_same_blocking_guard": true,
+        "required_correction": "Qualify candidate-aware Walkback recovery hash pin and freeze coherent immutable source authority; retain exact gate-aware old-source fallback and all gate/journal flags. No schema/budget changes."
+      },
+      "DISK_AND_RUNTIME_HEALTH": {
+        "disk_free_bytes": 5119090688,
+        "required_floor_plus_reserve_bytes": 2067108864,
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "services": {
+          "watchtower_listener": {
+            "state": "RUNNING",
+            "pid": 70897
+          },
+          "creator_resolution_worker": {
+            "state": "RUNNING",
+            "pid": 70926
+          },
+          "walkback_worker": {
+            "state": "RUNNING",
+            "pid": 70948
+          }
+        },
+        "supervisor_parents": {
+          "watchtower_listener": 1131,
+          "creator_resolution_worker": 1131,
+          "walkback_worker": 1131
+        },
+        "ops_owner_quotas": {
+          "migration_terminal_owner_v1": [
+            1789,
+            1998841
+          ],
+          "migration_deferred_owner_v1": [
+            511,
+            1342758
+          ],
+          "birth_terminal_owner_v1": [
+            512,
+            697743
+          ]
+        },
+        "walkback_queue_statuses": [
+          [
+            "complete",
+            1891
+          ],
+          [
+            "failed",
+            6
+          ],
+          [
+            "pending",
+            156
+          ],
+          [
+            "waiting",
+            1550
+          ]
+        ],
+        "journals": {
+          "birth": 505,
+          "migration": 502
+        },
+        "database_allocation": {
+          "core": {
+            "bytes": 80973824,
+            "wal_bytes": 0
+          },
+          "ops": {
+            "bytes": 162078720,
+            "wal_bytes": 0
+          }
+        }
+      },
+      "GO_HOLD_DECISION": "HOLD_SINGLE_CRITICAL_BLOCKER",
+      "NEXT_ACTION": "In isolated DEV qualify and freeze 00f241f8-aware recovery hash pins/immutable-source manifest while preserving gate-aware fallback, then resume this read-only Walkback-only preflight. Do not deploy.",
+      "provider_calls": 0,
+      "production_mutations": 0,
+      "service_restarts": 0,
+      "tests_reused": 19,
+      "new_disposable_pin_controls": 2
+    },
+    "blocker": "Recovery HELIUS_GATE_PAYLOAD walkback_worker.py still pins0f52420b; candidate41643e11 fails exact hash guard and fresh-pair recovery source authority remains c4.",
+    "next_action": "In isolated DEV qualify and freeze 00f241f8-aware recovery hash pins/immutable-source manifest while preserving gate-aware fallback, then resume this read-only Walkback-only preflight. Do not deploy."
   }
 }

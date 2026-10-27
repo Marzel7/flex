@@ -1483,6 +1483,18 @@ def _signature_migration_journal():
         journal.terminal_owner = TerminalEvidenceStore(
             _listener_ops_db_path(), path, generation=_validate_active_pair(),
             validate_record=journal._validate, validate_pair=validate_terminal_pair)
+    if os.environ.get("DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED", "0") == "1":
+        if journal.terminal_owner is None:raise JournalHold("DEFERRED_REQUIRES_TERMINAL_AUTHORITY")
+        from src.core.migration_terminal_evidence import DeferredMigrationStore
+        journal.deferred_owner = DeferredMigrationStore(
+            _listener_ops_db_path(), path, generation=_validate_active_pair(),
+            validate_record=journal._validate, validate_pair=validate_terminal_pair)
+        journal.deferred_owner.lookup("__DEFERRED_SCHEMA_CHECK__")
+    else:
+        import sqlite3 as _sq
+        with _sq.connect(f"file:{_listener_ops_db_path()}?mode=ro",uri=True,timeout=1) as _c:
+            if _c.execute("SELECT 1 FROM sqlite_master WHERE name='migration_deferred_owner_v1'").fetchone():
+                raise JournalHold("DEFERRED_FLAG_DOWNGRADE")
     return journal
 
 
@@ -10886,6 +10898,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
         try:
             row = journal.admit(signature, notification_source, int(time.time()), notification_mint=notification_mint)
         except Exception as error:
+            if str(error) in {'JOURNAL_CAPACITY','DEFERRED_CAPACITY','TERMINAL_CAPACITY'}:
+                # Explicit refusal, never an ACK or permission to bypass storage.
+                # Keep both intake channels alive; finite capacity remains finite.
+                log_print(f"[MIGRATION_ADMISSION_REFUSED] source={notification_source} signature={signature} reason={str(error)}",flush=True)
+                return 'ADMISSION_REFUSED'
             if getattr(error, 'admission_durable', False):
                 return None  # Pending input is retained; never dispatch or ACK.
             raise
@@ -10950,7 +10967,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
         journal = _signature_migration_journal()
         for row in journal.pending():
             task = self._schedule_journal_migration(row["signature"], [], notification_source=row["source"], notification_mint=row.get("notification_mint"))
-            if task is not None:
+            if task is not None and task != 'ADMISSION_REFUSED':
                 await task  # Existing handler/provider controls, bounded sequential batch.
 
     @_helius_scoped('listener','signature','migration')
@@ -11799,7 +11816,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 pass
                             if sig and sig not in self.completed_migrations:
                                 log_print(f"[PUMPPORTAL] 🚀 Migration: {mint[:16]}... sig={sig[:16]}", flush=True)
-                                self._schedule_journal_migration(sig, [], notification_source="PUMPPORTAL_MIGRATION", notification_mint=mint)
+                                scheduled = self._schedule_journal_migration(sig, [], notification_source="PUMPPORTAL_MIGRATION", notification_mint=mint)
+                                if scheduled == 'ADMISSION_REFUSED':continue
                                 # Unsubscribe from trade tracking for this mint
                                 if mint in tracked_trade_mints:
                                     tracked_trade_mints.discard(mint)

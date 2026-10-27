@@ -242,3 +242,128 @@ class BirthTerminalEvidenceStore(TerminalEvidenceStore):
         if row is not None and (row.get('state')!='QUARANTINED' or row.get('error_code')!='CORE_AUTHORITY_CONFLICT'):
             raise TerminalHold('BIRTH_PROTECTED_CONFLICT_REQUIRED')
         return row
+
+
+class DeferredMigrationStore(TerminalEvidenceStore):
+    """Bounded retryable custody in the existing OPS owner, never terminal status.
+
+    Only journal-locked callers transfer or reactivate. OWNED is recoverably
+    pending; ACTIVE means the fsynced journal is authoritative. No RPC, ACK,
+    attempt reset, automatic exhausted replay, or mint qualification occurs here.
+    """
+    TABLE='migration_deferred_evidence_v1'
+    META='migration_deferred_owner_v1'
+    SCHEMA_PREFIX='migration_deferred_%'
+    DDL=(
+        "CREATE TABLE migration_deferred_owner_v1 (singleton INTEGER PRIMARY KEY CHECK(singleton=1), version INTEGER NOT NULL CHECK(version=1), contract TEXT NOT NULL, used_records INTEGER NOT NULL CHECK(used_records BETWEEN 0 AND 8192), used_bytes INTEGER NOT NULL CHECK(used_bytes BETWEEN 0 AND 64000000))",
+        "CREATE TABLE migration_deferred_evidence_v1 (identity TEXT PRIMARY KEY, signature TEXT NOT NULL UNIQUE, journal_identity TEXT NOT NULL, journal_path TEXT NOT NULL, transfer_generation TEXT NOT NULL, payload TEXT NOT NULL CHECK(length(CAST(payload AS BLOB))<=4096), evidence_hash TEXT NOT NULL, allocation INTEGER NOT NULL CHECK(allocation BETWEEN 1 AND 8192), custody TEXT NOT NULL CHECK(custody IN ('OWNED','ACTIVE')), due INTEGER NOT NULL CHECK(due>=0), received_at INTEGER NOT NULL, revision INTEGER NOT NULL CHECK(revision>0))",
+        "CREATE INDEX migration_deferred_due_v1 ON migration_deferred_evidence_v1(custody,due,received_at,identity)",
+        "CREATE TRIGGER migration_deferred_budget_v1 BEFORE INSERT ON migration_deferred_evidence_v1 BEGIN SELECT CASE WHEN (SELECT used_records FROM migration_deferred_owner_v1 WHERE singleton=1)>=8192 OR (SELECT used_bytes FROM migration_deferred_owner_v1 WHERE singleton=1)+NEW.allocation>64000000 THEN RAISE(ABORT,'DEFERRED_CAPACITY') END; END",
+        "CREATE TRIGGER migration_deferred_account_v1 AFTER INSERT ON migration_deferred_evidence_v1 BEGIN UPDATE migration_deferred_owner_v1 SET used_records=used_records+1,used_bytes=used_bytes+NEW.allocation WHERE singleton=1; END",
+        "CREATE TRIGGER migration_deferred_update_budget_v1 BEFORE UPDATE ON migration_deferred_evidence_v1 BEGIN SELECT CASE WHEN (SELECT used_bytes FROM migration_deferred_owner_v1 WHERE singleton=1)-OLD.allocation+NEW.allocation>64000000 THEN RAISE(ABORT,'DEFERRED_CAPACITY') END; END",
+        "CREATE TRIGGER migration_deferred_update_account_v1 AFTER UPDATE ON migration_deferred_evidence_v1 BEGIN UPDATE migration_deferred_owner_v1 SET used_bytes=used_bytes-OLD.allocation+NEW.allocation WHERE singleton=1; END",
+        "CREATE TRIGGER migration_deferred_preserve_v1 BEFORE DELETE ON migration_deferred_evidence_v1 BEGIN SELECT RAISE(ABORT,'PROTECTED_DEFERRED_EVIDENCE'); END",
+        "CREATE TRIGGER migration_deferred_identity_v1 BEFORE UPDATE ON migration_deferred_evidence_v1 WHEN OLD.identity IS NOT NEW.identity OR OLD.signature IS NOT NEW.signature OR OLD.journal_identity IS NOT NEW.journal_identity OR OLD.journal_path IS NOT NEW.journal_path OR OLD.transfer_generation IS NOT NEW.transfer_generation OR OLD.received_at IS NOT NEW.received_at BEGIN SELECT RAISE(ABORT,'IMMUTABLE_DEFERRED_IDENTITY'); END",
+    )
+    CONTRACT=hashlib.sha256('\n'.join(DDL).encode()).hexdigest()
+    COLUMNS='identity,signature,journal_identity,journal_path,transfer_generation,payload,evidence_hash,allocation,custody,due,received_at,revision'
+
+    def _schema(self,c):
+        expected={sql.split()[2]:sql for sql in self.DDL}
+        actual=dict(c.execute("SELECT name,sql FROM sqlite_master WHERE name LIKE ? AND type IN ('table','trigger','index')",(self.SCHEMA_PREFIX,)).fetchall())
+        if actual!=expected:raise TerminalHold('DEFERRED_SCHEMA_AUTHORITY')
+        meta=c.execute(f'SELECT version,contract,used_records,used_bytes FROM {self.META} WHERE singleton=1').fetchone()
+        if not meta or meta[:2]!=(1,self.CONTRACT):raise TerminalHold('DEFERRED_VERSION')
+        return meta
+
+    def _encode(self,row,generation=None):
+        self.validate_record(row)
+        payload=_json(row)
+        if len(payload.encode())+1>MAX_RECORD_BYTES:raise TerminalHold('DEFERRED_RECORD_CAPACITY')
+        body=(row['id'],row['signature'],self.journal_identity,self.journal_path,generation or self.generation,payload)
+        return body+(hashlib.sha256(_json(body).encode()).hexdigest(),len(payload.encode())+2048)
+
+    def _decode_pending(self,r):
+        if r is None:return None
+        ident,sig,jid,path,gen,payload,digest,allocation,custody,due,received,revision=r
+        if jid!=self.journal_identity or path!=self.journal_path or custody not in ('OWNED','ACTIVE') or not isinstance(gen,str) or not 1<=len(gen)<=128:raise TerminalHold('DEFERRED_AUTHORITY')
+        try:row=json.loads(payload)
+        except (ValueError,TypeError):raise TerminalHold('DEFERRED_CORRUPT') from None
+        if self._encode(row,gen)!=tuple(r[:8]) or row['received_at']!=received or due<0 or revision<1:raise TerminalHold('DEFERRED_CORRUPT')
+        if custody=='OWNED' and (row['state'] not in ('PENDING','RESOLVED') or row.get('error_code')=='DISPATCH_RESERVED'):raise TerminalHold('DEFERRED_NOT_PENDING_OR_DISPATCH_UNCERTAIN')
+        return row
+
+    @staticmethod
+    def _same_origin(old,new):
+        fields=('id','signature','source','notification_identity','received_at','version')
+        if any(old.get(k)!=new.get(k) for k in fields) or new['attempts']<old['attempts']:raise TerminalHold('DEFERRED_ORIGIN_CONFLICT')
+        for k in ('mint','notification_mint','conflicting_mint','migration_slot','conflicting_slot'):
+            if old.get(k) is not None and old.get(k)!=new.get(k):raise TerminalHold('DEFERRED_EVIDENCE_CONFLICT')
+
+    def lookup(self,signature,*,owned_only=False):
+        c=self._connect()
+        try:
+            self._schema(c);r=c.execute(f'SELECT {self.COLUMNS} FROM {self.TABLE} WHERE signature=?',(signature,)).fetchone();row=self._decode_pending(r)
+            return row if r and (not owned_only or r[8]=='OWNED') else None
+        finally:c.close()
+
+    def verified(self,row):return self.lookup(row['signature'],owned_only=True)==row
+
+    def _transition(self,rows,custody):
+        if not 1<=len(rows)<=MAX_BATCH or len({r['id'] for r in rows})!=len(rows):raise TerminalHold('DEFERRED_BATCH')
+        c=self._connect(write=True)
+        try:
+            c.execute('BEGIN IMMEDIATE');self._schema(c)
+            for row in rows:
+                if custody=='OWNED' and (row['state'] not in ('PENDING','RESOLVED') or row.get('error_code')=='DISPATCH_RESERVED'):raise TerminalHold('DEFERRED_NOT_PENDING_OR_DISPATCH_UNCERTAIN')
+                prior=c.execute(f'SELECT {self.COLUMNS} FROM {self.TABLE} WHERE signature=?',(row['signature'],)).fetchone()
+                if prior:
+                    old=self._decode_pending(prior);self._same_origin(old,row)
+                    if prior[8]=='OWNED' and custody=='OWNED' and old!=row:raise TerminalHold('DEFERRED_CUSTODY_CONFLICT')
+                    encoded=self._encode(row,prior[4]);due=max(row.get('retry_not_before',0),prior[9] if prior[8]=='OWNED' else 0)
+                    c.execute(f'UPDATE {self.TABLE} SET payload=?,evidence_hash=?,allocation=?,custody=?,due=?,revision=revision+1 WHERE signature=?', (encoded[5],encoded[6],encoded[7],custody,due,row['signature']))
+                else:
+                    if custody!='OWNED':raise TerminalHold('DEFERRED_MISSING_CUSTODY')
+                    encoded=self._encode(row)
+                    c.execute(f'INSERT INTO {self.TABLE} VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',encoded+(custody,row.get('retry_not_before',0),row['received_at'],1))
+            self._authority();c.execute('COMMIT')
+        except BaseException:
+            if c.in_transaction:c.execute('ROLLBACK')
+            raise
+        finally:c.close()
+        self._sync_parent()
+        for row in rows:
+            # Independent committed readback before any journal entry is removed.
+            if self.lookup(row['signature'],owned_only=custody=='OWNED')!=row:raise TerminalHold('DEFERRED_READBACK')
+        return [r['id'] for r in rows]
+
+    def preserve_batch(self,rows):return self._transition(rows,'OWNED')
+
+    def active(self,rows):
+        for i in range(0,len(rows),MAX_BATCH):self._transition(rows[i:i+MAX_BATCH],'ACTIVE')
+
+    def ready(self,limit,now):
+        if not 1<=limit<=MAX_BATCH:raise TerminalHold('DEFERRED_BATCH')
+        c=self._connect(write=True)
+        try:
+            c.execute('BEGIN IMMEDIATE');self._schema(c)
+            rs=c.execute(f'SELECT {self.COLUMNS} FROM {self.TABLE} INDEXED BY migration_deferred_due_v1 WHERE custody=? AND due<=? ORDER BY due,received_at,identity LIMIT ?',('OWNED',now,limit)).fetchall()
+            out=[self._decode_pending(r) for r in rs]
+            # Durable bounded fairness; crash delays eligibility at most one poll.
+            for r in rs:c.execute(f'UPDATE {self.TABLE} SET due=? WHERE identity=?',(now+10,r[0]))
+            c.execute('COMMIT');return out
+        except BaseException:
+            if c.in_transaction:c.execute('ROLLBACK')
+            raise
+        finally:c.close()
+
+    def settle_active(self,rows):
+        if not rows:return
+        bysig={r['signature']:r for r in rows}
+        c=self._connect()
+        try:
+            self._schema(c)
+            rs=c.execute(f"SELECT {self.COLUMNS} FROM {self.TABLE} WHERE custody='OWNED' AND signature IN ({','.join('?' for _ in bysig)})",tuple(bysig)).fetchall()
+            for r in rs:self._decode_pending(r)
+        finally:c.close()
+        self.active([bysig[r[1]] for r in rs])

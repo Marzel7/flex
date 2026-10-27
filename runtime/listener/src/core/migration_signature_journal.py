@@ -49,9 +49,10 @@ def _paired_ack_generation():
 
 class MigrationJournal:
     _key = staticmethod(event_id)
-    def __init__(self, path, *, verify_completed=None, resolve_completed=None, terminal_owner=None):
+    def __init__(self, path, *, verify_completed=None, resolve_completed=None, terminal_owner=None, deferred_owner=None):
         self.verify_completed = verify_completed
         self.terminal_owner = terminal_owner
+        self.deferred_owner = deferred_owner
         self.resolve_completed = resolve_completed
         self.path = Path(path).absolute()
         self.lock_path = self.path.with_name(self.path.name + '.lock')
@@ -212,16 +213,17 @@ class MigrationJournal:
         self._sync_dir()  # Dispatch is forbidden unless all publication steps succeed.
 
     def snapshot(self):
-        if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None):
+        if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None or self.deferred_owner is not None):
             self.recover_reclamation()
         with self._lock():
             return self._read()
 
     def _change(self, fn):
-        if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None):
+        if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None or self.deferred_owner is not None):
             self.recover_reclamation()
         with self._lock():
             records = self._read()
+            if self.deferred_owner is not None:self.deferred_owner.settle_active(records)
             result = fn(records)
             def over_budget():
                 return len(records)>MAX_RECORDS or sum(len(json.dumps(r,sort_keys=True,separators=(',',':')).encode())+1 for r in records)>MAX_JOURNAL_BYTES
@@ -231,9 +233,21 @@ class MigrationJournal:
                     self._reclaim(records,self.verify_completed,MAX_BATCH,keep=keep)
                 if over_budget() and self.terminal_owner is not None:
                     self._reclaim_terminal(records,MAX_BATCH,keep=keep)
+                if over_budget() and self.deferred_owner is not None:
+                    self._defer(records,MAX_BATCH,keep={keep})
                 if over_budget():raise JournalHold('JOURNAL_CAPACITY')
             self._publish(records)
+            if self.deferred_owner is not None:self.deferred_owner.settle_active(records)
             return result
+
+    def _defer(self, rows, limit, keep=()):
+        selected=sorted((r for r in rows if r['id'] not in keep and r['state'] in {'PENDING','RESOLVED'} and r.get('error_code')!='DISPATCH_RESERVED'),key=lambda r:(r['received_at'],r['id']))[:limit]
+        if not selected:return []
+        ids=self.deferred_owner.preserve_batch(selected)
+        if ids!=[r['id'] for r in selected] or any(not self.deferred_owner.verified(r) for r in selected):
+            raise JournalHold('DEFERRED_TRANSFER_UNVERIFIED')
+        rows[:]=[r for r in rows if r['id'] not in set(ids)]
+        return ids
 
     def _reclaim_terminal(self, rows, limit, keep=None):
         if self.terminal_owner is None:raise JournalHold('TERMINAL_OWNER_REQUIRED')
@@ -272,6 +286,8 @@ class MigrationJournal:
             if len(removed) == limit:
                 break
             if row['id'] != keep and self._reclaimable(row) and verify(dict(row)) is True:
+                if self.deferred_owner is not None and self.deferred_owner.lookup(row['signature']) is not None:
+                    self.deferred_owner.active([row])
                 removed.append(row['id'])
         if _paired_ack_generation() != generation:
             raise JournalHold('PAIR_CHANGED_DURING_RECLAMATION')
@@ -335,7 +351,7 @@ class MigrationJournal:
                     copy=[row]
                     self._reclaim(copy,self.verify_completed,1)
                     if copy:raise JournalHold('RECLAMATION_RECOVERY_UNVERIFIED')
-                elif self.terminal_owner is None or not self.terminal_owner.verified(row):
+                elif not ((self.terminal_owner is not None and self.terminal_owner.verified(row)) or (self.deferred_owner is not None and self.deferred_owner.verified(row))):
                     raise JournalHold('RECLAMATION_RECOVERY_PROTECTED')
             stat = os.statvfs(self.path.parent)
             if stat.f_bavail * stat.f_frsize < DISK_FLOOR + MAX_JOURNAL_BYTES:
@@ -366,6 +382,18 @@ class MigrationJournal:
                         or (migration_slot is not None and retained.get('migration_slot') not in (None,migration_slot))):
                         raise JournalHold('TERMINAL_NOTIFICATION_CONFLICT')
                     return dict(retained)  # Protected duplicate, never a fresh retry/admission.
+            if self.deferred_owner is not None and not any(r['id']==incoming['id'] for r in rows):
+                stored=self.deferred_owner.lookup(signature)
+                if stored is not None:
+                    if stored['state']=='ACKED':
+                        known=stored.get('mint') or stored.get('notification_mint')
+                        if ((mint is not None and known is not None and mint!=known)
+                            or (notification_mint is not None and known is not None and notification_mint!=known)
+                            or (migration_slot is not None and stored.get('migration_slot') not in (None,migration_slot))):
+                            raise JournalHold('DEFERRED_NOTIFICATION_CONFLICT')
+                        return dict(stored)
+                    if not self.deferred_owner.verified(stored):raise JournalHold('DEFERRED_ACTIVE_AUTHORITY_MISSING')
+                    rows.append(stored)
             for row in rows:
                 if row['id'] == incoming['id']:
                     if notification_mint is not None and row['state'] not in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
@@ -516,7 +544,21 @@ class MigrationJournal:
             row['state'] = 'QUARANTINED'; row['error_code'] = reason
         self._change(change)
 
-    def pending(self, limit=MAX_BATCH):
+    def pending(self, limit=MAX_BATCH, *, now=None):
         if type(limit) is not int or not 0 < limit <= MAX_BATCH:
             raise JournalHold('BATCH_CAPACITY')
-        return [r for r in self.snapshot() if r['state'] not in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}][:limit]
+        import time
+        now=int(time.time()) if now is None else now
+        if self.tmp.exists():self.recover_reclamation()
+        with self._lock():
+            rows=self._read()
+            if self.deferred_owner is not None:self.deferred_owner.settle_active(rows)
+            eligible=sorted((r for r in rows if r['state'] in {'PENDING','RESOLVED'} and r.get('retry_not_before',0)<=now),key=lambda r:(r.get('retry_not_before',0),r['received_at'],r['id']))
+            returning=self.deferred_owner.ready(max(1,limit//2),now) if self.deferred_owner is not None else []
+            selected=eligible[:limit-len(returning)]
+            if returning:
+                keep={r['id'] for r in selected+returning}
+                if len(rows)+len(returning)>MAX_RECORDS:self._defer(rows,MAX_BATCH,keep=keep)
+                if len(rows)+len(returning)>MAX_RECORDS:raise JournalHold('JOURNAL_CAPACITY')
+                rows.extend(returning);self._publish(rows);self.deferred_owner.settle_active(rows)
+            return selected+returning

@@ -5,7 +5,7 @@ import pytest
 from tests.test_v2_helius_recovery_config import case, base_case
 ROOT=Path(__file__).resolve().parents[1]
 OLD='565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256'
-NEW='3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d'
+NEW=hashlib.sha256((ROOT/'runtime/listener/src/core/pumpfun_curve_listener.py').read_bytes()).hexdigest()
 
 def test_candidate_exact_profile_accepts_and_preserves_gate(case):
  e=case;before=e.gate.path.read_bytes();assert e.ns['HELIUS_GATE_PAYLOAD']['listener']['src/core/pumpfun_curve_listener.py']==NEW
@@ -31,5 +31,7 @@ def test_no_unrelated_role_pin_drift():
  text=subprocess.check_output(['git','show','455f160d:docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py'],text=True)
  def pins(text):return next(ast.literal_eval(n.value) for n in ast.parse(text).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='HELIUS_GATE_PAYLOAD' for t in n.targets))
  old=pins(text);new=pins((ROOT/'docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py').read_text())
- old['listener']['src/core/pumpfun_curve_listener.py']=NEW
+ for name in ('pumpfun_curve_listener.py','migration_signature_journal.py','migration_terminal_evidence.py'):
+  rel='src/core/'+name
+  if rel in old['listener']:old['listener'][rel]=hashlib.sha256((ROOT/'runtime/listener'/rel).read_bytes()).hexdigest()
  assert new==old

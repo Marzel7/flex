@@ -43,7 +43,7 @@ def owner(mode,stage):
 
 # Qualified terminal-aware recovery contract; no schema bootstrap or replay here.
 TERMINAL_FLAG = 'DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED'
-TERMINAL_PAYLOAD = {'pumpfun_curve_listener.py': '3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d', 'migration_signature_journal.py': 'a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c', 'migration_terminal_evidence.py': '8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1'}
+TERMINAL_PAYLOAD = {'pumpfun_curve_listener.py': '15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c', 'migration_signature_journal.py': 'cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9', 'migration_terminal_evidence.py': '98979578dbe718ed24f4b7cc016a27bb493938818d5d51a67e24cae872c63cb1'}
 TERMINAL_SCHEMA_CONTRACT = 'd7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588'
 BIRTH_JOURNAL_SHA256 = '40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289'
 MAX_RECOVERY_CONFIG_BYTES = 1_000_000
@@ -98,6 +98,18 @@ def terminal_environment(env):
  else:
   with sqlite3.connect(pathlib.Path(env['WT_OPS_DB_PATH']).as_uri()+'?mode=ro',uri=True) as connection:
    if connection.execute("SELECT 1 FROM sqlite_master WHERE name='birth_terminal_owner_v1'").fetchone():raise RuntimeError('BIRTH_TERMINAL_FLAG_DOWNGRADE')
+ deferred_flag='DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED'
+ planned=P['planned_production_environment'].get(deferred_flag,'0')
+ if planned not in ('0','1') or env.get(deferred_flag,'0')!=planned:raise RuntimeError('DEFERRED_FLAG_DOWNGRADE')
+ if planned=='1':
+  deferred=modules['migration_terminal_evidence.py'].DeferredMigrationStore(
+   env['WT_OPS_DB_PATH'],env['MIGRATION_JOURNAL_PATH'],generation=generation,
+   validate_record=journal._validate,validate_pair=validate_target)
+  deferred.lookup('__DEFERRED_RECOVERY_SCHEMA_CHECK__')
+  env[deferred_flag]='1'
+ else:
+  with sqlite3.connect(pathlib.Path(env['WT_OPS_DB_PATH']).as_uri()+'?mode=ro',uri=True) as d:
+   if d.execute("SELECT 1 FROM sqlite_master WHERE name='migration_deferred_owner_v1'").fetchone():raise RuntimeError('DEFERRED_FLAG_DOWNGRADE')
  return env
 
 CREATE_AUDIT_FLAG = "FLEX_V2_CREATE_AUDIT_ENABLED"
@@ -130,7 +142,7 @@ def coverage_environment(role,env):
  return env
 
 HELIUS_GATE_FLAG='FLEX_HELIUS_DENIAL_GATE_ENABLED'
-HELIUS_GATE_PAYLOAD = {'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': '623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': '3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d', 'src/core/helius_http_protection.py': '5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e', 'src/core/birth_admission_journal.py': '40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289', 'src/core/migration_terminal_evidence.py': '8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97', 'src/core/helius_denial_gate.py': '623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f', 'src/core/helius_http_protection.py': '5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e'}, 'walkback': {'src/core/helius_denial_gate.py': '623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f', 'src/core/walkback_worker.py': '0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7', 'src/core/helius_http_protection.py': '5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e'}}
+HELIUS_GATE_PAYLOAD = {'listener': {'src/analysis/pump_fun_post_migration_analyzer.py': 'efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639', 'src/core/helius_denial_gate.py': '623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f', 'src/core/pool_discovery.py': '24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b', 'src/core/post_migration_pool_discovery.py': 'ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f', 'src/core/pumpfun_curve_listener.py': '15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c', 'src/core/helius_http_protection.py': '5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e', 'src/core/birth_admission_journal.py': '40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289', 'src/core/migration_terminal_evidence.py': '98979578dbe718ed24f4b7cc016a27bb493938818d5d51a67e24cae872c63cb1'}, 'creator_resolution': {'src/analysis/pump_fun_post_migration_analyzer.py': '47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4', 'src/core/creator_resolution_queue.py': '681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97', 'src/core/helius_denial_gate.py': '623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f', 'src/core/helius_http_protection.py': '5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e'}, 'walkback': {'src/core/helius_denial_gate.py': '623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f', 'src/core/walkback_worker.py': '0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7', 'src/core/helius_http_protection.py': '5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e'}}
 MAX_HELIUS_RECOVERY_BYTES=67108864
 
 def helius_module(role):
@@ -230,6 +242,9 @@ def write_config(mode):
   if role=='listener':
    env.update(P['roles'][role]['nonsecret_wrapper_environment'])
    env=terminal_environment(env)
+  else:
+   # Retryable custody is listener-owned; do not change other worker bindings.
+   env.pop('DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED',None)
   env=coverage_environment(role,env)
   env=helius_environment(role,env)
   if env.get(HELIUS_GATE_FLAG)=='1':

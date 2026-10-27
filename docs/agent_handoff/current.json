@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "00f241f8a3a870fa02913b3216a06a78cce0b40c",
+    "git_head": "ad60eb958412a648393b17593a3d32a5eb25065e",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T21:55:42.691932+00:00",
-    "working_tree": "Strictlyread-only Walkback-only preflight HOLD: exact candidate/preimages andlive safety pass; current recoveryrenderer/source authority notqualified for candidateWalkbackhash. Reused19tests, two disposablepinchecks. Productionunchanged."
+    "updated_at_utc": "2026-10-27T22:06:12.231263+00:00",
+    "working_tree": "Walkback recoverypin correction qualified:source53a7d8ad, frozenbundle5ffc5de8.47recoverycontrolsPASS+19Walkbackcontrolsreused;privateconfigrenderidentical;read-onlylivepreflightGO. Productionunchanged.OnlyseparatelyauthorizedWalkbackruntime/recoveryauthoritydeploymentnext."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T21:55:42.692156+00:00",
+  "updated_at_utc": "2026-10-27T22:06:12.231487+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -48078,6 +48078,227 @@
       "new_disposable_pin_controls": 2
     },
     "blocker": "Recovery HELIUS_GATE_PAYLOAD walkback_worker.py still pins0f52420b; candidate41643e11 fails exact hash guard and fresh-pair recovery source authority remains c4.",
-    "next_action": "In isolated DEV qualify and freeze 00f241f8-aware recovery hash pins/immutable-source manifest while preserving gate-aware fallback, then resume this read-only Walkback-only preflight. Do not deploy."
+    "next_action": "In isolated DEV qualify and freeze 00f241f8-aware recovery hash pins/immutable-source manifest while preserving gate-aware fallback, then resume this read-only Walkback-only preflight. Do not deploy.",
+    "superseded_by_bundle_sha256": "5ffc5de8bfd6026cf1ff217f9026bd074056f7a6df319c1966c01ee4eda79d60"
+  },
+  "flex_v2_walkback_recovery_pin_correction": {
+    "status": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "engineering_revision": "ad60eb958412a648393b17593a3d32a5eb25065e",
+    "qualified_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+    "frozen_bundle_sha256": "5ffc5de8bfd6026cf1ff217f9026bd074056f7a6df319c1966c01ee4eda79d60",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "tests": {
+      "direct_recovery_controls_passed": 47,
+      "failed": 0,
+      "accepted_walkback_controls_reused": 19,
+      "private_live_render_controls": 2
+    },
+    "production_flags": {
+      "changed": false,
+      "gate_last_verified": "OPEN",
+      "lifetime_limit": 100000,
+      "no_deployment": true,
+      "no_provider_calls": true,
+      "no_replay": true
+    },
+    "result": {
+      "FLEX_V2_WALKBACK_RECOVERY_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+      "EXACT_RENDERER_DELTA": "One Walkback hash in HELIUS_GATE_PAYLOAD; all other renderer bytes unchanged",
+      "FROZEN_BUNDLE_SHA": "5ffc5de8bfd6026cf1ff217f9026bd074056f7a6df319c1966c01ee4eda79d60",
+      "QUALIFIED_SOURCE_COMMIT": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+      "WALKBACK_SOURCE_HASH": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+      "RECOVERY_COMPATIBILITY": {
+        "new_profile_candidate_guard": "PASS",
+        "explicit_old_gate_aware_fallback": "PASS in disposable qualification and current live read-only validation",
+        "stale_mixed_gate_unaware_refused": "PASS",
+        "fresh_pair_full_budget_terminal_deferred_preserved": "PASS",
+        "restart_config_readback": "PASS",
+        "runtime_plan_only_replacements": {
+          "immutable_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+          "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source"
+        },
+        "configuration_unchanged_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+        "no_alternate_source_hash_allowlist": true
+      },
+      "PROVIDER_FREE_TEST_RESULTS": {
+        "directly_affected_recovery_passed": 47,
+        "failed": 0,
+        "accepted_walkback_controls_reused": 19,
+        "new_live_private_render_controls": 2,
+        "provider_calls": 0
+      },
+      "LIVE_PREFLIGHT": {
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "services": {
+          "watchtower_listener": {
+            "state": "RUNNING",
+            "pid": 70897
+          },
+          "creator_resolution_worker": {
+            "state": "RUNNING",
+            "pid": 70926
+          },
+          "walkback_worker": {
+            "state": "RUNNING",
+            "pid": 70948
+          }
+        },
+        "supervisor_parent": 1131,
+        "gate": "OPEN",
+        "limit": 100000,
+        "reserved_credits_at_check": 65379,
+        "review_held": 5,
+        "inflight": [],
+        "disk_free_bytes": 4898316288,
+        "required_floor_staging_and_fresh_pair_reserve": 2650162306,
+        "quotas": {
+          "migration_terminal_owner_v1": [
+            1789,
+            1998841
+          ],
+          "migration_deferred_owner_v1": [
+            511,
+            1342808
+          ],
+          "birth_terminal_owner_v1": [
+            512,
+            697743
+          ]
+        },
+        "walkback_queue": [
+          [
+            "complete",
+            1891
+          ],
+          [
+            "failed",
+            6
+          ],
+          [
+            "pending",
+            157
+          ],
+          [
+            "waiting",
+            1550
+          ]
+        ],
+        "database_allocation": {
+          "core": {
+            "bytes": 81260544,
+            "wal_bytes": 0
+          },
+          "ops": {
+            "bytes": 162078720,
+            "wal_bytes": 0
+          }
+        }
+      },
+      "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+      "NEXT_ACTION": "Separately authorize the frozen Walkback-plus-renderer/authority bundle. Stage exact immutable source, preserve coherent gate-aware fallback, install only Walkback runtime file and runtime-plan source references, restart only Walkback, then natural acceptance. No schema, gate, budget, listener or resolver changes.",
+      "PRODUCTION_MUTATIONS": 0,
+      "SERVICE_RESTARTS": 0,
+      "PROVIDER_CALLS": 0,
+      "EXHAUSTED_REPLAY": false,
+      "BUNDLE_PATH": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/WALKBACK_RECOVERY_BUNDLE.json",
+      "RENDERER_SHA256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+      "READONLY_RENDER_NOTE": "Normal shared-gate lock contention handled by bounded retry of unchanged guard; no bypass, no deployment, no service controls invoked."
+    },
+    "bundle": {
+      "activation_boundary": {
+        "other_services": "Listener and resolver remain untouched",
+        "schema_changes": false,
+        "service": "Only walkback_worker may restart during separately authorized deployment",
+        "source": "Only Walkback runtime file plus immutable recovery checkout/manifest authority metadata"
+      },
+      "configuration": {
+        "changed": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+        "preserve_provider_credentials": true,
+        "sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320"
+      },
+      "deployment_payload": {
+        "runtime/walkback/src/core/walkback_worker.py": {
+          "candidate_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+          "installed_preimage_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+          "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py"
+        }
+      },
+      "fallback_profile": {
+        "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+        "financial_and_queue_state": "Preserve current durable state; no state rollback or refunds",
+        "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/source",
+        "qualified_source_commit": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+        "renderer_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+        "selection": "Explicit coherent old source/renderer/authority profile only; never combine old file with new pin or disable shared gate/deferred/terminal flags",
+        "walkback_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7"
+      },
+      "gate_authority": {
+        "enabled": true,
+        "generation_and_spending_preserved": true,
+        "lifetime_limit": 100000,
+        "no_reinitialization_or_probe": true,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+        "warning_limit": 50000
+      },
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "journal_authority": {
+        "birth": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+        "birth_terminal_flag": "Preserved1",
+        "listener_deferred_and_terminal_flags": "Preserved1",
+        "migration": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+        "no_replay_or_retry_reset": true
+      },
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "purpose": "Walkback optional-funder correction plus candidate-aware exact recovery authority; NOT ACTIVATED",
+      "qualified_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+      "qualified_walkback_parent_commit": "00f241f8a3a870fa02913b3216a06a78cce0b40c",
+      "recovery_renderer": {
+        "candidate_sha256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+        "delta": "Only HELIUS_GATE_PAYLOAD.walkback.src/core/walkback_worker.py hash changes",
+        "installed_authority_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/source",
+        "installed_renderer_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+        "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py"
+      },
+      "runtime_manifest": {
+        "all_other_fields": "Unchanged, including recovery supervisor preimage, source pair, budgets, flags, commands and roles",
+        "installed_preimage_sha256": "d6be6488cb11b8e4a60bcdea2b8635734dd5a7e5f1f8af888b7b46e9798d7163",
+        "only_replacements": {
+          "immutable_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+          "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source"
+        },
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/frozen-runtime-plan.json"
+      },
+      "runtime_payload_hashes_after": {
+        "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+        "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+        "runtime/creator_resolution/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+        "runtime/creator_resolution/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+        "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+        "runtime/listener/src/core/birth_admission_journal.py": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+        "runtime/listener/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+        "runtime/listener/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+        "runtime/listener/src/core/migration_signature_journal.py": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9",
+        "runtime/listener/src/core/migration_terminal_evidence.py": "98979578dbe718ed24f4b7cc016a27bb493938818d5d51a67e24cae872c63cb1",
+        "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+        "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+        "runtime/listener/src/core/pumpfun_curve_listener.py": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+        "runtime/walkback/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+        "runtime/walkback/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+        "runtime/walkback/src/core/walkback_worker.py": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914"
+      },
+      "storage": {
+        "additional_safety_reserve_bytes": 96000000,
+        "floor_plus_reserve_bytes": 2067108864,
+        "fresh_pair_reserve_bytes": 243298304,
+        "largest_source_file_bytes": 17014469,
+        "new_file_limit_bytes": 499000000,
+        "source_checkout_logical_bytes": 243714178
+      },
+      "version": 1
+    },
+    "blocker": null,
+    "next_action": "Separately authorize the frozen Walkback-plus-renderer/authority bundle. Stage exact immutable source, preserve coherent gate-aware fallback, install only Walkback runtime file and runtime-plan source references, restart only Walkback, then natural acceptance. No schema, gate, budget, listener or resolver changes."
   }
 }

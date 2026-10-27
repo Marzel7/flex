@@ -1,0 +1,73 @@
+{
+  "source_commit": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+  "frozen_bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "runtime_payload": {
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "installed_preimage_sha256": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+      "candidate_sha256": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9"
+    },
+    "runtime/listener/src/core/migration_terminal_evidence.py": {
+      "installed_preimage_sha256": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+      "candidate_sha256": "98979578dbe718ed24f4b7cc016a27bb493938818d5d51a67e24cae872c63cb1"
+    },
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "installed_preimage_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+      "candidate_sha256": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c"
+    }
+  },
+  "recovery_renderer": {
+    "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+    "candidate_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+    "installed_preimage_sha256": "a5def40d99e887cfe2e8a7881ddfc803436532f0239bbb21b629085b25a25ffd"
+  },
+  "current_runtime_plan_sha256": "ca0453d32642ec1f5e4ed3af2872250a92c6b7c825618fdb7580725a32b15bbe",
+  "runtime_plan_delta": {
+    "immutable_source_commit": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "immutable_source_root_planned": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/source",
+    "planned_production_environment": {
+      "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED": "1"
+    },
+    "listener_runtime_environment_overrides": {
+      "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED": "1"
+    }
+  },
+  "configuration": {
+    "current_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "candidate_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "private_proposal_path": "/private/tmp/c4ae598c-supervisor-proposed.conf",
+    "only_changed_section": "program:watchtower_listener",
+    "only_environment_delta": {
+      "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED": "1"
+    },
+    "other_programs_unchanged": true,
+    "root_env_deferred_flag": "ABSENT",
+    "credential_values_published": false
+  },
+  "additive_OPS_schema": {
+    "owner": "DeferredMigrationStore in existing migration_terminal_evidence.py",
+    "schema_version": 1,
+    "contract_sha256": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+    "tables": [
+      "migration_deferred_owner_v1",
+      "migration_deferred_evidence_v1"
+    ],
+    "index": "migration_deferred_due_v1",
+    "triggers": 6,
+    "explicit_initialization_only": true,
+    "original_terminal_contract_unchanged": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588"
+  },
+  "rollback_profile": "Exactc4deferred-aware source/schema/flag with gate and terminal contracts retained. Old7ddorflag0forbidden after deferred schema/custody activation. Restore same verifiedforwardprofile or use qualifiedfreshcompactmatchedpair; otherwise failclosed.",
+  "installation_sequence": [
+    "Refresh immutable hashes, pairedACTIVEauthority, protectedcounts, disk and capacities. Stage exactnewsource andsame-profilefallback/preimages before stopping anything.",
+    "Stoponlywatchtower_listener through acceptedSupervisor andverifyexit; resolver/Walkbackunchanged. Preservejournals andgate; neverblindclearRPCslots.",
+    "UnderexistingpairedOPSowner and499MBkernelcap, explicitlyinitializeandverify2deferredtables,6triggers,dueindex,version/contract/quotas. Noautomaticinitializationorcanonicalschemachanges.",
+    "Atomicallyinstallthreequalifiedlistenerfiles; pinfrozenruntimeplan/recoveryrenderer to exactc4source. Publishonlylistenerflag1configuration andverifyallotherprogramenvironment/commandsunchanged.",
+    "Useacceptedlistener-onlySupervisorreload/start; verifyphysicalV2pair, newsourcehashes, schema+flag1andgate/terminalreadbackbeforeprocessing.",
+    "Observeatleast5minutesnaturalactivity; event513mustuseverifiedOPScommit/readbackbeforejournalremoval. Noartificialprovidertrafficorexhaustedreplay. Verifyprotectedrecords, typeddeferralsandeligiblependingprogress.",
+    "Forcriticalfailurekeepdeferredschema/custodyandgatehistoriesprotected. Useonlydeferred-awareprofile/freshpair; neveroldsourceorflag0afteractivation."
+  ],
+  "production_changes": 0,
+  "schema_initializations": 0,
+  "provider_calls": 0
+}

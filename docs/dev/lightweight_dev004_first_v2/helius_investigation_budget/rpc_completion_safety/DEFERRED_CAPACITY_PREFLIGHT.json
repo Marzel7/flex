@@ -1,0 +1,235 @@
+{
+  "FLEX_V2_DEFERRED_CAPACITY_PREFLIGHT": "PASS_READ_ONLY_PREFLIGHT",
+  "CANDIDATE_INTEGRITY": {
+    "candidate": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+    "immutable_git_object_hashes_match": true,
+    "exact_payload": "Three runtime listener files plus existing recovery renderer. No unrelated source changes.",
+    "tests": "91acceptedcontrols reused;0rerun."
+  },
+  "INSTALLED_PREIMAGE_MATCH": {
+    "all16_installed_runtime_hashes_match": true,
+    "three_runtime_preimages_match": true,
+    "recovery_renderer_match": true,
+    "configuration_match": true
+  },
+  "OPS_SCHEMA_READINESS": {
+    "accepted_owner_module": "runtime/listener/src/core/migration_terminal_evidence.py",
+    "existing_terminal_schema_exact": true,
+    "existing_terminal_meta_matches": true,
+    "deferred_contract": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+    "DDL_counts": {
+      "TABLE": 2,
+      "INDEX": 1,
+      "TRIGGER": 6
+    },
+    "idempotency": "Retained91-control qualification; no schema initialization during preflight."
+  },
+  "DEFERRED_OWNER_CAPACITY": {
+    "max_identities": 8192,
+    "max_logical_allocation_bytes": 64000000,
+    "record_bytes": 4096,
+    "offload_batch": 20,
+    "default_restore_batch": 10,
+    "current_deferred_schema_exists": false,
+    "quota_full_behaviour": "Explicit ADMISSION_REFUSED, no ACK/dispatch; no identity deletion or quota bypass. Not unlimited admission if unknown evidence never qualifies.",
+    "physical_bounds": "Owner write connections apply480MBpagecap/prewrite checks. This is not a universal480MBshared-database ceiling for otherwriters. Existing499MBkernelcap retained.8MBWAL/journalpretransaction threshold cooperative, notabsolute."
+  },
+  "EVENT_513_SAFETY": "PASS retainedqualification: exact512original rows preserved; event513after20independentlyverifiedcustodytransfers;2000additionaladmissionsbound. In-flightDISPATCH_RESERVEDnevertransferred.",
+  "LISTENER_CRASH_PROTECTION": "Acceptedreal commonadmission callback returnsADMISSION_REFUSED for quota refusal; PumpSwapcontinues andPumpPortalskipsrefusedmigration sideeffects whilebirthprocessingcontinues. Genuine schema/generation/diskintegrityerrors stillfailclosed.",
+  "RECOVERY_AND_ROLLBACK": {
+    "deferred_aware_fresh_pair": "PASS retainedqualification; originaltransfergeneration, retryrights,gatehistoriesandpairedauthoritypreserved",
+    "flag": "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED=1 listeneronly",
+    "fallback": "Exactc4deferred-aware source/schema/flag with gate and terminal contracts retained. Old7ddorflag0forbidden after deferred schema/custody activation. Restore same verifiedforwardprofile or use qualifiedfreshcompactmatchedpair; otherwise failclosed.",
+    "activation_plan_sha256": "77c44fd2f8c8a128dab0d4181ea989f216c5d20122a5854e962fdd037cd5304d",
+    "reload_boundary": "Listeneronly; no resolver/Walkbackchanges or restarts."
+  },
+  "DISK_AND_RUNTIME_HEALTH": {
+    "at_utc": "2026-10-27T19:17:18.580190+00:00",
+    "candidate_commit": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+    "installed_hash_mismatches": [],
+    "candidate_payload_hash_mismatches": [],
+    "renderer_candidate_match": true,
+    "installed_renderer_preimage_match": true,
+    "configuration_preimage_match": true,
+    "disk_free_bytes": 3098308608,
+    "generation": {
+      "value": "DEV004-V2-20261024-dfb76562",
+      "owner_phase": "ACTIVE",
+      "owner_generation_match": true,
+      "files_match": true,
+      "source_plan_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc"
+    },
+    "journals": {
+      "migration": {
+        "count": 512,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 511
+        },
+        "bytes": 289621,
+        "tmp_exists": false
+      },
+      "birth": {
+        "count": 502,
+        "states": {
+          "QUARANTINED": 377,
+          "ACKED": 125
+        },
+        "bytes": 417413,
+        "tmp_exists": false
+      }
+    },
+    "databases": {
+      "core": {
+        "journal_mode": "wal",
+        "page_size": 4096,
+        "page_count": 19368,
+        "freelist_count": 0,
+        "max_page_count": 1073741823,
+        "bytes": 79331328,
+        "wal_bytes": 0
+      },
+      "ops": {
+        "journal_mode": "delete",
+        "page_size": 4096,
+        "page_count": 39367,
+        "freelist_count": 0,
+        "max_page_count": 1073741823,
+        "bytes": 161247232,
+        "wal_bytes": 0
+      }
+    },
+    "deferred_schema_existing": [],
+    "terminal": {
+      "migration_terminal_owner_v1": [
+        1789,
+        1998841
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "protected1319_unchanged": true,
+    "gate": {
+      "state": "OPEN",
+      "lifetime_limit": 100000,
+      "inflight": 1,
+      "held_uncertain": 3,
+      "max_investigation_spend": 7499
+    },
+    "source_stage": {
+      "encoded_checkout_bytes": 243654753,
+      "max_file_bytes": 17014469
+    },
+    "schema_readiness": {
+      "accepted_owner_module": "runtime/listener/src/core/migration_terminal_evidence.py",
+      "existing_terminal_schema_exact": true,
+      "existing_terminal_meta_matches": true,
+      "deferred_contract": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+      "DDL_counts": {
+        "TABLE": 2,
+        "INDEX": 1,
+        "TRIGGER": 6
+      },
+      "idempotency": "Retained91-control qualification; no schema initialization during preflight."
+    },
+    "disk_plan": {
+      "floor_bytes": 2067108864,
+      "source_checkout_bytes": 243654753,
+      "schema_and_custody_planning_reserve_bytes": 64000000,
+      "WAL_and_temporary_reserve_bytes": 32000000,
+      "fresh_pair_current_data_preservation_reserve_bytes": 240578560,
+      "no_database_copy_performed": true,
+      "conservative_required_bytes": 2647342177,
+      "headroom_after_reserved_bytes": 450966431
+    },
+    "services": {
+      "listener": {
+        "pid": 21988,
+        "state": "RUNNING"
+      },
+      "resolver": {
+        "pid": 33613,
+        "state": "RUNNING"
+      },
+      "Walkback": {
+        "pid": 99159,
+        "state": "RUNNING"
+      }
+    },
+    "worker_authority": {
+      "listener": {
+        "pid": 21988,
+        "supervisor_parent": 1131,
+        "command_matches": true,
+        "PYTHONPATH_matches": true,
+        "gate_flag": "1",
+        "shared_gate_path_matches": true,
+        "Core_binding_matches": true,
+        "OPS_binding_matches": true,
+        "deferred_flag_current": "0"
+      },
+      "creator_resolution": {
+        "pid": 33613,
+        "supervisor_parent": 1131,
+        "command_matches": true,
+        "PYTHONPATH_matches": true,
+        "gate_flag": "1",
+        "shared_gate_path_matches": true,
+        "Core_binding_matches": true,
+        "OPS_binding_matches": true,
+        "deferred_flag_current": "0"
+      },
+      "walkback": {
+        "pid": 99159,
+        "supervisor_parent": 1131,
+        "command_matches": true,
+        "PYTHONPATH_matches": true,
+        "gate_flag": "1",
+        "shared_gate_path_matches": true,
+        "Core_binding_matches": true,
+        "OPS_binding_matches": true,
+        "deferred_flag_current": "0"
+      }
+    },
+    "recovery_conflict_checks": {
+      "owner_RUNTIME": true,
+      "transfer_complete": true,
+      "owner_manifest_hash_matches": true,
+      "prior_deployment_phase": "ACCEPTANCE_PASS",
+      "deferred_stage_directory_exists": false,
+      "deferred_schema_present": false,
+      "limits": "Normalauthorizedwriters remainrunning. Reads succeeded; no write-lock or checkpoint probe performed."
+    },
+    "configuration_proposal": {
+      "current_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+      "candidate_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+      "private_proposal_path": "/private/tmp/c4ae598c-supervisor-proposed.conf",
+      "only_changed_section": "program:watchtower_listener",
+      "only_environment_delta": {
+        "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED": "1"
+      },
+      "other_programs_unchanged": true,
+      "root_env_deferred_flag": "ABSENT",
+      "credential_values_published": false
+    },
+    "immutable_git_object_hashes_match": true
+  },
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "NEXT_ACTION": "Separately authorize exactc4bundle, additiveOPSinitialization andlistener-onlyactivation using frozenactivationplan. Recheckimmediate disk/capacity/sourcepreconditions at execution. Livejournal remainsfulluntildeployment.",
+  "production_changes": 0,
+  "schema_initializations": 0,
+  "service_restarts": 0,
+  "provider_calls": 0,
+  "journal_queue_mutations": 0,
+  "tests_rerun": 0,
+  "created_at_utc": "2026-10-27T19:29:22.610954+00:00",
+  "final_disk_recheck": {
+    "at_utc": "2026-10-27T19:31:11.273609+00:00",
+    "free_bytes": 3106029568,
+    "headroom_above_floor_and_reserved_bytes": 458687391
+  }
+}

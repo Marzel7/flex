@@ -1,0 +1,411 @@
+{
+  "FLEX_V2_WALKBACK_PROGRESS_PREFLIGHT": "PASS",
+  "CANDIDATE_INTEGRITY": {
+    "source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "bundle_sha256": "0dbf2ca8d77605df9fd3484d504417043ab1825841d281c26c8429c91039cb2f",
+    "exact_three_file_payload_verified": true,
+    "unrelated_runtime_source_differences": 0,
+    "retained_qualification": {
+      "passed": 107,
+      "failed": 0,
+      "rerun": false
+    }
+  },
+  "INSTALLED_PREIMAGE_MATCH": {
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501",
+      "installed_preimage_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+      "match": true
+    },
+    "runtime/walkback/src/ops/anchor_reconciliation.py": {
+      "candidate_sha256": "7e2cbf52b4c28a884e02728bc036559edc3fb627476b3b61a122e3be0ea33404",
+      "installed_preimage_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "match": true
+    },
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47",
+      "installed_preimage_sha256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+      "match": true
+    }
+  },
+  "OPS_CURSOR_INDEX_READINESS": {
+    "status": "PASS \u2014 additive preparation qualified, not executed",
+    "objects_absent_as_expected": true,
+    "only_new_objects": [
+      "wt_anchor_reconciliation_cursor_v1",
+      "ix_anchor_waiting_cursor_v1"
+    ],
+    "idempotency_crash_restart": "Retained qualification reused; durable cursor and queue bookkeeping commit together. Source-only bootstrap must use explicit transaction and rollback on failure.",
+    "canonical_or_attribution_schema_rewrite": false,
+    "allocation_and_lock_plan": {
+      "current_queue_rows": 3617,
+      "observed_max_key_payload_bytes_with_overhead_allowance": 143,
+      "estimated_key_payload_bytes": 517231,
+      "temporary_allocation_reserve_bytes": 33554432,
+      "reserve_is_a_plan_not_hard_wal_guarantee": true,
+      "required_floor_plus_reserve_bytes": 2100663296,
+      "idempotent_owner": "src.ops.anchor_reconciliation.ensure_schema",
+      "explicit_preconditions": [
+        "Walkback quiescent with no owned RPC reservation or running claim",
+        "Recheck row population and floor; reject unexpected growth",
+        "Run existing owner under matched paired authority and the established 499000000-byte RLIMIT_FSIZE",
+        "Bound busy timeout; rollback initialization on lock/storage/schema failure",
+        "Validate schema and covering index before new worker starts"
+      ],
+      "production_schema_initialized": false
+    },
+    "existing_owner_metadata_complete": true
+  },
+  "WAITING_JOB_FAIRNESS": {
+    "status": "PASS \u2014 retained controls",
+    "normal_poll_bound": 32,
+    "hard_poll_bound": 128,
+    "selection": "Persisted FIFO (enqueued_at,mint) continuation with finite sweep high-water, existing eligibility preserved",
+    "normal_pending_job_priority": "Unchanged",
+    "fixed_277_candidates": {
+      "indexed_identities_checked": 277,
+      "waiting_with_no_anchor": 277,
+      "ops_create_ledger_rows": 0,
+      "promotions_or_repairs": 0
+    },
+    "no_automatic_promotion": true
+  },
+  "RPC_RESULT_REUSE": {
+    "status": "PASS \u2014 retained controls",
+    "identity": "Exact method, parameters, endpoint digest, source generation, gate path and durable investigation owner/scope",
+    "limits": {
+      "entries": 256,
+      "bytes": 2097152,
+      "single_result_bytes": 131072,
+      "transaction_account_ttl_seconds": 60,
+      "signature_page_ttl_seconds": 15
+    },
+    "failed_empty_stale_conflicting_or_incomplete_reuse": "Excluded by exact qualified-result admission/TTL controls",
+    "restart": "Memory misses; original durable spending/cooldown persists",
+    "deferrals": "Exact sanitized Helius reason retained, budget-only claims refunded; missing CREATE/unqualified-anchor states remain distinct",
+    "provider_calls_during_preflight": 0
+  },
+  "HELIUS_BUDGET_INTEGRITY": {
+    "state": "OPEN",
+    "publication": "READY_V1 checksum verified",
+    "lifetime_credit_limit": 100000,
+    "warning_credit_level": 50000,
+    "reservations_total": 66738,
+    "outcomes_total": 66732,
+    "highest_investigation_credits": 7830,
+    "total_reserved_credits": 66629,
+    "inflight": [],
+    "review_held_requests": 5,
+    "policy_sha256": "ebc28131ddceb2f6f9fdb8f310f55c0399b0bd3d2a1f489c88b69ccac9b1d93a",
+    "state_file_bytes": 1747308
+  },
+  "RECOVERY_AND_ROLLBACK": {
+    "status": "PASS \u2014 candidate-aware only",
+    "checks": {
+      "all_helius_role_pins_checked": 16,
+      "all_matched": true,
+      "all_three_kernel_launchers_match_accepted_source": true,
+      "fresh_pair_recovery_script_unchanged_sha256": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888",
+      "recovery_configuration_preimage_hash_verified": true,
+      "unrelated_source_installs": 0
+    },
+    "pins": {
+      "candidate_walkback": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501",
+      "candidate_anchor_owner": "7e2cbf52b4c28a884e02728bc036559edc3fb627476b3b61a122e3be0ea33404",
+      "coherent_candidate_profile_required": true,
+      "older_source_or_renderer_not_authorized_after_cursor_activation": true,
+      "fallback": "Exact candidate-pinned gate/terminal/deferred-aware profile; fresh compact matched-pair recovery preserves OPS cursor/index and durable Helius state. Old production preimages are forensic restoration artifacts, not an approved downgrade path for this activation."
+    },
+    "fresh_pair": "Retained tests prove compact backup preserves cursor/index and gate generation move preserves credits, pending and terminal evidence. Recovery script unchanged.",
+    "old_preimages": "Retained as evidence; explicitly not approved as post-cursor fallback for this deployment",
+    "service_boundary": "Walkback only; listener/resolver untouched",
+    "quiescence": "One valid claim seen at first snapshot; later snapshot had no running claim. Refresh and establish idle ownership boundary at execution; no claims/reservations cleared."
+  },
+  "LIVE_SAFETY": {
+    "observed_utc": "2026-10-27T22:54:13.687684+00:00",
+    "disk_free_bytes": 3509047296,
+    "floor_bytes": 2067108864,
+    "floor_plus_source_index_recovery_reserves_bytes": 2771751936,
+    "database_and_wal_sizes": {
+      "core": {
+        "database": {
+          "bytes": 82014208,
+          "inode": 1053704146
+        },
+        "-wal": {
+          "bytes": 0,
+          "inode": 1075830003
+        },
+        "-shm": {
+          "bytes": 32768,
+          "inode": 1075830004
+        }
+      },
+      "ops": {
+        "database": {
+          "bytes": 162115584,
+          "inode": 1053704157
+        }
+      }
+    },
+    "queue": {
+      "total": 3617,
+      "states": {
+        "complete": 1892,
+        "failed": 6,
+        "pending": 168,
+        "running": 1,
+        "waiting": 1550
+      },
+      "running_claims": 1,
+      "running_lease_range": [
+        1793141952,
+        1793141952
+      ],
+      "max_index_text_key_lengths": [
+        44,
+        8,
+        27
+      ]
+    },
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897,
+        "parent_supervisor_pid": 1131,
+        "start": "Tue Oct 27 21:16:44 2026",
+        "bindings": {
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+          "RPC_METRICS_DB": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED": "1",
+          "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED": "1",
+          "PYTHONPATH": "/Users/kevinkeaveney/Production/flex-listener"
+        },
+        "supervisor_command_sha256": "0aeba25440cd70bc8846f85eeb64805b1323b0ba387030e32ed49cd69f65ba05"
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926,
+        "parent_supervisor_pid": 1131,
+        "start": "Tue Oct 27 21:16:54 2026",
+        "bindings": {
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+          "RPC_METRICS_DB": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "PYTHONPATH": "/Users/kevinkeaveney/Production/flex-main-workers"
+        },
+        "supervisor_command_sha256": "6db2d5c52d308cff6bfbb74c9048027f2531d58f7070fb6301e171698895e0aa"
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 87212,
+        "parent_supervisor_pid": 1131,
+        "start": "Tue Oct 27 22:11:00 2026",
+        "bindings": {
+          "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+          "RPC_METRICS_DB": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+          "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "PYTHONPATH": "/Users/kevinkeaveney/Production/flex-walkback-dev002"
+        },
+        "supervisor_command_sha256": "88d08b33a3c11bc4b67409dfbda0f0f5439a61ac3433408cdb067eff4f1ee906"
+      }
+    },
+    "kernel_limit_owner": {
+      "all_three_installed_launchers_present": true,
+      "limit_bytes": 499000000,
+      "live_process_rlimit_directly_queried": false,
+      "verification": "Accepted same-process launch owner enforces cap before runpy; current Supervisor command must retain this entrypoint. No new live process or check-only launch was run.",
+      "supervisor_commands_all_use_same_process_launcher": true
+    },
+    "custody_schema_and_quotas": {
+      "TerminalEvidenceStore": {
+        "version_contract_and_triggers_valid": true,
+        "quota": [
+          1,
+          "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+          1789,
+          1998841
+        ]
+      },
+      "DeferredMigrationStore": {
+        "version_contract_and_triggers_valid": true,
+        "quota": [
+          1,
+          "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+          511,
+          1344332
+        ]
+      },
+      "birth_terminal_owner_v1": {
+        "quota": [
+          512,
+          697743
+        ]
+      }
+    },
+    "custody_state_counts": {
+      "migration_terminal_evidence_v1": {
+        "VERIFIED": 1789
+      },
+      "migration_deferred_evidence_v1": {
+        "ACTIVE": 416,
+        "OWNED": 95
+      }
+    },
+    "journal_initial": {
+      "birth.jsonl": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+        "records": 498,
+        "remaining_active_slots": 14,
+        "bytes": 402268,
+        "states": {
+          "QUARANTINED": 446,
+          "ACKED": 52
+        },
+        "observation": "atomic file snapshot; no mutation"
+      },
+      "migration.jsonl": {
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+        "records": 503,
+        "remaining_active_slots": 9,
+        "bytes": 285939,
+        "states": {
+          "RESOLVED": 1,
+          "QUARANTINED": 11,
+          "PENDING": 489,
+          "ACKED": 2
+        },
+        "observation": "atomic file snapshot; no mutation"
+      }
+    },
+    "journal_later": {
+      "birth.jsonl": {
+        "records": 497,
+        "remaining_active_slots": 15,
+        "states": {
+          "QUARANTINED": 446,
+          "ACKED": 51
+        }
+      },
+      "migration.jsonl": {
+        "records": 498,
+        "remaining_active_slots": 14,
+        "states": {
+          "RESOLVED": 1,
+          "QUARANTINED": 13,
+          "PENDING": 482,
+          "ACKED": 2
+        }
+      }
+    },
+    "capacity_interpretation": "Both active journals have free slots and occupancy decreased without intervention. Headroom is narrow and must be refreshed at execution; this preflight does not promise indefinite capacity. Existing bounded lifecycle and owner quotas remain unchanged.",
+    "retained_log_tail": {
+      "watchtower_listener:stdout_logfile": {
+        "bytes_examined": 262144,
+        "matching_lines": {
+          "JOURNAL_CAPACITY": 0,
+          "TERMINAL_CAPACITY": 0,
+          "DEFERRED_CAPACITY": 0,
+          "database is locked": 0,
+          "database disk image is malformed": 0,
+          "DISK_FLOOR": 0
+        },
+        "bounded_tail_only": true
+      },
+      "watchtower_listener:stderr_logfile": {
+        "bytes_examined": 262144,
+        "matching_lines": {
+          "JOURNAL_CAPACITY": 6,
+          "TERMINAL_CAPACITY": 0,
+          "DEFERRED_CAPACITY": 0,
+          "database is locked": 0,
+          "database disk image is malformed": 0,
+          "DISK_FLOOR": 4
+        },
+        "bounded_tail_only": true
+      },
+      "creator_resolution_worker:stdout_logfile": {
+        "bytes_examined": 262144,
+        "matching_lines": {
+          "JOURNAL_CAPACITY": 0,
+          "TERMINAL_CAPACITY": 0,
+          "DEFERRED_CAPACITY": 0,
+          "database is locked": 0,
+          "database disk image is malformed": 0,
+          "DISK_FLOOR": 0
+        },
+        "bounded_tail_only": true
+      },
+      "creator_resolution_worker:stderr_logfile": {
+        "bytes_examined": 262144,
+        "matching_lines": {
+          "JOURNAL_CAPACITY": 0,
+          "TERMINAL_CAPACITY": 0,
+          "DEFERRED_CAPACITY": 0,
+          "database is locked": 0,
+          "database disk image is malformed": 0,
+          "DISK_FLOOR": 0
+        },
+        "bounded_tail_only": true
+      },
+      "walkback_worker:stdout_logfile": {
+        "bytes_examined": 262144,
+        "matching_lines": {
+          "JOURNAL_CAPACITY": 0,
+          "TERMINAL_CAPACITY": 0,
+          "DEFERRED_CAPACITY": 0,
+          "database is locked": 0,
+          "database disk image is malformed": 0,
+          "DISK_FLOOR": 0
+        },
+        "bounded_tail_only": true
+      },
+      "walkback_worker:stderr_logfile": {
+        "bytes_examined": 262144,
+        "matching_lines": {
+          "JOURNAL_CAPACITY": 0,
+          "TERMINAL_CAPACITY": 0,
+          "DEFERRED_CAPACITY": 0,
+          "database is locked": 0,
+          "database disk image is malformed": 0,
+          "DISK_FLOOR": 0
+        },
+        "bounded_tail_only": true
+      }
+    },
+    "new_error_observation": {
+      "duration_seconds": 53.0,
+      "bytes_appended": 0,
+      "JOURNAL_CAPACITY": 0,
+      "DISK_FLOOR": 0,
+      "interpretation": "Retained older tail has undated historical error strings; they are not assigned to the current process or a new rate. This inode/offset-bounded observation counts only new appended bytes."
+    },
+    "limits": "Read-only snapshots and short retained-log observation; no write-lock probe, checkpoint, maintenance or absolute WAL guarantee."
+  },
+  "ACTIVATION_PLAN_PATH": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/ACTIVATION_PLAN.json",
+  "ACTIVATION_PLAN_SHA256": "426319c8595614cff8dc695ce674f1a1ce242fa926818b4e6e56277f03f8bf56",
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "EXACT_BLOCKER": null,
+  "NEXT_ACTION": "Separately authorize the exact two-runtime-file/candidate-renderer deployment plus additive cursor/index bootstrap. Refresh immediate preconditions; quiesce and restart only Walkback. Use only candidate-aware recovery after cursor activation.",
+  "SAFETY": {
+    "production_writes": 0,
+    "production_schema_changes": 0,
+    "production_source_or_config_changes": 0,
+    "service_restarts": 0,
+    "provider_calls": 0,
+    "queue_replay_or_reset": 0,
+    "v1_database_access": 0,
+    "deployment_executed": false
+  },
+  "completed_utc": "2026-10-27T23:00:42.311271+00:00"
+}

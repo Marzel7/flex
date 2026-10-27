@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "status": "PREFLIGHT_GO_NOT_AUTHORIZED_FOR_DEPLOYMENT",
+  "candidate": "b203c114887034dc77e2ee2be10d08985c6871ac",
+  "bundle_sha256": "0dbf2ca8d77605df9fd3484d504417043ab1825841d281c26c8429c91039cb2f",
+  "source_payload": {
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "installed_preimage_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+      "candidate_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501"
+    },
+    "runtime/walkback/src/ops/anchor_reconciliation.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/anchor_reconciliation.py",
+      "installed_preimage_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "candidate_sha256": "7e2cbf52b4c28a884e02728bc036559edc3fb627476b3b61a122e3be0ea33404"
+    },
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+      "candidate_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47"
+    }
+  },
+  "configuration_preimages": {
+    "supervisor_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "runtime_plan_sha256": "4ac41a42b43e7d2f8583bfc6a07cd2c79110050828beba15d5204414f9423251"
+  },
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "required_floor_bytes": 2067108864,
+  "allocation_reserves": {
+    "source_checkout_bytes": 402653184,
+    "ops_preparation_bytes": 33554432,
+    "fresh_compact_pair_bytes": 268435456,
+    "floor_plus_all_reserves_bytes": 2771751936,
+    "note": "Conservative execution reserves, not enforcement of an absolute WAL or lock-duration cap. Recheck actual allocation and row count before authorized execution."
+  },
+  "source_staging": {
+    "tracked_source_bytes": 243757848,
+    "tracked_files": 8432,
+    "largest_tracked_file_bytes": 17014469,
+    "tracked_database_files": 0,
+    "procedure": "Use the accepted immutable source checkout procedure pinned to b203c114. Preserve the old immutable checkout. Do not overwrite its renderer; activate the candidate renderer through the frozen runtime-plan source root and commit. No V1 or V2 database copies in source staging.",
+    "new_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-progress-b203c114/source"
+  },
+  "sequence": [
+    {
+      "step": 1,
+      "action": "After separate authorization, refresh source/configuration preimages, generation, disk, gate publication/accounting, journal/owner capacity and current worker authority. Stop on unexpected differences."
+    },
+    {
+      "step": 2,
+      "action": "Stage exact two runtime files, candidate renderer, immutable source authority and coherent candidate-aware fallback. Preserve verified original files, ownership, permissions and configuration as evidence. Do not activate unrelated candidate files."
+    },
+    {
+      "step": 3,
+      "action": "Reach an idle Walkback boundary using accepted controls: no Walkback RPC reservation and no running queue claim. Wait boundedly rather than clearing ownership. Acquire the existing gate exclusion boundary for the final check/stop; stop only walkback_worker. Verify old PID exited and no ambiguous reservation appeared. Leave listener/resolver running."
+    },
+    {
+      "step": 4,
+      "action": "Under matched V2 authority and the 499000000-byte same-process file cap, use the existing guarded OPS connection with bounded busy timeout. BEGIN IMMEDIATE, call exact candidate anchor_reconciliation.ensure_schema, and rollback on any error. This owner commits only after its complete DDL. Existing columns/log/index are already present: only singleton cursor table and covering waiting-job index are new. Validate schema and index before startup. No queue replay or mutation during bootstrap."
+    },
+    {
+      "step": 5,
+      "action": "While Walkback remains stopped, install exactly both runtime files and activate the matching candidate renderer via immutable source-root/commit metadata. Preserve all effective runtime flags, paths, provider credentials and budgets. Verify installed hashes, unchanged listener/resolver configuration and candidate-aware recovery. Never mutate the previous immutable source checkout."
+    },
+    {
+      "step": 6,
+      "action": "Start only Walkback. Verify matched generation, same gate/counters/policy, terminal/deferred custody, cursor schema and process ownership. Observe at least five minutes of natural activity; do not initiate provider calls or replay historical work."
+    },
+    {
+      "step": 7,
+      "action": "Verify fair bounded cursor movement, qualified RPC reuse, distinct deferrals and preserved attempts. Keep the 277 unqualified candidate identities protected unless the unchanged accepted producer independently qualifies evidence. Verify accounting, reservations, WAL/disk and other-worker continuity. Report natural completions only if observed."
+    }
+  ],
+  "schema_contract": {
+    "owner": "runtime/walkback/src/ops/anchor_reconciliation.py::ensure_schema",
+    "additive_table": "wt_anchor_reconciliation_cursor_v1",
+    "maximum_rows": 1,
+    "index": "ix_anchor_waiting_cursor_v1(status,path_state,enqueued_at,mint)",
+    "canonical_schema_changes": false,
+    "initialize_before_new_worker_start": true
+  },
+  "rollback": {
+    "before_cursor_activation": "Preserve previous coherent profile; no live source changes have yet been made by this preflight.",
+    "after_cursor_activation": "Only the exact candidate-pinned coherent source/configuration profile or accepted fresh compact matched-pair recovery using that profile. Original old-source preimages are retained forensic artifacts, not an approved downgrade. No mixed renderer/source pins and no gate/terminal/deferred-unaware fallback.",
+    "accounting": "Preserve spending, five review-held requests, investigation roots, attempts, canonical evidence and terminal/deferred custody. No slot clearing, exhausted replay, budget reset or V1 reactivation."
+  },
+  "activation_executed": false
+}

@@ -37031,8 +37031,8 @@
     "git_head": "294919378a6df77ccad167fd310b1b0039a4a99d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T22:19:33.936550+00:00",
-    "working_tree": "Walkback-only optional-funder correction DEPLOYED/PASS:source53a7d8ad,worker70948->87212;listener70897/resolver70926unchanged.8optionaldeferrals,0missing-ownerbatchaborts,7batchsummaries;41queueupdates/0newcompletions.100kbudget/history and1319protectednotificationspreserved,0inflight."
+    "updated_at_utc": "2026-10-27T22:30:09.091927+00:00",
+    "working_tree": "Read-only zero-completion diagnosis HOLD:waitingFIFOlimit1 starvation confirmed,277localreader anchor candidates unvisited;pending54genericdeferrals withduplicateRPC cooldown cycle reproducedoffline(3controls).GateOPEN/highest7777,0inflight snapshot;no source/runtimechanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T22:19:33.936790+00:00",
+  "updated_at_utc": "2026-10-27T22:30:09.092119+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -48498,5 +48498,426 @@
     },
     "blocker": null,
     "next_action": "Leave Walkback running with strict budget ownership. Monitor natural queue progress; do not promote deferred optional candidates or add acquisition ownership implicitly."
+  },
+  "flex_v2_walkback_zero_completion_readonly_diagnosis": {
+    "status": "HOLD_PROGRESS_NOT_RESTORED",
+    "engineering_revision": "294919378a6df77ccad167fd310b1b0039a4a99d",
+    "installed_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+    "tests": {
+      "provider_free_duplicate_request_controls_passed": 3,
+      "failed": 0,
+      "provider_calls": 0
+    },
+    "production_flags": {
+      "changed": false,
+      "gate_snapshot": "OPEN",
+      "lifetime_limit": 100000,
+      "no_restarts": true,
+      "no_exhausted_replay": true
+    },
+    "result": {
+      "observed_utc": "2026-10-27T22:23:22.187204+00:00",
+      "since_activation_utc": "2026-10-27T22:11:06.138191+00:00",
+      "seconds_since_activation": 735,
+      "services": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 70897
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 70926
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 87212
+        }
+      },
+      "max_attempts_source_expression": "int(os.environ.get(\"WALKBACK_MAX_ATTEMPTS\",    \"3\"))",
+      "max_attempts_effective": 3,
+      "states": {
+        "waiting": 1551,
+        "complete": 1891,
+        "pending": 159,
+        "failed": 6
+      },
+      "new_completions_since_fix": 0,
+      "pending": {
+        "count": 159,
+        "eligible_now": 111,
+        "future_retry": 48,
+        "at_retry_ceiling": 0,
+        "last_error": {
+          "NONE": 105,
+          "HELIUS_ACQUISITION_DEFERRED": 54
+        },
+        "classes": {
+          "FULL_WALKBACK": 157,
+          "PARTIAL_TREASURY": 2
+        },
+        "attempts": {
+          "0": 156,
+          "2": 1,
+          "1": 2
+        },
+        "anchor_states": {
+          "NONE": 159
+        },
+        "create_audit_state": {
+          "VALID": 157,
+          "MISSING_OR_MALFORMED": 2
+        },
+        "priority": {
+          "0": 159
+        },
+        "updated_since_fix": 49,
+        "eligible_batch": [
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "HELIUS_ACQUISITION_DEFERRED",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "HELIUS_ACQUISITION_DEFERRED",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "HELIUS_ACQUISITION_DEFERRED",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "HELIUS_ACQUISITION_DEFERRED",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "HELIUS_ACQUISITION_DEFERRED",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "HELIUS_ACQUISITION_DEFERRED",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "NONE",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          },
+          {
+            "class": "FULL_WALKBACK",
+            "attempts": 0,
+            "last_error": "NONE",
+            "priority": 0,
+            "has_create_signature": true,
+            "lookup_state": null,
+            "rpc_used": 0
+          }
+        ]
+      },
+      "waiting": {
+        "count": 1551,
+        "last_error": {
+          "NONE": 1551
+        },
+        "path_state": {
+          "WAITING_FOR_CREATE_ANCHOR": 1551
+        },
+        "anchor_states": {
+          "NONE": 1550,
+          "PENDING_NOT_VISIBLE": 1
+        },
+        "lookup_attempts": {
+          "0": 1550,
+          "9312": 1
+        },
+        "create_audit_state": {
+          "MISSING_OR_MALFORMED": 1551
+        },
+        "signature_present": 0,
+        "updated_since_fix": 1
+      },
+      "running": {
+        "count": 0,
+        "expired_leases": 0
+      },
+      "heartbeat": {
+        "age_seconds": 18,
+        "status": "UNHEALTHY",
+        "health": {
+          "average_completion_latency_seconds": null,
+          "completed_last_hour": 0,
+          "completed_per_minute": 0,
+          "generated_at": 1793139783,
+          "healthy": false,
+          "heartbeat_age_seconds": 0,
+          "heartbeat_at": 1793139783,
+          "nested_write_failures_last_hour": 0,
+          "oldest_pending_age_seconds": 86072,
+          "oldest_pending_at": 1793053711,
+          "oldest_running_age_seconds": null,
+          "oldest_running_at": null,
+          "pending": 159,
+          "queue_depth": 159,
+          "reasons": [
+            "pending work exists but completed_per_minute is zero"
+          ],
+          "running": 0,
+          "stalled_after_seconds": 180,
+          "stalled_running_jobs": 0,
+          "status": "UNHEALTHY",
+          "write_failures_last_hour": 0
+        }
+      },
+      "gate": {
+        "state": "OPEN",
+        "limit": 100000,
+        "highest_investigation_credits": 7777,
+        "inflight": [],
+        "rate": {
+          "count": 6,
+          "previous": 25,
+          "start": 1793139785
+        },
+        "next_at_delta": -3526,
+        "review_held": 5
+      },
+      "disk_free": 3556044800,
+      "trace_failures": [
+        {
+          "boundary": "queue_claim_attempted",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139137.311
+        },
+        {
+          "boundary": "cycle_completed",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139137.312
+        },
+        {
+          "boundary": "queue_claim_attempted",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139231.305
+        },
+        {
+          "boundary": "cycle_completed",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139231.306
+        },
+        {
+          "boundary": "queue_claim_attempted",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139277.992
+        },
+        {
+          "boundary": "cycle_completed",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139277.993
+        },
+        {
+          "boundary": "queue_claim_attempted",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139456.148
+        },
+        {
+          "boundary": "cycle_completed",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139456.148
+        },
+        {
+          "boundary": "queue_claim_attempted",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139623.922
+        },
+        {
+          "boundary": "cycle_completed",
+          "code": "HELIUS_GATE_BUSY",
+          "ts": 1793139623.923
+        }
+      ],
+      "batch_summaries": [
+        {
+          "processed": 8,
+          "rpc": 36,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 28,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 7,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 1,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 45,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 29,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 34,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 45,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 3,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 38,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 37,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 24,
+          "outcomes": {
+            "pending": 8
+          }
+        },
+        {
+          "processed": 8,
+          "rpc": 0,
+          "outcomes": {
+            "pending": 8
+          }
+        }
+      ],
+      "optional_deferrals": 18,
+      "waiting_retained_reader_checks": {
+        "count": 1550,
+        "current_priority_reader": [
+          {
+            "confidence": "NONE",
+            "source": null,
+            "count": 1273
+          },
+          {
+            "confidence": "SAFE",
+            "source": "token_analysis",
+            "count": 1
+          },
+          {
+            "confidence": "SAFE",
+            "source": "creator_funding_queue",
+            "count": 276
+          }
+        ],
+        "legacy_lookup": {
+          "MINT_NOT_FOUND": 1274,
+          "RECOVERABLE_VALID_ANCHOR": 276
+        },
+        "classification_only_no_repairs": true
+      },
+      "provider_free_duplicate_controls": {
+        "passed": 3,
+        "failed": 0,
+        "duplicate_successful_account_and_transaction_reads": "HELIUS_REQUEST_COOLDOWN before second wire",
+        "installed_handler_stores_generic_reason": true,
+        "paid_prefix_repeats_after_backoff_in_fixture": true,
+        "live_per_job_specific_deferral_counts": "Not recoverable: installed handler collapses codes to HELIUS_ACQUISITION_DEFERRED"
+      },
+      "waiting_selection_starvation": {
+        "oldest_waiting_priority_reader": "NONE",
+        "oldest_waiting_legacy_classification": "MINT_NOT_FOUND",
+        "oldest_waiting_local_lookup_attempts": 9319,
+        "oldest_lookup_state": "PENDING_NOT_VISIBLE",
+        "waiting_zero_lookup_count": 1549,
+        "last_local_check_age_seconds": 38,
+        "reader": "ORDER BY enqueued_at ASC LIMIT1; unresolved row remains eligible, no continuation cursor or skip/backoff"
+      },
+      "pending_retained_partial_work": {
+        "deferred_jobs_with_selected_hop1": 34,
+        "with_WSOL_hop1_refetch_path": 4,
+        "with_selected_edge_observations_since_fix": 16,
+        "maximum_selected_edge_observation_count": 207
+      },
+      "diagnosis_limit": "Per-job specific budget reasons collapsed by installed handler. Confirmed duplicate-success cooldown mechanism is provider-free reproduction, not attribution of all54live jobs to one exact code."
+    },
+    "findings": {
+      "pending": "159 at initial snapshot,111eligible/48future retry;54genericacquisitiondeferrals.13batchsummaries all8pending; no completions. Lifetimecapnotreached.",
+      "duplicate_acquisition": "Installed helpers deterministically refetch successfulaccount/transaction responses within samejob; realguard returns HELIUS_REQUEST_COOLDOWN before secondwire. Existing handler replaces reason withgenericHELIUS_ACQUISITION_DEFERRED, five-minute retry repeats paidprefix in fixture. Specificlivecausecounts cannotbe recovered fromgenericfield.",
+      "waiting": "Later indexedreadercohort1550:1273withoutstoredcandidate,277readerSAFEcandidates(276creator_funding_queue+1token_analysis). Not a newCREATEprovenancequalification. FIFOlimit1 repeatedlyselectsoneNONErow9319times;1549unexamined.",
+      "gate_busy": "Five failedcycles loggedas10boundaryrecords; contributionbutnotsolecause because13otherbatchesallreturnpending.",
+      "optional_fix": "Deployed optional-funder missing-owner guard remains effective; no new missing-owner batch abort proven."
+    },
+    "blocker": "Confirmed waiting-selection starvation plus reproduced intra-job duplicate-acquisition cooldown/retry cycle; exact54live deferral allocation unavailable because original codes discarded.",
+    "next_action": "Qualify narrowly bounded same-investigation successful-result reuse and precise typed deferral retention, plus deterministic bounded continuation/backoff for local waiting-anchor checks. No provider recovery, budget increase, promotion, exhausted replay or deployment."
   }
 }

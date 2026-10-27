@@ -4755,6 +4755,14 @@ class PumpFunCurveListener(FastLaneDiscovery):
                     timeout=timeout
                 )
                 tx_data = result
+                if tx_data is None:
+                    raise RuntimeError("RPC_ACQUISITION_UNAVAILABLE")
+                if not isinstance(tx_data, dict) or not ({"result", "error"} & tx_data.keys()):
+                    raise ValueError("RPC_RESPONSE_INVALID")
+                if "error" in tx_data:
+                    error = tx_data["error"]
+                    code = error.get("code") if isinstance(error, dict) else None
+                    raise RuntimeError(f"RPC_RESPONSE_ERROR_{code}" if type(code) is int else "RPC_RESPONSE_ERROR")
 
                 # Check if we got a real result
                 if tx_data and "result" in tx_data and tx_data["result"]:

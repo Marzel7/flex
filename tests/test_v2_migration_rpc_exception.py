@@ -95,3 +95,12 @@ def test_original_installed_counterexample(e,env):
         with pytest.raises(NameError) as caught:await env.ns['call_discovery_rpc'](env.w,'getTransaction',[])
         assert isinstance(caught.value.__context__,e.m.BudgetDeferred)
     asyncio.run(run())
+
+@pytest.mark.parametrize('response,kind,message',[(None,RuntimeError,'RPC_ACQUISITION_UNAVAILABLE'),({},ValueError,'RPC_RESPONSE_INVALID'),({'error':{'code':-32005,'message':'fixture'}},RuntimeError,'RPC_RESPONSE_ERROR_-32005')])
+def test_rpc_error_response_is_not_missing_transaction(e,env,response,kind,message):
+    attach(env)
+    async def rpc(*a,**kw):return response
+    env.w.__internal_rpc=rpc
+    async def run():
+        with pytest.raises(kind,match=message):await env.w._get_transaction_cached('sig')
+    asyncio.run(run())

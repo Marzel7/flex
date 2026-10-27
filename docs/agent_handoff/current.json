@@ -37031,8 +37031,8 @@
     "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T20:51:19.998415+00:00",
-    "working_tree": "Gate publication conservatively recovered; exact c4 deferred-aware production bundle activated; five-minute natural acceptance PASS. All three workers running; Helius PAYMENT_DENIED, spending and review-held requests intact."
+    "updated_at_utc": "2026-10-27T20:57:49.304872+00:00",
+    "working_tree": "Controlled restoration HOLD: one probe issued, local finalization TypeError lost durable validation receipt. Gate closed, one credit retained, dead probe owner reconciled uncertain without refund; all three workers RUNNING. Replacement probe needs separate authorization."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46956,5 +46956,48 @@
     },
     "blocker": null,
     "next_action": "Leave workers running and conservative gate closed. Helius-dependent PumpSwap/resolver/Walkback acquisition remains paused; any restoration uses the explicit controlled gate procedure, not this no-probe recovery."
+  },
+  "flex_v2_controlled_restoration_after_deferred_activation": {
+    "status": "HOLD",
+    "blocker": "PROBE_RESPONSE_VALIDATION_NOT_DURABLY_RETAINED_AFTER_LOCAL_FINALIZATION_TYPEERROR",
+    "gate_state": "PAYMENT_DENIED",
+    "authorized_probe_requests": 1,
+    "replacement_requests": 0,
+    "additional_reserved_credits": 1,
+    "refunds": 0,
+    "review_held_requests": 4,
+    "inflight": 0,
+    "lifetime_limit": 100000,
+    "retirement": "RECONCILED_UNCERTAIN_NO_REFUND",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 61732
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 61516
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 61539
+      }
+    },
+    "disk_free_bytes": 4129161216,
+    "review_rejection": "Opening based on inferred response success rejected; no bypass attempted",
+    "next_action": "Separate authorization for one replacement bounded probe with durable validated outcome before finalization; preserve all protected work.",
+    "provider_free_finalization_controls": 4,
+    "local_correction": "Lock adapter accepts blocking keyword; compact validated response certificate must be fsynced/readback before successful finalization.",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "production_flags": {
+      "shared_gate_enabled": true,
+      "state": "PAYMENT_DENIED",
+      "deferred_listener_enabled": true,
+      "lifetime_limit": 100000
+    },
+    "reserved_credits_total": 63610,
+    "exhausted_replay": false,
+    "source_schema_configuration_changes": 0
   }
 }

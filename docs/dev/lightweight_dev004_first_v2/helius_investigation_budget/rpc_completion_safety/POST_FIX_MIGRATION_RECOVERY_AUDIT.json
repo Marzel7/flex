@@ -1,0 +1,346 @@
+{
+  "status": "HOLD_SUSTAINED_ADMISSION_NOT_RESTORED",
+  "observation_start_utc": "2026-10-27T08:10:11Z",
+  "observation_end_utc": "2026-10-27T18:18:28.073453+00:00",
+  "hours": 10.138075959152646,
+  "census": {
+    "events": 428,
+    "by_source": {
+      "pumpportal": 428
+    },
+    "unique_signatures": 428,
+    "unique_signatures_by_source": {
+      "pumpportal": 428
+    },
+    "covers_start": true,
+    "earliest_utc": "2026-08-11T15:08:24.568078+00:00",
+    "latest_utc": "2026-10-27T18:17:38.868497+00:00",
+    "log_bytes": 29203381,
+    "log_records_examined": 67967
+  },
+  "new_notifications_retained": {
+    "distinct": 521,
+    "by_source_state": {
+      "PUMPPORTAL_MIGRATION:QUARANTINED": 14,
+      "PUMPSWAP_MIGRATION_ACCOUNT:PENDING": 282,
+      "PUMPPORTAL_MIGRATION:PENDING": 225
+    },
+    "not_in_journal_terminal_or_canonical_signature": 60,
+    "limitation": "Census counts received notifications, not guaranteed durable admission or verified on-chain migrations. ACKed rows may reclaim without terminal records; exact canonical signature lookup accounts for those."
+  },
+  "canonical": {
+    "census_signatures_canonical_matched": 75,
+    "census_exact_complete_handoff_OPS_queue": 75,
+    "canonical_migrated_at_window": 75,
+    "canonical_window_exact_Core_OPS_handoffs": 75,
+    "handoff_completed_at_window": 75,
+    "index_entries_examined": 7303,
+    "limitation": "migrated_at is canonical event timestamp, not physical Core commit-time proof. Handoff completion timestamp is separate retained evidence."
+  },
+  "new_retry_exhaustion": {
+    "notifications": 0,
+    "error_codes": {},
+    "all_received_dates_new_vs_deployment": 0,
+    "total_protected_exhausted_now": 1319
+  },
+  "deferrals": {
+    "active_budget_deferred": 478,
+    "attempt_counts": {
+      "0": 478
+    },
+    "budget_deferred_subject_evidence": {
+      "SUPPLIED_MINT_CORE_ABSENT": 217,
+      "NO_SUPPLIED_MINT": 212,
+      "SUPPLIED_MINT_CORE_PRESENT": 49
+    },
+    "pending_other_codes": {
+      "null": 33
+    }
+  },
+  "journal": {
+    "records": 512,
+    "capacity": 512,
+    "states": {
+      "RESOLVED": 1,
+      "PENDING": 511
+    },
+    "bytes": 289621,
+    "pending_or_resolved_not_eligible_for_terminal_reclaim": 512,
+    "terminal_rows": 1789,
+    "terminal_VERIFIED": 1789,
+    "terminal_owners": {
+      "migration_terminal_owner_v1": [
+        1789,
+        1998841
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "terminal_growth_since_acceptance": 517,
+    "protected_prior_records_verified_unchanged": 1319,
+    "terminal_only_prior_protected_now": 1319
+  },
+  "logs": {
+    "migration_tail_covers_start": true,
+    "undefined_logger_in_timed_window": 0,
+    "latest_process_stdout_undefined_logger": 0,
+    "latest_process_stdout_capacity_mentions": 59,
+    "timed_capacity_mentions": 0,
+    "retained_error_terminal_lines_all_retention": {
+      "src.core.migration_signature_journal.JournalHold: MINT_CONFLICT": 34,
+      "src.core.migration_signature_journal.JournalHold: DISK_FLOOR": 1,
+      "src.core.migration_signature_journal.JournalHold: JOURNAL_CAPACITY": 3
+    },
+    "limits": "Untimestamped listener stdout/stderr counts are explicitly scoped to latest process or whole retained file, not asserted as exact interval failures.",
+    "all_postfix_process_stdout_undefined_logger": 0,
+    "all_postfix_process_capacity_mentions": 63
+  },
+  "helius": {
+    "gate": "OPEN",
+    "lifetime_limit": 100000,
+    "highest_investigation_lifetime_spend": 6979,
+    "total_lifetime_reserved_credits": 59058,
+    "inflight": [],
+    "uncertain_review_held": 3,
+    "exact_accounting_baseline_utc": "2026-10-27T08:02:47+00:00",
+    "requests_since_available_baseline": 31121,
+    "worker_credit_delta_since_available_baseline": {
+      "listener": 479,
+      "creator_resolution": 0,
+      "walkback": 30642
+    },
+    "method_requests_since_available_baseline": {
+      "rpc:getTokenLargestAccounts": 2,
+      "rpc:getTransaction": 13933,
+      "rpc:getSignaturesForAddress": 8956,
+      "rpc:getAccountInfo": 8073,
+      "rpc:getMultipleAccounts": 157
+    },
+    "interval_limit": "No full ledger snapshot retained exactly08:10:11. Exact deltas above start at quiesced08:03baseline; not mislabeled as post08:10counts. Current rate measured separately. Reserved credits not invoices.",
+    "current_rate": {
+      "start_utc": "2026-10-27T18:18:56.267578+00:00",
+      "end_utc": "2026-10-27T18:19:56.401612+00:00",
+      "seconds": 60.134032011032104,
+      "requests": 62,
+      "reserved_credits": 62,
+      "worker_credit_deltas": {
+        "listener": 0,
+        "creator_resolution": 0,
+        "walkback": 62
+      },
+      "max_sampled_inflight_age_seconds": 0,
+      "final_inflight_ages_seconds": [
+        0
+      ]
+    }
+  },
+  "files": {
+    "core": {
+      "": 78348288,
+      "-wal": 4152,
+      "-shm": 32768
+    },
+    "ops": {
+      "": 161247232,
+      "-wal": 0,
+      "-shm": 0
+    }
+  },
+  "disk_free_bytes": 4293963776,
+  "provider_calls": 0,
+  "production_changes": 0,
+  "replay": 0,
+  "pumpswap_retained_log": {
+    "initial_installed_candidate_start_marker_line": 111980,
+    "postfix_process_segments": 4,
+    "raw_after_excluding_known_prestart": 581,
+    "unique_after_excluding_known_prestart": 581,
+    "known_prestart_signatures_excluded": 4,
+    "unknown_to_durable_journal_signatures": 79,
+    "scope_limit": "Listener stdout untimestamped. Select exact4process segments since08:03deployment, exclude durable notifications received before08:10:11. ACKed/reclaimed signatures lacking a record could need timing from census/canonical; no historical timestamp manufactured.",
+    "reported_at_utc": "2026-10-27T18:21:05.324146+00:00"
+  },
+  "runtime_authority": {
+    "source_revision": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "paired_identities_match": true,
+    "installed_hash_mismatches": [],
+    "configuration_hash_matches": true
+  },
+  "service_health": {
+    "listener": {
+      "pid": 21988,
+      "current": "RUNNING",
+      "unexpected_exits": 3,
+      "exit_utc": [
+        "2026-10-27T16:48:10.385Z",
+        "2026-10-27T16:48:24.958Z",
+        "2026-10-27T16:49:27.989Z"
+      ],
+      "retained_failure": "3tracebacks JournalHold:JOURNAL_CAPACITY from admit -> _schedule_journal_migration -> listen_pumpswap_websocket; matches3Supervisorfatalexit sequence."
+    },
+    "resolver": {
+      "pid": 33613,
+      "current": "RUNNING",
+      "expected_exit0_restarts": 2,
+      "exit_utc": [
+        "2026-10-27T11:47:21.714Z",
+        "2026-10-27T17:47:26.616Z"
+      ]
+    },
+    "Walkback": {
+      "pid": 99159,
+      "current": "RUNNING",
+      "restarts": 0
+    }
+  },
+  "decision": "HOLD",
+  "exact_blocker": "Migration journal512/512entirelyPENDING/RESOLVED, no safelyreclaimableterminal/completedentries. JOURNAL_CAPACITY refusals disrupt intake and caused3listenerexits. Exception correction stoppedfalseexhaustion but didnotrestore sustainedadmission.",
+  "next_action": "Qualify the pending/deferred admission-capacity boundary and its progress/ownership requirements using existing mechanisms. Preserve all pending and terminal evidence; no blind reclamation, replay/reset, quota increase or production change under this audit.",
+  "notification_count_limit": "428PumpPortal events are timestamp-qualified to mainwindow.581PumpSwapdetections use retained process segments since08:03excluding4durablepre08:10notifications; stdout lacks per-eventUTC, so cannot claim exact mainwindowend timing for this count. Both counters describe notifications, not distinct verifiedmigrations; do not sum overlapping sources.",
+  "required_report": {
+    "FLEX_V2_POST_FIX_MIGRATION_STATUS": "HOLD_SUSTAINED_ADMISSION_NOT_RESTORED",
+    "OBSERVATION_WINDOW": [
+      "2026-10-27T08:10:11Z",
+      "2026-10-27T18:18:28.073453+00:00"
+    ],
+    "NEW_MIGRATION_NOTIFICATIONS": {
+      "timestamped_PumpPortal": 428,
+      "PumpSwap_retained_log_detections": 581,
+      "limit": "428PumpPortal events are timestamp-qualified to mainwindow.581PumpSwapdetections use retained process segments since08:03excluding4durablepre08:10notifications; stdout lacks per-eventUTC, so cannot claim exact mainwindowend timing for this count. Both counters describe notifications, not distinct verifiedmigrations; do not sum overlapping sources."
+    },
+    "CANONICAL_MIGRATIONS_AND_HANDOFFS": {
+      "census_signatures_canonical_matched": 75,
+      "census_exact_complete_handoff_OPS_queue": 75,
+      "canonical_migrated_at_window": 75,
+      "canonical_window_exact_Core_OPS_handoffs": 75,
+      "handoff_completed_at_window": 75,
+      "index_entries_examined": 7303,
+      "limitation": "migrated_at is canonical event timestamp, not physical Core commit-time proof. Handoff completion timestamp is separate retained evidence."
+    },
+    "NEW_RETRY_EXHAUSTION": {
+      "notifications": 0,
+      "error_codes": {},
+      "all_received_dates_new_vs_deployment": 0,
+      "total_protected_exhausted_now": 1319
+    },
+    "UNDEFINED_LOGGER_ERRORS": {
+      "timed_migration_log": 0,
+      "all_postfix_process_stdout": 0
+    },
+    "HELIUS_DEFERRAL_ATTEMPT_INTEGRITY": {
+      "active_budget_deferred": 478,
+      "attempt_counts": {
+        "0": 478
+      },
+      "budget_deferred_subject_evidence": {
+        "SUPPLIED_MINT_CORE_ABSENT": 217,
+        "NO_SUPPLIED_MINT": 212,
+        "SUPPLIED_MINT_CORE_PRESENT": 49
+      },
+      "pending_other_codes": {
+        "null": 33
+      }
+    },
+    "JOURNAL_CAPACITY_AND_RECLAMATION": {
+      "journal": {
+        "records": 512,
+        "capacity": 512,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 511
+        },
+        "bytes": 289621,
+        "pending_or_resolved_not_eligible_for_terminal_reclaim": 512,
+        "terminal_rows": 1789,
+        "terminal_VERIFIED": 1789,
+        "terminal_owners": {
+          "migration_terminal_owner_v1": [
+            1789,
+            1998841
+          ],
+          "birth_terminal_owner_v1": [
+            512,
+            697743
+          ]
+        },
+        "terminal_growth_since_acceptance": 517,
+        "protected_prior_records_verified_unchanged": 1319,
+        "terminal_only_prior_protected_now": 1319
+      },
+      "capacity_log_mentions": 63,
+      "listener_fatal_capacity_tracebacks": 3,
+      "limits": "Log mentions are not a unique refused-notification census. Terminal growth517verifiedrows and currentallpendingstate prove priorprotectedtransfer capacity was reused but is now exhausted by nonterminal work."
+    },
+    "HELIUS_SPENDING": {
+      "gate": "OPEN",
+      "lifetime_limit": 100000,
+      "highest_investigation_lifetime_spend": 6979,
+      "total_lifetime_reserved_credits": 59058,
+      "inflight": [],
+      "uncertain_review_held": 3,
+      "exact_accounting_baseline_utc": "2026-10-27T08:02:47+00:00",
+      "requests_since_available_baseline": 31121,
+      "worker_credit_delta_since_available_baseline": {
+        "listener": 479,
+        "creator_resolution": 0,
+        "walkback": 30642
+      },
+      "method_requests_since_available_baseline": {
+        "rpc:getTokenLargestAccounts": 2,
+        "rpc:getTransaction": 13933,
+        "rpc:getSignaturesForAddress": 8956,
+        "rpc:getAccountInfo": 8073,
+        "rpc:getMultipleAccounts": 157
+      },
+      "interval_limit": "No full ledger snapshot retained exactly08:10:11. Exact deltas above start at quiesced08:03baseline; not mislabeled as post08:10counts. Current rate measured separately. Reserved credits not invoices.",
+      "current_rate": {
+        "start_utc": "2026-10-27T18:18:56.267578+00:00",
+        "end_utc": "2026-10-27T18:19:56.401612+00:00",
+        "seconds": 60.134032011032104,
+        "requests": 62,
+        "reserved_credits": 62,
+        "worker_credit_deltas": {
+          "listener": 0,
+          "creator_resolution": 0,
+          "walkback": 62
+        },
+        "max_sampled_inflight_age_seconds": 0,
+        "final_inflight_ages_seconds": [
+          0
+        ]
+      }
+    },
+    "SERVICE_HEALTH": {
+      "listener": {
+        "pid": 21988,
+        "current": "RUNNING",
+        "unexpected_exits": 3,
+        "exit_utc": [
+          "2026-10-27T16:48:10.385Z",
+          "2026-10-27T16:48:24.958Z",
+          "2026-10-27T16:49:27.989Z"
+        ],
+        "retained_failure": "3tracebacks JournalHold:JOURNAL_CAPACITY from admit -> _schedule_journal_migration -> listen_pumpswap_websocket; matches3Supervisorfatalexit sequence."
+      },
+      "resolver": {
+        "pid": 33613,
+        "current": "RUNNING",
+        "expected_exit0_restarts": 2,
+        "exit_utc": [
+          "2026-10-27T11:47:21.714Z",
+          "2026-10-27T17:47:26.616Z"
+        ]
+      },
+      "Walkback": {
+        "pid": 99159,
+        "current": "RUNNING",
+        "restarts": 0
+      }
+    },
+    "GO_HOLD_DECISION": "HOLD",
+    "NEXT_ACTION": "Qualify the pending/deferred admission-capacity boundary and its progress/ownership requirements using existing mechanisms. Preserve all pending and terminal evidence; no blind reclamation, replay/reset, quota increase or production change under this audit."
+  }
+}

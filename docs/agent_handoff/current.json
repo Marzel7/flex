@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "ad60eb958412a648393b17593a3d32a5eb25065e",
+    "git_head": "294919378a6df77ccad167fd310b1b0039a4a99d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T22:06:12.231263+00:00",
-    "working_tree": "Walkback recoverypin correction qualified:source53a7d8ad, frozenbundle5ffc5de8.47recoverycontrolsPASS+19Walkbackcontrolsreused;privateconfigrenderidentical;read-onlylivepreflightGO. Productionunchanged.OnlyseparatelyauthorizedWalkbackruntime/recoveryauthoritydeploymentnext."
+    "updated_at_utc": "2026-10-27T22:19:33.936550+00:00",
+    "working_tree": "Walkback-only optional-funder correction DEPLOYED/PASS:source53a7d8ad,worker70948->87212;listener70897/resolver70926unchanged.8optionaldeferrals,0missing-ownerbatchaborts,7batchsummaries;41queueupdates/0newcompletions.100kbudget/history and1319protectednotificationspreserved,0inflight."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T22:06:12.231487+00:00",
+  "updated_at_utc": "2026-10-27T22:19:33.936790+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -48300,5 +48300,203 @@
     },
     "blocker": null,
     "next_action": "Separately authorize the frozen Walkback-plus-renderer/authority bundle. Stage exact immutable source, preserve coherent gate-aware fallback, install only Walkback runtime file and runtime-plan source references, restart only Walkback, then natural acceptance. No schema, gate, budget, listener or resolver changes."
+  },
+  "flex_v2_optional_funder_walkback_production_deployment": {
+    "status": "PASS_DEPLOYED",
+    "engineering_revision": "294919378a6df77ccad167fd310b1b0039a4a99d",
+    "installed_qualified_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+    "frozen_bundle_sha256": "5ffc5de8bfd6026cf1ff217f9026bd074056f7a6df319c1966c01ee4eda79d60",
+    "tests": "Retained47recovery+19Walkbackcontrols reused;303secondnaturalproductionacceptancePASS;finalhashesandpairverified",
+    "production_flags": {
+      "only_walkback_restarted": true,
+      "listener_resolver_unchanged": true,
+      "gate": "OPEN",
+      "lifetime_limit": 100000,
+      "no_provider_test_calls": true,
+      "no_exhausted_replay": true
+    },
+    "result": {
+      "FLEX_V2_WALKBACK_DEPLOYMENT_STATUS": "PASS",
+      "INSTALLED_SOURCE_HASHES": {
+        "walkback": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+        "renderer": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+        "runtime_plan": "4ac41a42b43e7d2f8583bfc6a07cd2c79110050828beba15d5204414f9423251",
+        "configuration": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+        "bundle": "5ffc5de8bfd6026cf1ff217f9026bd074056f7a6df319c1966c01ee4eda79d60",
+        "source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388"
+      },
+      "WALKBACK_PID_BEFORE_AFTER": [
+        70948,
+        87212
+      ],
+      "OPTIONAL_FUNDER_DEFERRALS": {
+        "logged": 8,
+        "candidate_states_verified_unchanged": 2,
+        "missing_owner_batch_aborts": 0
+      },
+      "BATCH_CONTINUITY": {
+        "natural_batch_summaries": [
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 36
+          },
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 28
+          },
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 7
+          },
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 1
+          },
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 45
+          },
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 29
+          },
+          {
+            "processed": 8,
+            "skipped_claimed": 0,
+            "rpc": 34
+          }
+        ],
+        "queue_claim_completed_trace_records": null,
+        "other_failures": [
+          {
+            "boundary": "queue_claim_attempted",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "cycle_completed",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "queue_claim_attempted",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "cycle_completed",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "queue_claim_attempted",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "cycle_completed",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "queue_claim_attempted",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          },
+          {
+            "boundary": "cycle_completed",
+            "type": "BudgetDeferred",
+            "code": "HELIUS_GATE_BUSY"
+          }
+        ],
+        "trace_note": "Successful boundary tracing is disabled in accepted runtime; batch summaries and absence of missing-owner failures are retained. No verbose tracing was activated.",
+        "processed_entries_sum_not_unique_jobs": 56
+      },
+      "HELIUS_BUDGET_INTEGRITY": {
+        "gate": "OPEN",
+        "lifetime_limit": 100000,
+        "spending_history_preserved": true,
+        "review_held_unchanged": 5,
+        "final_inflight": 0,
+        "maximum_sampled_inflight_age_seconds": 0,
+        "highest_investigation_credits": 7759,
+        "reserved_credit_delta": 187,
+        "worker_credit_deltas": {
+          "listener": 6,
+          "creator_resolution": 0,
+          "walkback": 181
+        }
+      },
+      "WALKBACK_QUEUE_PROGRESS": {
+        "new_completions": 0,
+        "rows_updated": 41,
+        "final": {
+          "complete": 1891,
+          "failed": 6,
+          "pending": 159,
+          "waiting": 1550
+        }
+      },
+      "DISK_AND_RUNTIME_HEALTH": {
+        "observation_seconds": 303.23131585121155,
+        "services": {
+          "watchtower_listener": {
+            "state": "RUNNING",
+            "pid": 70897
+          },
+          "creator_resolution_worker": {
+            "state": "RUNNING",
+            "pid": 70926
+          },
+          "walkback_worker": {
+            "state": "RUNNING",
+            "pid": 87212
+          }
+        },
+        "listener_resolver_pids_unchanged": true,
+        "minimum_disk_free_bytes": 3487158272,
+        "database_allocation": {
+          "core": {
+            "bytes": 81518592,
+            "wal_bytes": 0
+          },
+          "ops": {
+            "bytes": 162091008,
+            "wal_bytes": 0
+          }
+        },
+        "quotas": {
+          "migration_terminal_owner_v1": [
+            1789,
+            1998841
+          ],
+          "migration_deferred_owner_v1": [
+            511,
+            1344182
+          ],
+          "birth_terminal_owner_v1": [
+            512,
+            697743
+          ]
+        },
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "all_runtime_hashes_verified": true
+      },
+      "ROLLBACK_STATUS": "Not executed; exact coherent gate-aware/deferred-aware source/configuration authority preimages retained. No financial or evidence rollback.",
+      "protected_exhausted_exactly_preserved": 1319,
+      "provider_test_calls": 0,
+      "exhausted_replay": false,
+      "NEXT_ACTION": "Leave Walkback running with strict budget ownership. Monitor natural queue progress; do not promote deferred optional candidates or add acquisition ownership implicitly.",
+      "QUIESCENCE": "Old PID verified exited at zero Walkback RPC reservations and zero running jobs; shared gate lock guarded stop boundary, no reservation clearing or retirement needed.",
+      "evidence_authority_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad"
+    },
+    "blocker": null,
+    "next_action": "Leave Walkback running with strict budget ownership. Monitor natural queue progress; do not promote deferred optional candidates or add acquisition ownership implicitly."
   }
 }

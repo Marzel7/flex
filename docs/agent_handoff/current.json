@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Qualify focused DEV discovery-RPC typed-deferral propagation and retry-accounting correction; preserve11 exhausted records, no replay/reset or deployment.",
+  "next_action": "Run focused listener-only deployment preflight for f2ec25fa; verify preimages/recovery pins and live capacity. Do not deploy or replay/reset11 exhausted records.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "c85dc46d78efce92507748384b7b253d8236e734",
+    "git_head": "401963696d5ac33bae90cb6c689ab268f4317e4d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T00:11:00.046769+00:00",
-    "working_tree": "Read-only fixed11 diagnosis committed; no runtime changes."
+    "updated_at_utc": "2026-10-27T00:22:19.458381+00:00",
+    "working_tree": "Migration RPC exception correction qualified; committed isolated DEV source/tests/evidence; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46314,5 +46314,32 @@
     "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/MIGRATION_EXHAUSTION_DIAGNOSIS.json",
     "blocker": "Typed provider deferral is masked and consumes retry attempts.",
     "next_action": "Qualify focused DEV discovery-RPC typed-deferral propagation and retry-accounting correction; preserve11 exhausted records, no replay/reset or deployment."
+  },
+  "flex_v2_migration_rpc_exception_correction": {
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "candidate_revision": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+    "engineering_revision": "401963696d5ac33bae90cb6c689ab268f4317e4d",
+    "installed_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "runtime_payload_files": 1,
+    "tests": {
+      "reused_passed": 667,
+      "final_affected_passed": 16,
+      "distinct_passed": 683,
+      "outstanding_failures": 0,
+      "fixture_failures_corrected_and_retested": true
+    },
+    "behaviour": "Typed BudgetDeferred propagated to existing durable attempt refund; acquisition exceptions/RPC errors not fabricated as missing transactions. Genuine result:null remains bounded retry.",
+    "protected11_unchanged": true,
+    "production_changes": 0,
+    "provider_calls": 0,
+    "service_restarts": 0,
+    "gate_state_observed": "OPEN",
+    "gate_changed": false,
+    "lifetime_credit_limit": 100000,
+    "bundle_sha256": "ee556824a858d3871780fabed5985865c086c370a40d89e65ef4b9071ea17f0f",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/MIGRATION_RPC_FIX_REPORT.json",
+    "remaining_limitation": "No origin-ownership bypass or exhausted replay; missing authority remains deferred.",
+    "blocker": null,
+    "next_action": "Run focused listener-only deployment preflight for f2ec25fa; verify preimages/recovery pins and live capacity. Do not deploy or replay/reset11 exhausted records."
   }
 }

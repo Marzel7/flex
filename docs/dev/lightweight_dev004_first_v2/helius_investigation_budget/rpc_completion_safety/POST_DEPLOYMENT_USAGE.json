@@ -1,0 +1,240 @@
+{
+  "status": "PARTIAL",
+  "runtime_source": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "usage": {
+    "since_snapshot_utc": "2026-10-26T23:47:02+00:00",
+    "snapshot_definition": "Reconciled ledger immediately before new workers started; includes startup interval, no provider calls requested by audit.",
+    "through_utc": "2026-10-27T00:00:25.059996+00:00",
+    "elapsed_seconds": 803.059996,
+    "HTTP_requests_since455": 693,
+    "reserved_credits_since455": 693,
+    "average_requests_per_minute": 51.77695341208355,
+    "worker_reserved_credit_deltas": {
+      "creator_resolution": 0,
+      "listener": 24,
+      "walkback": 669
+    },
+    "method_deltas": {
+      "rpc:getAccountInfo": {
+        "requests": 155,
+        "reserved_credits": 155
+      },
+      "rpc:getTransaction": {
+        "requests": 331,
+        "reserved_credits": 331
+      },
+      "rpc:getMultipleAccounts": {
+        "requests": 8,
+        "reserved_credits": 8
+      },
+      "rpc:getSignaturesForAddress": {
+        "requests": 199,
+        "reserved_credits": 199
+      },
+      "rpc:getTokenAccountsByOwner": {
+        "requests": 0,
+        "reserved_credits": 0
+      },
+      "rpc:getTokenLargestAccounts": {
+        "requests": 0,
+        "reserved_credits": 0
+      }
+    },
+    "fresh_window_seconds": 60.067128,
+    "fresh_window_requests": 33,
+    "fresh_window_reserved_credits": 33,
+    "final": {
+      "at_utc": "2026-10-27T00:00:25.059996+00:00",
+      "gate": "OPEN",
+      "HTTP_requests": 1317,
+      "reserved_credits": 1317,
+      "workers": {
+        "creator_resolution": 0,
+        "listener": 573,
+        "walkback": 744
+      },
+      "methods": {
+        "rpc:getAccountInfo": {
+          "requests": 530,
+          "reserved_credits": 530
+        },
+        "rpc:getTransaction": {
+          "requests": 405,
+          "reserved_credits": 405
+        },
+        "rpc:getMultipleAccounts": {
+          "requests": 127,
+          "reserved_credits": 127
+        },
+        "rpc:getSignaturesForAddress": {
+          "requests": 230,
+          "reserved_credits": 230
+        },
+        "rpc:getTokenAccountsByOwner": {
+          "requests": 10,
+          "reserved_credits": 10
+        },
+        "rpc:getTokenLargestAccounts": {
+          "requests": 15,
+          "reserved_credits": 15
+        }
+      },
+      "highest_investigation_credits": 165,
+      "inflight": 0,
+      "inflight_ages_seconds": [],
+      "unknown_requests_review_held": 3,
+      "websocket_connection_reservations": 8,
+      "free_bytes": 4741890048
+    },
+    "baseline624credits_preserved": true,
+    "policy": {
+      "lifetime": 100000,
+      "warning": 50000,
+      "concurrency": 3,
+      "requests_per_minute": 120
+    },
+    "limits": "Local reserved worst-case credits, not measured provider billing. In-flight ages are sampled, not continuous latency measurements."
+  },
+  "progress": {
+    "at_utc": "2026-10-27T00:03:21.809328+00:00",
+    "resolver": {
+      "status_counts": {
+        "complete": 241,
+        "skipped": 376
+      },
+      "rows_updated_since455": 0,
+      "bounded_population_complete": true,
+      "interpretation": "Idle: no pending/retry/running work in the complete bounded queue."
+    },
+    "Walkback": {
+      "status_counts": {
+        "complete": 1749,
+        "failed": 6,
+        "pending": 20,
+        "waiting": 1550
+      },
+      "bounded_population_complete": true,
+      "by_status": {
+        "complete": {
+          "rows_checked": 1749,
+          "limit_hit": false,
+          "updated_since455": 19,
+          "completed_since455": 19,
+          "completed_outcomes": {
+            "NO_ATTRIBUTION_FOUND": 16,
+            "LINEAGE_GAP": 3
+          },
+          "updated_error_codes": {
+            "None": 2,
+            "HELIUS_ACQUISITION_DEFERRED": 17
+          }
+        },
+        "failed": {
+          "rows_checked": 6,
+          "limit_hit": false,
+          "updated_since455": 0,
+          "completed_since455": 0,
+          "completed_outcomes": {},
+          "updated_error_codes": {}
+        },
+        "pending": {
+          "rows_checked": 20,
+          "limit_hit": false,
+          "updated_since455": 20,
+          "completed_since455": 0,
+          "completed_outcomes": {},
+          "updated_error_codes": {
+            "HELIUS_ACQUISITION_DEFERRED": 20
+          }
+        },
+        "waiting": {
+          "rows_checked": 1550,
+          "limit_hit": false,
+          "updated_since455": 0,
+          "completed_since455": 0,
+          "completed_outcomes": {},
+          "updated_error_codes": {}
+        }
+      },
+      "complete_is_not_attribution": "Terminal NO_ATTRIBUTION_FOUND and LINEAGE_GAP outcomes must not be reported as confirmed attribution."
+    },
+    "PumpSwap": {
+      "connection_reservations_since455": 2,
+      "notifications_received_since455": 10,
+      "ACKs_verified": 3,
+      "state_counts": {
+        "RETRY_EXHAUSTED": 7,
+        "ACKED": 3
+      },
+      "interpretation": "New account notifications with independently verified canonical/handoff ACKs demonstrate processing; no artificial event or subscription probe used."
+    },
+    "migration": {
+      "retained_recent_records": 16,
+      "recent_source_states": {
+        "PUMPSWAP_MIGRATION_ACCOUNT:RETRY_EXHAUSTED": 7,
+        "PUMPPORTAL_MIGRATION:RETRY_EXHAUSTED": 4,
+        "PUMPPORTAL_MIGRATION:ACKED": 2,
+        "PUMPSWAP_MIGRATION_ACCOUNT:ACKED": 3
+      },
+      "ACKs_exact_canonical_and_COMPLETE_handoff_verified": {
+        "PUMPPORTAL_MIGRATION": 2,
+        "PUMPSWAP_MIGRATION_ACCOUNT": 3
+      },
+      "new_exhausted": 11,
+      "new_exhausted_by_source": {
+        "PUMPSWAP_MIGRATION_ACCOUNT": 7,
+        "PUMPPORTAL_MIGRATION": 4
+      },
+      "new_exhausted_reason_codes": {
+        "RETRY_CEILING": 11
+      },
+      "note": "Notifications received since the455pre-start snapshot. ACKs independently verified via indexed mint lookups; this is not a full canonical migration census. No source rows altered."
+    },
+    "query_plans": {
+      "resolver_since": [
+        [
+          5,
+          0,
+          0,
+          "SEARCH creator_resolution_queue USING INDEX idx_creator_resolution_queue_updated (updated_at>?)"
+        ]
+      ],
+      "walkback_status": [
+        [
+          5,
+          0,
+          0,
+          "SEARCH wt_walkback_queue USING INDEX ix_wbq_status (status=?)"
+        ]
+      ]
+    },
+    "terminal": {
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ],
+      "migration_terminal_owner_v1": [
+        832,
+        922965
+      ]
+    },
+    "gate": "OPEN",
+    "current_inflight": [],
+    "uncertain_original_requests_still_held": 3,
+    "disk_free_bytes": 4743524352
+  },
+  "authority": {
+    "installed_hashes_checked": 16,
+    "source_mismatches": 0,
+    "configuration_match": true,
+    "workers": {
+      "listener": 99111,
+      "resolver": 99140,
+      "walkback": 99159
+    },
+    "generation": "DEV004-V2-20261024-dfb76562"
+  },
+  "production_changes": 0,
+  "diagnostic_provider_calls": 0,
+  "next_action": "Read-only diagnosis of the 11 newly exhausted migration notifications; preserve protected evidence and do not replay/reset work."
+}

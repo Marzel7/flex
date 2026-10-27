@@ -37031,8 +37031,8 @@
     "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T21:35:28.674627+00:00",
-    "working_tree": "Read-only progress auditPARTIAL:27verifiedcanonicalhandoffs since21:19UTC;Walkback67updates,1start,0completions withmissing-investigation-context deferrals. GateOPEN,631reservedcreditsincludingprobe,max7642,0inflight,5review-heldunchanged;all3workersRUNNING. Priorzero-handoffreader corrected."
+    "updated_at_utc": "2026-10-27T21:42:02.704290+00:00",
+    "working_tree": "Read-only Walkback context diagnosis confirmed via blocked-network fixture: unscoped optional post-batch recurring-funder account-owner RPC. Two current candidates reach check. Narrow candidate deferral/owned-resume correction identified, not implemented; budgets and production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T21:35:28.675026+00:00",
+  "updated_at_utc": "2026-10-27T21:42:02.704514+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -47772,5 +47772,84 @@
     "verdict": "Migration canonical handoffs progressing; Walkback has no new completions and retained missing-investigation-context deferrals.",
     "blocker": "Walkback logs show HELIUS_INVESTIGATION_REQUIRED; exact propagation path not diagnosed in this progress-only audit.",
     "next_action": "Bounded read-only trace of Walkback investigation-context deferrals; preserve gate, budgets and protected work. No replay, extra provider calls or changes."
+  },
+  "flex_v2_walkback_investigation_context_diagnosis": {
+    "status": "PASS_DIAGNOSIS_NOT_IMPLEMENTED",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "tests": {
+      "exact_installed_function_reproduction": "PASS",
+      "real_scope_enter_exit": "PASS",
+      "gate_and_fixture_evidence_unchanged": "PASS",
+      "network_blocked": true
+    },
+    "production_flags": {
+      "shared_gate_enabled": true,
+      "last_verified_gate": "OPEN",
+      "lifetime_limit": 100000,
+      "no_runtime_changes": true
+    },
+    "result": {
+      "status": "PASS_DIAGNOSIS_CORRECTION_IDENTIFIED_NOT_IMPLEMENTED",
+      "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+      "source_preimages_verified": {
+        "runtime/creator_resolution/src/core/helius_denial_gate.py": true,
+        "runtime/creator_resolution/src/core/helius_http_protection.py": true,
+        "runtime/listener/src/core/helius_denial_gate.py": true,
+        "runtime/listener/src/core/helius_http_protection.py": true,
+        "runtime/walkback/src/core/helius_denial_gate.py": true,
+        "runtime/walkback/src/core/helius_http_protection.py": true,
+        "runtime/walkback/src/core/walkback_worker.py": true
+      },
+      "exact_failure": {
+        "error": "HELIUS_INVESTIGATION_REQUIRED",
+        "call_path": [
+          "<module>",
+          "promote_recurring_funders",
+          "_is_program_owned",
+          "_get_account_owner",
+          "_rpc",
+          "__enter__",
+          "refused_transport",
+          "_admit"
+        ],
+        "row_scope_valid_then_closed": true,
+        "ledger_unchanged": true,
+        "fixture_evidence_unchanged": true,
+        "provider_calls": 0
+      },
+      "production_candidate_counts": {
+        "recurring_funders": 11,
+        "known_infrastructure_skipped": 8,
+        "already_known_subprov": 1,
+        "unowned_RPC_check_candidates": 2,
+        "static_blocklisted_candidates": 0
+      },
+      "root_cause": "Mint-scoped _process_row exits before optional promote_recurring_funders runs. Global post-batch getAccountInfo has no investigation scope; transport correctly refuses before reservation/dispatch. The exception propagates from optional promotion through drain_batch to queue_claim_attempted/cycle_completed.",
+      "smallest_safe_correction": {
+        "boundary": "One optional candidate inside promote_recurring_funders",
+        "behaviour": [
+          "Require a verified existing durable investigation alias before optional account-owner acquisition. If absent, defer that candidate with retained evidence; do not promote or infer account ownership.",
+          "Catch typed BudgetDeferred at the optional-candidate boundary and continue the batch. Preserve genuine schema/storage/integrity failures.",
+          "If paid classification is later enabled, resume its immutable existing parent via accepted resume_investigation/bind_child ownership; never create a wallet budget or rotate among contributing mints."
+        ],
+        "unchanged": [
+          "100000credit lifetime cap",
+          "spending history",
+          "canonical attribution",
+          "retry ceilings",
+          "protected/exhausted work",
+          "universal transport guard"
+        ]
+      },
+      "secondary_observation": "scoped.enter suppresses BudgetDeferred and may run a function without context, but this reproduction triggers the defect even when the per-row scope enters successfully. No global decorator change is proposed here.",
+      "qualification_limit": "Exact installed failure reproduced with real scope and admission owners and blocked network; correction itself not implemented or deployment-qualified. This optional-pass failure does not prove it is the sole cause of every uncompleted Walkback job.",
+      "provider_calls": 0,
+      "production_source_config_database_changes": 0,
+      "exhausted_replay": false,
+      "next_action": "Qualify the narrow optional-candidate deferral/ownership correction in isolated DEV; test batch continuation, no false promotion, durable parent reuse, unchanged spend and cap, and genuine integrity failure propagation. Do not deploy."
+    },
+    "blocker": "Optional recurring-funder ownership acquisition runs after mint scope exit and aborts the batch when the gate refuses the unowned request. Correction not yet qualified.",
+    "next_action": "Qualify the narrow optional-candidate deferral/ownership correction in isolated DEV; test batch continuation, no false promotion, durable parent reuse, unchanged spend and cap, and genuine integrity failure propagation. Do not deploy."
   }
 }

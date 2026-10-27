@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave Walkback running. Perform a later read-only full-sweep/progress review if requested; preserve distinct deferrals and require independent ownership/evidence qualification. No exhausted replay, gate reset or further deployment.",
+  "next_action": "Leave all workers running. Continue normal bounded sweep; perform a later read-only coverage check. Gate-busy contention remains a measured progress limiter; no gate reset, reservation clearing, budget increase or exhausted replay.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "9df3e21d5e68e4cff9bc909859c6a1ad58c6243d",
+    "git_head": "38cfa1763819d9fb2278826cd487d51fc83da405",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T23:15:52.955169+00:00",
-    "working_tree": "Walkback progress bundle b203c114 deployed and accepted; production Walkback4522 running; listener70897 and resolver70926 unchanged. Aggregate evidence committed."
+    "updated_at_utc": "2026-10-27T23:24:05.092145+00:00",
+    "working_tree": "Read-only post-b203c114 Walkback audit committed. First sweep33.03% at23:21:28UTC;6new terminal job results;277protected candidates unchanged. Runtime untouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -38434,7 +38434,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_WALKBACK_PROGRESS_DEPLOYED_PASS",
+  "status": "FLEX_V2_WALKBACK_POST_DEPLOYMENT_AUDIT_PARTIAL",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T23:15:52.955169+00:00",
+  "updated_at_utc": "2026-10-27T23:24:05.092145+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -40013,7 +40013,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "DEPLOYED_ACCEPTED",
+  "verdict": "FULL_SWEEP_IN_PROGRESS_GATE_CONTENTION_REMAINS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -49146,5 +49146,139 @@
     ],
     "next_action": "Leave Walkback running. Perform a later read-only full-sweep/progress review if requested; preserve distinct deferrals and require independent ownership/evidence qualification. No exhausted replay, gate reset or further deployment.",
     "updated_at_utc": "2026-10-27T23:15:52.955169+00:00"
+  },
+  "flex_v2_walkback_progress_post_deployment_audit": {
+    "status": "PARTIAL",
+    "verdict": "FULL_SWEEP_IN_PROGRESS_GATE_CONTENTION_REMAINS",
+    "engineering_revision": "38cfa1763819d9fb2278826cd487d51fc83da405",
+    "installed_source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/POST_DEPLOYMENT_PROGRESS_AUDIT.json",
+    "report_sha256": "022be5e5523cea14b46dcd2ada1be352cea83dbd77cb1f52425e5ca52f51f3a9",
+    "observation_window": {
+      "start_utc": "2026-10-27T23:07:30.498678+00:00",
+      "end_utc": "2026-10-27T23:21:28.936151+00:00",
+      "elapsed_seconds": 838.36
+    },
+    "full_sweep": {
+      "original_eligible_waiting_cohort": 1550,
+      "examined": 512,
+      "coverage_percent": 33.03,
+      "not_examined_still_waiting": 1038,
+      "independently_left_waiting_without_cursor_examination": 0,
+      "missing_original_jobs": 0,
+      "whole_first_sweep_examined": false,
+      "examined_or_no_longer_waiting_percent": 33.03,
+      "lookup_delta_histogram": {
+        "0": 1038,
+        "1": 512
+      },
+      "old_monopolizing_job_new_examinations": 1,
+      "current_waiting_total": 1550,
+      "cursor_persisted": true,
+      "cursor_sha256": "02e3935bdbe3dfc84bd018159acafad2d1ecf55bc3bebacc5499a5a1304f983a",
+      "index_columns": [
+        "status",
+        "path_state",
+        "enqueued_at",
+        "mint"
+      ],
+      "examined_anchor_classifications": {
+        "MISSING_CREATE_EVIDENCE": 511,
+        "UNQUALIFIED_ANCHOR": 1
+      },
+      "bounded_poll_size": 32,
+      "all_waiting_at_baseline": 1550,
+      "denominator_contract": "Fixed deployment-baseline rows satisfying the exact accepted waiting-anchor eligibility predicate, not all jobs or new arrivals."
+    },
+    "completions": {
+      "since_activation": 6,
+      "since_five_minute_acceptance": 3,
+      "outcomes": {
+        "LINEAGE_GAP": 3,
+        "NO_ATTRIBUTION_FOUND": 3
+      },
+      "total_queue_states": {
+        "waiting": 1550,
+        "complete": 1898,
+        "pending": 170,
+        "failed": 6
+      },
+      "no_live_replay_or_reset": true
+    },
+    "protected277": {
+      "still_protected_waiting": 277
+    },
+    "gate_busy": {
+      "unique_pending_jobs": 36,
+      "cycle_completed_failure_records": 8,
+      "retry_attempts_unchanged_for_checked_original_jobs": true,
+      "other_current_deferrals": {
+        "HELIUS_INVESTIGATION_REQUIRED": 7,
+        "HELIUS_REQUEST_COOLDOWN": 2,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+        "HELIUS_ACQUISITION_DEFERRED": 3
+      },
+      "no_double_counting": "Queue identities, log lines and cycle records are separate populations."
+    },
+    "helius": {
+      "gate_state": "OPEN",
+      "policy_unchanged": true,
+      "lifetime_credit_limit": 100000,
+      "reserved_worst_case_credits_since_activation": 395,
+      "reserved_credits_by_worker": {
+        "creator_resolution": 0,
+        "listener": 24,
+        "walkback": 371
+      },
+      "http_reservations_since_activation": 395,
+      "requests_per_minute_since_activation": 28.269,
+      "highest_lifetime_investigation_credits": 7936,
+      "investigations_at_warning": 0,
+      "investigations_at_ceiling": 0,
+      "inflight_reservations": [],
+      "potentially_stuck_reservations": [],
+      "preexisting_review_held_preserved": true,
+      "current_review_held_count": 5,
+      "spending_history_monotonic": true,
+      "billing_limit": "Reserved ledger credits are measured; Helius invoiced/billed credits are not independently available. Cache-hit savings are not instrumented and are not claimed."
+    },
+    "runtime": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "services": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 70897
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 70926
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 4522
+        }
+      },
+      "unchanged_pids": true,
+      "source_hashes_verified": true,
+      "disk_free_bytes": 3201826816,
+      "birth_journal_free_slots": 13,
+      "migration_journal_free_slots": 10
+    },
+    "tests": "No tests rerun; read-only installed authority and retained-state/log checks only.",
+    "production": {
+      "production_writes": 0,
+      "service_actions": 0,
+      "provider_calls": 0,
+      "retry_replay_or_reset": 0,
+      "v1_database_access": 0
+    },
+    "critical_blocker": null,
+    "progress_limiters": [
+      "First sweep not complete:1038original eligible waiting jobs not examined yet.",
+      "36pending jobs currently carryHELIUS_GATE_BUSY;8cycle-level gate-busy failures logged.",
+      "7pending jobs lackinvestigationownership; protected denial/review/cooldown work not replayed or reset."
+    ],
+    "next_action": "Leave all workers running. Continue normal bounded sweep; perform a later read-only coverage check. Gate-busy contention remains a measured progress limiter; no gate reset, reservation clearing, budget increase or exhausted replay.",
+    "updated_at_utc": "2026-10-27T23:24:05.092145+00:00"
   }
 }

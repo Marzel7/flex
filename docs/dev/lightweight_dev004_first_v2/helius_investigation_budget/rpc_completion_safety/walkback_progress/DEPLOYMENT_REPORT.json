@@ -1,0 +1,258 @@
+{
+  "FLEX_V2_WALKBACK_PROGRESS_DEPLOYMENT_STATUS": "PASS",
+  "INSTALLED_SOURCE_AND_BUNDLE": {
+    "source_commit": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "bundle_sha256": "0dbf2ca8d77605df9fd3484d504417043ab1825841d281c26c8429c91039cb2f",
+    "activation_plan_sha256": "426319c8595614cff8dc695ce674f1a1ce242fa926818b4e6e56277f03f8bf56",
+    "runtime_hashes": {
+      "runtime/walkback/src/core/walkback_worker.py": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501",
+      "runtime/walkback/src/ops/anchor_reconciliation.py": "7e2cbf52b4c28a884e02728bc036559edc3fb627476b3b61a122e3be0ea33404"
+    },
+    "renderer_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47",
+    "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-progress-b203c114/source",
+    "runtime_plan_sha256": "0211b8de896666ffdb6b1647ed85276438431ebaa856a80adbfd49e4b3ed773c",
+    "supervisor_configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "supervisor_configuration_unchanged": true,
+    "generation": "DEV004-V2-20261024-dfb76562"
+  },
+  "WALKBACK_PID_BEFORE_AFTER": {
+    "before": 87212,
+    "after": 4522,
+    "old_owner_exit_verified": true,
+    "listener_unchanged": {
+      "state": "RUNNING",
+      "pid": 70897
+    },
+    "resolver_unchanged": {
+      "state": "RUNNING",
+      "pid": 70926
+    }
+  },
+  "CURSOR_AND_INDEX_STATUS": {
+    "status": "INITIALIZED_AND_VALIDATED",
+    "objects": [
+      "wt_anchor_reconciliation_cursor_v1",
+      "ix_anchor_waiting_cursor_v1"
+    ],
+    "exact_schema_delta_verified": true,
+    "canonical_and_attribution_schema_unchanged": true,
+    "preexisting_queue_records_unchanged_by_bootstrap": true,
+    "committed_cursor": {
+      "singleton_rows": 1,
+      "cursor_present": true,
+      "cursor_sha256": "93e08eba75ba632ea46a5ad33360059bc56ae8b8b8bf85fb540740eaa8a7465a",
+      "continued_in_bounded_steps": true
+    },
+    "index_columns": [
+      "status",
+      "path_state",
+      "enqueued_at",
+      "mint"
+    ],
+    "kernel_file_cap_bytes": 499000000
+  },
+  "WAITING_JOB_FAIRNESS": {
+    "unique_preexisting_jobs_examined": 224,
+    "maximum_examinations_per_existing_job": 1,
+    "old_monopolizing_job_examinations": 1,
+    "beyond_old_head": 223,
+    "new_anchor_states": {
+      "MISSING_CREATE_EVIDENCE": 223,
+      "UNQUALIFIED_ANCHOR": 1
+    },
+    "protected_candidates": {
+      "waiting_unqualified": 277
+    },
+    "normal_poll_bound": 32,
+    "hard_poll_bound": 128,
+    "whole_sweep_completed": false,
+    "limit": "224 of the preexisting waiting population examined during this bounded window; full-cycle qualification reused, no claim of complete live sweep."
+  },
+  "RPC_RESULT_REUSE": {
+    "qualified_source_installed": true,
+    "provider_free_controls_reused": 107,
+    "live_logical_rpc_operations_from_completed_batch_summaries": 110,
+    "live_walkback_reserved_credits": 103,
+    "exact_live_cache_hit_count": "UNMEASURED \u2014 no dedicated runtime counter",
+    "interpretation": "Logical RPC operations and reserved credits are distinct counters; their difference is not claimed as a measured savings total. Exact request/evidence matching and expiry are qualified by retained tests and installed source hashes.",
+    "duplicate_paid_cooldown_violations_observed": [],
+    "evidence_limit": "Durable gate enforces cross-worker deduplication; periodic ledger snapshots are not a complete raw request trace. No provider requests were initiated for testing."
+  },
+  "DEFERRAL_REASON_INTEGRITY": {
+    "examined_updated_deferral_rows": 37,
+    "counts_by_exact_code": {
+      "HELIUS_GATE_BUSY": 28,
+      "HELIUS_INVESTIGATION_REQUIRED": 8,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
+    },
+    "attempt_counts_unchanged": true,
+    "natural_completion_outcomes_at_finalization": {
+      "NO_ATTRIBUTION_FOUND": 3
+    }
+  },
+  "WALKBACK_COMPLETIONS": {
+    "acceptance_window_new_completions": 3,
+    "before_total": 1892,
+    "after_total": 1895,
+    "outcomes_at_finalization": {
+      "NO_ATTRIBUTION_FOUND": 3
+    },
+    "exhausted_replay_or_attempt_reset": false
+  },
+  "HELIUS_SPENDING": {
+    "state": "OPEN",
+    "lifetime_credit_limit": 100000,
+    "highest_investigation_credits": 7863,
+    "new_reserved_credits_by_role": {
+      "creator_resolution": 0,
+      "listener": 6,
+      "walkback": 103
+    },
+    "new_requests_by_role": {
+      "walkback": 103,
+      "listener": 6
+    },
+    "new_requests_by_role_method": {
+      "walkback:rpc:getAccountInfo": 20,
+      "walkback:rpc:getTransaction": 46,
+      "listener:rpc:getAccountInfo": 3,
+      "listener:rpc:getMultipleAccounts": 2,
+      "listener:rpc:getTransaction": 1,
+      "walkback:rpc:getSignaturesForAddress": 37,
+      "listener:rpc:getTokenAccountsByOwner": 0,
+      "listener:rpc:getTokenLargestAccounts": 0
+    },
+    "inflight": [],
+    "review_held": 5,
+    "spending_history_monotonic": true,
+    "duplicate_paid_cooldown_violation": []
+  },
+  "DISK_AND_RUNTIME_HEALTH": {
+    "window_start_utc": "2026-10-27T23:07:30.498678+00:00",
+    "window_last_snapshot_utc": "2026-10-27T23:12:54.560635+00:00",
+    "seconds_observed": 323.8,
+    "disk_before_stage_bytes": 3446226944,
+    "disk_after_stage_bytes": 3196092416,
+    "disk_at_final_snapshot_bytes": 3210977280,
+    "minimum_sampled_disk_bytes": 3205824512,
+    "required_floor_bytes": 2067108864,
+    "database_files": {
+      "core": {
+        "db": 82235392,
+        "-wal": 0,
+        "-shm": 32768
+      },
+      "ops": {
+        "db": 162488320
+      }
+    },
+    "journals": {
+      "birth.jsonl": {
+        "records": 501,
+        "free_slots": 11,
+        "states": {
+          "QUARANTINED": 456,
+          "ACKED": 45
+        },
+        "bytes": 403653
+      },
+      "migration.jsonl": {
+        "records": 508,
+        "free_slots": 4,
+        "states": {
+          "RESOLVED": 1,
+          "QUARANTINED": 13,
+          "PENDING": 492,
+          "ACKED": 2
+        },
+        "bytes": 288764
+      }
+    },
+    "terminal_deferred_birth_quotas": {
+      "migration_terminal_owner_v1": {
+        "singleton": 1,
+        "version": 1,
+        "used_records": 1789,
+        "used_bytes": 1998841
+      },
+      "migration_deferred_owner_v1": {
+        "singleton": 1,
+        "version": 1,
+        "used_records": 511,
+        "used_bytes": 1344382
+      },
+      "birth_terminal_owner_v1": {
+        "singleton": 1,
+        "version": 1,
+        "used_records": 512,
+        "used_bytes": 697743
+      }
+    },
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 4522
+      }
+    },
+    "new_walkback_log_errors": {
+      "walkback_worker.log": {
+        "new_bytes": 6160,
+        "errors": {
+          "Traceback (most recent call last)": 0,
+          "JOURNAL_CAPACITY": 0,
+          "DISK_FLOOR": 0,
+          "database is locked": 0,
+          "UNQUALIFIED_PROTECTED_CANDIDATE": 0,
+          "NameError": 0
+        },
+        "specific_gate_busy": 9,
+        "specific_cooldown": 0
+      },
+      "walkback_worker_err.log": {
+        "new_bytes": 0,
+        "errors": {
+          "Traceback (most recent call last)": 0,
+          "JOURNAL_CAPACITY": 0,
+          "DISK_FLOOR": 0,
+          "database is locked": 0,
+          "UNQUALIFIED_PROTECTED_CANDIDATE": 0,
+          "NameError": 0
+        },
+        "specific_gate_busy": 0,
+        "specific_cooldown": 0
+      }
+    },
+    "no_absolute_wal_or_lock_limit_claimed": true
+  },
+  "ROLLBACK_STATUS": {
+    "executed": false,
+    "authority": "Candidate-aware source/configuration profile and accepted fresh compact matched-pair recovery; no old-source downgrade after cursor activation.",
+    "preimages_and_private_accounting_evidence_preserved": true,
+    "protected_review_held_requests": 5,
+    "previous_immutable_source_preserved": true
+  },
+  "ORCHESTRATION_NOTE": "Supervisor returned expected status3 after Walkback stop; initial status parser paused before schema/source changes. Orchestration parser was corrected, stopped owner and idle durable work independently reverified, then the same authorized sequence continued. No approved runtime payload changed; only one Walkback stop/start, no listener/resolver restart.",
+  "REMAINING_OBSERVATIONS": [
+    "Distinct gate-busy, missing-investigation-owner and review-held deferrals remain protected; budget-only attempts unchanged. No permission was borrowed and no protected request was cleared.",
+    "Exact live cache-hit/savings counts are unmeasured; full waiting sweep was not completed in five minutes."
+  ],
+  "NEXT_ACTION": "Leave Walkback running. Perform a later read-only full-sweep/progress review if requested; preserve distinct deferrals and require independent ownership/evidence qualification. No exhausted replay, gate reset or further deployment.",
+  "SAFETY": {
+    "provider_test_calls": 0,
+    "v1_database_access": 0,
+    "unrelated_service_restarts": 0,
+    "budget_changes": 0,
+    "queue_replay_or_reset": 0,
+    "unqualified_protected_candidate_promotions": 0,
+    "approved_runtime_files_installed": 2,
+    "candidate_renderer_activated_via_immutable_source_authority": true
+  }
+}

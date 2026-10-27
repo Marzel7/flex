@@ -4410,8 +4410,10 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 result = await self.__internal_rpc(payload, timeout=timeout, priority="critical")
                 return result
             except Exception as e:
-                logger.debug(f"Discovery RPC error ({method}): {e}")
-                return None
+                # Preserve typed gate deferrals and acquisition failures. Only a
+                # successful RPC response can establish missing transaction data.
+                log_print(f"[DISCOVERY_RPC] {method}: {type(e).__name__}", flush=True)
+                raise
 
     async def call_background_rpc(self, method: str, params: list, timeout: float = 10.0):
         """RPC call with background quota (throttled during critical window)."""
@@ -4507,6 +4509,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
             start_time = time.time()
             last_status = None
             last_error = None
+            last_exception = None
             retry_count = 0
             optimization_layer = "critical_discovery" if priority == "critical" else "background_deferred"
 
@@ -4576,7 +4579,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                                 )
                                 if i < len(_urls) - 1:
                                     continue
-                    except asyncio.TimeoutError:
+                    except asyncio.TimeoutError as error:
+                        last_exception = error
                         latency_ms = (time.time() - start_time) * 1000
                         last_error = "Timeout"
                         record_request(
@@ -4594,6 +4598,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         if i < len(_urls) - 1:
                             continue
                     except Exception as e:
+                        last_exception = e
                         if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
                             from src.core.helius_denial_gate import Deferred as _HeliusDeferred
                             if isinstance(e, _HeliusDeferred):raise
@@ -4614,6 +4619,11 @@ class PumpFunCurveListener(FastLaneDiscovery):
                         if i < len(_urls) - 1:
                             continue
 
+                if priority == "critical":
+                    if last_exception is not None:
+                        raise last_exception
+                    raise RuntimeError(f"RPC_HTTP_{last_status}" if last_status is not None else "RPC_ACQUISITION_UNAVAILABLE")
+
                 # All RPC endpoints failed - record final failure
                 latency_ms = (time.time() - start_time) * 1000
                 record_request(
@@ -4630,6 +4640,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 )
                 return None
         except Exception as e:
+            if priority == "critical":
+                raise
             if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') == '1':
                 from src.core.helius_denial_gate import Deferred as _HeliusDeferred
                 if isinstance(e, _HeliusDeferred):raise
@@ -4769,7 +4781,7 @@ class PumpFunCurveListener(FastLaneDiscovery):
 
         except asyncio.TimeoutError:
             log_print(f"[TX_CACHE] ⏱️  Timeout fetching {signature[:16]}...", flush=True)
-            return None
+            raise
 
         except Exception as e:
 
@@ -4778,8 +4790,8 @@ class PumpFunCurveListener(FastLaneDiscovery):
                 from src.core.helius_denial_gate import Deferred as _HeliusDeferred
 
                 if isinstance(e, _HeliusDeferred):raise
-            log_print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {e}", flush=True)
-            return None
+            log_print(f"[TX_CACHE] ⚠ Error fetching {signature[:16]}...: {type(e).__name__}", flush=True)
+            raise
 
         finally:
             # Release lock for other waiters

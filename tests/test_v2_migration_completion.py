@@ -175,6 +175,9 @@ def test_actual_handler_delayed_resolution_and_ack_after_restart(env):
     tree=ast.parse(SOURCE.read_text())
     node=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='handle_migration')
     env.ns['log_print']=lambda *a,**kw:None
+    # Exercise the handler boundary directly; provider-context ownership has
+    # separate real-gate controls and must not start runtime acquisition here.
+    node.decorator_list=[]
     exec(compile(ast.Module(body=[node],type_ignores=[]),str(SOURCE),'exec'),env.ns)
     env.w.handle_migration=types.MethodType(env.ns['handle_migration'],env.w)
     calls=[]; release=asyncio.Event()

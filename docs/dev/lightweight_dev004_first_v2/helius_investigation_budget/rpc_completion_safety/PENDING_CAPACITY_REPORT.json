@@ -1,0 +1,130 @@
+{
+  "FLEX_V2_PENDING_CAPACITY_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "EXACT_SATURATION_CAUSE": {
+    "active_population": {
+      "RESOLVED": 1,
+      "PENDING": 511
+    },
+    "budget_deferred_attempts": {
+      "0": 478
+    },
+    "observed_subject_evidence": {
+      "SUBJECT_NOT_IN_CORE": 217,
+      "NO_SUBJECT_MINT": 212,
+      "KNOWN_SUBJECT_REQUIRES_QUALIFIED_ACQUISITION": 48,
+      "KNOWN_SUBJECT_CANONICAL_SIGNATURE_CONFLICT": 1
+    },
+    "structural_causes": [
+      "Active journal512limit is unchanged. Terminal owner correctly rejects PENDING/RESOLVED because terminal rights forbid automatic retry. No accepted retryable custodian previously existed.",
+      "Old pending selector takes first20without duefilter or rotation.55of56known Core subjects are behind this fixed head; synthetic regression proves latereligible work can be excluded.",
+      "429of478deferred subjects lack a supplied mint or accepted Core identity; existing budget authority must remain closed for those.48known subjects requirequalifiedacquisition;1hascanonicalsignatureconflict. Generic retained deferral code does not prove every historical subreason."
+    ]
+  },
+  "PENDING_PROGRESS_BLOCKER": "No budget bypass introduced. Due-aware active selection and indexed deferred checkout reach eligible work. Signature-only/missing-Core work remains durable and pending until existing authority qualifies it; handoff-owned and in-flight work is not forced or reclassified.",
+  "DURABLE_DEFERRED_OWNERSHIP": {
+    "owner": "DeferredMigrationStore extension in existing OPS owner",
+    "schema_contract": {
+      "owner": "DeferredMigrationStore in existing migration_terminal_evidence.py",
+      "schema_version": 1,
+      "contract_sha256": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+      "tables": [
+        "migration_deferred_owner_v1",
+        "migration_deferred_evidence_v1"
+      ],
+      "index": "migration_deferred_due_v1",
+      "triggers": 6,
+      "explicit_initialization_only": true,
+      "original_terminal_contract_unchanged": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588"
+    },
+    "transfer": "Journal-locked OPS FULL commit; independent readback plus verification; then fsynced journal removal. No ACK or status promotion.",
+    "reactivation": "Indexed due<=now lookup, atmost10restored perdefaultpoll. Journal publication precedes ACTIVE custody release. Original identity, provenance, errors, attempts and retry_not_before retained.",
+    "crash": "Commit-before-removal duplicates reconcile to active journal; interrupted checkout restores ownership after journal readback. Fsynced temp publication is reverified before recovery.",
+    "inflight": "DISPATCH_RESERVEDrecords never transfer, including expired/ambiguous reservations.",
+    "dedup": "Shared original signature/journal identity. Completed custody retains verified ACK identities; conflicting duplicate mint/slot is rejected. No silent identity retirement."
+  },
+  "EVENT_513_RESULT": "PASS with all512pending/deferred slots, and separately exactretained511PENDING+1RESOLVEDcohort.20independentlyverified records transfer, active493afterevent513; original512states/fields preserved.",
+  "LISTENER_CRASH_PROTECTION": "Explicit JOURNAL_CAPACITY/DEFERRED_CAPACITY/TERMINAL_CAPACITY refusal returns ADMISSION_REFUSED, no dispatch/ACK. PumpSwap callback continues; PumpPortal skips migration sideeffects/unsubscribe and keeps handling births. Schema/generation/storage-integrity failures remain failclosed, not disguised as capacity.",
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "distinct_controls_passed": 91,
+    "final_affected_controls_passed": 90,
+    "reused_stress_control_passed": 1,
+    "stress": "2000additional notifications;2512distinct retained, active<=512, ownerlogicalquota<=64MB/8192identities. Prior stress rerun passed in final83-control run; finalinflight/ACKconflict changes do not affect its allpending path.",
+    "failed_remaining": 0,
+    "coverage": [
+      "Exact512rowpreservation andevent513",
+      "Thousands boundedadmissions",
+      "Duefairness/restart",
+      "OPScommit/JSONpublish/renamecrashes andcheckoutcrashes",
+      "Duplicate/conflicting identities andcompletedACKdedup",
+      "Concurrent admission+OPSresolver writes",
+      "Real existing100000creditbudget context: unknownsubjectrefused, qualifiedsubjectpermitted aftercheckout",
+      "Budgetdeferralszeroattempts andcanonical/handoffverifiedack",
+      "Terminalprotection andquota/disk/corruptreadbackrefusal",
+      "Fresh compact pair preserving deferredcustody/transfergeneration",
+      "Missingflag/flag0/missingschema/wronggenerationrefusal",
+      "Listenercapacityrefusal birthcontinuity boundary"
+    ],
+    "network": "Socketconnect forbidden; no provider calls, background service or production replay."
+  },
+  "CANDIDATE_SHA": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+  "EXACT_SOURCE_PAYLOAD": {
+    "runtime_files": [
+      "runtime/listener/src/core/migration_signature_journal.py",
+      "runtime/listener/src/core/migration_terminal_evidence.py",
+      "runtime/listener/src/core/pumpfun_curve_listener.py"
+    ],
+    "recovery_renderer": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+    "unchanged": "Original terminal owner implementation/DDL remains byte-equivalent; no Helius gate/protection/billing-policy files changed; canonical migration and attribution definitions untouched."
+  },
+  "STORAGE_BOUNDS": {
+    "active_records": 512,
+    "active_encoded_bytes": 2000000,
+    "journal_temp_bytes": 2000000,
+    "deferred_identity_records": 8192,
+    "deferred_allocation_bytes": 64000000,
+    "record_encoded_bytes": 4096,
+    "offload_batch": 20,
+    "restore_batch_per_poll_at_default_limit": 10,
+    "default_returned_work_batch": 20,
+    "record_reactivation_delay_after_interrupted_selection_seconds": 10,
+    "OPS_database_page_cap_bytes": 480000000,
+    "kernel_file_cap_bytes": 499000000,
+    "WAL_admission_threshold_bytes": 8000000,
+    "WAL_limit_type": "cooperative pretransaction threshold, not absoluteWALceiling",
+    "disk_floor_bytes": 2000000000,
+    "transaction_disk_reserve_bytes": 2000000,
+    "deployment_disk_floor_bytes": 2067108864,
+    "finite_capacity_exhaustion": "Explicit ADMISSION_REFUSED, no ACK/dispatch, birth channel staysalive. No indefinite admission guarantee if evidence never becomes eligible; no identity deletion or quota bypass."
+  },
+  "READINESS": {
+    "installed_7dd_source_preimages_verified": true,
+    "production_configuration_unchanged": true,
+    "production_deferred_schema_not_created": true,
+    "new_flag_required": "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED=1",
+    "reload_boundary": "Listener-only; resolver/Walkback bindings unchanged. Explicit additiveOPSschema initialization required during separately authorized deployment.",
+    "rollback": "Deferred-unaware7dd/flag0fallback FORBIDDEN after custody activation. Preserve exactdeferred-aware candidate+schema+flag andfresh-pair recovery, or failclosed."
+  },
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES_NOT_AUTHORIZATION_TO_DEPLOY",
+  "NEXT_ACTION": "Run bounded deployment preflight for this frozen three-runtime-file+recovery bundle, explicit additive OPS owner initialization, listener-only opt-in and deferred-aware fallback. Preserve all live records; no replay/reset.",
+  "BUNDLE_SHA256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+  "remaining_limitations": [
+    "This is finite bounded custody, not unlimitedadmission.8192historicaldeferredidentities plus512active slots are a finite maximum; owner/diskpressure explicitly refuses newadmission without ACK or processfatalcapacitypath.",
+    "Missing mint/Coreauthority is not repaired or fabricated; provider restoration alone does not qualify unknown evidence.",
+    "No productioncapacity restored by this DEVturn; live journal remains saturated until separately authorized deployment."
+  ],
+  "production_changes": 0,
+  "provider_calls": 0,
+  "live_replay_or_reset": 0,
+  "V1_access": 0,
+  "created_at_utc": "2026-10-27T19:10:45.730569+00:00",
+  "LIVE_SAFETY_READBACK": {
+    "protected_exhausted_1319_verified_unchanged": true,
+    "production_source_preimages_match": true,
+    "production_configuration_preimage_match": true,
+    "production_deferred_schema_present": false,
+    "gate_state_observed": "OPEN",
+    "lifetime_credit_limit": 100000,
+    "disk_free_bytes": 3109216256,
+    "asof_utc": "2026-10-27T19:13:05.679241+00:00"
+  }
+}

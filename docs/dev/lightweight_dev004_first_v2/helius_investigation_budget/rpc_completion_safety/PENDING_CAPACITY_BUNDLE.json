@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "source_commit": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+  "installed_base": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "runtime_payload": {
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "installed_preimage_sha256": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+      "candidate_sha256": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9"
+    },
+    "runtime/listener/src/core/migration_terminal_evidence.py": {
+      "installed_preimage_sha256": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+      "candidate_sha256": "98979578dbe718ed24f4b7cc016a27bb493938818d5d51a67e24cae872c63cb1"
+    },
+    "runtime/listener/src/core/pumpfun_curve_listener.py": {
+      "installed_preimage_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+      "candidate_sha256": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c"
+    }
+  },
+  "recovery_renderer": {
+    "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+    "candidate_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+    "installed_preimage_sha256": "a5def40d99e887cfe2e8a7881ddfc803436532f0239bbb21b629085b25a25ffd"
+  },
+  "OPS_additive_contract": {
+    "owner": "DeferredMigrationStore in existing migration_terminal_evidence.py",
+    "schema_version": 1,
+    "contract_sha256": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+    "tables": [
+      "migration_deferred_owner_v1",
+      "migration_deferred_evidence_v1"
+    ],
+    "index": "migration_deferred_due_v1",
+    "triggers": 6,
+    "explicit_initialization_only": true,
+    "original_terminal_contract_unchanged": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588"
+  },
+  "configuration": {
+    "existing_preimage_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "new_listener_only_flag": "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED=1",
+    "stable_journal": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+    "gate_and_budgets": "Unchanged; lifetime100000, no new provider acquisition authority.",
+    "required_existing_flags": [
+      "FLEX_HELIUS_DENIAL_GATE_ENABLED=1",
+      "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED=1"
+    ]
+  },
+  "ownership_protocol": "OPS FULL commit -> independent exact readback -> verified lookup -> fsynced journal replacement. Checkout fsyncs journal before ACTIVE ownership release. Crash reconciliation is journal-locked; only journal-active records may process. In-flight DISPATCH_RESERVED records never transfer.",
+  "bounds": {
+    "active_records": 512,
+    "active_encoded_bytes": 2000000,
+    "journal_temp_bytes": 2000000,
+    "deferred_identity_records": 8192,
+    "deferred_allocation_bytes": 64000000,
+    "record_encoded_bytes": 4096,
+    "offload_batch": 20,
+    "restore_batch_per_poll_at_default_limit": 10,
+    "default_returned_work_batch": 20,
+    "record_reactivation_delay_after_interrupted_selection_seconds": 10,
+    "OPS_database_page_cap_bytes": 480000000,
+    "kernel_file_cap_bytes": 499000000,
+    "WAL_admission_threshold_bytes": 8000000,
+    "WAL_limit_type": "cooperative pretransaction threshold, not absoluteWALceiling",
+    "disk_floor_bytes": 2000000000,
+    "transaction_disk_reserve_bytes": 2000000,
+    "deployment_disk_floor_bytes": 2067108864,
+    "finite_capacity_exhaustion": "Explicit ADMISSION_REFUSED, no ACK/dispatch, birth channel staysalive. No indefinite admission guarantee if evidence never becomes eligible; no identity deletion or quota bypass."
+  },
+  "fallback_and_recovery": "After deferred schema/transfer,7ddf5312and other deferred-unaware fallback sources/flag0 are FORBIDDEN. Preserve this exact deferred-aware source, flag and tables for rollback/restart/fresh compact pair; otherwise failclosed. Existing fresh V2 backup preserves tables and original transfer generations.",
+  "deployment_preconditions": [
+    "Separate deployment authorization",
+    "Listener quiescence; initialize and verify additive OPS owner",
+    "Exact three runtimefiles and matching recovery pins/source-plan",
+    "Enable listener-only flag after schema/source coherence",
+    "Preserve all active/terminal records and budget histories",
+    "Do not replay/reset exhausted work"
+  ],
+  "deployment_scope": "Listener-only reload plus additive existing OPS-owner initialization and matching recovery authority; resolver/Walkback unchanged.",
+  "production_changes": 0,
+  "provider_calls": 0
+}

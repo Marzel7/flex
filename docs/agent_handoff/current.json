@@ -37031,8 +37031,8 @@
     "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T21:18:43.243573+00:00",
-    "working_tree": "Disk restored6.25GB; gate publication recovered conservatively and old-owner reservation retired without refund. All3workersRUNNING, 63877credits and100kcap preserved, five review-held requests, zero inflight. Helius closed; no probe issued."
+    "updated_at_utc": "2026-10-27T21:26:27.990260+00:00",
+    "working_tree": "Helius restored via one authorized fresh probe with durable validation. Five-minute safety/runtime acceptance passed: gateOPEN, all3PIDs stable,100kcap and history preserved; five protected uncertain requests. Natural canonical handoff/Walkback completion not observed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T21:18:43.243573+00:00",
+  "updated_at_utc": "2026-10-27T21:26:27.990546+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -47126,5 +47126,424 @@
       "state": "PAYMENT_DENIED",
       "lifetime_limit": 100000
     }
+  },
+  "flex_v2_fresh_helius_restoration_after_storage": {
+    "status": "PASS_RESTORED",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "provider_probe_requests": 1,
+    "extra_test_provider_requests": 0,
+    "http_status": 200,
+    "usable_transaction_verified": true,
+    "validation_durable_before_finalization": true,
+    "validation_sha256": "377c5b236a5cc773bdd121de38f04097f66db7516e19d84d83cff13f53c0b162",
+    "production_flags": {
+      "shared_gate_enabled": true,
+      "state": "OPEN",
+      "lifetime_limit": 100000,
+      "deferred_listener_enabled": true
+    },
+    "acceptance": {
+      "status": "PASS_RESTORED",
+      "observation_seconds": 301.98614406585693,
+      "probe_authorized_requests": 1,
+      "additional_test_requests": 0,
+      "gate_state": "OPEN",
+      "request_reservations_by_method_since_before_probe": {
+        "rpc:getTransaction": 11,
+        "rpc:getMultipleAccounts": 39,
+        "rpc:getAccountInfo": 145,
+        "rpc:getTokenAccountsByOwner": 2,
+        "rpc:getTokenLargestAccounts": 6
+      },
+      "reserved_credits_by_worker_since_before_probe": {
+        "listener": 202,
+        "creator_resolution": 0,
+        "walkback": 1
+      },
+      "total_reserved_credits": 64080,
+      "reserved_credits_delta": 203,
+      "highest_investigation_credits": 7642,
+      "lifetime_limit": 100000,
+      "inflight_final": 0,
+      "maximum_sampled_inflight_age_seconds": 0,
+      "review_held_preserved": 5,
+      "new_migration_notifications_seen": 7,
+      "new_notification_states": {
+        "PENDING": 6,
+        "ACKED": 1
+      },
+      "canonical_migrations_completed_handoffs_exact_readback": 0,
+      "pumpswap_subscription_observed": true,
+      "resolver_heartbeat_delta": {
+        "cycles": 5,
+        "total_processed": 0,
+        "total_resolved": 0,
+        "total_failed": 0,
+        "total_skipped": 0
+      },
+      "resolver_heartbeat_age_seconds": 11,
+      "walkback_fixed_sample_changes": [],
+      "protected_exhausted_exactly_preserved": 1319,
+      "logs": {
+        "listener.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "ADMISSION_REFUSED": 0,
+          "name 'logger' is not defined": 0,
+          "Subscribed to PumpFun migration account": 0,
+          "HELIUS_INVESTIGATION_CREDIT_LIMIT": 0
+        },
+        "listener_err.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "ADMISSION_REFUSED": 0,
+          "name 'logger' is not defined": 0,
+          "Subscribed to PumpFun migration account": 0,
+          "HELIUS_INVESTIGATION_CREDIT_LIMIT": 0
+        },
+        "creator_resolution_worker.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "ADMISSION_REFUSED": 0,
+          "name 'logger' is not defined": 0,
+          "Subscribed to PumpFun migration account": 0,
+          "HELIUS_INVESTIGATION_CREDIT_LIMIT": 0
+        },
+        "walkback_worker.log": {
+          "Traceback": 0,
+          "JOURNAL_CAPACITY": 0,
+          "ADMISSION_REFUSED": 0,
+          "name 'logger' is not defined": 0,
+          "Subscribed to PumpFun migration account": 0,
+          "HELIUS_INVESTIGATION_CREDIT_LIMIT": 0
+        }
+      },
+      "services": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 70897
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 70926
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 70948
+        }
+      },
+      "disk_minimum_bytes": 6254153728,
+      "database_allocation": {
+        "core": {
+          "bytes": 80293888,
+          "wal_bytes": 24752
+        },
+        "ops": {
+          "bytes": 161992704,
+          "wal_bytes": 0
+        }
+      },
+      "journal_records_final": 511,
+      "samples": [
+        {
+          "elapsed_seconds": 0.1,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 6,
+          "reserved_credits_delta": 6,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 504,
+          "new_migration_identities_seen": 0,
+          "disk_free_bytes": 6254153728,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 30.3,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 20,
+          "reserved_credits_delta": 20,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 504,
+          "new_migration_identities_seen": 0,
+          "disk_free_bytes": 6257463296,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 60.5,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 34,
+          "reserved_credits_delta": 34,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 494,
+          "new_migration_identities_seen": 0,
+          "disk_free_bytes": 6266855424,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 90.6,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 45,
+          "reserved_credits_delta": 45,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 494,
+          "new_migration_identities_seen": 0,
+          "disk_free_bytes": 6266298368,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 120.8,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 55,
+          "reserved_credits_delta": 55,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 494,
+          "new_migration_identities_seen": 0,
+          "disk_free_bytes": 6265712640,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 151.0,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 69,
+          "reserved_credits_delta": 69,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 495,
+          "new_migration_identities_seen": 1,
+          "disk_free_bytes": 6265229312,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 181.1,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 83,
+          "reserved_credits_delta": 83,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 494,
+          "new_migration_identities_seen": 1,
+          "disk_free_bytes": 6264135680,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 211.3,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 98,
+          "reserved_credits_delta": 98,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 512,
+          "new_migration_identities_seen": 3,
+          "disk_free_bytes": 6263394304,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 241.4,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 109,
+          "reserved_credits_delta": 109,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 511,
+          "new_migration_identities_seen": 7,
+          "disk_free_bytes": 6262312960,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 271.6,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 126,
+          "reserved_credits_delta": 126,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 511,
+          "new_migration_identities_seen": 7,
+          "disk_free_bytes": 6262767616,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        },
+        {
+          "elapsed_seconds": 301.8,
+          "state": "OPEN",
+          "request_reservations_since_before_probe": 203,
+          "reserved_credits_delta": 203,
+          "maximum_investigation_credits": 7642,
+          "inflight": 0,
+          "oldest_inflight_seconds": 0,
+          "journal_records": 511,
+          "new_migration_identities_seen": 7,
+          "disk_free_bytes": 6258917376,
+          "services": {
+            "watchtower_listener": {
+              "state": "RUNNING",
+              "pid": 70897
+            },
+            "creator_resolution_worker": {
+              "state": "RUNNING",
+              "pid": 70926
+            },
+            "walkback_worker": {
+              "state": "RUNNING",
+              "pid": 70948
+            }
+          }
+        }
+      ],
+      "exhausted_replay": false,
+      "service_restarts": 0,
+      "limitations": "Counts are durable local request reservations/worst-case credits, not provider invoice. Fixed queue sample progress is bounded; absent canonical completion is not inferred from HTTP success.",
+      "walkback_trace_causes_since_probe": [],
+      "walkback_natural_credits_excluding_probe": 0,
+      "resolver_eligible_jobs": 0
+    },
+    "functional_coverage_limit": "All three processes stable and PumpSwap subscribed. Resolver idle with zero eligible jobs. No new canonical handoff or Walkback sample progress observed in five minutes; do not infer completion from request success.",
+    "source_config_schema_changes": 0,
+    "exhausted_replay_or_retry_reset": false,
+    "blocker": null,
+    "next_action": "Leave all three workers running with shared gate and100kcap active. Continue natural observation for canonical migration/handoff and Walkback completion; no exhausted replay or additional test acquisition."
   }
 }

@@ -1,0 +1,233 @@
+{
+  "status": "COMMON_SOFTWARE_DEFECT_PROVEN",
+  "runtime_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "fixed_cohort": [
+    {
+      "journal_identity": "8f3c75915511f8e7a204d36970eb7e7ffcac29d1d5c2c6b491a7b37d2f22eac2",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "2a46fd47ba95ac114a491d4be0a6dc1b73c1992312d74e96c4cccbaacc00e366",
+      "source": "PUMPPORTAL_MIGRATION",
+      "supplied_mint": true,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "157ae37c19591a5cfd7e6aa428c043efe76bfdf76bc16bd75bd534998542e627",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "37e3dc18073fd882eb0819b65758bd6eee05c327a214533c972605aebda15363",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "8012c4c1e6894257252a3808487bbd143924a28bec45f58626cddbcf120f25af",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "08e84221c85a8ef89c765e606c99dc0c449242877c80a085ed30de9b780eb571",
+      "source": "PUMPPORTAL_MIGRATION",
+      "supplied_mint": true,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "1686888f26b090cbb61694ad8f5e410bc245ca9eb2daca106b19b00d729b88a6",
+      "source": "PUMPPORTAL_MIGRATION",
+      "supplied_mint": true,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "64878a2777e940b3807708a12fccdd2ab14e27e58b607ca8182c00c1d900371c",
+      "source": "PUMPPORTAL_MIGRATION",
+      "supplied_mint": true,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "5ef7b55fb6374740c43e7829fe38e648653875f08c7e38bd9049bb0c4668e519",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "44eff4b33ea8da8ed8568935ac0367523c71fdbd42b256a68ed295c4b38f536b",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    },
+    {
+      "journal_identity": "bfb9067e4e3a90407fb68cf20bcbe27a3fc18dce8e07442e1c34e415becdc43a",
+      "source": "PUMPSWAP_MIGRATION_ACCOUNT",
+      "supplied_mint": false,
+      "attempts": 3,
+      "logger_error_count": 3,
+      "canonical_signature_matches": 0,
+      "supplied_mint_core_row_exists": false,
+      "migration_investigation_owner_exists": false,
+      "terminal_error": "RETRY_CEILING"
+    }
+  ],
+  "comparison_five": [
+    {
+      "signature_digest": "62861ec3e94b9aa485852d24a3accd8f05950d223085de73e92915a62cc835fb",
+      "canonical_migration_match": true,
+      "completed_exact_handoff": true,
+      "ops_queue_present": true
+    },
+    {
+      "signature_digest": "a60e4b141876331583987a8972ad156237f25fda897148d9049f0f6622bbd682",
+      "canonical_migration_match": true,
+      "completed_exact_handoff": true,
+      "ops_queue_present": true
+    },
+    {
+      "signature_digest": "ac3f9a4cfeaaccc7b3572be29a831182ad0af9fe9b9a0b87ba9d8154d1b843f3",
+      "canonical_migration_match": true,
+      "completed_exact_handoff": true,
+      "ops_queue_present": true
+    },
+    {
+      "signature_digest": "6aed74ed3a4b9dcc4ce03d60c256356283e8a61727ec6c6d127a3cb99aed3c06",
+      "canonical_migration_match": true,
+      "completed_exact_handoff": true,
+      "ops_queue_present": true
+    },
+    {
+      "signature_digest": "15d13d15aeb5010e15fc10c446a460fb5d0f7d1dbf321fa88f8ba746f3905190",
+      "canonical_migration_match": true,
+      "completed_exact_handoff": true,
+      "ops_queue_present": true
+    }
+  ],
+  "in_memory_exception_boundary_proof": {
+    "outer": "NameError",
+    "outer_message": "name 'logger' is not defined",
+    "masked_context": "BudgetDeferred",
+    "masked_reason": "HELIUS_INVESTIGATION_REQUIRED"
+  },
+  "cause_counts": {
+    "masked_discovery_exception_then_retry_ceiling": 11,
+    "verified_signature_conflict": 0,
+    "proven_provider_returned_incomplete_transaction": 0,
+    "original_exception_not_retained": 11
+  },
+  "deferral_integrity": "Installed discovery wrapper masks BudgetDeferred as NameError, cache returns None, journal cannot reach BUDGET_DEFERRED refund branch. Original per-attempt exception code was not retained; cannot label every masked exception a specific gate refusal. All 11 lack registered migration investigation owners; 7 have no supplied mint, 4 supplied mints have no Core row. Existing origin qualification therefore cannot establish their context.",
+  "minimum_correction": "Preserve typed gate deferrals through discovery RPC before diagnostic logging; use a defined logger; route budget deferrals to existing durable defer_budget without attempt consumption. Keep unattributed work protected and deferred; do not bypass ownership, fabricate mint evidence, or reset/replay exhausted records.",
+  "limits": "Current indexed state and exact retained errors, not provider response reconstruction. Seven signature-only records cannot be mapped to a mint without qualified evidence. Successful comparator identity recovered from retained account notifications plus indexed canonical migrated_at in same fixed window; prior audit independently verified five ACKs (3 PumpSwap, 2 PumpPortal).",
+  "production_changes": 0,
+  "provider_calls": 0,
+  "replay": 0,
+  "failed11_request_accounting": [
+    {
+      "id": "8f3c75915511f8e7a204d36970eb7e7ffcac29d1d5c2c6b491a7b37d2f22eac2",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "2a46fd47ba95ac114a491d4be0a6dc1b73c1992312d74e96c4cccbaacc00e366",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "157ae37c19591a5cfd7e6aa428c043efe76bfdf76bc16bd75bd534998542e627",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "37e3dc18073fd882eb0819b65758bd6eee05c327a214533c972605aebda15363",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "8012c4c1e6894257252a3808487bbd143924a28bec45f58626cddbcf120f25af",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "08e84221c85a8ef89c765e606c99dc0c449242877c80a085ed30de9b780eb571",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "1686888f26b090cbb61694ad8f5e410bc245ca9eb2daca106b19b00d729b88a6",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "64878a2777e940b3807708a12fccdd2ab14e27e58b607ca8182c00c1d900371c",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "5ef7b55fb6374740c43e7829fe38e648653875f08c7e38bd9049bb0c4668e519",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "44eff4b33ea8da8ed8568935ac0367523c71fdbd42b256a68ed295c4b38f536b",
+      "helius_getTransaction_reservations": []
+    },
+    {
+      "id": "bfb9067e4e3a90407fb68cf20bcbe27a3fc18dce8e07442e1c34e415becdc43a",
+      "helius_getTransaction_reservations": []
+    }
+  ],
+  "required_report": {
+    "MIGRATION_EXHAUSTION_STATUS": "COMMON_SOFTWARE_DEFECT_PROVEN; correction not implemented",
+    "FAILURE_CAUSES_BY_COUNT": "11 masked discovery exceptions (7 PumpSwap / 4 PumpPortal); 0 verified canonical signature conflicts; 0 proven provider incomplete transactions. Original per-attempt exceptions unavailable for all11. Categories are not additive.",
+    "HELIUS_DEFERRAL_RETRY_INTEGRITY": "FAIL: deterministic in-memory installed-function proof masks BudgetDeferred as NameError. Existing attempt-refund branch is bypassed. No paid matching transaction reservation for fixed11.",
+    "CANONICAL_MIGRATION_MATCHES": "0/11 exact signature matches; four supplied-mint Core rows absent. Five successful comparator canonical signatures and COMPLETE handoffs verified, OPS queues present.",
+    "COMMON_ROOT_CAUSE": "call_discovery_rpc exception handler uses undefined logger; _get_transaction_cached swallows resulting NameError as None; delayed recheck enters same wrapper; begin_attempt consumes three attempts and overwrites prior code with RETRY_CEILING.",
+    "MINIMUM_CORRECTION": "Preserve typed gate deferrals through discovery RPC before diagnostic logging; use a defined logger; route budget deferrals to existing durable defer_budget without attempt consumption. Keep unattributed work protected and deferred; do not bypass ownership, fabricate mint evidence, or reset/replay exhausted records.",
+    "NEXT_ACTION": "Qualify focused DEV exception-propagation/retry-accounting correction; preserve all11 exhausted records without replay/reset."
+  },
+  "installed_hash_mismatches": []
+}

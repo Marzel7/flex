@@ -1,0 +1,24 @@
+{
+  "candidate": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+  "base_deployed_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "runtime_payload": [
+    {
+      "source": "runtime/listener/src/core/pumpfun_curve_listener.py",
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "preimage_sha256": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+      "candidate_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d"
+    }
+  ],
+  "deployment_scope": "Listener-only source correction. No deployment authorized. Resolver/Walkback, schemas, budget policy and gate state unchanged.",
+  "rollback": "Exact installed listener preimage from immutable455 recovery source is source-compatible: no schema/state migration; keep gate-aware terminal-aware config and all durable evidence. Known original retry defect returns under fallback; never replay/reset protected11.",
+  "configuration_preimage_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+  "required_preflight": "Verify current hashes, disk, matched generation and gate/terminal-aware recovery hash pins against candidate before any separately authorized listener-only activation.",
+  "constraints": {
+    "provider_calls": 0,
+    "production_changes": 0,
+    "exhausted_records_changed": 0,
+    "single_file_limit_bytes": 499000000,
+    "disk_floor_bytes": 2067108864
+  }
+}

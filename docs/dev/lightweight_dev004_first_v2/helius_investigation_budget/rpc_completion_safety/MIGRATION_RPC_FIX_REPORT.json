@@ -1,0 +1,49 @@
+{
+  "FLEX_V2_MIGRATION_RPC_FIX_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "EXACT_SOURCE_DELTA": "One runtime file: runtime/listener/src/core/pumpfun_curve_listener.py. Discovery RPC uses defined log_print and rethrows original exception; critical internal RPC retains exhausted transport exception/HTTP classification; transaction cache propagates errors and distinguishes malformed/RPC-error responses from successful result:null. No schema/config/other-role changes. Two test files changed (new focused regression and retained AST fixture decorator isolation).",
+  "BUDGET_DEFERRAL_PRESERVATION": "BudgetDeferred remains same exception instance through internal transport, discovery RPC and cache; existing handler returns BUDGET_DEFERRED and existing runner calls durable defer_budget.",
+  "RETRY_ATTEMPT_INTEGRITY": "Actual scheduler/handler/real disposable journal test: admitted signature retained, attempts0, HELIUS_BUDGET_DEFERRED, retry_not_before1300, no ACK, duplicate suppressed; reopened journal retains result. Genuine result:null retains bounded acquisition retry. No live exhausted-record reset/replay.",
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "reused_controls_passed": 667,
+    "final_affected_checks_passed": 16,
+    "distinct_passing_controls": 683,
+    "outstanding_failures": 0,
+    "initial_fixture_failures": "First run: 7 missing typing bindings in new AST test harness, 1 retained AST handler missing decorator binding. Corrected fixtures and reran all failed checks plus additional focused controls successfully.",
+    "suite_scope": [
+      "migration completion/journal",
+      "Helius RPC budget",
+      "investigation lifetime budget",
+      "HTTP completion safety",
+      "focused migration RPC exception handling"
+    ],
+    "limits": "Reused controls were not repeated after final cache response validation change; all affected tests rerun. Original deployed crash counterexample intentionally asserts NameError to preserve regression authority."
+  },
+  "CANDIDATE_SHA": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+  "DEPLOYMENT_SCOPE": "One-file listener-only runtime payload. Resolver/Walkback untouched. Preserve current gate-aware terminal-aware configuration and refresh source hash pins during separately authorized preflight. No activation performed.",
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES; not production deployment authorization",
+  "NEXT_ACTION": "Run bounded listener-only deployment preflight against frozen candidate/bundle; verify current preimage, recovery pins, disk, generation and journal safety. Leave11 exhausted records protected; later recovery requires separate qualification/authorization.",
+  "compatibility": {
+    "installed_listener_preimage": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+    "candidate_listener_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+    "matched_generation": "DEV004-V2-20261024-dfb76562",
+    "installed16_source_hashes_match": true,
+    "configuration_hash_match": true,
+    "paired_store_file_identities_match": true,
+    "workers_running": {
+      "listener": 99111,
+      "resolver": 99140,
+      "walkback": 99159
+    },
+    "gate_observed": "OPEN",
+    "lifetime_credit_limit": 100000,
+    "production_gate_changes": 0,
+    "protected11_unchanged": true,
+    "rollback": "Exact installed preimage is source/schema compatible and gate/terminal aware; retains known retry defect. No evidence deletion or replay.",
+    "disk_free_bytes": 4537102336,
+    "disk_floor_bytes": 2067108864
+  },
+  "remaining_limitation": "This fixes erroneous retry consumption, not missing origin/mint authority. Such work remains protected/deferred; no budget ownership bypass introduced.",
+  "production_changes": 0,
+  "provider_calls": 0,
+  "created_at_utc": "2026-10-27T00:22:02.616827+00:00"
+}

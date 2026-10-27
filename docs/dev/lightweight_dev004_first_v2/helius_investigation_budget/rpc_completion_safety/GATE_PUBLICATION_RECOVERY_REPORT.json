@@ -1,0 +1,132 @@
+{
+  "FLEX_V2_GATE_RECOVERY_STATUS": "PASS",
+  "EXACT_PUBLICATION_FAILURE": {
+    "marker": "PENDING_V1",
+    "stage_absent": true,
+    "preimage_sha256": "7d2b220cb13a344931dc6805d931e42101b7d3a9f532ac7c6d01d243a4469432",
+    "durable_state_matches_two_retained_snapshots": true,
+    "interrupted_operation_outcome": "UNPROVEN; no provider failure, success or billing state inferred",
+    "mechanism": "Existing owner marks PENDING before disk-floor check/staging. The marker alone cannot identify which later publication step failed. Recovery commits an explicitly conservative denial, never an inferred old OPEN allowance."
+  },
+  "SPENDING_HISTORY_PRESERVATION": {
+    "reserved_credits": 63609,
+    "all_original_fields_preserved_except_state": true,
+    "inflight": 0,
+    "review_held_requests": 3,
+    "lifetime_limit": 100000,
+    "refunds": 0,
+    "retry_reset": false
+  },
+  "RECOVERY_QUALIFICATION": {
+    "synthetic_controls_passed": 14,
+    "exact_retained_state_fixture_controls_passed": 14,
+    "production_owner_source_changed": false,
+    "operator_tool_sha256": "23a8d94651d10541feed88bb16efb8cf49e95ea5cba3cb1e6f02ac4c33b568ff",
+    "test_sha256": "6187f5c8840ab147e02e863df5bc1ef1cbe575bc451a7a1362a2c2d28a9931a7",
+    "faults": "active owner, unresolved stage/reservation, corrupt/mismatched state/snapshot, wrong generation, budget mismatch, repeat recovery, four fsync boundaries; blocked network"
+  },
+  "PRODUCTION_RECOVERY_RESULT": {
+    "state": "PAYMENT_DENIED",
+    "publication_checksum_verified": true,
+    "after_sha256": "b39b8a611160b739fb6676d1d05703014e4b7c08a0f1baf17bf5d8bf5b212507",
+    "probe_authorized": false,
+    "coordinated_quiescence_required": true,
+    "unrelated_supervisor_pending_changes_not_applied": true
+  },
+  "LISTENER_STATUS": {
+    "watchtower_listener": {
+      "state": "RUNNING",
+      "pid": 61732
+    },
+    "creator_resolution_worker": {
+      "state": "RUNNING",
+      "pid": 61516
+    },
+    "walkback_worker": {
+      "state": "RUNNING",
+      "pid": 61539
+    }
+  },
+  "JOURNAL_CAPACITY_BEFORE_AFTER": {
+    "before_occupied": 512,
+    "after_verified_transfer": 1,
+    "after_five_minutes_occupied": 308,
+    "after_five_minutes_free": 204,
+    "maximum": 512
+  },
+  "DEFERRED_RECORDS_TRANSFERRED": 511,
+  "TRANSFER_INTEGRITY": {
+    "batches": 26,
+    "maximum_batch": 20,
+    "source_originals_accounted": 512,
+    "exact_transfer_equivalence": true,
+    "protected_exhausted_unchanged": 1319,
+    "budget_deferred_zero_attempts_preserved": 478,
+    "due_index": "migration_deferred_due_v1 covering index; actual checkout transitions observed",
+    "quota_records": 8192,
+    "quota_bytes": 64000000
+  },
+  "NATURAL_INTAKE_ACCEPTANCE": {
+    "status": "PASS",
+    "observation_seconds": 301.7933838367462,
+    "started_at_utc": "2026-10-27T20:44:18.934040+00:00",
+    "ended_at_utc": "2026-10-27T20:49:32.456528+00:00",
+    "new_migration_admissions": 7,
+    "new_migration_states": {
+      "PENDING": 7
+    },
+    "committed_natural_births": 71,
+    "birth_receipts": 73,
+    "noncommitted_births_protected": [
+      {
+        "receipt_outcome": "RETRY_PENDING",
+        "journal_state": "QUARANTINED",
+        "acknowledged": false
+      },
+      {
+        "receipt_outcome": "RETRY_PENDING",
+        "journal_state": "QUARANTINED",
+        "acknowledged": false
+      }
+    ],
+    "subscriptions": {
+      "pumpportal": true,
+      "pumpswap": false
+    },
+    "listener_segment_error_counts": {
+      "JOURNAL_CAPACITY": 0,
+      "ADMISSION_REFUSED": 0,
+      "name 'logger' is not defined": 0,
+      "Traceback": 0
+    },
+    "stable_worker_pids": true
+  },
+  "STORAGE": {
+    "minimum_sampled_free_bytes": 4118016000,
+    "floor_plus_reserve_bytes": 2067108864,
+    "databases": {
+      "core": {
+        "bytes": 79761408,
+        "wal_bytes": 0
+      },
+      "ops": {
+        "bytes": 161955840,
+        "wal_bytes": 0
+      }
+    },
+    "kernel_file_cap_bytes": 499000000,
+    "wal_guarantee": "Sampled/cooperative threshold, not absolute size guarantee"
+  },
+  "INSTALLED_SOURCE": {
+    "candidate": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+    "activation_plan_sha256": "77c44fd2f8c8a128dab0d4181ea989f216c5d20122a5854e962fdd037cd5304d",
+    "schema": "two tables, six triggers, one due index verified",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "deferred_flag": "listener only, 1",
+    "rollback": "Exact deferred-aware forward profile/fresh matched pair only; old7dd and flag0 forbidden"
+  },
+  "PROVIDER_TEST_CALLS": 0,
+  "EXHAUSTED_REPLAY": false,
+  "NEXT_ACTION": "Leave workers running and conservative gate closed. Helius-dependent PumpSwap/resolver/Walkback acquisition remains paused; any restoration uses the explicit controlled gate procedure, not this no-probe recovery."
+}

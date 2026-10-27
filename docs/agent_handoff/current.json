@@ -37031,8 +37031,8 @@
     "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T20:57:49.304872+00:00",
-    "working_tree": "Controlled restoration HOLD: one probe issued, local finalization TypeError lost durable validation receipt. Gate closed, one credit retained, dead probe owner reconciled uncertain without refund; all three workers RUNNING. Replacement probe needs separate authorization."
+    "updated_at_utc": "2026-10-27T21:09:02.402682+00:00",
+    "working_tree": "Replacement probe PASS with durable validation, then critical disk floor breach during natural acceptance: gate PENDING_V1 fail-closed. All workers RUNNING; one live reservation protected; no further probes/replay/reset."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46999,5 +46999,70 @@
     "reserved_credits_total": 63610,
     "exhausted_replay": false,
     "source_schema_configuration_changes": 0
+  },
+  "flex_v2_helius_authorized_replacement_restoration": {
+    "status": "HOLD",
+    "verdict": "REPLACEMENT_PROBE_PASS_RESTORATION_INTERRUPTED_BY_STORAGE_FLOOR_AND_AMBIGUOUS_PUBLICATION",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "provider_free_tests": 5,
+    "replacement_provider_requests": 1,
+    "extra_test_requests": 0,
+    "probe_http_status": 200,
+    "probe_usable_transaction_verified": true,
+    "validation_durably_recorded_before_finalization": true,
+    "validation_sha256": "94c92d314f0b080ba06fbfe49e4ee17fc113c6c7f92c375273e5bcc8670bf65d",
+    "validation_evidence_local": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/helius-replacement-20261027/validation.json",
+    "initial_restoration_state": "OPEN",
+    "pumpswap_logsSubscribe_confirmed": true,
+    "resolver": "RUNNING; fresh heartbeat, zero eligible pending jobs",
+    "walkback": "RUNNING; natural accounted acquisition resumed",
+    "services": {
+      "listener": 61732,
+      "resolver": 61516,
+      "walkback": 61539
+    },
+    "service_restarts": 0,
+    "final_effective_gate": "FAIL_CLOSED_PUBLICATION_AMBIGUOUS",
+    "raw_json_state_not_authority": "OPEN",
+    "publication_marker": "PENDING_V1",
+    "stage_absent": true,
+    "disk_free_bytes": 1457991680,
+    "required_floor_bytes": 2067108864,
+    "raw_reserved_credits": 63877,
+    "raw_reserved_credit_delta_since_before_replacement": 267,
+    "spending_history_preserved": true,
+    "lifetime_limit": 100000,
+    "review_held_requests": 4,
+    "raw_inflight_reservations_protected": 1,
+    "last_successful_observation_sample": {
+      "elapsed_seconds": 271.9,
+      "state": "OPEN",
+      "request_reservations_since_before_probe": 249,
+      "reserved_credits_delta": 249,
+      "maximum_investigation_credits": 7642,
+      "inflight": 0,
+      "oldest_inflight_seconds": 0,
+      "journal_records": 496,
+      "new_migration_identities_seen": 2,
+      "disk_free_bytes": 2554994688,
+      "services": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 61732
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 61516
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 61539
+        }
+      }
+    },
+    "no_exhausted_replay_or_retry_reset": true,
+    "blocker": "Available disk fell below required floor; existing gate publication interrupted and now fail-closed. Do not infer provider outcome from PENDING marker. One live-owner reservation remains protected.",
+    "next_action": "Restore verified disk above 2GB+64MiB plus recovery reserve, then perform evidence-verified gate publication recovery preserving the live/uncertain reservation and all spending. No automatic additional probe or marker clearing."
   }
 }

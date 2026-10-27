@@ -1,0 +1,176 @@
+{
+  "window_utc": [
+    "2026-10-27T01:40:00Z",
+    "2026-10-27T07:40:00Z"
+  ],
+  "observed_at_utc": "2026-10-27T07:45:08.117766+00:00",
+  "migrations": {
+    "canonical_migrated_at_in_window": 115,
+    "handoff_states": {
+      "COMPLETE_EXACT_SIGNATURE": 115
+    },
+    "anchor_states": {
+      "VALID": 109,
+      "MISSING_OR_MALFORMED": 6
+    },
+    "index_entries_examined": 7226,
+    "query_plan": [
+      [
+        4,
+        0,
+        0,
+        "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migration_tx (migration_tx>?)"
+      ]
+    ],
+    "definition": "Canonical migrated_at window, not proven physical commit-time census; exact indexed signatures and handoffs read back."
+  },
+  "births": {
+    "retained_receipts_received_in_window": 3541,
+    "unique_mints": 3509,
+    "receipt_outcomes": {
+      "COMMITTED": 3492,
+      "RETRY_PENDING": 49
+    },
+    "committed_receipt_core_matches": 3492,
+    "exact_creator_signature_matches": 3492,
+    "metadata_entries_examined": 145102,
+    "recent_payloads_examined": 3854,
+    "definition": "Retained receipt reception timestamps; recent-file metadata prefilter only, per-record timestamp qualification. Counts are retained evidence, not guaranteed all notifications delivered by provider.",
+    "unique_receipt_identities": 3541,
+    "unique_committed_mints": 3492,
+    "unique_retry_mints": 17,
+    "retry_mints_also_committed": 0,
+    "canonical_created_at_in_window": 3492,
+    "unknown_canonical_created_at": 0,
+    "committed_receipts_ack_timestamp_in_window": 3492
+  },
+  "creator_resolution": {
+    "current_states": {
+      "complete": 241,
+      "skipped": 376
+    },
+    "new_jobs_in_window": 0,
+    "completed_in_window": 0,
+    "updated_rows_in_window": 0
+  },
+  "walkback": {
+    "current_states": {
+      "complete": 1862,
+      "failed": 6,
+      "pending": 47,
+      "waiting": 1550
+    },
+    "new_jobs_in_window": 115,
+    "completed_in_window": 88,
+    "updated_rows_in_window": 96,
+    "completed_outcomes": {
+      "LINEAGE_GAP": 29,
+      "NO_ATTRIBUTION_FOUND": 59
+    },
+    "new_job_states_now": {
+      "complete": 86,
+      "pending": 29
+    }
+  },
+  "CREATE_delivery": {
+    "current_states": {
+      "ACK": 1431,
+      "BLOCKED": 20
+    },
+    "acked_in_window": 109,
+    "acked_sources": {
+      "PUMPPORTAL": 109
+    }
+  },
+  "journals": {
+    "migration": {
+      "current_count": 512,
+      "current_states": {
+        "RESOLVED": 1,
+        "RETRY_EXHAUSTED": 486,
+        "QUARANTINED": 22,
+        "ACKED": 3
+      },
+      "retained_received_window": {
+        "PUMPSWAP_MIGRATION_ACCOUNT:RETRY_EXHAUSTED": 201,
+        "PUMPPORTAL_MIGRATION:RETRY_EXHAUSTED": 116,
+        "PUMPPORTAL_MIGRATION:QUARANTINED": 15,
+        "PUMPPORTAL_MIGRATION:ACKED": 1,
+        "PUMPSWAP_MIGRATION_ACCOUNT:ACKED": 1
+      }
+    },
+    "birth": {
+      "current_count": 499,
+      "current_states": {
+        "QUARANTINED": 104,
+        "ACKED": 395
+      },
+      "retained_received_window": {}
+    }
+  },
+  "retained_migration_log": {
+    "tail_bytes_examined": 33554432,
+    "covers_window_start": true,
+    "undefined_logger_errors": 1204,
+    "delayed_rechecks_failed": 1012,
+    "failed_extract_signature_identities": 398
+  },
+  "gate_now": {
+    "state": "OPEN",
+    "inflight": 0,
+    "lifetime_limit": 100000,
+    "reserved_credits_total": 26857,
+    "highest_investigation_spend": 3345
+  },
+  "disk_free_bytes": 4094885888,
+  "production_changes": 0,
+  "provider_calls": 0,
+  "migration_notifications_retained": {
+    "distinct_in_window": 332,
+    "states": {
+      "RETRY_EXHAUSTED": 317,
+      "QUARANTINED": 15
+    },
+    "source_states": {
+      "PUMPSWAP_MIGRATION_ACCOUNT:RETRY_EXHAUSTED": 201,
+      "PUMPPORTAL_MIGRATION:RETRY_EXHAUSTED": 116,
+      "PUMPPORTAL_MIGRATION:QUARANTINED": 15
+    },
+    "terminal_only_in_window": 0,
+    "terminal_population_examined": 1272,
+    "limit": "ACKed records can be safely reclaimed without terminal copies; this notification census is retained protected evidence, not total received notifications."
+  },
+  "service_history": {
+    "listener": {
+      "pid": 99111,
+      "current": "RUNNING",
+      "restarts_in_window": 0
+    },
+    "resolver": {
+      "pid": 76370,
+      "current": "RUNNING",
+      "restarts_in_window": 1,
+      "exit_utc": "2026-10-27T05:47:17.066Z",
+      "exit_status": 0,
+      "spawn_utc": "2026-10-27T05:47:18.073Z",
+      "RUNNING_utc": "2026-10-27T05:47:23.371Z"
+    },
+    "walkback": {
+      "pid": 99159,
+      "current": "RUNNING",
+      "restarts_in_window": 0
+    }
+  },
+  "status": "PARTIAL_OPERATIONAL_PROGRESS_WITH_RETRY_ERRORS",
+  "interpretation": {
+    "uptime": "Listener/Walkback stable across window; resolver one expected exit0 and Supervisor replacement05:47UTC. Process uptime is not proof of complete processing.",
+    "births": "3492distinct canonical births with exact creator/signature receipt matches and receipt acknowledgement inside window.49retry receipts refer to17distinct mints; not49missing births.",
+    "migrations": "115canonical migrated_at timestamps in window, all exactCOMPLETEhandoffs;109VALIDcurrentCREATEanchors and6missing/malformed. Commit-time availability at handoff is not established by this metric.",
+    "retry_errors": "317distinct retained exhausted notifications (201PumpSwap,116PumpPortal);15quarantined. Not equivalent to317distinct tokens or proven lost migrations. Current known logger defect remains installed;1204undefined-logger log lines in window.",
+    "Walkback": "88terminal job completions:59NO_ATTRIBUTION_FOUND,29LINEAGE_GAP; notconfirmed attribution.115newenqueues,86ofthose nowcomplete,29pending.",
+    "rpc": "User screenshot reports20.7Krequests with100%HTTP/RPCsuccess; does not establish application-level completion or billedcredits."
+  },
+  "next_action": "Separately authorize the already-qualified listener/recovery correction after fresh safety checks; keep exhausted records protected and do not replay/reset. No implementation/deployment performed in audit.",
+  "installed_hash_mismatches": [],
+  "runtime_source": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1"
+}

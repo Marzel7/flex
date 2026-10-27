@@ -1,0 +1,72 @@
+{
+  "FLEX_V2_FUNDER_CHECK_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "EXACT_SOURCE_DELTA": {
+    "path": "runtime/walkback/src/core/walkback_worker.py",
+    "base_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_preimage_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+    "candidate_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+    "runtime_files_changed": 1,
+    "function": "promote_recurring_funders",
+    "behaviour": "Catch only typed BudgetDeferred with exact HELIUS_INVESTIGATION_REQUIRED at optional account-owner check; retain evidence, emit deferral, continue to remaining candidates. All other errors preserve existing propagation."
+  },
+  "BATCH_CONTINUITY": "Actual runtime drain_batch returns its completed summary after unowned optional candidates defer; later known candidates still receive existing local updates.",
+  "OPTIONAL_CHECK_DEFERRAL": {
+    "deferred_unknown_candidates_not_inserted_or_promoted": true,
+    "existing_rejected_candidate_retained": true,
+    "queue_evidence_and_retry_counts_unchanged": true,
+    "durable_state": "Existing completed queue evidence remains untouched; no new queue/store/timer and no terminal acknowledgement is introduced. Repeated calls can retry the optional check but cannot reach provider without ownership."
+  },
+  "INVESTIGATION_OWNERSHIP": {
+    "new_or_borrowed_owner_assignment": false,
+    "owned_acquisition": "Existing resume_investigation requires an immutable durable alias; fixture valid owned check charges its existing root exactly once.",
+    "lifetime_limit": 100000,
+    "spending_history_preserved": true,
+    "gate_source_and_policy_changed": false,
+    "other_BudgetDeferred_and_integrity_failures": "Propagate unchanged; not silently converted to negative ownership or promotion."
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 19,
+    "failed": 0,
+    "new_focused_controls": 17,
+    "reused_shared_owner_controls": 2,
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider tests/test_v2_optional_funder_deferral.py tests/test_v2_helius_investigation_budget.py::test_child_wallet_work_cross_worker_restart_cannot_change_owner tests/test_v2_helius_investigation_budget.py::test_changed_investigation_ids_and_repeated_launch_do_not_reset",
+    "network": "Socket connect and create_connection forbidden by fixture; fake responses run through actual admission and ledger owners.",
+    "reproduced_case_shapes": [
+      {
+        "creator_count": 2,
+        "funding_mechanism": "PLAIN_XFER",
+        "existing_candidate_state": null
+      },
+      {
+        "creator_count": 2,
+        "funding_mechanism": "PLAIN_XFER",
+        "existing_candidate_state": null
+      }
+    ],
+    "coverage": [
+      "Exact unowned cases",
+      "Real batch continuation",
+      "Durably owned acquisition",
+      "Restart/repeated processing",
+      "No duplicate transport dispatch",
+      "Rejected/infrastructure/treasury exclusions",
+      "No unowned promotion",
+      "Other typed deferrals retain identity",
+      "Integrity errors not swallowed",
+      "Unchanged row attribution function",
+      "Unchanged child-owner history and rebinding refusal"
+    ]
+  },
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES_ONLY",
+  "PRODUCTION_CHANGES": 0,
+  "PROVIDER_CALLS": 0,
+  "SERVICE_RESTARTS": 0,
+  "EXHAUSTED_REPLAY": false,
+  "STORAGE": {
+    "free_bytes": 5082030080,
+    "no_database_copies": true,
+    "new_files_under_500MB": true
+  },
+  "CANDIDATE_SHA_AUTHORITY": "Immutable engineering commit containing this report and exact payload; recorded in verified agent-handoff and final response.",
+  "NEXT_ACTION": "Run bounded read-only Walkback-only deployment preflight for the immutable candidate, verifying installed preimage, exact source payload, matching recovery hash pins/fallback, runtime generation, queue and storage safety. No deployment under this milestone."
+}

@@ -1736,7 +1736,18 @@ def promote_recurring_funders(ops: sqlite3.Connection) -> int:
         # Skip program-owned accounts (ATAs, PDAs, pools) — 1cr per NEW candidate only
         if not _is_known_subprov(ops, fw):
             rpc_dummy = [0]
-            if _is_program_owned(fw, rpc_dummy):
+            from src.core.helius_denial_gate import BudgetDeferred
+            try:
+                program_owned = _is_program_owned(fw, rpc_dummy)
+            except BudgetDeferred as exc:
+                if str(exc) != "HELIUS_INVESTIGATION_REQUIRED":
+                    raise
+                # Optional post-batch work has no right to invent or borrow
+                # an owner. Retain the candidate and defer only this check.
+                print(f"[WALKBACK] recurring funder {fw[:14]}… ownership check deferred: "
+                      "HELIUS_INVESTIGATION_REQUIRED", flush=True)
+                continue
+            if program_owned:
                 print(f"[WALKBACK] recurring funder {fw[:14]}… is program-owned — skipped",
                       flush=True)
                 continue

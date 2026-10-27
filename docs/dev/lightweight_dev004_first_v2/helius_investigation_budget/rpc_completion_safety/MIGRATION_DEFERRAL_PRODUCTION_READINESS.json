@@ -1,0 +1,221 @@
+{
+  "FLEX_V2_MIGRATION_DEFERRAL_PREFLIGHT": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "EXACT_SOURCE_DELTA": {
+    "listener_candidate": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+    "composed_source": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "runtime_files": [
+      "runtime/listener/src/core/pumpfun_curve_listener.py"
+    ],
+    "recovery_delta": "Two exact listener pins in existing production_control.py, terminal+Helius; no other source/policy/schema changes. Existing qualified delta reused, not reapplied or expanded.",
+    "installed_listener_sha256": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+    "candidate_listener_sha256": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d"
+  },
+  "INSTALLED_PREIMAGE_MATCH": {
+    "all16_installed_source_hashes_match": true,
+    "configuration_match": true,
+    "bundle_runtime_hashes_match": true,
+    "recovery_renderer_hash_matches": true
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 62,
+    "failed": 0,
+    "scope": [
+      "15focusedRPCexceptionchecks",
+      "3exactcandidate/fallbackpinchecks",
+      "31Heliusrecoverychecks",
+      "13terminalrecoverychecks"
+    ],
+    "command": "python -m pytest -q tests/test_v2_migration_rpc_exception.py tests/test_v2_migration_rpc_recovery_pins.py tests/test_v2_helius_recovery_config.py tests/test_v2_terminal_recovery_config.py",
+    "preserved": "TypedBudgetDeferred, durable attempt refund/restart, genuine missingresult boundedretry, exception/RPCerror classification, canonical/handoff protection, exact fallback, fresh-pair policy/owner/spending continuity. Prior unaffected completion/budget controls reused."
+  },
+  "CURRENT_EXHAUSTED_POPULATION": {
+    "at_utc": "2026-10-27T07:51:32.167144+00:00",
+    "journal_exhausted": 474,
+    "terminal_exhausted": 839,
+    "distinct_exhausted": 1313,
+    "overlap": 0,
+    "journal_total": 498
+  },
+  "DEPLOYMENT_SCOPE": "Listener-only restart. Exact approved listener plus frozen recovery renderer/immutable source-plan metadata staged coherently. Resolver/Walkback stay running, no source/config changes for those roles. No activation performed.",
+  "ROLLBACK_COMPATIBILITY": "Explicit exact455source+455renderer+current-key gate/terminal-aware configuration remains verified; never mix listener/renderer profiles. Preserve latest gate counters, terminal evidence and protected records. Known retry defect returns under fallback. No database rollback/retry reset.",
+  "frozen_bundle_sha256": "2abc16d7d6b335fd401fe05312552d8b4badfa9574a8ebc33e2a8e2629202520",
+  "live_preflight": {
+    "at_utc": "2026-10-27T07:50:21.430123+00:00",
+    "installed_source_mismatches": [],
+    "configuration_match": true,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "pair_file_identities_match": true,
+    "disk_free_bytes": 4100091904,
+    "disk_floor_bytes": 2067108864,
+    "gate": {
+      "state": "OPEN",
+      "lifetime_limit": 100000,
+      "current_inflight": 1,
+      "uncertain_requests_held": 3,
+      "reserved_credits_total": 27197
+    },
+    "journals": {
+      "migration": {
+        "records": 498,
+        "states": {
+          "RESOLVED": 1,
+          "RETRY_EXHAUSTED": 472,
+          "QUARANTINED": 23,
+          "PENDING": 2
+        },
+        "bytes": 280786,
+        "immediate_free_slots": 14,
+        "unpublished_tmp_exists": false
+      },
+      "birth": {
+        "records": 504,
+        "states": {
+          "QUARANTINED": 104,
+          "ACKED": 400
+        },
+        "bytes": 462388,
+        "immediate_free_slots": 8,
+        "unpublished_tmp_exists": false
+      }
+    },
+    "databases": {
+      "core": {
+        "read": "OK",
+        "bytes": 68141056,
+        "wal_bytes": 0
+      },
+      "ops": {
+        "read": "OK",
+        "bytes": 160227328,
+        "wal_bytes": 0
+      }
+    },
+    "protected11_unchanged": true,
+    "terminal": {
+      "migration_terminal_owner_v1": [
+        1272,
+        1425251
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "candidate_aware_pins_match": true,
+    "fallback": {
+      "immutable_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+      "immutable_root_verified": true,
+      "renderer_sha256": "673df320cac898fa7e232dbc5a40c0ee35a73ae359bccd85b2d0add10f9db142",
+      "current_configuration_preimage_verified": true
+    },
+    "production_changes": 0,
+    "provider_calls": 0,
+    "replay": 0,
+    "fixed11_preservation": [
+      {
+        "id": "8f3c75915511f8e7a204d36970eb7e7ffcac29d1d5c2c6b491a7b37d2f22eac2",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "2a46fd47ba95ac114a491d4be0a6dc1b73c1992312d74e96c4cccbaacc00e366",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "157ae37c19591a5cfd7e6aa428c043efe76bfdf76bc16bd75bd534998542e627",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "37e3dc18073fd882eb0819b65758bd6eee05c327a214533c972605aebda15363",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "8012c4c1e6894257252a3808487bbd143924a28bec45f58626cddbcf120f25af",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "08e84221c85a8ef89c765e606c99dc0c449242877c80a085ed30de9b780eb571",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "1686888f26b090cbb61694ad8f5e410bc245ca9eb2daca106b19b00d729b88a6",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "64878a2777e940b3807708a12fccdd2ab14e27e58b607ca8182c00c1d900371c",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "5ef7b55fb6374740c43e7829fe38e648653875f08c7e38bd9049bb0c4668e519",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "44eff4b33ea8da8ed8568935ac0367523c71fdbd42b256a68ed295c4b38f536b",
+        "unchanged": true,
+        "location": "journal"
+      },
+      {
+        "id": "bfb9067e4e3a90407fb68cf20bcbe27a3fc18dce8e07442e1c34e415becdc43a",
+        "unchanged": true,
+        "location": "journal"
+      }
+    ],
+    "fixed11_all_preserved": true,
+    "exhausted_current_journal": 472,
+    "exhausted_terminal": 839,
+    "terminal_schema_verified_rows": [
+      [
+        "VERIFIED",
+        1272
+      ]
+    ],
+    "frozen_bundle_sha256": "2abc16d7d6b335fd401fe05312552d8b4badfa9574a8ebc33e2a8e2629202520",
+    "frozen_source_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "frozen_payload_hashes_match": true,
+    "renderer_hash_matches": true,
+    "runtime_file_deltas_from455": [
+      "runtime/listener/src/core/pumpfun_curve_listener.py"
+    ],
+    "exhausted_distinct_current": 1313,
+    "exhausted_overlap": 0,
+    "exhausted_latest_snapshot": {
+      "at_utc": "2026-10-27T07:51:32.167144+00:00",
+      "journal_exhausted": 474,
+      "terminal_exhausted": 839,
+      "distinct_exhausted": 1313,
+      "overlap": 0,
+      "journal_total": 498
+    }
+  },
+  "services": {
+    "listener": {
+      "pid": 99111,
+      "state": "RUNNING"
+    },
+    "resolver": {
+      "pid": 76370,
+      "state": "RUNNING"
+    },
+    "walkback": {
+      "pid": 99159,
+      "state": "RUNNING"
+    }
+  },
+  "capacity_assessment": "Migration498/512 with14immediate slots, birth504/512 with8slots at07:50UTC. Existing bounded automatic verified reclamation preserved. Terminal1272/8192records and1.43MB/64MB; disk4.10GB above2GB+64MiB. No journal/tmp mutation or live reclamation initiated. Recheck immediate capacity on separately authorized deployment.",
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
+  "NEXT_ACTION": "Authorize exact frozen listener/recovery bundle separately; recheck preimages, disk and immediate capacity before activation. Preserve all exhausted records; no replay/reset.",
+  "production_changes": 0,
+  "provider_calls": 0,
+  "service_restarts": 0,
+  "tests_network": "blocked disposable fixtures",
+  "new_single_file_500MB_or_more": false,
+  "created_at_utc": "2026-10-27T07:52:14.559848+00:00"
+}

@@ -1,0 +1,154 @@
+{
+  "FLEX_V2_HELIUS_GATE_BUSY_TRACE_STATUS": "PARTIAL \u2014 lock holder and failing Walkback path confirmed; owning listener high-level Python frame unavailable",
+  "CONFIRMED_LOCK_OWNER": {
+    "correlated_failure_utc": "2026-10-27T23:34:19.324000+00:00",
+    "victim_pid": 4522,
+    "holder_pid": 70897,
+    "holder_service": "watchtower_listener",
+    "holder_fd": "14",
+    "kernel_flags": "0x4007",
+    "owner_receipt": {
+      "epoch": 1793144059.3183732,
+      "duration_ms": 12.211,
+      "fcntl_query_before": [
+        -1,
+        3
+      ],
+      "fcntl_query_after": [
+        -1,
+        3
+      ],
+      "owners_from_acquired_fd_flags": [
+        {
+          "pid": 70897,
+          "fd": "14",
+          "flags": "0x4007;0x2"
+        }
+      ],
+      "stage_write_pids": [],
+      "publication_marker": "READY"
+    },
+    "timing_contract": "Read-only OS sample begins5.63ms before the retained failure and spans it. F_GETLK reports an exclusive BSD lock before/after; per-descriptor acquired-lock flags identify listener70897. This is a contemporaneous observation, not attribution of every historical failure.",
+    "other_observed_holders": {
+      "4522": 41,
+      "70897": 61
+    }
+  },
+  "OWNER_OPERATION": {
+    "confirmed": "Acquired gate descriptor and same-process read-only descriptor for the published JSON state observed together.",
+    "read_phase_sample_counts_by_pid": {
+      "4522": 90,
+      "70897": 17
+    },
+    "source_operation": "Gate.locked(LOCK_EX) -> Gate.read -> JSON decode with duplicate-key check -> complete _budget2 validation",
+    "state_validation_cost": {
+      "coherent_unlocked_gate_reads": 2,
+      "publication_races_rejected": 10,
+      "state_bytes": 1805619,
+      "roots": 415,
+      "owner_aliases": 868,
+      "request_keys": 6573,
+      "read_validate_ms_in_audit_process": {
+        "minimum": 20.796,
+        "median": 21.092,
+        "maximum": 21.388
+      },
+      "measurement_limit": "Audit-process validation cost, not a direct measurement of the production holder duration. No flock acquired.",
+      "state": "OPEN",
+      "lifetime_credit_limit": 100000,
+      "inflight": 1,
+      "highest_investigation_credits": 7936
+    },
+    "source_locations": [
+      "runtime/walkback/src/core/helius_denial_gate.py:32",
+      "runtime/walkback/src/core/helius_denial_gate.py:41",
+      "runtime/walkback/src/core/helius_denial_gate.py:156",
+      "runtime/walkback/src/core/helius_denial_gate.py:462",
+      "runtime/walkback/src/core/helius_denial_gate.py:521"
+    ],
+    "repeated_read_examples": [
+      "gate.current() exclusively locks and validates the full file",
+      "budget_version() repeats the exclusive full-file read",
+      "investigation_owner() exclusively reads and then validates the budget again",
+      "Walkback _rpc() performs current() and owner verification even for a memo hit"
+    ],
+    "limit": "Native stack samples confirm JSON parsing activity; they do not identify the owning listener high-level Python callback. No claim is made that one owner held continuously for the entire sampling interval."
+  },
+  "EXACT_FAILING_WALKBACK_PATH": {
+    "path": [
+      "run_loop",
+      "drain_batch",
+      "promote_recurring_funders",
+      "_is_program_owned",
+      "_get_account_owner",
+      "_rpc / subsequent HTTP-admission validation",
+      "gate.current",
+      "Gate.locked",
+      "fcntl.flock(LOCK_EX | LOCK_NB)",
+      "BudgetDeferred(HELIUS_GATE_BUSY)"
+    ],
+    "rethrow": "promote_recurring_funders catches only HELIUS_INVESTIGATION_REQUIRED and rethrows this different BudgetDeferred at line1823.",
+    "consequence": "The batch summary has already been printed; optional post-batch work raises, drain_batch does not return normally, and run_loop emits queue_claim_attempted then cycle_completed failure. Subsequent heartbeat/projection/review work in that cycle is skipped. Canonical rows already committed are not rolled back.",
+    "retained_gate_busy_cycle_failures_examined": 22,
+    "all_after_distinct_completed_batch_summaries": true,
+    "batch_summary_to_failure_line_distances": {
+      "1": 16,
+      "5": 6
+    },
+    "precise_branch_limit": "Retained logs do not distinguish the first current() in _rpc from the later current() in HTTP admission; both acquire the same nonblocking exclusive gate before optional unowned work is rejected.",
+    "source_locations": [
+      "runtime/walkback/src/core/walkback_worker.py:1819",
+      "runtime/walkback/src/core/walkback_worker.py:1925",
+      "runtime/walkback/src/core/helius_http_protection.py:111"
+    ]
+  },
+  "PER_JOB_DEFERRAL_PATH": {
+    "path": "_process_row -> _rpc / gate and ownership checks -> HELIUS_GATE_BUSY -> pending with existing300s retry delay and budget-only claim refund",
+    "distinct_from_optional_cycle_abort": true,
+    "limit": "This audit does not assign a historical holder PID to every per-job deferral."
+  },
+  "KERNEL_ATTRIBUTION_VALIDATION": {
+    "disposable_fixture_only": true,
+    "F_GETLK": "Detects BSD exclusive lock but returns pid=-1; it alone cannot identify the owner.",
+    "lsof_lock_column": "Blank for flock on this host; not used as proof of unlocked state.",
+    "openflags": "0x4000 records an acquired advisory lock and remains set after explicit unlock. For the exact verified Gate.locked implementation, no explicit LOCK_UN exists: each fresh fd is acquired then closed in finally. Acquired flag on its still-open descriptor therefore identifies the live lock context. Ordinary open descriptors were not equated with ownership.",
+    "production_gate_lock_acquired_by_audit": false
+  },
+  "CURRENT_AUTHORITY": {
+    "installed_walkback_source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "all_three_gate_source_hashes_verified": true,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": "watchtower_listener              RUNNING   pid 70897, uptime 2:26:42\ncreator_resolution_worker        RUNNING   pid 70926, uptime 2:26:32\nwalkback_worker                  RUNNING   pid 4522, uptime 0:35:56",
+    "gate_state": "OPEN",
+    "lifetime_credit_limit": 100000,
+    "highest_investigation_credits": 7936,
+    "inflight": []
+  },
+  "MINIMUM_CORRECTION_RECOMMENDATION": {
+    "immediate_scope": "Qualify deferring HELIUS_GATE_BUSY only within the existing optional recurring-funder check, preserving the candidate and continuing rather than aborting a completed batch. Do not borrow an investigation owner or relax other integrity exceptions.",
+    "separate_throughput_scope": "Per-job gate contention also needs a focused provider-free qualification of bounded acquisition waiting/retry and/or coherent reuse of already validated state in the existing gate owner. Preserve durable reservation-before-dispatch and publication/accounting guards; do not remove locking or reset history.",
+    "implemented": false
+  },
+  "EVIDENCE_LIMITATIONS": [
+    "Python-level owning-listener stack dump requires root on macOS; noninteractive sudo was unavailable. No password was requested, stored or exposed.",
+    "No per-thread gate-holder audit exists in retained logs. The listener application callback above Gate.read is unverified; unrelated historical events are not attributed by proximity.",
+    "OS samples are not a continuous trace; no absolute maximum hold duration or sampled-time percentage is claimed."
+  ],
+  "LOCAL_DETAILED_EVIDENCE": [
+    "/private/tmp/helius-gate-holder-proof.local.json",
+    "/private/tmp/helius-gate-read-phase.local.json",
+    "/private/tmp/listener-helius-gate-readonly.sample.txt",
+    "/private/tmp/walkback-gate-readonly.sample.txt"
+  ],
+  "SAFETY": {
+    "production_source_configuration_database_journal_writes": 0,
+    "production_gate_lock_acquisitions_by_audit": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "budget_changes": 0,
+    "exhausted_replay": 0,
+    "v1_database_access": 0
+  },
+  "NEXT_ACTION": "Separately qualify optional gate-busy deferral handling using disposable fixtures. If the exact owning listener application callback is required, obtain an authorized nonblocking root Python stack capture; do not change runtime authority to obtain it.",
+  "observed_utc": "2026-10-27T23:43:26.255556+00:00"
+}

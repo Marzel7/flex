@@ -1,0 +1,172 @@
+{
+  "FLEX_V2_WALKBACK_PROGRESS_STATUS": "PASS \u2014 QUALIFIED_NOT_DEPLOYED",
+  "WAITING_JOB_FAIRNESS": {
+    "cause": "Oldest unresolved waiting job repeatedly selected with LIMIT 1",
+    "correction": "Existing OPS reconciliation owner now persists a singleton FIFO keyset cursor with finite sweep high-water; 32 examinations per normal poll, hard maximum 128. Selection, lookup bookkeeping and cursor commit atomically under BEGIN IMMEDIATE.",
+    "qualification": "1550 jobs examined exactly once over 49 polls, including restart; stable ties, new arrivals, two concurrent reconcilers and crash rollback verified. Normal processing priority and retry eligibility unchanged."
+  },
+  "STORED_CREATE_ANCHOR_CANDIDATES": {
+    "retained_waiting_population_checked": 1550,
+    "candidate_count": 277,
+    "accepted_ops_create_ledger_matches": 0,
+    "automatic_repairs_or_promotions": 0,
+    "result": "All 277 remain protected waiting candidates. A stored Core signature alone cannot establish qualified CREATE provenance. Existing source-qualified CREATE producer/dispatcher remains the authorized path; it is unchanged.",
+    "synthetic_qualification": "277 real-owner synthetic cases: 100 with accepted ledger evidence progress, 177 signature-only cases remain waiting; separate all-277 qualified, unqualified and conflict controls pass."
+  },
+  "RPC_RESULT_REUSE": {
+    "confirmed_duplicate_paths": [
+      "Same account owner acquired repeatedly inside _find_funder_via_rpc",
+      "Selected transaction refetched by _collect_hop1_evidence after _find_funder_via_rpc fetched it"
+    ],
+    "correction": "Small memory-only memo in existing Walkback RPC owner; exact request method/parameters/endpoint, durable owner/scope, gate path and generation. Validation precedes admission to memo; fresh authority and owner checked on every hit.",
+    "limits": {
+      "entries": 256,
+      "aggregate_serialized_bytes": 2097152,
+      "single_result_bytes": 131072,
+      "getTransaction_seconds": 60,
+      "getAccountInfo_seconds": 60,
+      "getSignaturesForAddress_seconds": 15
+    },
+    "excluded_results": [
+      "Failed",
+      "Null or empty",
+      "Incomplete required evidence",
+      "Conflicting transaction signature",
+      "Unsuccessful transaction metadata",
+      "Oversized"
+    ],
+    "restart": "Memo is discarded; spending ledger and request cooldown persist. No disk RPC cache or archive added. Reuse does not establish canonical attribution."
+  },
+  "DEFERRAL_REASON_CLASSIFICATION": {
+    "correction": "Sanitized exact HELIUS_* error codes retained in queue.last_error; already successful logical RPC work remains accounted in queue.rpc_used. Budget-only claim refunded with existing durable retry scheduling.",
+    "distinct": [
+      "HELIUS_GATE_BUSY",
+      "HELIUS_INFLIGHT_LIMIT",
+      "HELIUS_INVESTIGATION_CREDIT_LIMIT",
+      "HELIUS_REQUEST_COOLDOWN",
+      "MISSING_CREATE_EVIDENCE",
+      "UNQUALIFIED_ANCHOR",
+      "AcquisitionUnavailable transport type",
+      "Existing evidence-insufficiency outcomes"
+    ],
+    "limitations": "Queue rpc_used is a logical RPC counter and may include memo reads; durable Helius ledger remains the exact charged-request authority. Historical generic deferrals cannot be retrospectively split into exact causes."
+  },
+  "HELIUS_SPENDING_INTEGRITY": {
+    "lifetime_credit_ceiling": 100000,
+    "gate_source_changed": false,
+    "accounting_source_changed": false,
+    "budget_resets": 0,
+    "extra_provider_calls": 0,
+    "verified": "Real gate + fake wire shows repeated successful request costs one reservation/credit; restart cooldown prevents duplicate dispatch; wrong generation/unowned work cannot reuse. Nine shared-budget controls retain caps, descendant ownership and cross-process accounting."
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "focused_walkback_and_recovery": {
+      "passed": 98,
+      "failed": 0,
+      "files": [
+        "tests/test_v2_walkback_progress.py",
+        "tests/test_v2_optional_funder_deferral.py",
+        "tests/test_v2_walkback_recovery_pins.py",
+        "tests/test_v2_helius_recovery_config.py",
+        "tests/test_v2_pending_recovery.py"
+      ]
+    },
+    "shared_investigation_controls": {
+      "passed": 9,
+      "failed": 0,
+      "deselected_unaffected": 29,
+      "file": "tests/test_v2_helius_investigation_budget.py",
+      "selection": "lifetime_100000 or separate_process_children or descendant_token_relaunch or actual_http_wire or unknown or finite or unowned"
+    },
+    "total_passed": 107,
+    "total_failed": 0,
+    "network": "Blocked fixtures; no real provider calls"
+  },
+  "STORAGE_BOUNDS": {
+    "fixture": {
+      "synthetic_jobs": 1550,
+      "before_bytes": 544768,
+      "after_bytes": 643072,
+      "additive_allocation_bytes": 98304,
+      "query_plan": [
+        [
+          4,
+          0,
+          0,
+          "SEARCH wt_walkback_queue USING COVERING INDEX ix_anchor_waiting_cursor_v1 (status=? AND path_state=? AND (enqueued_at,mint)>(?,?) AND (enqueued_at,mint)<(?,?))"
+        ]
+      ],
+      "single_file_cap": 499000000,
+      "provider_calls": 0
+    },
+    "disk_free_before_bytes": 3536777216,
+    "disk_free_observation_bytes": 3603853312,
+    "disk_free_after_bytes": 3512160256,
+    "required_floor_bytes": 2067108864,
+    "new_single_file_cap_bytes": 499000000,
+    "cursor_rows": 1,
+    "new_raw_response_disk_storage_bytes": 0,
+    "wal": "No absolute WAL guarantee claimed. Bounded 32-job transaction and existing production file-size/disk-floor protection remain required. Fixture allocation is not a production index-build size guarantee."
+  },
+  "READ_ONLY_RUNTIME_CHECK": {
+    "observed_utc": "2026-10-27T22:44:09.029161+00:00",
+    "production_source": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "core_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+    "ops_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+    "source_preimages": {
+      "runtime/walkback/src/core/walkback_worker.py": {
+        "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+        "installed_preimage_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+        "candidate_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501"
+      },
+      "runtime/walkback/src/ops/anchor_reconciliation.py": {
+        "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/anchor_reconciliation.py",
+        "installed_preimage_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+        "candidate_sha256": "7e2cbf52b4c28a884e02728bc036559edc3fb627476b3b61a122e3be0ea33404"
+      },
+      "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+        "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+        "installed_preimage_sha256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+        "candidate_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47"
+      }
+    },
+    "services": "watchtower_listener              RUNNING   pid 70897, uptime 1:27:25\ncreator_resolution_worker        RUNNING   pid 70926, uptime 1:27:15\nwalkback_worker                  RUNNING   pid 87212, uptime 0:33:09",
+    "disk_free_bytes": 3603853312,
+    "required_floor_bytes": 2067108864,
+    "gate": {
+      "state": "OPEN",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "lifetime_credit_limit": 100000,
+      "highest_investigation_credits": 7815,
+      "inflight_count": 1,
+      "protected_review_held": 5
+    },
+    "database_sizes": {
+      "core": 81866752,
+      "ops": 162099200
+    },
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "bounded_waiting_candidate_check": {
+      "waiting_examined": 1550,
+      "stored_signature_candidates": 277,
+      "ops_authority": {
+        "NO_OPS_CREATE_AUTHORITY": 277
+      },
+      "repair_or_promotion": false
+    }
+  },
+  "CANDIDATE_SHA": "b203c114887034dc77e2ee2be10d08985c6871ac",
+  "FROZEN_BUNDLE_SHA256": "0dbf2ca8d77605df9fd3484d504417043ab1825841d281c26c8429c91039cb2f",
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES \u2014 separately authorized preflight required; NOT deployment authorization",
+  "NEXT_ACTION": "Run the exact three-file bundle deployment preflight, including additive cursor/index preparation, idle Walkback boundary, coherent recovery profile and immediate disk/authority checks. Leave all 277 unqualified candidates protected.",
+  "SAFETY": {
+    "production_mutations": 0,
+    "service_restarts": 0,
+    "provider_calls": 0,
+    "queue_replays_or_resets": 0,
+    "v1_access": 0,
+    "deployment": false
+  }
+}

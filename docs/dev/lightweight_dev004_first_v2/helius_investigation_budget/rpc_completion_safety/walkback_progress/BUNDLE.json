@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "status": "QUALIFIED_NOT_DEPLOYED",
+  "qualified_source_commit": "b203c114887034dc77e2ee2be10d08985c6871ac",
+  "accepted_production_source": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "payload": {
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "installed_preimage_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+      "candidate_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501"
+    },
+    "runtime/walkback/src/ops/anchor_reconciliation.py": {
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/anchor_reconciliation.py",
+      "installed_preimage_sha256": "771e41ba89e27588c298e570f3acb5a11eb2eff38dc0a03a12d1ca9cc27f01a7",
+      "candidate_sha256": "7e2cbf52b4c28a884e02728bc036559edc3fb627476b3b61a122e3be0ea33404"
+    },
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+      "candidate_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47"
+    }
+  },
+  "schema": {
+    "owner": "runtime/walkback/src/ops/anchor_reconciliation.py::ensure_schema",
+    "additive_table": "wt_anchor_reconciliation_cursor_v1",
+    "maximum_rows": 1,
+    "index": "ix_anchor_waiting_cursor_v1(status,path_state,enqueued_at,mint)",
+    "canonical_schema_changes": false,
+    "initialize_before_new_worker_start": true
+  },
+  "configuration": {
+    "new_feature_flags": [],
+    "preserve": [
+      "FLEX_HELIUS_DENIAL_GATE_ENABLED=1",
+      "HELIUS_DENIAL_GATE_PATH",
+      "DB_PATH",
+      "WT_OPS_DB_PATH",
+      "FLEX_DB_PAIR_MANIFEST",
+      "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED=1",
+      "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED=1",
+      "BIRDEYE credential authority",
+      "100000-credit lifetime investigation ceiling"
+    ],
+    "supervisor_configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "runtime_plan_preimage_sha256": "4ac41a42b43e7d2f8583bfc6a07cd2c79110050828beba15d5204414f9423251",
+    "proposed_immutable_source_commit": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "proposed_immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-progress-b203c114/source"
+  },
+  "deployment_boundary": {
+    "services_to_quiesce_restart": [
+      "walkback_worker"
+    ],
+    "untouched": [
+      "watchtower_listener",
+      "creator_resolution_worker"
+    ],
+    "requirements": [
+      "Separately authorized production deployment preflight",
+      "Verify current installed preimages and disk floor",
+      "Quiesce Walkback with no active owned RPC reservation or running job; preserve durable ownership",
+      "Initialize additive cursor/index through the accepted schema owner under valid paired authority",
+      "Install both pinned runtime files and matching renderer as one coherent profile",
+      "Preserve exact source/configuration preimages and gate-aware matched-pair recovery",
+      "No provider test calls, retry reset, exhausted replay or unqualified anchor promotion"
+    ]
+  },
+  "fallback": {
+    "authority": "Coherent candidate-pinned source and renderer; same protected evidence and gate policy",
+    "original_preimages": "Recorded for exact source-only restoration; original paired profile is evidence-compatible because the only new persistent state is additive scheduler metadata. It reintroduces the diagnosed progress defects and must be explicitly selected as a coherent prior profile, never mixed with new pins.",
+    "fresh_pair": "Existing compact OPS backup preserves cursor and index; gate generation migration preserves original credits, terminal/deferred custody and protected reservations. Memory memo becomes a miss under the new generation.",
+    "no_gate_unaware_fallback": true
+  },
+  "source_publication": "Local engineering candidate; only routine handoff transport is published by this task."
+}

@@ -1,0 +1,94 @@
+{
+  "activation_boundary": {
+    "other_services": "Listener and resolver remain untouched",
+    "schema_changes": false,
+    "service": "Only walkback_worker may restart during separately authorized deployment",
+    "source": "Only Walkback runtime file plus immutable recovery checkout/manifest authority metadata"
+  },
+  "configuration": {
+    "changed": false,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf",
+    "preserve_provider_credentials": true,
+    "sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320"
+  },
+  "deployment_payload": {
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+      "installed_preimage_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7",
+      "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py"
+    }
+  },
+  "fallback_profile": {
+    "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "financial_and_queue_state": "Preserve current durable state; no state rollback or refunds",
+    "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/source",
+    "qualified_source_commit": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "renderer_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+    "selection": "Explicit coherent old source/renderer/authority profile only; never combine old file with new pin or disable shared gate/deferred/terminal flags",
+    "walkback_sha256": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7"
+  },
+  "gate_authority": {
+    "enabled": true,
+    "generation_and_spending_preserved": true,
+    "lifetime_limit": 100000,
+    "no_reinitialization_or_probe": true,
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+    "warning_limit": 50000
+  },
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "journal_authority": {
+    "birth": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+    "birth_terminal_flag": "Preserved1",
+    "listener_deferred_and_terminal_flags": "Preserved1",
+    "migration": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+    "no_replay_or_retry_reset": true
+  },
+  "production_mutations": 0,
+  "provider_calls": 0,
+  "purpose": "Walkback optional-funder correction plus candidate-aware exact recovery authority; NOT ACTIVATED",
+  "qualified_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+  "qualified_walkback_parent_commit": "00f241f8a3a870fa02913b3216a06a78cce0b40c",
+  "recovery_renderer": {
+    "candidate_sha256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+    "delta": "Only HELIUS_GATE_PAYLOAD.walkback.src/core/walkback_worker.py hash changes",
+    "installed_authority_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/source",
+    "installed_renderer_sha256": "d3e8fae8b66886e99d70b6d04cb07ffe764b5b3405838a8fa90121676aab9d45",
+    "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py"
+  },
+  "runtime_manifest": {
+    "all_other_fields": "Unchanged, including recovery supervisor preimage, source pair, budgets, flags, commands and roles",
+    "installed_preimage_sha256": "d6be6488cb11b8e4a60bcdea2b8635734dd5a7e5f1f8af888b7b46e9798d7163",
+    "only_replacements": {
+      "immutable_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+      "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source"
+    },
+    "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/frozen-runtime-plan.json"
+  },
+  "runtime_payload_hashes_after": {
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+    "runtime/listener/src/core/birth_admission_journal.py": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+    "runtime/listener/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/listener/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/listener/src/core/migration_signature_journal.py": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9",
+    "runtime/listener/src/core/migration_terminal_evidence.py": "98979578dbe718ed24f4b7cc016a27bb493938818d5d51a67e24cae872c63cb1",
+    "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+    "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+    "runtime/walkback/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/walkback/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/walkback/src/core/walkback_worker.py": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914"
+  },
+  "storage": {
+    "additional_safety_reserve_bytes": 96000000,
+    "floor_plus_reserve_bytes": 2067108864,
+    "fresh_pair_reserve_bytes": 243298304,
+    "largest_source_file_bytes": 17014469,
+    "new_file_limit_bytes": 499000000,
+    "source_checkout_logical_bytes": 243714178
+  },
+  "version": 1
+}

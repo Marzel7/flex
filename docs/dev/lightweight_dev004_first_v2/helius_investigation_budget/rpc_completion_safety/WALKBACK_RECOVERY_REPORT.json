@@ -1,0 +1,103 @@
+{
+  "FLEX_V2_WALKBACK_RECOVERY_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "EXACT_RENDERER_DELTA": "One Walkback hash in HELIUS_GATE_PAYLOAD; all other renderer bytes unchanged",
+  "FROZEN_BUNDLE_SHA": "5ffc5de8bfd6026cf1ff217f9026bd074056f7a6df319c1966c01ee4eda79d60",
+  "QUALIFIED_SOURCE_COMMIT": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+  "WALKBACK_SOURCE_HASH": "41643e11aa36c05db0aff7cc525af9959b57b7b1cce47955e6e298d8e5b27914",
+  "RECOVERY_COMPATIBILITY": {
+    "new_profile_candidate_guard": "PASS",
+    "explicit_old_gate_aware_fallback": "PASS in disposable qualification and current live read-only validation",
+    "stale_mixed_gate_unaware_refused": "PASS",
+    "fresh_pair_full_budget_terminal_deferred_preserved": "PASS",
+    "restart_config_readback": "PASS",
+    "runtime_plan_only_replacements": {
+      "immutable_source_commit": "53a7d8ad55bc8ef4eac20b39041195f80a48f388",
+      "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-funder-53a7d8ad/source"
+    },
+    "configuration_unchanged_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "no_alternate_source_hash_allowlist": true
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "directly_affected_recovery_passed": 47,
+    "failed": 0,
+    "accepted_walkback_controls_reused": 19,
+    "new_live_private_render_controls": 2,
+    "provider_calls": 0
+  },
+  "LIVE_PREFLIGHT": {
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 70948
+      }
+    },
+    "supervisor_parent": 1131,
+    "gate": "OPEN",
+    "limit": 100000,
+    "reserved_credits_at_check": 65379,
+    "review_held": 5,
+    "inflight": [],
+    "disk_free_bytes": 4898316288,
+    "required_floor_staging_and_fresh_pair_reserve": 2650162306,
+    "quotas": {
+      "migration_terminal_owner_v1": [
+        1789,
+        1998841
+      ],
+      "migration_deferred_owner_v1": [
+        511,
+        1342808
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "walkback_queue": [
+      [
+        "complete",
+        1891
+      ],
+      [
+        "failed",
+        6
+      ],
+      [
+        "pending",
+        157
+      ],
+      [
+        "waiting",
+        1550
+      ]
+    ],
+    "database_allocation": {
+      "core": {
+        "bytes": 81260544,
+        "wal_bytes": 0
+      },
+      "ops": {
+        "bytes": 162078720,
+        "wal_bytes": 0
+      }
+    }
+  },
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "NEXT_ACTION": "Separately authorize the frozen Walkback-plus-renderer/authority bundle. Stage exact immutable source, preserve coherent gate-aware fallback, install only Walkback runtime file and runtime-plan source references, restart only Walkback, then natural acceptance. No schema, gate, budget, listener or resolver changes.",
+  "PRODUCTION_MUTATIONS": 0,
+  "SERVICE_RESTARTS": 0,
+  "PROVIDER_CALLS": 0,
+  "EXHAUSTED_REPLAY": false,
+  "BUNDLE_PATH": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/WALKBACK_RECOVERY_BUNDLE.json",
+  "RENDERER_SHA256": "582b5677cbfb94de04f95016a49ff7658403c993ff3caa8883a71eb3949e6531",
+  "READONLY_RENDER_NOTE": "Normal shared-gate lock contention handled by bounded retry of unchanged guard; no bypass, no deployment, no service controls invoked."
+}

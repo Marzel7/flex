@@ -37031,8 +37031,8 @@
     "git_head": "f2d8f19b8ca33a0f980aadac4896c4b7a0737d48",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T19:32:08.655520+00:00",
-    "working_tree": "Strictlyreadonly deferredcapacitypreflightGO; exact4file/schema/listenerflagactivation frozen; productionunchanged andlivependingjournalstillfull."
+    "updated_at_utc": "2026-10-27T19:51:48.548135+00:00",
+    "working_tree": "Authorized deferred-capacity deployment stopped fail-closed after additive schema and exact source installation; listener STOPPED; resolver and Walkback unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46731,5 +46731,68 @@
     "live_status": "Stillfullpendingjournal untilseparatelyauthorizeddeployment. No quota bypass or unknownmintRPCpermission granted.",
     "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/DEFERRED_CAPACITY_PREFLIGHT.json",
     "next_action": "Separately authorize exactc4ae598c frozenbundle, additiveOPSinitialization andlistener-onlyactivation per77c44fd2activationplan. Refreshimmediatepreimages/disk/capacity at execution; no old7dd/flag0fallbackaftercustodyactivation."
+  },
+  "flex_v2_deferred_capacity_production_deployment": {
+    "status": "HOLD",
+    "blocker": "HELIUS_GATE_PUBLICATION_AMBIGUOUS",
+    "source_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+    "services": {
+      "watchtower_listener": {
+        "state": "STOPPED",
+        "pid": null
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 33613
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 99159
+      }
+    },
+    "schema_objects": [
+      [
+        "index",
+        1
+      ],
+      [
+        "table",
+        2
+      ],
+      [
+        "trigger",
+        6
+      ]
+    ],
+    "deferred_records": 0,
+    "journal_records": 512,
+    "journal_states": {
+      "RESOLVED": 1,
+      "PENDING": 511
+    },
+    "original_512_exactly_preserved": true,
+    "gate_lock_bytes": 11,
+    "gate_ready_prefix": false,
+    "gate_marker_matches_state": false,
+    "lifetime_credits": 100000,
+    "disk_free_bytes": 5001936896,
+    "runtime_payload_hashes_match": true,
+    "supervisor_config_unchanged": true,
+    "production_probe_calls": 0,
+    "retry_replay": false,
+    "next_action": "Qualify repair of ambiguous durable Helius publication authority; keep listener stopped, preserve all state, then resume exact deferred-aware activation. Old source/flag0 prohibited.",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "production_flags": {
+      "deferred_supervisor_activation": false,
+      "schema_initialized": true,
+      "source_installed": true,
+      "listener_stopped": true,
+      "provider_test_calls": 0,
+      "retry_reset": false
+    },
+    "tests": "Retained 91 qualification controls reused. Live schema initialization/readback passed twice; exact payload hashes passed; original512 exact readback passed. Natural acceptance not started.",
+    "recovery": "No old7dd or flag0 fallback after schema activation. Preserve exact deferred-aware forward bundle and all gate state; do not clear ambiguous publication marker blindly.",
+    "evidence_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/deployment-hold.json"
   }
 }

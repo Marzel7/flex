@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separate authorization needed for frozen listener/recovery correction; refresh live safety first. Preserve all exhausted notifications; no replay/reset.",
+  "next_action": "Separately authorize exact frozenf2ec25fa listener+7ddf5312recovery bundle; refresh immediate preimages/disk/capacity first. Preserve exhausted records; no replay/reset.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "a437a11c6937884d81607c5a2dd6a26f2f5697a2",
+    "git_head": "32037e4bf06fd0596f17b85a7720f5ce8695c52a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T07:48:21.971679+00:00",
-    "working_tree": "Read-only six-hour overnight metrics committed; no runtime changes."
+    "updated_at_utc": "2026-10-27T07:52:35.842302+00:00",
+    "working_tree": "Exact existing logger/deferral+recovery bundle requalified; refreshed production preflightGO; no runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46444,5 +46444,40 @@
     "provider_calls": 0,
     "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/OVERNIGHT_20261027_0140_0740.json",
     "next_action": "Separate authorization needed for frozen listener/recovery correction; refresh live safety first. Preserve all exhausted notifications; no replay/reset."
+  },
+  "flex_v2_migration_deferral_production_readiness": {
+    "status": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
+    "engineering_revision": "32037e4bf06fd0596f17b85a7720f5ce8695c52a",
+    "runtime_installed": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "listener_candidate": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+    "frozen_source": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "bundle_sha256": "2abc16d7d6b335fd401fe05312552d8b4badfa9574a8ebc33e2a8e2629202520",
+    "tests": {
+      "passed": 62,
+      "failed": 0
+    },
+    "source_preimages": "All16installedruntimehashes and configuration match; only1runtimefiledelta; exact candidate/recovery hashes match.",
+    "live_snapshot_utc": "2026-10-27T07:50:21.430123+00:00",
+    "disk_free_bytes": 4100091904,
+    "migration_journal_records": 498,
+    "birth_journal_records": 504,
+    "terminal_migration_records": 1272,
+    "exhausted_snapshot_utc": "2026-10-27T07:51:32.167144+00:00",
+    "exhausted_journal": 474,
+    "exhausted_terminal": 839,
+    "exhausted_distinct": 1313,
+    "fixed11_all_preserved": true,
+    "lifetime_credit_limit": 100000,
+    "gate_state_observed": "OPEN",
+    "gate_changed": false,
+    "services": "listener99111/resolver76370/walkback99159RUNNING; matchedV2generation",
+    "rollback": "Exact455gate-aware/terminal-aware source+renderer/config remains verified; candidate recovery47controls retained and rerun; no wildcardprofiles.",
+    "deployment_scope": "Listener-only restart plus exact listener/recoveryauthority staging under separate authorization. Resolver/Walkback untouched.",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "replay": 0,
+    "blocker": null,
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/MIGRATION_DEFERRAL_PRODUCTION_READINESS.json",
+    "next_action": "Separately authorize exact frozenf2ec25fa listener+7ddf5312recovery bundle; refresh immediate preimages/disk/capacity first. Preserve exhausted records; no replay/reset."
   }
 }

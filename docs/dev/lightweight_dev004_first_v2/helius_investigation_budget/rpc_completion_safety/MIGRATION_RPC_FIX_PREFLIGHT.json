@@ -1,0 +1,94 @@
+{
+  "candidate_git_exists": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+  "installed_source_mismatches": [],
+  "config_match": true,
+  "listener_candidate_hash_match": true,
+  "disk_free_bytes": 4564606976,
+  "gate": {
+    "state": "OPEN",
+    "policy_lifetime": 100000,
+    "inflight": 0,
+    "uncertain_held": 3
+  },
+  "journals": {
+    "migration": {
+      "count": 509,
+      "state_counts": {
+        "RESOLVED": 1,
+        "RETRY_EXHAUSTED": 392,
+        "QUARANTINED": 115,
+        "ACKED": 1
+      },
+      "bytes": 300953
+    },
+    "birth": {
+      "count": 494,
+      "state_counts": {
+        "QUARANTINED": 39,
+        "ACKED": 455
+      },
+      "bytes": 465775
+    }
+  },
+  "protected11_unchanged": true,
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "pair_file_identity_match": true,
+  "files": {
+    "core": {
+      "": 63397888,
+      "-wal": 0,
+      "-shm": 0
+    },
+    "ops": {
+      "": 158519296,
+      "-wal": 0,
+      "-shm": 0
+    }
+  },
+  "terminal": {
+    "migration_terminal_owner_v1": [
+      852,
+      945796
+    ],
+    "birth_terminal_owner_v1": [
+      512,
+      697743
+    ]
+  },
+  "at_utc": "2026-10-27T00:28:14.511627+00:00",
+  "recovery": {
+    "frozen_source_commit": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "listener_pin": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+    "candidate_listener_hash": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+    "candidate_rejected_by_installed_guard": "HELIUS_GATE_UNAWARE_FALLBACK:listener:src/core/pumpfun_curve_listener.py",
+    "fallback_current_listener_hash_verified": true,
+    "recovery_configuration_preimage_verified": true
+  },
+  "read_only_database_checks": {
+    "core": "READ_OK_NO_SQLITE_BUSY",
+    "ops": "READ_OK_NO_SQLITE_BUSY"
+  },
+  "journal_publication_temps_present": [],
+  "status": "HOLD_SINGLE_CRITICAL_BLOCKER",
+  "blocker": "Installed gate-aware recovery renderer/frozen source authority pins455listener565b740c; candidate listener3a5f738d is rejected as HELIUS_GATE_UNAWARE_FALLBACK. No candidate-aware immutable recovery/rendering authority is frozen.",
+  "next_action": "Freeze and provider-free qualify candidate-aware recovery/hash pins for f2ec25fa, preserving unchanged multi-role hashes and explicit455compatible rollback. Then recheck only failed preflight gate. No deployment or exhausted replay.",
+  "services": {
+    "listener": {
+      "pid": 99111,
+      "state": "RUNNING"
+    },
+    "resolver": {
+      "pid": 99140,
+      "state": "RUNNING"
+    },
+    "walkback": {
+      "pid": 99159,
+      "state": "RUNNING"
+    }
+  },
+  "capacity_note": "Migration509/512 leaves3immediate slots; installed bounded verified-completion/terminal transfer policy remains present, terminal owner852/8192. No live reclamation performed. Birth494/512. Protected11not eligible for this preflight to mutate.",
+  "limits": "WAL sizes are samples, not hard ceilings; successful read-only reads do not prove absence of every writer lock. No checkpoint/maintenance or write-lock probe.",
+  "production_changes": 0,
+  "provider_calls": 0,
+  "tests_rerun": 0
+}

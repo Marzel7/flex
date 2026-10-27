@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "f2d8f19b8ca33a0f980aadac4896c4b7a0737d48",
+    "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T19:51:48.548135+00:00",
-    "working_tree": "Authorized deferred-capacity deployment stopped fail-closed after additive schema and exact source installation; listener STOPPED; resolver and Walkback unchanged."
+    "updated_at_utc": "2026-10-27T20:51:19.998415+00:00",
+    "working_tree": "Gate publication conservatively recovered; exact c4 deferred-aware production bundle activated; five-minute natural acceptance PASS. All three workers running; Helius PAYMENT_DENIED, spending and review-held requests intact."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-26T19:04:47.931845+00:00",
+  "updated_at_utc": "2026-10-27T20:51:19.998415+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -46733,22 +46733,22 @@
     "next_action": "Separately authorize exactc4ae598c frozenbundle, additiveOPSinitialization andlistener-onlyactivation per77c44fd2activationplan. Refreshimmediatepreimages/disk/capacity at execution; no old7dd/flag0fallbackaftercustodyactivation."
   },
   "flex_v2_deferred_capacity_production_deployment": {
-    "status": "HOLD",
-    "blocker": "HELIUS_GATE_PUBLICATION_AMBIGUOUS",
+    "status": "PASS",
+    "blocker": null,
     "source_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
     "bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
     "services": {
       "watchtower_listener": {
-        "state": "STOPPED",
-        "pid": null
+        "state": "RUNNING",
+        "pid": 61732
       },
       "creator_resolution_worker": {
         "state": "RUNNING",
-        "pid": 33613
+        "pid": 61516
       },
       "walkback_worker": {
         "state": "RUNNING",
-        "pid": 99159
+        "pid": 61539
       }
     },
     "schema_objects": [
@@ -46765,8 +46765,8 @@
         6
       ]
     ],
-    "deferred_records": 0,
-    "journal_records": 512,
+    "deferred_records": 511,
+    "journal_records": 308,
     "journal_states": {
       "RESOLVED": 1,
       "PENDING": 511
@@ -46781,20 +46781,21 @@
     "supervisor_config_unchanged": true,
     "production_probe_calls": 0,
     "retry_replay": false,
-    "next_action": "Qualify repair of ambiguous durable Helius publication authority; keep listener stopped, preserve all state, then resume exact deferred-aware activation. Old source/flag0 prohibited.",
-    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "next_action": "Leave workers running and conservative gate closed. Helius-dependent PumpSwap/resolver/Walkback acquisition remains paused; any restoration uses the explicit controlled gate procedure, not this no-probe recovery.",
+    "verdict": "ACCEPTANCE_PASS",
     "production_flags": {
-      "deferred_supervisor_activation": false,
+      "deferred_supervisor_activation": true,
       "schema_initialized": true,
       "source_installed": true,
-      "listener_stopped": true,
+      "listener_stopped": false,
       "provider_test_calls": 0,
       "retry_reset": false
     },
     "tests": "Retained 91 qualification controls reused. Live schema initialization/readback passed twice; exact payload hashes passed; original512 exact readback passed. Natural acceptance not started.",
     "recovery": "No old7dd or flag0 fallback after schema activation. Preserve exact deferred-aware forward bundle and all gate state; do not clear ambiguous publication marker blindly.",
     "evidence_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/deployment-hold.json",
-    "outage_observation": {
+    "previous_hold_resolved": "PENDING_V1 reconciled against retained state and conservatively committed PAYMENT_DENIED via qualified owner; all counters unchanged.",
+    "outage_observation_historical": {
       "at_utc": "2026-10-27T20:39:07Z",
       "listener": "STOPPED since 19:51 UTC, approximately48minutes",
       "resolver_pid": 33613,
@@ -46803,5 +46804,157 @@
       "blocker": "HELIUS_GATE_PUBLICATION_AMBIGUOUS",
       "next_action": "Qualify safe gate publication recovery and resume deferred-aware activation; listener outage prevents live intake."
     }
+  },
+  "flex_v2_gate_publication_recovery": {
+    "status": "PASS",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_runtime_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "tests": {
+      "new_synthetic_controls": 14,
+      "exact_retained_fixture_controls": 14,
+      "prior_deferred_controls_reused": 91
+    },
+    "production_flags": {
+      "deferred_listener": "1",
+      "shared_gate": "1",
+      "state": "PAYMENT_DENIED",
+      "lifetime_credits": 100000,
+      "provider_test_calls": 0,
+      "exhausted_replay": false
+    },
+    "result": {
+      "FLEX_V2_GATE_RECOVERY_STATUS": "PASS",
+      "EXACT_PUBLICATION_FAILURE": {
+        "marker": "PENDING_V1",
+        "stage_absent": true,
+        "preimage_sha256": "7d2b220cb13a344931dc6805d931e42101b7d3a9f532ac7c6d01d243a4469432",
+        "durable_state_matches_two_retained_snapshots": true,
+        "interrupted_operation_outcome": "UNPROVEN; no provider failure, success or billing state inferred",
+        "mechanism": "Existing owner marks PENDING before disk-floor check/staging. The marker alone cannot identify which later publication step failed. Recovery commits an explicitly conservative denial, never an inferred old OPEN allowance."
+      },
+      "SPENDING_HISTORY_PRESERVATION": {
+        "reserved_credits": 63609,
+        "all_original_fields_preserved_except_state": true,
+        "inflight": 0,
+        "review_held_requests": 3,
+        "lifetime_limit": 100000,
+        "refunds": 0,
+        "retry_reset": false
+      },
+      "RECOVERY_QUALIFICATION": {
+        "synthetic_controls_passed": 14,
+        "exact_retained_state_fixture_controls_passed": 14,
+        "production_owner_source_changed": false,
+        "operator_tool_sha256": "23a8d94651d10541feed88bb16efb8cf49e95ea5cba3cb1e6f02ac4c33b568ff",
+        "test_sha256": "6187f5c8840ab147e02e863df5bc1ef1cbe575bc451a7a1362a2c2d28a9931a7",
+        "faults": "active owner, unresolved stage/reservation, corrupt/mismatched state/snapshot, wrong generation, budget mismatch, repeat recovery, four fsync boundaries; blocked network"
+      },
+      "PRODUCTION_RECOVERY_RESULT": {
+        "state": "PAYMENT_DENIED",
+        "publication_checksum_verified": true,
+        "after_sha256": "b39b8a611160b739fb6676d1d05703014e4b7c08a0f1baf17bf5d8bf5b212507",
+        "probe_authorized": false,
+        "coordinated_quiescence_required": true,
+        "unrelated_supervisor_pending_changes_not_applied": true
+      },
+      "LISTENER_STATUS": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 61732
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 61516
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 61539
+        }
+      },
+      "JOURNAL_CAPACITY_BEFORE_AFTER": {
+        "before_occupied": 512,
+        "after_verified_transfer": 1,
+        "after_five_minutes_occupied": 308,
+        "after_five_minutes_free": 204,
+        "maximum": 512
+      },
+      "DEFERRED_RECORDS_TRANSFERRED": 511,
+      "TRANSFER_INTEGRITY": {
+        "batches": 26,
+        "maximum_batch": 20,
+        "source_originals_accounted": 512,
+        "exact_transfer_equivalence": true,
+        "protected_exhausted_unchanged": 1319,
+        "budget_deferred_zero_attempts_preserved": 478,
+        "due_index": "migration_deferred_due_v1 covering index; actual checkout transitions observed",
+        "quota_records": 8192,
+        "quota_bytes": 64000000
+      },
+      "NATURAL_INTAKE_ACCEPTANCE": {
+        "status": "PASS",
+        "observation_seconds": 301.7933838367462,
+        "started_at_utc": "2026-10-27T20:44:18.934040+00:00",
+        "ended_at_utc": "2026-10-27T20:49:32.456528+00:00",
+        "new_migration_admissions": 7,
+        "new_migration_states": {
+          "PENDING": 7
+        },
+        "committed_natural_births": 71,
+        "birth_receipts": 73,
+        "noncommitted_births_protected": [
+          {
+            "receipt_outcome": "RETRY_PENDING",
+            "journal_state": "QUARANTINED",
+            "acknowledged": false
+          },
+          {
+            "receipt_outcome": "RETRY_PENDING",
+            "journal_state": "QUARANTINED",
+            "acknowledged": false
+          }
+        ],
+        "subscriptions": {
+          "pumpportal": true,
+          "pumpswap": false
+        },
+        "listener_segment_error_counts": {
+          "JOURNAL_CAPACITY": 0,
+          "ADMISSION_REFUSED": 0,
+          "name 'logger' is not defined": 0,
+          "Traceback": 0
+        },
+        "stable_worker_pids": true
+      },
+      "STORAGE": {
+        "minimum_sampled_free_bytes": 4118016000,
+        "floor_plus_reserve_bytes": 2067108864,
+        "databases": {
+          "core": {
+            "bytes": 79761408,
+            "wal_bytes": 0
+          },
+          "ops": {
+            "bytes": 161955840,
+            "wal_bytes": 0
+          }
+        },
+        "kernel_file_cap_bytes": 499000000,
+        "wal_guarantee": "Sampled/cooperative threshold, not absolute size guarantee"
+      },
+      "INSTALLED_SOURCE": {
+        "candidate": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+        "bundle_sha256": "edecbb39a8cf9539216d1231eb30ad97e2761b6c4dd2332fd6151ce553337e74",
+        "activation_plan_sha256": "77c44fd2f8c8a128dab0d4181ea989f216c5d20122a5854e962fdd037cd5304d",
+        "schema": "two tables, six triggers, one due index verified",
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "deferred_flag": "listener only, 1",
+        "rollback": "Exact deferred-aware forward profile/fresh matched pair only; old7dd and flag0 forbidden"
+      },
+      "PROVIDER_TEST_CALLS": 0,
+      "EXHAUSTED_REPLAY": false,
+      "NEXT_ACTION": "Leave workers running and conservative gate closed. Helius-dependent PumpSwap/resolver/Walkback acquisition remains paused; any restoration uses the explicit controlled gate procedure, not this no-probe recovery."
+    },
+    "blocker": null,
+    "next_action": "Leave workers running and conservative gate closed. Helius-dependent PumpSwap/resolver/Walkback acquisition remains paused; any restoration uses the explicit controlled gate procedure, not this no-probe recovery."
   }
 }

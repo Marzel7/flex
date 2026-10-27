@@ -1,0 +1,248 @@
+{
+  "FLEX_V2_WALKBACK_POST_DEPLOYMENT_STATUS": "PARTIAL_FULL_SWEEP_IN_PROGRESS",
+  "OBSERVATION_WINDOW": {
+    "start_utc": "2026-10-27T23:07:30.498678+00:00",
+    "end_utc": "2026-10-27T23:21:28.936151+00:00",
+    "elapsed_seconds": 838.36
+  },
+  "INSTALLED_AUTHORITY": {
+    "source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "runtime_hashes_verified": true,
+    "recovery_renderer_hash_verified": true,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 4522
+      }
+    },
+    "same_service_pids_as_activation": true
+  },
+  "FULL_SWEEP_COVERAGE": {
+    "original_eligible_waiting_cohort": 1550,
+    "examined": 512,
+    "coverage_percent": 33.03,
+    "not_examined_still_waiting": 1038,
+    "independently_left_waiting_without_cursor_examination": 0,
+    "missing_original_jobs": 0,
+    "whole_first_sweep_examined": false,
+    "examined_or_no_longer_waiting_percent": 33.03,
+    "lookup_delta_histogram": {
+      "0": 1038,
+      "1": 512
+    },
+    "old_monopolizing_job_new_examinations": 1,
+    "current_waiting_total": 1550,
+    "cursor_persisted": true,
+    "cursor_sha256": "02e3935bdbe3dfc84bd018159acafad2d1ecf55bc3bebacc5499a5a1304f983a",
+    "index_columns": [
+      "status",
+      "path_state",
+      "enqueued_at",
+      "mint"
+    ],
+    "examined_anchor_classifications": {
+      "MISSING_CREATE_EVIDENCE": 511,
+      "UNQUALIFIED_ANCHOR": 1
+    },
+    "bounded_poll_size": 32,
+    "all_waiting_at_baseline": 1550,
+    "denominator_contract": "Fixed deployment-baseline rows satisfying the exact accepted waiting-anchor eligibility predicate, not all jobs or new arrivals."
+  },
+  "COMPLETIONS": {
+    "since_activation": 6,
+    "since_five_minute_acceptance": 3,
+    "outcomes": {
+      "LINEAGE_GAP": 3,
+      "NO_ATTRIBUTION_FOUND": 3
+    },
+    "total_queue_states": {
+      "waiting": 1550,
+      "complete": 1898,
+      "pending": 170,
+      "failed": 6
+    },
+    "no_live_replay_or_reset": true
+  },
+  "PROTECTED_277": {
+    "still_protected_waiting": 277
+  },
+  "DEFERRALS": {
+    "current_pending_jobs_by_last_error": {
+      "HELIUS_ACQUISITION_DEFERRED": 3,
+      "HELIUS_GATE_BUSY": 36,
+      "HELIUS_INVESTIGATION_REQUIRED": 7,
+      "HELIUS_REQUEST_COOLDOWN": 2,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
+    },
+    "current_unique_gate_busy_pending_jobs": 36,
+    "updated_helius_deferred_jobs_since_activation": 46,
+    "attempt_pairs_for_original_jobs": [
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before_attempts": 0,
+        "current_attempts": 0,
+        "jobs": 33
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before_attempts": 1,
+        "current_attempts": 1,
+        "jobs": 2
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before_attempts": 2,
+        "current_attempts": 2,
+        "jobs": 1
+      },
+      {
+        "code": "HELIUS_INVESTIGATION_REQUIRED",
+        "before_attempts": 0,
+        "current_attempts": 0,
+        "jobs": 7
+      },
+      {
+        "code": "HELIUS_REQUEST_COOLDOWN",
+        "before_attempts": 0,
+        "current_attempts": 0,
+        "jobs": 2
+      },
+      {
+        "code": "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW",
+        "before_attempts": 0,
+        "current_attempts": 0,
+        "jobs": 1
+      }
+    ],
+    "interpretation": "Current queue reasons count unique jobs. Trace lines and cycle failures are separate populations and are not added together; attempt deltas over the whole window cannot alone attribute every increment to a specific deferral.",
+    "all_observed_original_job_attempt_pairs_unchanged": true
+  },
+  "RETAINED_RUNTIME_LOGS": {
+    "files": {
+      "walkback_worker.log": {
+        "bytes_examined": 18223,
+        "complete_activation_span": true,
+        "gate_busy_matching_lines": 24,
+        "tracebacks": 0,
+        "sqlite_lock_error_lines": 0,
+        "capacity_refusal_lines": 0
+      },
+      "walkback_worker_err.log": {
+        "bytes_examined": 0,
+        "complete_activation_span": true,
+        "gate_busy_matching_lines": 0,
+        "tracebacks": 0,
+        "sqlite_lock_error_lines": 0,
+        "capacity_refusal_lines": 0
+      }
+    },
+    "failure_records_by_code_and_boundary": {
+      "HELIUS_GATE_BUSY:queue_claim_attempted": 8,
+      "HELIUS_GATE_BUSY:cycle_completed": 8
+    },
+    "cycle_completed_failure_records": {
+      "HELIUS_GATE_BUSY": 8
+    },
+    "completed_batch_count": 13,
+    "processed_job_attempts_in_batches": 104,
+    "logical_rpc_operations_in_batches": 404,
+    "outcomes_in_batch_logs": {
+      "pending": 98,
+      "NO_ATTRIBUTION_FOUND": 3,
+      "LINEAGE_GAP": 3
+    }
+  },
+  "HELIUS_SPENDING": {
+    "gate_state": "OPEN",
+    "policy_unchanged": true,
+    "lifetime_credit_limit": 100000,
+    "reserved_worst_case_credits_since_activation": 395,
+    "reserved_credits_by_worker": {
+      "creator_resolution": 0,
+      "listener": 24,
+      "walkback": 371
+    },
+    "http_reservations_since_activation": 395,
+    "requests_per_minute_since_activation": 28.269,
+    "highest_lifetime_investigation_credits": 7936,
+    "investigations_at_warning": 0,
+    "investigations_at_ceiling": 0,
+    "inflight_reservations": [],
+    "potentially_stuck_reservations": [],
+    "preexisting_review_held_preserved": true,
+    "current_review_held_count": 5,
+    "spending_history_monotonic": true,
+    "billing_limit": "Reserved ledger credits are measured; Helius invoiced/billed credits are not independently available. Cache-hit savings are not instrumented and are not claimed."
+  },
+  "STORAGE_AND_CAPACITY": {
+    "disk_free_bytes": 3201826816,
+    "required_floor_bytes": 2067108864,
+    "database_files": {
+      "core": {
+        "db": 82386944
+      },
+      "ops": {
+        "db": 162529280
+      }
+    },
+    "journals": {
+      "birth.jsonl": {
+        "records": 499,
+        "free_slots": 13,
+        "states": {
+          "QUARANTINED": 458,
+          "ACKED": 41
+        }
+      },
+      "migration.jsonl": {
+        "records": 502,
+        "free_slots": 10,
+        "states": {
+          "RESOLVED": 1,
+          "QUARANTINED": 14,
+          "PENDING": 484,
+          "ACKED": 3
+        }
+      }
+    },
+    "custody_quotas": {
+      "migration_terminal_owner_v1": {
+        "singleton": 1,
+        "version": 1,
+        "used_records": 1789,
+        "used_bytes": 1998841
+      },
+      "migration_deferred_owner_v1": {
+        "singleton": 1,
+        "version": 1,
+        "used_records": 511,
+        "used_bytes": 1344382
+      },
+      "birth_terminal_owner_v1": {
+        "singleton": 1,
+        "version": 1,
+        "used_records": 512,
+        "used_bytes": 697743
+      }
+    },
+    "no_absolute_wal_guarantee_claimed": true
+  },
+  "EXACT_BLOCKERS": [],
+  "SAFETY": {
+    "production_writes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "retry_replay_or_reset": 0,
+    "v1_database_access": 0
+  },
+  "NEXT_ACTION": "Leave all workers running. Continue normal bounded sweep; perform a later read-only coverage check. Gate-busy contention remains a measured progress limiter; no gate reset, reservation clearing, budget increase or exhausted replay."
+}

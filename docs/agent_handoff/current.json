@@ -37031,8 +37031,8 @@
     "git_head": "7cda51e3809c74d149f599870c01dbf276a18e64",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T21:26:27.990260+00:00",
-    "working_tree": "Helius restored via one authorized fresh probe with durable validation. Five-minute safety/runtime acceptance passed: gateOPEN, all3PIDs stable,100kcap and history preserved; five protected uncertain requests. Natural canonical handoff/Walkback completion not observed."
+    "updated_at_utc": "2026-10-27T21:35:28.674627+00:00",
+    "working_tree": "Read-only progress auditPARTIAL:27verifiedcanonicalhandoffs since21:19UTC;Walkback67updates,1start,0completions withmissing-investigation-context deferrals. GateOPEN,631reservedcreditsincludingprobe,max7642,0inflight,5review-heldunchanged;all3workersRUNNING. Priorzero-handoffreader corrected."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T21:26:27.990546+00:00",
+  "updated_at_utc": "2026-10-27T21:35:28.675026+00:00",
   "updated_by": "agent_local",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -47544,6 +47544,233 @@
     "source_config_schema_changes": 0,
     "exhausted_replay_or_retry_reset": false,
     "blocker": null,
-    "next_action": "Leave all three workers running with shared gate and100kcap active. Continue natural observation for canonical migration/handoff and Walkback completion; no exhausted replay or additional test acquisition."
+    "next_action": "Leave all three workers running with shared gate and100kcap active. Continue natural observation for canonical migration/handoff and Walkback completion; no exhausted replay or additional test acquisition.",
+    "handoff_reader_correction": {
+      "prior_zero_not_authoritative": true,
+      "cause": "Old reader truncated at10001 rows while handoff table has>50000. Corrected audit uses snapshot-based PK continuation,256rows perbatch,60000hardbound.",
+      "completed_handoffs_in_first300seconds": 6,
+      "total_verified_current_window": 27
+    }
+  },
+  "flex_v2_migration_walkback_progress_after_fresh_restoration": {
+    "status": "PARTIAL",
+    "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
+    "installed_revision": "c4ae598c7db29147a17b43f95cc59fc8eb5304d3",
+    "production_flags": {
+      "gate": "OPEN",
+      "shared_gate_enabled": true,
+      "lifetime_limit": 100000,
+      "deferred_listener_enabled": true
+    },
+    "result": {
+      "status": "AUDIT_COMPLETE",
+      "from_utc": "2026-10-27T21:19:34.142184+00:00",
+      "to_utc": "2026-10-27T21:33:19.492376+00:00",
+      "elapsed_seconds": 825.3501920700073,
+      "gate": "OPEN",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "services": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 70897
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 70926
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 70948
+        }
+      },
+      "handoff_rows_checked_in_256_row_batches": 50348,
+      "canonical_exact_completed_handoffs_since_restoration": 27,
+      "handoffs_created_since_restoration_by_state": {
+        "COMPLETE": 27
+      },
+      "durably_retained_notifications_since_restoration": 12,
+      "retained_notification_states": {
+        "PENDING": 10,
+        "ACKED": 1,
+        "QUARANTINED": 1
+      },
+      "fresh_ACKs_independently_verified": 1,
+      "retained_exhaustion_causes": {},
+      "walkback_queue_current_states": {
+        "waiting": 1550,
+        "complete": 1891,
+        "pending": 131,
+        "failed": 6
+      },
+      "walkback_rows_updated_since_restoration": 67,
+      "walkback_jobs_started_since_restoration": 1,
+      "walkback_jobs_completed_since_restoration": 0,
+      "walkback_running_leases": 0,
+      "walkback_future_retry_pending": 32,
+      "walkback_trace_causes": [
+        {
+          "exception_type": "BudgetDeferred",
+          "safe_code": "HELIUS_INVESTIGATION_REQUIRED",
+          "boundary_records": 10
+        },
+        {
+          "exception_type": "BudgetDeferred",
+          "safe_code": "HELIUS_GATE_BUSY",
+          "boundary_records": 2
+        }
+      ],
+      "resolver_heartbeat": {
+        "age_seconds": 24,
+        "meta": {
+          "cycles": 17,
+          "pending": 0,
+          "total_processed": 0,
+          "total_resolved": 0,
+          "total_failed": 0,
+          "total_skipped": 0,
+          "total_enqueued": 0,
+          "recent_promoted": 0,
+          "resolution_eff_pct": null,
+          "uptime_s": 961,
+          "batch_size": 5,
+          "db_p99_ms": 80.55,
+          "open_handles": 0,
+          "wal_mb": 0.0
+        }
+      },
+      "request_reservations_by_method": {
+        "rpc:getTransaction": 76,
+        "rpc:getTokenLargestAccounts": 10,
+        "rpc:getAccountInfo": 404,
+        "rpc:getMultipleAccounts": 102,
+        "rpc:getSignaturesForAddress": 37,
+        "rpc:getTokenAccountsByOwner": 2
+      },
+      "total_request_reservations_including_one_probe": 631,
+      "reserved_credits_by_worker_including_one_walkback_probe": {
+        "listener": 522,
+        "creator_resolution": 0,
+        "walkback": 109
+      },
+      "reserved_credit_delta": 631,
+      "highest_investigation_credits": 7642,
+      "limit": 100000,
+      "inflight": [],
+      "review_held_unchanged": 5,
+      "journal_occupancy": 509,
+      "deferred_custody_counts": {
+        "ACTIVE": 487,
+        "OWNED": 24
+      },
+      "quotas": {
+        "migration_deferred_owner_v1": [
+          511,
+          1337672
+        ],
+        "migration_terminal_owner_v1": [
+          1789,
+          1998841
+        ],
+        "birth_terminal_owner_v1": [
+          512,
+          697743
+        ]
+      },
+      "protected_exhausted_exactly_preserved": 1319,
+      "disk_free_bytes": 6246760448,
+      "database_allocation": {
+        "core": {
+          "bytes": 80502784,
+          "wal_bytes": 24752
+        },
+        "ops": {
+          "bytes": 161996800,
+          "wal_bytes": 0
+        }
+      },
+      "availability": [
+        [
+          "MIGRATION",
+          "AVAILABLE",
+          1793136508,
+          "logsSubscribe confirmed",
+          "listener:70897:1793135804"
+        ],
+        [
+          "MIGRATION",
+          "DOWN",
+          1793136503,
+          "websocket failure: SubscriptionUnavailable",
+          "listener:70897:1793135804"
+        ],
+        [
+          "MIGRATION",
+          "AVAILABLE",
+          1793135986,
+          "logsSubscribe confirmed",
+          "listener:70897:1793135804"
+        ],
+        [
+          "BIRTH",
+          "AVAILABLE",
+          1793135807,
+          "subscribeNewToken sent on connected PumpPortal websocket",
+          "listener:70897:1793135804"
+        ],
+        [
+          "MIGRATION",
+          "DOWN",
+          1793135805,
+          "HELIUS_ACQUISITION_DEFERRED",
+          "listener:70897:1793135804"
+        ],
+        [
+          "MIGRATION",
+          "UNKNOWN",
+          1793135804,
+          "listener startup",
+          "listener:70897:1793135804"
+        ],
+        [
+          "BIRTH",
+          "UNKNOWN",
+          1793135804,
+          "listener startup",
+          "listener:70897:1793135804"
+        ],
+        [
+          "BIRTH",
+          "AVAILABLE",
+          1793135480,
+          "subscribeNewToken sent on connected PumpPortal websocket",
+          "listener:68113:1793135344"
+        ],
+        [
+          "BIRTH",
+          "DOWN",
+          1793135475,
+          "websocket failure: JournalHold",
+          "listener:68113:1793135344"
+        ],
+        [
+          "BIRTH",
+          "AVAILABLE",
+          1793135473,
+          "subscribeNewToken sent on connected PumpPortal websocket",
+          "listener:68113:1793135344"
+        ]
+      ],
+      "provider_calls_from_audit": 0,
+      "production_mutations_from_audit": 0,
+      "limitations": "Reservations and worst-case credits are local accounting, not invoiced consumption. Retained notification population can undercount already reclaimed completions. Queue updated_at includes housekeeping and is not itself proof of intelligence completion.",
+      "handoff_completions_within_first300_seconds": 6,
+      "prior_10000_row_zero_count_not_authoritative": true,
+      "natural_reserved_credits_excluding_probe": 630,
+      "natural_walkback_credits_excluding_probe": 108,
+      "window_request_reservation_rate_per_second": 0.765
+    },
+    "verdict": "Migration canonical handoffs progressing; Walkback has no new completions and retained missing-investigation-context deferrals.",
+    "blocker": "Walkback logs show HELIUS_INVESTIGATION_REQUIRED; exact propagation path not diagnosed in this progress-only audit.",
+    "next_action": "Bounded read-only trace of Walkback investigation-context deferrals; preserve gate, budgets and protected work. No replay, extra provider calls or changes."
   }
 }

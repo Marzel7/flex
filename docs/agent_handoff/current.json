@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Freeze that policy while PAYMENT_DENIED, then perform the existing read-only coordinated three-role deployment preflight against this candidate. Do not deploy, restore/probe Helius, replay queues or freeze the Golden Baseline.",
+  "next_action": "Read-only diagnosis of the 11 newly exhausted migration notifications; preserve evidence, no replay/reset or provider calls.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "03ec5f71f6cf7d6b2f76ac906a6cd258d8619096",
+    "git_head": "ce34414d86d80ba9064ff55851a3068dc4b6b05e",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-26T23:53:36.647279+00:00",
-    "working_tree": "455f160d deployedPASS; old owners kernel-proven exited; three slots reconciled without credit refund; current-key gateOPEN and natural RPC completing."
+    "updated_at_utc": "2026-10-27T00:05:34.380118+00:00",
+    "working_tree": "Read-only post-455 usage audit committed; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -46228,6 +46228,70 @@
       "required_floor_plus_reserve": 2067108864,
       "no_file_500MB_or_more": true
     },
-    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup."
+    "next_action": "Leave the three455f160dworkers running under current-key shared protection. Observe normal eligible processing; preserve the three uncertain request holds. No exhausted replay or blind reservation cleanup.",
+    "postdeployment_audit": {
+      "status": "PARTIAL",
+      "engineering_revision": "ce34414d86d80ba9064ff55851a3068dc4b6b05e",
+      "runtime_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+      "usage_cutoff_utc": "2026-10-27T00:00:25.059996+00:00",
+      "requests_since_activation": 693,
+      "reserved_credits_since_activation": 693,
+      "worker_credit_deltas": {
+        "listener": 24,
+        "creator_resolution": 0,
+        "walkback": 669
+      },
+      "highest_investigation_spend": 165,
+      "lifetime_limit": 100000,
+      "stuck_reservations_observed": 0,
+      "original_uncertain_requests_held": 3,
+      "spending_history_preserved": true,
+      "gate": "OPEN",
+      "progress": {
+        "pumpswap_verified_acks": 3,
+        "pumpportal_verified_migration_acks": 2,
+        "resolver": "idle; no pending work",
+        "walkback_completions": 19,
+        "new_retry_exhausted": 11
+      },
+      "verification": "Read-only ledger samples, bounded indexed queue reads, exact canonical/handoff checks; 16 installed hashes and configuration match; all three workers RUNNING. No tests rerun.",
+      "production_changes": 0,
+      "provider_calls_for_audit": 0,
+      "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/POST_DEPLOYMENT_USAGE.json",
+      "blocker": "11 new migration notifications reached RETRY_CEILING; cause not yet diagnosed.",
+      "next_action": "Read-only diagnosis of the 11 newly exhausted migration notifications; preserve evidence, no replay/reset or provider calls."
+    }
+  },
+  "flex_v2_helius_post455_usage_audit": {
+    "status": "PARTIAL",
+    "engineering_revision": "ce34414d86d80ba9064ff55851a3068dc4b6b05e",
+    "runtime_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "usage_cutoff_utc": "2026-10-27T00:00:25.059996+00:00",
+    "requests_since_activation": 693,
+    "reserved_credits_since_activation": 693,
+    "worker_credit_deltas": {
+      "listener": 24,
+      "creator_resolution": 0,
+      "walkback": 669
+    },
+    "highest_investigation_spend": 165,
+    "lifetime_limit": 100000,
+    "stuck_reservations_observed": 0,
+    "original_uncertain_requests_held": 3,
+    "spending_history_preserved": true,
+    "gate": "OPEN",
+    "progress": {
+      "pumpswap_verified_acks": 3,
+      "pumpportal_verified_migration_acks": 2,
+      "resolver": "idle; no pending work",
+      "walkback_completions": 19,
+      "new_retry_exhausted": 11
+    },
+    "verification": "Read-only ledger samples, bounded indexed queue reads, exact canonical/handoff checks; 16 installed hashes and configuration match; all three workers RUNNING. No tests rerun.",
+    "production_changes": 0,
+    "provider_calls_for_audit": 0,
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/POST_DEPLOYMENT_USAGE.json",
+    "blocker": "11 new migration notifications reached RETRY_CEILING; cause not yet diagnosed.",
+    "next_action": "Read-only diagnosis of the 11 newly exhausted migration notifications; preserve evidence, no replay/reset or provider calls."
   }
 }

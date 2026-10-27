@@ -46793,6 +46793,15 @@
     },
     "tests": "Retained 91 qualification controls reused. Live schema initialization/readback passed twice; exact payload hashes passed; original512 exact readback passed. Natural acceptance not started.",
     "recovery": "No old7dd or flag0 fallback after schema activation. Preserve exact deferred-aware forward bundle and all gate state; do not clear ambiguous publication marker blindly.",
-    "evidence_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/deployment-hold.json"
+    "evidence_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/deployment-hold.json",
+    "outage_observation": {
+      "at_utc": "2026-10-27T20:39:07Z",
+      "listener": "STOPPED since 19:51 UTC, approximately48minutes",
+      "resolver_pid": 33613,
+      "walkback_pid": 99159,
+      "verdict": "HOLD",
+      "blocker": "HELIUS_GATE_PUBLICATION_AMBIGUOUS",
+      "next_action": "Qualify safe gate publication recovery and resume deferred-aware activation; listener outage prevents live intake."
+    }
   }
 }

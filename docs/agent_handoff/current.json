@@ -49276,7 +49276,7 @@
     "progress_limiters": [
       "First sweep not complete:1038original eligible waiting jobs not examined yet.",
       "36pending jobs currently carryHELIUS_GATE_BUSY;8cycle-level gate-busy failures logged.",
-      "7pending jobs lackinvestigationownership; protected denial/review/cooldown work not replayed or reset."
+      "7pending jobs reportHELIUS_INVESTIGATION_REQUIRED; this audit does not independently establish why the dispatch context was missing. Protected denial/review/cooldown work was not replayed or reset."
     ],
     "next_action": "Leave all workers running. Continue normal bounded sweep; perform a later read-only coverage check. Gate-busy contention remains a measured progress limiter; no gate reset, reservation clearing, budget increase or exhausted replay.",
     "updated_at_utc": "2026-10-27T23:24:05.092145+00:00"

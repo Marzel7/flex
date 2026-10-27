@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "source_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+  "listener_qualified_commit": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "runtime_source_sha256": {
+    "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py": "47b613c417f4def1e9966c37a21e94458eedff8d94bac964c8fb16033941f4b4",
+    "runtime/creator_resolution/src/core/creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/creator_resolution/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py": "efd377e4c6bea7a66d6cc19b308e348c6513a370eae03378c7861283f5171639",
+    "runtime/listener/src/core/birth_admission_journal.py": "40953361669e7a04dafcabbab8ad769a309f1d3fa68e8696d9be1fb0138b4289",
+    "runtime/listener/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/listener/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/listener/src/core/migration_signature_journal.py": "a324c49d110cb902352690fd7a10ab25c001fa058de41fec7beae9f0cd23ec0c",
+    "runtime/listener/src/core/migration_terminal_evidence.py": "8e91b5e3be3ad6a6126ecd3852cdf4880cfb89a3908cf5deba69c54f6328b2f1",
+    "runtime/listener/src/core/pool_discovery.py": "24c0a8fd245046fb096570fdc49fec65f3d356c5d275a28948431c0e604d3b1b",
+    "runtime/listener/src/core/post_migration_pool_discovery.py": "ce47fbf356b0c6bee94ddc92b2b664943fb09e4e47ad8a14d141551832225a8f",
+    "runtime/listener/src/core/pumpfun_curve_listener.py": "3a5f738dbb0145e5cfefe67ac3129829e128bb5320633c878369ea0896e4cf2d",
+    "runtime/walkback/src/core/helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+    "runtime/walkback/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+    "runtime/walkback/src/core/walkback_worker.py": "0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7"
+  },
+  "runtime_payload": [
+    "runtime/listener/src/core/pumpfun_curve_listener.py"
+  ],
+  "recovery_payload": {
+    "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+    "sha256": "a5def40d99e887cfe2e8a7881ddfc803436532f0239bbb21b629085b25a25ffd",
+    "change": "Only two listener hash pins (terminal and Helius); all other definitions unchanged."
+  },
+  "configuration_authority": {
+    "sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "planned_flags": {
+      "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+      "DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED": "1",
+      "DEV004_BIRTH_TERMINAL_EVIDENCE_ENABLED": "1"
+    },
+    "shared_gate_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+    "migration_journal_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/migration.jsonl",
+    "birth_journal_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/birth.jsonl",
+    "credential_authority": "Current root .env bindings unchanged; no credential values retained."
+  },
+  "frozen_runtime_plan_transition": {
+    "preimage_sha256": "25dfc4e14381244d25fea012845d4bf917e256545cf85834059b08384bbe0883",
+    "immutable_source_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+    "immutable_source_root_planned": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-rpc-f2ec25fa/source",
+    "rule": "Stage and verify this exact immutable source and recovery renderer before separately authorized listener activation. Preserve all other runtime-plan configuration/authority fields. No live plan changes made in preflight."
+  },
+  "explicit_fallback": {
+    "source_commit": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+    "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-completion-455f160d/source",
+    "renderer_sha256": "673df320cac898fa7e232dbc5a40c0ee35a73ae359bccd85b2d0add10f9db142",
+    "listener_sha256": "565b740c096d3032c9587e92d62382139cc57605ead39239d1a84729b9973256",
+    "configuration_preimage_sha256": "d9bbf8903beace22ce5627968ceb730e74d3b05b9072cead472e3102537a5579",
+    "rule": "Fallback uses the exact455source AND its matching455renderer/source-plan, preserving current gate state, counters, owner tombstones, terminal evidence and journals. Never mix listener and renderer profiles; never reset/replay11 exhausted records. Prior retry defect returns under fallback."
+  },
+  "tests": {
+    "recovery_controls_passed": 47,
+    "provider_calls": 0,
+    "network": "blocked disposable fixtures",
+    "cases": "Candidate and explicit fallback rendering; missing/corrupt state, wrong generation, source/hash mismatch, terminal evidence, fresh compact pair, crash/restart, lifetime policy/child-owner/counter persistence"
+  },
+  "safety": {
+    "lifetime_credit_limit": 100000,
+    "production_changes": 0,
+    "protected11_unchanged": true,
+    "disk_floor_bytes": 2067108864,
+    "single_file_cap_bytes": 499000000,
+    "no_exhausted_replay": true
+  },
+  "activation_scope": "One listener source file plus exact recovery renderer/source-authority metadata. Only listener needs restart under separate deployment authorization; resolver and Walkback source/config unchanged."
+}

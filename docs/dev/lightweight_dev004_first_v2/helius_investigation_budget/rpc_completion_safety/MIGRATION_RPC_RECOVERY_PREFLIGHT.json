@@ -1,0 +1,101 @@
+{
+  "status": "GO_FOR_SEPARATELY_AUTHORIZED_LISTENER_ONLY_DEPLOYMENT",
+  "frozen_bundle_sha256": "2abc16d7d6b335fd401fe05312552d8b4badfa9574a8ebc33e2a8e2629202520",
+  "source_commit": "7ddf53125f70fee761f9031a0dfe28b27f8628fc",
+  "listener_candidate": "f2ec25fa0107dd53c5e3eb2fcfc2f1204f021bbc",
+  "recovery_pin_qualification": "PASS; both current candidate pins and separately explicit455gate-aware/terminal-aware fallback qualified. No wildcard/dual-source acceptance. Production still retains old authority until separately authorized staging.",
+  "tests_passed": 47,
+  "initial_test_findings": "Initial run exposed second terminal listener pin as well as Helius pin; both corrected. New fixture import fixed. Final47controls all pass.",
+  "preflight": {
+    "at_utc": "2026-10-27T00:31:34.189682+00:00",
+    "installed_source_mismatches": [],
+    "configuration_match": true,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "pair_file_identities_match": true,
+    "disk_free_bytes": 4270452736,
+    "disk_floor_bytes": 2067108864,
+    "gate": {
+      "state": "OPEN",
+      "lifetime_limit": 100000,
+      "current_inflight": 0,
+      "uncertain_requests_held": 3,
+      "reserved_credits_total": 2608
+    },
+    "journals": {
+      "migration": {
+        "records": 511,
+        "states": {
+          "RESOLVED": 1,
+          "RETRY_EXHAUSTED": 394,
+          "QUARANTINED": 115,
+          "ACKED": 1
+        },
+        "bytes": 302081,
+        "immediate_free_slots": 1,
+        "unpublished_tmp_exists": false
+      },
+      "birth": {
+        "records": 507,
+        "states": {
+          "QUARANTINED": 41,
+          "ACKED": 466
+        },
+        "bytes": 478190,
+        "immediate_free_slots": 5,
+        "unpublished_tmp_exists": false
+      }
+    },
+    "databases": {
+      "core": {
+        "read": "OK",
+        "bytes": 63483904,
+        "wal_bytes": 0
+      },
+      "ops": {
+        "read": "OK",
+        "bytes": 158523392,
+        "wal_bytes": 0
+      }
+    },
+    "protected11_unchanged": true,
+    "terminal": {
+      "migration_terminal_owner_v1": [
+        852,
+        945796
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "candidate_aware_pins_match": true,
+    "fallback": {
+      "immutable_revision": "455f160d59c87c774c3e86578c1da7c6d8b0e5b1",
+      "immutable_root_verified": true,
+      "renderer_sha256": "673df320cac898fa7e232dbc5a40c0ee35a73ae359bccd85b2d0add10f9db142",
+      "current_configuration_preimage_verified": true
+    },
+    "production_changes": 0,
+    "provider_calls": 0,
+    "replay": 0
+  },
+  "capacity_assessment": "Migration511/512 (1immediate slot) and birth507/512 (5immediate slots). Existing on-admission bounded verified completion/terminal lifecycle retained, migration terminal852/8192 and under64MB. No capacity or quota increase; no reclamation initiated. Recheck immediately at deployment.",
+  "rollback": "Explicit frozen455pair of source/renderer/config; gate-aware and terminal-aware. Preserve current spending and all durable evidence. No automatic replay.",
+  "next_action": "Separately authorize exact frozen listener/recovery bundle deployment. Mandatory immediate capacity/disk/source checks before staging; no deployment in this task.",
+  "production_changes": 0,
+  "provider_calls": 0,
+  "service_verification": {
+    "listener": {
+      "pid": 99111,
+      "state": "RUNNING"
+    },
+    "resolver": {
+      "pid": 99140,
+      "state": "RUNNING"
+    },
+    "walkback": {
+      "pid": 99159,
+      "state": "RUNNING"
+    }
+  }
+}

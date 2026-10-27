@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave all workers running. Continue normal bounded sweep; perform a later read-only coverage check. Gate-busy contention remains a measured progress limiter; no gate reset, reservation clearing, budget increase or exhausted replay.",
+  "next_action": "Separately qualify optional gate-busy deferral handling using disposable fixtures. If the exact owning listener application callback is required, obtain an authorized nonblocking root Python stack capture; do not change runtime authority to obtain it.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "38cfa1763819d9fb2278826cd487d51fc83da405",
+    "git_head": "4fb44299265b6760e55172764f7bbf3a9d0a4462",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-27T23:24:05.092145+00:00",
-    "working_tree": "Read-only post-b203c114 Walkback audit committed. First sweep33.03% at23:21:28UTC;6new terminal job results;277protected candidates unchanged. Runtime untouched."
+    "updated_at_utc": "2026-10-27T23:46:08.439866+00:00",
+    "working_tree": "Read-only gate-busy diagnosis committed: live listener lock owner correlated to Walkback optional-funder failure; holder high-level Python frame remains unverified. Production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -38434,7 +38434,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_WALKBACK_POST_DEPLOYMENT_AUDIT_PARTIAL",
+  "status": "FLEX_V2_GATE_BUSY_TRACE_PARTIAL",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-27T23:24:05.092145+00:00",
+  "updated_at_utc": "2026-10-27T23:46:08.439866+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -40013,7 +40013,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "FULL_SWEEP_IN_PROGRESS_GATE_CONTENTION_REMAINS",
+  "verdict": "LOCK_CONTENTION_AND_OPTIONAL_CHECK_ESCAPE_CONFIRMED_HOLDER_FRAME_UNVERIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -49280,5 +49280,65 @@
     ],
     "next_action": "Leave all workers running. Continue normal bounded sweep; perform a later read-only coverage check. Gate-busy contention remains a measured progress limiter; no gate reset, reservation clearing, budget increase or exhausted replay.",
     "updated_at_utc": "2026-10-27T23:24:05.092145+00:00"
+  },
+  "flex_v2_helius_gate_busy_lock_trace": {
+    "status": "PARTIAL",
+    "verdict": "LOCK_HOLDER_AND_OPTIONAL_CHECK_ESCAPE_CONFIRMED_HIGH_LEVEL_HOLDER_FRAME_UNVERIFIED",
+    "engineering_revision": "4fb44299265b6760e55172764f7bbf3a9d0a4462",
+    "installed_walkback_source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/HELIUS_GATE_BUSY_TRACE.json",
+    "report_sha256": "9b587569a1cecd269a26dccf71a650de53547b5c8d939b5dd81bae1fc4440c70",
+    "observed_holder": {
+      "pid": 70897,
+      "service": "watchtower_listener",
+      "fd": 14,
+      "failure_utc": "2026-10-27T23:34:19.324000+00:00",
+      "victim_walkback_pid": 4522,
+      "correlation": "Acquired gate descriptor in OS sample beginning5.63ms before and overlapping failure; F_GETLK exclusive-lock query brackets sample. Not attribution of every historical event."
+    },
+    "holder_samples": {
+      "walkback4522": 41,
+      "listener70897": 61
+    },
+    "exclusive_read_phase_samples": {
+      "walkback4522": 90,
+      "listener70897": 17
+    },
+    "call_path": "run_loop -> drain_batch -> promote_recurring_funders -> _is_program_owned -> _get_account_owner -> _rpc / HTTP admission -> gate.current -> Gate.locked -> flock(EX|NB) -> BudgetDeferred(HELIUS_GATE_BUSY)",
+    "confirmed_error_handling": "Optional check catches only HELIUS_INVESTIGATION_REQUIRED; HELIUS_GATE_BUSY is rethrown. All22retained cycle failures examined follow a distinct batch summary by1or5lines, preventing normal drain_batch return and later cycle heartbeat/projection/review. Per-job busy deferrals separately preserve pending state and existing300s retry delay.",
+    "critical_section": "Routine gate/version/owner checks exclusively read, JSON-decode and validate full1.806MB ledger (415roots,868aliases,6573requestkeys at validation snapshot). Audit-process read+validation measuredabout21ms; not asserted as production hold duration. Repeated checks can contend even on a successful-result memo hit.",
+    "authority": {
+      "installed_walkback_source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+      "all_three_gate_source_hashes_verified": true,
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "services": "watchtower_listener              RUNNING   pid 70897, uptime 2:26:42\ncreator_resolution_worker        RUNNING   pid 70926, uptime 2:26:32\nwalkback_worker                  RUNNING   pid 4522, uptime 0:35:56",
+      "gate_state": "OPEN",
+      "lifetime_credit_limit": 100000,
+      "highest_investigation_credits": 7936,
+      "inflight": []
+    },
+    "limitations": [
+      "Python-level owning-listener stack dump requires root on macOS; noninteractive sudo was unavailable. No password was requested, stored or exposed.",
+      "No per-thread gate-holder audit exists in retained logs. The listener application callback above Gate.read is unverified; unrelated historical events are not attributed by proximity.",
+      "OS samples are not a continuous trace; no absolute maximum hold duration or sampled-time percentage is claimed."
+    ],
+    "qualification": "Two tiny disposable lock API calibrations; passive OS descriptor sampling and bounded native stack/log inspection. No gate lock acquired by the audit, no new RPC tests or regression suite.",
+    "production": {
+      "production_source_configuration_database_journal_writes": 0,
+      "production_gate_lock_acquisitions_by_audit": 0,
+      "service_actions": 0,
+      "provider_calls": 0,
+      "budget_changes": 0,
+      "exhausted_replay": 0,
+      "v1_database_access": 0
+    },
+    "exact_unfinished_step": "Owning listener application callback above Gate.read not captured: nonblocking Python profiler requires root on macOS and sudo-n was unavailable. Immediate Walkback throw site cannot be disambiguated between first _rpc current() and subsequent HTTP-admission current() from retained logs.",
+    "minimum_correction": {
+      "immediate_scope": "Qualify deferring HELIUS_GATE_BUSY only within the existing optional recurring-funder check, preserving the candidate and continuing rather than aborting a completed batch. Do not borrow an investigation owner or relax other integrity exceptions.",
+      "separate_throughput_scope": "Per-job gate contention also needs a focused provider-free qualification of bounded acquisition waiting/retry and/or coherent reuse of already validated state in the existing gate owner. Preserve durable reservation-before-dispatch and publication/accounting guards; do not remove locking or reset history.",
+      "implemented": false
+    },
+    "next_action": "Separately qualify optional gate-busy deferral handling using disposable fixtures. If the exact owning listener application callback is required, obtain an authorized nonblocking root Python stack capture; do not change runtime authority to obtain it.",
+    "updated_at_utc": "2026-10-27T23:46:08.439866+00:00"
   }
 }

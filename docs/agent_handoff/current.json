@@ -22218,6 +22218,75 @@
       ]
     }
   },
+  "flex_v2_golden_recovery_claim_correction": {
+    "CANDIDATE_SHA": "4ba3ee2012f9fb94d037bff87fc708e1905f7b06",
+    "EXACT_RECOVERY_DELTA": "One line in scripts/flex_v2_fresh_pair_recovery.py: only interrupted running Walkback claims return to pending; core recovery queues retain retry. Live Walkback worker unchanged.",
+    "FLEX_V2_GOLDEN_RECOVERY_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_RECOVERY_INSTALLATION_PREFLIGHT",
+    "NEXT_ACTION": "Stage corrected immutable recovery source and replace only recovery entrypoint/hash/source-root references after fresh installation safety checks; no worker restart or live recovery required for reference installation. Separately authorize existing lifecycle installation/initialization. Do not freeze Golden Baseline or delete V1 yet.",
+    "PROVIDER_FREE_TEST_RESULTS": {
+      "artifact_reference_checks": 5,
+      "failed": 0,
+      "network": "Blocked in disposable fixtures; no provider calls",
+      "passed": 16,
+      "scope": "9new claim/eligibility/protection/crash tests +7 directly affected accepted gate/fresh-pair controls. No broad suite repeated.",
+      "test_file": "tests/test_v2_fresh_pair_walkback_claims.py"
+    },
+    "RECOVERY_ENTRYPOINT_PINS": {
+      "bundle": {
+        "bytes": 2557,
+        "path": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-golden-recovery/4ba3ee2012f9fb94d037bff87fc708e1905f7b06/FROZEN_RECOVERY_BUNDLE.json",
+        "sha256": "c822c965f0c18c99c2286ea0e472763471e9b4054e8979e192d4334aea04d69b"
+      },
+      "entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "future_staging_required": true,
+      "production_plan_changed": false,
+      "prospective_plan": {
+        "bytes": 53281,
+        "path": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-golden-recovery/4ba3ee2012f9fb94d037bff87fc708e1905f7b06/candidate-runtime-plan.private.json",
+        "sha256": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1"
+      },
+      "prospective_pointers": "Both rollback.tool and execution registry bind corrected immutable entrypoint; renderer registry binds unchanged current gate-aware renderer. No legacy recovery fallback.",
+      "renderer_changed": false,
+      "renderer_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811"
+    },
+    "RECOVERY_IDEMPOTENCE": "Repeated recovery, crash-before-commit rollback and crash-after-commit restart passed on disposable SQLite fixtures.",
+    "RUNTIME_CONTINUITY": {
+      "free_bytes": 2565787648,
+      "gate": "OPEN",
+      "limit": 100000,
+      "live_gate_locks": 0,
+      "workers": "watchtower_listener              RUNNING   pid 43753, uptime 2:56:12\ncreator_resolution_worker        RUNNING   pid 28017, uptime 3:45:05\nwalkback_worker                  RUNNING   pid 28051, uptime 3:44:59\n"
+    },
+    "SEVEN_DAY_LIFECYCLE_READINESS": {
+      "accepted_cleanup_controls_reused": 31,
+      "protected": "Canonical,CREATE,attribution,retries,quarantine,terminal/deferred,budgets and insufficiently qualified receipts retained. No cleanup performed.",
+      "remaining": [
+        "Exact compatible lifecycle owner and caller payload staging",
+        "Separately authorized additive V2 owner-state initialization",
+        "Single existing rendered15-minute lifecycle schedule and bounded first-run verification"
+      ],
+      "source_unchanged": true,
+      "status": "QUALIFIED_NOT_INSTALLED_INITIALIZED",
+      "storage": "Existing499MB file cap,finite quotas,disk floor retained; no absoluteWAL or5GiB guarantee claimed."
+    },
+    "SPENDING_AND_EVIDENCE_PRESERVATION": "Accepted paired generation, full investigation budget/child ownership/uncertain reservation, protected terminal and prospective publication-receipt controls passed. CREATE/attribution/deferred evidence sentinel rows unchanged by exact claim loop; no provider dispatch or replay.",
+    "WALKBACK_CLAIM_ELIGIBILITY": "Existing drain predicate selects due restored pending claims below retry ceiling; original attempts and next_retry_at preserved. Future-timed/max-attempt jobs remain ineligible; completed/failed/waiting/quarantined/exhausted jobs unchanged.",
+    "blocker": "No remaining demonstrated claim-state defect. Production installation not authorized; fresh deployment safety/preimages and staging still required. Qualified lifecycle owner remains uninstalled/uninitialized.",
+    "engineering_evidence_revision": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
+    "private_artifacts_not_runtime_configuration": true,
+    "report_sha256": "d3028cb91f9c582fc3746e08620d9839c4285a332a6c59cfe63563af28449bc1",
+    "safety": {
+      "V1_access": 0,
+      "live_gate_locks": 0,
+      "live_queue_replay_reset": 0,
+      "new_worktree_or_workstream": false,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "source_configuration_changes_production": 0,
+      "worker_restarts": 0
+    }
+  },
   "flex_v2_golden_recovery_lifecycle_preflight": {
     "CURRENT_RUNTIME_MANIFEST": {
       "activation_or_golden_freeze": false,
@@ -49655,11 +49724,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "30ad7094076e83119efef42026a97d18a18af849",
+    "git_head": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T17:49:25.612493+00:00",
-    "working_tree": "Golden recovery/lifecycle preflightHOLD: exact disposable current-source recovery loop puts runningWalkback into unconsumedretry state. Current gateOPEN allworkersRUNNING.2119source bindings reconciled;oldrecoverypointer/staging+qualifiedlifecycleactivation remain. No production changes,locks,provider calls,V1reads."
+    "updated_at_utc": "2026-10-28T18:00:53.060227+00:00",
+    "working_tree": "Recovery-only claim fix qualified:4ba3ee20 one-lineWalkbackpending transition;16focusedtests+5referencechecksPASS;privategate-awareentrypointbundle c822c965 frozen. LivegateOPEN workersunchanged,100k preserved. No deployment/lifecycleinit/V1access."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

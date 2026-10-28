@@ -21781,6 +21781,153 @@
       "provider_free": true
     }
   },
+  "flex_v2_golden_candidate_consolidation": {
+    "DORMANT_RUNTIME_PACKAGING": {
+      "API_existing_asset_HTTP_fixture": "PASS",
+      "API_monitor_bridge_cold_imports": "PASS_WITH_NETWORK_THREADS_AND_PORT_BINDS_BLOCKED",
+      "activation_authorized": false,
+      "browser_visible_acceptance": "NOT_TESTED",
+      "existing_API_routes_and_UI_assets": "PRESERVED",
+      "production_services": "ALL_THREE_STOPPED",
+      "source_from_same_commit": true,
+      "stable_monitor_queue_selection_budget_state": "IDENTIFIED_WITHOUT_OLD_WORKTREE_DEPENDENCY"
+    },
+    "FLEX_V2_GOLDEN_CANDIDATE_STATUS": "PASS_REPRODUCIBLE_CANDIDATE_NOT_TAGGED",
+    "FROZEN_RUNTIME_MANIFEST_SHA": "4dbba179cc7b0f05438069ab0df385df504667ef962e38d877806a6cef9bf75e",
+    "GO_HOLD_DECISION": "GO_FOR_GOLDEN_FREEZE",
+    "IMMUTABLE_SOURCE_COMMIT": "8322e2c98a5a096863c253d33f79bff161fde629",
+    "NEXT_ACTION": "Review this single source commit and manifest for Golden freeze authorization. Keep live workers and retention schedule unchanged. V1 retirement/deletion remains separately gated; no V1 contents accessed.",
+    "PROVIDER_FREE_TEST_RESULTS": {
+      "failures": 0,
+      "independent_single_commit_reconstruction_controls_passed": 28,
+      "isolated_integration_controls_passed": 23,
+      "isolated_manifest_controls_passed": 12,
+      "production_provider_calls_or_gate_locks": 0,
+      "reconstruction": "Fresh independent local Git repository fetched exactly the single candidate commit, no historical worktree pointers.",
+      "total_test_executions": 63,
+      "warning": "Existing pytest asyncio_mode option warning; plugins deliberately disabled."
+    },
+    "RECOVERY_COMPATIBILITY": {
+      "Helius_history_investigation_owner_and_uncertain_requests": "PRESERVED_IN_FIXTURES",
+      "compact_matched_pair": "PROVIDER_FREE_PASS",
+      "entrypoint": "scripts/flex_v2_fresh_pair_recovery.py",
+      "entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "external_data_and_recovery_state": "Identified in the one manifest; live databases/budgets/queues not copied or reset.",
+      "interrupted_Walkback_claim_state": "pending",
+      "live_recovery_executed": false,
+      "rebind_contract": "After an authorized fresh pair, explicitly rebind lifecycle/dormant profiles; old authority fails closed.",
+      "retry_attempts_and_timing": "UNCHANGED_IN_FIXTURES",
+      "stale_mixed_generation_source": "REJECTED",
+      "terminal_deferred_CREATE_evidence": "PRESERVED_IN_FIXTURES"
+    },
+    "REMAINING_BLOCKERS": [],
+    "SEVEN_DAY_RETENTION": {
+      "absolute_WAL_guarantee": false,
+      "cadence": "15minutes",
+      "existing_schedule_count": 1,
+      "fixture_controls": "PASS",
+      "installed_and_initialized": true,
+      "lifecycle_examined_progress": "WSS64 at installation ->128 in retained state; no cleanup invoked by this task.",
+      "minimum_age_seconds": 604800,
+      "protected_families": "Canonical,receipt,journal,custody,spending,attribution and unknown evidence",
+      "rows_per_step": 64,
+      "steps_per_run": 3
+    },
+    "SOURCE_COMPOSITION_MATCH": {
+      "candidate_start": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+      "differences": 0,
+      "installed_authority_deltas_reconciled": 10,
+      "installed_python_files_matched": 2089,
+      "no_credential_values_in_manifest": true,
+      "no_historical_Codex_worktree_runtime_dependencies": true,
+      "source_files_hash_verified_in_reconstruction": 3312,
+      "three_workers_source_unchanged": true
+    },
+    "explicit_operational_limitations": [
+      "Narrow finite birth-journal headroom; verified ACK completion capacity remains reusable.",
+      "Historical CREATE-waiting backlog and two blocked CREATE deliveries remain protected.",
+      "Walkback first-claim latency is a retained operational limitation, not repaired here.",
+      "Exact historical CREATE availability at handoff is unprovable; no timestamps backfilled.",
+      "Browser-visible UI acceptance is unverified.",
+      "Dormant activation, live recovery, Golden tag and V1 deletion not performed."
+    ],
+    "golden_tag_or_freeze_executed": false,
+    "manifest_path": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-golden-candidate/8322e2c98a5a096863c253d33f79bff161fde629/FROZEN_RUNTIME_MANIFEST.json",
+    "observed_utc": "2026-10-28T20:12:11.980611+00:00",
+    "production_flags": {
+      "golden_candidate_deployed": false,
+      "golden_frozen_or_tagged": false,
+      "helius_gate_state": "OPEN",
+      "installed_runtime_source": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+      "investigation_lifetime_limit": 100000,
+      "production_writes_this_task": 0,
+      "provider_calls_this_task": 0,
+      "retention_schedule_active": true,
+      "service_restarts_this_task": 0
+    },
+    "report_sha256": "c93ff2ea00066a46de39c3be6646d557f11379b1064151ee50ac48939527bc88",
+    "runtime_continuity": {
+      "Helius": {
+        "limit": 100000,
+        "publication": "READY_V1",
+        "reserved_credit_estimate": 85502,
+        "state": "OPEN",
+        "uncertain_requests": 5
+      },
+      "all_RUNNING": true,
+      "custody": {
+        "birth_terminal_owner_v1": [
+          672,
+          913204
+        ],
+        "migration_deferred_owner_v1": [
+          661,
+          1737031
+        ],
+        "migration_terminal_owner_v1": [
+          1833,
+          2050329
+        ]
+      },
+      "database_WAL_sizes": {
+        "core": {
+          "": 93278208,
+          "-shm": 0,
+          "-wal": 0
+        },
+        "ops": {
+          "": 166883328,
+          "-shm": 0,
+          "-wal": 0
+        }
+      },
+      "disk_free_bytes": 6459682816,
+      "latest_birth_capacity_readback": {
+        "acked": 3,
+        "free": 3,
+        "independent_completion_readback": 3,
+        "occupied": 509
+      },
+      "matched_ACTIVE_generation": "DEV004-V2-20261024-dfb76562",
+      "migration_journal": {
+        "free": 28,
+        "occupied": 484,
+        "states": {
+          "PENDING": 483,
+          "RESOLVED": 1
+        }
+      },
+      "no_production_mutations_restarts_or_manual_cleanup": true,
+      "worker_pids": [
+        39360,
+        39412,
+        39439
+      ]
+    },
+    "source_branch": "codex/flex-v2-golden-baseline",
+    "source_remote_branch": "origin/codex/flex-v2-golden-baseline",
+    "source_remote_verified": true
+  },
   "flex_v2_golden_readiness_assessment": {
     "BIRTH_CREATE_COVERAGE": {
       "at_handoff": "UNKNOWN; source-qualified current anchors do not prove historical activation commit timing",
@@ -50608,12 +50755,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "48c9dbffe93d53731fdd479c833f0e7fe26c7e50",
+    "branch": "codex/flex-v2-golden-baseline",
+    "git_head": "8322e2c98a5a096863c253d33f79bff161fde629",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T19:53:31.292315+00:00",
-    "working_tree": "Seven-day lifecycle installationPASS:e1b31c5a listener+3cachecallers+owner/recoverypins installed;state2Core+1OPS initialized;one15min schedule;firstboundedcleanup64examined0deleted. ThreeworkersRUNNING newPIDs39360/39412/39439;gateOPEN READY100k,5uncertain,84835reservedestimate,0inflightfinal;320sacceptance birthsverified,migrationnewcompletion/Walkbackcompletionunobserved;6.81GBfree,birth508/512 migration476/512."
+    "updated_at_utc": "2026-10-28T20:13:05.364674+00:00",
+    "working_tree": "Golden candidateGO_FOR_GOLDEN_FREEZE,not tagged/deployed. Single source8322e2c and credential-free manifest4dbba179;2089 installed Pythonmodules exact,3312 sourcehashes independently verified;35 isolated+28 reconstructed controlsPASS. Threeworkers39360/39412/39439 unchanged,gateOPEN100k,5uncertain;one15min lifecycle continues. No V1 access."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

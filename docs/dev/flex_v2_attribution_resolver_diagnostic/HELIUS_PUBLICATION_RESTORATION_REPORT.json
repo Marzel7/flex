@@ -1,0 +1,513 @@
+{
+  "FLEX_V2_HELIUS_RESTORATION_STATUS": "PASS",
+  "changed_retained_notifications": 104,
+  "completed_report_utc": "2026-10-28T14:34:43.861242+00:00",
+  "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+  "database_files": {
+    "core": {
+      "-shm": 32768,
+      "-wal": 0,
+      "database": 88518656
+    },
+    "ops": {
+      "database": 164302848
+    }
+  },
+  "duration_seconds": 301.52,
+  "extra_diagnostic_provider_calls": 0,
+  "free_bytes_final": 2780471296,
+  "fresh_acked_birth_exact_matches_lower_bound": 6,
+  "gate": "OPEN",
+  "gate_marker": "READY_V1_CHECKSUM_VERIFIED",
+  "handoffs_completed_since_restoration_verified_timestamp": 1,
+  "highest_investigation_credits": 7936,
+  "independent_role_gate_readbacks": {
+    "creator_resolution": "OPEN_CHECKSUM_VALID",
+    "listener": "OPEN_CHECKSUM_VALID",
+    "walkback": "OPEN_CHECKSUM_VALID"
+  },
+  "limit": 100000,
+  "limitations": [
+    "Reserved worst-case credits are not invoiced credits.",
+    "Currently retained journal observations can undercount reclaimed births/migrations; no historical full scan performed.",
+    "Queue changes include housekeeping, not proof of completed intelligence."
+  ],
+  "local_request_rate_per_second_during_samples": 0.8081143997339542,
+  "log_counts": {
+    "creator_resolution_worker.log": {
+      "BudgetDeferred": 0,
+      "HELIUS_GATE_BUSY": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PENDING_V1": 0,
+      "PumpSwap": 0,
+      "RETRY_EXHAUSTED": 0,
+      "Subscribed to PumpSwap": 0,
+      "Traceback": 0,
+      "migration": 0
+    },
+    "creator_resolution_worker_err.log": {
+      "BudgetDeferred": 0,
+      "HELIUS_GATE_BUSY": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PENDING_V1": 0,
+      "PumpSwap": 0,
+      "RETRY_EXHAUSTED": 0,
+      "Subscribed to PumpSwap": 0,
+      "Traceback": 0,
+      "migration": 0
+    },
+    "listener.log": {
+      "BudgetDeferred": 290,
+      "HELIUS_GATE_BUSY": 10,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PENDING_V1": 0,
+      "PumpSwap": 0,
+      "RETRY_EXHAUSTED": 0,
+      "Subscribed to PumpSwap": 0,
+      "Traceback": 0,
+      "migration": 44
+    },
+    "listener_err.log": {
+      "BudgetDeferred": 0,
+      "HELIUS_GATE_BUSY": 10,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PENDING_V1": 0,
+      "PumpSwap": 0,
+      "RETRY_EXHAUSTED": 0,
+      "Subscribed to PumpSwap": 0,
+      "Traceback": 0,
+      "migration": 4
+    },
+    "walkback_worker.log": {
+      "BudgetDeferred": 0,
+      "HELIUS_GATE_BUSY": 3,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PENDING_V1": 0,
+      "PumpSwap": 0,
+      "RETRY_EXHAUSTED": 0,
+      "Subscribed to PumpSwap": 0,
+      "Traceback": 0,
+      "migration": 0
+    },
+    "walkback_worker_err.log": {
+      "BudgetDeferred": 0,
+      "HELIUS_GATE_BUSY": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PENDING_V1": 0,
+      "PumpSwap": 0,
+      "RETRY_EXHAUSTED": 0,
+      "Subscribed to PumpSwap": 0,
+      "Traceback": 0,
+      "migration": 0
+    }
+  },
+  "natural_helius_reserved_credits_excluding_probe": 292,
+  "new_exhausted_retained": 0,
+  "new_exhaustion_causes": {},
+  "new_provider_probes": 1,
+  "next_action": "Leave all three workers running with Helius OPEN under the unchanged100000-credit investigation limit. No exhausted replay.",
+  "observed_canonical_migration_exact_matches": 1,
+  "observed_completed_core_ops_handoffs": 1,
+  "observed_status_deltas_scope": "Request/method counts are durable reservations and reserved worst-case credits, not provider billing totals.",
+  "probe_included_in_accounting": true,
+  "pumpswap_subscription": {
+    "effective_at": 1793198024,
+    "reason": "logsSubscribe confirmed",
+    "retained_confirmation": "VERIFIED",
+    "state": "AVAILABLE",
+    "transient_subscription_failure_recovered": true
+  },
+  "quotas": {
+    "birth_terminal": {
+      "bytes": 778339,
+      "records": 572
+    },
+    "migration_deferred": {
+      "bytes": 1345032,
+      "records": 511
+    },
+    "migration_terminal": {
+      "bytes": 2031558,
+      "records": 1817
+    }
+  },
+  "requests_by_method_including_probe": {
+    "rpc:getAccountInfo": 222,
+    "rpc:getMultipleAccounts": 44,
+    "rpc:getSignaturesForAddress": 4,
+    "rpc:getTokenLargestAccounts": 9,
+    "rpc:getTransaction": 14
+  },
+  "reserved_credits_by_worker_including_probe": {
+    "creator_resolution": 0,
+    "listener": 288,
+    "walkback": 5
+  },
+  "reserved_credits_total": 74213,
+  "restarts": 0,
+  "restoration": {
+    "exception_type": null,
+    "free_bytes": 2795737088,
+    "gate_after": "OPEN",
+    "gate_before": "PAYMENT_DENIED",
+    "limit": 100000,
+    "phase": "OPEN_OBSERVATION_PENDING",
+    "probe_http_status": 200,
+    "probe_requests": 1,
+    "probe_reserved_credits": 1,
+    "restarts": 0,
+    "restored_epoch": 1793197582.6348412,
+    "restored_utc": "2026-10-28T14:26:22.634851+00:00",
+    "services": {
+      "creator_resolution_worker": {
+        "pid": 28017,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 28051,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 27965,
+        "state": "RUNNING"
+      }
+    },
+    "source_changes": 0,
+    "spending_preserved": true,
+    "uncertain_requests_preserved": 5,
+    "usable_transaction": true,
+    "validation_durable_before_finalization": true
+  },
+  "runtime_plan_sha256": "8e61577ce647630947293abd97fdf9e941072b286ea47767034ac0143334d9e6",
+  "samples": [
+    {
+      "credits_since_before_probe": 50,
+      "elapsed_seconds": 0.5,
+      "free_bytes": 2796888064,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 11,
+          "records": 501,
+          "states": {
+            "ACKED": 2,
+            "QUARANTINED": 498,
+            "RESOLVED": 1
+          }
+        },
+        "migration": {
+          "free": 30,
+          "records": 482,
+          "states": {
+            "PENDING": 481,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 50
+    },
+    {
+      "credits_since_before_probe": 63,
+      "elapsed_seconds": 31.0,
+      "free_bytes": 2795507712,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 3,
+          "records": 509,
+          "states": {
+            "ACKED": 11,
+            "QUARANTINED": 498
+          }
+        },
+        "migration": {
+          "free": 21,
+          "records": 491,
+          "states": {
+            "ACKED": 2,
+            "PENDING": 488,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 63
+    },
+    {
+      "credits_since_before_probe": 78,
+      "elapsed_seconds": 61.4,
+      "free_bytes": 2798256128,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 10,
+          "records": 502,
+          "states": {
+            "ACKED": 4,
+            "QUARANTINED": 498
+          }
+        },
+        "migration": {
+          "free": 30,
+          "records": 482,
+          "states": {
+            "ACKED": 1,
+            "PENDING": 480,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 78
+    },
+    {
+      "credits_since_before_probe": 93,
+      "elapsed_seconds": 91.6,
+      "free_bytes": 2795896832,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 7,
+          "records": 505,
+          "states": {
+            "ACKED": 6,
+            "QUARANTINED": 498,
+            "RESOLVED": 1
+          }
+        },
+        "migration": {
+          "free": 21,
+          "records": 491,
+          "states": {
+            "PENDING": 490,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 93
+    },
+    {
+      "credits_since_before_probe": 108,
+      "elapsed_seconds": 122.2,
+      "free_bytes": 2795040768,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 1,
+          "records": 511,
+          "states": {
+            "ACKED": 13,
+            "QUARANTINED": 498
+          }
+        },
+        "migration": {
+          "free": 29,
+          "records": 483,
+          "states": {
+            "ACKED": 1,
+            "PENDING": 481,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 108
+    },
+    {
+      "credits_since_before_probe": 122,
+      "elapsed_seconds": 152.6,
+      "free_bytes": 2793906176,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 7,
+          "records": 505,
+          "states": {
+            "ACKED": 7,
+            "QUARANTINED": 498
+          }
+        },
+        "migration": {
+          "free": 39,
+          "records": 473,
+          "states": {
+            "PENDING": 472,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 122
+    },
+    {
+      "credits_since_before_probe": 141,
+      "elapsed_seconds": 183.7,
+      "free_bytes": 2792153088,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 1,
+          "records": 511,
+          "states": {
+            "ACKED": 13,
+            "QUARANTINED": 498
+          }
+        },
+        "migration": {
+          "free": 39,
+          "records": 473,
+          "states": {
+            "PENDING": 471,
+            "RESOLVED": 2
+          }
+        }
+      },
+      "requests_since_before_probe": 141
+    },
+    {
+      "credits_since_before_probe": 218,
+      "elapsed_seconds": 214.8,
+      "free_bytes": 2790232064,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 5,
+          "records": 507,
+          "states": {
+            "ACKED": 8,
+            "QUARANTINED": 498,
+            "RESOLVED": 1
+          }
+        },
+        "migration": {
+          "free": 39,
+          "records": 473,
+          "states": {
+            "ACKED": 2,
+            "PENDING": 469,
+            "RESOLVED": 2
+          }
+        }
+      },
+      "requests_since_before_probe": 218
+    },
+    {
+      "credits_since_before_probe": 247,
+      "elapsed_seconds": 245.1,
+      "free_bytes": 2787950592,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 8,
+          "records": 504,
+          "states": {
+            "ACKED": 5,
+            "QUARANTINED": 498,
+            "RESOLVED": 1
+          }
+        },
+        "migration": {
+          "free": 40,
+          "records": 472,
+          "states": {
+            "ACKED": 1,
+            "PENDING": 470,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 247
+    },
+    {
+      "credits_since_before_probe": 247,
+      "elapsed_seconds": 275.3,
+      "free_bytes": 2786684928,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 13,
+          "records": 499,
+          "states": {
+            "ACKED": 1,
+            "QUARANTINED": 498
+          }
+        },
+        "migration": {
+          "free": 35,
+          "records": 477,
+          "states": {
+            "PENDING": 476,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 247
+    },
+    {
+      "credits_since_before_probe": 293,
+      "elapsed_seconds": 301.2,
+      "free_bytes": 2785230848,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 7,
+          "records": 505,
+          "states": {
+            "ACKED": 6,
+            "QUARANTINED": 498,
+            "RESOLVED": 1
+          }
+        },
+        "migration": {
+          "free": 24,
+          "records": 488,
+          "states": {
+            "ACKED": 1,
+            "PENDING": 486,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "requests_since_before_probe": 293
+    }
+  ],
+  "source_candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+  "source_schema_budget_changes": 0,
+  "spending_history_preserved": true,
+  "status": "PASS",
+  "status_scope": "PASS_CONTROLLED_RESTORATION; Walkback completions unobserved (zero), not claimed as intelligence completion.",
+  "uncertain_requests_preserved": 5,
+  "walkback_natural_reserved_credits_excluding_probe": 4,
+  "walkback_new_completions": 0,
+  "walkback_queue_rows_changed": 30,
+  "walkback_states": {
+    "complete": 1997,
+    "failed": 56,
+    "pending": 93,
+    "waiting": 1551
+  }
+}

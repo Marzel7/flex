@@ -25796,12 +25796,202 @@
     "terminal_verified_records": 1789,
     "undefined_logger_errors": 0
   },
+  "flex_v2_post_restoration_health_check": {
+    "automation_deleted": true,
+    "automation_id": "flex-v2-post-restoration-health-check",
+    "availability": [
+      [
+        "BIRTH",
+        "DOWN",
+        1793200057,
+        "websocket failure: JournalHold"
+      ],
+      [
+        "BIRTH",
+        "AVAILABLE",
+        1793200048,
+        "subscribeNewToken sent on connected PumpPortal websocket"
+      ],
+      [
+        "BIRTH",
+        "DOWN",
+        1793200042,
+        "websocket failure: JournalHold"
+      ],
+      [
+        "BIRTH",
+        "AVAILABLE",
+        1793200041,
+        "subscribeNewToken sent on connected PumpPortal websocket"
+      ],
+      [
+        "BIRTH",
+        "DOWN",
+        1793200035,
+        "websocket failure: JournalHold"
+      ],
+      [
+        "BIRTH",
+        "AVAILABLE",
+        1793200030,
+        "subscribeNewToken sent on connected PumpPortal websocket"
+      ]
+    ],
+    "birth_canonical_exact_matches_current_journal_lower_bound": 2,
+    "canonical_completed_core_ops_handoffs_since_restoration": 32,
+    "database_files": {
+      "core": {
+        "-shm": 32768,
+        "-wal": 12392,
+        "database": 88977408
+      },
+      "ops": {
+        "database": 164450304
+      }
+    },
+    "disk_floor_bytes": 2067108864,
+    "disk_free_bytes": 1614262272,
+    "elapsed_minutes": 41.23317631483078,
+    "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "evidence_sha256": "5a26d7e6b34d8c3768afc8cf70012d323be0862a23a520b55b1e149e57eb0342",
+    "existing_protected_terminal_evidence_preserved": true,
+    "findings": [
+      "DISK_BELOW_REQUIRED_FLOOR",
+      "LISTENER_PID_CHANGED_SINCE_ACCEPTANCE",
+      "BIRTH_AVAILABILITY_FLAPPING_JOURNALHOLD"
+    ],
+    "gate": "OPEN",
+    "gate_mutations_authorized_in_this_check": false,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "highest_investigation_credits": 7936,
+    "inflight": [],
+    "investigation_limit": 100000,
+    "journals": {
+      "birth": {
+        "free_slots": 7,
+        "records": 505,
+        "states": {
+          "ACKED": 2,
+          "QUARANTINED": 503
+        }
+      },
+      "migration": {
+        "free_slots": 33,
+        "records": 479,
+        "states": {
+          "PENDING": 478,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "limitations": [
+      "Reserved worst-case credits are not billed credits.",
+      "Queue changes include housekeeping; not intelligence completions.",
+      "Current active-journal birth counts undercount reclaimed completed births."
+    ],
+    "listener_pid_changed_since_acceptance": true,
+    "new_exhausted_since_restoration": 0,
+    "next_action": "Restore disk headroom above2067108864 bytes plus operating reserve, then authorize/read-only recheck. No recovery, gate mutation, service control or engineering performed. One-time monitor stopped.",
+    "observed_utc": "2026-10-28T15:07:37.399370+00:00",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "publication_checksum_verified": true,
+    "quotas": {
+      "birth_terminal": {
+        "bytes": 778339,
+        "free_records": 7620,
+        "records": 572
+      },
+      "migration_deferred": {
+        "bytes": 1345032,
+        "free_records": 7681,
+        "records": 511
+      },
+      "migration_terminal": {
+        "bytes": 2031558,
+        "free_records": 6375,
+        "records": 1817
+      }
+    },
+    "recent_log_count_limit": "Tail counts are not timestamp-filtered and can include historical pre-fix errors; do not infer recurring publication ambiguity from these counts. Current gate checksum is valid.",
+    "recent_retained_log_codes": {
+      "listener.log": {
+        "DISK_FLOOR": 63,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "JournalHold": 65,
+        "Traceback": 0
+      },
+      "listener_err.log": {
+        "DISK_FLOOR": 4,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 22,
+        "JOURNAL_CAPACITY": 6,
+        "JournalHold": 68,
+        "Traceback": 34
+      }
+    },
+    "replay_reset": 0,
+    "requests_by_method_since_restoration_including_one_probe": {
+      "rpc:getAccountInfo": 682,
+      "rpc:getMultipleAccounts": 123,
+      "rpc:getSignaturesForAddress": 202,
+      "rpc:getTokenAccountsByOwner": 2,
+      "rpc:getTokenLargestAccounts": 19,
+      "rpc:getTransaction": 340
+    },
+    "requests_per_second_since_restoration": 0.5529527928169647,
+    "reserved_credit_increase_since_acceptance": 1075,
+    "reserved_credits_by_worker_since_restoration_including_one_probe": {
+      "creator_resolution": 0,
+      "listener": 702,
+      "walkback": 666
+    },
+    "reserved_credits_total": 75288,
+    "restarts": 0,
+    "restored_utc": "2026-10-28T14:26:22.634841+00:00",
+    "same_worker_pids": false,
+    "services": {
+      "creator_resolution_worker": {
+        "pid": 28017,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 28051,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 43753,
+        "state": "RUNNING"
+      }
+    },
+    "source_candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "status": "HOLD_STORAGE_SAFETY",
+    "uncertain_requests_preserved": 5,
+    "walkback_completions_since_restoration": 12,
+    "walkback_helius_error_categories": {
+      "HELIUS_ACQUISITION_DEFERRED": 130,
+      "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
+      "HELIUS_GATE_BUSY": 142,
+      "HELIUS_INVESTIGATION_REQUIRED": 25,
+      "HELIUS_REQUEST_COOLDOWN": 1,
+      "HELIUS_REQUEST_RATE_LIMIT": 16,
+      "HELIUS_TRANSPORT_UNAVAILABLE": 1
+    },
+    "walkback_queue_changed_since_restoration": 114,
+    "walkback_states": {
+      "complete": 2009,
+      "failed": 56,
+      "pending": 101,
+      "waiting": 1551
+    }
+  },
   "flex_v2_post_restoration_monitor": {
+    "automation_deleted": true,
     "automation_id": "flex-v2-post-restoration-health-check",
     "baseline_handoff": "c7066fa6",
     "blocker": null,
     "follow_up_minutes": 20,
-    "next_action": "Run one bounded read-only health check when scheduled, publish results, then stop the follow-up. No engineering, provider calls, restarts or replay.",
+    "next_action": "Restore disk headroom above2067108864 bytes plus operating reserve, then authorize/read-only recheck. No recovery, gate mutation, service control or engineering performed. One-time monitor stopped.",
     "production_actions_this_turn": 0,
     "provider_calls_this_turn": 0,
     "scope": [
@@ -25813,7 +26003,7 @@
       "worker and storage safety"
     ],
     "source_changes": 0,
-    "status": "SCHEDULED_READ_ONLY",
+    "status": "COMPLETE_HOLD_STORAGE",
     "tests": "Not applicable: scheduling only; no new runtime verdict"
   },
   "flex_v2_post_restore_stall_diagnosis": {
@@ -47316,8 +47506,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T14:47:34.309844+00:00",
-    "working_tree": "Controlled Helius restoration PASS; exactly one validated probe; all three workers unchanged and OPEN. Zero Walkback completions in five-minute acceptance explicitly retained."
+    "updated_at_utc": "2026-10-28T15:08:39.843360+00:00",
+    "working_tree": "Read-only scheduled check complete: storage below required floor, birth JournalHold flapping. Gate OPEN and checksum valid;32 handoffs and12 Walkback completions since restoration. No production changes. One-time monitor deleted."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

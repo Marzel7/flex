@@ -22939,6 +22939,89 @@
       "walkback": 669
     }
   },
+  "flex_v2_helius_publication_preflight": {
+    "activation_plan_sha256": "dabc3d8314235517ae4831d0888639d247596fc874756e4c00b402f87171003d",
+    "blocker": "No deployment-preflight blocker; current operational legacy publication ambiguity remains untouched. No authority to reopen Helius.",
+    "bundle_sha256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
+    "candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "disk": {
+      "free_bytes": 4031901696,
+      "normal_gate_floor": 2067108864,
+      "required_deployment_floor": 2771751936,
+      "single_file_cap": 499000000
+    },
+    "engineering_revision": "b0cfdcc03817967c8f77f4ba63f74df790ec6af4",
+    "fallback_profile_sha256": "b0afb3714a05c10a4ca5c7215670eccbc18abd0b86864f2ae48213a4c18dc0ae",
+    "journals": {
+      "birth": {
+        "bytes": 405568,
+        "free_slots": 0,
+        "records": 512,
+        "states": {
+          "ACKED": 1,
+          "QUARANTINED": 511
+        }
+      },
+      "migration": {
+        "bytes": 274700,
+        "free_slots": 24,
+        "records": 488,
+        "states": {
+          "PENDING": 487,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "ledger": {
+      "body_sha256": "e818c82c7c1b5fdd2891f08feb6f8182876636e9db941a6452d818e42c99ae01",
+      "held_requests": 5,
+      "inflight": 0,
+      "reserved_credits": 73920
+    },
+    "next_action": "Authorize exact four-file all-three-role activation including qualified conservative legacy publication recovery; keep Helius closed. No restoration probe included.",
+    "observed_utc": "2026-10-28T13:51:23.073475+00:00",
+    "production_actions": {
+      "budget_changes": 0,
+      "gate_reset_or_recovery": 0,
+      "provider_calls_probes": 0,
+      "replay_reset": 0,
+      "restarts": 0,
+      "writes": 0
+    },
+    "production_flags": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "helius_acquisition": "FAIL_CLOSED_PENDING_V1_UNCHANGED",
+      "limit": 100000
+    },
+    "report_sha256": "3f83cf1e4bd3a0d4c42a3429ff9b3255d84bb5111d71bf2a63a073ea61bec10a",
+    "runtime": {
+      "actual_v2_gate_and_telemetry_bindings_verified": true,
+      "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "phase": "ACTIVE",
+      "runtime_plan_sha256": "847559417191e375ffac67459f95ea1d67bebcb49390bfe544a8673967c2108a",
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 99531,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 99556,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 99484,
+          "state": "RUNNING"
+        }
+      },
+      "supervisor_pid": 1131
+    },
+    "status": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "tests": {
+      "accepted_provider_free_reused": 132,
+      "exact_current_ledger_recovery_on_disposable_copy": "PASS"
+    }
+  },
   "flex_v2_helius_publication_qualification": {
     "bundle_sha256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
     "candidate_sha": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
@@ -46985,11 +47068,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "2af233529f1917dac981d29da9b0e12d9243b61b",
+    "git_head": "b0cfdcc03817967c8f77f4ba63f74df790ec6af4",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",
-    "working_tree": "Strictly read-only latest100 intelligence audit completed in memory after disk fell below floor. No production/source/UI changes or provider calls. Only required compact handoff saved."
+    "updated_at_utc": "2026-10-28T14:05:41.008004+00:00",
+    "working_tree": "Publication correction read-only deployment preflight frozen. No production actions; legacy PENDING_V1 remains closed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

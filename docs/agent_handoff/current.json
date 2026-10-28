@@ -20813,10 +20813,10 @@
   },
   "flex_v2_enhanced_10m_report": {
     "BIRTHS_RECEIVED_COMMITTED_RETRIED": {
-      "current_retained_exact_receipt_core_matches_lower_bound": 13,
+      "current_retained_exact_receipt_core_matches_lower_bound": 5,
       "current_states": {
-        "ACKED": 13,
-        "QUARANTINED": 495
+        "ACKED": 5,
+        "QUARANTINED": 501
       },
       "notifications_unique_mints_commits_receipt_matches_retries_conflicts": {
         "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
@@ -20825,11 +20825,11 @@
     },
     "BIRTH_JOURNAL_START_END_RECLAIMED": {
       "current_snapshot": {
-        "free_slots": 4,
-        "records": 508,
+        "free_slots": 6,
+        "records": 506,
         "states": {
-          "ACKED": 13,
-          "QUARANTINED": 495
+          "ACKED": 5,
+          "QUARANTINED": 501
         }
       },
       "current_terminal_owner": {
@@ -20850,14 +20850,14 @@
       "current_database_files": {
         "core": {
           "-shm": 32768,
-          "-wal": 0,
-          "database": 89681920
+          "-wal": 37112,
+          "database": 89829376
         },
         "ops": {
-          "database": 164773888
+          "database": 164827136
         }
       },
-      "current_free_bytes": 5966020608,
+      "current_free_bytes": 4797640704,
       "exact_window_start_end_and_log_receipt_growth": {
         "reason": "No retained exact-boundary allocation telemetry",
         "value": "UNKNOWN"
@@ -20871,7 +20871,7 @@
         "value": "UNKNOWN"
       },
       "current_reservations": [],
-      "current_total_reserved_credits": 77015,
+      "current_total_reserved_credits": 77433,
       "gate": "OPEN",
       "highest_lifetime_investigation": 7936,
       "lifetime_limit": 100000,
@@ -20892,16 +20892,15 @@
         "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
         "value": "UNKNOWN"
       },
-      "verified_completed_core_ops_handoffs": 5
+      "verified_completed_core_ops_handoffs": 4
     },
     "MIGRATION_JOURNAL_START_END_TRANSFERRED": {
       "current_snapshot": {
-        "free_slots": 21,
-        "records": 491,
+        "free_slots": 24,
+        "records": 488,
         "states": {
-          "ACKED": 2,
           "PENDING": 487,
-          "RESOLVED": 2
+          "RESOLVED": 1
         }
       },
       "current_terminal_owner": {
@@ -20924,30 +20923,30 @@
     "NEXT_ACTION": "Continue existing read-only cadence and original17:14London end time. Report unsupported metrics UNKNOWN; no production instrumentation or engineering.",
     "TREND_VS_PREVIOUS_WINDOW": {
       "completed_handoff_change": -1,
-      "walkback_completion_change": 4
+      "walkback_completion_change": 0
     },
     "WALKBACK_EXAMINED_COMPLETED_ATTRIBUTED": {
       "completed": 5,
       "completed_outcomes": {
-        "LINEAGE_GAP": 3,
-        "NO_ATTRIBUTION_FOUND": 2
+        "LINEAGE_GAP": 2,
+        "NO_ATTRIBUTION_FOUND": 3
       },
       "confirmed_operations_qualified_funding_relationships_review_candidates": {
         "reason": "No qualified relationship/attribution event window read; completion is not attribution",
         "value": "UNKNOWN"
       },
       "current_queue_states": {
-        "complete": 2030,
+        "complete": 2033,
         "failed": 56,
-        "pending": 103,
+        "pending": 104,
         "waiting": 1551
       },
       "current_retained_deferral_categories_not_window_events": {
         "HELIUS_ACQUISITION_DEFERRED": 126,
         "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-        "HELIUS_GATE_BUSY": 176,
+        "HELIUS_GATE_BUSY": 183,
         "HELIUS_INVESTIGATION_REQUIRED": 25,
-        "HELIUS_REQUEST_RATE_LIMIT": 10,
+        "HELIUS_REQUEST_RATE_LIMIT": 11,
         "HELIUS_TRANSPORT_UNAVAILABLE": 1
       },
       "examined_admitted": {
@@ -20956,8 +20955,8 @@
       }
     },
     "WINDOW_START_END": {
-      "end_exclusive": "2026-10-28T15:50:00+00:00",
-      "start_inclusive": "2026-10-28T15:40:00+00:00"
+      "end_exclusive": "2026-10-28T16:00:00+00:00",
+      "start_inclusive": "2026-10-28T15:50:00+00:00"
     },
     "WORKER_HEALTH": {
       "current": {
@@ -20981,12 +20980,12 @@
     },
     "blocker": null,
     "comparison_previous_snapshot": {
-      "from": "2026-10-28T15:46:45.200417+00:00",
-      "reserved_credit_delta": 234,
-      "to": "2026-10-28T15:56:42.411325+00:00",
+      "from": "2026-10-28T15:56:42.411325+00:00",
+      "reserved_credit_delta": 418,
+      "to": "2026-10-28T16:06:46.486879+00:00",
       "worker_pids_unchanged": true
     },
-    "evidence_sha256": "568a33059e38d49bbac2a87e5bc17e56109d946bed70e109b5a78bd1ace9cc7b",
+    "evidence_sha256": "e4460fc611761f84f23c634f18cc85879f138fa2c0d6ec4c1e263f4d92504881",
     "safety": {
       "new_services_databases": 0,
       "production_changes": 0,
@@ -20994,16 +20993,16 @@
       "replay_reset": 0,
       "restarts": 0
     },
-    "snapshot_utc": "2026-10-28T15:56:42.411325+00:00",
+    "snapshot_utc": "2026-10-28T16:06:46.486879+00:00",
     "source_revision": "30ad7094076e83119efef42026a97d18a18af849",
     "supplemental_irregular_snapshot_comparison_not_exact_window": {
-      "disk_free_bytes_delta": -6758400,
-      "from": "2026-10-28T15:46:45.200417+00:00",
-      "reserved_credit_delta": 234,
-      "to": "2026-10-28T15:56:42.411325+00:00",
+      "disk_free_bytes_delta": -1168379904,
+      "from": "2026-10-28T15:56:42.411325+00:00",
+      "reserved_credit_delta": 418,
+      "to": "2026-10-28T16:06:46.486879+00:00",
       "worker_pids_unchanged": true
     },
-    "tests": "Existing bounded read-only controls reused; no repeated suites"
+    "tests": "Existing bounded read-only controls reused"
   },
   "flex_v2_final_consolidation": {
     "critical_blocker": "Required dormant runtime composition lacks a qualified V2-safe launch/writer contract: API retains a legacy database fallback and shared writer lacks the accepted paired-generation guard. Existing dormant launch roots/configuration assumptions are not an authoritative V2 profile.",
@@ -27691,6 +27690,30 @@
       [
         "MIGRATION",
         "AVAILABLE",
+        1793203208,
+        "logsSubscribe confirmed"
+      ],
+      [
+        "MIGRATION",
+        "DOWN",
+        1793203202,
+        "websocket failure: SubscriptionUnavailable"
+      ],
+      [
+        "MIGRATION",
+        "AVAILABLE",
+        1793203022,
+        "logsSubscribe confirmed"
+      ],
+      [
+        "MIGRATION",
+        "DOWN",
+        1793203017,
+        "websocket failure: SubscriptionUnavailable"
+      ],
+      [
+        "MIGRATION",
+        "AVAILABLE",
         1793202693,
         "logsSubscribe confirmed"
       ],
@@ -27699,47 +27722,23 @@
         "DOWN",
         1793202688,
         "websocket failure: SubscriptionUnavailable"
-      ],
-      [
-        "MIGRATION",
-        "AVAILABLE",
-        1793201449,
-        "logsSubscribe confirmed"
-      ],
-      [
-        "MIGRATION",
-        "DOWN",
-        1793201441,
-        "websocket failure: SubscriptionUnavailable"
-      ],
-      [
-        "MIGRATION",
-        "AVAILABLE",
-        1793200554,
-        "logsSubscribe confirmed"
-      ],
-      [
-        "MIGRATION",
-        "DOWN",
-        1793200549,
-        "websocket failure: SubscriptionUnavailable"
       ]
     ],
-    "birth_canonical_exact_matches_current_journal_lower_bound": 13,
-    "canonical_completed_core_ops_handoffs_since_restoration": 55,
+    "birth_canonical_exact_matches_current_journal_lower_bound": 5,
+    "canonical_completed_core_ops_handoffs_since_restoration": 59,
     "database_files": {
       "core": {
         "-shm": 32768,
-        "-wal": 0,
-        "database": 89681920
+        "-wal": 37112,
+        "database": 89829376
       },
       "ops": {
-        "database": 164773888
+        "database": 164827136
       }
     },
     "disk_floor_bytes": 2067108864,
-    "disk_free_bytes": 5966020608,
-    "elapsed_minutes": 90.31865212917327,
+    "disk_free_bytes": 4797640704,
+    "elapsed_minutes": 100.38615012963614,
     "existing_protected_terminal_evidence_preserved": true,
     "findings": [],
     "gate": "OPEN",
@@ -27749,20 +27748,19 @@
     "investigation_limit": 100000,
     "journals": {
       "birth": {
-        "free_slots": 4,
-        "records": 508,
+        "free_slots": 6,
+        "records": 506,
         "states": {
-          "ACKED": 13,
-          "QUARANTINED": 495
+          "ACKED": 5,
+          "QUARANTINED": 501
         }
       },
       "migration": {
-        "free_slots": 21,
-        "records": 491,
+        "free_slots": 24,
+        "records": 488,
         "states": {
-          "ACKED": 2,
           "PENDING": 487,
-          "RESOLVED": 2
+          "RESOLVED": 1
         }
       }
     },
@@ -27773,7 +27771,7 @@
     ],
     "new_exhausted_since_restoration": 0,
     "next_action": "Report findings only; no engineering or changes authorized. Stop this one-time monitor.",
-    "observed_utc": "2026-10-28T15:56:42.411325+00:00",
+    "observed_utc": "2026-10-28T16:06:46.486879+00:00",
     "production_mutations": 0,
     "provider_calls": 0,
     "publication_checksum_verified": true,
@@ -27796,21 +27794,21 @@
     },
     "replay_reset": 0,
     "requests_by_method_since_restoration_including_one_probe": {
-      "rpc:getAccountInfo": 1402,
-      "rpc:getMultipleAccounts": 212,
-      "rpc:getSignaturesForAddress": 529,
+      "rpc:getAccountInfo": 1594,
+      "rpc:getMultipleAccounts": 228,
+      "rpc:getSignaturesForAddress": 606,
       "rpc:getTokenAccountsByOwner": 2,
-      "rpc:getTokenLargestAccounts": 29,
-      "rpc:getTransaction": 921
+      "rpc:getTokenLargestAccounts": 31,
+      "rpc:getTransaction": 1052
     },
-    "requests_per_second_since_restoration": 0.5711260311940783,
-    "reserved_credit_increase_since_acceptance": 2802,
+    "requests_per_second_since_restoration": 0.5832477879108823,
+    "reserved_credit_increase_since_acceptance": 3220,
     "reserved_credits_by_worker_since_restoration_including_one_probe": {
       "creator_resolution": 0,
-      "listener": 1265,
-      "walkback": 1830
+      "listener": 1415,
+      "walkback": 2098
     },
-    "reserved_credits_total": 77015,
+    "reserved_credits_total": 77433,
     "restarts": 0,
     "restored_utc": "2026-10-28T14:26:22.634841+00:00",
     "same_worker_pids": false,
@@ -27830,20 +27828,20 @@
     },
     "status": "PASS",
     "uncertain_requests_preserved": 5,
-    "walkback_completions_since_restoration": 33,
+    "walkback_completions_since_restoration": 36,
     "walkback_helius_error_categories": {
       "HELIUS_ACQUISITION_DEFERRED": 126,
       "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-      "HELIUS_GATE_BUSY": 176,
+      "HELIUS_GATE_BUSY": 183,
       "HELIUS_INVESTIGATION_REQUIRED": 25,
-      "HELIUS_REQUEST_RATE_LIMIT": 10,
+      "HELIUS_REQUEST_RATE_LIMIT": 11,
       "HELIUS_TRANSPORT_UNAVAILABLE": 1
     },
-    "walkback_queue_changed_since_restoration": 137,
+    "walkback_queue_changed_since_restoration": 141,
     "walkback_states": {
-      "complete": 2030,
+      "complete": 2033,
       "failed": 56,
-      "pending": 103,
+      "pending": 104,
       "waiting": 1551
     }
   },
@@ -27909,6 +27907,23 @@
           "start_inclusive": "2026-10-28T15:40:00+00:00"
         },
         "window_handoffs": 5,
+        "window_walkback_completed": 5
+      },
+      {
+        "credits": 77433,
+        "disk_free_bytes": 4797640704,
+        "notification": "DONT_NOTIFY_ROUTINE_HEALTHY",
+        "observed_utc": "2026-10-28T16:06:46.486879+00:00",
+        "outcomes": {
+          "LINEAGE_GAP": 2,
+          "NO_ATTRIBUTION_FOUND": 3
+        },
+        "status": "HEALTHY",
+        "window": {
+          "end_exclusive": "2026-10-28T16:00:00+00:00",
+          "start_inclusive": "2026-10-28T15:50:00+00:00"
+        },
+        "window_handoffs": 4,
         "window_walkback_completed": 5
       }
     ],
@@ -48287,8 +48302,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T15:56:58.145011+00:00",
-    "working_tree": "Read-only15:40\u201315:50UTC:5 verified handoffs,5 Walkbacks(3LINEAGE_GAP,2NO_ATTRIBUTION_FOUND). GateOPEN stable workers5.97GB,no stuck requests; unsupported metricsUNKNOWN."
+    "updated_at_utc": "2026-10-28T16:07:00.738142+00:00",
+    "working_tree": "Scheduled read-only15:50\u201316:00UTC:4 handoffs5 Walkbacks(2LINEAGE_GAP3NO_ATTRIBUTION_FOUND); gateOPEN stable workers4.80GB,no stuck reservations. Unknown telemetry explicit."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

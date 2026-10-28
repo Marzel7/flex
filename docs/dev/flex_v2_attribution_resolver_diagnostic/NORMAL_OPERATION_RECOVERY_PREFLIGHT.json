@@ -1,0 +1,123 @@
+{
+  "FLEX_V2_NORMAL_OPERATION_STATUS": "HOLD",
+  "GATE_PUBLICATION_RECOVERY": {
+    "status": "NOT_EXECUTED",
+    "evidence": {
+      "marker": "PENDING_V1",
+      "stage_absent": true,
+      "state_sha256": "e23303210f42ac0883daa427bae1686b9ee4df8b21444f8ae99cde8ea8ed119c",
+      "readable_content_validated_offline_with_existing_owner": true,
+      "publication_commit_outcome": "UNPROVEN",
+      "independent_exact_snapshots_found": [],
+      "bounded_snapshots_examined": 38
+    },
+    "accepted_closed_recovery_sha256": "4382fc17994b389cf0bfabb84c181fe533c4edffbd602775f2fd7a6b3b5b2dc1",
+    "limit": "Accepted recovery can conservatively republish PAYMENT_DENIED preserving accounting; it does not prove OPEN. No matching independent exact snapshot was found among38 bounded authority snapshots. No marker clearing or state reset performed."
+  },
+  "SPENDING_HISTORY_PRESERVATION": {
+    "reserved_credits": 71183,
+    "request_charge_sum": 71183,
+    "limit": 100000,
+    "inflight": 0,
+    "review_held": 5,
+    "prior_spending_owners_and_uncertain_entries_preserved": true,
+    "unverified_prepublication_state_label": "OPEN",
+    "production_mutations": 0
+  },
+  "HELIUS_ACQUISITION": {
+    "status": "NOT_RESTORED",
+    "credential_bindings_verified": {
+      "watchtower_listener": {
+        "root_env_key_matches_endpoint": true,
+        "paid_helius_host": true
+      },
+      "creator_resolution_worker": {
+        "root_env_key_matches_endpoint": true,
+        "paid_helius_host": true
+      },
+      "walkback_worker": {
+        "root_env_key_matches_endpoint": true,
+        "paid_helius_host": true
+      }
+    },
+    "gate_validation_not_bypassed": true,
+    "artificial_provider_requests": 0,
+    "probe_requirement": "Existing qualified restoration requires a bounded usable-response validation probe. Current prompt forbids artificial provider requests; no new OPEN transition or alternative mechanism invented."
+  },
+  "MIGRATION_PROCESSING": {
+    "status": "NOT_RESUMED_BY_THIS_TASK",
+    "five_minute_acceptance": "Not started because publication/restoration authority gate failed."
+  },
+  "WALKBACK_PROGRESS": {
+    "status": "NOT_RESUMED_BY_THIS_TASK",
+    "exhausted_replay_reset": 0
+  },
+  "JOURNAL_CAPACITY": {
+    "journals": {
+      "birth": {
+        "occupied": 503,
+        "free_slots": 9
+      },
+      "migration": {
+        "occupied": 505,
+        "free_slots": 7
+      }
+    },
+    "custody_quotas": {
+      "migration_terminal_owner_v1": [
+        1810,
+        2023483
+      ],
+      "migration_deferred_owner_v1": [
+        511,
+        1344632
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "state_mutations": 0
+  },
+  "DISK_AND_RUNTIME_HEALTH": {
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 38003
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 37767
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 34365
+      }
+    },
+    "free_bytes": 2658185216,
+    "floor_plus_reserve_bytes": 2067108864,
+    "database_files": {
+      "core": {
+        "database": 85327872
+      },
+      "ops": {
+        "database": 163540992
+      }
+    },
+    "source_schema_changes": 0,
+    "service_actions": 0
+  },
+  "EXACT_BLOCKER": "No qualified route from ambiguous publication to verified OPEN within the current no-artificial-request restriction: conservative recovery restores closed state only; validated restoration probe remains required.",
+  "NEXT_ACTION": "Explicitly authorize the existing conservative closed-state publication recovery followed by exactly one qualified bounded provider-validation probe, then natural acceptance. No source/schema/budget changes or exhausted replay needed.",
+  "observed_utc": "2026-10-28T10:25:51.560066+00:00",
+  "safety": {
+    "production_changes": 0,
+    "source_schema_changes": 0,
+    "provider_calls": 0,
+    "service_restarts": 0,
+    "budget_increases_resets": 0,
+    "v1_access": 0,
+    "historical_deletion": 0
+  }
+}

@@ -1,0 +1,198 @@
+{
+  "CANDIDATE_INTEGRITY": "PASS_EXACT_FOUR_FILE_BUNDLE",
+  "DEPLOYMENT_SCOPE": "Four files and coordinated three-role activation; no schema/budget/credential changes. Legacy conservative recovery requires explicit deployment authorization; reopening excluded.",
+  "DISK_AND_RUNTIME_HEALTH": "PASS_AT_RECORDED_SNAPSHOT; birth full but511 verified existing transfer-eligible; migration24 free",
+  "FLEX_V2_HELIUS_PUBLICATION_PREFLIGHT": "PASS_READ_ONLY",
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "INSTALLED_PREIMAGE_MATCH": "PASS_ALL_THREE_ROLES_AND_RENDERER",
+  "NEXT_ACTION": "Authorize exact four-file all-three-role activation including qualified conservative legacy publication recovery; keep Helius closed. No restoration probe included.",
+  "PUBLICATION_RECOVERY_COMPATIBILITY": "PASS_132_RETAINED_CONTROLS_PLUS_EXACT_DISPOSABLE_LEGACY_RECOVERY",
+  "SPENDING_HISTORY_PRESERVATION": "73920 credits; five held requests; zero inflight; 100000 limit unchanged",
+  "activation_plan_sha256": "dabc3d8314235517ae4831d0888639d247596fc874756e4c00b402f87171003d",
+  "birth_capacity_eligibility": {
+    "counts": {
+      "eligible_new_protected_transfer": 511,
+      "other_active_state": 1
+    },
+    "note": "Existing overflow recovery remains available: at most20 protected records, exact owner commit/readback required. No transfer or ACK performed.",
+    "records": 512
+  },
+  "bundle_sha256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
+  "candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+  "custody": {
+    "birth_terminal": {
+      "bytes": 751452,
+      "records": 552,
+      "remaining_records": 7640
+    },
+    "migration_deferred": {
+      "bytes": 1344932,
+      "records": 511,
+      "remaining_records": 7681
+    },
+    "migration_terminal": {
+      "bytes": 2028120,
+      "records": 1814,
+      "remaining_records": 6378
+    }
+  },
+  "databases": {
+    "core": {
+      "bounded_read_snapshot": "PASS",
+      "files": {
+        "-shm": 32768,
+        "-wal": 24752,
+        "database": 87920640
+      },
+      "freelist_count": 0,
+      "inode": 1053704146,
+      "journal_mode": "wal",
+      "page_count": 21465
+    },
+    "ops": {
+      "bounded_read_snapshot": "PASS",
+      "files": {
+        "database": 164253696
+      },
+      "freelist_count": 1,
+      "inode": 1053704157,
+      "journal_mode": "delete",
+      "page_count": 40101
+    }
+  },
+  "decision": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "disk": {
+    "free_bytes": 4031901696,
+    "normal_gate_floor": 2067108864,
+    "required_deployment_floor": 2771751936,
+    "single_file_cap": 499000000
+  },
+  "fallback_profile_sha256": "b0afb3714a05c10a4ca5c7215670eccbc18abd0b86864f2ae48213a4c18dc0ae",
+  "gates": {
+    "candidate_and_preimages": "PASS",
+    "ledger_and_closed_recovery": "PASS",
+    "recovery_source": "PASS",
+    "runtime": "PASS",
+    "storage_and_custody": "PASS"
+  },
+  "journals": {
+    "birth": {
+      "bytes": 405568,
+      "free_slots": 0,
+      "records": 512,
+      "states": {
+        "ACKED": 1,
+        "QUARANTINED": 511
+      }
+    },
+    "migration": {
+      "bytes": 274700,
+      "free_slots": 24,
+      "records": 488,
+      "states": {
+        "PENDING": 487,
+        "RESOLVED": 1
+      }
+    }
+  },
+  "ledger": {
+    "body_bytes": 2394183,
+    "checksum_authority": "No READY digest; embedded OPEN is not permission",
+    "clock_anchor_check": "PASS",
+    "closed_recovery_target_sha256": "b730b97ee79224e394002df3cb34972d415264c2b6182236279526a5b0191c94",
+    "credit_limit": 100000,
+    "held_records_sha256": "b46f73eac2bd8d60a977aebaf66c25c5fe75eae25d42643fe5bfdc879ee70693",
+    "held_requests": 5,
+    "inflight": 0,
+    "known_provider_denial_not_inferred": true,
+    "marker": "PENDING_V1",
+    "permission": "FAIL_CLOSED",
+    "reserved_credits": 73920,
+    "retained_body_sha256": "e818c82c7c1b5fdd2891f08feb6f8182876636e9db941a6452d818e42c99ae01",
+    "structural_and_monotonic_baseline_verification": "PASS_OFFLINE_ONLY",
+    "warning": 50000
+  },
+  "legacy_recovery_scope": "Future activation must explicitly authorize the accepted accounting-preserving conservative closed publication after all3 writers exit. Source installation alone must not silently repair legacy state. Opening Helius requires separate explicit probe/restoration authority; excluded from this source preflight.",
+  "measurement_limitations": [
+    "Snapshot evidence, not continuous health guarantee.",
+    "Historical last publication owner remains unproven; not required to repeat root cause.",
+    "No production recovery, transfer, lock probe, checkpoint, restart or provider call performed."
+  ],
+  "observed_utc": "2026-10-28T13:51:23.073475+00:00",
+  "payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/runtime-ownership-capacity-a8179c8b/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3"
+    },
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "runtime/listener/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "runtime/walkback/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    }
+  },
+  "production_actions": {
+    "budget_changes": 0,
+    "gate_reset_or_recovery": 0,
+    "provider_calls_probes": 0,
+    "replay_reset": 0,
+    "restarts": 0,
+    "writes": 0
+  },
+  "publisher_contract": [
+    "Ordinary writes stage and fsync before PENDING_V2.",
+    "Recovery requires exact checksum, owned lock, generation validation and file/directory durability proof.",
+    "Corrupt, uncommitted and legacy ambiguous states remain closed."
+  ],
+  "recovery": {
+    "all_three_candidate_gate_pins": [
+      "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946"
+    ],
+    "current_legacy_closed_recovery_fixture": "PASS: exact73920-credit retained body on private copy; all budget/ownership/held fields unchanged; no probe",
+    "fallback": "After activation retain exactly the candidate-aware gate and renderer; no623b81d downgrade across a prospective intent. Conservative closed-gate fallback, with durable spending preserved, is the safe recovery posture.",
+    "fresh_pair_and_clock_controls_reused": true,
+    "independent_coherent_baseline_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/runtime-ownership-capacity-a8179c8b/gate-restoration-20261028/gate.before_start.private.json",
+    "independent_coherent_baseline_sha256": "5f5ac7488d4f24a5e4ff6353295a6bdfcd0bb50a3c2644187011f5486be84742",
+    "latest_coherent_baseline_compatibility": "PASS_ON_DISPOSABLE_COPY",
+    "operator_recovery_immutable_source": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/migration-pending-c4ae598c/gate-storage-recovery-20261027/qualified_recovery.py",
+    "operator_recovery_source_sha256": "4382fc17994b389cf0bfabb84c181fe533c4edffbd602775f2fd7a6b3b5b2dc1",
+    "role_payload_hashes_verified": 16
+  },
+  "runtime": {
+    "actual_v2_gate_and_telemetry_bindings_verified": true,
+    "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "phase": "ACTIVE",
+    "runtime_plan_sha256": "847559417191e375ffac67459f95ea1d67bebcb49390bfe544a8673967c2108a",
+    "services": {
+      "creator_resolution_worker": {
+        "pid": 99531,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 99556,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 99484,
+        "state": "RUNNING"
+      }
+    },
+    "supervisor_pid": 1131
+  },
+  "tests_reused": 132,
+  "walkback_running_attempts": [
+    2
+  ],
+  "walkback_running_claims": 1
+}

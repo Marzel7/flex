@@ -1,0 +1,16 @@
+{
+  "candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+  "contracts": [
+    "Keep candidate-aware publisher and renderer after protocol activation; old623b81d publisher is not compatible rollback.",
+    "Preserve all spending, investigation identities, uncertain requests, stable gate/journal paths, terminal/deferred custody, CREATE and matched-pair generation.",
+    "No allowance reset, uncertain reservation release, exhausted replay or V1 fallback.",
+    "Genuinely corrupt, uncommitted or legacy ambiguous state stays fail-closed.",
+    "Fresh compact matched-pair recovery requires exact independent frozen state proof and candidate pins."
+  ],
+  "credit_limit": 100000,
+  "mode": "CONSERVATIVE_CLOSED_GATE",
+  "provider_opening_authorized": false,
+  "required_gate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+  "required_renderer_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+  "warning": 50000
+}

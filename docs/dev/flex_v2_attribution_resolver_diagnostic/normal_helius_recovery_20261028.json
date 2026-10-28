@@ -1,0 +1,155 @@
+{
+  "status": "PARTIAL_NORMAL_PROCESSING",
+  "gate_recovery": "PASS",
+  "probe": "ONE_HTTP_200_USABLE_TRANSACTION_DURABLY_VALIDATED_BEFORE_FINALIZATION",
+  "canonical_migrations_since_activation": 5,
+  "create_delivery_acknowledgements": 5,
+  "acceptance": {
+    "utc": "2026-10-28T11:07:25.276156+00:00",
+    "elapsed_seconds": 301.5373492240906,
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 76395
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 76441
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 76510
+      }
+    },
+    "gate": "OPEN",
+    "limit": 100000,
+    "history_preserved": true,
+    "free_bytes": 4228624384,
+    "accounting": {
+      "reserved_credit_delta_including_one_probe": {
+        "creator_resolution": 0,
+        "listener": 182,
+        "walkback": 1
+      },
+      "request_reservation_delta": 183,
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "held": 5
+    },
+    "journals": {
+      "birth": {
+        "count": 510,
+        "free": 2,
+        "states": {
+          "QUARANTINED": 509,
+          "ACKED": 1
+        }
+      },
+      "migration": {
+        "count": 507,
+        "free": 5,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 498,
+          "ACKED": 7,
+          "QUARANTINED": 1
+        }
+      }
+    },
+    "walkback": {
+      "states": {
+        "complete": 1965,
+        "failed": 53,
+        "waiting": 1552,
+        "pending": 92
+      },
+      "new_completions": 0,
+      "outcomes": {}
+    },
+    "heartbeat": {
+      "last_seen": 1793185613,
+      "status": "UNHEALTHY"
+    },
+    "custody": {
+      "migration_terminal_owner_v1": [
+        1810,
+        2023483
+      ],
+      "migration_deferred_owner_v1": [
+        511,
+        1344682
+      ],
+      "birth_terminal_owner_v1": [
+        512,
+        697743
+      ]
+    },
+    "handoff_schema": [
+      "migration_terminal_owner_v1",
+      "migration_terminal_evidence_v1",
+      "migration_deferred_owner_v1",
+      "migration_deferred_evidence_v1"
+    ],
+    "core_delivery_columns": [
+      "seq",
+      "epoch",
+      "mint",
+      "creator",
+      "signature",
+      "digest",
+      "source",
+      "qualification",
+      "migrated_at",
+      "slot",
+      "block_time",
+      "state",
+      "due",
+      "tries",
+      "last_error_code",
+      "acked_at"
+    ],
+    "core_migration_columns": [
+      "creator_activity_ratio",
+      "post_migration_mint_concentration",
+      "post_migration_unique_minters_ratio",
+      "post_migration_sell_suppression_ratio",
+      "post_migration_mint_velocity_sec",
+      "post_migration_buy_size_variance",
+      "post_migration_sell_volume_concentration",
+      "post_migration_creator_activity_ratio",
+      "post_migration_coverage",
+      "migration_tx",
+      "price_updated_at",
+      "created_at",
+      "earliest_tx_creator",
+      "creator_is_blocked",
+      "create_tx_signature",
+      "is_about_to_migrate",
+      "migration_progress_pct",
+      "migration_band",
+      "migration_signal_updated_at",
+      "migrated_at",
+      "migration_signal_source",
+      "pf_ws_creator",
+      "creator_mismatch",
+      "first_pre_migration_signal_at",
+      "migration_slot",
+      "creator_resolved_slot",
+      "migration_source"
+    ],
+    "files": {
+      "core.sqlite": 85905408,
+      "core.sqlite-wal": 0,
+      "core.sqlite-shm": 32768,
+      "ops.sqlite": 163598336
+    }
+  },
+  "source_changes": 0,
+  "schema_changes": 0,
+  "exhausted_replay": false,
+  "remaining_blockers": [
+    "Walkback heartbeat UNHEALTHY: pending work exists but zero completions; new deferrals include gate busy, investigation required and request rate limit",
+    "Birth journal 510/512 and migration journal 507/512; sustainable admission headroom not established"
+  ],
+  "next_action": "Bounded read-only attribution of Walkback deferrals and protected journal eligibility; do not reset or replay."
+}

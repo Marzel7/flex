@@ -40,7 +40,7 @@ def execute():
     rows=d.execute('select * from "'+table+'" where status="running" limit 128').fetchall()
     if not rows:break
     for row in rows:
-     changes={'status':'retry'}
+     changes={'status':'pending' if table=='wt_walkback_queue' else 'retry'}
      if expiry in columns:changes[expiry]=0
      for name in ['lease_owner','locked_by','claimed_by']:
       if name in columns:changes[name]='' if columns[name][3] else None

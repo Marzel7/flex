@@ -31697,6 +31697,212 @@
       "private_live_render_controls": 2
     }
   },
+  "flex_v2_walkback_throughput_diagnosis": {
+    "distinct_jobs_examined_window": "UNKNOWN: no durable per-examination history",
+    "eligible_caveat": "106 are scheduler-due, not guaranteed acquisition-ready; one requires uncertain-request review, and prior gate contention can recur.",
+    "eligible_now": 106,
+    "eligible_now_by_last_reason": {
+      "HELIUS_GATE_BUSY": 102,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+      "NONE": 3
+    },
+    "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "evidence_sha256": "c2108105ae05c1ac81eadb8336d61a62c2f16a8ffdaa43d3467b4ae0e4661576",
+    "future_retry_pending": 2,
+    "gate": "OPEN",
+    "helius": {
+      "highest_lifetime_origin_credit": 7936,
+      "inflight": [],
+      "keys_with_latest_walkback_outcome_timestamp_in_window_lower_bound": 186,
+      "method_count_caveat": "Per-method key attempt totals use latest stored role; cross-worker retries can change role attribution. Do not call these exact wire requests. Durable scopes.workers reserved credits are authoritative.",
+      "origins_with_positive_walkback_credit_delta_since_restoration": 128,
+      "since_restoration_request_reservations_by_method": {
+        "rpc:getAccountInfo": 748,
+        "rpc:getSignaturesForAddress": 915,
+        "rpc:getTransaction": 1472
+      },
+      "since_restoration_reserved_credits_walkback_including_probe": 3133,
+      "window_requests_credits_origins_repeats": "UNKNOWN: no exact boundary ledger snapshot; key timestamps overwritten by completion/retry"
+    },
+    "historical_deferral_cause_limit": "No timestamped per-job deferral/claim history or successful cycle tracing; exact causal allocation for low16:20\u201316:30 completion count remains unverified. No cycle failures recorded in timestamped retained trace for that window.",
+    "investigation_limit": 100000,
+    "next_action": "Current specific throughput blocker:shared Helius gate contention among scheduler-due jobs. No fix authorized or implemented; keep existing monitor unchanged. Historical per-job deferral allocation remainsUNKNOWN.",
+    "observed_utc": "2026-10-28T16:51:03.864374+00:00",
+    "pending_reasons": {
+      "HELIUS_GATE_BUSY": 102,
+      "HELIUS_REQUEST_COOLDOWN": 2,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+      "NONE": 3
+    },
+    "primary_current_runnable_blocker": "HELIUS_GATE_BUSY:102 of108 pending jobs carry that latest typed reason;102 of106 scheduler-due jobs. This is current evidence, not an exact historical cause count for16:20\u201316:30.",
+    "production_changes": 0,
+    "production_flags": {
+      "gate": "OPEN",
+      "investigation_limit": 100000,
+      "scheduler": "UNCHANGED_10_MINUTES_END17:14:16Z"
+    },
+    "provider_calls": 0,
+    "queue_counts": {
+      "complete": 2047,
+      "failed": 56,
+      "pending": 108,
+      "waiting": 1551
+    },
+    "scheduler": {
+      "actual_window_cycles_batches": "UNKNOWN: success-boundary tracing disabled; plain batch summaries have no timestamps",
+      "batch_rpc_budget": 80,
+      "batch_size": 8,
+      "interval_seconds": 45,
+      "max_attempts": 3
+    },
+    "scheduler_unchanged": true,
+    "six_identity_evidence_local": "/private/tmp/walkback-throughput-six.private.json",
+    "six_identity_evidence_sha256": "4a72261f69b0928450fe8de58aacccd920fcc1b25ebe478f1329561e7f3248ff",
+    "six_migration_matches": [
+      {
+        "attempts": 0,
+        "completed_at": null,
+        "create_anchor_audit_state": "VALID",
+        "enqueued_at": 1793204896,
+        "first_started_at_under_accepted_COALESCE_claim_owner": 1793205942,
+        "handoff_completed_at": 1793204899,
+        "handoff_created_at": 1793204896,
+        "handoff_to_first_claim_seconds": 1043,
+        "mint_sha256": "aa07c6a4729792dc6f0238d3f02f806a0c57895ceeee1ba5d0fa3658a737214f",
+        "path_state": "CLAIMED",
+        "queue_enqueue_minus_handoff_complete_seconds": -3,
+        "queue_enqueue_minus_handoff_created_seconds": 0,
+        "retained_last_error": "HELIUS_GATE_BUSY",
+        "status": "pending"
+      },
+      {
+        "attempts": 1,
+        "completed_at": 1793205639,
+        "create_anchor_audit_state": "VALID",
+        "enqueued_at": 1793204581,
+        "first_started_at_under_accepted_COALESCE_claim_owner": 1793205628,
+        "handoff_completed_at": 1793204584,
+        "handoff_created_at": 1793204581,
+        "handoff_to_first_claim_seconds": 1044,
+        "mint_sha256": "f698720b86b314bad340fc54e766a4e37ea9aeabd7c8aec065e863ed56509823",
+        "path_state": "ARCHIVAL_GAP",
+        "queue_enqueue_minus_handoff_complete_seconds": -3,
+        "queue_enqueue_minus_handoff_created_seconds": 0,
+        "retained_last_error": null,
+        "status": "complete"
+      },
+      {
+        "attempts": 0,
+        "completed_at": null,
+        "create_anchor_audit_state": "VALID",
+        "enqueued_at": 1793204713,
+        "first_started_at_under_accepted_COALESCE_claim_owner": 1793205685,
+        "handoff_completed_at": 1793204715,
+        "handoff_created_at": 1793204713,
+        "handoff_to_first_claim_seconds": 970,
+        "mint_sha256": "9f6cd60a4093a03ec6f1c2d0aca1286a5075e67fa2fe71c11a649d85cd2ef25e",
+        "path_state": "CLAIMED",
+        "queue_enqueue_minus_handoff_complete_seconds": -2,
+        "queue_enqueue_minus_handoff_created_seconds": 0,
+        "retained_last_error": "HELIUS_GATE_BUSY",
+        "status": "pending"
+      },
+      {
+        "attempts": 1,
+        "completed_at": 1793205738,
+        "create_anchor_audit_state": "VALID",
+        "enqueued_at": 1793204490,
+        "first_started_at_under_accepted_COALESCE_claim_owner": 1793205405,
+        "handoff_completed_at": 1793204492,
+        "handoff_created_at": 1793204490,
+        "handoff_to_first_claim_seconds": 913,
+        "mint_sha256": "6696b0c29d1890217922328f09a07eecab4227a965ef32a4d3838ce597d2904c",
+        "path_state": "CLAIMED",
+        "queue_enqueue_minus_handoff_complete_seconds": -2,
+        "queue_enqueue_minus_handoff_created_seconds": 0,
+        "retained_last_error": "HELIUS_REQUEST_RATE_LIMIT",
+        "status": "complete"
+      },
+      {
+        "attempts": 0,
+        "completed_at": null,
+        "create_anchor_audit_state": "VALID",
+        "enqueued_at": 1793204520,
+        "first_started_at_under_accepted_COALESCE_claim_owner": 1793205474,
+        "handoff_completed_at": 1793204523,
+        "handoff_created_at": 1793204520,
+        "handoff_to_first_claim_seconds": 951,
+        "mint_sha256": "22b67e77dc128dcae423fc05cf1dfa5cf32f4528ebee586a7af626ef94907d1b",
+        "path_state": "CLAIMED",
+        "queue_enqueue_minus_handoff_complete_seconds": -3,
+        "queue_enqueue_minus_handoff_created_seconds": 0,
+        "retained_last_error": "HELIUS_GATE_BUSY",
+        "status": "pending"
+      },
+      {
+        "attempts": 0,
+        "completed_at": null,
+        "create_anchor_audit_state": "VALID",
+        "enqueued_at": 1793204878,
+        "first_started_at_under_accepted_COALESCE_claim_owner": 1793205942,
+        "handoff_completed_at": 1793204880,
+        "handoff_created_at": 1793204878,
+        "handoff_to_first_claim_seconds": 1062,
+        "mint_sha256": "7c8763d305a3f3737e62944d8c72b98262e1ad9796d51946ffb5da3f482dacfc",
+        "path_state": "CLAIMED",
+        "queue_enqueue_minus_handoff_complete_seconds": -2,
+        "queue_enqueue_minus_handoff_created_seconds": 0,
+        "retained_last_error": "HELIUS_GATE_BUSY",
+        "status": "pending"
+      }
+    ],
+    "six_summary": {
+      "all_enqueued_same_second_as_handoff_created": true,
+      "enqueue_before_core_handoff_complete_seconds": [
+        2,
+        3
+      ],
+      "first_claim_latency_seconds_min_max": [
+        913,
+        1062
+      ],
+      "matched": 6,
+      "missing_admission": 0,
+      "statuses": {
+        "complete": 2,
+        "pending": 4
+      }
+    },
+    "source_candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "status": "PARTIAL_EXACT_CURRENT_ELIGIBILITY_VERIFIED_HISTORICAL_DEFERRAL_SPLIT_UNKNOWN",
+    "tests": "No qualification tests rerun; exact installed queue/claim source and bounded read-only indexed queries verified",
+    "waiting_audit_states": {
+      "MISSING_OR_MALFORMED": 1551
+    },
+    "waiting_for_create_anchor": 1551,
+    "waiting_stored_signature_ops_ledger_exact_matches": 0,
+    "waiting_with_stored_signature": 0,
+    "window": {
+      "completed": 1,
+      "duration_limit": "Accepted claim owner initializes started_at via COALESCE; duration includes deferral time, not pure RPC execution.",
+      "end_exclusive": "2026-10-28T16:30:00Z",
+      "first_claimed_jobs": 7,
+      "max_first_claim_to_completion_seconds": 4,
+      "mean_first_claim_to_completion_seconds": 4,
+      "outcomes": {
+        "LINEAGE_GAP": 1
+      },
+      "retained_enqueued_at_in_window": 6,
+      "start": "2026-10-28T16:20:00Z"
+    },
+    "window_deferral_count": "UNKNOWN: queue last_error is current state, not immutable deferral history",
+    "window_trace_failures": {
+      "by_boundary": {},
+      "by_safe_reason": {},
+      "count": 0,
+      "elapsed_seconds": []
+    }
+  },
   "flex_v2_walkback_zero_completion_readonly_diagnosis": {
     "blocker": "Confirmed waiting-selection starvation plus reproduced intra-job duplicate-acquisition cooldown/retry cycle; exact54live deferral allocation unavailable because original codes discarded.",
     "engineering_revision": "294919378a6df77ccad167fd310b1b0039a4a99d",
@@ -48371,8 +48577,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T16:46:56.541958+00:00",
-    "working_tree": "Scheduled16:30\u201316:40UTC:4 handoffs5 Walkbacks(4NO_ATTRIBUTION_FOUND1LINEAGE_GAP). GateOPEN stable workers4.78GB,no stuck reservations. Unsupported telemetryUNKNOWN; no changes."
+    "updated_at_utc": "2026-10-28T16:53:23.264765+00:00",
+    "working_tree": "Focused read-only throughput diagnosis:1551CREATE-waiting,108pending,106scheduler-due(102latestGATE_BUSY);6/6handoffs promptly enqueued,first claims913\u20131062seconds later. Historical deferral splitUNKNOWN. No changes; monitor unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

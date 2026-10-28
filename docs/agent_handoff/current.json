@@ -22218,6 +22218,369 @@
       ]
     }
   },
+  "flex_v2_golden_recovery_lifecycle_preflight": {
+    "CURRENT_RUNTIME_MANIFEST": {
+      "activation_or_golden_freeze": false,
+      "added_critical_gate_payloads": "Exact current recovery pins verified",
+      "complete_bounded_inventory": true,
+      "configuration_differences": {
+        "creator_resolution_worker": [
+          "CREATOR_RESOLUTION_HIGH_PRIORITY_MAX_PAGES",
+          "CREATOR_RESOLUTION_HIGH_PRIORITY_MAX_RUNTIME_SECS",
+          "CREATOR_RESOLUTION_MAX_PAGES",
+          "CREATOR_RESOLUTION_MAX_RUNTIME_SECS",
+          "CRQ_BACKLOG_THRESHOLD",
+          "CRQ_BATCH_SIZE",
+          "CRQ_BATCH_SIZE_IDLE",
+          "CRQ_BATCH_SIZE_MID",
+          "CRQ_ENQUEUE_MISSING_LIMIT",
+          "CRQ_HISTORICAL_DISCOVERY_ENABLED",
+          "CRQ_INTERVAL_IDLE_SEC",
+          "CRQ_INTERVAL_SEC",
+          "DEV004_BIRTH_TERMINAL_EVIDENCE_ENABLED",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED",
+          "HELIUS_DENIAL_GATE_PATH",
+          "PYTHONDONTWRITEBYTECODE",
+          "PYTHONPATH",
+          "RPC_COMPACT_ENABLED",
+          "RPC_HTTP"
+        ],
+        "walkback_worker": [
+          "DB_SQLITE_LIFECYCLE_DIAGNOSTICS_PATH",
+          "DB_WALKBACK_SQL_DIAGNOSTICS_PATH",
+          "DEV004_BIRTH_TERMINAL_EVIDENCE_ENABLED",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED",
+          "HELIUS_DENIAL_GATE_PATH",
+          "LIVING_GENERIC_BOUNDED_DISPATCH_ENABLED",
+          "OPERATIONS_MODE",
+          "OPERATION_EVIDENCE_PRIORITY_OBSERVATION_ID",
+          "OPERATION_EVIDENCE_PRIORITY_STATE_PATH",
+          "PYTHONDONTWRITEBYTECODE",
+          "PYTHONPATH",
+          "RPC_COMPACT_ENABLED",
+          "RPC_HTTP",
+          "WALKBACK_BATCH_SIZE",
+          "WALKBACK_INTERVAL_SEC",
+          "WALKBACK_MAX_ATTEMPTS",
+          "WALKBACK_RPC_BUDGET_BATCH",
+          "WATCHTOWER_CANONICAL_PREDICATE_MODE"
+        ],
+        "watchtower_listener": [
+          "BIRTH_DURABILITY_METRICS_PATH",
+          "BYZANTINE_BIRTH_SIGNAL_ENABLED",
+          "CREATOR_BACKFILL_ENABLED",
+          "CROSS_FUNDING_CLUSTER_ANALYZER_ENABLED",
+          "CURVE_WATCH_STATE_PATH",
+          "DB_CONNECTION_LIFECYCLE_DIAGNOSTICS_PATH",
+          "DB_SERIALIZER_METRICS_PATH",
+          "DEV004_BIRTH_TERMINAL_EVIDENCE_ENABLED",
+          "DEV004_MIGRATION_DEFERRED_EVIDENCE_ENABLED",
+          "FLEX_HELIUS_DENIAL_GATE_ENABLED",
+          "HANDOFF_DURABILITY_T0",
+          "HELIUS_BIRTH_WS_ENABLED",
+          "HELIUS_DENIAL_GATE_PATH",
+          "LAUNCH_PRICE_LOG_PATH",
+          "LISTENER_BONDING_INDEX_FULL_HYDRATE_ENABLED",
+          "LISTENER_CREATOR_ACTIVITY_ENABLED",
+          "LISTENER_CREATOR_FUNDING_QUEUE_ENABLED",
+          "LISTENER_CREATOR_RESOLUTION_QUEUE_ENABLED",
+          "LISTENER_DB_STARTUP_MAINTENANCE_ENABLED",
+          "LISTENER_DISCOVERY_RPC_CONCURRENCY",
+          "LISTENER_GETTX_RETRY_DELAYS",
+          "LISTENER_LIVE_PRICE_UPDATER_ENABLED",
+          "LISTENER_LOOP_LAG_SNAPSHOT_DIR",
+          "LISTENER_MIGRATION_RECONCILER_ENABLED",
+          "LISTENER_MINIMAL_DB_SCHEMA_ENABLED",
+          "LISTENER_PORTAL_VSOL_FLUSH_ENABLED",
+          "LISTENER_PREDICTION_SCORING_ENABLED",
+          "LISTENER_PUMPPORTAL_BIRTHS_ENABLED",
+          "LISTENER_RPC_METRICS_API_START_ENABLED",
+          "LISTENER_RPC_METRICS_DB_ENABLED",
+          "LISTENER_WEBHOOK_BIRTH_DRAINER_ENABLED",
+          "MIGRATION_CENSUS_ENABLED",
+          "MIGRATION_CENSUS_PATH",
+          "MIGRATION_LOG_PATH",
+          "MIGRATION_SETTINGS_PATH",
+          "OPERATION_EVIDENCE_PRIORITY_ENABLED",
+          "OPS_V2_DB_PATH",
+          "PREMIGRATION_LOG_PATH",
+          "PUMPFUN_BIRTH_RECONCILER_ENABLED",
+          "PUMPFUN_BIRTH_RECONCILE_INTERVAL_SECONDS",
+          "PUMPFUN_BIRTH_RECONCILE_LIMIT",
+          "PUMPFUN_BIRTH_RECONCILE_ONLY_WHEN_PUMPPORTAL_DOWN",
+          "PUMPFUN_BIRTH_TX_CONCURRENCY",
+          "PUMPFUN_DELIVERY_LATENCY_CAPTURE_PATH",
+          "PUMPFUN_OPENING_ACTION_EVIDENCE_DB",
+          "PUMPFUN_OPENING_ACTION_EVIDENCE_ENABLED",
+          "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED",
+          "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_PATH",
+          "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_ENABLED",
+          "PUMPPORTAL_COMPACT_BIRTH_RECEIPTS_PATH",
+          "PYTHONDONTWRITEBYTECODE",
+          "PYTHONPATH",
+          "RPC_COMPACT_ENABLED",
+          "RPC_HTTP",
+          "SUPERVISOR_LISTENER_LOG_PATH",
+          "TRADING_SIM_AUTO_BUY_ENABLED",
+          "WATCHTOWER_RELAY_SOLVER_PROJECTION_PATH",
+          "WS_PRICE_TRACE_LOG_PATH",
+          "WS_SNAPSHOT_LOG_PATH"
+        ]
+      },
+      "differences_from_previous": [
+        {
+          "file": "runtime/creator_resolution/src/analysis/pump_fun_post_migration_analyzer.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/creator_resolution/src/core/creator_resolution_queue.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/creator_resolution/src/core/pumpfun_curve_listener.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/creator_resolution/src/core/rpc_cache.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/creator_resolution/src/core/walkback_queue.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/creator_resolution/src/ops/dev004_core_base_schema.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/creator_resolution/src/ops/walkback_create_handoff.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/listener/src/analysis/pump_fun_post_migration_analyzer.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/birth_admission_journal.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/birth_retry_quarantine.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/migration_signature_journal.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/migration_terminal_evidence.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/pool_discovery.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/post_migration_pool_discovery.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/pumpfun_curve_listener.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/listener/src/core/pumpportal_receipt_maintenance.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/listener/src/core/rpc_cache.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/listener/src/core/walkback_queue.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/listener/src/ops/dev004_operational_continuation.py",
+          "installed": "ABSENT"
+        },
+        {
+          "file": "runtime/listener/src/ops/dev004_quarantine_transfer.py",
+          "installed": "ABSENT"
+        },
+        {
+          "file": "runtime/listener/src/ops/v2_storage_lifecycle.py",
+          "installed": "ABSENT"
+        },
+        {
+          "file": "runtime/listener/src/ops/walkback_create_handoff.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/walkback/src/core/pumpfun_curve_listener.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/walkback/src/core/rpc_cache.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/walkback/src/core/walkback_queue.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        },
+        {
+          "file": "runtime/walkback/src/core/walkback_worker.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/walkback/src/ops/anchor_reconciliation.py",
+          "installed_differs_old": true,
+          "installed_matches_current_commit": true
+        },
+        {
+          "file": "runtime/walkback/src/ops/walkback_create_handoff.py",
+          "installed_differs_old": false,
+          "installed_matches_current_commit": false
+        }
+      ],
+      "dormant_packages": {
+        "qualified_manifest_sha256": "c8b76458c041ab8a96d53dd77452523d6d2f029038a327ed60b1c0ac9609c031",
+        "qualified_source_commit": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
+        "same_package_files_in_current_git_commit": true,
+        "state": "DORMANT_NOT_ACTIVATED"
+      },
+      "files_bound": 2119,
+      "local_manifest": "/private/tmp/FLEX_V2_CURRENT_RECONCILED_MANIFEST.json",
+      "sha256": "a93693c921fb6b7b25ae03640f52bcf3510a9dd1ce4343ea40d112d8fad2fefa",
+      "source_commit": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636"
+    },
+    "EXACT_REMAINING_BLOCKERS": [
+      "Demonstrated current fresh-pair recovery compatibility defect: runningWalkback -> retry, which installed drainer never selects",
+      "Current manifest still references legacy recovery tool; corrected candidate-aware entrypoint must be included/pinned in recoverable composition",
+      "Qualified seven-day lifecycle owner/callers are not installed/initialized or shown executing in production"
+    ],
+    "FLEX_V2_GOLDEN_PREFLIGHT_STATUS": "HOLD_RECOVERY_COMPATIBILITY",
+    "GO_HOLD_DECISION": "HOLD",
+    "NEXT_ACTION": "One narrowly scoped DEV correction/qualification of existing fresh-pair claim restoration and exact recovery pins, then resume this same lifecycle installation preflight. No broad suites or new architecture; no production installation or V1retirement authorized.",
+    "OPERATIONAL_LIMITATIONS": [
+      "Two protected CREATE deliveries remainBLOCKED_OPS_STATE_INELIGIBLE",
+      "1551 historicalCREATE-waiting jobs; original277candidates not promoted",
+      "First-claim latency15\u201321minutes",
+      "Tight512-slot birth journal and finite terminal/deferred quotas",
+      "Exact at-handoffCREATEtimingUNKNOWN"
+    ],
+    "RECOVERY_COMPATIBILITY": {
+      "actual_ops_status_check": "No CHECK restricting status; copied retry value is storable but unselected by drainer",
+      "focused_disposable_counterexample": {
+        "exact_source_loop_executed": true,
+        "expected_preserved_eligible_claims": 1,
+        "fixture_only": true,
+        "installed_drain_predicate_eligible_count": 0,
+        "result": "FAIL_RECOVERY_REQUEUES_WALKBACK_TO_UNCONSUMED_RETRY_STATE",
+        "running_claim_after_recovery": {
+          "attempts": 1,
+          "lease_expires_at": 0,
+          "owner": null,
+          "status": "retry"
+        },
+        "script_sha256": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888",
+        "source_commit": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636"
+      },
+      "manifest_entrypoint": "Still points at legacy dev004_fresh_pair_recovery.py which lacks Helius freeze/finish; candidate-aware script is not staged in current sparse immutable runtime root",
+      "other_contracts": "Accepted terminal/deferred evidence copying, gate spending/uncertain-request preservation, paired-generation and writer-retirement controls reused; no live recovery attempted",
+      "required_fix": "Existing fresh-pair recovery must restore wt_walkback_queue running claims to pending, preserving attempts and retry timing; core queues retain their accepted retry semantics. Bind/stage the corrected gate-aware entrypoint and exact source hashes. Do not use legacy fallback.",
+      "result": "FAIL_RUNNING_WALKBACK_CLAIM_REQUEUE"
+    },
+    "SEVEN_DAY_RETENTION_READINESS": {
+      "bounds": {
+        "estimated_delete_bytes_per_step": 1000000,
+        "global_gate_floor_bytes": 2067108864,
+        "kernel_file_cap_bytes": 499000000,
+        "rows_per_step": 64,
+        "steps_per_run": 3
+      },
+      "expiry": "Strictly older than7days; RPC cache must also be expired.6/7/8-day accepted controls reused.",
+      "limits": "No absolute WAL ceiling or aggregate5GiB guarantee claimed; protected owner quotas remain8192records/64MB.",
+      "logs_temporary_files": "Existing Supervisor rotation remains installed. Qualified bounded seven-day temp/audit changes and current installed legacy runner are not byte-identical; installation/execution equivalence remains unproven. No cleanup performed.",
+      "manifest_contract": [
+        "version",
+        "generation",
+        "core",
+        "ops",
+        "pair_manifest",
+        "pair_authority",
+        "pair_sha256",
+        "lock"
+      ],
+      "missing_production_steps": [
+        "Stage exact lifecycle owner plus compatible cache/maintenance callers; do not overwrite accepted later corrections",
+        "Authorize additive owner-state initialization at matched V2 paths",
+        "Install one existing rendered15-minute lifecycle schedule, verify first bounded execution and readback"
+      ],
+      "owner_sha256": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88",
+      "page_reuse_accepted_fixture": {
+        "pages_before_after_reinsert": 219,
+        "pages_free_after_delete": 192,
+        "vacuum": false
+      },
+      "protected": "Canonical birth/CREATE/migration,attribution,operations,funding,prices,pending/retry/quarantine,terminal evidence,budgets/checkpoints and insufficiently qualified receipts never age-disposed",
+      "qualified_commit": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
+      "same_owner_bytes_in_current_commit": true,
+      "source_path": "runtime/listener/src/ops/v2_storage_lifecycle.py",
+      "status": "QUALIFIED_SOURCE_NOT_INSTALLED_INITIALIZED"
+    },
+    "V1_INDEPENDENCE": {
+      "active_core_ops_bindings": "V2; no V1 content opened",
+      "design": "Fresh compact V2 pair plus durable journals/custody/gate accounting; no unretirement or fullV1 copies",
+      "recovery_dormant_contract_V1_dependencies": "Accepted dormant launchers require explicit V2 paths; source packages unchanged in git. Legacy recovery entrypoint and incomplete current staging must be replaced in the frozen contract before independence is proven.",
+      "required_information": "Accepted scoped seed and ongoing53canonical/handoff,receipt/custody continuity evidence reused. Historical exclusions unchanged. No new V1content comparison; complete independent recovery cannot be asserted while the claim fixture fails.",
+      "retirement": "NOT_READY; preserve V1. Correct and requalify current recovery,freeze exact composition,verify auxiliary writer exclusion and separately authorize retirement."
+    },
+    "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "evidence_sha256": "0a8a2b91692ff9232ea00404aa448fec5482ab7b5bad6c10f7d86c041497bf77",
+    "manifest_detail_policy": "Complete per-file source/configuration inventory retained locally; no secrets or runtime rows published.",
+    "observed_utc": "2026-10-28T17:48:30.872341+00:00",
+    "runtime_continuity": {
+      "free_bytes": 3705581568,
+      "gate": "OPEN",
+      "investigation_limit": 100000,
+      "publication": "READY_CHECKSUM_VERIFIED_WITHOUT_LOCK",
+      "services": "watchtower_listener              RUNNING   pid 43753, uptime 2:45:41\ncreator_resolution_worker        RUNNING   pid 28017, uptime 3:34:34\nwalkback_worker                  RUNNING   pid 28051, uptime 3:34:28\n"
+    },
+    "safety": {
+      "V1_content_access": 0,
+      "database_copies": 0,
+      "disposable_focused_tests": 1,
+      "gate_locks_acquired": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "service_restarts": 0,
+      "source_configuration_changes": 0
+    }
+  },
   "flex_v2_helius_authorized_replacement_restoration": {
     "blocker": "Available disk fell below required floor; existing gate publication interrupted and now fail-closed. Do not infer provider outcome from PENDING marker. One live-owner reservation remains protected.",
     "disk_free_bytes": 1457991680,
@@ -49295,8 +49658,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T17:37:16.958814+00:00",
-    "working_tree": "Strictly read-only Golden readinessPARTIAL:53/53committedPPbirths+admissions,51qualifiedcurrentCREATE,14complete39pending at17:31;cleanupqualifiedDEVnotinstalled,currentfullmanifestnotreconciled. GateOPEN stable workers;V1retirementNOT_READY. No locks/providercalls/changes."
+    "updated_at_utc": "2026-10-28T17:49:25.612493+00:00",
+    "working_tree": "Golden recovery/lifecycle preflightHOLD: exact disposable current-source recovery loop puts runningWalkback into unconsumedretry state. Current gateOPEN allworkersRUNNING.2119source bindings reconciled;oldrecoverypointer/staging+qualifiedlifecycleactivation remain. No production changes,locks,provider calls,V1reads."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

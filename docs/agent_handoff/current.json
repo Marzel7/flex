@@ -26699,6 +26699,180 @@
     "status": "INSUFFICIENT_EVIDENCE_AUDIT_FAILURE_ATTRIBUTION__DATABASE_HEALTH_CLEARED",
     "worker_health": "creator_resolution_worker, walkback_worker, and listener were RUNNING at final check."
   },
+  "flex_v2_storage_recovery_recheck": {
+    "availability": [
+      [
+        "MIGRATION",
+        "AVAILABLE",
+        1793200280,
+        "logsSubscribe confirmed"
+      ],
+      [
+        "BIRTH",
+        "AVAILABLE",
+        1793200236,
+        "subscribeNewToken sent on connected PumpPortal websocket"
+      ],
+      [
+        "BIRTH",
+        "DOWN",
+        1793200230,
+        "websocket failure: JournalHold"
+      ],
+      [
+        "BIRTH",
+        "AVAILABLE",
+        1793200222,
+        "subscribeNewToken sent on connected PumpPortal websocket"
+      ],
+      [
+        "BIRTH",
+        "DOWN",
+        1793200217,
+        "websocket failure: JournalHold"
+      ],
+      [
+        "BIRTH",
+        "AVAILABLE",
+        1793200212,
+        "subscribeNewToken sent on connected PumpPortal websocket"
+      ]
+    ],
+    "birth_canonical_exact_matches_current_journal_lower_bound": 3,
+    "canonical_completed_core_ops_handoffs_since_restoration": 32,
+    "database_files": {
+      "core": {
+        "-shm": 32768,
+        "-wal": 0,
+        "database": 89001984
+      },
+      "ops": {
+        "database": 164454400
+      }
+    },
+    "disk_floor_bytes": 2067108864,
+    "disk_free_bytes": 4727390208,
+    "elapsed_minutes": 45.25946574608485,
+    "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "evidence_sha256": "7d0da1bd860e3a3e08b61a9a33598b88efafc12ccd72ac6ebe26f0d026071131",
+    "existing_protected_terminal_evidence_preserved": true,
+    "findings": [],
+    "gate": "OPEN",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "highest_investigation_credits": 7936,
+    "inflight": [
+      {
+        "age_seconds": 1,
+        "method": "rpc:getAccountInfo",
+        "role": "walkback"
+      }
+    ],
+    "installed_four_file_hashes_verified": true,
+    "investigation_limit": 100000,
+    "journals": {
+      "birth": {
+        "free_slots": 5,
+        "records": 507,
+        "states": {
+          "ACKED": 3,
+          "QUARANTINED": 504
+        }
+      },
+      "migration": {
+        "free_slots": 23,
+        "records": 489,
+        "states": {
+          "PENDING": 488,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "limitations": [
+      "Reserved worst-case credits are not billed credits.",
+      "Queue changes include housekeeping; not intelligence completions.",
+      "Current active-journal birth counts undercount reclaimed completed births."
+    ],
+    "new_exhausted_since_restoration": 0,
+    "next_action": "Leave existing runtime unchanged. Storage floor is restored; latest birth and migration availability are AVAILABLE. No probes, restarts or replay required by this read-only check.",
+    "observed_utc": "2026-10-28T15:11:38.627324+00:00",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "publication_checksum_verified": true,
+    "quotas": {
+      "birth_terminal": {
+        "bytes": 778339,
+        "free_records": 7620,
+        "records": 572
+      },
+      "migration_deferred": {
+        "bytes": 1345032,
+        "free_records": 7681,
+        "records": 511
+      },
+      "migration_terminal": {
+        "bytes": 2032756,
+        "free_records": 6374,
+        "records": 1818
+      }
+    },
+    "replay_reset": 0,
+    "requests_by_method_since_restoration_including_one_probe": {
+      "rpc:getAccountInfo": 693,
+      "rpc:getMultipleAccounts": 123,
+      "rpc:getSignaturesForAddress": 209,
+      "rpc:getTokenAccountsByOwner": 2,
+      "rpc:getTokenLargestAccounts": 19,
+      "rpc:getTransaction": 354
+    },
+    "requests_per_second_since_restoration": 0.5155459294247585,
+    "reserved_credit_increase_since_acceptance": 1107,
+    "reserved_credits_by_worker_since_restoration_including_one_probe": {
+      "creator_resolution": 0,
+      "listener": 703,
+      "walkback": 697
+    },
+    "reserved_credits_since_previous_health_check": 32,
+    "reserved_credits_total": 75320,
+    "restarts": 0,
+    "restored_utc": "2026-10-28T14:26:22.634841+00:00",
+    "same_pids_as_previous_health_check": true,
+    "same_worker_pids": false,
+    "services": {
+      "creator_resolution_worker": {
+        "pid": 28017,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 28051,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 43753,
+        "state": "RUNNING"
+      }
+    },
+    "status": "PASS_STORAGE_RECOVERED_SNAPSHOT",
+    "supervisor_parent_verified": 1131,
+    "uncertain_requests_preserved": 5,
+    "walkback_completions_since_restoration": 12,
+    "walkback_helius_error_categories": {
+      "HELIUS_ACQUISITION_DEFERRED": 130,
+      "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
+      "HELIUS_GATE_BUSY": 142,
+      "HELIUS_INVESTIGATION_REQUIRED": 25,
+      "HELIUS_REQUEST_COOLDOWN": 1,
+      "HELIUS_REQUEST_RATE_LIMIT": 16,
+      "HELIUS_TRANSPORT_UNAVAILABLE": 1
+    },
+    "walkback_queue_changed_since_restoration": 114,
+    "walkback_states": {
+      "complete": 2009,
+      "failed": 56,
+      "pending": 100,
+      "running": 1,
+      "waiting": 1551
+    }
+  },
   "flex_v2_terminal_aware_recovery_configuration": {
     "RUNTIME_DEPLOYMENT_GATE": "PASS for isolated renderer/owner/paired interfaces; production QUALIFIED_NOT_DEPLOYED",
     "V1_access": 0,
@@ -47506,8 +47680,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T15:08:39.843360+00:00",
-    "working_tree": "Read-only scheduled check complete: storage below required floor, birth JournalHold flapping. Gate OPEN and checksum valid;32 handoffs and12 Walkback completions since restoration. No production changes. One-time monitor deleted."
+    "updated_at_utc": "2026-10-28T15:12:20.768539+00:00",
+    "working_tree": "Read-only storage recovery check:4.73GB free; OPEN valid gate; birth/migration latestAVAILABLE; all workers running, unchanged from previous check. No production changes/provider calls."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

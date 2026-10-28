@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
+  "blocker": "Disk free754065408bytes below2067108864byte established floor.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -19626,6 +19626,320 @@
     "runtime_scope": "Exactly approved listener/helper payload installed; configuration,schemas,otherpackagesunchanged.",
     "status": "PASS",
     "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED"
+  },
+  "flex_v2_bounded_attribution_resolver_diagnostic": {
+    "ATTRIBUTION_STATUS": "BLOCKED_DISK_PARTIAL_DIAGNOSIS",
+    "BIRTH_RETRY_STATUS": {
+      "classification": "BLOCKED",
+      "mutations": 0,
+      "population": "Five receipts across four tokens from handoff. Guard stopped collector before reads/replay."
+    },
+    "CREATOR_RESOLVER_STATUS": {
+      "classification": "INCONCLUSIVE_PARTIAL",
+      "remaining": "Fresh per-migration eligibility and worker-loop/error reconciliation blocked by disk.",
+      "source_rule_verified": "enqueue_missing_creator rejects already-known creator and non-migrated subjects; process_queue selects only due unlocked pending/retry jobs.",
+      "verified_starting_audit": "At09:11 queue241complete376skipped; zero pending/retry/running, zero admitted/resolved in fixed window."
+    },
+    "DISK_HEADROOM": {
+      "classification": "BLOCKED",
+      "free_bytes": 754065408,
+      "observed_utc": "2026-10-28T09:35:17.121330+00:00",
+      "required_floor_bytes": 2067108864,
+      "stop": "Further collection refused before birth/migration lookup; only required compact handoff publication performed.",
+      "worktree": "New sparse worktree minimized to instructions and diagnostic destination. No database copies."
+    },
+    "LINEAGE_GAP_ROOT_CAUSE": {
+      "PARTIAL_TREASURY_without_selected_parent": 1,
+      "bounded_upstream_ARCHIVAL_GAP": 4,
+      "classification": "VERIFIED_AND_INCONCLUSIVE",
+      "details": "Three one-hop cases have PROVISION_CANDIDATE rows predating start and no treasury. Installed _is_known_subprov accepts any non-REJECTED row; source can stop early at a candidate with unknown treasury. Exact historical call branch is not logged as a durable event. This is a diagnosis target, not proof of missing confirmed attribution.",
+      "known_CEX_terminal_boundary": 1,
+      "negative_evidence_limit": "ARCHIVAL_GAP here means no next eligible parent in bounded search, not proof provider archive or real funding never existed.",
+      "one_hop_existing_candidate_without_treasury": 3
+    },
+    "NEXT_SAFE_ACTION": "Restore disk above established2GB floor plus bounded diagnostic reserve. Continue only the remaining fixed23-case evidence detail, four birth-token conflicts, six-migration stage reconciliation, resolver eligibility and bounded restart/clock readbacks in the existing dedicated branch/worktree. No fixes, acquisition, replay or deployment authorized.",
+    "NO_ATTRIBUTION_ROOT_CAUSE": {
+      "classification": "VERIFIED_AND_INCONCLUSIVE",
+      "details": "Ten have no retained selected funding edge; one retains hop1 but no qualified upstream route. All fourteen currently retain creator and VALID CREATE anchor. Exact empty-history vs filtered/missing transaction response is not retained; do not infer genuine absence.",
+      "insufficient_evidence": 11,
+      "three_known_CEX_boundaries": 3
+    },
+    "PROVIDER_CLOCK_STATUS": {
+      "classification": "BLOCKED_CURRENT_READBACK",
+      "prior_verified": "12db0c59 reported OPEN,zero inflight,clock divergence1s; no new live provider/clock collection after disk guard.",
+      "warning": "Historical last_error values on completed queue rows are retained residue, not proof of current provider failure."
+    },
+    "SERVICE_RESTART_FINDINGS": {
+      "classification": "INCONCLUSIVE_CAUSAL_ATTRIBUTION",
+      "remaining": "Exit cause and correlation require bounded retained-log inspection; not inferred.",
+      "verified_starting_audit": "Three listener restarts,one resolver restart; no Walkback restart during fixed window."
+    },
+    "WALKBACK_23_OUTCOME_RECONCILIATION": {
+      "cases": [
+        {
+          "case": "WB01",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "25f6b49669579992da41f2bb403edbaaf9d475703a9704d7d99dd739da9699e8",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_NEXT_QUALIFYING_PARENT_MISSING_AT_BOUNDED_DEPTH; GENUINE_ABSENCE_NOT_PROVEN",
+          "selected_depth": 4
+        },
+        {
+          "case": "WB02",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "df48f6cd21e13ba0b0ee012c4fc9d65f607462cc0102c0b75463b1c299885f45",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB03",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "f6a964cc1720061cd154ced08d751fa013ca41862eb22f251b778c5fa60ef908",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_ONE_HOP_AND_PREEXISTING_TREASURYLESS_PROVISION_CANDIDATE; EXACT_HISTORICAL_EARLY_BRANCH_INCONCLUSIVE",
+          "selected_depth": 1
+        },
+        {
+          "case": "WB04",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "741bcd6cf4063036046c97e05048a0442a35ee15f4c816a82d5da90356118b0c",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB05",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "af4e902305e6d772584b026c81e8493d8dde09db6d844937141db094035b5ed4",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB06",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "KNOWN_CEX_REACHED",
+          "mint_identity_sha256": "824c6fe5fc71562d2bbb81500f2422871f7e5286f91fd7ebb5627fc449ebd8ba",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_KNOWN_CEX_BOUNDARY_NO_OPERATION_ID",
+          "selected_depth": 1
+        },
+        {
+          "case": "WB07",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "9c37845e3536c52bd743b20270c2819bd8c322c4ef3af895097332970d3f6a38",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_ONE_HOP_AND_PREEXISTING_TREASURYLESS_PROVISION_CANDIDATE; EXACT_HISTORICAL_EARLY_BRANCH_INCONCLUSIVE",
+          "selected_depth": 1
+        },
+        {
+          "case": "WB08",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "6eadee6056886b959d556b1f800e88d309ef77a1103f7a7878a959c482eb5881",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB09",
+          "create_anchor_state": "MISSING_OR_MALFORMED",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "b16786b331ae6b7d17b025b9bb17502a5e366351e16a8a3ceca5fd24e500dc71",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_UPSTREAM_TREASURY_UNRESOLVED; UNQUALIFIED_CREATE_ANCHOR_RETAINED",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB10",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "KNOWN_CEX_REACHED",
+          "mint_identity_sha256": "10483abd7d8808c039e817d3769806c44ac49f53ab363d901c777a2e7b1edf90",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_KNOWN_CEX_BOUNDARY_NO_OPERATION_ID",
+          "selected_depth": 1
+        },
+        {
+          "case": "WB11",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "12c7251def6fc041f829d4f84d028f5525b83d8af3e7740030b6bafe5b1f22ca",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_ONE_HOP_AND_PREEXISTING_TREASURYLESS_PROVISION_CANDIDATE; EXACT_HISTORICAL_EARLY_BRANCH_INCONCLUSIVE",
+          "selected_depth": 1
+        },
+        {
+          "case": "WB12",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "284ac8dd7c2169db460befc2301df8f5216f125535752871b56e8d979a3baac2",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB13",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "8a92522f4f529b77a94cd5c542337603f98b882b222dda6fced605069952926d",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_NEXT_QUALIFYING_PARENT_MISSING_AT_BOUNDED_DEPTH; GENUINE_ABSENCE_NOT_PROVEN",
+          "selected_depth": 2
+        },
+        {
+          "case": "WB14",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "f956a625e144b266ba96951800a199ce6eef57fb382ea2eed779bacfe3ffc32a",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB15",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "KNOWN_CEX_REACHED",
+          "mint_identity_sha256": "7ec40f7fa709f27c4ff37edc235a9e7ba43992e7383c1bed665aa1cabf5f3df9",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_KNOWN_CEX_BOUNDARY_NO_OPERATION_ID",
+          "selected_depth": 1
+        },
+        {
+          "case": "WB16",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "ee0abb71409efd0f0110ca621076f0232095dc9033d6a20374e6cc5c84cad2c4",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB17",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "KNOWN_CEX_REACHED",
+          "mint_identity_sha256": "2cfc95a713f38093536dd1d7c28f6dda6491e5b3618baab28f02503925a23076",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_KNOWN_CEX_BOUNDARY_NO_OPERATION_ID",
+          "selected_depth": 4
+        },
+        {
+          "case": "WB18",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "8c112b2d22480263f8a6c2afd117a883869ed621050032e7b31348237484665f",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB19",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "204fa5d8835b59852241f14f6877a352a5402da7298aa6b4ced2887c48c1bb89",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB20",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "7175bb8b07798691b00ee9a94e92f6f92d182840c2354b62f07f29954c3de83c",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_NEXT_QUALIFYING_PARENT_MISSING_AT_BOUNDED_DEPTH; GENUINE_ABSENCE_NOT_PROVEN",
+          "selected_depth": 3
+        },
+        {
+          "case": "WB21",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "LINEAGE_GAP",
+          "mint_identity_sha256": "bae61f2c219fb25b6cffe1ae76092f9598b2f9056f6521d788b5c321aee7cc8e",
+          "queue_outcome": "LINEAGE_GAP",
+          "reason": "VERIFIED_NEXT_QUALIFYING_PARENT_MISSING_AT_BOUNDED_DEPTH; GENUINE_ABSENCE_NOT_PROVEN",
+          "selected_depth": 4
+        },
+        {
+          "case": "WB22",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "4fc9c4c3e2c171bb7de7c49c24c512939230e0043c429780327afb375591264f",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 0
+        },
+        {
+          "case": "WB23",
+          "create_anchor_state": "VALID",
+          "creator_present": true,
+          "materialized_outcome": "INSUFFICIENT_EVIDENCE",
+          "mint_identity_sha256": "b56c7eb02e7eab65ad3f3b4cf89977d438f809f8144b360c92aec1d953ef1110",
+          "queue_outcome": "NO_ATTRIBUTION_FOUND",
+          "reason": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE; EXACT_EMPTY_OR_REJECTED_SEARCH_CAUSE_INCONCLUSIVE",
+          "selected_depth": 1
+        }
+      ],
+      "classification": "VERIFIED",
+      "confirmed_operation_ids": 0,
+      "materialized_outcomes": {
+        "INSUFFICIENT_EVIDENCE": 11,
+        "KNOWN_CEX_REACHED": 4,
+        "LINEAGE_GAP": 8
+      },
+      "queue_outcomes": {
+        "LINEAGE_GAP": 9,
+        "NO_ATTRIBUTION_FOUND": 14
+      },
+      "total": 23
+    },
+    "branch": "codex/flex-v2-attribution-resolver-diagnostic",
+    "evidence_hashes": {
+      "/private/tmp/attribution-23-evidence.private.json": "6d1368f7ca9cf977a7d3d4e6683a7688cced8666012f77a1fd96e45cdee07951",
+      "/private/tmp/attribution-diagnostic-23.private.json": "1a23698f98b4bce41648e08bea32450b86f540d5dccc5dcdb34de082a3720dc0"
+    },
+    "installed_walkback_revision": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "installed_worker_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+    "production_flags": "Unchanged; no BIRDEYE credential/policy, provider-budget, queue, canonical, source or configuration mutation.",
+    "safety": {
+      "database_copies": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "receipt_replay": 0,
+      "service_restarts": 0,
+      "v1_access": 0
+    },
+    "source_revision": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
+    "starting_handoff": "12db0c59d3a2974d30c803848ce9d7511f365398",
+    "tests": "No tests, fixes or provider acquisition. Bounded indexed SQL and source reads only.",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex"
   },
   "flex_v2_controlled_restoration_after_deferred_activation": {
     "additional_reserved_credits": 1,
@@ -41219,7 +41533,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Continue natural operation and bounded monitoring. Six-hour report is retained-evidence limited; no billing or uninterrupted-uptime claim. Do not replay exhausted work or change budgets.",
+  "next_action": "Restore disk above established2GB floor plus bounded diagnostic reserve. Continue only the remaining fixed23-case evidence detail, four birth-token conflicts, six-migration stage reconciliation, resolver eligibility and bounded restart/clock readbacks in the existing dedicated branch/worktree. No fixes, acquisition, replay or deployment authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -43404,12 +43718,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-final-consolidation",
+    "branch": "codex/flex-v2-attribution-resolver-diagnostic",
     "git_head": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T09:13:43.534939+00:00",
-    "working_tree": "Read-only last-six-hour operational audit. No production/provider/service changes. Runtime remains38da4ccd."
+    "updated_at_utc": "2026-10-28T09:35:17.121330+00:00",
+    "working_tree": "Dedicated sparse diagnostic worktree created; no engineering changes. Read-only23-case reconciliation partially completed; disk guard stopped remaining collection."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -44811,7 +45125,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_SIX_HOUR_STATUS_AUDIT_COMPLETE",
+  "status": "FLEX_V2_ATTRIBUTION_RESOLVER_DIAGNOSTIC_BLOCKED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -46390,7 +46704,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "READ_ONLY_METRICS_WITH_COVERAGE_LIMITS",
+  "verdict": "BLOCKED_DISK_HEADROOM_PARTIAL_DIAGNOSIS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

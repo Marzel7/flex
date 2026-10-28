@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Current accepted gate.read refuses HELIUS_GATE_PUBLICATION_AMBIGUOUS; marker PENDING. No repair authorized under this diagnosis.",
+  "blocker": "No qualified route from ambiguous publication to verified OPEN within the current no-artificial-request restriction: conservative recovery restores closed state only; validated restoration probe remains required.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -24275,6 +24275,140 @@
     "status": "KEEP_MINT_FIRST_NORMAL",
     "strict_validation": "Preserved requirement: exact response-signature correlation, explicit successful-execution validation, Pump.fun program, exact mint and curve PDA, CREATE/CREATE_V2 compatibility, and qualified fee-payer creator authority. The retained four-signature serialized-creator decode is diagnostic evidence only and is not promoted to the runtime authority contract."
   },
+  "flex_v2_normal_operation_recovery_preflight": {
+    "blocker": "No qualified route from ambiguous publication to verified OPEN within the current no-artificial-request restriction: conservative recovery restores closed state only; validated restoration probe remains required.",
+    "engineering_revision": "b439ccf24168e7b11378a113106e255e98ba8834",
+    "next_action": "Explicitly authorize the existing conservative closed-state publication recovery followed by exactly one qualified bounded provider-validation probe, then natural acceptance. No source/schema/budget changes or exhausted replay needed.",
+    "production_flags": "Unchanged gate publication PENDING; valid content is not committed OPEN authority.100000credit policy retained; no allowance reset, BIRDEYE change or exhausted replay.",
+    "report": "docs/dev/flex_v2_attribution_resolver_diagnostic/NORMAL_OPERATION_RECOVERY_PREFLIGHT.json",
+    "report_sha256": "0ee5a13c3a0cb527e16ce988dd1859f638681191d940685c3f1a586c667648d5",
+    "report_summary": {
+      "DISK_AND_RUNTIME_HEALTH": {
+        "database_files": {
+          "core": {
+            "database": 85327872
+          },
+          "ops": {
+            "database": 163540992
+          }
+        },
+        "floor_plus_reserve_bytes": 2067108864,
+        "free_bytes": 2658185216,
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "service_actions": 0,
+        "services": {
+          "creator_resolution_worker": {
+            "pid": 37767,
+            "state": "RUNNING"
+          },
+          "walkback_worker": {
+            "pid": 34365,
+            "state": "RUNNING"
+          },
+          "watchtower_listener": {
+            "pid": 38003,
+            "state": "RUNNING"
+          }
+        },
+        "source_schema_changes": 0
+      },
+      "EXACT_BLOCKER": "No qualified route from ambiguous publication to verified OPEN within the current no-artificial-request restriction: conservative recovery restores closed state only; validated restoration probe remains required.",
+      "FLEX_V2_NORMAL_OPERATION_STATUS": "HOLD",
+      "GATE_PUBLICATION_RECOVERY": {
+        "accepted_closed_recovery_sha256": "4382fc17994b389cf0bfabb84c181fe533c4edffbd602775f2fd7a6b3b5b2dc1",
+        "evidence": {
+          "bounded_snapshots_examined": 38,
+          "independent_exact_snapshots_found": [],
+          "marker": "PENDING_V1",
+          "publication_commit_outcome": "UNPROVEN",
+          "readable_content_validated_offline_with_existing_owner": true,
+          "stage_absent": true,
+          "state_sha256": "e23303210f42ac0883daa427bae1686b9ee4df8b21444f8ae99cde8ea8ed119c"
+        },
+        "limit": "Accepted recovery can conservatively republish PAYMENT_DENIED preserving accounting; it does not prove OPEN. No matching independent exact snapshot was found among38 bounded authority snapshots. No marker clearing or state reset performed.",
+        "status": "NOT_EXECUTED"
+      },
+      "HELIUS_ACQUISITION": {
+        "artificial_provider_requests": 0,
+        "credential_bindings_verified": {
+          "creator_resolution_worker": {
+            "paid_helius_host": true,
+            "root_env_key_matches_endpoint": true
+          },
+          "walkback_worker": {
+            "paid_helius_host": true,
+            "root_env_key_matches_endpoint": true
+          },
+          "watchtower_listener": {
+            "paid_helius_host": true,
+            "root_env_key_matches_endpoint": true
+          }
+        },
+        "gate_validation_not_bypassed": true,
+        "probe_requirement": "Existing qualified restoration requires a bounded usable-response validation probe. Current prompt forbids artificial provider requests; no new OPEN transition or alternative mechanism invented.",
+        "status": "NOT_RESTORED"
+      },
+      "JOURNAL_CAPACITY": {
+        "custody_quotas": {
+          "birth_terminal_owner_v1": [
+            512,
+            697743
+          ],
+          "migration_deferred_owner_v1": [
+            511,
+            1344632
+          ],
+          "migration_terminal_owner_v1": [
+            1810,
+            2023483
+          ]
+        },
+        "journals": {
+          "birth": {
+            "free_slots": 9,
+            "occupied": 503
+          },
+          "migration": {
+            "free_slots": 7,
+            "occupied": 505
+          }
+        },
+        "state_mutations": 0
+      },
+      "MIGRATION_PROCESSING": {
+        "five_minute_acceptance": "Not started because publication/restoration authority gate failed.",
+        "status": "NOT_RESUMED_BY_THIS_TASK"
+      },
+      "NEXT_ACTION": "Explicitly authorize the existing conservative closed-state publication recovery followed by exactly one qualified bounded provider-validation probe, then natural acceptance. No source/schema/budget changes or exhausted replay needed.",
+      "SPENDING_HISTORY_PRESERVATION": {
+        "inflight": 0,
+        "limit": 100000,
+        "prior_spending_owners_and_uncertain_entries_preserved": true,
+        "production_mutations": 0,
+        "request_charge_sum": 71183,
+        "reserved_credits": 71183,
+        "review_held": 5,
+        "unverified_prepublication_state_label": "OPEN"
+      },
+      "WALKBACK_PROGRESS": {
+        "exhausted_replay_reset": 0,
+        "status": "NOT_RESUMED_BY_THIS_TASK"
+      },
+      "observed_utc": "2026-10-28T10:25:51.560066+00:00",
+      "safety": {
+        "budget_increases_resets": 0,
+        "historical_deletion": 0,
+        "production_changes": 0,
+        "provider_calls": 0,
+        "service_restarts": 0,
+        "source_schema_changes": 0,
+        "v1_access": 0
+      }
+    },
+    "runtime_walkback_revision": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "status": "HOLD",
+    "tests": "No new tests or provider requests. Existing qualified recovery contracts inspected; current raw ledger validated offline using accepted owner against retained baseline."
+  },
   "flex_v2_operational_backlog_skip_restoration_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Operationalrestorecomplete;successfulnewresolverRPC_CREATErecoveryunobserved,sofullfunctionalacceptancePARTIAL. No429/lock/surgeevidencedinavailabletelemetry.",
@@ -41927,7 +42061,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Diagnosis complete; stop without fixes or acquisition. Separate authorization needed to qualify shared Helius publication-state reconciliation. Then separately qualify treasury-less PROVISION_CANDIDATE early-stop semantics. Keep five birth conflicts protected; no replay or promotion.",
+  "next_action": "Explicitly authorize the existing conservative closed-state publication recovery followed by exactly one qualified bounded provider-validation probe, then natural acceptance. No source/schema/budget changes or exhausted replay needed.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -44113,11 +44247,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "614f81277c49c0ac770985a40c04bc8c57f9809f",
+    "git_head": "b439ccf24168e7b11378a113106e255e98ba8834",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T09:57:48.302205+00:00",
-    "working_tree": "Dedicated sparse DEV diagnostic branch. Report, repro contract and read-only reader committed. No application fixes or production/provider mutations; runtime remains38da4ccd."
+    "updated_at_utc": "2026-10-28T10:25:51.560066+00:00",
+    "working_tree": "Read-only normal-operation recovery preflight HOLD. All three key bindings and matched generation verified. No production/gate/service changes; existing qualified conservative recovery alone cannot restore OPEN under no-artificial-request restriction."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45519,7 +45653,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_BOUNDED_ATTRIBUTION_RESOLVER_DIAGNOSIS_COMPLETE",
+  "status": "FLEX_V2_NORMAL_OPERATION_RECOVERY_HOLD",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -47098,7 +47232,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "VERIFIED_FINDINGS_WITH_PROVIDER_AUTHORITY_BLOCKED",
+  "verdict": "HOLD_NO_QUALIFIED_OPEN_RESTORATION_WITHOUT_VALIDATION_PROBE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

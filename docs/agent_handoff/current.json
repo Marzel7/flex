@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Disk free754065408bytes below2067108864byte established floor.",
+  "blocker": "Current accepted gate.read refuses HELIUS_GATE_PUBLICATION_AMBIGUOUS; marker PENDING. No repair authorized under this diagnosis.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -19939,6 +19939,400 @@
     "source_revision": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
     "starting_handoff": "12db0c59d3a2974d30c803848ce9d7511f365398",
     "tests": "No tests, fixes or provider acquisition. Bounded indexed SQL and source reads only.",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex"
+  },
+  "flex_v2_bounded_attribution_resolver_diagnostic_complete": {
+    "ATTRIBUTION_STATUS": {
+      "classification": "VERIFIED_DIAGNOSIS_WITH_INCONCLUSIVE_HISTORY",
+      "finding": "No fixed-cohort case has durable qualified confirmed-operation authority. Do not equate unsuccessful bounded search with real absence of attribution. No existing membership or confirmed match was found for these23."
+    },
+    "BIRTH_RETRY_STATUS": {
+      "anchor_corroboration": "One token has a completed VALID canonical OPS anchor. Three have no OPS queue row. No invented anchor or parent; every original conflicting notification remains retained in active journal.",
+      "canonical_records_present": 4,
+      "classification": "VERIFIED_PROTECTED_CONFLICTS",
+      "creator_and_signature_conflicts": 5,
+      "exact_active_journal_records": 5,
+      "journal_reason": "CORE_AUTHORITY_CONFLICT",
+      "journal_state": "QUARANTINED",
+      "payload_identity_verification": "For each receipt, independently recomputed existing birth_id equals receipt_identity and exact journal id; original supplied creator/signature match payload. Same-mint unrelated journal rows were not substituted.",
+      "progress_safety": "No automatic retry/acknowledgement/overwrite is justified. The source supplies IDENTITIES_VALID_UNVERIFIED_CHAIN only. Independent authority must resolve identity conflicts before any separately authorized replay. Compact RETRY_PENDING receipt text does not mean its protected journal entry is still actively retrying.",
+      "receipt_count": 5,
+      "terminal_transfer_required_to_prove_preservation": false,
+      "token_count": 4,
+      "webhook_rows_for_exact_signatures": 0
+    },
+    "CREATOR_RESOLVER_STATUS": {
+      "classification": "VERIFIED",
+      "due_eligible": 0,
+      "durable_records": "241 complete and376 skipped are retained historic outcomes; latest resolved1793021999 and updated1793022799 predate window.",
+      "errors": "Retained stderr tail contains DISK_HEADROOM producer-preflight exceptions, but file mtime2026-10-26T22:32:25Z predates the fixed window; do not attribute them to current zero completions.",
+      "fixed_window_admitted": 0,
+      "fixed_window_completed": 0,
+      "queue_states": {
+        "complete": 241,
+        "skipped": 376
+      },
+      "reason": "All six migrated subjects already have canonical creators/signatures and no resolver row. Admission requires missing creator and migrated lifecycle. Zero admitted/eligible work explains zero completions; no evidence of eligible-job starvation."
+    },
+    "DISK_HEADROOM": {
+      "at_report_free_bytes": 2894929920,
+      "at_resumed_current_read_bytes": 3934785536,
+      "checkout": "Dedicated sparse DEV worktree; no full database copies or runtime source modifications.",
+      "classification": "VERIFIED_RESTORED",
+      "required_floor_bytes": 2067108864,
+      "single_file_cap_bytes": 499000000
+    },
+    "LINEAGE_GAP_ROOT_CAUSE": {
+      "candidate_stop_target": "WB03,WB07,WB11 retain selected hop1 and prior PROVISION_CANDIDATE rows without treasury. Installed pure-read predicate returns known_subprov=True, known_treasury=False, cached treasury absent. Existing early-return source branch yields LINEAGE_GAP. A future focused DEV qualification is appropriate; no promotion or missing-operation claim is justified.",
+      "classification": "VERIFIED_MISSING_CONDITIONS; HISTORICAL_SEARCH_DETAIL_INCONCLUSIVE",
+      "deep_missing_hops": {
+        "WB01": 5,
+        "WB13": 3,
+        "WB20": 4,
+        "WB21": 5
+      },
+      "negative_evidence_limit": "ARCHIVAL_GAP names a bounded unsuccessful parent search, not independently proven absence of archival/provider data or real funding.",
+      "nine_legacy_results": {
+        "bounded_deeper_parent_unresolved": 4,
+        "known_CEX_boundary": 1,
+        "partial_treasury_without_selected_upstream_parent": 1,
+        "preexisting_candidate_without_treasury": 3
+      }
+    },
+    "NEXT_SAFE_ACTION": "Diagnosis complete; stop without fixes or acquisition. Separate authorization needed to qualify shared Helius publication-state reconciliation. Then separately qualify treasury-less PROVISION_CANDIDATE early-stop semantics. Keep five birth conflicts protected; no replay or promotion.",
+    "NO_ATTRIBUTION_ROOT_CAUSE": {
+      "classification": "VERIFIED_DISPOSITION; EXACT_NEGATIVE_SEARCH_CAUSE_INCONCLUSIVE",
+      "insufficient_breakdown": {
+        "no_selected_hop1": 10,
+        "ordinary_hop1_without_qualified_hop2": 1
+      },
+      "insufficient_evidence": 11,
+      "missing_detail": "Retained successful-candidate ledger does not record empty pages, valid null transactions and every excluded candidate. No exact negative-search reason is logged for the ten no-hop1 creator prefixes. No fabricated absence verdict.",
+      "three_known_CEX_boundaries": 3,
+      "transport_contract": "Installed adapter preserves typed gate errors and raises AcquisitionUnavailable for invalid/failed responses; valid null transaction may remain evidence insufficiency. No new calls were made to distinguish these histories."
+    },
+    "PROVIDER_CLOCK_STATUS": {
+      "classification": "BLOCKED_CURRENT_AUTHORITY",
+      "current_limitation": "Gate reader refused HELIUS_GATE_PUBLICATION_AMBIGUOUS across bounded attempts; marker PENDING. Cannot independently verify current clock/budget state or declare blockage fully cleared. No marker clearing, state reset, probe or acquisition attempted.",
+      "current_readback": {
+        "classification": "BLOCKED",
+        "marker_at_read_end": "PENDING",
+        "read_error": "HELIUS_GATE_PUBLICATION_AMBIGUOUS"
+      },
+      "earlier_progress": "Current complete1965 versus1956 at09:11 proves nine additional queue completions before readback, not present provider availability.",
+      "last_error_limit": "Current pending gate/clock error text can be stale. Service RUNNING or retained clock labels alone are not availability proof.",
+      "observed_utc": "2026-10-28T09:52:44.044182+00:00"
+    },
+    "SERVICE_RESTART_FINDINGS": {
+      "classification": "VERIFIED_EVENTS; EXACT_CAUSAL_LINK_INCONCLUSIVE",
+      "current_services": {
+        "creator_resolution_worker": {
+          "pid": 37767,
+          "status": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 34365,
+          "status": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 38003,
+          "status": "RUNNING"
+        }
+      },
+      "listener_contract": "Retained recent FATAL messages identify PumpPortal prolonged-outage exit path; installed listener also has distinct DB-handle watchdog. No timestamped per-exit Python stack connects each exit to a transaction in this cohort.",
+      "listener_exit_status": 1,
+      "listener_exits_utc": [
+        "2026-10-28T03:55:49.823Z",
+        "2026-10-28T04:56:47.648Z",
+        "2026-10-28T05:57:45.770Z"
+      ],
+      "resolver_contract": "Expected clean exit, installed idle-queue uptime recycle branch and retained idle-recycle markers. No active resolver jobs in window; no demonstrated retry exhaustion or missing attribution caused by this recycle.",
+      "resolver_exit_status": 0,
+      "resolver_exit_utc": "2026-10-28T04:56:38.343Z",
+      "snapshot_limit": "Resolver failure diagnostic file262114/262144bytes; retained timestamps stop2026-10-03, so no Oct28 failure-phase proof. Do not label these as Helius credit denial or exact DNS/TLS failures from exit status alone."
+    },
+    "SIX_MIGRATION_STAGE_RECONCILIATION": {
+      "CREATE_ACK_queue_signature_creator_matches": 6,
+      "accepted_owner_explanation": "Accepted walkback_create_handoff._activate writes wt_walkback_queue anchor directly and acknowledges only after OPS commit. It does not require wt_create_event_ledger rows for this Core-qualified path. All six accepted Core/intent/queue creator-signature identities match.",
+      "canonical_handoff_exact_matches": 6,
+      "classification": "VERIFIED",
+      "current_states": {
+        "complete": 1,
+        "pending": 5
+      },
+      "overlap_with_fixed23": 0,
+      "separate_legacy_event_ledger_rows": 0,
+      "stranded_attribution": "No confirmed attribution evidence demonstrated stranded between those stages. The six new migrations are a different population from23 older completed jobs."
+    },
+    "SOURCE_AND_EVIDENCE": {
+      "installed_hashes": {
+        "creator_resolution": {
+          "creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+          "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+        },
+        "listener": {
+          "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+          "pumpfun_curve_listener.py": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c"
+        },
+        "walkback": {
+          "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+          "walkback_worker.py": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a"
+        }
+      },
+      "private_evidence_hashes": {
+        "/private/tmp/attribution-23-evidence.private.json": "6d1368f7ca9cf977a7d3d4e6683a7688cced8666012f77a1fd96e45cdee07951",
+        "/private/tmp/attribution-diagnostic-23.private.json": "1a23698f98b4bce41648e08bea32450b86f540d5dccc5dcdb34de082a3720dc0",
+        "/private/tmp/diagnostic-provider-runtime-summary.json": "db1b95c439893f876e1a67ae1dec98ffb1963b7eeb3f1aaf353c0b2e838a3dac",
+        "/private/tmp/exact-five-birth-custody.private.json": "6bd8d5713ecc65843a94fc97c42112c2f6f63f3dfcf78dab4268522fc1741231",
+        "/private/tmp/fixed-birth-migration-evidence.private.json": "0cd8c3685bc106c3c6e764b3add24ac0bc411613097fe3f4b9f52a300838e4ee",
+        "/private/tmp/fixed-cohort-eligibility-summary.json": "a251ee8a3229411921c9359e577cdb564bef479e0c353f3121b9771949fab58a"
+      },
+      "reproduction": {
+        "bounds": "Stop below2067108864free bytes; kernel499000000single-file cap; no DB copies; no new provider acquisition.",
+        "canonical_migration_selection": "Covering idx_psi0a_token_analysis_migration_tx capped10001, then exact migration_tx lookups and fixed migrated_at filter; require6.",
+        "cross_database_limit": "Independent read-only observations; no cross-database atomic snapshot claimed.",
+        "fixed_window_utc": [
+          "2026-10-28T03:11:01Z",
+          "2026-10-28T09:11:01Z"
+        ],
+        "indexed_case_lookups": [
+          "wt_attribution_outcomes WHERE mint=?",
+          "wt_walkback_edge_candidates INDEXED BY ix_wwec_mint_hop WHERE mint=? LIMIT1001",
+          "operator_launch_membership WHERE mint=?",
+          "wt_discovered_subprovs WHERE subprov=?",
+          "wt_confirmed_treasuries WHERE treasury=?"
+        ],
+        "private_evidence_hashes": {
+          "/private/tmp/attribution-23-evidence.private.json": "6d1368f7ca9cf977a7d3d4e6683a7688cced8666012f77a1fd96e45cdee07951",
+          "/private/tmp/attribution-diagnostic-23.private.json": "1a23698f98b4bce41648e08bea32450b86f540d5dccc5dcdb34de082a3720dc0",
+          "/private/tmp/diagnostic-provider-runtime-summary.json": "db1b95c439893f876e1a67ae1dec98ffb1963b7eeb3f1aaf353c0b2e838a3dac",
+          "/private/tmp/exact-five-birth-custody.private.json": "6bd8d5713ecc65843a94fc97c42112c2f6f63f3dfcf78dab4268522fc1741231",
+          "/private/tmp/fixed-birth-migration-evidence.private.json": "0cd8c3685bc106c3c6e764b3add24ac0bc411613097fe3f4b9f52a300838e4ee",
+          "/private/tmp/fixed-cohort-eligibility-summary.json": "a251ee8a3229411921c9359e577cdb564bef479e0c353f3121b9771949fab58a"
+        },
+        "reader": "read_current_authority.py; network blocked; sqlite mode=ro/query_only; existing gate.read only; no lifecycle or restoration methods.",
+        "receipt_selection": "Existing bounded namespace metadata inventory<=1600000; payload<=4096B; frozen reception window; exact five RETRY_PENDING receipts; recompute birth_id and match journal id. Never correlate by mint alone.",
+        "selection_sql": "SELECT * FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status='complete' ORDER BY enqueued_at LIMIT 10001; filter completed_at within fixed UTC window; require23.",
+        "source_hashes": {
+          "creator_resolution": {
+            "creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+            "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+          },
+          "listener": {
+            "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+            "pumpfun_curve_listener.py": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c"
+          },
+          "walkback": {
+            "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f",
+            "walkback_worker.py": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a"
+          }
+        },
+        "stage_lookups": [
+          "Core token_analysis WHERE mint=?",
+          "Core migration_walkback_handoff WHERE mint=?",
+          "Core wb_create_delivery WHERE mint=? LIMIT10",
+          "OPS wt_walkback_queue WHERE mint=?"
+        ]
+      }
+    },
+    "WALKBACK_23_OUTCOME_RECONCILIATION": {
+      "case_results": [
+        [
+          "WB01",
+          "25f6b49669579992da41f2bb403edbaaf9d475703a9704d7d99dd739da9699e8",
+          "LINEAGE_GAP",
+          4,
+          "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED"
+        ],
+        [
+          "WB02",
+          "df48f6cd21e13ba0b0ee012c4fc9d65f607462cc0102c0b75463b1c299885f45",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB03",
+          "f6a964cc1720061cd154ced08d751fa013ca41862eb22f251b778c5fa60ef908",
+          "LINEAGE_GAP",
+          1,
+          "VERIFIED_PREEXISTING_UNCONFIRMED_SUBPROV_ELIGIBILITY"
+        ],
+        [
+          "WB04",
+          "741bcd6cf4063036046c97e05048a0442a35ee15f4c816a82d5da90356118b0c",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB05",
+          "af4e902305e6d772584b026c81e8493d8dde09db6d844937141db094035b5ed4",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB06",
+          "824c6fe5fc71562d2bbb81500f2422871f7e5286f91fd7ebb5627fc449ebd8ba",
+          "KNOWN_CEX_REACHED",
+          1,
+          "VERIFIED_KNOWN_CEX_BOUNDARY"
+        ],
+        [
+          "WB07",
+          "9c37845e3536c52bd743b20270c2819bd8c322c4ef3af895097332970d3f6a38",
+          "LINEAGE_GAP",
+          1,
+          "VERIFIED_PREEXISTING_UNCONFIRMED_SUBPROV_ELIGIBILITY"
+        ],
+        [
+          "WB08",
+          "6eadee6056886b959d556b1f800e88d309ef77a1103f7a7878a959c482eb5881",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB09",
+          "b16786b331ae6b7d17b025b9bb17502a5e366351e16a8a3ceca5fd24e500dc71",
+          "LINEAGE_GAP",
+          0,
+          "VERIFIED_PARTIAL_TREASURY_UNRESOLVED"
+        ],
+        [
+          "WB10",
+          "10483abd7d8808c039e817d3769806c44ac49f53ab363d901c777a2e7b1edf90",
+          "KNOWN_CEX_REACHED",
+          1,
+          "VERIFIED_KNOWN_CEX_BOUNDARY"
+        ],
+        [
+          "WB11",
+          "12c7251def6fc041f829d4f84d028f5525b83d8af3e7740030b6bafe5b1f22ca",
+          "LINEAGE_GAP",
+          1,
+          "VERIFIED_PREEXISTING_UNCONFIRMED_SUBPROV_ELIGIBILITY"
+        ],
+        [
+          "WB12",
+          "284ac8dd7c2169db460befc2301df8f5216f125535752871b56e8d979a3baac2",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB13",
+          "8a92522f4f529b77a94cd5c542337603f98b882b222dda6fced605069952926d",
+          "LINEAGE_GAP",
+          2,
+          "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED"
+        ],
+        [
+          "WB14",
+          "f956a625e144b266ba96951800a199ce6eef57fb382ea2eed779bacfe3ffc32a",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB15",
+          "7ec40f7fa709f27c4ff37edc235a9e7ba43992e7383c1bed665aa1cabf5f3df9",
+          "KNOWN_CEX_REACHED",
+          1,
+          "VERIFIED_KNOWN_CEX_BOUNDARY"
+        ],
+        [
+          "WB16",
+          "ee0abb71409efd0f0110ca621076f0232095dc9033d6a20374e6cc5c84cad2c4",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB17",
+          "2cfc95a713f38093536dd1d7c28f6dda6491e5b3618baab28f02503925a23076",
+          "KNOWN_CEX_REACHED",
+          4,
+          "VERIFIED_KNOWN_CEX_BOUNDARY"
+        ],
+        [
+          "WB18",
+          "8c112b2d22480263f8a6c2afd117a883869ed621050032e7b31348237484665f",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB19",
+          "204fa5d8835b59852241f14f6877a352a5402da7298aa6b4ced2887c48c1bb89",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB20",
+          "7175bb8b07798691b00ee9a94e92f6f92d182840c2354b62f07f29954c3de83c",
+          "LINEAGE_GAP",
+          3,
+          "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED"
+        ],
+        [
+          "WB21",
+          "bae61f2c219fb25b6cffe1ae76092f9598b2f9056f6521d788b5c321aee7cc8e",
+          "LINEAGE_GAP",
+          4,
+          "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED"
+        ],
+        [
+          "WB22",
+          "4fc9c4c3e2c171bb7de7c49c24c512939230e0043c429780327afb375591264f",
+          "INSUFFICIENT_EVIDENCE",
+          0,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ],
+        [
+          "WB23",
+          "b56c7eb02e7eab65ad3f3b4cf89977d438f809f8144b360c92aec1d953ef1110",
+          "INSUFFICIENT_EVIDENCE",
+          1,
+          "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE"
+        ]
+      ],
+      "count": 23,
+      "legacy": {
+        "LINEAGE_GAP": 9,
+        "NO_ATTRIBUTION_FOUND": 14
+      },
+      "typed": {
+        "INSUFFICIENT_EVIDENCE": 11,
+        "KNOWN_CEX_REACHED": 4,
+        "LINEAGE_GAP": 8
+      }
+    },
+    "artifact_sha256": {
+      "REPORT.json": "9405419954431e9948bff21994cf45e5afe5886d8fea871a7a2b0aef91f50b53",
+      "REPRODUCE.json": "e3d6c69761265724ea2f59c9c08b5be0b33e49ff7238a1da171298a1f6618cf5",
+      "read_current_authority.py": "1c01a1f5fb3cd4e040294ed8f0167efdc99821306e7e3beffb65e4ec30049b9a"
+    },
+    "blocker": "Provider publication authority currently ambiguous; exact negative-search and per-exit historical failure phases remain unprovable from retained records.",
+    "engineering_revision": "614f81277c49c0ac770985a40c04bc8c57f9809f",
+    "production_flags": "Unchanged matched V2 generation and source38da4ccd; no BIRDEYE policy, budget, gate, queue or lifecycle mutation. Current gate publication prevents authoritative clock/budget readback.",
+    "report": "docs/dev/flex_v2_attribution_resolver_diagnostic/REPORT.json",
+    "safety": {
+      "BIRDEYE_policy_changes": 0,
+      "budget_changes": 0,
+      "fixes_implemented": 0,
+      "production_source_schema_canonical_changes": 0,
+      "provider_calls": 0,
+      "receipt_replay": 0,
+      "service_restarts": 0,
+      "v1_access": 0
+    },
+    "source_base": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
+    "starting_handoff": "12db0c59d3a2974d30c803848ce9d7511f365398",
+    "status": "DIAGNOSIS_COMPLETE_WITH_INCONCLUSIVE_HISTORY",
+    "tests": "Read-only diagnostic execution and pure-read installed predicates only; network blocked in diagnostic reader. No fix qualification or broad suites.",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex"
   },
   "flex_v2_controlled_restoration_after_deferred_activation": {
@@ -41533,7 +41927,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Restore disk above established2GB floor plus bounded diagnostic reserve. Continue only the remaining fixed23-case evidence detail, four birth-token conflicts, six-migration stage reconciliation, resolver eligibility and bounded restart/clock readbacks in the existing dedicated branch/worktree. No fixes, acquisition, replay or deployment authorized.",
+  "next_action": "Diagnosis complete; stop without fixes or acquisition. Separate authorization needed to qualify shared Helius publication-state reconciliation. Then separately qualify treasury-less PROVISION_CANDIDATE early-stop semantics. Keep five birth conflicts protected; no replay or promotion.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -43719,11 +44113,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
+    "git_head": "614f81277c49c0ac770985a40c04bc8c57f9809f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T09:35:17.121330+00:00",
-    "working_tree": "Dedicated sparse diagnostic worktree created; no engineering changes. Read-only23-case reconciliation partially completed; disk guard stopped remaining collection."
+    "updated_at_utc": "2026-10-28T09:57:48.302205+00:00",
+    "working_tree": "Dedicated sparse DEV diagnostic branch. Report, repro contract and read-only reader committed. No application fixes or production/provider mutations; runtime remains38da4ccd."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45125,7 +45519,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_ATTRIBUTION_RESOLVER_DIAGNOSTIC_BLOCKED",
+  "status": "FLEX_V2_BOUNDED_ATTRIBUTION_RESOLVER_DIAGNOSIS_COMPLETE",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -46704,7 +47098,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "BLOCKED_DISK_HEADROOM_PARTIAL_DIAGNOSIS",
+  "verdict": "VERIFIED_FINDINGS_WITH_PROVIDER_AUTHORITY_BLOCKED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

@@ -7,7 +7,6 @@ Disk/WAL checks are stop conditions, not VFS hard quotas.
 from dataclasses import dataclass, asdict
 from hashlib import sha256
 import json
-import os
 from pathlib import Path
 import shutil
 import time
@@ -123,12 +122,6 @@ def stage(conn,proof,*,core_path,ops_path,now=None):
 
 
 def _activate(ops,proof,start):
-    _coverage = None
-    if os.environ.get('FLEX_V2_CREATE_AUDIT_ENABLED', '0') != '0':
-        from src.ops.create_coverage import Boundary
-        _coverage = Boundary(ops)
-    elif ops.execute("SELECT 1 FROM sqlite_master WHERE name='create_coverage_owner_v1'").fetchone():
-        raise RuntimeError('CREATE_AUDIT_FLAG_DOWNGRADE')
     row=ops.execute('SELECT creator,status,path_state,create_anchor_signature,enqueued_at FROM wt_walkback_queue WHERE mint=?',(proof.mint,)).fetchone()
     if row is None:raise Unavailable('OPS_ROW_MISSING')
     creator,status,path,sig,enqueued=row
@@ -139,7 +132,6 @@ def _activate(ops,proof,start):
     if status!='waiting' or path!='WAITING_FOR_CREATE_ANCHOR':raise Unavailable('OPS_STATE_INELIGIBLE')
     changed=ops.execute("UPDATE wt_walkback_queue SET creator=?,create_anchor_signature=?,create_anchor_slot=?,create_anchor_block_time=?,create_anchor_source=?,create_anchor_audit_state='VALID',path_state='CREATE_ANCHORED',status='pending' WHERE mint=? AND status='waiting' AND path_state='WAITING_FOR_CREATE_ANCHOR'",(proof.creator,proof.signature,proof.slot,proof.block_time,'CORE_QUALIFIED_CREATE',proof.mint))
     if changed.rowcount!=1:raise Unavailable('OPS_CONCURRENT_CHANGE')
-    if _coverage is not None:_coverage.activated(proof)
     return 'ACTIVATED'
 
 

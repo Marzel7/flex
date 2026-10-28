@@ -1,0 +1,146 @@
+{
+  "status": "VERIFIED_DIAGNOSIS_PARTIAL_PROGRESS",
+  "observed_utc": "2026-10-28T11:15:23.927507+00:00",
+  "production_changes": false,
+  "provider_calls": 0,
+  "services": {
+    "watchtower_listener": {
+      "state": "RUNNING",
+      "pid": 76395
+    },
+    "creator_resolution_worker": {
+      "state": "RUNNING",
+      "pid": 76441
+    },
+    "walkback_worker": {
+      "state": "RUNNING",
+      "pid": 76510
+    }
+  },
+  "gate": "OPEN",
+  "investigation_limit": 100000,
+  "walkback_completions_since_restoration": 7,
+  "completion_outcomes": {
+    "LINEAGE_GAP": 5,
+    "NO_ATTRIBUTION_FOUND": 2
+  },
+  "pending_reason_sample_111311UTC": {
+    "HELIUS_GATE_BUSY": 57,
+    "HELIUS_INVESTIGATION_REQUIRED": 9,
+    "HELIUS_REQUEST_RATE_LIMIT": 13,
+    "no_error": 9
+  },
+  "heartbeat_note": "Healthy at 11:13 sample; unhealthy at 11:15 because current-minute completions zero, not a dead process.",
+  "proven_source_defect": {
+    "path": "src/core/helius_http_protection.py",
+    "boundary": "scoped.enter",
+    "behaviour": "Catches BudgetDeferred from owned_context.__enter__, returns None, then executes wrapped function without scope; _admit rejects paid dispatch with HELIUS_INVESTIGATION_REQUIRED.",
+    "limitation": "Retained queue reason does not recover which original entry deferral occurred for each affected job."
+  },
+  "minimum_walkback_correction": "Preserve and return typed ownership-entry deferral to durable job scheduling before running paid work; refund only provisional claim under existing rules. Do not fabricate or borrow ownership.",
+  "birth_journal": {
+    "count": 493,
+    "states": {
+      "QUARANTINED": 492,
+      "ACKED": 1
+    },
+    "errors": {
+      "CORE_AUTHORITY_CONFLICT": 492,
+      "null": 1
+    },
+    "attempts": {
+      "0": 492,
+      "1": 1
+    },
+    "sample_fields": [
+      "ack",
+      "attempts",
+      "error_code",
+      "id",
+      "mint",
+      "payload",
+      "received_at",
+      "signature",
+      "source",
+      "state",
+      "version"
+    ],
+    "pending_due": 0
+  },
+  "birth_transfer_observed": {
+    "terminal_records_before": 512,
+    "after": 493,
+    "active_count_before": 511,
+    "explanation": "Existing overflow-triggered batch reclamation naturally ran; near-full occupancy alone is not proof of failure."
+  },
+  "migration_journal": {
+    "count": 511,
+    "states": {
+      "RESOLVED": 1,
+      "PENDING": 501,
+      "ACKED": 8,
+      "QUARANTINED": 1
+    },
+    "errors": {
+      "DISPATCH_RESERVED": 2,
+      "HELIUS_BUDGET_DEFERRED": 500,
+      "null": 8,
+      "CANONICAL_SIGNATURE_CONFLICT": 1
+    },
+    "attempts": {
+      "1": 45,
+      "0": 466
+    },
+    "sample_fields": [
+      "ack",
+      "attempts",
+      "conflicting_mint",
+      "conflicting_slot",
+      "error_code",
+      "id",
+      "migration_slot",
+      "mint",
+      "notification_identity",
+      "received_at",
+      "retry_not_before",
+      "signature",
+      "source",
+      "state",
+      "version"
+    ],
+    "pending_due": 501
+  },
+  "migration_progress_blockers": "500 generic HELIUS_BUDGET_DEFERRED records; existing listener collapses budget outcomes and applies 300-second backoff. 120/minute shared request-rate protection and transient nonblocking gate contention are observed; exact original per-notification reason lost.",
+  "capacity_correction": "Use existing verified completion/terminal/deferred transfer paths at a bounded low-water threshold before overflow; preserve dispatch reservations, identities and independent readback. No quota increase or new owner required.",
+  "custody_quotas": {
+    "birth_terminal_owner_v1": {
+      "singleton": 1,
+      "version": 1,
+      "contract": "f0bfbf5ae463fd61e6b8d2e700687265b50928c7966199a2c8a15eba647d240c",
+      "used_records": 532,
+      "used_bytes": 724585
+    },
+    "migration_terminal_owner_v1": {
+      "singleton": 1,
+      "version": 1,
+      "contract": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+      "used_records": 1810,
+      "used_bytes": 2023483
+    },
+    "migration_deferred_owner_v1": {
+      "singleton": 1,
+      "version": 1,
+      "contract": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+      "used_records": 511,
+      "used_bytes": 1344682
+    }
+  },
+  "lock_observation": "45 OS-only samples over 5.2 seconds; no exclusive lock owner captured. No evidence of a permanently held lock; not proof that contention is absent.",
+  "free_bytes": 4242341888,
+  "uncertainties": [
+    "Original hidden ownership-entry deferral for each required-owner queue row is not retained.",
+    "Generic migration HELIUS_BUDGET_DEFERRED prevents exact per-reason attribution.",
+    "No provider-free implementation qualification performed under this read-only task."
+  ],
+  "next_action": "Qualify the narrow typed scope-entry deferral correction first; preserve exact migration budget reasons and reuse bounded existing custody maintenance if admission reserve is required. No replay, reset or budget change."
+}

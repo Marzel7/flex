@@ -1,0 +1,63 @@
+{
+  "FLEX_V2_WALKBACK_PER_JOB_CONTENTION_STATUS": "PASS",
+  "VERDICT": "QUALIFIED_NOT_DEPLOYED",
+  "CANDIDATE_SHA": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+  "FROZEN_BUNDLE_SHA256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
+  "EXACT_SOURCE_DELTA": {
+    "runtime_files": 1,
+    "runtime_sections": [
+      "_rpc read/authority retry boundary",
+      "_process_row typed contention retry delay",
+      "drain_batch contention-only same-priority ordering"
+    ],
+    "recovery_delta": "One matching Walkback SHA256 pin only",
+    "shared_gate_http_budget_owners_unchanged": true,
+    "installed_preimages_readonly_verified": true
+  },
+  "CONTENTION_BEHAVIOUR": {
+    "pre_dispatch_checks": "Gate.current and investigation_owner only; at most five attempts; four25ms sleeps. Full checksum, generation, owner and accounting validation on every attempt. No lock held while sleeping.",
+    "persistent_busy": "Typed BudgetDeferred HELIUS_GATE_BUSY remains protected pending, refund only current claim, durable next_retry_at=now+5. Actual examination remains subject to ordinary worker cadence.",
+    "no_http_replay": "Memo/HTTP dispatch outside new retry loop, including unowned path; no reservation/request/completion retried by this loop.",
+    "fairness": "Same priority retained; only gate-busy jobs use last deferral time instead of original enqueue time, avoiding repeated oldest-head monopolization.",
+    "other_failures": "Credit cap/cooldown/denial retain300second existing delay; integrity/generation/storage/runtime errors not caught as contention.",
+    "scope": "No change to shared scoped wrapper or creation of investigation identities. Does not eliminate all possible gate contention or guarantee live throughput."
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 99,
+    "failed_final": 0,
+    "new_focused": 20,
+    "retained_selected": 79,
+    "suites": {
+      "per_job_contention": 20,
+      "walkback_progress": 32,
+      "recovery_pins": 13,
+      "optional_funder": 15,
+      "optional_gate_busy_cycle": 14,
+      "budget_limit_concurrency_restart": 5
+    },
+    "historical_delta_assertions_deselected": 2,
+    "deselection_reason": "Two previous-milestone assertions require only the old optional two-line delta versus b203c114. Replaced here by exact installed3f75234d AST check limiting runtime changes to three listed functions and byte-equality checks on gate,HTTP protection and reconciliation.",
+    "real_flock": "Disposable child owns actual gate flock; release during bounded wait produces one simulated dispatch. Persistent contention produces none.",
+    "network": "Socket connect and create_connection globally refused for all final runs; simulated in-process transport only.",
+    "restart": "Durable SQLite due timestamp and attempts survive connection restart; stale/wrong-owner updates rejected. Existing fresh-pair recovery controls pass.",
+    "spending": "Unchanged100000credit cap, no reset of prior spend/owner identities; retained concurrent limit/crash controls pass.",
+    "test_fixture_repairs": "Initial fixture failures were test-only namespace/monkeypatched-sleep recursion and corrected. No accepted source safety requirement was relaxed."
+  },
+  "STORAGE": {
+    "free_bytes": 7455178752,
+    "minimum_floor_bytes": 2067108864,
+    "kernel_test_single_file_cap_bytes": 499000000,
+    "new_storage_owners_or_schema": false
+  },
+  "PRODUCTION": {
+    "source_config_database_changes": 0,
+    "service_restarts": 0,
+    "provider_calls": 0,
+    "retry_replay_reset": 0,
+    "v1_access": 0,
+    "spending_or_budget_mutations": 0
+  },
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+  "NEXT_ACTION": "Read-only Walkback-only deployment preflight for exact bundle: installed preimages, candidate-aware recovery pins, matched generation, idle work ownership, gate/spending and disk/journal safety. Do not deploy.",
+  "qualified_utc": "2026-10-28T00:36:49.823120+00:00"
+}

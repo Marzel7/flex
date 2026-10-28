@@ -1,0 +1,18 @@
+{
+  "candidate_sha": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+  "deployment_boundary": "Walkback-only, subject to separately authorized deployment and immediate preflight. No schema or flag changes.",
+  "installed_base": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+  "payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27",
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-optional-busy-3f75234d/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "b64139ecc933f03134d126634b75b19a4fa7e18521f4f8ae13694499e7a77cc5"
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "installed_preimage_sha256": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414"
+    }
+  },
+  "recovery": "Matching candidate-aware renderer pin; preserve gate/budget, terminal/deferred custody, cursor and fresh compact matched-pair recovery."
+}

@@ -25522,6 +25522,83 @@
     },
     "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED"
   },
+  "flex_v2_runtime_ownership_capacity_preflight": {
+    "activation_plan_sha256": "0066b4d97c17d5005e2921bb4d18068aa8e0d64322200d31cb40ff13c823452f",
+    "activation_scope": "Separate authorization required: two runtime files plus matching renderer/source authority; stop/start listener and Walkback only, resolver untouched. Preserve reservations/held evidence; existing verified batch transfer only.",
+    "blocker": null,
+    "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "candidate_sha": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+    "engineering_revision": "e06dae348bb790d89894cbc0094350c410e5a880",
+    "helius": {
+      "budget_limit": 100000,
+      "held_requests": 5,
+      "highest_investigation_credits": 7936,
+      "historical_credits_and_owners_preserved": true,
+      "inflight": [],
+      "reserved_credits": 72698,
+      "state": "OPEN",
+      "warning": 50000
+    },
+    "journal_snapshot": {
+      "birth": {
+        "bytes": 403646,
+        "free": 3,
+        "records": 509,
+        "states": {
+          "ACKED": 3,
+          "QUARANTINED": 506
+        }
+      },
+      "migration": {
+        "bytes": 288790,
+        "free": 2,
+        "proactive_pending_candidates": 502,
+        "protected_dispatch_reservations": 2,
+        "records": 510,
+        "states": {
+          "ACKED": 4,
+          "PENDING": 503,
+          "QUARANTINED": 2,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "next_action": "Obtain separate authorization for exact two-runtime-file bundle and matching recovery authority, with coordinated listener/Walkback restart only. Recheck live safety immediately before execution.",
+    "observed_utc": "2026-10-28T11:41:12.245354+00:00",
+    "production_flags": {
+      "journal_transfers": 0,
+      "provider_calls": 0,
+      "replay_reset": 0,
+      "restarts": 0,
+      "source_or_configuration_changes": 0,
+      "v1_access": 0,
+      "writes": 0
+    },
+    "report_sha256": "5cc7d5fecfe3954f55c3173e73316e33e49278638852a8a674958ecdd60979b6",
+    "runtime": "Matched ACTIVE DEV004-V2-20261024-dfb76562; listener76395 resolver76441 Walkback76510 RUNNING, all Supervisor1131-owned with effective V2/gate bindings.",
+    "source_and_recovery": "Exact installed two runtime preimages and renderer verified. Both candidate hash pins match. Sixteen inherited role payload hashes verified; terminal/deferred/gate-aware fallback preserved.",
+    "status": "PASS",
+    "storage": {
+      "free_bytes": 3087171584,
+      "required_with_deployment_reserve": 2771751936,
+      "single_file_cap": 499000000
+    },
+    "tests": "Reuse73 accepted provider-free controls; no repeated broad tests and no provider calls in preflight.",
+    "transfer_eligibility": {
+      "active_snapshot_records": 502,
+      "bounded_existing_deferred_payloads_validated": 511,
+      "bounded_terminal_payloads_validated": 1810,
+      "eligibility": {
+        "existing_compatible_owner": 219,
+        "new_owner_candidate": 274,
+        "not_pending_candidate": 7,
+        "protected_dispatch": 2
+      },
+      "note": "Eligibility only; actual transfer still requires fresh guard validation, durable OPS commit and independent readback. No transfer performed."
+    },
+    "updated_utc": "2026-10-28T11:45:06.780739+00:00",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT"
+  },
   "flex_v2_runtime_ownership_capacity_qualification": {
     "blocker": null,
     "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
@@ -46410,7 +46487,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "d77256e87bdd6e883a4ae2c7b58eef31233d552b",
+    "git_head": "e06dae348bb790d89894cbc0094350c410e5a880",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

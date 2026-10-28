@@ -30130,6 +30130,104 @@
     "status": "COMPLETE_READ_ONLY_MONITOR_DELETED",
     "tests": "Not applicable; scheduling only"
   },
+  "flex_v2_v1_retirement_contract_qualification": {
+    "CANDIDATE_SHA": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "EXACT_LEGACY_DEPENDENCY": "Existing _manifest->_identity required original predecessor files to be stat-verifiable. Default behavior remains unchanged without an explicit checksum-pinned certificate.",
+    "FLEX_V2_V1_RETIREMENT_CONTRACT_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "FROZEN_DEV_BUNDLE_SHA256": "2eade502f3b7227ac345e67f841c3429b78bdb84ed101bd9d2d00144835f717f",
+    "Golden_authority": {
+      "amended_or_retagged": false,
+      "manifest_sha256": "4dbba179cc7b0f05438069ab0df385df504667ef962e38d877806a6cef9bf75e",
+      "source_commit": "8322e2c98a5a096863c253d33f79bff161fde629",
+      "tag": "flex-v2-golden-2026-10-28"
+    },
+    "NEXT_ACTION": "Run read-only deployment preflight for this exact candidate. Verify installed guard/launcher preimages, candidate-aware source pins and the two all-reader certificate bindings. Any later owner publication must occur at the separately authorized boundary while both original V1 files still exist; physical retirement remains separately authorized.",
+    "PAIRED_GENERATION_GUARD": {
+      "auxiliary_writer_retirement_checks": "UNCHANGED",
+      "current_Core_OPS_physical_identity_generation_seals_owner_checks": "UNCHANGED",
+      "guard_sha256": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0",
+      "legacy_alias_handling": "Three runtime launchers and dormant launcher normalize inherited V1 aliases only after successful V2 retirement validation.",
+      "missing_corrupt_stale_mixed_or_ambiguous_evidence": "FAIL_CLOSED",
+      "only_exact_certified_original_predecessor_may_be_absent": true,
+      "reappearing_original_path_with_wrong_identity": "REJECTED",
+      "six_guard_copies_identical": true
+    },
+    "PROVIDER_FREE_TEST_RESULTS": {
+      "accepted_gate_restart_control": 1,
+      "accepted_pending_claim_controls": 9,
+      "accepted_retention_boundary_control": 1,
+      "failed": 0,
+      "largest_file_bound": "All disposable outputs below500MB; existing fixture teardown caps also pass.",
+      "network": "Blocked in disposable fixtures",
+      "new_real_recovery_dormant_integration": 4,
+      "note": "Existing pytest asyncio_mode configuration warning only.",
+      "passed": 54,
+      "production_V1_content_access": 0,
+      "production_database_connections": 0,
+      "production_gate_locks": 0,
+      "provider_calls": 0,
+      "retirement_contract_controls": 39
+    },
+    "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+    "RECOVERY_COMPATIBILITY": {
+      "Golden_recovery_script_and_renderer_bytes_unchanged": true,
+      "Helius_accounting": "Actual accepted recovery callbacks preserve73920reserved credits, five OWNER_EXIT_UNCERTAIN requests, original ownership and100000limit.",
+      "Walkback_interrupted_claims": "Recovered to pending; attempts,timing,CREATE evidence and attribution unchanged.",
+      "configuration_readback": "Existing renderer carries both exact pins without modifying source renderer.",
+      "dormant_runtime": "API,monitor,bridge qualify with certificate selected; no acquisition,threads or ports.",
+      "fresh_compact_pair": "PASS with both original fixture files absent",
+      "repeated_successive_recovery_generations": "PASS",
+      "seven_day_lifecycle": "Unchanged owner/schema; bounded disposable cleanup passes with original fixtures absent and shared certificate pins.",
+      "terminal_deferred_custody": "Preserved through actual accepted recovery fixture"
+    },
+    "RETIREMENT_AUTHORITY": {
+      "authorization": "Explicit owner publication while original files still exist and ACTIVE V2 seals/retirement markers independently verify; not inferred from missing files.",
+      "configuration": "Both path and exact SHA256 pins required. No automatic initialization or rebudgeting.",
+      "durability": "Bounded stage/fsync, exclusive immutable link, directory fsync and independent destination readback. Partial/conflicting stages fail closed; explicit matching owner retry only.",
+      "file": "AUTHORITY_PATH.predecessor-retirement-v1.json",
+      "identity_proof": "Immutable exact predecessor generation/device/inode records, original successor manifest bytes+digest, both original retirement marker hashes and successor seal hashes.",
+      "owner": "Existing paired manifest/authority owner; publish_predecessor_retirement(authorize=True)",
+      "storage_bounds": {
+        "certificate_count": 1,
+        "max_bytes_each": 32768,
+        "new_database_or_service": false,
+        "stage_count": 1,
+        "startup_floor_plus_reserve_bytes": 2067108864
+      }
+    },
+    "deployment_scope": "Coherent source/configuration preflight for all three active readers,recovery source root and existing lifecycle process; dormant packages remain inactive. No deployment or deletion authorized.",
+    "observed_utc": "2026-10-28T20:55:14.791578+00:00",
+    "production_continuity": {
+      "V1_deletions": 0,
+      "all_running": true,
+      "installed_guard_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde",
+      "installed_launcher_sha256": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+      "production_certificate_exists": false,
+      "production_restarts": 0,
+      "production_source_configuration_changes": 0,
+      "retention_schedule_unchanged": true,
+      "spending_and_BIRDEYE_authority_unchanged": true,
+      "worker_pids": [
+        39360,
+        39412,
+        39439
+      ]
+    },
+    "production_flags": {
+      "DEV_contract_qualified": true,
+      "Golden_frozen_commit_unchanged": true,
+      "V1_deletion_authorized": false,
+      "contract_deployed": false,
+      "production_certificate_published": false,
+      "production_changes": 0,
+      "production_gate_operations": 0,
+      "provider_calls": 0,
+      "service_restarts": 0
+    },
+    "report_sha256": "7957f062742538ad57c790995d6dcc3c87e1f72e9e211123e4e7d6d4d3524974",
+    "source_remote_branch": "origin/codex/flex-v2-legacy-retirement-contract",
+    "source_remote_verified": true
+  },
   "flex_v2_v1_retirement_preflight": {
     "ACTIVE_RUNTIME_INDEPENDENCE": {
       "Helius_BIRDEYE_configuration": "Unchanged by this task; no provider request or gate read/lock/publication.",
@@ -51067,12 +51165,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-golden-baseline",
-    "git_head": "8322e2c98a5a096863c253d33f79bff161fde629",
+    "branch": "codex/flex-v2-legacy-retirement-contract",
+    "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T20:29:13.278838+00:00",
-    "working_tree": "V1retirementpreflightHOLD:V2guard _manifest->_identity requiresoriginalV1filedevice/inode; in-memoryabsenceofeitheroriginalDB provesPAIR_DATABASE_IDENTITY_MISMATCH. PrimaryworkersbindV2,zeroV1handlesobserved;listenerhaslegacyV1aliasesnotfullytracedaftercriticalblocker. V1files51,846,840,320allocatedbytes identified;activeauxpumpswap_tokens.db excluded. No source/prod/DB/gate/providerchanges. Workers39360/39412/39439 unchanged. Golden8322e2c/tag intact;retirementNOTauthorized."
+    "updated_at_utc": "2026-10-28T20:56:34.355566+00:00",
+    "working_tree": "V1retirementcontractDEV_PASS_NOT_DEPLOYED:561026bd checksum-pinned immutable existing-owner certificate, sixsharedguards and retirement-only launch aliases;54 providerfreecontrolsPASS. Actualfresh recovery preserves73920credits/5uncertain,terminal/deferred,pendingclaims;Golden recovery/renderer/lifecycle source unchanged. Golden tag8322e2c+manifest4dbba179 untouched. Prodguards8b unchanged,workers39360/39412/39439 running,no certificate/prodchanges/V1deletion. Next exact all-reader deploymentpreflight."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

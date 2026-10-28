@@ -1,0 +1,419 @@
+{
+  "BIRDEYE_authority": "UNCHANGED: exact Supervisor configuration hash preserved",
+  "FLEX_V2_HELIUS_PUBLICATION_DEPLOYMENT_STATUS": "PASS",
+  "HELIUS_PUBLICATION_DEPLOYMENT_STATUS": "PASS",
+  "NEXT_ACTION": "Leave all three workers running with Helius PAYMENT_DENIED. Any reopening requires separately authorized controlled restoration.",
+  "bundle_sha256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
+  "candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+  "configuration_changes": "Only frozen immutable recovery source root/commit references changed; service environment and commands byte-identical",
+  "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+  "configuration_unchanged": true,
+  "database_health": {
+    "core": {
+      "files": {
+        "-shm": 32768,
+        "-wal": 0,
+        "database": 88276992
+      },
+      "journal_mode": "wal",
+      "read_snapshot": "PASS"
+    },
+    "ops": {
+      "files": {
+        "database": 164294656
+      },
+      "journal_mode": "delete",
+      "read_snapshot": "PASS"
+    }
+  },
+  "duration_seconds": 301.41,
+  "exact_ledger_unchanged": true,
+  "existing_terminal_evidence_unchanged": true,
+  "free_bytes_final": 2794659840,
+  "fresh_acked_births_exact_matches_lower_bound": 11,
+  "gate_sha256": "b730b97ee79224e394002df3cb34972d415264c2b6182236279526a5b0191c94",
+  "gate_state": "PAYMENT_DENIED",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "journal_samples": [
+    {
+      "elapsed_seconds": 0.2,
+      "free_bytes": 2793750528,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 12,
+          "records": 500,
+          "states": {
+            "ACKED": 6,
+            "QUARANTINED": 494
+          }
+        },
+        "migration": {
+          "free": 29,
+          "records": 483,
+          "states": {
+            "PENDING": 482,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 41.0,
+      "free_bytes": 2792771584,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 1,
+          "records": 511,
+          "states": {
+            "ACKED": 17,
+            "QUARANTINED": 494
+          }
+        },
+        "migration": {
+          "free": 29,
+          "records": 483,
+          "states": {
+            "PENDING": 482,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 81.5,
+      "free_bytes": 2790907904,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 6,
+          "records": 506,
+          "states": {
+            "ACKED": 12,
+            "QUARANTINED": 494
+          }
+        },
+        "migration": {
+          "free": 28,
+          "records": 484,
+          "states": {
+            "PENDING": 483,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 121.7,
+      "free_bytes": 2787840000,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 4,
+          "records": 508,
+          "states": {
+            "ACKED": 14,
+            "QUARANTINED": 494
+          }
+        },
+        "migration": {
+          "free": 25,
+          "records": 487,
+          "states": {
+            "PENDING": 486,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 161.9,
+      "free_bytes": 2785583104,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 16,
+          "records": 496,
+          "states": {
+            "ACKED": 2,
+            "QUARANTINED": 494
+          }
+        },
+        "migration": {
+          "free": 24,
+          "records": 488,
+          "states": {
+            "PENDING": 487,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 202.1,
+      "free_bytes": 2794586112,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 5,
+          "records": 507,
+          "states": {
+            "ACKED": 12,
+            "QUARANTINED": 495
+          }
+        },
+        "migration": {
+          "free": 34,
+          "records": 478,
+          "states": {
+            "PENDING": 477,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 242.3,
+      "free_bytes": 2798239744,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 6,
+          "records": 506,
+          "states": {
+            "ACKED": 11,
+            "QUARANTINED": 495
+          }
+        },
+        "migration": {
+          "free": 23,
+          "records": 489,
+          "states": {
+            "PENDING": 488,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 282.5,
+      "free_bytes": 2796732416,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 10,
+          "records": 502,
+          "states": {
+            "ACKED": 7,
+            "QUARANTINED": 495
+          }
+        },
+        "migration": {
+          "free": 22,
+          "records": 490,
+          "states": {
+            "PENDING": 489,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    },
+    {
+      "elapsed_seconds": 301.2,
+      "free_bytes": 2800185344,
+      "gate": "PAYMENT_DENIED",
+      "held_requests": 5,
+      "inflight": 0,
+      "journals": {
+        "birth": {
+          "free": 6,
+          "records": 506,
+          "states": {
+            "ACKED": 11,
+            "QUARANTINED": 495
+          }
+        },
+        "migration": {
+          "free": 22,
+          "records": 490,
+          "states": {
+            "PENDING": 489,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "reserved_credits": 73920
+    }
+  ],
+  "limitations": [
+    "No provider invoice measurements. Closed gate intentionally prevents Helius-dependent migration/Walkback acquisition.",
+    "Natural independent birth confirmation is reconciled separately; no synthetic events."
+  ],
+  "log_counts": {
+    "creator_resolution_worker.log": {
+      "Birth": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PAYMENT_DENIED": 0,
+      "RETRY_PENDING": 0,
+      "Subscribed": 0,
+      "Traceback": 0,
+      "birth": 0,
+      "subscription": 0
+    },
+    "creator_resolution_worker_err.log": {
+      "Birth": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PAYMENT_DENIED": 0,
+      "RETRY_PENDING": 0,
+      "Subscribed": 0,
+      "Traceback": 0,
+      "birth": 0,
+      "subscription": 0
+    },
+    "listener.log": {
+      "Birth": 1,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PAYMENT_DENIED": 0,
+      "RETRY_PENDING": 0,
+      "Subscribed": 1,
+      "Traceback": 0,
+      "birth": 131,
+      "subscription": 1
+    },
+    "listener_err.log": {
+      "Birth": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PAYMENT_DENIED": 0,
+      "RETRY_PENDING": 0,
+      "Subscribed": 0,
+      "Traceback": 0,
+      "birth": 0,
+      "subscription": 0
+    },
+    "walkback_worker.log": {
+      "Birth": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PAYMENT_DENIED": 0,
+      "RETRY_PENDING": 0,
+      "Subscribed": 0,
+      "Traceback": 0,
+      "birth": 0,
+      "subscription": 0
+    },
+    "walkback_worker_err.log": {
+      "Birth": 0,
+      "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+      "JOURNAL_CAPACITY": 0,
+      "PAYMENT_DENIED": 0,
+      "RETRY_PENDING": 0,
+      "Subscribed": 0,
+      "Traceback": 0,
+      "birth": 0,
+      "subscription": 0
+    }
+  },
+  "migration_original_records_accounted": 483,
+  "new_active_migration_ids": 7,
+  "new_helius_reservations": 0,
+  "next_action": "Leave all three workers running with Helius PAYMENT_DENIED. Any reopening requires separately authorized controlled restoration.",
+  "no_budget_changes_or_exhausted_replay": true,
+  "no_checkpoint_or_lock_write_probe": true,
+  "observation_start_epoch": 1793196926.8931699,
+  "old_three_owner_exits_verified_before_recovery": true,
+  "original_deferred_records_preserved": 511,
+  "payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/runtime-ownership-capacity-a8179c8b/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3"
+    },
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "runtime/listener/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "runtime/walkback/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    }
+  },
+  "provider_probes": 0,
+  "publication_marker": "READY_V1 b730b97ee79224e394002df3cb34972d415264c2b6182236279526a5b0191c94",
+  "rollback": "Candidate-aware gate and renderer retained; no old publisher downgrade. Conservative CLOSED fallback only.",
+  "root_key_and_process_bindings_verified": true,
+  "runtime_plan_sha256": "8e61577ce647630947293abd97fdf9e941072b286ea47767034ac0143334d9e6",
+  "services_after": {
+    "creator_resolution_worker": {
+      "pid": 28017,
+      "state": "RUNNING"
+    },
+    "walkback_worker": {
+      "pid": 28051,
+      "state": "RUNNING"
+    },
+    "watchtower_listener": {
+      "pid": 27965,
+      "state": "RUNNING"
+    }
+  },
+  "services_before": {
+    "creator_resolution_worker": {
+      "pid": 99531,
+      "state": "RUNNING"
+    },
+    "walkback_worker": {
+      "pid": 99556,
+      "state": "RUNNING"
+    },
+    "watchtower_listener": {
+      "pid": 99484,
+      "state": "RUNNING"
+    }
+  },
+  "single_file_cap": 499000000,
+  "source_authority": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-publication-5e4e5942/source",
+  "spending_history": {
+    "inflight": 0,
+    "investigation_limit": 100000,
+    "reserved_credits": 73920,
+    "uncertain_requests": 5
+  },
+  "status": "PASS",
+  "tests_reused": 132
+}

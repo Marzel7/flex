@@ -1,0 +1,255 @@
+{
+  "status": "PASS",
+  "verdict": "DEPLOYED_ACCEPTED",
+  "candidate_sha": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+  "bundle_sha256": "637e6da8a8fc93fcd5924babc1be7f2e0b2bd186c3203b7f53359aaf07e065c0",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "installed_authority": {
+    "source_commit": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+    "bundle_sha256": "637e6da8a8fc93fcd5924babc1be7f2e0b2bd186c3203b7f53359aaf07e065c0",
+    "worker_sha256": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414",
+    "renderer_sha256": "b64139ecc933f03134d126634b75b19a4fa7e18521f4f8ae13694499e7a77cc5",
+    "runtime_plan_sha256": "16d21611b42e3605b3ecd51c39712e205975639fdfccdd317ec19db1225a7785",
+    "supervisor_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 26587
+      }
+    },
+    "schema_changes": false
+  },
+  "activation_utc": "2026-10-28T00:20:06.581395+00:00",
+  "acceptance": {
+    "observed_utc": "2026-10-28T00:25:30.897276+00:00",
+    "seconds_since_start_requested": 324.28,
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 26587
+      }
+    },
+    "optional_deferral_log_counts": {
+      "HELIUS_INVESTIGATION_REQUIRED": 7,
+      "HELIUS_GATE_BUSY": 3
+    },
+    "cycle_failure_records": {},
+    "completed_batches": 5,
+    "batch_summaries": [
+      {
+        "processed": 8,
+        "logical_rpc": 28,
+        "outcomes": {
+          "pending": 7,
+          "NO_ATTRIBUTION_FOUND": 1
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 8,
+        "outcomes": {
+          "pending": 7,
+          "NO_ATTRIBUTION_FOUND": 1
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 43,
+        "outcomes": {
+          "pending": 7,
+          "LINEAGE_GAP": 1
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 30,
+        "outcomes": {
+          "pending": 8
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 6,
+        "outcomes": {
+          "pending": 8
+        }
+      }
+    ],
+    "processed_job_attempts": 40,
+    "natural_completions": 3,
+    "completion_outcomes": {
+      "NO_ATTRIBUTION_FOUND": 2,
+      "LINEAGE_GAP": 1
+    },
+    "heartbeat": {
+      "last_seen_epoch": 1793147127,
+      "age_seconds": 3.86,
+      "status": "UNHEALTHY",
+      "updated_after_activation": true
+    },
+    "queue_states": {
+      "waiting": 1550,
+      "complete": 1924,
+      "pending": 160,
+      "failed": 6,
+      "running": 1
+    },
+    "examined_waiting_jobs_since_activation": 224,
+    "maximum_lookup_delta": 1,
+    "protected277": {
+      "waiting_protected": 277
+    },
+    "deferred_attempt_pairs": [
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 0,
+        "after": 0,
+        "jobs": 30
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 1,
+        "after": 1,
+        "jobs": 2
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 2,
+        "after": 2,
+        "jobs": 1
+      },
+      {
+        "code": "HELIUS_INVESTIGATION_REQUIRED",
+        "before": 0,
+        "after": 0,
+        "jobs": 3
+      },
+      {
+        "code": "HELIUS_REQUEST_COOLDOWN",
+        "before": 0,
+        "after": 0,
+        "jobs": 4
+      },
+      {
+        "code": "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW",
+        "before": 0,
+        "after": 0,
+        "jobs": 1
+      }
+    ],
+    "preexisting_failed_jobs_untouched": 6,
+    "gate": {
+      "state": "OPEN",
+      "lifetime_credit_limit": 100000,
+      "reserved_credits_by_worker_since_activation": {
+        "creator_resolution": 0,
+        "listener": 0,
+        "walkback": 115
+      },
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "review_held": 5,
+      "spending_history_and_owner_identity_monotonic": true
+    },
+    "journals": {
+      "birth.jsonl": {
+        "records": 502,
+        "free_slots": 10,
+        "states": {
+          "QUARANTINED": 478,
+          "ACKED": 24
+        }
+      },
+      "migration.jsonl": {
+        "records": 512,
+        "free_slots": 0,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 505,
+          "ACKED": 6
+        }
+      }
+    },
+    "custody_quotas": {
+      "migration_terminal_owner_v1": {
+        "records": 1808,
+        "bytes": 2021087
+      },
+      "migration_deferred_owner_v1": {
+        "records": 511,
+        "bytes": 1344482
+      },
+      "birth_terminal_owner_v1": {
+        "records": 512,
+        "bytes": 697743
+      }
+    },
+    "schema_unchanged": true,
+    "cursor_durably_present": true,
+    "database_files": {
+      "core": {
+        "db": 83218432,
+        "-wal": 0,
+        "-shm": 32768
+      },
+      "ops": {
+        "db": 162910208
+      }
+    },
+    "disk_free_bytes": 7500378112,
+    "logs": {
+      "walkback_worker.log": {
+        "bytes": 6739,
+        "tracebacks": 0,
+        "sqlite_lock_errors": 0,
+        "capacity_errors": 0,
+        "disk_floor_errors": 0
+      },
+      "walkback_worker_err.log": {
+        "bytes": 0,
+        "tracebacks": 0,
+        "sqlite_lock_errors": 0,
+        "capacity_errors": 0,
+        "disk_floor_errors": 0
+      }
+    },
+    "provider_test_calls": 0
+  },
+  "deployment_boundary": {
+    "restarted": [
+      "walkback_worker"
+    ],
+    "listener_resolver_pids_unchanged": true,
+    "schema_changes": 0,
+    "provider_test_calls": 0,
+    "exhausted_replay_reset": 0,
+    "budget_changes": 0,
+    "v1_access": 0
+  },
+  "heartbeat_interpretation": "Fresh heartbeat; UNHEALTHY reason is pending work with zero completions in the rolling one-minute bucket. Three completions occurred during the full observation; no stalled jobs, stale heartbeat or nested write errors at inspected heartbeat. This is not a claim of overall backlog resolution.",
+  "rollback": "Qualified candidate-aware gate/terminal/deferred/cursor-aware recovery root staged and pinned. No rollback invoked; no stale source fallback.",
+  "limitations": [
+    "Underlying per-job gate contention remains; optional-check cycle abort is fixed.",
+    "No claim of full live waiting sweep or paid RPC cache savings.",
+    "Reserved credits are ledger accounting, not independently verified provider billing.",
+    "Five preexisting review-held reservations remain protected."
+  ],
+  "next_action": "Leave all three roles running. Observe sustained throughput and journal capacity separately; no exhausted replay or budget changes."
+}

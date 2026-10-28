@@ -28552,6 +28552,253 @@
       "service_restarts": 0
     }
   },
+  "flex_v2_seven_day_lifecycle_installation": {
+    "DISK_AND_WAL_HEALTH": {
+      "absolute_WAL_bound_claimed": false,
+      "birth_headroom": "Four slots at final snapshot; existing protected population remains a limitation",
+      "core": {
+        "": 92971008,
+        "-shm": 32768,
+        "-wal": 0
+      },
+      "floor_bytes": 2067108864,
+      "free_bytes": 6810136576,
+      "new_errors_in_bounded_append_window": {
+        "creator_resolution_worker.log": {
+          "JOURNAL_CAPACITY": 0,
+          "PUBLICATION_AMBIGUOUS": 0,
+          "RETRY_CEILING": 0,
+          "RETRY_EXHAUSTED": 0,
+          "Traceback": 0,
+          "bytes": 356,
+          "post-batch": 0,
+          "reason=HANDOFF_IDENTITY": 0
+        },
+        "creator_resolution_worker_err.log": {
+          "JOURNAL_CAPACITY": 0,
+          "PUBLICATION_AMBIGUOUS": 0,
+          "RETRY_CEILING": 0,
+          "RETRY_EXHAUSTED": 0,
+          "Traceback": 0,
+          "bytes": 0,
+          "post-batch": 0,
+          "reason=HANDOFF_IDENTITY": 0
+        },
+        "listener.log": {
+          "JOURNAL_CAPACITY": 0,
+          "PUBLICATION_AMBIGUOUS": 0,
+          "RETRY_CEILING": 0,
+          "RETRY_EXHAUSTED": 0,
+          "Traceback": 0,
+          "bytes": 39310,
+          "post-batch": 0,
+          "reason=HANDOFF_IDENTITY": 0
+        },
+        "listener_err.log": {
+          "JOURNAL_CAPACITY": 0,
+          "PUBLICATION_AMBIGUOUS": 0,
+          "RETRY_CEILING": 0,
+          "RETRY_EXHAUSTED": 0,
+          "Traceback": 0,
+          "bytes": 0,
+          "post-batch": 0,
+          "reason=HANDOFF_IDENTITY": 0
+        },
+        "walkback_worker.log": {
+          "JOURNAL_CAPACITY": 0,
+          "PUBLICATION_AMBIGUOUS": 0,
+          "RETRY_CEILING": 0,
+          "RETRY_EXHAUSTED": 0,
+          "Traceback": 0,
+          "bytes": 4396,
+          "post-batch": 3,
+          "reason=HANDOFF_IDENTITY": 0
+        },
+        "walkback_worker_err.log": {
+          "JOURNAL_CAPACITY": 0,
+          "PUBLICATION_AMBIGUOUS": 0,
+          "RETRY_CEILING": 0,
+          "RETRY_EXHAUSTED": 0,
+          "Traceback": 0,
+          "bytes": 0,
+          "post-batch": 0,
+          "reason=HANDOFF_IDENTITY": 0
+        }
+      },
+      "ops": {
+        "": 166797312,
+        "-shm": 0,
+        "-wal": 0
+      }
+    },
+    "FLEX_V2_LIFECYCLE_INSTALL_STATUS": "PASS",
+    "HELIUS_GATE_AND_SPENDING": {
+      "billing_note": "Local reserved worst-case credit estimates, not billed credits",
+      "final_inflight": 0,
+      "gate": "OPEN",
+      "highest_investigation_credits": 7936,
+      "increase": 169,
+      "investigation_limit": 100000,
+      "provider_calls_initiated_for_testing": 0,
+      "publication": "READY_V1 checksum verified without locks",
+      "reserved_estimate_after": 84835,
+      "reserved_estimate_before": 84666,
+      "spending_history_preserved": true,
+      "uncertain_requests": 5
+    },
+    "INSTALLED_SOURCE_HASHES": {
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "bdb3ea55b9162162885885f21766ed3515dad7ca7ba676b99d8fec17359f9986",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/rpc_cache.py": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/core/rpc_cache.py": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/rpc_cache.py": "f6844c0dc609aa0a60cb81ba9ca6704fdd06bfcd78086fd8a5465de2c3f62d9e",
+      "lifecycle_owner": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88",
+      "recovery_entrypoint": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "recovery_renderer": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb",
+      "runtime_plan": "c5efe07eff00e8cf5ca214cb286b5ba545ece8a616d1f2ef15d7b6744c02d80e"
+    },
+    "NATURAL_BIRTH_MIGRATION_WALKBACK": {
+      "PumpPortal_PumpSwap": "Retained connected/subscription evidence present; natural birth intake verified",
+      "acceptance_start_utc": "2026-10-28T19:46:26.937106+00:00",
+      "birth_journal_peak": 512,
+      "birth_journal_peak_acked": 17,
+      "fresh_migration_notification_completion": "UNOBSERVED: no fresh notification retained in window; no fabricated test activity",
+      "journal_before_after": {
+        "birth": [
+          507,
+          508
+        ],
+        "migration": [
+          489,
+          476
+        ]
+      },
+      "journal_reclamation": "Birth512->508, migration490->476 observed; not all custody movement is canonical completion.",
+      "natural_births": "At least17 retained fresh birth receipts with canonical matches observed; final snapshot13 because journal reclamation continues. Not an exact full-window birth total.",
+      "new_retry_exhaustion": "None in bounded appended logs or retained fresh journal records; not a historical population census",
+      "observation_seconds": 320.4954979419708,
+      "preexisting_handoff_identity_errors": "Retained pre-offset errors exist; no new appended HANDOFF_IDENTITY error observed. No unrelated repair attempted.",
+      "walkback_final_queue": {
+        "complete": 2102,
+        "failed": 56,
+        "pending": 113,
+        "waiting": 1552
+      },
+      "walkback_new_completions": 0,
+      "walkback_post_batch_log_events": 3
+    },
+    "NEXT_ACTION": "Leave all three workers running and the single15-minute lifecycle schedule active. No Golden Baseline freeze, V1 retirement, replay or further provider probes performed. Fresh migration completion and new Walkback completion remain unobserved during this bounded window.",
+    "OWNER_STATE_INITIALIZATION": {
+      "core_family_rows": 2,
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "manifest_sha256": "3b40248f8c4e4ecf6b28b99b9206c8bd3bcc33acd16bf522c8ca291f1034a06c",
+      "ops_family_rows": 1,
+      "result": "INITIALIZED_ONCE",
+      "version": 1
+    },
+    "PROTECTED_EVIDENCE_INTEGRITY": {
+      "BIRDEYE_authority_unchanged": true,
+      "cleanup_owner_authorizer": "Writes restricted to selected qualified disposable family and lifecycle-state table",
+      "deferred_custody_records": 652,
+      "gate_and_journal_hashes_unchanged_during_install_initialize_cleanup": true,
+      "no_protected_deletion_or_retry_reset": true,
+      "terminal_custody_records": 1833,
+      "uncertain_requests_preserved": 5
+    },
+    "ROLLBACK_READINESS": {
+      "Walkback_pending_claim_correction_preserved": true,
+      "gate_terminal_deferred_aware": true,
+      "immutable_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/lifecycle-caller-e1b31c5a/source",
+      "immutable_source_commit": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+      "preimages_preserved_locally": true,
+      "recovery_executed": false,
+      "source_hash_pins_verified": true,
+      "stale_legacy_source_not_permitted": true
+    },
+    "SCHEDULE_STATUS": {
+      "active_entries": 1,
+      "cadence": "*/15 * * * *",
+      "caller": "immutable candidate runtime/listener; explicit manifest+digest",
+      "scheduled_first_fire": "Not yet due during acceptance; first manual bounded run verified",
+      "unrelated_crontab_preserved": true
+    },
+    "SEVEN_DAY_CLEANUP_RESULT": {
+      "age": "Strictly older than604800seconds; exact7days preserved; cache must also be expired",
+      "bounds": {
+        "estimated_delete_bytes_per_step": 1000000,
+        "file_bytes": 499000000,
+        "rows_per_step": 64,
+        "steps_per_run": 3
+      },
+      "first_run": {
+        "batches": [
+          {
+            "cycles": 1,
+            "deleted": 0,
+            "estimated_deleted_bytes": 0,
+            "examined": 0,
+            "family": "rpc_response_cache",
+            "large_rows_protected": 0,
+            "status": "PASS"
+          },
+          {
+            "cycles": 0,
+            "deleted": 0,
+            "estimated_deleted_bytes": 0,
+            "examined": 64,
+            "family": "wss_metrics",
+            "large_rows_protected": 0,
+            "status": "PASS"
+          },
+          {
+            "deleted": 0,
+            "examined": 0,
+            "family": "rpc_response_cache",
+            "status": "ABSENT_PROTECTED"
+          }
+        ],
+        "status": "PASS"
+      },
+      "initialization": {
+        "status": "INITIALIZED"
+      },
+      "total_deleted": 0,
+      "total_examined": 64,
+      "unknown_or_absent_sources": "Protected/skipped, never widened"
+    },
+    "WORKER_PIDS_BEFORE_AFTER": {
+      "all_running": true,
+      "bindings_verified": true,
+      "dormant_services_not_activated": true,
+      "listener": [
+        43753,
+        39360
+      ],
+      "resolver": [
+        28017,
+        39412
+      ],
+      "supervisor_config_unchanged": true,
+      "walkback": [
+        28051,
+        39439
+      ]
+    },
+    "candidate": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+    "engineering_revision": "48c9dbffe93d53731fdd479c833f0e7fe26c7e50",
+    "evidence_sha256": "63adcc0b3778b959ae81c69551c7125570c712330cbb6b906649429a79413170",
+    "observed_utc": "2026-10-28T19:53:13.066719+00:00",
+    "production_flags": {
+      "helius_gate_enabled": 1,
+      "helius_gate_state": "OPEN",
+      "investigation_limit": 100000,
+      "lifecycle_initialized": true,
+      "lifecycle_installed": true,
+      "maintenance_flag_unchanged": 0,
+      "no_replay_or_reset": true,
+      "paired_binding_required": 1,
+      "single_15minute_schedule_active": true
+    }
+  },
   "flex_v2_seven_day_repeat_creator_population_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Seven-dayPumpPortal-only completeness and historicalprior-launch/caching coverage incomplete; populationcounts cannot establish redundantRPCsavings.",
@@ -50362,11 +50609,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "7c82ba922cfa2b05c64ec75cd123edac8238aaf7",
+    "git_head": "48c9dbffe93d53731fdd479c833f0e7fe26c7e50",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T19:05:31.210679+00:00",
-    "working_tree": "Final seven-day lifecycle preflight GO for separately authorized installation; e1b31c5a exact guard/two pins verified,13+31 accepted controls reused. Three cache callers require coherent role reloads. State/schedule absent. Live workers/PIDs unchanged,gateOPEN,100k limit,5.70GBfree;birth511/512,migration489/512 protected. No deployment."
+    "updated_at_utc": "2026-10-28T19:53:31.292315+00:00",
+    "working_tree": "Seven-day lifecycle installationPASS:e1b31c5a listener+3cachecallers+owner/recoverypins installed;state2Core+1OPS initialized;one15min schedule;firstboundedcleanup64examined0deleted. ThreeworkersRUNNING newPIDs39360/39412/39439;gateOPEN READY100k,5uncertain,84835reservedestimate,0inflightfinal;320sacceptance birthsverified,migrationnewcompletion/Walkbackcompletionunobserved;6.81GBfree,birth508/512 migration476/512."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

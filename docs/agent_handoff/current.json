@@ -30158,6 +30158,156 @@
       "real_scope_enter_exit": "PASS"
     }
   },
+  "flex_v2_walkback_lockfree_throughput_diagnosis": {
+    "CURRENT_ELIGIBLE_BACKLOG": {
+      "caveat": "Scheduler-due does not guarantee immediate provider permission",
+      "gate_busy_last_reason": 104,
+      "pending": 107,
+      "running": 0,
+      "scheduler_due": 107
+    },
+    "CURRENT_VS_HISTORICAL_GATE_BUSY": {
+      "assessment": "Mixed: fresh contention is verified; many last_error states are older. Do not count all retained reasons as simultaneous failures.",
+      "delay_seconds": {
+        "5": 104
+      },
+      "error_age_seconds_min_max": [
+        43.1,
+        1019.1
+      ],
+      "updated_within120seconds": 8
+    },
+    "EXACT_DEMONSTRATED_BLOCKER": {
+      "condition": "Fresh HELIUS_GATE_BUSY during ownership/read validation repeatedly defers otherwise due jobs",
+      "owner_hold_duration": "NOT_OBSERVABLE_READ_ONLY: no live stack/profiler/lock acquisition; no assertion which process held lock during any historical failure",
+      "read_lock_evidence": "current,budget_version,investigation_owner use exclusive lock for read/decode/validation; ledger is2,867,955 bytes",
+      "source_path": "_process_row -> owned_context -> Gate.current / budget_version / register_origin / investigation_owner -> Gate.locked(LOCK_EX|LOCK_NB)",
+      "unnecessary_duration": "Exclusive read serialization is demonstrated in code; exact contribution and whether each hold was unnecessarily long remain unmeasured"
+    },
+    "FIRST_CLAIM_LATENCY": {
+      "admission_delay": "Zero seconds from handoff creation for all six; first-claim delay belongs to scheduling/processing, not missing enqueue",
+      "previous_six_verified_seconds": [
+        913,
+        1062
+      ],
+      "six_latest_statuses": [
+        {
+          "attempts": 0,
+          "completed_at": null,
+          "last_error": "HELIUS_GATE_BUSY",
+          "started_at": 1793205942,
+          "status": "pending",
+          "updated_at": 1793205942
+        },
+        {
+          "attempts": 1,
+          "completed_at": 1793205639,
+          "last_error": null,
+          "started_at": 1793205628,
+          "status": "complete",
+          "updated_at": 1793205639
+        },
+        {
+          "attempts": 0,
+          "completed_at": null,
+          "last_error": "HELIUS_GATE_BUSY",
+          "started_at": 1793205685,
+          "status": "pending",
+          "updated_at": 1793206623
+        },
+        {
+          "attempts": 1,
+          "completed_at": 1793205738,
+          "last_error": "HELIUS_REQUEST_RATE_LIMIT",
+          "started_at": 1793205405,
+          "status": "complete",
+          "updated_at": 1793205738
+        },
+        {
+          "attempts": 0,
+          "completed_at": null,
+          "last_error": "HELIUS_GATE_BUSY",
+          "started_at": 1793205474,
+          "status": "pending",
+          "updated_at": 1793206509
+        },
+        {
+          "attempts": 0,
+          "completed_at": null,
+          "last_error": "HELIUS_GATE_BUSY",
+          "started_at": 1793205942,
+          "status": "pending",
+          "updated_at": 1793205942
+        }
+      ]
+    },
+    "FLEX_V2_WALKBACK_THROUGHPUT_STATUS": "VERIFIED_CURRENT_CONTENTION_WITH_HISTORICAL_LIMITS",
+    "GATE_STATE_AND_PUBLICATION": "OPEN; lock-free double-marker/checksum read; no gate locks acquired",
+    "NEXT_ACTION": "No implementation. Continue existing monitor unchanged until17:14. Separately authorize focused DEV only if desired.",
+    "RECOMMENDED_MINIMUM_CORRECTION": "Separately authorized DEV assessment: reuse the existing bounded pre-RPC HELIUS_GATE_BUSY retry at ownership-context entry in _process_row. Retry only idempotent authority/ownership validation before dispatch, never reservations/provider requests/completion. Preserve writer locking, all spending/identity checks and5-second durable deferral; do not merely shorten delay or raise budgets. Any read-lock redesign is larger and not qualified here.",
+    "RUNTIME_CONTINUITY": {
+      "db_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "database": 90718208
+        },
+        "ops": {
+          "database": 165113856
+        }
+      },
+      "free_bytes": 4759113728,
+      "gate": "OPEN",
+      "gate_locks_acquired": 0,
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "journals": {
+        "birth": {
+          "free": 11,
+          "occupied": 501
+        },
+        "migration": {
+          "free": 21,
+          "occupied": 491
+        }
+      },
+      "limit": 100000,
+      "publication": "READY_CHECKSUM_DOUBLE_READ_VERIFIED_WITHOUT_LOCK",
+      "services": "watchtower_listener              RUNNING   pid 43753, uptime 1:57:09\ncreator_resolution_worker        RUNNING   pid 28017, uptime 2:46:02\nwalkback_worker                  RUNNING   pid 28051, uptime 2:45:56\n"
+    },
+    "SCHEDULER_AND_COOLDOWN_EFFECT": {
+      "batch_size": 8,
+      "cursor_scope": "FIFO cursor governs waiting CREATE reconciliation, not pending drain selection; advancement observed.",
+      "fair_waiting_cursor": {
+        "advanced_or_sweep_changed": true,
+        "after_time_before": 1792858745,
+        "after_time_now": 1792865225,
+        "cursor_mint_changed": true,
+        "elapsed_seconds": 77.23228120803833,
+        "through_time_before": 1793199160,
+        "through_time_now": 1793199160
+      },
+      "gate_busy_delay_seconds": 5,
+      "minimum_107_job_pass_sleep_seconds": 585,
+      "other_typed_deferral_default_seconds": 300,
+      "pass_model": "14 batches need13 intervening45-second sleeps, before processing/maintenance and repeat deferrals. Model is not measured cycle duration.",
+      "post_cycle_sleep_seconds": 45,
+      "shorter_delay_assessment": "Lowering existing5-second busy delay alone usually offers little with45-second cycle polling;300-second busy-delay defect is not present."
+    },
+    "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "evidence_sha256": "e404dfd8020584727aeed516b269d005bed3dceb27037253b4a820fd0858a9ea",
+    "observed_utc": "2026-10-28T17:02:41.129494+00:00",
+    "safety": {
+      "budget_or_gate_mutations": 0,
+      "gate_locks_acquired": 0,
+      "provider_calls": 0,
+      "replay_reset": 0,
+      "restarts_signals": 0,
+      "scheduler_changes": 0,
+      "source_schema_configuration_changes": 0
+    },
+    "source_revision": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "tests": "Read-only source inspection, ordinary stable file reads, short mode=ro indexed queries; no qualification tests or acquisition"
+  },
   "flex_v2_walkback_optional_gate_busy_correction": {
     "behaviour": "Only exact typed BudgetDeferred HELIUS_GATE_BUSY and HELIUS_INVESTIGATION_REQUIRED defer the optional program-ownership check and continue. Safe code-specific diagnostic; other errors unchanged. No owner creation, borrowing, candidate promotion or attribution.",
     "blocker": null,
@@ -48595,8 +48745,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T16:57:04.721671+00:00",
-    "working_tree": "Scheduled16:40\u201316:50UTC:3 handoffs4 Walkbacks(2NO_ATTRIBUTION_FOUND2LINEAGE_GAP). GateOPEN stable workers4.76GB,no stuck reservations; recurrent full birth snapshot with15ACKED, no intervention."
+    "updated_at_utc": "2026-10-28T17:04:06.995063+00:00",
+    "working_tree": "No-lock read-only throughput diagnosis:OPEN V2 running;104due jobs retainGATE_BUSY,8fresh120s;busydelay5s not300;waitingcursor advanced77s. Recommended bounded pre-RPC ownership validation retry for separateDEV only. No changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

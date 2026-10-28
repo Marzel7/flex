@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No production safety failure. Repeated existing-job service and gate contention delay useful progress; silent pre-selection skip count and exact lock owner remain NOT_OBSERVABLE_READ_ONLY.",
+  "blocker": "Existing queue has no qualified neutral historical scheduling exclusion/hold contract across worker,recovery,health and reactivation. No schema required in principle, but source/config qualification is not authorized by read-only task.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -21956,6 +21956,278 @@
     "validation_durable_before_finalization": true,
     "validation_sha256": "377c5b236a5cc773bdd121de38f04097f66db7516e19d84d83cff13f53c0b162"
   },
+  "flex_v2_fresh_walkback_queue_feasibility": {
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Separately authorize focused DEV qualification of a checkpoint-cutoff scheduling policy using the existing queue while leaving historical rows and retry/spending state unchanged. Prove restart/recovery, no automatic historical reactivation, review visibility and fresh-job progress under gate contention before any production preflight. Do not relabel rows, clear queues or deploy now.",
+    "production_flags": {
+      "DEV_source_changes": false,
+      "V1_access": false,
+      "checkpoint_unchanged": true,
+      "data_asof_utc": "2026-10-28T23:46:15.410280+00:00",
+      "free_bytes": 53189103616,
+      "gate_locks": false,
+      "production_writes": false,
+      "provider_calls": false,
+      "queue_changes": false,
+      "replay_or_budget_reset": false,
+      "source": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+      "worker_PIDs_unchanged": [
+        77731,
+        77785,
+        77830
+      ]
+    },
+    "report": {
+      "EXPECTED_LATENCY_IMPROVEMENT": {
+        "current_batch_limit": 8,
+        "historical_waiting_effect": "1551WAITING already do not consume the8 processing slots. Excluding their bounded32-row reconciliation would only reduce maintenance work; its time contribution is not measured.",
+        "near_real_time_claim_SLA": "NOT_PROVEN. No live changes, providers or disposable qualifications were authorized. Cannot promise one-cycle completion or a numeric latency reduction.",
+        "rate_interpretation": "Earlier30min:2 retained admissions9 completions; latest30min:5 admissions3 completions. All7 new admissions were fresh and none has completed yet; all completions came from older jobs. Last60min total7arrivals12completions, so the central problem is allocation/retry/contention rather than sustained new-arrival overload. Counts are retained timestamp evidence, not provider or immutable event-ledger totals.",
+        "recent_comparable_rates": [
+          {
+            "all_retained_admissions": 2,
+            "all_retained_completions": 9,
+            "end": 1793229375.41028,
+            "fresh_retained_admissions": 2,
+            "fresh_retained_completions": 0,
+            "start": 1793227575.41028
+          },
+          {
+            "all_retained_admissions": 5,
+            "all_retained_completions": 3,
+            "end": 1793231175.41028,
+            "fresh_retained_admissions": 5,
+            "fresh_retained_completions": 0,
+            "start": 1793229375.41028
+          }
+        ],
+        "selection_assessment": "Seven fresh jobs fit the nominal selection limit if old pending work is excluded, so a103-job FIFO retry sweep would no longer precede them. Actual processing can still stop at localRPCbudget80 or contention, and cycles include maintenance plus45s sleep.",
+        "snapshot_fresh_jobs": 7
+      },
+      "FLEX_V2_FRESH_WALKBACK_FEASIBILITY": "FEASIBLE_WITH_EXISTING_QUEUE_NO_NEW_SCHEMA;NOT_QUALIFIED_FOR_ACTIVATION",
+      "GO_HOLD_DECISION": "HOLD_FOR_ACTIVATION_SINGLE_BLOCKER: no qualified durable historical scheduling-exclusion/neutral-hold contract across selection,recovery,health and future reactivation. Code/config-only qualification appears feasible without new schema.",
+      "HISTORICAL_QUEUE_POPULATION": {
+        "RUNNING_safety": "No running row at snapshot; any later activation must independently protect current active claims/inflight reservations, not assume this remains true.",
+        "cutoff_utc": "2026-10-28T22:55:11+00:00",
+        "definition": "Proposed checkpoint-derived policy cutoff only; no queue classification or scheduler policy changed.",
+        "fresh_at_or_after_cutoff": {
+          "pending": {
+            "anchor_sources": {
+              "creator_funding_queue": 7
+            },
+            "anchor_state": {
+              "VALID": 7
+            },
+            "attempts": {
+              "0": 7
+            },
+            "count": 7,
+            "original_admission_max": 1793230834,
+            "original_admission_min": 1793228447,
+            "retained_errors": {
+              "HELIUS_GATE_BUSY": 2,
+              "None": 5
+            },
+            "scheduler_due": 7,
+            "started": 2
+          },
+          "running": {
+            "anchor_sources": {},
+            "anchor_state": {},
+            "attempts": {},
+            "count": 0,
+            "original_admission_max": null,
+            "original_admission_min": null,
+            "retained_errors": {},
+            "scheduler_due": 0,
+            "started": 0
+          },
+          "states": {
+            "pending": 7
+          },
+          "waiting": {
+            "anchor_sources": {},
+            "anchor_state": {},
+            "attempts": {},
+            "count": 0,
+            "original_admission_max": null,
+            "original_admission_min": null,
+            "retained_errors": {},
+            "scheduler_due": 0,
+            "started": 0
+          }
+        },
+        "historical_before_cutoff": {
+          "pending": {
+            "anchor_sources": {
+              "CORE_QUALIFIED_CREATE": 95,
+              "creator_funding_queue": 8
+            },
+            "anchor_state": {
+              "VALID": 103
+            },
+            "attempts": {
+              "0": 94,
+              "1": 7,
+              "2": 2
+            },
+            "count": 103,
+            "original_admission_max": 1793227568,
+            "original_admission_min": 1793053760,
+            "retained_errors": {
+              "HELIUS_GATE_BUSY": 102,
+              "HELIUS_REQUEST_COOLDOWN": 1
+            },
+            "scheduler_due": 103,
+            "started": 103
+          },
+          "running": {
+            "anchor_sources": {},
+            "anchor_state": {},
+            "attempts": {},
+            "count": 0,
+            "original_admission_max": null,
+            "original_admission_min": null,
+            "retained_errors": {},
+            "scheduler_due": 0,
+            "started": 0
+          },
+          "states": {
+            "complete": 2150,
+            "failed": 56,
+            "pending": 103,
+            "waiting": 1551
+          },
+          "waiting": {
+            "anchor_sources": {
+              "None": 1551
+            },
+            "anchor_state": {
+              "MISSING_OR_MALFORMED": 1551
+            },
+            "attempts": {
+              "0": 1551
+            },
+            "count": 1551,
+            "original_admission_max": 1793199160,
+            "original_admission_min": 1792610024,
+            "retained_errors": {
+              "None": 1551
+            },
+            "scheduler_due": 0,
+            "started": 0
+          }
+        },
+        "historical_pending_and_waiting_identities": 1654,
+        "historical_pending_original_admission_range_utc": [
+          "2026-10-26T22:29:20+00:00",
+          "2026-10-28T22:46:08+00:00"
+        ],
+        "historical_waiting_original_admission_range_utc": [
+          "2026-10-21T19:13:44+00:00",
+          "2026-10-28T14:52:40+00:00"
+        ],
+        "identity_inventory_path": "/private/tmp/flex-fresh-walkback-feasibility/HISTORICAL_IDENTITIES.json",
+        "identity_inventory_sha256": "d1d523937c3fe7568c84efc86ab54a596178d8a620c1cbe2876a576c729a618e",
+        "waiting_evidence_reasons": {
+          "MISSING_CREATE_EVIDENCE": 1273,
+          "UNQUALIFIED_ANCHOR": 278
+        }
+      },
+      "NEW_MIGRATION_PRIORITY": {
+        "current_due_candidates": 110,
+        "current_qualified_hold_state": false,
+        "existing_state_findings": {
+          "arbitrary_paused_text": "SQLite status TEXT has no CHECK restriction, but accepting a string does not establish reader,recovery,review or reactivation semantics. Closed path-state enum also has no historical hold.",
+          "complete_failed_skipped": "Terminal/outcome semantics; skipped mirrors WALKBACK_COMPLETE/INCONCLUSIVE to candidates. Cannot truthfully relabel unresolved historical work.",
+          "ignored": "No qualified historical-hold/reactivation contract; blocked or misleading in other consumers.",
+          "pending": "Runnable when due; no historical exclusion.",
+          "waiting": "Non-runnable in drain, but has CREATE-recovery meaning and can automatically become pending when qualified; not a general immutable hold."
+        },
+        "fresh_due_candidates": 7,
+        "health_and_recovery_gap": "Current health counts all pending work and old pending ages; selector-only exclusion without matching active-vs-retained reporting would leave misleading unhealthy/backlog metrics. CREATE recovery and fresh-pair claim restoration must continue honoring scheduling exclusion without discarding new evidence.",
+        "historical_due_candidates": 103,
+        "no_new_physical_queue_required": true,
+        "no_new_schema_required": true,
+        "what_is_possible": "A qualified selector policy over existing original admission timestamps could leave all historical rows/state/evidence intact while selecting only the fresh partition; alternatively bounded same-tier fresh service can preserve ongoing historical scheduling. Neither policy exists as an installed authorized switch."
+      },
+      "NEXT_ACTION": "Separately authorize focused DEV qualification of a checkpoint-cutoff scheduling policy using the existing queue while leaving historical rows and retry/spending state unchanged. Prove restart/recovery, no automatic historical reactivation, review visibility and fresh-job progress under gate contention before any production preflight. Do not relabel rows, clear queues or deploy now.",
+      "PROTECTED_EVIDENCE": {
+        "canonical_migration_complete_handoff_matches_historical_pending": 103,
+        "exhausted_and_completed": "56 FAILED and2150 COMPLETE remain separate; never convert or reactivate them as part of a fresh partition.",
+        "future_reactivation": "No qualified generic historical-resume owner currently exists. Any future authorized reactivation must be bounded, exact-identity and preserve original attempts/due times/ownership/spend; never force=True delete/reinsert, reset attempts, borrow owner or replay exhausted jobs.",
+        "historical_waiting_attempts_used": 0,
+        "must_preserve": [
+          "same mint/queue primary key and original enqueued_at",
+          "attempts,retry_not_before,last_error and protected recovery rights",
+          "current CREATE signature/source/audit state and all canonical Core/OPS handoffs",
+          "selected funding edges,partial lineage,attribution/candidate/review state and outcomes",
+          "same durable investigation-root ownership and all lifetime spending",
+          "six uncertain requests,request identities,reservations and completion history"
+        ],
+        "remaining_genuine_retry_attempts": {
+          "1": 2,
+          "2": 7,
+          "3": 94
+        },
+        "review_access": "Retaining rows and existing mint-keyed evidence joins preserves raw attribution-review evidence. A scheduling-only filter need not rewrite evidence or invent a terminal outcome. Presentation/health must distinguish held historical work from actively scheduled work."
+      },
+      "REMAINING_GATE_CONTENTION": {
+        "current": {
+          "READY_valid": true,
+          "highest_investigation_credits": 7936,
+          "inflight": 0,
+          "ledger_bytes": 3698081,
+          "lifetime_limit": 100000,
+          "reserved_credits": 90486,
+          "state": "OPEN",
+          "uncertain": 6
+        },
+        "fresh_PENDING_gate_busy": 2,
+        "fresh_PENDING_unclaimed": 5,
+        "historical_PENDING_RPC_cooldown": 1,
+        "historical_PENDING_gate_busy": 102,
+        "ledger_retention": "3.70MB ledger and all historical owner/request/spend identities must remain. A fresh logical queue must not shrink/reset lifetime accounting or renew old allowances.",
+        "recent_verified_context": "Prior read-only audit:16 fresh typed busy deferrals in211s; pre-selection checks may skip before claims, ownership entry occurs after claim. No gate locks/probes repeated here.",
+        "worker_health": "Heartbeat fresh but throughput status warns pending work with zero short-window completion rate; workers running does not prove near-real-time progress.",
+        "would_persist": "Shared listener/resolver/Walkback gate validation, pre-selection busy checks and ownership-entry/per-RPC locks remain. Stopping historical Walkback scheduling could reduce its traffic, but cannot remove other roles or prove contention resolved."
+      },
+      "SAFETY": {
+        "DEV_source_changes": false,
+        "V1_access": false,
+        "checkpoint_unchanged": true,
+        "data_asof_utc": "2026-10-28T23:46:15.410280+00:00",
+        "free_bytes": 53189103616,
+        "gate_locks": false,
+        "production_writes": false,
+        "provider_calls": false,
+        "queue_changes": false,
+        "replay_or_budget_reset": false,
+        "source": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+        "worker_PIDs_unchanged": [
+          77731,
+          77785,
+          77830
+        ]
+      },
+      "SAFE_CUTOFF": {
+        "authority_tag": "flex-v2-post-v1-retirement-2026-10-28",
+        "classification": "historical:original enqueued_at<T; fresh:enqueued_at>=T. Equality conservatively stays fresh at second granularity.",
+        "existing_CREATE_activation_control": "wb_create_control.activated_at=1792357618 is a different CREATE-producer authority (2026-10-18), not the proposed fresh-queue cutoff. Do not repurpose or change it.",
+        "manifest_sha256": "2466555c630cfa51572eb8d78e30da62bb925c1c9b1ad5c8ad7ba4724a3857ff",
+        "meaning": "Reproducible scheduling-policy boundary, not a claim that records before it lack intelligence or that an actual queue cutover happened then. It requires separate approval/qualification.",
+        "proposed_UTC": "2026-10-28T22:55:11+00:00",
+        "proposed_epoch": 1793228111,
+        "restart_recovery": "Accepted recovery preserves enqueued_at. A future cutoff must be bound in candidate-aware runtime/recovery manifests and enforced after recovery; do not silently move it with each restart or investigation launch.",
+        "source_field": "floor(embedded manifest.observation.at)"
+      },
+      "snapshot_sha256": "245c97bb4f9ac27ff529febc02c149bb897099e9a9ca43e0ed5fda36d666a533"
+    },
+    "report_path": "/private/tmp/flex-fresh-walkback-feasibility/FEASIBILITY_REPORT.json",
+    "report_sha256": "9e4698cfa7b777a8af26a9661c3a851c8df5ee497aad9a3efc5f9a70c69b9478",
+    "status": "FEASIBLE_WITH_EXISTING_QUEUE_NO_NEW_SCHEMA;NOT_QUALIFIED_FOR_ACTIVATION",
+    "tests": "Read-only indexed queue/authority evidence and existing source contracts only; no tests or DEV changes"
+  },
   "flex_v2_funding_activation_blocker_correction_20261020": {
     "audit": "docs/audits/flex_v2_funding_activation_blocker_correction_20261020.v1.json",
     "blocker": "Durable authority retention and genuine-new-investigation admission semantics unresolved; existing queue deletion destroys authority.",
@@ -41771,7 +42043,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-28T23:31:55.111158+00:00",
+  "latest_at_utc": "2026-10-28T23:50:36.008823+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -51190,7 +51462,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Keep production unchanged. Separately qualify a narrowly bounded, typed pre-selection gate-busy validation retry before changing ownership entry or scheduling. Preserve denial/publication safety, immutable ownership, all reservations/uncertain requests and spending history. Entry-only retry is not a first-claim fix; do not increase batch size or budgets based on retained labels alone.",
+  "next_action": "Separately authorize focused DEV qualification of a checkpoint-cutoff scheduling policy using the existing queue while leaving historical rows and retry/spending state unchanged. Prove restart/recovery, no automatic historical reactivation, review visibility and fresh-job progress under gate contention before any production preflight. Do not relabel rows, clear queues or deploy now.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -53379,8 +53651,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T23:31:55.111158+00:00",
-    "working_tree": "Strictreadonly followupcomplete/sourceunchanged561026bd. Queue107pending,1551waiting,2148complete,56failed,0running. 211s:2loggedbatches8each pending,16freshbusy,no newfirstclaims/completions,30reservedcredits. Unclaimedranks26->10,64->48. Current13/15firststartsmedian28.2m,p9031.2m,max33.3m. Latest30m2admit8complete vsprior6/5. OwnershipentryAFTERclaimcannotdirectlydelaythatfirstclaim; preselectionblocked can skipwholecycle, exactcountunknown. No changes/provider/gatelock/V1access."
+    "updated_at_utc": "2026-10-28T23:50:36.008823+00:00",
+    "working_tree": "Readonlyfreshqueuefeasibilitycomplete,source561026bd/checkpointunchanged. Proposedimmutablemanifestobservationcut2026-10-28T22:55:11Z yields103historicalpending+1551waiting and7freshpending. 103canonicalhandoffsverified,retryrights94x3/7x2/2x1retained. No existingqualifiedneutralholdstate; possiblecode/configcutofffilterwithoutrows/schema changesneedsDEVqualification. Fresh2busy/5unclaimed,sharedgate remains. All3PIDssame,OPENREADY6uncertain100000cap. Nochanges/providers/locks."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -54782,7 +55054,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_WALKBACK_READ_ONLY_AUDIT_COMPLETE",
+  "status": "FEASIBLE_WITH_EXISTING_QUEUE_NO_NEW_SCHEMA;NOT_QUALIFIED_FOR_ACTIVATION",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -56361,7 +56633,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "VERIFIED_RETRY_BACKLOG_AND_CONTENTION;EXACT_TIME_ATTRIBUTION_PARTIAL",
+  "verdict": "HOLD_FOR_ACTIVATION_NO_QUALIFIED_HISTORICAL_EXCLUSION_CONTRACT",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

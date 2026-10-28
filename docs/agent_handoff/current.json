@@ -20813,10 +20813,10 @@
   },
   "flex_v2_enhanced_10m_report": {
     "BIRTHS_RECEIVED_COMMITTED_RETRIED": {
-      "current_retained_exact_receipt_core_matches_lower_bound": 7,
+      "current_retained_exact_receipt_core_matches_lower_bound": 8,
       "current_states": {
-        "ACKED": 7,
-        "QUARANTINED": 499
+        "ACKED": 8,
+        "QUARANTINED": 501
       },
       "notifications_unique_mints_commits_receipt_matches_retries_conflicts": {
         "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
@@ -20825,11 +20825,11 @@
     },
     "BIRTH_JOURNAL_START_END_RECLAIMED": {
       "current_snapshot": {
-        "free_slots": 6,
-        "records": 506,
+        "free_slots": 3,
+        "records": 509,
         "states": {
-          "ACKED": 7,
-          "QUARANTINED": 499
+          "ACKED": 8,
+          "QUARANTINED": 501
         }
       },
       "current_terminal_owner": {
@@ -20851,13 +20851,13 @@
         "core": {
           "-shm": 32768,
           "-wal": 0,
-          "database": 90804224
+          "database": 91004928
         },
         "ops": {
-          "database": 165175296
+          "database": 165285888
         }
       },
-      "current_free_bytes": 4750528512,
+      "current_free_bytes": 4840353792,
       "exact_window_start_end_and_log_receipt_growth": {
         "reason": "No retained exact-boundary allocation telemetry",
         "value": "UNKNOWN"
@@ -20870,8 +20870,14 @@
         "reason": "Cumulative reservation ledger is not an immutable dispatch event ledger; no exact UTC-boundary snapshots",
         "value": "UNKNOWN"
       },
-      "current_reservations": [],
-      "current_total_reserved_credits": 79181,
+      "current_reservations": [
+        {
+          "age_seconds": 0,
+          "method": "rpc:getAccountInfo",
+          "role": "walkback"
+        }
+      ],
+      "current_total_reserved_credits": 79563,
       "gate": "OPEN",
       "highest_lifetime_investigation": 7936,
       "lifetime_limit": 100000,
@@ -20892,14 +20898,14 @@
         "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
         "value": "UNKNOWN"
       },
-      "verified_completed_core_ops_handoffs": 0
+      "verified_completed_core_ops_handoffs": 4
     },
     "MIGRATION_JOURNAL_START_END_TRANSFERRED": {
       "current_snapshot": {
-        "free_slots": 24,
-        "records": 488,
+        "free_slots": 16,
+        "records": 496,
         "states": {
-          "PENDING": 487,
+          "PENDING": 495,
           "RESOLVED": 1
         }
       },
@@ -20920,10 +20926,10 @@
       },
       "verified_current_findings": []
     },
-    "NEXT_ACTION": "Continue existing read-only cadence and original17:14London end time. Report unsupported metrics UNKNOWN; no production instrumentation or engineering.",
+    "NEXT_ACTION": "Two-hour monitoring complete; automation deleted. No further checks scheduled; no engineering or production actions authorized.",
     "TREND_VS_PREVIOUS_WINDOW": {
-      "completed_handoff_change": -3,
-      "walkback_completion_change": -1
+      "completed_handoff_change": 4,
+      "walkback_completion_change": 0
     },
     "WALKBACK_EXAMINED_COMPLETED_ATTRIBUTED": {
       "completed": 3,
@@ -20936,15 +20942,16 @@
         "value": "UNKNOWN"
       },
       "current_queue_states": {
-        "complete": 2050,
+        "complete": 2054,
         "failed": 56,
-        "pending": 108,
+        "pending": 111,
+        "running": 1,
         "waiting": 1551
       },
       "current_retained_deferral_categories_not_window_events": {
         "HELIUS_ACQUISITION_DEFERRED": 126,
         "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-        "HELIUS_GATE_BUSY": 204,
+        "HELIUS_GATE_BUSY": 205,
         "HELIUS_INVESTIGATION_REQUIRED": 25,
         "HELIUS_REQUEST_RATE_LIMIT": 12,
         "HELIUS_TRANSPORT_UNAVAILABLE": 1,
@@ -20956,8 +20963,8 @@
       }
     },
     "WINDOW_START_END": {
-      "end_exclusive": "2026-10-28T17:00:00+00:00",
-      "start_inclusive": "2026-10-28T16:50:00+00:00"
+      "end_exclusive": "2026-10-28T17:10:00+00:00",
+      "start_inclusive": "2026-10-28T17:00:00+00:00"
     },
     "WORKER_HEALTH": {
       "current": {
@@ -20981,12 +20988,12 @@
     },
     "blocker": null,
     "comparison_previous_snapshot": {
-      "from": "2026-10-28T16:56:46.813622+00:00",
-      "reserved_credit_delta": 227,
-      "to": "2026-10-28T17:06:45.221867+00:00",
+      "from": "2026-10-28T17:06:45.221867+00:00",
+      "reserved_credit_delta": 382,
+      "to": "2026-10-28T17:16:42.373491+00:00",
       "worker_pids_unchanged": true
     },
-    "evidence_sha256": "77f0a46b939c887b56ea9c28f62bbce4b0d8952dc03dd8763f39c12225af2723",
+    "evidence_sha256": "873f853558f1229984859f124ac93ffcbee283b01f4fd2e5f9bd365c8460991d",
     "safety": {
       "new_services_databases": 0,
       "production_changes": 0,
@@ -20994,17 +21001,16 @@
       "replay_reset": 0,
       "restarts": 0
     },
-    "snapshot_utc": "2026-10-28T17:06:45.221867+00:00",
+    "snapshot_utc": "2026-10-28T17:16:42.373491+00:00",
     "source_revision": "30ad7094076e83119efef42026a97d18a18af849",
     "supplemental_irregular_snapshot_comparison_not_exact_window": {
-      "disk_free_bytes_delta": -8306688,
-      "from": "2026-10-28T16:56:46.813622+00:00",
-      "reserved_credit_delta": 227,
-      "to": "2026-10-28T17:06:45.221867+00:00",
+      "disk_free_bytes_delta": 89825280,
+      "from": "2026-10-28T17:06:45.221867+00:00",
+      "reserved_credit_delta": 382,
+      "to": "2026-10-28T17:16:42.373491+00:00",
       "worker_pids_unchanged": true
     },
-    "tests": "Existing bounded read-only controls reused",
-    "zero_handoff_caveat": "Zero verified completions in this window does not establish intake failure or absence of notifications; exact received/eligible migration event counts remainUNKNOWN."
+    "tests": "Existing bounded read-only controls reused"
   },
   "flex_v2_final_consolidation": {
     "critical_blocker": "Required dormant runtime composition lacks a qualified V2-safe launch/writer contract: API retains a legacy database fallback and shared writer lacks the accepted paired-generation guard. Existing dormant launch roots/configuration assumptions are not an authoritative V2 profile.",
@@ -27692,6 +27698,18 @@
       [
         "MIGRATION",
         "AVAILABLE",
+        1793207472,
+        "logsSubscribe confirmed"
+      ],
+      [
+        "MIGRATION",
+        "DOWN",
+        1793207466,
+        "websocket failure: SubscriptionUnavailable"
+      ],
+      [
+        "MIGRATION",
+        "AVAILABLE",
         1793206499,
         "logsSubscribe confirmed"
       ],
@@ -27712,56 +27730,50 @@
         "DOWN",
         1793205569,
         "websocket failure: SubscriptionUnavailable"
-      ],
-      [
-        "MIGRATION",
-        "AVAILABLE",
-        1793205389,
-        "logsSubscribe confirmed"
-      ],
-      [
-        "MIGRATION",
-        "DOWN",
-        1793205382,
-        "websocket failure: SubscriptionUnavailable"
       ]
     ],
-    "birth_canonical_exact_matches_current_journal_lower_bound": 7,
-    "canonical_completed_core_ops_handoffs_since_restoration": 80,
+    "birth_canonical_exact_matches_current_journal_lower_bound": 8,
+    "canonical_completed_core_ops_handoffs_since_restoration": 88,
     "database_files": {
       "core": {
         "-shm": 32768,
         "-wal": 0,
-        "database": 90804224
+        "database": 91004928
       },
       "ops": {
-        "database": 165175296
+        "database": 165285888
       }
     },
     "disk_floor_bytes": 2067108864,
-    "disk_free_bytes": 4750528512,
-    "elapsed_minutes": 160.36432482798895,
+    "disk_free_bytes": 4840353792,
+    "elapsed_minutes": 170.31778869628906,
     "existing_protected_terminal_evidence_preserved": true,
     "findings": [],
     "gate": "OPEN",
     "generation": "DEV004-V2-20261024-dfb76562",
     "highest_investigation_credits": 7936,
-    "inflight": [],
+    "inflight": [
+      {
+        "age_seconds": 0,
+        "method": "rpc:getAccountInfo",
+        "role": "walkback"
+      }
+    ],
     "investigation_limit": 100000,
     "journals": {
       "birth": {
-        "free_slots": 6,
-        "records": 506,
+        "free_slots": 3,
+        "records": 509,
         "states": {
-          "ACKED": 7,
-          "QUARANTINED": 499
+          "ACKED": 8,
+          "QUARANTINED": 501
         }
       },
       "migration": {
-        "free_slots": 24,
-        "records": 488,
+        "free_slots": 16,
+        "records": 496,
         "states": {
-          "PENDING": 487,
+          "PENDING": 495,
           "RESOLVED": 1
         }
       }
@@ -27773,7 +27785,7 @@
     ],
     "new_exhausted_since_restoration": 0,
     "next_action": "Report findings only; no engineering or changes authorized. Stop this one-time monitor.",
-    "observed_utc": "2026-10-28T17:06:45.221867+00:00",
+    "observed_utc": "2026-10-28T17:16:42.373491+00:00",
     "production_mutations": 0,
     "provider_calls": 0,
     "publication_checksum_verified": true,
@@ -27796,21 +27808,21 @@
     },
     "replay_reset": 0,
     "requests_by_method_since_restoration_including_one_probe": {
-      "rpc:getAccountInfo": 2164,
-      "rpc:getMultipleAccounts": 288,
-      "rpc:getSignaturesForAddress": 1026,
+      "rpc:getAccountInfo": 2270,
+      "rpc:getMultipleAccounts": 304,
+      "rpc:getSignaturesForAddress": 1125,
       "rpc:getTokenAccountsByOwner": 2,
       "rpc:getTokenLargestAccounts": 35,
-      "rpc:getTransaction": 1746
+      "rpc:getTransaction": 1907
     },
-    "requests_per_second_since_restoration": 0.5467758083188691,
-    "reserved_credit_increase_since_acceptance": 4968,
+    "requests_per_second_since_restoration": 0.5522030359829888,
+    "reserved_credit_increase_since_acceptance": 5350,
     "reserved_credits_by_worker_since_restoration_including_one_probe": {
       "creator_resolution": 0,
-      "listener": 1726,
-      "walkback": 3535
+      "listener": 1774,
+      "walkback": 3869
     },
-    "reserved_credits_total": 79181,
+    "reserved_credits_total": 79563,
     "restarts": 0,
     "restored_utc": "2026-10-28T14:26:22.634841+00:00",
     "same_worker_pids": false,
@@ -27830,25 +27842,27 @@
     },
     "status": "PASS",
     "uncertain_requests_preserved": 5,
-    "walkback_completions_since_restoration": 53,
+    "walkback_completions_since_restoration": 57,
     "walkback_helius_error_categories": {
       "HELIUS_ACQUISITION_DEFERRED": 126,
       "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-      "HELIUS_GATE_BUSY": 204,
+      "HELIUS_GATE_BUSY": 205,
       "HELIUS_INVESTIGATION_REQUIRED": 25,
       "HELIUS_REQUEST_RATE_LIMIT": 12,
       "HELIUS_TRANSPORT_UNAVAILABLE": 1,
       "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
     },
-    "walkback_queue_changed_since_restoration": 162,
+    "walkback_queue_changed_since_restoration": 170,
     "walkback_states": {
-      "complete": 2050,
+      "complete": 2054,
       "failed": 56,
-      "pending": 108,
+      "pending": 111,
+      "running": 1,
       "waiting": 1551
     }
   },
   "flex_v2_two_hour_health_monitoring": {
+    "automation_deleted": true,
     "automation_id": "flex-v2-two-hour-health-monitoring",
     "baseline_handoff": "269e0400",
     "blocker": null,
@@ -28029,20 +28043,102 @@
         },
         "window_handoffs": 0,
         "window_walkback_completed": 3
+      },
+      {
+        "credits": 79563,
+        "disk_free_bytes": 4840353792,
+        "notification": "NOTIFY_MONITORING_COMPLETE_DELETED",
+        "observed_utc": "2026-10-28T17:16:42.373491+00:00",
+        "outcomes": {
+          "LINEAGE_GAP": 1,
+          "NO_ATTRIBUTION_FOUND": 2
+        },
+        "status": "HEALTHY",
+        "window": {
+          "end_exclusive": "2026-10-28T17:10:00+00:00",
+          "start_inclusive": "2026-10-28T17:00:00+00:00"
+        },
+        "window_handoffs": 4,
+        "window_walkback_completed": 3
       }
     ],
     "duration_hours": 2,
     "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
     "enhanced_reporting_enabled": true,
+    "final_snapshot": {
+      "credits_total": 79563,
+      "disk_free_bytes": 4840353792,
+      "gate": "OPEN",
+      "highest_investigation": 7936,
+      "inflight": [
+        {
+          "age_seconds": 0,
+          "method": "rpc:getAccountInfo",
+          "role": "walkback"
+        }
+      ],
+      "journals": {
+        "birth": {
+          "free_slots": 3,
+          "records": 509,
+          "states": {
+            "ACKED": 8,
+            "QUARANTINED": 501
+          }
+        },
+        "migration": {
+          "free_slots": 16,
+          "records": 496,
+          "states": {
+            "PENDING": 495,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "observed_utc": "2026-10-28T17:16:42.373491+00:00",
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 28017,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 28051,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 43753,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "final_summary": {
+      "automation_deleted": true,
+      "exact_window_credits_births_create_coverage": "UNKNOWN: no qualified exact-boundary/event telemetry",
+      "production_changes": 0,
+      "provider_calls": 0,
+      "verified_completed_core_ops_handoffs": 53,
+      "walkback_completions": 42,
+      "walkback_outcomes": {
+        "LINEAGE_GAP": 19,
+        "NO_ATTRIBUTION_FOUND": 23
+      },
+      "window_end_exclusive": "2026-10-28T17:14:16Z",
+      "window_start": "2026-10-28T15:14:16Z"
+    },
     "future_checks": 12,
     "interval_minutes": 10,
-    "next_action": "Use enhanced read-only adapter; reportUNKNOWN for unqualified telemetry; preserve original endpoint and delete automation after completion.",
+    "next_action": "Monitoring has ended and automation is deleted. No fixes or production actions performed. Any further diagnosis/DEV work requires a separate user task.",
     "original_end_utc": "2026-10-28T17:14:16Z",
     "production_changes": 0,
     "production_flags": "No changes; latest runtime state remains evidence from previous verified check",
     "provider_calls": 0,
+    "remaining_limitations": [
+      "Exact birth capture/commits,at-handoffCREATEcoverage,dispatch counts and journal reclamation per window remainUNKNOWN",
+      "All42 completions carryNO_ATTRIBUTION_FOUND orLINEAGE_GAP; completion is not confirmed attribution",
+      "No exact credit ledger snapshot at two-hour boundaries; current reserved totals are not billed consumption"
+    ],
     "reporting_window": "Most recent complete10-minute UTC interval; snapshot data explicitly separate",
-    "status": "ACTIVE_ENHANCED_READ_ONLY_HEALTHY",
+    "status": "COMPLETE_READ_ONLY_MONITOR_DELETED",
     "tests": "Not applicable; scheduling only"
   },
   "flex_v2_walkback_intelligence_quality_audit": {
@@ -48762,8 +48858,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T17:07:23.095890+00:00",
-    "working_tree": "Scheduled16:50\u201317:00UTC:0 verified handoffs3 Walkbacks(1LINEAGE_GAP2NO_ATTRIBUTION_FOUND); gateOPEN stable workers4.75GB,no stuck reservations. Missing exact input telemetry prevents failure inference. Monitor original endpoint17:14 unchanged."
+    "updated_at_utc": "2026-10-28T17:17:37.982172+00:00",
+    "working_tree": "Two-hour read-only monitoring complete/deleted:53 verified handoffs42 Walkbacks(19LINEAGE_GAP23NO_ATTRIBUTION_FOUND); finalgateOPEN stableworkers4.84GB, no stuck reservations. Protected accounting unchanged; exact unobservable metricsUNKNOWN. No production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

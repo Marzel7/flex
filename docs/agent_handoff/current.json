@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
+  "blocker": "Existing HELIUS_BUDGET_CLOCK_AMBIGUOUS guard blocks paid processing: wall elapsed28040s versus monotonic elapsed1431s, divergence26609s exceeds5s. Fresh window has27 pending clock-integrity failures with attempts0->1 and zero newly reserved credits. Complete five-minute successful acceptance not established.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -25141,6 +25141,442 @@
     },
     "tests": "99 accepted provider-free controls reused, no rerun."
   },
+  "flex_v2_walkback_per_job_contention_production_deployment": {
+    "actions": {
+      "budget_changes": 0,
+      "exhausted_replay_reset": 0,
+      "gate_restoration": 0,
+      "listener_resolver_restarts_by_this_task": 0,
+      "provider_test_calls": 0,
+      "restarted_by_this_task": [
+        "walkback_worker"
+      ],
+      "schema_changes": 0,
+      "v1_access": 0
+    },
+    "blocker": "Existing HELIUS_BUDGET_CLOCK_AMBIGUOUS guard blocks paid processing: wall elapsed28040s versus monotonic elapsed1431s, divergence26609s exceeds5s. Fresh window has27 pending clock-integrity failures with attempts0->1 and zero newly reserved credits. Complete five-minute successful acceptance not established.",
+    "bundle_sha256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
+    "candidate_sha": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "clock_guard": {
+      "current_mono": 812076,
+      "current_wall": 1793176234,
+      "gate_mono": 810645,
+      "gate_state": "OPEN",
+      "gate_wall": 1793148194,
+      "mono_elapsed": 1431,
+      "observed_utc": "2026-10-28T08:30:34.742545+00:00",
+      "policy_limit": 100000,
+      "wall_elapsed": 28040
+    },
+    "current_services": {
+      "creator_resolution_worker": {
+        "pid": 37767,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 34365,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 38003,
+        "state": "RUNNING"
+      }
+    },
+    "engineering_revision": "f702419b8fa5f6c2f9c7af51d57621a0077cb7f2",
+    "five_minute_acceptance_completed": false,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "initial_valid_acceptance": {
+      "batch_summaries": [
+        {
+          "logical_rpc": 26,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 44,
+          "outcomes": {
+            "NO_ATTRIBUTION_FOUND": 1,
+            "pending": 7
+          },
+          "processed": 8
+        }
+      ],
+      "completed_batches": 2,
+      "completion_outcomes": {
+        "NO_ATTRIBUTION_FOUND": 1
+      },
+      "cursor_durably_present": true,
+      "custody_quotas": {
+        "birth_terminal_owner_v1": {
+          "bytes": 697743,
+          "records": 512
+        },
+        "migration_deferred_owner_v1": {
+          "bytes": 1344582,
+          "records": 511
+        },
+        "migration_terminal_owner_v1": {
+          "bytes": 2021087,
+          "records": 1808
+        }
+      },
+      "cycle_failure_records": {},
+      "database_files": {
+        "core": {
+          "db": 83431424
+        },
+        "ops": {
+          "db": 163028992
+        }
+      },
+      "deferred_attempt_pairs": [
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 6
+        },
+        {
+          "after": 1,
+          "before": 1,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 1
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_INVESTIGATION_REQUIRED",
+          "jobs": 7
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_REQUEST_COOLDOWN",
+          "jobs": 1
+        }
+      ],
+      "disk_free_bytes": 7177216000,
+      "examined_waiting_jobs_since_activation": 96,
+      "gate": {
+        "highest_investigation_credits": 7936,
+        "inflight": [],
+        "lifetime_credit_limit": 100000,
+        "reserved_credits_by_worker_since_activation": {
+          "creator_resolution": 0,
+          "listener": 0,
+          "walkback": 69
+        },
+        "review_held": 5,
+        "spending_history_and_owner_identity_monotonic": true,
+        "state": "OPEN"
+      },
+      "heartbeat": {
+        "age_seconds": 2.21,
+        "last_seen_epoch": 1793148120,
+        "status": "HEALTHY",
+        "updated_after_activation": true
+      },
+      "journals": {
+        "birth.jsonl": {
+          "free_slots": 16,
+          "records": 496,
+          "states": {
+            "ACKED": 8,
+            "QUARANTINED": 488
+          }
+        },
+        "migration.jsonl": {
+          "free_slots": 11,
+          "records": 501,
+          "states": {
+            "ACKED": 11,
+            "PENDING": 487,
+            "QUARANTINED": 2,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "logs": {
+        "walkback_worker.log": {
+          "bytes": 3185,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        },
+        "walkback_worker_err.log": {
+          "bytes": 0,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        }
+      },
+      "maximum_lookup_delta": 1,
+      "natural_completions": 1,
+      "observed_utc": "2026-10-28T00:42:02.248381+00:00",
+      "optional_deferral_log_counts": {
+        "HELIUS_INVESTIGATION_REQUIRED": 4
+      },
+      "per_job_busy_backoff_seconds": {
+        "5": 7
+      },
+      "preexisting_failed_jobs_untouched": 6,
+      "processed_job_attempts": 16,
+      "protected277": {
+        "waiting_protected": 277
+      },
+      "provider_test_calls": 0,
+      "queue_states": {
+        "complete": 1932,
+        "failed": 6,
+        "pending": 158,
+        "waiting": 1550
+      },
+      "schema_unchanged": true,
+      "seconds_since_start_requested": 123.08,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 70926,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 34365,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 70897,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "installed_authority": {
+      "bundle_sha256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "renderer_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27",
+      "runtime_plan_sha256": "03a97938b274534a38113be14d063fa349a4483bfd9923e59f943b2a8d8ac4fc",
+      "schema_changes": false,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 70926,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 34365,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 70897,
+          "state": "RUNNING"
+        }
+      },
+      "source_commit": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+      "supervisor_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+      "worker_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a"
+    },
+    "next_action": "Qualify evidence-verified reconciliation of durable budget clock anchors after the observed wall/monotonic discontinuity, preserving all spending, owners, reservations, retry evidence and100000credit ceiling. No arbitrary reset. Then repeat only the interrupted natural acceptance window; do not replay exhausted work.",
+    "production_flags": "Shared gate last read OPEN; existing clock-integrity guard refuses paid dispatch.100000credit ceiling,terminal/deferred/CREATE flags unchanged. No allowance reset or gate restoration by this task.",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/PER_JOB_CONTENTION_DEPLOYMENT.json",
+    "report_sha256": "cc28d8e47acc40d589d98f7927f80990dfac725b3392876dd2cf3711319f5a7f",
+    "resumed_acceptance": {
+      "batch_summaries": [
+        {
+          "logical_rpc": 0,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 0,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 0,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 0,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        }
+      ],
+      "completed_batches": 4,
+      "completion_outcomes": {},
+      "cursor_durably_present": true,
+      "custody_quotas": {
+        "birth_terminal_owner_v1": {
+          "bytes": 697743,
+          "records": 512
+        },
+        "migration_deferred_owner_v1": {
+          "bytes": 1344632,
+          "records": 511
+        },
+        "migration_terminal_owner_v1": {
+          "bytes": 2021087,
+          "records": 1808
+        }
+      },
+      "cycle_failure_records": {},
+      "database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 83513344
+        },
+        "ops": {
+          "db": 163033088
+        }
+      },
+      "deferred_attempt_pairs": [
+        {
+          "after": 1,
+          "before": 0,
+          "code": "HELIUS_BUDGET_CLOCK_AMBIGUOUS",
+          "jobs": 27
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 1
+        },
+        {
+          "after": 1,
+          "before": 1,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 1
+        },
+        {
+          "after": 2,
+          "before": 2,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 2
+        },
+        {
+          "after": 2,
+          "before": 2,
+          "code": "HELIUS_INVESTIGATION_REQUIRED",
+          "jobs": 1
+        }
+      ],
+      "disk_free_bytes": 5427789824,
+      "examined_waiting_jobs_since_activation": 128,
+      "gate": {
+        "highest_investigation_credits": 7936,
+        "inflight": [],
+        "lifetime_credit_limit": 100000,
+        "reserved_credits_by_worker_since_activation": {
+          "creator_resolution": 0,
+          "listener": 0,
+          "walkback": 0
+        },
+        "review_held": 5,
+        "spending_history_and_owner_identity_monotonic": true,
+        "state": "OPEN"
+      },
+      "heartbeat": {
+        "age_seconds": 22.33,
+        "last_seen_epoch": 1793176171,
+        "status": "UNHEALTHY",
+        "updated_after_activation": true
+      },
+      "journals": {
+        "birth.jsonl": {
+          "free_slots": 11,
+          "records": 501,
+          "states": {
+            "ACKED": 11,
+            "QUARANTINED": 490
+          }
+        },
+        "migration.jsonl": {
+          "free_slots": 7,
+          "records": 505,
+          "states": {
+            "ACKED": 12,
+            "PENDING": 490,
+            "QUARANTINED": 2,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "logs": {
+        "walkback_worker.log": {
+          "bytes": 4140,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        },
+        "walkback_worker_err.log": {
+          "bytes": 0,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        }
+      },
+      "maximum_lookup_delta": 1,
+      "natural_completions": 0,
+      "observed_utc": "2026-10-28T08:29:53.387684+00:00",
+      "optional_deferral_log_counts": {
+        "HELIUS_INVESTIGATION_REQUIRED": 8
+      },
+      "per_job_busy_backoff_seconds": {
+        "5": 4
+      },
+      "preexisting_failed_jobs_untouched": 6,
+      "processed_job_attempts": 32,
+      "protected277": {
+        "waiting_protected": 277
+      },
+      "provider_test_calls": 0,
+      "queue_states": {
+        "complete": 1932,
+        "failed": 6,
+        "pending": 159,
+        "waiting": 1550
+      },
+      "schema_unchanged": true,
+      "seconds_since_start_requested": 170.0,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 37767,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 34365,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 38003,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "rollback": "Not invoked: blocker is unchanged shared clock/accounting integrity logic, not a demonstrated failure of installed worker correction. Reverting worker would not reconcile clocks. Candidate-aware gate/terminal/deferred recovery preserved.",
+    "source_verification": {
+      "renderer_matches_candidate": true,
+      "runtime_plan_sha256": "03a97938b274534a38113be14d063fa349a4483bfd9923e59f943b2a8d8ac4fc",
+      "supervisor_config_matches_activation": true,
+      "worker_matches_candidate": true
+    },
+    "spending_history_preserved": true,
+    "status": "PARTIAL",
+    "tests": "99 accepted controls reused. Natural initial window:2 batches,1 NO_ATTRIBUTION_FOUND completion,7 current5s deferrals. Resumed window:4 batches,0 completions,4 current5s deferrals,27 clock integrity failures; no cycle failures."
+  },
   "flex_v2_walkback_per_job_contention_qualification": {
     "behaviour": {
       "fairness": "Same priority retained; only gate-busy jobs use last deferral time instead of original enqueue time, avoiding repeated oldest-head monopolization.",
@@ -40273,7 +40709,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separately authorize the exact qualified worker/recovery-pin bundle. Refresh immediate preimages, gate, disk/journal safety and idle ownership; stage immutable candidate recovery authority, stop/install/start only Walkback, then observe natural processing. No deployment performed here.",
+  "next_action": "Qualify evidence-verified reconciliation of durable budget clock anchors after the observed wall/monotonic discontinuity, preserving all spending, owners, reservations, retry evidence and100000credit ceiling. No arbitrary reset. Then repeat only the interrupted natural acceptance window; do not replay exhausted work.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -42459,11 +42895,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "2621c1e590c6a0882c63f6ba157aeea42c15ee99",
+    "git_head": "f702419b8fa5f6c2f9c7af51d57621a0077cb7f2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T00:38:22.916131+00:00",
-    "working_tree": "Read-only38da4ccd preflight GO. Production remains3f75234d; no source/config/schema changes or restarts."
+    "updated_at_utc": "2026-10-28T08:31:15.531496+00:00",
+    "working_tree": "38da4ccd worker and matching recovery pin installed; only Walkback restarted. Natural acceptance halted by existing budget clock integrity guard. No provider probes or accounting reset."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43865,7 +44301,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_PER_JOB_CONTENTION_PREFLIGHT_PASS",
+  "status": "FLEX_V2_PER_JOB_CONTENTION_DEPLOYMENT_PARTIAL",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -45444,7 +45880,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "verdict": "INSTALLED_ACCEPTANCE_HOLD_CLOCK_GUARD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

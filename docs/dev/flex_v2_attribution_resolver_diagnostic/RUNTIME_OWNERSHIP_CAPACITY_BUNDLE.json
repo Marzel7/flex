@@ -1,0 +1,30 @@
+{
+  "activation": "Separately authorized coherent listener and Walkback reload after immediate preflight; resolver unchanged. No exhausted replay.",
+  "baseline": "8ce26bf4f44005ebecd3f545be99a0ed55c884d1",
+  "candidate_sha": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+  "deployment_scope": [
+    "listener runtime journal",
+    "Walkback worker",
+    "recovery renderer two pins"
+  ],
+  "flags_changed": false,
+  "payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3",
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-per-job-38da4ccd/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27"
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "candidate_sha256": "663465aef0d452eee95c5077ecce0621b19e1406f8aad6122fc0fd3b8f04617b",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py",
+      "installed_preimage_sha256": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9"
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "installed_preimage_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a"
+    }
+  },
+  "rollback": "Restore exact three preimages coherently; existing source remains deferred/terminal/gate-aware. No new schema or persisted fields; preserve all journals, custody, spending and paired-generation authority.",
+  "schema_changes": false
+}

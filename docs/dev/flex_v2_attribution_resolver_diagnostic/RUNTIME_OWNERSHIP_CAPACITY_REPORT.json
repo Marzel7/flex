@@ -1,0 +1,79 @@
+{
+  "FLEX_V2_RUNTIME_CORRECTION_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+  "WALKBACK_OWNERSHIP_DEFERRAL": {
+    "original_typed_exception_preserved": true,
+    "unowned_work_not_executed": true,
+    "exact_reason_durable": true,
+    "refund": "Only current running claim with matching attempts and worker owner; repeated/stale calls cannot refund twice.",
+    "backoff": "Existing five-second gate-busy, existing 300 seconds for other typed restrictions; retry ceilings unchanged.",
+    "scope": "Walkback-specific strict entry; shared HTTP wrapper and other roles unchanged.",
+    "attribution_changes": false
+  },
+  "MIGRATION_CAPACITY_POLICY": {
+    "high_water_records": 492,
+    "max_transfer_per_admission": 20,
+    "active_journal_max": 512,
+    "deferred_owner_max": 8192,
+    "priority": [
+      "independently verified completion",
+      "verified protected terminal custody",
+      "verified pending/resolved deferred custody"
+    ],
+    "excluded": [
+      "DISPATCH_RESERVED",
+      "unverified destination",
+      "incoming admission identity"
+    ],
+    "ordering": "Existing OPS durable commit, independent readback, journal publication and restart reconciliation. No ACK or promotion of unresolved work.",
+    "quota_full": "Known finite quota errors during optional early maintenance retain remaining active admission capacity. Overflow refuses explicitly; other integrity/storage/generation failures propagate.",
+    "birth_journal_policy": "Unchanged; subclass excluded.",
+    "due_checkout": "Unchanged; early reserve maintenance runs on admit only."
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 73,
+    "focused_and_reused_pending": 44,
+    "retained_terminal_and_fresh_pair": 24,
+    "retained_helius_lifetime_cross_worker_crash": 5,
+    "execution": "Final segmented runs; not a repeated broad matrix. Actual production preimages verified read-only. Network socket connections blocked in fixtures.",
+    "coverage": [
+      "typed ownership-entry errors",
+      "no unauthorized dispatch",
+      "claim identity/refund/stale owner",
+      "crash before claim commit",
+      "492 high-water and exact verified transfer",
+      "event513",
+      "2000 sequential additional admissions",
+      "pending/terminal preservation",
+      "duplicate and conflicting notification",
+      "crash before and after OPS/journal publication",
+      "checkout fairness and reservation protection",
+      "concurrent admission with resolver writes",
+      "full quota and disk refusal",
+      "recoverable listener refusal continues simulated birth intake",
+      "fresh compact pair recovery",
+      "two exact recovery hash pins"
+    ],
+    "initial_failures": "Sparse fixture dependencies and missing concurrent import repaired; quota-trigger classification corrected; early maintenance narrowed to admission after a checkout-displacement regression. Final controls passed.",
+    "provider_calls": 0
+  },
+  "CANDIDATE_SHA": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+  "BUNDLE_SHA256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+  "DEPLOYMENT_SCOPE": "Two runtime files plus matching recovery renderer. Listener and Walkback reload required only after separate authorization; resolver untouched. No schema or configuration changes.",
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+  "STORAGE": {
+    "free_bytes": 3090337792,
+    "required_floor_bytes": 2000000000,
+    "single_file_cap_bytes": 499000000,
+    "fixture_owners_bounded": true
+  },
+  "PRODUCTION": {
+    "changes": 0,
+    "restarts": 0,
+    "provider_calls": 0,
+    "replay_reset": 0,
+    "v1_access": 0,
+    "budget_changes": 0
+  },
+  "NEXT_ACTION": "Read-only deployment preflight of this exact three-file bundle: immediate installed preimages, paired generation, active claim ownership, gate/accounting, disk/journal/custody limits, candidate-aware recovery and coordinated listener/Walkback reload boundary. Do not deploy.",
+  "qualified_utc": "2026-10-28T11:28:53.495982+00:00"
+}

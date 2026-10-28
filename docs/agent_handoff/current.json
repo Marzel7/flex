@@ -25524,8 +25524,10 @@
   },
   "flex_v2_runtime_ownership_capacity_deployment": {
     "acceptance": "Exact two runtime files and recovery pins installed coherently. Last coherent sample at186.52s:80 exact committed births,3 PumpSwap/1 PumpPortal new notification lower bound,1 canonical migration/exact completed handoff,2 Walkback completions,35 migration slots free. Full successful five-minute acceptance NOT achieved.",
-    "blocker": "Disk below required floor during natural acceptance; durable Helius publication marker PENDING_V1 cannot authorize acquisition.",
+    "blocker": null,
     "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "current_disk_free_bytes": 4417536000,
+    "current_gate_state": "OPEN",
     "engineering_revision": "f8b020ab86a8165e9c4f8cdd8fe2c997b12dbbfe",
     "generation": "DEV004-V2-20261024-dfb76562",
     "helius": {
@@ -25563,8 +25565,33 @@
         "RESOLVED": 1
       }
     },
-    "next_action": "Restore stable headroom above required reserve, then separately qualify/reconcile the existing publication marker against retained durable accounting using the accepted recovery mechanism. No reset, blind marker clear or provider probe.",
+    "latest_acceptance_window": {
+      "at_least_five_minutes": true,
+      "last_sample_completed_utc": "2026-10-28T12:29:42.846948+00:00",
+      "sample_start_elapsed_seconds": 381.64,
+      "samples": 4,
+      "scope": "Fresh restored window; previous interrupted acceptance retained separately.",
+      "start_utc": "2026-10-28T12:23:09.252228+00:00"
+    },
+    "latest_engineering_revision": "70783774bce38e4fd021135b57223951427025dd",
+    "latest_report_sha256": "63d09877b2da25fc0fa7c26f9e3b495287b697db3e9a5e1ffc3ff8b7dde22d77",
+    "latest_services": {
+      "creator_resolution_worker": {
+        "pid": 99531,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 99556,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 99484,
+        "state": "RUNNING"
+      }
+    },
+    "next_action": "Leave all three approved workers running under the OPEN shared gate and unchanged100000-credit lifetime limit. Maintain disk above the accepted reserve; keep protected and exhausted work unreplayed.",
     "observed_utc": "2026-10-28T12:01:48.595084+00:00",
+    "previous_hold_verdict": "HOLD_ACCEPTANCE_BLOCKED_AFTER_INSTALL",
     "production_flags": {
       "budget_changes": 0,
       "feature_flag_changes": false,
@@ -25600,7 +25627,7 @@
         91523
       ]
     },
-    "status": "HOLD_ACCEPTANCE_BLOCKED_AFTER_INSTALL",
+    "status": "PASS_AFTER_EXPLICITLY_AUTHORIZED_GATE_RECOVERY",
     "storage": {
       "deployment_reserve_bytes": 2771751936,
       "floor_bytes": 2067108864,
@@ -25609,7 +25636,7 @@
       "staged_free_bytes": 3006939136
     },
     "updated_utc": "2026-10-28T12:04:10.751815+00:00",
-    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "verdict": "PASS",
     "verified_transfer": {
       "interpretation": "Aggregate natural transitions, not an operator-triggered transfer. Exact owner hash/provenance and original identity verified; no unresolved notification acknowledged to free space.",
       "new_terminal_records_during_last_safe_sample": 3,
@@ -25749,6 +25776,208 @@
     },
     "updated_utc": "2026-10-28T11:30:01.243267+00:00",
     "verdict": "READY_FOR_DEPLOYMENT_PREFLIGHT"
+  },
+  "flex_v2_runtime_restored_acceptance": {
+    "blocker": null,
+    "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "engineering_revision": "70783774bce38e4fd021135b57223951427025dd",
+    "gate_recovery": {
+      "authority": "User explicitly authorized all-three gate-writer stop/restart and one bounded probe.",
+      "current_gate_state_sha256": "44dfe7fbbd4d78014c47de984e3ecd5a2def69f557310ab28aac725d2b84d43f",
+      "durable_validation_before_probe_finalization": true,
+      "operator_provider_requests": 1,
+      "probe_http_status": 200,
+      "probe_usable_transaction": true,
+      "procedure": "Existing conservative publication recovery, exact accounting preservation, then one explicitly authorized HTTP verification.",
+      "production_gate_not_blindly_reset": true,
+      "raw_provider_payload_retained": false,
+      "status": "PASS_READY_CHECKSUM_VERIFIED_OPEN"
+    },
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "helius_spending": {
+      "billed_credit_claim": false,
+      "current_reserved_credits": 73629,
+      "history_and_100000_limit_preserved": true,
+      "manual_probe_credits": 1,
+      "natural_window": {
+        "credit_limit": 100000,
+        "held": 5,
+        "highest_investigation_credits": 7936,
+        "history_preserved": true,
+        "inflight": [],
+        "request_reservations": 237,
+        "reserved_credits_by_worker": {
+          "creator_resolution": 0,
+          "listener": 174,
+          "walkback": 63
+        },
+        "state": "OPEN"
+      },
+      "pre_recovery_reserved_credits": 73187
+    },
+    "journal_capacity": {
+      "birth": {
+        "free": 14,
+        "records": 498,
+        "states": {
+          "ACKED": 5,
+          "QUARANTINED": 493
+        }
+      },
+      "migration": {
+        "free": 35,
+        "records": 477,
+        "states": {
+          "PENDING": 476,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "limitations": [
+      "No fresh PumpSwap migration-account notification was observed in this restored window; subscription confirmations retained after restart, and three such notifications were admitted in the prior installed-source window. No synthetic event was injected.",
+      "One pre-existing running Walkback claim at attempts3 was retired by normal startup to protected STALLED_RUNNING_JOB_ATTEMPTS_EXHAUSTED at the same attempts3. It was not reset or replayed.",
+      "Five review-held RPC requests and one current uncertain-request deferral remain protected.",
+      "Storage remains dependent on maintained headroom; no automatic cleanup or storage-policy change was made."
+    ],
+    "natural_activity": {
+      "birth_receipts": {
+        "COMMITTED": 83,
+        "exact_canonical_matches": 83,
+        "new_birth_receipts": 83
+      },
+      "canonical_migrations_with_timestamp_since_activation": 1,
+      "completed_batches": [
+        {
+          "logical_rpc": 1,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 30,
+          "outcomes": {
+            "NO_ATTRIBUTION_FOUND": 2,
+            "pending": 6
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 2,
+          "outcomes": {
+            "pending": 8
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 31,
+          "outcomes": {
+            "LINEAGE_GAP": 1,
+            "pending": 7
+          },
+          "processed": 8
+        }
+      ],
+      "exact_completed_handoffs": 1,
+      "new_notification_lower_bound": {
+        "PUMPPORTAL_MIGRATION": 2
+      },
+      "walkback_completions": 3,
+      "walkback_outcomes": {
+        "LINEAGE_GAP": 1,
+        "NO_ATTRIBUTION_FOUND": 2
+      }
+    },
+    "next_action": "Leave all three approved workers running under the OPEN shared gate and unchanged100000-credit lifetime limit. Maintain disk above the accepted reserve; keep protected and exhausted work unreplayed.",
+    "observation_window": {
+      "at_least_five_minutes": true,
+      "last_sample_completed_utc": "2026-10-28T12:29:42.846948+00:00",
+      "sample_start_elapsed_seconds": 381.64,
+      "samples": 4,
+      "scope": "Fresh restored window; previous interrupted acceptance retained separately.",
+      "start_utc": "2026-10-28T12:23:09.252228+00:00"
+    },
+    "production_flags": {
+      "additional_source_schema_or_configuration_changes": 0,
+      "budget_changes": 0,
+      "explicitly_authorized_restarts": [
+        "watchtower_listener",
+        "creator_resolution_worker",
+        "walkback_worker"
+      ],
+      "gate_publication_recovery": true,
+      "historical_deletion": 0,
+      "provider_requests": 1,
+      "provider_requests_after_authorized_probe_for_testing": 0,
+      "retry_reset_or_exhausted_replay": 0,
+      "v1_access": 0
+    },
+    "protected_work": {
+      "no_retry_reset_or_exhausted_replay": true,
+      "one_uncertain_request_deferral_remains_protected": true,
+      "preexisting_failed_jobs_unchanged": 54,
+      "retired_interrupted_claims": [
+        {
+          "attempts_after": 3,
+          "attempts_before": 3,
+          "new_state": "failed",
+          "old_state": "running",
+          "reason": "STALLED_RUNNING_JOB_ATTEMPTS_EXHAUSTED"
+        }
+      ],
+      "retry_claim_guards_preserved": true,
+      "typed_deferrals": {
+        "HELIUS_ACQUISITION_DEFERRED": 4,
+        "HELIUS_GATE_BUSY": 23,
+        "HELIUS_REQUEST_COOLDOWN": 1,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
+      }
+    },
+    "report_sha256": "63d09877b2da25fc0fa7c26f9e3b495287b697db3e9a5e1ffc3ff8b7dde22d77",
+    "rollback": "Not required. Compatible preimages and terminal/deferred/gate-aware fresh-pair recovery retained. No database or evidence rollback.",
+    "runtime_source_commit": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+    "services": {
+      "creator_resolution_worker": {
+        "pid": 99531,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 99556,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 99484,
+        "state": "RUNNING"
+      }
+    },
+    "source_and_configuration": "Existing a8179c8b source and both recovery pins remain installed; no additional source/schema/configuration changes.",
+    "status": "PASS",
+    "storage": {
+      "database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 86552,
+          "database": 86999040
+        },
+        "ops": {
+          "database": 164122624
+        }
+      },
+      "free_bytes_last_sample": 4417536000,
+      "minimum_sampled_free_bytes": 3347091456,
+      "single_file_cap_bytes": 499000000
+    },
+    "tests": "Reuse73 qualified controls; existing accepted recovery verifier and durable probe finalizer. Exactly one new explicitly authorized probe; no synthetic events or exhausted replay.",
+    "updated_utc": "2026-10-28T12:34:26.013414+00:00",
+    "verdict": "PASS",
+    "verified_custody_transfers": {
+      "deferred_currently_owned": 267,
+      "new_deferred_identities": 0,
+      "new_identities_currently_OWNED": 0,
+      "new_terminal_identities": 0,
+      "original_active_records_now_verified_OWNED": 18,
+      "preexisting_deferred_revisions_advanced": 146
+    }
   },
   "flex_v2_seven_day_repeat_creator_population_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
@@ -46582,7 +46811,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "f8b020ab86a8165e9c4f8cdd8fe2c997b12dbbfe",
+    "git_head": "70783774bce38e4fd021135b57223951427025dd",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

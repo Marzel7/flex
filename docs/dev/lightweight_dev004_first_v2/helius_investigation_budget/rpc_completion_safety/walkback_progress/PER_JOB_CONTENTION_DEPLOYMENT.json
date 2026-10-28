@@ -1,0 +1,267 @@
+{
+  "status": "PARTIAL",
+  "verdict": "INSTALLED_ACCEPTANCE_INTERRUPTED",
+  "candidate_sha": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+  "bundle_sha256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "activation_utc": "2026-10-28T00:39:59.123558+00:00",
+  "observed_utc": "2026-10-28T08:24:51.356528+00:00",
+  "installed_authority": {
+    "source_commit": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "bundle_sha256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
+    "worker_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+    "renderer_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27",
+    "runtime_plan_sha256": "03a97938b274534a38113be14d063fa349a4483bfd9923e59f943b2a8d8ac4fc",
+    "supervisor_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 34365
+      }
+    },
+    "schema_changes": false
+  },
+  "current_source_verification": {
+    "worker_matches_candidate": true,
+    "renderer_matches_candidate": true,
+    "supervisor_config_matches_activation": true,
+    "runtime_plan_sha256": "03a97938b274534a38113be14d063fa349a4483bfd9923e59f943b2a8d8ac4fc"
+  },
+  "current_services": {
+    "watchtower_listener": {
+      "state": "RUNNING",
+      "pid": 38003
+    },
+    "creator_resolution_worker": {
+      "state": "RUNNING",
+      "pid": 37767
+    },
+    "walkback_worker": {
+      "state": "RUNNING",
+      "pid": 34365
+    }
+  },
+  "gate": {
+    "state": "OPEN",
+    "failures": 0,
+    "status_counters": {
+      "200": 69974,
+      "401": 1,
+      "other": 6,
+      "transport_error": 8
+    },
+    "policy_limit": 100000,
+    "spending_and_owner_history_preserved": true,
+    "inflight": 0,
+    "highest_investigation_credits": 7936
+  },
+  "last_valid_acceptance_sample": {
+    "per_job_busy_backoff_seconds": {
+      "5": 7
+    },
+    "observed_utc": "2026-10-28T00:42:02.248381+00:00",
+    "seconds_since_start_requested": 123.08,
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 34365
+      }
+    },
+    "optional_deferral_log_counts": {
+      "HELIUS_INVESTIGATION_REQUIRED": 4
+    },
+    "cycle_failure_records": {},
+    "completed_batches": 2,
+    "batch_summaries": [
+      {
+        "processed": 8,
+        "logical_rpc": 26,
+        "outcomes": {
+          "pending": 8
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 44,
+        "outcomes": {
+          "pending": 7,
+          "NO_ATTRIBUTION_FOUND": 1
+        }
+      }
+    ],
+    "processed_job_attempts": 16,
+    "natural_completions": 1,
+    "completion_outcomes": {
+      "NO_ATTRIBUTION_FOUND": 1
+    },
+    "heartbeat": {
+      "last_seen_epoch": 1793148120,
+      "age_seconds": 2.21,
+      "status": "HEALTHY",
+      "updated_after_activation": true
+    },
+    "queue_states": {
+      "waiting": 1550,
+      "complete": 1932,
+      "pending": 158,
+      "failed": 6
+    },
+    "examined_waiting_jobs_since_activation": 96,
+    "maximum_lookup_delta": 1,
+    "protected277": {
+      "waiting_protected": 277
+    },
+    "deferred_attempt_pairs": [
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 0,
+        "after": 0,
+        "jobs": 6
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 1,
+        "after": 1,
+        "jobs": 1
+      },
+      {
+        "code": "HELIUS_INVESTIGATION_REQUIRED",
+        "before": 0,
+        "after": 0,
+        "jobs": 7
+      },
+      {
+        "code": "HELIUS_REQUEST_COOLDOWN",
+        "before": 0,
+        "after": 0,
+        "jobs": 1
+      }
+    ],
+    "preexisting_failed_jobs_untouched": 6,
+    "gate": {
+      "state": "OPEN",
+      "lifetime_credit_limit": 100000,
+      "reserved_credits_by_worker_since_activation": {
+        "creator_resolution": 0,
+        "listener": 0,
+        "walkback": 69
+      },
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "review_held": 5,
+      "spending_history_and_owner_identity_monotonic": true
+    },
+    "journals": {
+      "birth.jsonl": {
+        "records": 496,
+        "free_slots": 16,
+        "states": {
+          "QUARANTINED": 488,
+          "ACKED": 8
+        }
+      },
+      "migration.jsonl": {
+        "records": 501,
+        "free_slots": 11,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 487,
+          "ACKED": 11,
+          "QUARANTINED": 2
+        }
+      }
+    },
+    "custody_quotas": {
+      "migration_terminal_owner_v1": {
+        "records": 1808,
+        "bytes": 2021087
+      },
+      "migration_deferred_owner_v1": {
+        "records": 511,
+        "bytes": 1344582
+      },
+      "birth_terminal_owner_v1": {
+        "records": 512,
+        "bytes": 697743
+      }
+    },
+    "schema_unchanged": true,
+    "cursor_durably_present": true,
+    "database_files": {
+      "core": {
+        "db": 83431424
+      },
+      "ops": {
+        "db": 163028992
+      }
+    },
+    "disk_free_bytes": 7177216000,
+    "logs": {
+      "walkback_worker.log": {
+        "bytes": 3185,
+        "tracebacks": 0,
+        "sqlite_lock_errors": 0,
+        "capacity_errors": 0,
+        "disk_floor_errors": 0
+      },
+      "walkback_worker_err.log": {
+        "bytes": 0,
+        "tracebacks": 0,
+        "sqlite_lock_errors": 0,
+        "capacity_errors": 0,
+        "disk_floor_errors": 0
+      }
+    },
+    "provider_test_calls": 0
+  },
+  "current_queue": {
+    "complete": 1932,
+    "failed": 6,
+    "pending": 159,
+    "waiting": 1550
+  },
+  "protected277_current": {
+    "waiting_protected": 277
+  },
+  "heartbeat": {
+    "last_seen": 1793175882,
+    "status": "UNHEALTHY",
+    "reason": [
+      "pending work exists but completed_per_minute is zero"
+    ]
+  },
+  "disk_free_bytes": 5443477504,
+  "exact_blocker": "Shared Helius gate changed from OPEN to OUTAGE and listener/resolver PIDs changed after activation. Required unchanged live authority could not be maintained for the complete five-minute observation. No claim that outage was caused by this correction.",
+  "clock_note": "Host clock advanced from last retained sample to current readback; do not interpret that gap as a continuous monitored acceptance window.",
+  "rollback": "Not invoked: no demonstrated worker-source integrity failure; current qualified worker remains installed. Reverting shared configuration after independently changed service authority would be unsafe. Gate/counters untouched.",
+  "actions": {
+    "restarted_by_this_task": [
+      "walkback_worker"
+    ],
+    "listener_resolver_restarts_by_this_task": 0,
+    "provider_test_calls": 0,
+    "exhausted_replay_reset": 0,
+    "budget_changes": 0,
+    "gate_restoration": 0,
+    "schema_changes": 0,
+    "v1_access": 0
+  },
+  "next_action": "Reconcile current shared gate OUTAGE and changed listener/resolver authority read-only, then repeat only bounded natural acceptance once authorized provider/runtime readiness is established. No source rollback, gate reopening or exhausted replay performed."
+}

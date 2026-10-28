@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
+  "blocker": "No production safety failure; Walkback fresh gate contention delays first claims. Exact lock owner/hold durations and historical eligibility events not observable in retained evidence.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -25892,6 +25892,321 @@
     },
     "tests": "15 focused controls plus byte-exact retained-state disposable reproduction PASS"
   },
+  "flex_v2_journal_walkback_sustainability_audit": {
+    "cohort_case_sha256": "7573cad22a61e96c9b83273f3a605fe62d9f6a80a3f3be70540ed514762c2078",
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Keep production unchanged. Smallest justified separately authorized DEV task: qualify contention-tolerant pre-dispatch READY-state/ownership validation, preserving fail-closed publication and serialized reservation/accounting authority. Do not increase quotas/budgets, replay backlog or tune scheduling until that narrow contention path is qualified. No journal-capacity redesign is justified by this audit.",
+    "production_flags": {
+      "gate": "OPENREADY6uncertain100000cap",
+      "gate_locks": false,
+      "lifecycle": "single15minute schedule active",
+      "production_changes": false,
+      "provider_calls": false,
+      "workers": "same3RUNNING"
+    },
+    "report_path": "/private/tmp/flex-journal-walkback-audit/AUDIT_REPORT.json",
+    "report_sha256": "5722132cf3003ef27535abf948844a548b2f487057691a6c217ad5d9ec83dbe4",
+    "status": "PARTIAL_OBSERVABILITY_JOURNAL_TURNOVER_VERIFIED_CURRENT_WALKBACK_DELAY_CONFIRMED",
+    "summary": {
+      "ADMISSION_TO_FIRST_CLAIM_LATENCY": {
+        "all50_recorded_start_only": {
+          "max_seconds": 2777,
+          "median_seconds": 1393.0,
+          "min_seconds": 1098,
+          "n": 45,
+          "p90_seconds": 1711
+        },
+        "current15_after_activation": {
+          "max_seconds": 1745,
+          "median_seconds": 1624.5,
+          "min_seconds": 1241,
+          "n": 10,
+          "p90_seconds": 1732
+        },
+        "effective_first_claims_current_cohort_per_hour": 7.7847995935406225,
+        "interpretation": "Current ten supported first claims median1624.5s(27.1min),p901732s(28.9min),max1745s(29.1min). Five unclaimed are explicitly censored, not zero or excluded from coverage.",
+        "unclaimed5_age_seconds_at_snapshot": {
+          "max_seconds": 1826.147712945938,
+          "median_seconds": 1545.147712945938,
+          "min_seconds": 53.14771294593811,
+          "n": 5,
+          "p90_seconds": 1826.147712945938
+        }
+      },
+      "BIRTH_JOURNAL_LIFECYCLE": {
+        "cohort_snapshot_classification": {
+          "deferred_custody_eligible_not_completed": 0,
+          "dispatch_reserved": 1,
+          "errors": {
+            "CORE_AUTHORITY_CONFLICT": 495,
+            "DISPATCH_RESERVED": 1,
+            "None": 13
+          },
+          "free": 3,
+          "independently_completion_reclaimable": 13,
+          "occupied": 509,
+          "retry_due_now": 1,
+          "states": {
+            "ACKED": 13,
+            "QUARANTINED": 495,
+            "RESOLVED": 1
+          },
+          "terminal_custody_eligible_protected_not_deletable": 495
+        },
+        "current": {
+          "free": 13,
+          "occupied": 499,
+          "states": {
+            "ACKED": 1,
+            "QUARANTINED": 498
+          }
+        },
+        "full_occupancy_frequency": "UNKNOWN: one full audit safety snapshot observed, with later503/509 and final499. No complete occupancy-transition event ledger; sampling cannot measure how often512 was reached.",
+        "meaning": "Near-full occupancy reflects deliberately lazy maintenance plus protected conflicts. Initial safety snapshot512 included19 ACKs; independent cohort read found8 then13 reclaimable ACKs. Reclamation demonstrably functions.",
+        "observed_turnover": {
+          "end_occupied": 509,
+          "entered_active_identities": 14,
+          "limitations": "Endpoint lower bounds: notifications admitted and reclaimed entirely between reads are absent; not a total event counter.",
+          "newly_received_among_end_retained_entries": 14,
+          "observed_identity_removals": 8,
+          "older_received_entering_active": 0,
+          "start_occupied": 503,
+          "verified_removal_dispositions": {
+            "verified_completed_reclamation": 8
+          }
+        },
+        "policy": "No proactive492 reserve for BirthJournal. On would-exceed512 admission, reclaim up to20 independently canonical-verified ACKs, then verified transfer up to20 eligible CORE_AUTHORITY_CONFLICT quarantine records if still over capacity. Protected conflicts are never deleted as disposable evidence."
+      },
+      "CAPACITY_REFUSALS": {
+        "TERMINAL_CAPACITY_and_DEFERRED_CAPACITY_observed": 0,
+        "caveat": "Retained log observations, not an immutable global refusal counter. No evidence that the observed full birth journal prevented admission.",
+        "explicit_JOURNAL_CAPACITY_in_complete_retained_byte_window": 0,
+        "generic_birth_journal_pending_errors": 0,
+        "unverified_transfer_errors": 0,
+        "window_end": "2026-10-28T23:12:40.690972+00:00",
+        "window_start": "2026-10-28T22:36:19.324211+00:00"
+      },
+      "CURRENT_ELIGIBLE_BACKLOG": {
+        "actual_dispatch_eligible_count": "UNKNOWN: per-request identity cooldown/cost/inflight/lock checks occur at dispatch; do not call gate/reserve to test.110 due jobs have known owners below lifetime ceiling.",
+        "due_retained_reasons": {
+          "HELIUS_GATE_BUSY": 105,
+          "None": 5
+        },
+        "older_due_vs_recent": {
+          "first_eight_historical": 7,
+          "first_eight_recent": 1,
+          "historical_before_activation": 98,
+          "priorities": {
+            "0": 110
+          },
+          "recent_since_activation": 12
+        },
+        "ownership_budget_preconditions": {
+          "OPEN": true,
+          "due_with_known_owner_below_lifetime_ceiling": 110,
+          "due_without_owner": 0,
+          "global_cooldown_seconds_remaining": 0,
+          "highest_investigation_credits": 7936,
+          "inflight": 0,
+          "inflight_limit": 3,
+          "provider_request_eligible_now": "UNKNOWN: request-key cooldown, lock contention and costs require dispatch-time validation; no locks/dispatch performed",
+          "requests_per_minute": 120,
+          "reserved": 89578,
+          "retained_GATE_BUSY_due": 105,
+          "retained_GATE_BUSY_new_deferral_age_seconds": [
+            525.1477129459381,
+            1855.147712945938,
+            882.1477129459381,
+            821.1477129459381,
+            1566.147712945938,
+            721.1477129459381,
+            1749.147712945938,
+            819.1477129459381,
+            721.1477129459381,
+            195.1477129459381,
+            88.14771294593811,
+            1013.1477129459381,
+            194.1477129459381,
+            1592.147712945938,
+            1868.147712945938,
+            618.1477129459381,
+            499.1477129459381,
+            618.1477129459381,
+            337.1477129459381,
+            644.1477129459381
+          ]
+        },
+        "pending_delayed_by_current_retry_not_before": 1,
+        "queue_counts_asof_cohort_snapshot": {
+          "complete": 2144,
+          "failed": 56,
+          "pending": 111,
+          "running": 0,
+          "waiting": 1551
+        },
+        "scheduler_due": 110
+      },
+      "FIRST_CLAIM_TO_COMPLETION_LATENCY": {
+        "all50_handoff_to_completion16": {
+          "max_seconds": 10611,
+          "median_seconds": 2911.0,
+          "min_seconds": 1177,
+          "n": 16,
+          "p90_seconds": 9941
+        },
+        "all50_recorded_start_completed16": {
+          "max_seconds": 9074,
+          "median_seconds": 1573.5,
+          "min_seconds": 3,
+          "n": 16,
+          "p90_seconds": 8846
+        },
+        "current_handoff_to_completion3": {
+          "max_seconds": 3341,
+          "median_seconds": 1748.0,
+          "min_seconds": 1401,
+          "n": 3,
+          "p90_seconds": 3341
+        },
+        "current_supported_starts_completed3": {
+          "max_seconds": 1891,
+          "median_seconds": 7.0,
+          "min_seconds": 7,
+          "n": 3,
+          "p90_seconds": 1891
+        },
+        "interpretation": "Wall-clock intervals include deferral/requeue time, not active RPC or CPU duration. Current completed3 median7s after first claim,max1891s;34/50 remain incomplete. Do not infer attribution from completions."
+      },
+      "HANDOFF_TO_ADMISSION_LATENCY": {
+        "all50": {
+          "max_seconds": 0,
+          "median_seconds": -4.0,
+          "min_seconds": -10,
+          "n": 50,
+          "p90_seconds": -2
+        },
+        "interpretation": "Queue admission occurs before the Core handoff-completion write. Signed offsets median-4seconds, range-10..0; no demonstrated admission delay at this boundary."
+      },
+      "HELIUS_CONTENTION_EFFECT": {
+        "FIFO_effect": "All110 due jobs priority0;98 pre-activation and12 recent. Seven of first8 are older. Gate-busy jobs rejoin at updated_at, but shared finite batch and repeated contention delay new first claims.",
+        "all_fresh_GATE_BUSY_retry_delays_seconds": [
+          5
+        ],
+        "billed_credits_or_actual_dispatches": "UNKNOWN; durable reservations are not billing or immutable dispatch events",
+        "call_path": "drain_batch -> blocked -> gate.current (nonblocking exclusive lock); per-job _process_row -> owned_context; each _rpc -> gate.current then investigation_owner (exclusive lock around read). Contention can skip a batch or defer a job before paid dispatch.",
+        "fresh_GATE_BUSY_distinct_jobs_in161s": 8,
+        "fresh_deferral_attempts_unchanged": true,
+        "highest_investigation_credits": 7936,
+        "inflight_snapshot": 0,
+        "observed_new_completions_in161s": 0,
+        "observed_new_first_claims_in161s": 0,
+        "processing_since_activation": "22 completed queue records, including older jobs; current cohort3completed. Snapshot idle inflight capacity does not prove every dispatch would have been eligible.",
+        "proven_vs_unknown": "Fresh typed deferrals prove current contention and retry delay. Existing exclusive locks during validation are source-verified. Exact competing PID and lock-hold durations are NOT_OBSERVABLE_READ_ONLY from retained evidence; no stacks, probes or locks acquired. No lifetime-ceiling exhaustion demonstrated.",
+        "reserved_credit_delta_in161s": 73,
+        "retained_GATE_BUSY_pending": 105,
+        "retained_REQUEST_COOLDOWN_pending": 1,
+        "scheduler": {
+          "batch": 8,
+          "effective_cycle_period": "At least45s plus serial job and maintenance duration; exact cycle timing unavailable with success trace disabled.",
+          "gate_busy_retry_not_before_seconds": 5,
+          "other_Helius_deferral_delay_seconds": 300,
+          "per_batch_local_RPC_budget": 80,
+          "sleep_after_cycle_seconds": 45
+        }
+      },
+      "HISTORICAL_CREATE_WAITING_BACKLOG": {
+        "conflicting_ledger": 0,
+        "cursor_advanced_during161s": true,
+        "historical_before_activation": 1551,
+        "lookup_states": {
+          "MISSING_CREATE_EVIDENCE": 1273,
+          "UNQUALIFIED_ANCHOR": 278
+        },
+        "no_stored_signature": 1273,
+        "qualified_OPS_anchor_now": 0,
+        "recent_since_activation": 0,
+        "stored_candidate_only": 278,
+        "total": 1551,
+        "trend": "1551 unchanged from restoration and throughout comparable audit reads; no recent-since-activation WAITING rows.278 stored signatures remain candidates, not qualified OPS CREATE evidence."
+      },
+      "MIGRATION_JOURNAL_LIFECYCLE": {
+        "bounded_sustainability": "Current quotas have headroom; owners are finite8192 records/64000000bytes each, not unlimited long-term capacity. Terminal unique-record growth still requires observation.",
+        "cohort_snapshot_classification": {
+          "deferred_custody_eligible_not_completed": 475,
+          "dispatch_reserved": 1,
+          "errors": {
+            "DISPATCH_RESERVED": 1,
+            "HELIUS_BUDGET_DEFERRED": 475
+          },
+          "free": 36,
+          "independently_completion_reclaimable": 0,
+          "occupied": 476,
+          "retry_due_now": 388,
+          "states": {
+            "PENDING": 475,
+            "RESOLVED": 1
+          },
+          "terminal_custody_eligible_protected_not_deletable": 0
+        },
+        "current": {
+          "free": 27,
+          "occupied": 485,
+          "states": {
+            "PENDING": 484,
+            "RESOLVED": 1
+          }
+        },
+        "custody": {
+          "birth_terminal": {
+            "max_bytes": 64000000,
+            "max_records": 8192,
+            "used_bytes": 1156637,
+            "used_records": 852
+          },
+          "migration_deferred": {
+            "max_bytes": 64000000,
+            "max_records": 8192,
+            "used_bytes": 2081014,
+            "used_records": 793
+          },
+          "migration_terminal": {
+            "max_bytes": 64000000,
+            "max_records": 8192,
+            "used_bytes": 2064511,
+            "used_records": 1845
+          }
+        },
+        "deferred_due_owned": 624,
+        "deferred_states": {
+          "ACTIVE": 61,
+          "OWNED": 732
+        },
+        "full_occupancy_frequency": "No512 snapshot in this bounded audit. Exact transition frequency UNKNOWN.",
+        "observed_turnover": {
+          "end_occupied": 476,
+          "entered_active_identities": 6,
+          "limitations": "Endpoint lower bounds: notifications admitted and reclaimed entirely between reads are absent; not a total event counter.",
+          "newly_received_among_end_retained_entries": 0,
+          "observed_identity_removals": 12,
+          "older_received_entering_active": 6,
+          "start_occupied": 482,
+          "verified_removal_dispositions": {
+            "verified_deferred_custody_origin_preserved_after_progress": 10,
+            "verified_deferred_transfer_exact": 2
+          }
+        },
+        "policy": "Admission at492 triggers one bounded max20 reserve pass: verified completed ACK reclamation, then protected terminal transfer, then eligible pending/resolved deferred custody. DISPATCH_RESERVED is excluded.",
+        "reserve_execution_evidence": "12 baseline identities left active journal and were independently verified in deferred custody:2 exact OWNED payloads,10 original identity preserved after legitimate revision/progress. Six older-received identities entered active journal, consistent with due reactivation; no event-total claim."
+      },
+      "NEXT_ACTION": "Keep production unchanged. Smallest justified separately authorized DEV task: qualify contention-tolerant pre-dispatch READY-state/ownership validation, preserving fail-closed publication and serialized reservation/accounting authority. Do not increase quotas/budgets, replay backlog or tune scheduling until that narrow contention path is qualified. No journal-capacity redesign is justified by this audit.",
+      "PRIMARY_DEMONSTRATED_BLOCKERS": [
+        "Current repeated pre-dispatch Helius gate contention plus older due-job competition through serial eight-job cycles; current first-claim latency remains material and exceeds earlier15\u201321min observation.",
+        "Historical1551 waiting jobs lack qualified CREATE authority; this is a separate evidence backlog, not proof that recent migrations are waiting for CREATE.",
+        "Journal occupancy is high but admission turnover is verified; finite terminal/deferred growth remains an operational bound, not a demonstrated current admission failure."
+      ]
+    },
+    "tests": "Read-only indexed canonical/OPS/CREATE/receipt evidence joins; bounded endpoint reconciliation. No new tests or runtime changes."
+  },
   "flex_v2_last_six_hour_operational_audit": {
     "births": {
       "committed_receipt_core_matches": 1089,
@@ -41164,7 +41479,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-28T22:58:44.887327+00:00",
+  "latest_at_utc": "2026-10-28T23:17:55.190742+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -50583,7 +50898,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Use this post-retirement tag and embedded manifest for V1-independent recovery. Retain the manifest-listed current external state and private credentials/configuration. Keep workers/lifecycle running; observe narrow birth headroom without replay, promotion or further deletion.",
+  "next_action": "Keep production unchanged. Smallest justified separately authorized DEV task: qualify contention-tolerant pre-dispatch READY-state/ownership validation, preserving fail-closed publication and serialized reservation/accounting authority. Do not increase quotas/budgets, replay backlog or tune scheduling until that narrow contention path is qualified. No journal-capacity redesign is justified by this audit.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -52772,8 +53087,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T22:58:44.887327+00:00",
-    "working_tree": "Clean installed successor561026bd reused exactly; all2089activePythonfilesmatch,3315manifestfilesGitblobverified. Annotatedpost-retirementtag8452e3a2 pushed/fetched; embeddedmanifest2466555c byteverified. OriginalGoldenunchanged. All3PIDscontinuous,OPENREADY6uncertain100000limit; lifecycleactive; birth4free,migration34free. No production changes."
+    "updated_at_utc": "2026-10-28T23:17:55.190742+00:00",
+    "working_tree": "Read-only journal/Walkbackauditcomplete; source561026bd checkpointunchanged. Currentturnoververified8birthACKreclaimed/12migrationdeferredcustody over161s,noobservedcapacityrefusal. 50caseboundedcurrent-daycohort16complete34pending;15currentactivation,10firstclaimsmedian27.1m,p9028.9m,max29.1m,5censored. 8freshgatebusydeferralsattemptsunchanged5sdelay. Historicalwaiting1551stable,278unqualifiedstoredanchors,0qualifiedwaiting. All3PIDsstable,OPENREADY6uncertain100000cap. No production/provider/gatelock changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -54175,7 +54490,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_POST_RETIREMENT_CHECKPOINT_PASS",
+  "status": "PARTIAL_OBSERVABILITY_JOURNAL_TURNOVER_VERIFIED_CURRENT_WALKBACK_DELAY_CONFIRMED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -55754,7 +56069,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS",
+  "verdict": "PARTIAL_OBSERVABILITY_CURRENT_CONTENTION_CONFIRMED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

@@ -13,6 +13,9 @@ def activate():
  signal.signal(signal.SIGXFSZ,signal.SIG_IGN);resource.setrlimit(resource.RLIMIT_FSIZE,(limit,limit))
  from src.core.paired_binding_guard import validate_pair
  generation=validate_pair(purpose='active');assert generation is not None
+ # Retirement opt-in must not leave inherited aliases pointing at V1.
+ if os.environ.get('FLEX_DB_PREDECESSOR_RETIREMENT_MANIFEST'):
+  os.environ.update(FLEX_DB_PATH=os.environ['DB_PATH'],OPS_V2_DB_PATH=os.environ['WT_OPS_DB_PATH'])
  if validate_pair(write_path=os.environ['CREATOR_DB_PATH'],purpose='write')!=generation:raise RuntimeError('V2_AUXILIARY_GENERATION_MISMATCH')
  return {'generation':generation,'kernel_single_file_limit':resource.getrlimit(resource.RLIMIT_FSIZE),'core':os.environ['DB_PATH'],'ops':os.environ['WT_OPS_DB_PATH'],'creator_repository':os.environ['CREATOR_DB_PATH']}
 def main():

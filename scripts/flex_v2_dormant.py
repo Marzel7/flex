@@ -38,7 +38,7 @@ def configure(manifest_path,digest,component,*,qualify=False):
  if not package.is_dir() or not (package/'src').is_dir():raise ConfigurationError('PACKAGE_MISSING')
  env=m['environment']
  if not isinstance(env,dict) or any(not isinstance(k,str) or not isinstance(v,str) for k,v in env.items()):raise ConfigurationError('ENVIRONMENT_SCHEMA')
- allowed=set(REQUIRED)|{'DEV004_PAIRED_BINDING_REQUIRED','FLEX_DB_PAIR_ROLE','CREATOR_DB_PATH','FLEX_DB_AUXILIARY_MANIFEST','FLEX_DB_AUXILIARY_SHA256','DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED','DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED','BIRTH_JOURNAL_PATH','MIGRATION_JOURNAL_PATH','SQLITE_LIFECYCLE_LOG','DB_CONNECTION_LIFECYCLE_LOG','DB_WRITE_DIAGNOSTICS_PATH','WS_SNAPSHOT_LOG_PATH','WS_PRICE_TRACE_LOG_PATH','LAUNCH_PRICE_LOG_PATH','MONITOR_BRIDGE_HEALTH_PATH','MONITOR_BRIDGE_CADENCE_SECONDS','OPERATION_MONITOR_IDLE_SECONDS','OPERATION_MONITOR_FAIR_SCHEDULER','MONITOR_CLAIM_AUTHORITY_DB_PATH'}
+ allowed=set(REQUIRED)|{'FLEX_DB_PREDECESSOR_RETIREMENT_MANIFEST','FLEX_DB_PREDECESSOR_RETIREMENT_SHA256','DEV004_PAIRED_BINDING_REQUIRED','FLEX_DB_PAIR_ROLE','CREATOR_DB_PATH','FLEX_DB_AUXILIARY_MANIFEST','FLEX_DB_AUXILIARY_SHA256','DEV004_MIGRATION_TERMINAL_EVIDENCE_ENABLED','DEV004_SIGNATURE_FIRST_JOURNAL_ENABLED','BIRTH_JOURNAL_PATH','MIGRATION_JOURNAL_PATH','SQLITE_LIFECYCLE_LOG','DB_CONNECTION_LIFECYCLE_LOG','DB_WRITE_DIAGNOSTICS_PATH','WS_SNAPSHOT_LOG_PATH','WS_PRICE_TRACE_LOG_PATH','LAUNCH_PRICE_LOG_PATH','MONITOR_BRIDGE_HEALTH_PATH','MONITOR_BRIDGE_CADENCE_SECONDS','OPERATION_MONITOR_IDLE_SECONDS','OPERATION_MONITOR_FAIR_SCHEDULER','MONITOR_CLAIM_AUTHORITY_DB_PATH'}
  if set(env)-allowed:raise ConfigurationError('UNQUALIFIED_ENVIRONMENT_KEY')
  for key in REQUIRED:physical(env.get(key))
  if env.get('DEV004_PAIRED_BINDING_REQUIRED')!='1' or env.get('FLEX_DB_PAIR_ROLE')!='runtime':raise ConfigurationError('EXPLICIT_PAIR_REQUIRED')
@@ -105,6 +105,8 @@ def configure(manifest_path,digest,component,*,qualify=False):
  from src.core.paired_binding_guard import validate_pair
  generation=validate_pair(purpose='active')
  if generation!=m['generation']:raise ConfigurationError('GENERATION_MISMATCH')
+ if env.get('FLEX_DB_PREDECESSOR_RETIREMENT_MANIFEST'):
+  os.environ.update(FLEX_DB_PATH=env['DB_PATH'],OPS_V2_DB_PATH=env['WT_OPS_DB_PATH'])
  for bound in [env['DB_PATH'],env['WT_OPS_DB_PATH']]:validate_pair(write_path=bound,purpose='write')
  from src.ops.dev_provider_budget import DevProviderBudget
  DevProviderBudget(queue)._read()  # Validate retained allowance; never initialize/reset/debit.

@@ -20545,6 +20545,61 @@
     "status": "COMPLETE_WITH_BOUNDED_COHORT_LIMITATION",
     "timing": "Priority numeric value is stored at enqueue and may be elevated before claim. The high/GENERIC tier and corresponding 5,000-page or one-page budget are resolved dynamically after claim, immediately before RPC execution."
   },
+  "flex_v2_current_helius_activity_check": {
+    "blocker": "Persistent PENDING_V1 marker over20seconds; no coherent publication; gate counters unchanged. Current disk5.58GB above floor, so cause not established by this bounded status check.",
+    "next_action": "Read-only attribution of the renewed publication failure against retained evidence; do not reset marker or issue another probe.",
+    "observed": {
+      "after": {
+        "at": "2026-10-28T12:50:22.313774+00:00",
+        "credits": 73920,
+        "free_bytes": 5580587008,
+        "inflight": 0,
+        "limit": 100000,
+        "marker_prefix": "PENDING_V1\n",
+        "outcomes": 74070,
+        "rpc_reservations": 73920,
+        "valid_publication": false
+      },
+      "before": {
+        "at": "2026-10-28T12:50:02.105126+00:00",
+        "credits": 73920,
+        "free_bytes": 5582368768,
+        "inflight": 0,
+        "limit": 100000,
+        "marker_prefix": "PENDING_V1\n",
+        "outcomes": 74070,
+        "rpc_reservations": 73920,
+        "valid_publication": false
+      },
+      "new_completed_gate_outcomes": 0,
+      "new_reserved_credits": 0,
+      "new_rpc_reservations": 0,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 99531,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 99556,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 99484,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "production_flags": {
+      "budget_limit": 100000,
+      "changes": 0,
+      "provider_calls": 0,
+      "replay_reset": 0,
+      "restarts": 0
+    },
+    "status": "HOLD_GATE_PUBLICATION_AMBIGUOUS",
+    "updated_utc": "2026-10-28T12:50:49.500197+00:00",
+    "verdict": "Workers RUNNING but no Helius RPC activity observed"
+  },
   "flex_v2_curve_first_create_recovery": {
     "candidate": "18284f5c56a2448c12751702f242ad6c35670431; isolated worktree /Users/kevinkeaveney/.codex/worktrees/curve-first-create/flex; clean checkout /private/tmp/flex-curve-restoration-18284f5c.",
     "canonical_writes": 0,
@@ -25967,6 +26022,7 @@
       "minimum_sampled_free_bytes": 3347091456,
       "single_file_cap_bytes": 499000000
     },
+    "subsequent_runtime_status": "12:50UTC renewed PENDING_V1; current activity check supersedes prior operational PASS, which remains a historical acceptance result.",
     "tests": "Reuse73 qualified controls; existing accepted recovery verifier and durable probe finalizer. Exactly one new explicitly authorized probe; no synthetic events or exhausted replay.",
     "updated_utc": "2026-10-28T12:34:26.013414+00:00",
     "verdict": "PASS",

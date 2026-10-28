@@ -20596,6 +20596,7 @@
       "replay_reset": 0,
       "restarts": 0
     },
+    "qualification_update": "Prospective correction qualified at5e4e5942; current legacy publication remains unchanged. No production recovery/deployment authorized or executed in this DEV task.",
     "status": "HOLD_GATE_PUBLICATION_AMBIGUOUS",
     "updated_utc": "2026-10-28T12:50:49.500197+00:00",
     "verdict": "Workers RUNNING but no Helius RPC activity observed"
@@ -22937,6 +22938,123 @@
       "listener": 24,
       "walkback": 669
     }
+  },
+  "flex_v2_helius_publication_qualification": {
+    "bundle_sha256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
+    "candidate_sha": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "demonstrated_root_cause": {
+      "alternatives_not_proven_or_excluded": "A post-replace directory-fsync/final-marker failure can also leave an absent stage plus PENDING under the legacy protocol. No publisher-specific errno/phase receipt exists to distinguish it historically.",
+      "counterexample": "Real original623b81d V2 owner, verified policy, OPEN state and a normal Walkback reservation: disk refusal leaves old ledger unchanged, zero new durable charge, PENDING_V1 and no.stage. Corrected owner preserves READY and refuses dispatch.",
+      "demonstrated_defect": "Installed save() durably writes PENDING_V1 before disk preflight and staged-file preparation. A normal DISK_FLOOR refusal poisons previously valid READY authority while leaving the ledger byte-identical and no stage file. No process crash, RPC or failed rename is necessary.",
+      "latest_live_instance": "Evidence limited: the current terminal phase and attempting worker cannot be proven. Retained disk-floor/headroom refusals co-occur in the bounded post-restoration log span; that is not proof of the exact failing gate syscall."
+    },
+    "engineering_revision": "2af233529f1917dac981d29da9b0e12d9243b61b",
+    "last_publication_owner": {
+      "exact_missing_evidence": "Legacy pending marker contains no PID, operation, target digest or final publication receipt; original publisher phase/error was not retained.",
+      "interpretation": "Retained body records Walkback99556/getTransaction/HTTP_COMPLETED at12:42:56UTC. This does not prove successful final publication, the next attempted publisher or its operation.",
+      "last_attempted_publisher": "UNVERIFIED",
+      "last_retained_request_record": {
+        "at": 1793191376,
+        "pid": 99556,
+        "role": "walkback",
+        "selector": "rpc:getTransaction",
+        "status": "HTTP_COMPLETED"
+      },
+      "worker_termination": "Current worker start identities predate the observed failure and PIDs remain unchanged; no worker-process termination established. Thread failure cannot be attributed."
+    },
+    "live_ledger_authority": {
+      "body_accounting_validation": "Accepted immutable baseline comparison and charge-balance checks PASS. Permission remains fail-closed.",
+      "current_body_sha256": "e818c82c7c1b5fdd2891f08feb6f8182876636e9db941a6452d818e42c99ae01",
+      "current_marker": "PENDING_V1",
+      "inflight_in_retained_body": 0,
+      "production_gate_byte_unchanged": true,
+      "protected_review_held_requests": 5,
+      "ready_checksum_authority": "ABSENT; embedded OPEN is not permission",
+      "reserved_credits": 73920,
+      "stage_present": false
+    },
+    "minimum_correction": {
+      "diagnostics": "Prospective intent identifies PID and whitelisted mutation operation; no credentials, endpoint URLs or payloads recorded.",
+      "known_denials": "New payment/auth/rate/outage restrictions publish fail-closed intent before optional full-state preparation. Disk failure cannot silently leave old OPEN authority usable.",
+      "normal_publish_order": [
+        "Validate/serialize target and prior authority",
+        "Storage check",
+        "Create/write/fsync existing stage file",
+        "Publish target-digest/PID/operation intent",
+        "Atomic replace and directory fsync",
+        "Publish READY checksum"
+      ],
+      "read_only_contract": "Gate.read remains strictly non-mutating even under a lock. LegacyPENDING_V1, uncommitted stages, target mismatches and corrupt or unsupported states are not inferred or cleared.",
+      "recovery": "Only writer boundaries holding the actual same-path/current-PID thread-owned flock may finalize prospective completed targets. Validate exact hash, generation/schema/limits, absent stage and file/directory durability. Fresh-pair renderer also requires equality with its independent frozen receipt.",
+      "source_files": "Three identical existing gate-owner copies plus the existing recovery renderer; no other runtime implementation changed.",
+      "unresolved_reservations": "No auto-release, retry reset or replay. A committed reservation whose call never returned stays charged/in-flight until accepted reconciliation."
+    },
+    "next_action": "Read-only deployment preflight for this exact four-file multi-role bundle and candidate-aware recovery. Keep the current legacy gate closed; no deployment or probe under this qualification.",
+    "production_blocker": "Current legacy PENDING_V1 is unchanged and remains fail-closed. Exact historical attempting publisher/operation/syscall not retained.",
+    "production_flags": {
+      "budget_changes": 0,
+      "exhausted_replay": 0,
+      "gate_reset": 0,
+      "historical_deletion": 0,
+      "provider_calls_probes": 0,
+      "service_restarts": 0,
+      "source_configuration_changes": 0,
+      "v1_database_content_access": 0,
+      "writes": 0
+    },
+    "ready_for_deployment_preflight": true,
+    "report_sha256": "f20b7c8b352d1a3473d00a880109a7f67a8123be3f8eb15b586b6e9b88a1a6e5",
+    "runtime_compatibility": {
+      "active_generation": "DEV004-V2-20261024-dfb76562",
+      "all_three_gate_bindings_same_accepted_authority": true,
+      "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+      "installed_preimages_verified": true,
+      "new_protocol_unaware_fallback": "Rejected by candidate hash pins; no downgrade across an uncertain intent.",
+      "renderer": "Three gate pins plus proven-target/independent-receipt finalization branch only. Existing generation, flags, journal paths, source-only fallback, terminal/deferred and CREATE contracts retained.",
+      "runtime_plan_sha256": "847559417191e375ffac67459f95ea1d67bebcb49390bfe544a8673967c2108a",
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 99531,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 99556,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 99484,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "status": "PASS_DEV_QUALIFIED_LIVE_ATTRIBUTION_LIMITED",
+    "storage": {
+      "floor_enforced_cooperatively": 2067108864,
+      "free_bytes": 4040142848,
+      "ledger_bytes_max": 16777216,
+      "marker_bytes_max": 128,
+      "no_archive_or_new_storage_owner": true,
+      "single_file_runtime_kernel_cap": 499000000,
+      "stage_bytes_max": 16777216,
+      "working_file_allocation_max_excluding_fs_metadata": 33554560
+    },
+    "tests": {
+      "deselected_reason": "Accepted2000-independent-origin aggregate-usage control reused from baseline; no credit-policy change.",
+      "deselected_unaffected": 1,
+      "failed_final": 0,
+      "final_command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -o addopts='' tests/test_v2_helius_publication_recurrence.py tests/test_v2_helius_investigation_budget.py tests/test_v2_helius_clock_recovery.py tests/test_v2_helius_recovery_config.py -k 'not two_thousand_independent_origins'",
+      "fixture_repairs": "Materialized missing sparse fixtures, supplied required predecessor authority, and matched dynamically loaded exception type. No safety assertion relaxed.",
+      "network": "Socket connect/create_connection blocked; simulated local reservations/completions only. No provider request or probe.",
+      "passed": 132,
+      "suites": [
+        "recurring publication exact counterexample, fault, OS lock and restart controls",
+        "accepted investigation accounting and100000limit controls",
+        "accepted clock recovery",
+        "accepted recovery renderer and fresh matched pair"
+      ]
+    },
+    "updated_utc": "2026-10-28T13:43:30.832372+00:00",
+    "verdict": "QUALIFIED_NOT_DEPLOYED"
   },
   "flex_v2_helius_recovery_compatibility": {
     "detailed_evidence": "Private local frozen bundle, runtime plan, protected configuration preimage and report; no credentials published.",
@@ -46867,7 +46985,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "70783774bce38e4fd021135b57223951427025dd",
+    "git_head": "2af233529f1917dac981d29da9b0e12d9243b61b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

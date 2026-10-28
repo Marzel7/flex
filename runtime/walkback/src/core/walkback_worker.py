@@ -1820,12 +1820,12 @@ def promote_recurring_funders(ops: sqlite3.Connection) -> int:
             try:
                 program_owned = _is_program_owned(fw, rpc_dummy)
             except BudgetDeferred as exc:
-                if str(exc) != "HELIUS_INVESTIGATION_REQUIRED":
+                if str(exc) not in ("HELIUS_INVESTIGATION_REQUIRED", "HELIUS_GATE_BUSY"):
                     raise
                 # Optional post-batch work has no right to invent or borrow
                 # an owner. Retain the candidate and defer only this check.
                 print(f"[WALKBACK] recurring funder {fw[:14]}… ownership check deferred: "
-                      "HELIUS_INVESTIGATION_REQUIRED", flush=True)
+                      f"{exc}", flush=True)
                 continue
             if program_owned:
                 print(f"[WALKBACK] recurring funder {fw[:14]}… is program-owned — skipped",

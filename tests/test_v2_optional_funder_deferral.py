@@ -74,7 +74,7 @@ def test_program_owned_response_never_promotes(case):
  with e.h.resume_investigation(e.h._hash('mint:root')):assert e.ns['promote_recurring_funders'](e.ops)==0
  assert len(e.wire)==1 and e.ops.execute('select count(*) from wt_discovered_subprovs').fetchone()[0]==0
 
-@pytest.mark.parametrize('code',['HELIUS_GATE_BUSY','HELIUS_INVESTIGATION_CREDIT_LIMIT','HELIUS_REQUEST_COOLDOWN'])
+@pytest.mark.parametrize('code',['HELIUS_INVESTIGATION_CREDIT_LIMIT','HELIUS_REQUEST_COOLDOWN'])
 def test_other_typed_deferrals_propagate_unchanged(case,code):
  e=case;e.seed('candidate');error=e.m.BudgetDeferred(code)
  def fail(*_):raise error
@@ -97,14 +97,11 @@ def test_repeated_restart_keeps_unowned_evidence_and_history(case,monkeypatch):
  assert budgets(e)==before and queue(e)==evidence and not e.wire
 
 def test_unchanged_row_attribution_and_gate_owners():
- # Only the optional candidate error boundary may differ from engineering base.
  import subprocess
- before=ast.parse(subprocess.check_output(['git','show','7cda51e3809c74d149f599870c01dbf276a18e64:runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT,text=True));after=ast.parse(WORKER.read_text())
- b={n.name:ast.dump(n) for n in before.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))};a={n.name:ast.dump(n) for n in after.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
- assert {k for k in b if b[k]!=a[k]}=={'promote_recurring_funders','_rpc','_process_row','run_loop'}
- accepted=ast.parse(subprocess.check_output(['git','show','53a7d8ad:runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT,text=True))
- original=next(n for n in accepted.body if isinstance(n,ast.FunctionDef) and n.name=='promote_recurring_funders')
- assert ast.dump(original)==a['promote_recurring_funders']
+ before=ast.parse(subprocess.check_output(['git','show','b203c114887034dc77e2ee2be10d08985c6871ac:runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT,text=True));after=ast.parse(WORKER.read_text())
+ b={n.name:ast.dump(n) for n in before.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))};a={n.name:ast.dump(n) for n in after.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}
+ assert set(b)==set(a)
+ assert {k for k in b if b[k]!=a[k]}=={'promote_recurring_funders'}
 
 @pytest.mark.parametrize('guard',['static_blocklist','known_infrastructure','confirmed_treasury'])
 def test_existing_exclusions_unchanged(case,guard):

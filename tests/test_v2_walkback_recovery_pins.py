@@ -7,15 +7,15 @@ from tests.test_v2_pending_recovery import prepare
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RENDERER=ROOT/'docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py'
 OLD='0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7'
-NEW='7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501'
+NEW='75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414'
 BASE='c4ae598c7db29147a17b43f95cc59fc8eb5304d3'
 
 def test_only_required_renderer_pin_changes():
- before=ast.parse(subprocess.check_output(['git','show','53a7d8ad:'+str(RENDERER.relative_to(ROOT))],cwd=ROOT,text=True));after=ast.parse(RENDERER.read_text())
+ before=ast.parse(subprocess.check_output(['git','show','b203c114:'+str(RENDERER.relative_to(ROOT))],cwd=ROOT,text=True));after=ast.parse(RENDERER.read_text())
  def pins_node(tree):return next(n for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='HELIUS_GATE_PAYLOAD' for t in n.targets))
  b=pins_node(before);a=pins_node(after);old=ast.literal_eval(b.value);new=ast.literal_eval(a.value)
  assert old['listener']==new['listener'] and old['creator_resolution']==new['creator_resolution']
- for relative in ['src/core/walkback_worker.py','src/ops/anchor_reconciliation.py']:
+ for relative in ['src/core/walkback_worker.py']:
   old['walkback'][relative]=hashlib.sha256((ROOT/'runtime/walkback'/relative).read_bytes()).hexdigest()
  assert old==new
  b.value=a.value
@@ -31,7 +31,7 @@ def test_candidate_profile_restarts_and_readbacks(case):
 @pytest.mark.parametrize('defect',['old_walkback','gate_unaware','mixed_gate','mixed_listener'])
 def test_new_profile_rejects_stale_and_mixed_sources(case,defect):
  e=case;wb=pathlib.Path(e.plan['roles']['walkback']['package'])/'src/core';before=e.live.read_bytes()
- if defect=='old_walkback':(wb/'walkback_worker.py').write_bytes(subprocess.check_output(['git','show',BASE+':runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT))
+ if defect=='old_walkback':(wb/'walkback_worker.py').write_bytes(subprocess.check_output(['git','show','b203c114:runtime/walkback/src/core/walkback_worker.py'],cwd=ROOT))
  elif defect=='gate_unaware':(wb/'walkback_worker.py').write_bytes(b'# old unguarded source')
  elif defect=='mixed_gate':(wb/'helius_denial_gate.py').write_bytes(b'# wrong gate')
  else:(e.package/'src/core/pumpfun_curve_listener.py').write_bytes(b'# stale listener')

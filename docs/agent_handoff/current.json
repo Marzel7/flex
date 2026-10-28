@@ -28228,6 +28228,136 @@
     "updated_utc": "2026-10-28T11:16:24.667204+00:00",
     "walkback": "Seven new completions: five LINEAGE_GAP, two NO_ATTRIBUTION_FOUND. Zero-completion premise superseded. Current-minute health oscillates."
   },
+  "flex_v2_post_retirement_golden_checkpoint": {
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Use this post-retirement tag and embedded manifest for V1-independent recovery. Retain the manifest-listed current external state and private credentials/configuration. Keep workers/lifecycle running; observe narrow birth headroom without replay, promotion or further deletion.",
+    "production_flags": {
+      "Golden": "unchanged",
+      "V1": "absent,notrestored",
+      "gate": "OPENREADY6uncertain100000cap",
+      "lifecycle": "single15minute schedule",
+      "production_changes": false,
+      "workers": "same3RUNNING"
+    },
+    "report": {
+      "ANNOTATED_TAG_OBJECT": "8452e3a2aadcbca14c0edd0207908f6a5504593c",
+      "FLEX_V2_POST_RETIREMENT_CHECKPOINT_STATUS": "PASS",
+      "FROZEN_MANIFEST_SHA": "2466555c630cfa51572eb8d78e30da62bb925c1c9b1ad5c8ad7ba4724a3857ff",
+      "IMMUTABLE_SOURCE_COMMIT": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+      "MANIFEST_DURABILITY": "Complete canonical JSON is embedded byte-for-byte between BEGIN_FROZEN_MANIFEST and END_FROZEN_MANIFEST in the annotated remote tag; no historical local artifact/worktree is needed to retrieve it.",
+      "MANIFEST_PATH": "/private/tmp/flex-v2-post-retirement-checkpoint/FROZEN_POST_RETIREMENT_MANIFEST.json",
+      "NEXT_ACTION": "Use this post-retirement tag and embedded manifest for V1-independent recovery. Retain the manifest-listed current external state and private credentials/configuration. Keep workers/lifecycle running; observe narrow birth headroom without replay, promotion or further deletion.",
+      "ORIGINAL_GOLDEN": {
+        "commit": "8322e2c98a5a096863c253d33f79bff161fde629",
+        "tag": "flex-v2-golden-2026-10-28",
+        "unchanged": true
+      },
+      "POST_RETIREMENT_TAG": "flex-v2-post-v1-retirement-2026-10-28",
+      "REMAINING_LIMITATIONS": [
+        "Finite512-record journals and8192-record custody quotas; birth headroom remains narrow and variable",
+        "Historical1551 CREATE-waiting backlog and15\u201321minute first-claim latency remain explicit operational limitations",
+        "Two blocked CREATE deliveries retained as previously qualified limitation; no replay or promotion",
+        "Historical at-handoff CREATE commit timing remains unknown where durable evidence does not prove it",
+        "Browser-visible API/UI acceptance remains unverified; dormant roles remain stopped",
+        "Optional compact audit HANDOFF_IDENTITY warnings on fast-registration None signature remain separately diagnosed, without blocked canonical handoffs",
+        "No new source correction or automatic recovery/replay authorized by this checkpoint"
+      ],
+      "REMOTE_VERIFICATION": {
+        "commit": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+        "fetched_annotation_byte_verified": true,
+        "manifest_sha256": "2466555c630cfa51572eb8d78e30da62bb925c1c9b1ad5c8ad7ba4724a3857ff",
+        "original_Golden_unchanged": true,
+        "tag": "flex-v2-post-v1-retirement-2026-10-28",
+        "tag_object": "8452e3a2aadcbca14c0edd0207908f6a5504593c"
+      },
+      "RUNTIME_CONTINUITY": {
+        "birth_journal": {
+          "free": 4,
+          "occupied": 508,
+          "states": {
+            "ACKED": 1,
+            "QUARANTINED": 507
+          }
+        },
+        "free_bytes": 53413003264,
+        "helius": {
+          "inflight": 0,
+          "limit": 100000,
+          "publication": "READY_CHECKSUM_VALID",
+          "reserved_estimate": 89216,
+          "state": "OPEN",
+          "uncertain": 6
+        },
+        "lifecycle": {
+          "every_15_minutes": true,
+          "schedule_count": 1,
+          "successor_source_and_certificate_verified": true
+        },
+        "migration_journal": {
+          "free": 34,
+          "occupied": 478,
+          "states": {
+            "PENDING": 477,
+            "RESOLVED": 1
+          }
+        },
+        "production_changes": false,
+        "provider_calls_or_gate_locks": false,
+        "workers": {
+          "creator_resolution": {
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "pid": 77785,
+            "retirement_bindings_verified": true,
+            "source_matches": true
+          },
+          "listener": {
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "pid": 77731,
+            "retirement_bindings_verified": true,
+            "source_matches": true
+          },
+          "walkback": {
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "pid": 77830,
+            "retirement_bindings_verified": true,
+            "source_matches": true
+          }
+        }
+      },
+      "SOURCE_COMPOSITION": {
+        "installed_active_python_files_matched": 2089,
+        "manifest_source_files_verified_against_Git_blobs": 3315,
+        "new_application_commit_required": false,
+        "source_worktree_clean": true
+      },
+      "V1_INDEPENDENT_RECOVERY": {
+        "Git_metadata": "Current installed immutable checkout is linked to primary repo .git. Preserve that metadata or reconstruct this exact commit as a self-contained checkout at the manifest stable path; no historical DEV checkout needed.",
+        "both_original_V1_DBs_absent": true,
+        "certificate_inline_in_remote_manifest": true,
+        "compact_provider_free_controls": 47,
+        "entrypoint": {
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source/scripts/flex_v2_fresh_pair_recovery.py",
+          "sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5"
+        },
+        "external_state": "Latest current V2 data, durable provider ledger/publication, original .retired markers, pair seals/authority, certificate, receipts/journals and private configuration/credentials remain required. Do not use frozen observation counters to reset current spending.",
+        "historical_DEV_worktree_not_required": true,
+        "legacy_recovery": "Unregistered /private/tmp/dev004_fresh_pair_recovery.py remains prohibited; use only frozen successor entrypoint.",
+        "original_V1_databases_not_required": true,
+        "preserves_six_uncertain_spending_100000limit_terminal_deferred_journals_and_Walkback_pending": true,
+        "renderer": {
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+          "sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb"
+        },
+        "retirement_certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+        "reused_unchanged_qualified_source": true,
+        "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source"
+      }
+    },
+    "report_path": "/private/tmp/flex-v2-post-retirement-checkpoint/CHECKPOINT_REPORT.json",
+    "report_sha256": "e4b8504c197d8c300e454414712b5d47a6086647224732baf520c1bafaa330cd",
+    "status": "PASS",
+    "tests": "Reuse47 passing provider-free retirement/recovery controls; exact source hashes unchanged, current V2-only authority checks PASS"
+  },
   "flex_v2_prospective_admission_authority_qualification_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Existingtimestampsdonotuniversallyretainoriginaladmissionthroughsupportedrecreation/legacyfill.Requirement11HOLD;no mutabletimestamp substitution.",
@@ -41034,7 +41164,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-28T22:44:02.917787+00:00",
+  "latest_at_utc": "2026-10-28T22:58:44.887327+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -50453,7 +50583,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave all three workers and lifecycle running. V1 database retirement complete. Retain all V1 sidecars, .retired markers, certificate, source/Git metadata, paired V2 state, spending and recovery evidence; no further deletion authorized. Continue existing operational observation of narrow birth headroom.",
+  "next_action": "Use this post-retirement tag and embedded manifest for V1-independent recovery. Retain the manifest-listed current external state and private credentials/configuration. Keep workers/lifecycle running; observe narrow birth headroom without replay, promotion or further deletion.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -52638,12 +52768,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-orphan-stage-recovery",
-    "git_head": "64823aca9ae87324da7501f9894e3f67ff21e74a",
+    "branch": "detached immutable post-retirement checkpoint",
+    "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T22:44:02.917787+00:00",
-    "working_tree": "V1RETIREMENTPASS:exacttwoDBfiles unlinked only afterallgates; V1contentneveropened. Bothabsent,V2authorityverifiedaftereach. 309sacceptance,unchanged3PIDs,26birthmatches/5migrationadmissions/2canonicalhandoffs/1Walkback lowerbounds. GateOPENREADY6uncertain100000cap; noidentity/publication/capacity/exhaustionerrors. Netfreegain51846950912,currentfree56548159488. Allsidecars/markers/certificate/Goldenpreserved."
+    "updated_at_utc": "2026-10-28T22:58:44.887327+00:00",
+    "working_tree": "Clean installed successor561026bd reused exactly; all2089activePythonfilesmatch,3315manifestfilesGitblobverified. Annotatedpost-retirementtag8452e3a2 pushed/fetched; embeddedmanifest2466555c byteverified. OriginalGoldenunchanged. All3PIDscontinuous,OPENREADY6uncertain100000limit; lifecycleactive; birth4free,migration34free. No production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -54045,7 +54175,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_V1_RETIREMENT_PASS",
+  "status": "FLEX_V2_POST_RETIREMENT_CHECKPOINT_PASS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

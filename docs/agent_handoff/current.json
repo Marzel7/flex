@@ -25522,6 +25522,62 @@
     },
     "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED"
   },
+  "flex_v2_runtime_ownership_capacity_qualification": {
+    "blocker": null,
+    "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "candidate_sha": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+    "deployment_scope": "Two runtime files plus matching recovery renderer. Listener and Walkback reload required only after separate authorization; resolver untouched. No schema or configuration changes.",
+    "engineering_revision": "d77256e87bdd6e883a4ae2c7b58eef31233d552b",
+    "next_action": "Read-only deployment preflight of this exact three-file bundle: immediate installed preimages, paired generation, active claim ownership, gate/accounting, disk/journal/custody limits, candidate-aware recovery and coordinated listener/Walkback reload boundary. Do not deploy.",
+    "production_flags": {
+      "gate_policy_changed": false,
+      "investigation_credit_limit": 100000,
+      "production_changes": false,
+      "provider_calls": 0,
+      "retry_replay_reset": 0,
+      "schema_or_flags_changed": false,
+      "service_restarts": 0,
+      "v1_access": false
+    },
+    "report_sha256": "8227d21ad396c8eec9e26f88b9df61ff598bdd5dacd2f1b0bd21f05a1073dbb5",
+    "source_delta": "Walkback-specific strict ownership entry and common exact typed durable deferral; proactive migration admission-only reserve at492/512, at most20 verified existing custody transfers; two recovery hash pins. Shared Helius helper unchanged.",
+    "status": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "storage": {
+      "fixture_owners_bounded": true,
+      "free_bytes": 3090337792,
+      "required_floor_bytes": 2000000000,
+      "single_file_cap_bytes": 499000000
+    },
+    "tests": {
+      "coverage": [
+        "typed ownership-entry errors",
+        "no unauthorized dispatch",
+        "claim identity/refund/stale owner",
+        "crash before claim commit",
+        "492 high-water and exact verified transfer",
+        "event513",
+        "2000 sequential additional admissions",
+        "pending/terminal preservation",
+        "duplicate and conflicting notification",
+        "crash before and after OPS/journal publication",
+        "checkout fairness and reservation protection",
+        "concurrent admission with resolver writes",
+        "full quota and disk refusal",
+        "recoverable listener refusal continues simulated birth intake",
+        "fresh compact pair recovery",
+        "two exact recovery hash pins"
+      ],
+      "execution": "Final segmented runs; not a repeated broad matrix. Actual production preimages verified read-only. Network socket connections blocked in fixtures.",
+      "focused_and_reused_pending": 44,
+      "initial_failures": "Sparse fixture dependencies and missing concurrent import repaired; quota-trigger classification corrected; early maintenance narrowed to admission after a checkout-displacement regression. Final controls passed.",
+      "passed": 73,
+      "provider_calls": 0,
+      "retained_helius_lifetime_cross_worker_crash": 5,
+      "retained_terminal_and_fresh_pair": 24
+    },
+    "updated_utc": "2026-10-28T11:30:01.243267+00:00",
+    "verdict": "READY_FOR_DEPLOYMENT_PREFLIGHT"
+  },
   "flex_v2_seven_day_repeat_creator_population_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Seven-dayPumpPortal-only completeness and historicalprior-launch/caching coverage incomplete; populationcounts cannot establish redundantRPCsavings.",
@@ -46354,7 +46410,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "8ce26bf4f44005ebecd3f545be99a0ed55c884d1",
+    "git_head": "d77256e87bdd6e883a4ae2c7b58eef31233d552b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

@@ -22939,6 +22939,114 @@
       "walkback": 669
     }
   },
+  "flex_v2_helius_publication_deployment": {
+    "blocker": null,
+    "bundle_sha256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
+    "candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "database_health": {
+      "core": {
+        "files": {
+          "-shm": 32768,
+          "-wal": 0,
+          "database": 88276992
+        },
+        "journal_mode": "wal",
+        "read_snapshot": "PASS"
+      },
+      "ops": {
+        "files": {
+          "database": 164294656
+        },
+        "journal_mode": "delete",
+        "read_snapshot": "PASS"
+      }
+    },
+    "engineering_evidence_revision": "4601e0c466dbc37363559e75f7636952cd00acce",
+    "free_bytes": 2794659840,
+    "fresh_birth_exact_matches_lower_bound": 11,
+    "installed_payload": {
+      "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+      "runtime/creator_resolution/src/core/helius_denial_gate.py": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "runtime/listener/src/core/helius_denial_gate.py": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "runtime/walkback/src/core/helius_denial_gate.py": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946"
+    },
+    "journals_end": {
+      "birth": {
+        "free": 6,
+        "records": 506,
+        "states": {
+          "ACKED": 11,
+          "QUARANTINED": 495
+        }
+      },
+      "migration": {
+        "free": 22,
+        "records": 490,
+        "states": {
+          "PENDING": 489,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "new_helius_reservations": 0,
+    "next_action": "Leave all three workers running with Helius PAYMENT_DENIED. Any reopening requires separately authorized controlled restoration.",
+    "observation_seconds": 301.41,
+    "original_active_migrations_preserved": 483,
+    "original_deferred_records_preserved": 511,
+    "production_flags": {
+      "gate": "PAYMENT_DENIED",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "investigation_limit": 100000,
+      "marker": "READY_V1 b730b97ee79224e394002df3cb34972d415264c2b6182236279526a5b0191c94",
+      "restoration_authorized": false
+    },
+    "provider_probes": 0,
+    "report_sha256": "12308b857c87c4b9c871d5b686c9b1d342191bd4e65f76a31a6cfc704d7d33bf",
+    "rollback": "Candidate-aware gate and renderer retained; no old publisher downgrade. Conservative CLOSED fallback only.",
+    "runtime_plan_sha256": "8e61577ce647630947293abd97fdf9e941072b286ea47767034ac0143334d9e6",
+    "services_after": {
+      "creator_resolution_worker": {
+        "pid": 28017,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 28051,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 27965,
+        "state": "RUNNING"
+      }
+    },
+    "services_before": {
+      "creator_resolution_worker": {
+        "pid": 99531,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 99556,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 99484,
+        "state": "RUNNING"
+      }
+    },
+    "source_authority": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/helius-publication-5e4e5942/source",
+    "spending_history": {
+      "inflight": 0,
+      "investigation_limit": 100000,
+      "reserved_credits": 73920,
+      "uncertain_requests": 5
+    },
+    "status": "PASS",
+    "terminal_evidence_preserved": true,
+    "tests": {
+      "natural_acceptance": "PASS_301_SECONDS",
+      "provider_free_accepted_reused": 132
+    }
+  },
   "flex_v2_helius_publication_preflight": {
     "activation_plan_sha256": "dabc3d8314235517ae4831d0888639d247596fc874756e4c00b402f87171003d",
     "blocker": "No deployment-preflight blocker; current operational legacy publication ambiguity remains untouched. No authority to reopen Helius.",
@@ -47068,11 +47176,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "b0cfdcc03817967c8f77f4ba63f74df790ec6af4",
+    "git_head": "4601e0c466dbc37363559e75f7636952cd00acce",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T14:05:41.008004+00:00",
-    "working_tree": "Publication correction read-only deployment preflight frozen. No production actions; legacy PENDING_V1 remains closed."
+    "updated_at_utc": "2026-10-28T14:21:58.916299+00:00",
+    "working_tree": "Exact four-file publication fix deployed; conservative legacy recovery verified; all three workers running; Helius PAYMENT_DENIED. No reopening/probe."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

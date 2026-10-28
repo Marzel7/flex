@@ -1,0 +1,30 @@
+{
+  "activation_scope": "Coherent all-three-role gate-source activation plus matching renderer. Separate authorization and live safety preflight required. No new flags, schema or budgets.",
+  "candidate_sha": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+  "fallback": "Candidate-aware shared gate and renderer only after prospective intent activation; reject old623b81d gate source pins. Never use legacy-unaware source to bypass a pending intent.",
+  "installed_runtime_base": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+  "legacy_live_state": "Existing PENDING_V1 remains fail-closed; future publication proof cannot be backfilled as historical fact. Separate evidence-verified operator recovery remains required.",
+  "payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/runtime-ownership-capacity-a8179c8b/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3"
+    },
+    "runtime/creator_resolution/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "runtime/listener/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "runtime/walkback/src/core/helius_denial_gate.py": {
+      "candidate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py",
+      "installed_preimage_sha256": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    }
+  },
+  "prospective_protocol": "READY_V1 retained; new PENDING_V2 carries target SHA256, PID and whitelisted operation in existing lock file (<=128bytes). Existing state JSON and existing stage filename retained."
+}

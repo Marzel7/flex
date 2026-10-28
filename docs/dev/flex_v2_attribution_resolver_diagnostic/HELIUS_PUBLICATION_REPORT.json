@@ -1,0 +1,133 @@
+{
+  "FLEX_V2_HELIUS_PUBLICATION_STATUS": "PASS_DEV_QUALIFIED_LIVE_ATTRIBUTION_LIMITED",
+  "EXACT_RECURRENCE_CAUSE": {
+    "demonstrated_defect": "Installed save() durably writes PENDING_V1 before disk preflight and staged-file preparation. A normal DISK_FLOOR refusal poisons previously valid READY authority while leaving the ledger byte-identical and no stage file. No process crash, RPC or failed rename is necessary.",
+    "counterexample": "Real original623b81d V2 owner, verified policy, OPEN state and a normal Walkback reservation: disk refusal leaves old ledger unchanged, zero new durable charge, PENDING_V1 and no.stage. Corrected owner preserves READY and refuses dispatch.",
+    "latest_live_instance": "Evidence limited: the current terminal phase and attempting worker cannot be proven. Retained disk-floor/headroom refusals co-occur in the bounded post-restoration log span; that is not proof of the exact failing gate syscall.",
+    "alternatives_not_proven_or_excluded": "A post-replace directory-fsync/final-marker failure can also leave an absent stage plus PENDING under the legacy protocol. No publisher-specific errno/phase receipt exists to distinguish it historically."
+  },
+  "LAST_PUBLICATION_OWNER": {
+    "last_attempted_publisher": "UNVERIFIED",
+    "last_retained_request_record": {
+      "pid": 99556,
+      "role": "walkback",
+      "selector": "rpc:getTransaction",
+      "status": "HTTP_COMPLETED",
+      "at": 1793191376
+    },
+    "interpretation": "Retained body records Walkback99556/getTransaction/HTTP_COMPLETED at12:42:56UTC. This does not prove successful final publication, the next attempted publisher or its operation.",
+    "worker_termination": "Current worker start identities predate the observed failure and PIDs remain unchanged; no worker-process termination established. Thread failure cannot be attributed.",
+    "exact_missing_evidence": "Legacy pending marker contains no PID, operation, target digest or final publication receipt; original publisher phase/error was not retained."
+  },
+  "LEDGER_MARKER_CONSISTENCY": {
+    "current_body_sha256": "e818c82c7c1b5fdd2891f08feb6f8182876636e9db941a6452d818e42c99ae01",
+    "current_marker": "PENDING_V1",
+    "stage_present": false,
+    "ready_checksum_authority": "ABSENT; embedded OPEN is not permission",
+    "body_accounting_validation": "Accepted immutable baseline comparison and charge-balance checks PASS. Permission remains fail-closed.",
+    "reserved_credits": 73920,
+    "inflight_in_retained_body": 0,
+    "protected_review_held_requests": 5,
+    "production_gate_byte_unchanged": true
+  },
+  "CRASH_AND_CONCURRENCY_REPRODUCTION": {
+    "real_legacy_counterexample": true,
+    "corrected_disk_refusal": "Old READY remains valid; no reservation dispatch or charge release.",
+    "fsync_faults": "Stage sync, intent sync, directory sync and final marker sync covered. Uncommitted or corrupt intent stays closed; completed target finalized only on exact proof.",
+    "atomic_replace": "Before and after replacement failures separately tested.",
+    "real_process_exit": "Child exits after replace before directory sync; restarted writer revalidates/fsyncs the matching target, retains the charge and unresolved slot.",
+    "concurrency": "Real listener/Walkback same-file flock serialization, duplicate completion, descriptor-close lock retention and child-PID lock ownership tested. No live lock violation established.",
+    "clock_and_fresh_pair": "Actual accepted clock recovery and actual matched-pair renderer controls pass, including independent expected-state receipt and generation-only preservation.",
+    "large_ledger": "Current2394183byte ledger used only as a disposable private copy; no raw ledger committed or published."
+  },
+  "MINIMUM_CORRECTION": {
+    "source_files": "Three identical existing gate-owner copies plus the existing recovery renderer; no other runtime implementation changed.",
+    "normal_publish_order": [
+      "Validate/serialize target and prior authority",
+      "Storage check",
+      "Create/write/fsync existing stage file",
+      "Publish target-digest/PID/operation intent",
+      "Atomic replace and directory fsync",
+      "Publish READY checksum"
+    ],
+    "known_denials": "New payment/auth/rate/outage restrictions publish fail-closed intent before optional full-state preparation. Disk failure cannot silently leave old OPEN authority usable.",
+    "recovery": "Only writer boundaries holding the actual same-path/current-PID thread-owned flock may finalize prospective completed targets. Validate exact hash, generation/schema/limits, absent stage and file/directory durability. Fresh-pair renderer also requires equality with its independent frozen receipt.",
+    "read_only_contract": "Gate.read remains strictly non-mutating even under a lock. LegacyPENDING_V1, uncommitted stages, target mismatches and corrupt or unsupported states are not inferred or cleared.",
+    "diagnostics": "Prospective intent identifies PID and whitelisted mutation operation; no credentials, endpoint URLs or payloads recorded.",
+    "unresolved_reservations": "No auto-release, retry reset or replay. A committed reservation whose call never returned stays charged/in-flight until accepted reconciliation."
+  },
+  "SPENDING_HISTORY_INTEGRITY": {
+    "lifetime_limit": 100000,
+    "warning": 50000,
+    "policy_weights_provider_budgets_unchanged": true,
+    "credit_history_identities_recovery_rights_preserved": true,
+    "no_new_daily_or_hourly_quota": true,
+    "terminal_deferred_CREATE_Walkback_logic_unchanged": true,
+    "BIRDEYE_unchanged": true
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "passed": 132,
+    "failed_final": 0,
+    "deselected_unaffected": 1,
+    "deselected_reason": "Accepted2000-independent-origin aggregate-usage control reused from baseline; no credit-policy change.",
+    "suites": [
+      "recurring publication exact counterexample, fault, OS lock and restart controls",
+      "accepted investigation accounting and100000limit controls",
+      "accepted clock recovery",
+      "accepted recovery renderer and fresh matched pair"
+    ],
+    "network": "Socket connect/create_connection blocked; simulated local reservations/completions only. No provider request or probe.",
+    "fixture_repairs": "Materialized missing sparse fixtures, supplied required predecessor authority, and matched dynamically loaded exception type. No safety assertion relaxed.",
+    "final_command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -o addopts='' tests/test_v2_helius_publication_recurrence.py tests/test_v2_helius_investigation_budget.py tests/test_v2_helius_clock_recovery.py tests/test_v2_helius_recovery_config.py -k 'not two_thousand_independent_origins'"
+  },
+  "STORAGE_BOUNDS": {
+    "ledger_bytes_max": 16777216,
+    "stage_bytes_max": 16777216,
+    "marker_bytes_max": 128,
+    "working_file_allocation_max_excluding_fs_metadata": 33554560,
+    "single_file_runtime_kernel_cap": 499000000,
+    "free_bytes": 4040142848,
+    "floor_enforced_cooperatively": 2067108864,
+    "no_archive_or_new_storage_owner": true
+  },
+  "RECOVERY_COMPATIBILITY": {
+    "installed_preimages_verified": true,
+    "active_generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 99484
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 99531
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 99556
+      }
+    },
+    "all_three_gate_bindings_same_accepted_authority": true,
+    "configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "runtime_plan_sha256": "847559417191e375ffac67459f95ea1d67bebcb49390bfe544a8673967c2108a",
+    "renderer": "Three gate pins plus proven-target/independent-receipt finalization branch only. Existing generation, flags, journal paths, source-only fallback, terminal/deferred and CREATE contracts retained.",
+    "new_protocol_unaware_fallback": "Rejected by candidate hash pins; no downgrade across an uncertain intent."
+  },
+  "CANDIDATE_SHA": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+  "FROZEN_BUNDLE_SHA256": "eb90d2bb92c5821b617ae8d597f7c302ab1c9f3f0d06d7aa9152dd6b2bb0cd74",
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+  "REMAINING_EVIDENCE_GAP": "Exact historical publisher/operation/syscall remains unverified. Do not manufacture attribution from ledger timestamps. Current legacy publication still needs separately qualified recovery.",
+  "PRODUCTION": {
+    "writes": 0,
+    "source_configuration_changes": 0,
+    "service_restarts": 0,
+    "provider_calls_probes": 0,
+    "gate_reset": 0,
+    "budget_changes": 0,
+    "exhausted_replay": 0,
+    "v1_database_content_access": 0,
+    "historical_deletion": 0
+  },
+  "NEXT_ACTION": "Read-only deployment preflight for this exact four-file multi-role bundle and candidate-aware recovery. Keep the current legacy gate closed; no deployment or probe under this qualification.",
+  "qualified_utc": "2026-10-28T13:41:52.272651+00:00"
+}

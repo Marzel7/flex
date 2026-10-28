@@ -25522,6 +25522,101 @@
     },
     "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED"
   },
+  "flex_v2_runtime_ownership_capacity_deployment": {
+    "acceptance": "Exact two runtime files and recovery pins installed coherently. Last coherent sample at186.52s:80 exact committed births,3 PumpSwap/1 PumpPortal new notification lower bound,1 canonical migration/exact completed handoff,2 Walkback completions,35 migration slots free. Full successful five-minute acceptance NOT achieved.",
+    "blocker": "Disk below required floor during natural acceptance; durable Helius publication marker PENDING_V1 cannot authorize acquisition.",
+    "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "engineering_revision": "f8b020ab86a8165e9c4f8cdd8fe2c997b12dbbfe",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "helius": {
+      "acquisition_permission": "FAIL_CLOSED",
+      "embedded_OPEN_label_not_authoritative": true,
+      "marker_sha256": "c1fefbd756dcb671d73b2585fff74d54f927c3b2aa4aab2efd0892309d7a3abf",
+      "publication": "AMBIGUOUS_PENDING_V1",
+      "stage_exists": false,
+      "state_mtime_epoch": 1793188614.034795,
+      "state_sha256": "facd6a2d60edcf6a95dfb46e9e7853c00de265b2a06143c3fa0d63d02753bc50",
+      "unpublished_body_accounting_only": {
+        "credit_limit": 100000,
+        "held_requests_preserved": 5,
+        "history_monotonic": true,
+        "inflight_in_retained_body": 0,
+        "natural_credit_delta_by_worker": {
+          "creator_resolution": 0,
+          "listener": 6,
+          "walkback": 157
+        },
+        "request_reservation_delta": 163,
+        "total_reserved_credits": 73187
+      }
+    },
+    "installed_source_hashes": {
+      "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3",
+      "runtime/listener/src/core/migration_signature_journal.py": "663465aef0d452eee95c5077ecce0621b19e1406f8aad6122fc0fd3b8f04617b",
+      "runtime/walkback/src/core/walkback_worker.py": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9"
+    },
+    "journal_final": {
+      "free_slots": 28,
+      "records": 484,
+      "states": {
+        "PENDING": 483,
+        "RESOLVED": 1
+      }
+    },
+    "next_action": "Restore stable headroom above required reserve, then separately qualify/reconcile the existing publication marker against retained durable accounting using the accepted recovery mechanism. No reset, blind marker clear or provider probe.",
+    "observed_utc": "2026-10-28T12:01:48.595084+00:00",
+    "production_flags": {
+      "budget_changes": 0,
+      "feature_flag_changes": false,
+      "gate_reset_or_marker_clear": false,
+      "historical_deletion": 0,
+      "matching_recovery_pins_activated": 2,
+      "provider_calls_for_testing": 0,
+      "replay_reset": 0,
+      "resolver_restart": false,
+      "restarted": [
+        "watchtower_listener",
+        "walkback_worker"
+      ],
+      "runtime_files_installed": 2,
+      "schema_changes": false,
+      "v1_access": 0
+    },
+    "report_sha256": "f65418c4251a51bf48d8143ca11a35683e961942394963d0e529467ab991c778",
+    "rollback": "Not executed: a source-only rollback cannot repair publication ambiguity; gate validation/storage preconditions prohibit safe recovery. Exact compatible preimages remain staged; installed source/recovery authority is coherent.",
+    "runtime_plan_sha256": "847559417191e375ffac67459f95ea1d67bebcb49390bfe544a8673967c2108a",
+    "runtime_source_commit": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+    "services": {
+      "listener": [
+        76395,
+        91474
+      ],
+      "resolver_unchanged": {
+        "pid": 76441,
+        "state": "RUNNING"
+      },
+      "walkback": [
+        76510,
+        91523
+      ]
+    },
+    "status": "HOLD_ACCEPTANCE_BLOCKED_AFTER_INSTALL",
+    "storage": {
+      "deployment_reserve_bytes": 2771751936,
+      "floor_bytes": 2067108864,
+      "hold_free_bytes": 1870188544,
+      "last_safe_free_bytes": 3015868416,
+      "staged_free_bytes": 3006939136
+    },
+    "updated_utc": "2026-10-28T12:04:10.751815+00:00",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "verified_transfer": {
+      "interpretation": "Aggregate natural transitions, not an operator-triggered transfer. Exact owner hash/provenance and original identity verified; no unresolved notification acknowledged to free space.",
+      "new_terminal_records_during_last_safe_sample": 3,
+      "original_active_records_now_in_independently_decoded_OWNED_OPS_custody": 25,
+      "protected_terminal_preimages_preserved": true
+    }
+  },
   "flex_v2_runtime_ownership_capacity_preflight": {
     "activation_plan_sha256": "0066b4d97c17d5005e2921bb4d18068aa8e0d64322200d31cb40ff13c823452f",
     "activation_scope": "Separate authorization required: two runtime files plus matching renderer/source authority; stop/start listener and Walkback only, resolver untouched. Preserve reservations/held evidence; existing verified batch transfer only.",
@@ -46487,7 +46582,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "e06dae348bb790d89894cbc0094350c410e5a880",
+    "git_head": "f8b020ab86a8165e9c4f8cdd8fe2c997b12dbbfe",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

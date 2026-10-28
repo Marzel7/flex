@@ -49,7 +49,8 @@ def test_fail_closed_before_config_publication(case,defect):
  elif defect=='missing_state':control.unlink()
  elif defect=='corrupt_state':control.write_bytes(b'{')
  elif defect=='marker':Path(str(control)+'.lock').write_bytes(b'PENDING_V1\n')
- elif defect=='wrong_generation':e.gate.generation='wrong';s=json.loads(control.read_text());s['generation']='wrong';e.gate.save(s)
+ elif defect=='wrong_generation':
+  s=json.loads(control.read_text());s['generation']='wrong';raw=(json.dumps(s,sort_keys=True)+'\n').encode();control.write_bytes(raw);Path(str(control)+'.lock').write_bytes(b'READY_V1 '+hashlib.sha256(raw).hexdigest().encode()+b'\n')
  elif defect=='source':(Path(role['package'])/'src/core/walkback_worker.py').write_bytes(b'# stale')
  elif defect=='legacy_source':(e.package/'src/core/pumpfun_curve_listener.py').write_bytes(b'# old gate-unaware listener')
  else:(Path(role['package'])/'src/core/helius_denial_gate.py').unlink()
@@ -207,3 +208,20 @@ def test_investigation_v2_owner_warning_and_child_survive_fresh_pair(case,monkey
  assert fresh.investigation_owner('2'*64)==root
  assert fresh.read()['rpc_budget']['scopes'][root]['credits']==50000 and fresh.read()['rpc_budget']['scopes'][root]['warned']
  assert len(fresh.read()['rpc_budget']['inflight'])==1
+
+
+def test_prospective_gate_commit_finalizes_only_matching_fresh_pair_receipt(case,monkeypatch):
+ e=case;paths,m,dest=target(e);e.ns['freeze_helius_recovery'](e.ns['prepare_helius_recovery'](e.env,dest));old=e.gate.read();env=activate(e,paths,m,dest,monkeypatch)
+ # Reproduce committed target + durable target intent, before READY marker.
+ raw=(json.dumps(dict(old,generation='fresh'),sort_keys=True)+'\n').encode();e.gate.path.write_bytes(raw);Path(str(e.gate.path)+'.lock').write_bytes(b'PENDING_V2 '+hashlib.sha256(raw).hexdigest().encode()+b' 99999999 generation_move\n')
+ e.ns['finish_helius_recovery'](env)
+ assert e.module.Gate(e.gate.path,'fresh').read()==dict(old,generation='fresh')
+ e.ns['finish_helius_recovery'](env)
+ assert e.module.Gate(e.gate.path,'fresh').read()['state']=='PAYMENT_DENIED'
+
+
+def test_prospective_target_must_match_independent_recovery_snapshot(case,monkeypatch):
+ e=case;paths,m,dest=target(e);e.ns['freeze_helius_recovery'](e.ns['prepare_helius_recovery'](e.env,dest));old=e.gate.read();env=activate(e,paths,m,dest,monkeypatch);wrong=dict(old,generation='fresh',outcomes=old['outcomes']+1)
+ raw=(json.dumps(wrong,sort_keys=True)+'\n').encode();e.gate.path.write_bytes(raw);lock=Path(str(e.gate.path)+'.lock');lock.write_bytes(b'PENDING_V2 '+hashlib.sha256(raw).hexdigest().encode()+b' 99999999 generation_move\n');before=lock.read_bytes()
+ with pytest.raises(RuntimeError,match='EXPECTED_STATE_MISMATCH'):e.ns['finish_helius_recovery'](env)
+ assert lock.read_bytes()==before and e.gate.path.read_bytes()==raw

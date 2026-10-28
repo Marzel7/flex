@@ -2,11 +2,12 @@
 Reservations precede dispatch; pre-existing in-flight requests remain ambiguous.
 Ordinary 429 is rate limiting, never asserted to prove credit exhaustion.
 """
-import contextlib,fcntl,hashlib,json,os,stat,time,uuid
+import contextlib,fcntl,hashlib,json,os,stat,time,uuid,threading,sys
 from pathlib import Path
 from urllib.parse import urlsplit
 FLAG='FLEX_HELIUS_DENIAL_GATE_ENABLED'
 MAX_BYTES=4096
+_PUBLICATION_CONTEXT=threading.local()
 class Deferred(RuntimeError):pass
 class Integrity(Deferred):pass
 class BudgetDeferred(Deferred):pass
@@ -26,8 +27,10 @@ def authority():
  return validate_pair(core_path=os.environ['DB_PATH'],ops_path=os.environ['WT_OPS_DB_PATH'],purpose='active')
 class Gate:
  def __init__(self,path,generation,clock=time.time):
-  self.path=Path(path);self.generation=generation;self.clock=clock
+  self.path=Path(path);self.generation=generation;self.clock=clock;self._publication_thread=_PUBLICATION_CONTEXT
   if not self.path.is_absolute() or str(self.path.resolve())!=str(self.path) or not generation:raise Integrity('HELIUS_GATE_AUTHORITY')
+ def _publication_owned(self):
+  return (os.getpid(),str(self.path)) in getattr(self._publication_thread,'paths',())
  @contextlib.contextmanager
  def locked(self,*,blocking=False):
   fd=os.open(str(self.path)+'.lock',os.O_RDWR|os.O_NOFOLLOW|os.O_NONBLOCK)
@@ -36,29 +39,33 @@ class Gate:
    if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1 or info.st_size>128:raise Integrity('HELIUS_GATE_LOCK')
    try:fcntl.flock(fd,fcntl.LOCK_EX|(0 if blocking else fcntl.LOCK_NB))
    except BlockingIOError:raise BudgetDeferred('HELIUS_GATE_BUSY') from None
-   yield
+   previous=getattr(self._publication_thread,'paths',());self._publication_thread.paths=previous+((os.getpid(),str(self.path)),)
+   try:yield
+   finally:self._publication_thread.paths=previous
   finally:os.close(fd)
- def read(self):
-  lock=os.open(str(self.path)+'.lock',os.O_RDONLY|os.O_NOFOLLOW)
+ def _marker(self):
+  fd=os.open(str(self.path)+'.lock',os.O_RDONLY|os.O_NOFOLLOW)
   try:
-   published=os.read(lock,129)
-   if not published.startswith(b'READY_V1 '):raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
-  finally:os.close(lock)
+   st=os.fstat(fd)
+   if not stat.S_ISREG(st.st_mode) or st.st_nlink!=1 or st.st_size>128:raise Integrity('HELIUS_GATE_LOCK')
+   return os.read(fd,129)
+  finally:os.close(fd)
+ def _raw(self):
   fd=os.open(self.path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
   try:
-   i=os.fstat(fd)
-   if not stat.S_ISREG(i.st_mode) or i.st_nlink!=1 or i.st_size>16777216:raise Integrity('HELIUS_GATE_STATE')
-   raw=os.read(fd,16777217)
-   if published!=b'READY_V1 '+hashlib.sha256(raw).hexdigest().encode()+b'\n':raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
-   def unique(items):
-    out={}
-    for key,value in items:
-     if key in out:raise Integrity('HELIUS_GATE_STATE')
-     out[key]=value
-    return out
-   s=json.loads(raw,object_pairs_hook=unique)
-  except (ValueError,OSError):raise Integrity('HELIUS_GATE_STATE') from None
+   st=os.fstat(fd)
+   if not stat.S_ISREG(st.st_mode) or st.st_nlink!=1 or st.st_size>16777216:raise Integrity('HELIUS_GATE_STATE')
+   return os.read(fd,16777217)
   finally:os.close(fd)
+ def _decode(self,raw):
+  def unique(items):
+   result={}
+   for key,value in items:
+    if key in result:raise Integrity('HELIUS_GATE_STATE')
+    result[key]=value
+   return result
+  try:s=json.loads(raw,object_pairs_hook=unique)
+  except (ValueError,TypeError,UnicodeError):raise Integrity('HELIUS_GATE_STATE') from None
   if not isinstance(s,dict):raise Integrity('HELIUS_GATE_STATE')
   if s.get('version')!=1 or s.get('generation')!=self.generation or s.get('state') not in ('OPEN','RATE_LIMITED','OUTAGE','PAYMENT_DENIED','AUTH_DENIED'):raise Integrity('HELIUS_GATE_STATE')
   for k in ('reservations','outcomes','failures','probe_until','next_at','recover_until'):
@@ -70,39 +77,111 @@ class Gate:
    except (KeyError,TypeError,ValueError,AttributeError):raise Integrity('HELIUS_BUDGET_STATE') from None
   elif len(raw)>MAX_BYTES:raise Integrity('HELIUS_GATE_STATE')
   return s
- def save(self,s):
-  prepared=None
-  if s.get('rpc_budget',{}).get('version')==2:
-   prepared=(json.dumps(s,sort_keys=True)+'\n').encode()
-   if len(prepared)>16777216:raise BudgetDeferred('HELIUS_INVESTIGATION_STATE_CAPACITY')
-  # Persist ambiguity before publishing; interrupted fsync/rename cannot be
-  # mistaken for fresh allowance after restart.
-  lock=os.open(str(self.path)+'.lock',os.O_WRONLY|os.O_NOFOLLOW)
-  def marker(value):
-   os.lseek(lock,0,0)
-   if os.write(lock,value)!=len(value):raise Integrity('HELIUS_GATE_SHORT_WRITE')
-   os.ftruncate(lock,len(value));os.fsync(lock)
-  try:marker(b'PENDING_V1\n')
-  finally:os.close(lock)
-  if os.statvfs(self.path.parent).f_bavail*os.statvfs(self.path.parent).f_frsize<2067108864:raise Integrity('DISK_FLOOR')
-  b=prepared if prepared is not None else (json.dumps(s,sort_keys=True)+'\n').encode()
-  if len(b)>(16777216 if s.get('rpc_budget',{}).get('version')==2 else 262144 if 'rpc_budget' in s else MAX_BYTES):raise Integrity('HELIUS_GATE_CAPACITY')
-  temp=self.path.with_name(self.path.name+'.stage')
-  fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+ def _write_marker(self,value):
+  if len(value)>128:raise Integrity('HELIUS_GATE_LOCK')
+  fd=os.open(str(self.path)+'.lock',os.O_WRONLY|os.O_NOFOLLOW)
   try:
-   n=0
-   while n<len(b):
-    w=os.write(fd,b[n:])
-    if w<=0:raise Integrity('HELIUS_GATE_SHORT_WRITE')
-    n+=w
-   os.fsync(fd)
+   if os.write(fd,value)!=len(value):raise Integrity('HELIUS_GATE_SHORT_WRITE')
+   os.ftruncate(fd,len(value));os.fsync(fd)
   finally:os.close(fd)
-  os.replace(temp,self.path);fd=os.open(self.path.parent,os.O_RDONLY)
+ def _sync_directory(self):
+  fd=os.open(self.path.parent,os.O_RDONLY)
   try:os.fsync(fd)
   finally:os.close(fd)
-  lock=os.open(str(self.path)+'.lock',os.O_WRONLY|os.O_NOFOLLOW)
-  try:marker(b'READY_V1 '+hashlib.sha256(b).hexdigest().encode()+b'\n')
-  finally:os.close(lock)
+ def _storage(self):
+  st=os.statvfs(self.path.parent)
+  if st.f_bavail*st.f_frsize<2067108864:raise Integrity('DISK_FLOOR')
+ def read(self):
+  # Strictly read-only, including prospective interrupted publications.
+  marker=self._marker();raw=self._raw()
+  if marker!=b'READY_V1 '+hashlib.sha256(raw).hexdigest().encode()+b'\n':raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
+  return self._decode(raw)
+ def finish_publication(self,*,expected_state=None):
+  # Writer-only finalization of a durable target identified independently by
+  # the versioned intent marker. Never infer legacy intent or release a slot.
+  if not self._publication_owned():raise Integrity('HELIUS_PUBLICATION_LOCK_REQUIRED')
+  marker=self._marker();parts=marker.split()
+  if len(parts)!=4 or parts[0]!=b'PENDING_V2' or len(parts[1])!=64 or any(c not in b'0123456789abcdef' for c in parts[1]) or not parts[2].isdigit() or not 1<int(parts[2])<2**32 or parts[3] not in self._publication_operations() or marker!=b' '.join(parts)+b'\n':raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
+  temp=self.path.with_name(self.path.name+'.stage')
+  if os.path.lexists(temp):raise Integrity('HELIUS_PUBLICATION_STAGE_UNCERTAIN')
+  raw=self._raw()
+  if hashlib.sha256(raw).hexdigest().encode()!=parts[1]:raise Integrity('HELIUS_PUBLICATION_TARGET_MISMATCH')
+  state=self._decode(raw)
+  if expected_state is not None and state!=expected_state:raise Integrity('HELIUS_PUBLICATION_EXPECTED_STATE_MISMATCH')
+  self._storage()
+  fd=os.open(self.path,os.O_RDONLY|os.O_NOFOLLOW)
+  try:
+   if os.read(fd,16777217)!=raw:raise Integrity('HELIUS_PUBLICATION_STATE_CHANGED')
+   os.fsync(fd)
+  finally:os.close(fd)
+  self._sync_directory()
+  if self._marker()!=marker:raise Integrity('HELIUS_PUBLICATION_STATE_CHANGED')
+  self._write_marker(b'READY_V1 '+parts[1]+b'\n')
+  return self.read()
+ @staticmethod
+ def _publication_operations():
+  return {b'state',b'initialize',b'reserve_http',b'finish_http',b'notice_http',b'register_origin',b'bind_child',b'configure_budget',b'authorize_probe',b'reserve_ws',b'record_ws',b'clock_update',b'reconcile',b'generation_move'}
+ def _writer_read(self):
+  try:return self.read()
+  except Integrity as exc:
+   if str(exc)!='HELIUS_GATE_PUBLICATION_AMBIGUOUS':raise
+   return self.finish_publication()
+ def save(self,state):
+  names={'initialize':'initialize','_reserve_http':'reserve_http','_reserve2_locked':'reserve_http','_finish_http':'finish_http','_notice_http':'notice_http','_register_origin':'register_origin','_bind_child':'bind_child','_configure_budget':'configure_budget','_configure2':'configure_budget','authorize_probe':'authorize_probe','reserve':'reserve_ws','result':'record_ws','record':'record_ws','finish_helius_recovery':'generation_move','recover_clock':'clock_update','reconcile_forward_clock':'clock_update','_reconcile_terminated_http':'reconcile'}
+  operation=names.get(sys._getframe(1).f_code.co_name,'state')
+  if self._publication_owned():return self._save_publication(state,operation)
+  with self.locked():return self._save_publication(state,operation)
+ def _save_publication(self,state,operation):
+  prepared=(json.dumps(state,sort_keys=True)+'\n').encode()
+  limit=16777216 if state.get('rpc_budget',{}).get('version')==2 else 262144 if 'rpc_budget' in state else MAX_BYTES
+  if len(prepared)>limit:
+   if state.get('rpc_budget',{}).get('version')==2:raise BudgetDeferred('HELIUS_INVESTIGATION_STATE_CAPACITY')
+   raise Integrity('HELIUS_GATE_CAPACITY')
+  target=self if state.get('generation')==self.generation else Gate(self.path,state.get('generation'))
+  target._decode(prepared)
+  prior=None;marker=self._marker()
+  if self.path.exists():
+   raw=self._raw();prior=self._decode(raw)
+   if marker!=b'READY_V1 '+hashlib.sha256(raw).hexdigest().encode()+b'\n':
+    # Preserve the accepted explicit conservative legacy recovery, never an
+    # OPEN allowance or a changed accounting/ownership body over ambiguity.
+    if marker==b'PENDING_V1\n' and state['state'] in ('PAYMENT_DENIED','AUTH_DENIED') and {k:v for k,v in state.items() if k!='state'}=={k:v for k,v in prior.items() if k!='state'}:pass
+    else:raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
+  elif marker:raise Integrity('HELIUS_GATE_PUBLICATION_AMBIGUOUS')
+  if target is not self:
+   # Retain the accepted renderer's generation-only fresh-pair move. The new
+   # active matched pair must independently authorize the target generation.
+   try:active_generation=authority()
+   except Exception:raise Integrity('HELIUS_GENERATION_MOVE_AUTHORITY') from None
+   if prior is None or active_generation!=state['generation'] or state!=dict(prior,generation=state['generation']):raise Integrity('HELIUS_GENERATION_MOVE_AUTHORITY')
+  digest=hashlib.sha256(prepared).hexdigest().encode()
+  intent=b'PENDING_V2 '+digest+b' '+str(os.getpid()).encode()+b' '+operation.encode()+b'\n'
+  restrictive=prior is not None and state['state']!=prior['state'] and state['state'] in ('PAYMENT_DENIED','AUTH_DENIED','RATE_LIMITED','OUTAGE')
+  # A newly observed provider denial must remain fail-closed even if there is
+  # insufficient storage to persist its full state. Normal refusal must not
+  # poison the previous valid publication or authorize an undispatched RPC.
+  if restrictive:self._write_marker(intent)
+  self._storage()
+  temp=self.path.with_name(self.path.name+'.stage');created=False
+  try:
+   fd=os.open(temp,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600);created=True
+   try:
+    done=0
+    while done<len(prepared):
+     n=os.write(fd,prepared[done:])
+     if n<=0:raise Integrity('HELIUS_GATE_SHORT_WRITE')
+     done+=n
+    os.fsync(fd)
+   finally:os.close(fd)
+   if not restrictive:self._write_marker(intent)
+   os.replace(temp,self.path);self._sync_directory()
+   self._write_marker(b'READY_V1 '+digest+b'\n')
+  except BaseException:
+   # Remove only this call's unpublished temporary file, with independently
+   # verified old READY authority. Never discard an uncertain staged intent.
+   if created and temp.exists() and marker.startswith(b'READY_V1 ') and self._marker()==marker and prior is not None and self._raw()==raw:
+    os.unlink(temp);self._sync_directory()
+   raise
  def initialize(self,initial):
   # Explicit operator authority; never auto-repair or recreate missing state.
   if initial not in ('OPEN','PAYMENT_DENIED'):raise Integrity('HELIUS_GATE_INITIAL_AUTHORITY')
@@ -113,7 +192,7 @@ class Gate:
   # Explicit restoration authority, not a timer or automatic reset. Counts and
   # prior denial remain retained; only one bounded probe can be reserved.
   with self.locked():
-   s=self.read()
+   s=self._writer_read()
    if hashlib.sha256(self.path.read_bytes()).hexdigest()!=expected_sha256:raise Integrity('HELIUS_RESTORE_AUTHORITY_CHANGED')
    s.update(state='OUTAGE',probe_until=0,next_at=int(self.clock()),recover_until=int(self.clock())+300)
    self.save(s)
@@ -123,7 +202,7 @@ class Gate:
    return s['state'] in ('PAYMENT_DENIED','AUTH_DENIED') or now<s['next_at'] or now<s['probe_until']
  def reserve(self,method="other"):
   with self.locked():
-   s=self.read();now=int(self.clock())
+   s=self._writer_read();now=int(self.clock())
    if s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):raise Deferred('HELIUS_ACQUISITION_DEFERRED')
    if 'rpc_budget' in s and method!='websocket_connect':raise Integrity('HELIUS_HTTP_RESERVATION_REQUIRES_WIRE_GATE')
    if now<s['next_at'] or now<s['probe_until']:
@@ -138,7 +217,7 @@ class Gate:
    return probe
  def result(self,status,*,probe=False,retry_after=60,transport_failure=False):
   with self.locked():
-   s=self.read();now=int(self.clock());s['outcomes']+=1
+   s=self._writer_read();now=int(self.clock());s['outcomes']+=1
    label='transport_error' if transport_failure else str(status) if status in (200,401,402,403,429) else '5xx' if status>=500 else 'other'
    s['statuses'][label]=s['statuses'].get(label,0)+1
    if s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):self.save(s);return
@@ -160,7 +239,7 @@ def current():
  if not path or not journal or not os.path.isabs(journal) or path!=str(Path(journal).parent/'helius-denial-v1.json'):raise Integrity('HELIUS_GATE_STABLE_PATH_REQUIRED')
  g=Gate(path,authority())
  try:
-  with g.locked():state=g.read()
+  with g.locked():state=g._writer_read()
  except OSError:raise Integrity('HELIUS_GATE_STATE') from None
  if 'rpc_budget' in state and state['rpc_budget'].get('version')!=2:raise Integrity('HELIUS_INVESTIGATION_POLICY_V2_REQUIRED')
  if 'rpc_budget' not in state and state['state'] not in ('PAYMENT_DENIED','AUTH_DENIED'):raise BudgetDeferred('HELIUS_INVESTIGATION_POLICY_V2_REQUIRED')
@@ -347,7 +426,7 @@ def _configure_budget(self,policy,expected_sha256):
  if isinstance(policy,dict) and policy.get('version')==2:return _configure2(self,policy,expected_sha256)
  _policy(policy)
  with self.locked():
-  s=self.read()
+  s=self._writer_read()
   if s['state']!='PAYMENT_DENIED' or 'rpc_budget' in s or hashlib.sha256(self.path.read_bytes()).hexdigest()!=expected_sha256:raise Integrity('HELIUS_BUDGET_CONFIGURATION_AUTHORITY')
   now=int(self.clock())
   s['rpc_budget']={'version':1,'policy':policy,'policy_sha256':_digest(policy),'wall':now,'mono':int(self.monotonic()),'windows':{k:{'start':now,'credits':0,'workers':{r:0 for r in ROLES},'previous':0,'previous_workers':{r:0 for r in ROLES}} for k in ('minute','hour','day')},'scopes':{},'keys':{},'inflight':{}}
@@ -355,7 +434,7 @@ def _configure_budget(self,policy,expected_sha256):
 
 def _reserve_http(self,*,role,scopes,key,selector,origin,page=False):
  with self.locked():
-  s=self.read()
+  s=self._writer_read()
   if s.get('rpc_budget',{}).get('version')==2:return _reserve2_locked(self,s,role=role,scopes=scopes,key=key,selector=selector,origin=origin,page=page)
   if s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):raise BudgetDeferred('HELIUS_ACQUISITION_DEFERRED')
   b=_budget(self,s);now=_tick(self,b);p=b['policy']
@@ -402,7 +481,7 @@ def _finish_http(self,ticket,status,*,transport_failure=False):
  # Outcomes do not refund credits. A crashed/ambiguous reservation is never
  # timed out or released automatically; it remains charged and in-flight.
  with self.locked(blocking=True):
-  s=self.read();b=_budget(self,s);now=_tick(self,b)
+  s=self._writer_read();b=_budget(self,s);now=_tick(self,b)
   v=b['inflight'].get(ticket)
   if v is None:return  # duplicate local close/read completion
   key=b['keys'][v['key']];key['status']='HTTP_COMPLETED' if status==200 else 'DETERMINISTIC_FAILURE' if status in (400,422) else 'RETRYABLE';key['at']=now
@@ -433,7 +512,7 @@ def _notice_http(self,ticket,status,*,retry_after=60):
  # for a body, and do not release the in-flight slot before local completion.
  if status not in (401,402,403,429):return
  with self.locked(blocking=True):
-  s=self.read();b=_budget(self,s);now=_tick(self,b)
+  s=self._writer_read();b=_budget(self,s);now=_tick(self,b)
   if ticket not in b['inflight'] or s['state'] in ('PAYMENT_DENIED','AUTH_DENIED'):return
   if status==402:s.update(state='PAYMENT_DENIED',probe_until=0)
   elif status in (401,403):s.update(state='AUTH_DENIED',probe_until=0)
@@ -488,7 +567,7 @@ def _budget2(self,s):
 def _configure2(self,policy,expected_sha256):
  _policy2(policy)
  with self.locked():
-  s=self.read()
+  s=self._writer_read()
   if s['state']!='PAYMENT_DENIED' or 'rpc_budget' in s or hashlib.sha256(self.path.read_bytes()).hexdigest()!=expected_sha256:raise Integrity('HELIUS_BUDGET_CONFIGURATION_AUTHORITY')
   now=int(self.clock());s['rpc_budget']=dict(version=2,policy=policy,policy_sha256=_digest(policy),wall=now,mono=int(self.monotonic()),rate=dict(start=now,count=0,previous=0),scopes={},owners={},keys={},inflight={})
   self.save(s)
@@ -499,7 +578,7 @@ def _register_origin(self,identity,proof):
  if not isinstance(identity,str) or not identity.startswith('mint:') or not 5<len(identity)<=133 or not isinstance(proof,str) or len(proof)!=64:raise Integrity('HELIUS_ORIGIN_PROOF')
  alias=hashlib.sha256(identity.encode()).hexdigest()
  with self.locked():
-  s=self.read();b=_budget2(self,s)
+  s=self._writer_read();b=_budget2(self,s)
   if alias in b['owners']:return b['owners'][alias]['root']
   if len(b['scopes'])>=INVESTIGATION_MAX_ROOTS or len(b['owners'])>=INVESTIGATION_MAX_IDENTITIES:raise BudgetDeferred('HELIUS_ORIGIN_CAPACITY')
   b['owners'][alias]=dict(root=alias,parent=alias,proof=proof)
@@ -509,7 +588,7 @@ def _register_origin(self,identity,proof):
 def _bind_child(self,parent,child,proof):
  if any(not isinstance(v,str) or len(v)!=64 for v in (parent,child,proof)):raise Integrity('HELIUS_CHILD_PROOF')
  with self.locked():
-  s=self.read();b=_budget2(self,s)
+  s=self._writer_read();b=_budget2(self,s)
   if parent not in b['owners']:raise BudgetDeferred('HELIUS_UNATTRIBUTED_PARENT')
   root=b['owners'][parent]['root']
   if child in b['owners']:
@@ -593,7 +672,7 @@ def _reconcile_terminated_http(self,ticket,*,expected_sha256,expected_pid):
  # startup. Process absence is necessary; age/timeout alone grants nothing.
  if not isinstance(ticket,str) or len(ticket)!=32 or type(expected_pid) is not int or expected_pid<=1 or not isinstance(expected_sha256,str) or len(expected_sha256)!=64:raise Integrity('HELIUS_RETIREMENT_AUTHORITY')
  with self.locked():
-  state=self.read()
+  state=self._writer_read()
   if hashlib.sha256(self.path.read_bytes()).hexdigest()!=expected_sha256:raise Integrity('HELIUS_RETIREMENT_STATE_CHANGED')
   if state.get('rpc_budget',{}).get('version')!=2:raise Integrity('HELIUS_RETIREMENT_VERSION')
   budget=_budget2(self,state);entry=budget['inflight'].get(ticket)

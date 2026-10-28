@@ -24275,6 +24275,36 @@
     "status": "KEEP_MINT_FIRST_NORMAL",
     "strict_validation": "Preserved requirement: exact response-signature correlation, explicit successful-execution validation, Pump.fun program, exact mint and curve PDA, CREATE/CREATE_V2 compatibility, and qualified fee-payer creator authority. The retained four-signature serialized-creator decode is diagnostic evidence only and is not promoted to the runtime authority contract."
   },
+  "flex_v2_normal_helius_recovery_20261028": {
+    "acceptance": "301 seconds: all three workers RUNNING; 182 listener natural RPC reservations plus one manual probe; 5 canonical migrations and 5 CREATE delivery ACKs; zero Walkback completions; no inflight reservations at sample; five held requests retained.",
+    "blocker": "Full operational acceptance incomplete: Walkback heartbeat UNHEALTHY due pending work with zero completions; journal admission capacity remains critically narrow.",
+    "disk_free_bytes": 4228624384,
+    "engineering_revision": "7994dd8d43069fde510a4288aa1b957d6e8b5d8f",
+    "journal_free_slots": {
+      "birth": 2,
+      "migration": 5
+    },
+    "next_action": "Read-only trace current Walkback deferrals and protected journal reclamation eligibility; no replay/reset or gate bypass.",
+    "pids": {
+      "listener": 76395,
+      "resolver": 76441,
+      "walkback": 76510
+    },
+    "production_flags": {
+      "exhausted_replay": false,
+      "gate": "OPEN",
+      "investigation_lifetime_credit_limit": 100000,
+      "schema_changes": false,
+      "source_changes": false
+    },
+    "recovery": "Qualified conservative publication recovery preserved exact budget; one bounded HTTP200 usable transaction probe durably validated before finalization; required shared gate writers retired and restarted.",
+    "report_sha256": "1d69000340e532f9e377fa913dab138406bdfb191738d4b0f3329857f707ae70",
+    "runtime_walkback_revision": "38da4ccd",
+    "spending_history": "71183 preexisting reserved credits preserved; 100000 ceiling unchanged",
+    "status": "PARTIAL",
+    "tests": "Existing qualified recovery and probe validation reused; no new synthetic provider requests or source tests.",
+    "updated_utc": "2026-10-28T11:08:56.834168+00:00"
+  },
   "flex_v2_normal_operation_recovery_preflight": {
     "blocker": "No qualified route from ambiguous publication to verified OPEN within the current no-artificial-request restriction: conservative recovery restores closed state only; validated restoration probe remains required.",
     "engineering_revision": "b439ccf24168e7b11378a113106e255e98ba8834",
@@ -46298,7 +46328,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "b439ccf24168e7b11378a113106e255e98ba8834",
+    "git_head": "7994dd8d43069fde510a4288aa1b957d6e8b5d8f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

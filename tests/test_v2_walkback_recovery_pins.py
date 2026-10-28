@@ -7,7 +7,7 @@ from tests.test_v2_pending_recovery import prepare
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 RENDERER=ROOT/'docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py'
 OLD='0f52420bf82a0ba6090ab98f6630a36278318988d1af1a8f6165a19b7ca9d2d7'
-NEW='75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414'
+NEW='3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a'
 BASE='c4ae598c7db29147a17b43f95cc59fc8eb5304d3'
 
 def test_only_required_renderer_pin_changes():

@@ -160,11 +160,21 @@ def _rpc(method: str, params: list) -> Optional[object]:
     if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') != '1':
         return _rpc_uncached(method, params)
     from src.core import helius_http_protection as protection
-    gate = protection.gate.current()
-    scopes = protection._scope.get()
+    # Retry only read/authority checks before memo lookup or HTTP dispatch.
+    # Never retry a reservation, provider request, or completion here.
+    import time as _contention_time
+    for contention_attempt in range(5):
+        try:
+            gate = protection.gate.current()
+            scopes = protection._scope.get()
+            owners = tuple(gate.investigation_owner(alias) for alias in scopes)
+            break
+        except protection.gate.BudgetDeferred as exc:
+            if str(exc) != "HELIUS_GATE_BUSY" or contention_attempt == 4:
+                raise
+            _contention_time.sleep(0.025)
     if not scopes:
         return _rpc_uncached(method, params)  # existing gate refuses unowned work
-    owners = tuple(gate.investigation_owner(alias) for alias in scopes)
     global _WALKBACK_RPC_MEMO
     if '_WALKBACK_RPC_MEMO' not in globals():
         _WALKBACK_RPC_MEMO = QualifiedResultMemo()
@@ -1741,7 +1751,9 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
                 reason = str(e)
                 if not reason.startswith('HELIUS_') or len(reason) > 100 or not all(c.isupper() or c.isdigit() or c == '_' for c in reason):
                     reason = 'HELIUS_ACQUISITION_DEFERRED'
-                ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error=?,rpc_used=rpc_used+?,updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",(claim_refund,int(time.time())+300,reason,rpc[0],int(time.time()),mint,attempts + 1,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
+                # Lock contention is transient scheduling pressure, not acquisition failure.
+                retry_delay = 5 if isinstance(e, BudgetDeferred) and reason == "HELIUS_GATE_BUSY" else 300
+                ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error=?,rpc_used=rpc_used+?,updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",(claim_refund,int(time.time())+retry_delay,reason,rpc[0],int(time.time()),mint,attempts + 1,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
                 ops.commit();return rpc[0]
         err = str(e)
         print(f"[WALKBACK] error processing {mint[:16]}…: {err}", flush=True)
@@ -1880,7 +1892,11 @@ def drain_batch(ops: sqlite3.Connection, batch_size: int = BATCH_SIZE,
         "FROM wt_walkback_queue "
         "WHERE (status='pending' OR (status='running' AND COALESCE(lease_expires_at,0) < ?)) "
         "AND attempts < ? AND COALESCE(next_retry_at,0) <= ? "
-        "ORDER BY COALESCE(priority,0) DESC, enqueued_at ASC "
+        # Contended jobs rejoin their priority tier at the last deferral time;
+        # a short lock backoff must not monopolize the oldest batch head.
+        "ORDER BY COALESCE(priority,0) DESC, "
+        "CASE WHEN last_error='HELIUS_GATE_BUSY' THEN updated_at ELSE enqueued_at END ASC, "
+        "enqueued_at ASC "
         "LIMIT ?",
         (int(time.time()), MAX_ATTEMPTS, int(time.time()), batch_size)).fetchall()
 

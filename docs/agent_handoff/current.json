@@ -19531,6 +19531,260 @@
     "status": "COMPLETE_READ_ONLY_WITH_EXPLICIT_UNKNOWNS",
     "updated_at_utc": "2026-10-25T18:15:56.349016+00:00"
   },
+  "flex_v2_authorized_exact_v1_retirement": {
+    "engineering_revision": "64823aca9ae87324da7501f9894e3f67ff21e74a",
+    "installed_runtime_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Leave all three workers and lifecycle running. V1 database retirement complete. Retain all V1 sidecars, .retired markers, certificate, source/Git metadata, paired V2 state, spending and recovery evidence; no further deletion authorized. Continue existing operational observation of narrow birth headroom.",
+    "production_flags": {
+      "Golden": "unchanged",
+      "exact_two_V1_DBs": "removed with separate explicit authorization",
+      "gate": "OPENREADY6uncertain100000cap",
+      "lifecycle": "single15minute schedule active",
+      "other_deletion": false,
+      "workers": "unchanged3RUNNING"
+    },
+    "report": {
+      "ACTUAL_DISK_SPACE_RECOVERED": {
+        "acceptance_end_available_bytes": 56548159488,
+        "before_available_bytes": 4701208576,
+        "immediate_after_available_bytes": 56626642944,
+        "measurement": "Same-filesystem disk_usage/statvfs available-byte snapshots; df -k corroborated APFS Data volume. Net difference includes concurrent production writes/housekeeping; do not attribute exact difference solely to deletion or guarantee snapshot/clone reclamation.",
+        "net_available_increase_bytes": 51846950912,
+        "two_file_allocated_bytes": 51846807552
+      },
+      "BIRTH_MIGRATION_WALKBACK_ACCEPTANCE": {
+        "Walkback_completions": 1,
+        "birth_matching_readbacks_observed_lower_bound": 26,
+        "canonical_signature_complete_core_handoff_and_OPSqueue_matches_observed_lower_bound": 2,
+        "counts_are": "Bounded retained evidence lower bounds, not a complete all-Core migration census",
+        "duration_seconds": 309.2328598499298,
+        "existing_optional_audit_HANDOFF_IDENTITY_warnings": 2,
+        "migration_admissions_observed_lower_bound": 5,
+        "new_identity_publication_capacity_or_retry_exhaustion_errors": 0,
+        "warning_disposition": "Previously diagnosed fast-registration None-signature optional compact-audit warning; two corresponding canonical-signature/complete-Core-handoff/OPSqueue readbacks qualified. Not a V1 authority failure."
+      },
+      "EVIDENCE_SHA256": {
+        "acceptance": "794a4bf0b078b9a45e544ccb490090b29ec2b371dd8a002dd5c7c3293992dd24",
+        "execution": "9065189f07c632d053bf6e74f88f9f8097dc0d7b2223824220de087e75368b7f",
+        "plan": "4e5bd18a9ec30e26a6b5730d7a0f808b2d573fb3da327abc39d615e43ab19503"
+      },
+      "EXACT_FILES_DELETED": [
+        {
+          "allocated_bytes": 35652194304,
+          "ctime_ns": 1792936803254233133,
+          "device": 16777234,
+          "inode": 549513179,
+          "logical_bytes": 35652194304,
+          "mode": "0o644",
+          "mtime_ns": 1792936803254233133,
+          "nlink": 1,
+          "parent_device": 16777234,
+          "parent_inode": 282039557,
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+          "unlinked_at": 1793227041.7750962
+        },
+        {
+          "allocated_bytes": 16194613248,
+          "ctime_ns": 1792936827517545666,
+          "device": 16777234,
+          "inode": 421043107,
+          "logical_bytes": 16194387968,
+          "mode": "0o644",
+          "mtime_ns": 1792936827517545666,
+          "nlink": 1,
+          "parent_device": 16777234,
+          "parent_inode": 282039557,
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+          "unlinked_at": 1793227086.0613341
+        }
+      ],
+      "FLEX_V2_V1_RETIREMENT_STATUS": "PASS",
+      "HELIUS_SPENDING_PRESERVATION": {
+        "inflight_at_acceptance": 0,
+        "lifetime_limit": 100000,
+        "measurement": "local durable worst-case reserved credits, not billed credits",
+        "per_scope_no_decrement_verified_before_and_after_each_unlink": true,
+        "probe_or_gate_operation": false,
+        "publication": "OPEN READY checksum-valid",
+        "reserved_at_acceptance": 88814,
+        "reserved_before": 88693,
+        "six_uncertain_preserved": true
+      },
+      "JOURNAL_AND_STORAGE_HEALTH": {
+        "birth": {
+          "free": 8,
+          "occupied": 504,
+          "states": {
+            "ACKED": 1,
+            "QUARANTINED": 503
+          }
+        },
+        "caveat": "Birth headroom remains finite/narrow and recycles through accepted owners; no refusal observed.",
+        "core": {
+          "": 95428608,
+          "-shm": 32768,
+          "-wal": 0
+        },
+        "custody": {
+          "birth_terminal_owner_v1": [
+            752,
+            1021373
+          ],
+          "migration_deferred_owner_v1": [
+            785,
+            2060115
+          ],
+          "migration_terminal_owner_v1": [
+            1844,
+            2063307
+          ]
+        },
+        "migration": {
+          "free": 39,
+          "occupied": 473,
+          "states": {
+            "PENDING": 472,
+            "RESOLVED": 1
+          }
+        },
+        "ops": {
+          "": 167706624,
+          "-shm": 0,
+          "-wal": 0
+        },
+        "sidecars_preserved": true,
+        "single_15_minute_lifecycle": {
+          "every_15_minutes": true,
+          "schedule_count": 1,
+          "successor_source_and_certificate_verified": true
+        }
+      },
+      "NEXT_ACTION": "Leave all three workers and lifecycle running. V1 database retirement complete. Retain all V1 sidecars, .retired markers, certificate, source/Git metadata, paired V2 state, spending and recovery evidence; no further deletion authorized. Continue existing operational observation of narrow birth headroom.",
+      "RECOVERY_VALIDATION": {
+        "Golden_commit": "8322e2c98a5a096863c253d33f79bff161fde629",
+        "Golden_tag": "flex-v2-golden-2026-10-28",
+        "Golden_unchanged": true,
+        "V2_only_pair_and_certificate_after_both_absent": true,
+        "certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+        "entrypoints": {
+          "dev004_fresh_pair_recovery.py": {
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source/scripts/flex_v2_fresh_pair_recovery.py",
+            "sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5"
+          },
+          "dev004_production_control.py": {
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+            "sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb"
+          },
+          "git_common_dir": "/Users/kevinkeaveney/Dev/claude/flex/.git",
+          "source_commit": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+          "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source",
+          "supervisor_preimage_verified": true
+        },
+        "no_live_recovery": true,
+        "original_retired_markers_preserved": true
+      },
+      "SAFETY": "Only two qualified V1 DB unlink operations; no other deletion, V1 content reads, copies, worker signals/restarts, provider test calls, gate operations, budget changes, replay/reset or Golden changes.",
+      "V1_ABSENCE_VERIFIED": true,
+      "V2_AUTHORITY_AFTER_EACH_UNLINK": [
+        {
+          "at": 1793227042.939685,
+          "birth_free": 2,
+          "evidence": "/private/tmp/flex-v1-retirement-check-after-1.json",
+          "gate": {
+            "inflight": 0,
+            "limit": 100000,
+            "publication": "READY_CHECKSUM_VALID",
+            "reserved_estimate": 88706,
+            "state": "OPEN",
+            "uncertain": 6
+          },
+          "migration_free": 26,
+          "sha256": "e9869f728d87358e750f26fbfeee634f3987bbb746db5ef3969cdfb07d1be43c",
+          "stage": "after-1",
+          "workers": {
+            "creator_resolution": {
+              "generation": "DEV004-V2-20261024-dfb76562",
+              "pid": 77785,
+              "retirement_bindings_verified": true,
+              "source_matches": true
+            },
+            "listener": {
+              "generation": "DEV004-V2-20261024-dfb76562",
+              "pid": 77731,
+              "retirement_bindings_verified": true,
+              "source_matches": true
+            },
+            "walkback": {
+              "generation": "DEV004-V2-20261024-dfb76562",
+              "pid": 77830,
+              "retirement_bindings_verified": true,
+              "source_matches": true
+            }
+          }
+        },
+        {
+          "at": 1793227087.164098,
+          "birth_free": 14,
+          "evidence": "/private/tmp/flex-v1-retirement-check-after-2.json",
+          "gate": {
+            "inflight": 0,
+            "limit": 100000,
+            "publication": "READY_CHECKSUM_VALID",
+            "reserved_estimate": 88721,
+            "state": "OPEN",
+            "uncertain": 6
+          },
+          "migration_free": 22,
+          "sha256": "64758e26f1aa741cc5a26d183317d54209e254cb279101cb4a6d778949d0a2dd",
+          "stage": "after-2",
+          "workers": {
+            "creator_resolution": {
+              "generation": "DEV004-V2-20261024-dfb76562",
+              "pid": 77785,
+              "retirement_bindings_verified": true,
+              "source_matches": true
+            },
+            "listener": {
+              "generation": "DEV004-V2-20261024-dfb76562",
+              "pid": 77731,
+              "retirement_bindings_verified": true,
+              "source_matches": true
+            },
+            "walkback": {
+              "generation": "DEV004-V2-20261024-dfb76562",
+              "pid": 77830,
+              "retirement_bindings_verified": true,
+              "source_matches": true
+            }
+          }
+        }
+      ],
+      "WORKER_PID_CONTINUITY": {
+        "creator_resolution": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 77785,
+          "retirement_bindings_verified": true,
+          "source_matches": true
+        },
+        "listener": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 77731,
+          "retirement_bindings_verified": true,
+          "source_matches": true
+        },
+        "walkback": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 77830,
+          "retirement_bindings_verified": true,
+          "source_matches": true
+        }
+      }
+    },
+    "report_path": "/private/tmp/FLEX_V2_V1_RETIREMENT_STATUS.json",
+    "report_sha256": "569c0939c1399bf30b568b50f70934a28e2931bb8d0925e0be1850871abc78c3",
+    "status": "PASS",
+    "tests": "Reuse47 compact provider-free controls; all immediate per-unlink authority checks and309second natural acceptance PASS"
+  },
   "flex_v2_birth_conflict_capacity": {
     "acceptance": {
       "all_three_workers_running": true,
@@ -40780,7 +41034,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-28T22:31:07.990693+00:00",
+  "latest_at_utc": "2026-10-28T22:44:02.917787+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -50199,7 +50453,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Obtain explicit authorization for only the two .db paths in this plan. Recheck all gates immediately before execution; delete nothing under this preflight.",
+  "next_action": "Leave all three workers and lifecycle running. V1 database retirement complete. Retain all V1 sidecars, .retired markers, certificate, source/Git metadata, paired V2 state, spending and recovery evidence; no further deletion authorized. Continue existing operational observation of narrow birth headroom.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -52388,8 +52642,8 @@
     "git_head": "64823aca9ae87324da7501f9894e3f67ff21e74a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T22:31:07.990693+00:00",
-    "working_tree": "Final exact-two-file V1deletionplan verified only; no deletion or production changes. Currentcertificate/source/V2pair/workers/OPENREADY/recovery valid. Targets matchdev/inode/allocatedsize,nlink1,no symlinks/handles. TwoDB allocation51846807552; ALL WAL/SHM and .retired metadata excluded. Awaitseparateauthorization; birthheadroom1 slot requiresimmediaterecheck."
+    "updated_at_utc": "2026-10-28T22:44:02.917787+00:00",
+    "working_tree": "V1RETIREMENTPASS:exacttwoDBfiles unlinked only afterallgates; V1contentneveropened. Bothabsent,V2authorityverifiedaftereach. 309sacceptance,unchanged3PIDs,26birthmatches/5migrationadmissions/2canonicalhandoffs/1Walkback lowerbounds. GateOPENREADY6uncertain100000cap; noidentity/publication/capacity/exhaustionerrors. Netfreegain51846950912,currentfree56548159488. Allsidecars/markers/certificate/Goldenpreserved."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -53791,7 +54045,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "GO_FOR_SEPARATELY_AUTHORIZED_EXACT_TWO_FILE_RETIREMENT",
+  "status": "FLEX_V2_V1_RETIREMENT_PASS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -55370,7 +55624,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_PLAN_ONLY",
+  "verdict": "PASS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

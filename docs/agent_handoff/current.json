@@ -28064,6 +28064,166 @@
       "preexisting_deferred_revisions_advanced": 146
     }
   },
+  "flex_v2_seven_day_lifecycle_install_preflight": {
+    "DISK_AND_RUNTIME_SAFETY": {
+      "absolute_wal_or5GiB_guarantee": false,
+      "database_files": {
+        "core": {
+          "database": 92237824
+        },
+        "ops": {
+          "database": 166330368
+        }
+      },
+      "existing_log_rotation": "Retained; no competing log owner introduced",
+      "floor_bytes": 2067108864,
+      "free_bytes": 5753118720,
+      "gate": "OPEN_CHECKSUM_VALID_WITHOUT_LOCK",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "legacy_maintenance_runtime_flag": "OFF (0), so missing source guard is not an observed active legacy cleanup failure",
+      "limit": 100000,
+      "owner_cooperative_bounds": {
+        "db_start_ceiling": 480000000,
+        "vm_instructions": 100000,
+        "wal_start_refusal": 8000000,
+        "writer_timeout_seconds": 0.05
+      },
+      "services": "watchtower_listener              RUNNING   pid 43753, uptime 3:49:12\ncreator_resolution_worker        RUNNING   pid 28017, uptime 4:38:05\nwalkback_worker                  RUNNING   pid 28051, uptime 4:37:59\n",
+      "single_file_cap": 499000000
+    },
+    "EXACT_INSTALLATION_SCOPE": {
+      "blocker": "Accepted paired-V2 maintenance guard is absent from current listener. Old qualified whole-file listener must not overwrite current accepted journal/gate/CREATE corrections. A narrowly rebased guard and matching current recovery pins must be qualified first.",
+      "listener_maintenance_caller_current_sha256": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+      "minimum_reload_boundary_if_later_qualified": "Three cache modules are imported by active role packages; use separately authorized listener/resolver/Walkback activation boundaries to guarantee new caller code is loaded. No restart authorized or performed during preflight.",
+      "qualified_cache_callers": [
+        {
+          "bytes": 26206,
+          "preimage_sha256": "58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7",
+          "qualified_sha256": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+          "qualified_source": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source/runtime/creator_resolution/src/core/rpc_cache.py",
+          "role": "creator_resolution",
+          "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/rpc_cache.py"
+        },
+        {
+          "bytes": 26206,
+          "preimage_sha256": "58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7",
+          "qualified_sha256": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+          "qualified_source": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source/runtime/listener/src/core/rpc_cache.py",
+          "role": "listener",
+          "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/rpc_cache.py"
+        },
+        {
+          "bytes": 13514,
+          "preimage_sha256": "02e83f42224c6a5e8e0439c69a91c4de66a596d589ff8f4c30d83651c219fd6c",
+          "qualified_sha256": "f6844c0dc609aa0a60cb81ba9ca6704fdd06bfcd78086fd8a5465de2c3f62d9e",
+          "qualified_source": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source/runtime/walkback/src/core/rpc_cache.py",
+          "role": "walkback",
+          "target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/rpc_cache.py"
+        }
+      ],
+      "temporary_data_scope": "This owner selects cache/WSS only. No temp/raw/log age deletion added. Existing qualified temp owner is a separate preserved contract, not silently included."
+    },
+    "FLEX_V2_LIFECYCLE_PREFLIGHT_STATUS": "HOLD_SINGLE_CALLER_COMPATIBILITY_BLOCKER",
+    "GO_HOLD_DECISION": "HOLD",
+    "NEXT_ACTION": "One focused DEV integration:restore the already-qualified paired-V2 maintenance guard against exact current listener preimage; refresh current listener recovery hash pins and qualify with the existing lifecycle/caller controls. Keep3cache caller deltas and4ba3ee20 recovery semantics; resume this preflight. Do not install stale whole-file source.",
+    "PROTECTED_EVIDENCE_EXCLUSIONS": [
+      "canonical births/migrations/CREATE",
+      "receipts/journals",
+      "pending,retry,quarantine",
+      "terminal/deferred custody",
+      "Helius ledger,spending,uncertain requests",
+      "attribution,operations,funding,prices,BIRDEYE checkpoints",
+      "unknown schema/dependencies",
+      "unexpired or insufficiently old cache"
+    ],
+    "QUALIFIED_SOURCE_AND_OWNER": {
+      "accepted_provider_free_controls": 31,
+      "already_staged_in_immutable_recovery_source": true,
+      "commit": "4ba3ee2012f9fb94d037bff87fc708e1905f7b06",
+      "live_schema_readonly_checks": {
+        "core:rpc_response_cache": "SCHEMA_DEPENDENCY_PASS",
+        "core:wss_metrics": "SCHEMA_DEPENDENCY_PASS",
+        "ops:rpc_response_cache": "ABSENT_PROTECTED_SKIP"
+      },
+      "original_accepted_qualification_commit": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
+      "owner": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source/runtime/listener/src/ops/v2_storage_lifecycle.py",
+      "owner_sha256": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88"
+    },
+    "RECOVERY_COMPATIBILITY": {
+      "current_recovery_commit": "4ba3ee2012f9fb94d037bff87fc708e1905f7b06",
+      "entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "legacy_tool_not_selected": true,
+      "recent_pending_claim_correction_preserved": true,
+      "remaining": "New listener guard changes current listener hash, so exact renderer/terminal pins must be updated in the same qualified candidate before installation. No installed recovery references changed."
+    },
+    "SCHEDULE_AND_INITIALIZATION": {
+      "initialization": "Explicit --initialize creates versioned state table in each matched store and three family rows; source families absent remain protected/skipped. No canonical DDL changed.",
+      "manifest_serialization": "JSON sorted keys,indent2,newline",
+      "manifest_sha256": "3b40248f8c4e4ecf6b28b99b9206c8bd3bcc33acd16bf522c8ca291f1034a06c",
+      "minimum_order": [
+        "Qualify exact current maintenance caller/pins",
+        "Stage exact cache callers and manifest",
+        "Initialize owner state under accepted low-priority writer leases",
+        "Activate updated callers through separately authorized worker boundaries",
+        "Enable only one15-minute lifecycle schedule and verify first bounded run"
+      ],
+      "proposed_existing_owner_schedule": "*/15 * * * * cd /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source/runtime/listener && /Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -B -m src.ops.v2_storage_lifecycle --manifest /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v2-storage-lifecycle-manifest.json --sha256 3b40248f8c4e4ecf6b28b99b9206c8bd3bcc33acd16bf522c8ca291f1034a06c --once --quiet >/dev/null 2>&1",
+      "prospective_manifest": {
+        "core": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "lock": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v2-storage-lifecycle.lock",
+        "ops": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+        "pair_authority": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+        "pair_manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+        "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+        "version": 1
+      },
+      "prospective_manifest_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v2-storage-lifecycle-manifest.json",
+      "single_owner": "Existing lifecycle lock prevents concurrent duplicate cleanup. No schedule installed here.",
+      "status": "NOT_INSTALLED_NOT_INITIALIZED"
+    },
+    "SEVEN_DAY_RETENTION_POLICY": {
+      "batch_rows": 64,
+      "cursor_commit_atomic": true,
+      "estimated_delete_bytes_per_step": 1000000,
+      "exact_seven_days_preserved": true,
+      "older_than_seconds": 604800,
+      "page_reuse": "Accepted219pages before/after reinsertion,192free after deletion; noVACUUM",
+      "restart_and_idempotence": "Accepted controls reused",
+      "rpc_cache_also_expired": true,
+      "steps_per_run": 3
+    },
+    "blocker": "Accepted paired-V2 maintenance guard absent from exact current listener; focused no-provider AST fixture fails existing no-database-open contract. Runtime maintenance flag remains0, so no live failure asserted. Need narrow rebase and matching current pins, not stale listener replacement.",
+    "engineering_revision": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
+    "evidence_sha256": "07b7380c351094228765aabbce8259310c575cf5ebea121a304d5361fafc7a27",
+    "focused_fixture_result": {
+      "accepted_qualified": {
+        "database_open_attempts": 0,
+        "expected_zero_under_paired_V2": true
+      },
+      "current_installed": {
+        "database_open_attempts": 1,
+        "expected_zero_under_paired_V2": true
+      },
+      "production_database_calls": 0,
+      "provider_calls": 0,
+      "result": "FAIL_CURRENT_CALLER_MISSING_ACCEPTED_PAIRED_V2_GUARD",
+      "source_changes": 0,
+      "threads_created": 0
+    },
+    "observed_utc": "2026-10-28T18:52:28.550307+00:00",
+    "safety": {
+      "V1_access": 0,
+      "cleanup_deletions": 0,
+      "disposable_compatibility_tests": 1,
+      "live_gate_locks": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "queue_replay_reset": 0,
+      "schema_initializations": 0,
+      "service_restarts": 0
+    }
+  },
   "flex_v2_seven_day_repeat_creator_population_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Seven-dayPumpPortal-only completeness and historicalprior-launch/caching coverage incomplete; populationcounts cannot establish redundantRPCsavings.",
@@ -49877,8 +50037,8 @@
     "git_head": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T18:27:18.548111+00:00",
-    "working_tree": "Recovery-only4ba3ee20 installed and pinned;primary legacy pointer replaced; workers43753/28017/28051 unchanged,gateOPEN100k preserved,5.58GBfree. No recoveryexecution,DB/journalmutation,gateoperation,cleanup orrestart."
+    "updated_at_utc": "2026-10-28T18:53:07.809916+00:00",
+    "working_tree": "Seven-day lifecycle installation preflightHOLD:owner/livecache-WSSschemasPASS;currentlistenermissingqualifiedpaired-maintenanceguard fixtureFAIL. FlagOFF0 preservesnormalruntime. Three cachecallers + guard/currentpins requirefocusedDEVintegration.4ba3ee20 recoveryunchanged,gateOPEN,5.75GBfree;no productionchanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -105,8 +105,8 @@
         },
         "pure_validation_passed": true,
         "unresolved_publication_stage_present": false,
-        "source_eligible_deferred_candidates_untransferred": 495,
-        "dispatch_reserved_protected": 1
+        "dispatch_reserved_protected": 1,
+        "source_predicate_eligible_for_deferred_custody": 495
       }
     },
     "custody_quotas": {
@@ -136,7 +136,7 @@
       }
     },
     "records_transferred_or_replayed": 0,
-    "note": "Source-eligible deferred candidates are not claimed reclaimed. Any transfer remains existing independently verified custody; preflight performs no lifecycle writes."
+    "note": "This is source-predicate eligibility only, not verified reclamation or a claim that an OPS copy is absent. Any transfer requires the existing durable commit/readback guards; preflight performs no lifecycle writes."
   },
   "DISK_AND_WAL_HEALTH": {
     "disk_free_bytes": 7795404800,

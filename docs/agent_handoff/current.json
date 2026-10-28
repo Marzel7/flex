@@ -22655,6 +22655,251 @@
     },
     "verdict": "HOLD_PENDING_DEPLOYMENT_AND_LIVE_ACCEPTANCE"
   },
+  "flex_v2_last_six_hour_operational_audit": {
+    "births": {
+      "committed_receipt_core_matches": 1089,
+      "definition": "Retained receipt reception timestamps; recent-file metadata prefilter only, per-record timestamp qualification. Counts are retained evidence, not guaranteed all notifications delivered by provider.",
+      "exact_creator_signature_matches": 1089,
+      "metadata_entries_examined": 164365,
+      "receipt_outcomes": {
+        "COMMITTED": 1089,
+        "RETRY_PENDING": 5
+      },
+      "recent_payloads_examined": 1101,
+      "retained_receipts_received_in_window": 1094,
+      "retry_mints_also_committed": 0,
+      "unique_committed_mints": 1089,
+      "unique_mints": 1093,
+      "unique_receipt_identities": 1094,
+      "unique_retry_mints": 4
+    },
+    "blocker": null,
+    "canonical_migrations": {
+      "anchor_states": {
+        "VALID": 6
+      },
+      "canonical_migrated_at_in_window": 6,
+      "definition": "Canonical migrated_at window, not proven physical commit-time census; exact indexed signatures and handoffs read back.",
+      "handoff_states": {
+        "COMPLETE_EXACT_SIGNATURE": 6
+      },
+      "index_entries_examined": 7414,
+      "matching_handoffs_completed_in_window": 6,
+      "query_plan": [
+        [
+          4,
+          0,
+          0,
+          "SEARCH token_analysis USING COVERING INDEX idx_psi0a_token_analysis_migration_tx (migration_tx>?)"
+        ]
+      ]
+    },
+    "create_delivery": {
+      "acked_in_window": 6,
+      "acked_sources": {
+        "PUMPPORTAL": 6
+      },
+      "current_states": {
+        "ACK": 1613,
+        "BLOCKED": 26
+      }
+    },
+    "creator_resolution": {
+      "completed_in_window": 0,
+      "current_states": {
+        "complete": 241,
+        "skipped": 376
+      },
+      "new_jobs_in_window": 0,
+      "updated_rows_in_window": 0
+    },
+    "credits_since_recovery": {
+      "credits_by_worker": {
+        "creator_resolution": 0,
+        "listener": 36,
+        "walkback": 774
+      },
+      "from_utc": "2026-10-28T08:43:07.453551Z",
+      "limit": "Exact ledger delta since clock recovery, a subset of the six-hour window. No exact six-hour billing total claimed.",
+      "total": 810
+    },
+    "disk_free_bytes": 2905235456,
+    "engineering_revision": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
+    "helius": {
+      "clock_divergence_seconds": 1,
+      "highest_investigation_spend": 7936,
+      "inflight": 0,
+      "lifetime_limit": 100000,
+      "reserved_credits_total": 70676,
+      "state": "OPEN"
+    },
+    "journals": {
+      "birth": {
+        "current_count": 495,
+        "current_states": {
+          "ACKED": 1,
+          "QUARANTINED": 494
+        },
+        "retained_received_window": {}
+      },
+      "migration": {
+        "current_count": 496,
+        "current_states": {
+          "ACKED": 6,
+          "PENDING": 487,
+          "QUARANTINED": 2,
+          "RESOLVED": 1
+        },
+        "retained_received_window": {
+          "PUMPPORTAL_MIGRATION:ACKED": 1,
+          "PUMPPORTAL_MIGRATION:PENDING": 9,
+          "PUMPSWAP_MIGRATION_ACCOUNT:ACKED": 2,
+          "PUMPSWAP_MIGRATION_ACCOUNT:PENDING": 12
+        }
+      }
+    },
+    "limitations": [
+      "UTC timestamp-based retained evidence; recent wall/monotonic clock discontinuity prevents claiming uninterrupted physical observation.",
+      "Retained receipts and notifications are not a provider-delivery census.",
+      "CREATE acknowledgements/current valid anchors do not prove exact historical activation-at-handoff timing.",
+      "No complete six-hour Helius billing total or universal request counter available.",
+      "Supervisor logs show restarts; RUNNING now does not prove uninterrupted provider processing."
+    ],
+    "next_action": "Continue natural operation and bounded monitoring. Six-hour report is retained-evidence limited; no billing or uninterrupted-uptime claim. Do not replay exhausted work or change budgets.",
+    "production_flags": "OPEN shared gate;100000credit investigation limit unchanged. Current matched V2 runtime; no lifecycle mutations.",
+    "retained_migration_notifications": {
+      "distinct": 24,
+      "limit": "Lower-bound retained notifications; completed reclaimed notifications may no longer be represented. Not total provider deliveries.",
+      "population_examined": {
+        "migration_deferred_evidence_v1": 511,
+        "migration_terminal_evidence_v1": 1808
+      },
+      "sources": {
+        "PUMPPORTAL_MIGRATION": 10,
+        "PUMPSWAP_MIGRATION_ACCOUNT": 14
+      }
+    },
+    "rpc_telemetry": {
+      "by_provider": {},
+      "by_section_method": {},
+      "cache_actions": {},
+      "limit": "Telemetry rows have partial transport coverage; credits are recorded telemetry, not independently verified Helius billed credits.",
+      "recorded_requests": 0,
+      "status_codes": {},
+      "telemetry_credits": 0
+    },
+    "safety": {
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "restarts": 0,
+      "retry_replay_reset": 0,
+      "v1_access": 0
+    },
+    "service_history": {
+      "bytes_examined": 4663166,
+      "events": [
+        {
+          "kind": "exited:",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 03:55:49Z"
+        },
+        {
+          "kind": "spawned:",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 03:55:50Z"
+        },
+        {
+          "kind": "entered RUNNING",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 03:56:01Z"
+        },
+        {
+          "kind": "exited:",
+          "role": "creator_resolution_worker",
+          "utc": "2026-10-28 04:56:38Z"
+        },
+        {
+          "kind": "spawned:",
+          "role": "creator_resolution_worker",
+          "utc": "2026-10-28 04:56:39Z"
+        },
+        {
+          "kind": "entered RUNNING",
+          "role": "creator_resolution_worker",
+          "utc": "2026-10-28 04:56:44Z"
+        },
+        {
+          "kind": "exited:",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 04:56:47Z"
+        },
+        {
+          "kind": "spawned:",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 04:56:48Z"
+        },
+        {
+          "kind": "entered RUNNING",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 04:56:58Z"
+        },
+        {
+          "kind": "exited:",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 05:57:45Z"
+        },
+        {
+          "kind": "spawned:",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 05:57:46Z"
+        },
+        {
+          "kind": "entered RUNNING",
+          "role": "watchtower_listener",
+          "utc": "2026-10-28 05:57:57Z"
+        }
+      ],
+      "limit": "Retained Supervisor log only; process RUNNING does not prove uninterrupted provider availability."
+    },
+    "services_now": {
+      "creator_resolution_worker": {
+        "pid": 37767,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 34365,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 38003,
+        "state": "RUNNING"
+      }
+    },
+    "status": "COMPLETE_EVIDENCE_LIMITED",
+    "tests": "No tests or provider requests; indexed/bounded read-only evidence only.",
+    "walkback": {
+      "completed_in_window": 23,
+      "completed_outcomes": {
+        "LINEAGE_GAP": 9,
+        "NO_ATTRIBUTION_FOUND": 14
+      },
+      "current_states": {
+        "complete": 1956,
+        "failed": 6,
+        "pending": 141,
+        "waiting": 1550
+      },
+      "new_job_states_now": {
+        "pending": 6
+      },
+      "new_jobs_in_window": 6,
+      "updated_rows_in_window": 158
+    },
+    "window_utc": [
+      "2026-10-28T03:11:01+00:00",
+      "2026-10-28T09:11:01+00:00"
+    ]
+  },
   "flex_v2_listener_exit_diagnosis": {
     "cause": "Installed PumpSwap WS reconnect loop explicitly os._exit(1) after10 consecutive failures; fatal logs align with two original exits. Recurred during bounded observation. Underlying exception masked by broad connection/refused log classifier; network root cause unproven.",
     "current_stability": "Not established; whole listener repeatedly replaced while PumpPortal births otherwise active.",
@@ -40974,7 +41219,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave all three workers running and monitor natural throughput, clock alignment and disk headroom. No additional recovery or provider probe required.",
+  "next_action": "Continue natural operation and bounded monitoring. Six-hour report is retained-evidence limited; no billing or uninterrupted-uptime claim. Do not replay exhausted work or change budgets.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -43163,8 +43408,8 @@
     "git_head": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T08:49:24.453301+00:00",
-    "working_tree": "Qualified447190ee offline recovery changed only durable clock anchors. Runtime38da4ccd unchanged; five-minute natural acceptance PASS. No restarts, probes or exhausted replay during clock recovery."
+    "updated_at_utc": "2026-10-28T09:13:43.534939+00:00",
+    "working_tree": "Read-only last-six-hour operational audit. No production/provider/service changes. Runtime remains38da4ccd."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -44566,7 +44811,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_CLOCK_RECOVERY_AND_WALKBACK_ACCEPTANCE_PASS",
+  "status": "FLEX_V2_SIX_HOUR_STATUS_AUDIT_COMPLETE",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -46145,7 +46390,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "RECOVERED_AND_NATURALLY_ACCEPTED",
+  "verdict": "READ_ONLY_METRICS_WITH_COVERAGE_LIMITS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

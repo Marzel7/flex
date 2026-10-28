@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No qualified route from ambiguous publication to verified OPEN within the current no-artificial-request restriction: conservative recovery restores closed state only; validated restoration probe remains required.",
+  "blocker": "No complete qualified funding route in latest100; provider publication ambiguous and disk below established safety floor.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -25940,6 +25940,2057 @@
     "status": "PARTIAL",
     "verification": "Read-only19\u201322UTC plus22:00\u201322:32:16 partial: COMMITTED1835/1425/1685/763; migrations41/7/64/26; strictRPC11/1/14/1; Walkback29/5/40/20. Installed hashes unchanged."
   },
+  "flex_v2_walkback_intelligence_quality_audit": {
+    "COMPLETE_FUNDING_ROUTES": {
+      "count": 0,
+      "missing": "No complete source-qualified Treasury \u2192 SubProvider \u2192 distinct Funding Account \u2192 Creator \u2192 Launch chain; funding accounts were not collapsed into subproviders.",
+      "qualified_known_treasury_roots": 0
+    },
+    "CURRENT_UI_PRESENTATION": {
+      "distinction": "Some provenance/typed outcomes/transaction roles already exist but are fragmented across endpoints. Missing verified treasury roots and funding accounts in98 investigations are underlying data gaps; a UI cannot invent them.",
+      "main_exposes": [
+        "mint",
+        "creator",
+        "subprov",
+        "treasury",
+        "class",
+        "intelligence_outcome",
+        "status",
+        "logical rpc_used",
+        "timestamps"
+      ],
+      "main_omits": [
+        "separate funding-account role",
+        "funding signature and full selected-edge route",
+        "typed canonical stop reason",
+        "confidence/provenance and specific missing edge"
+      ],
+      "main_queue_endpoint": "/api/ops/walkback-queue",
+      "mode": "Static accepted source-contract review only. No API startup, HTTP calls, browser acceptance or UI changes.",
+      "other_contracts": [
+        "/api/ops-v2/attribution-outcomes exposes separate typed outcome detail",
+        "/api/ops-v2/provisioning-edges/<wallet> exposes retained edge facts",
+        "operator Walkback Review template shows treasury/subprovider and funding tx, but not an explicit intermediate funding account"
+      ]
+    },
+    "EVIDENCE_QUALITY": {
+      "Insufficient evidence": 39,
+      "Known-CEX boundary": 19,
+      "Partial but useful": 42,
+      "complete_and_source_qualified": 0,
+      "limits": "39 investigations lack a selected funding edge. 96 retain matching qualified Core creator/CREATE identity. Empty history, null transactions and excluded candidates are not fully distinguished by retained negative evidence. CEX/relay boundaries are valid stop dispositions, not proof no operation exists.",
+      "unknown": 0
+    },
+    "FLEX_V2_WALKBACK_INTELLIGENCE_STATUS": "AUDIT_COMPLETE_WITH_OPERATIONAL_AND_EVIDENCE_LIMITATIONS",
+    "GOLDEN_BASELINE_IMPLICATION": "HOLD: throughput is not intelligence acceptance. Useful partial funding facts and review candidates exist, but no complete attributed route in this cohort. Provider publication remains ambiguous and disk is below safety floor; no Golden Baseline freeze.",
+    "KNOWN_OPERATION_MATCHES": {
+      "confirmed_watchtower": 0,
+      "missing_attribution_not_inferred": true,
+      "other_confirmed": 0
+    },
+    "MISSING_INTELLIGENCE": [
+      "No qualified known treasury/root route in this100, so confirmed recognition was not demonstrated\u2014not proven broken.",
+      "Explicit distinct funding-account projection exists for only2 investigations; do not relabel direct funder/subprov fields to fill98 gaps.",
+      "Known-operation confidence cannot be derived from shared wallets alone, especially CEX/relay boundaries.",
+      "No explicit selected-cohort mint/wallet association, child membership or workflow-provenance link into existing Potential Operations records.",
+      "No durable cache-hit metrics or complete per-run dispatch accounting to quantify savings."
+    ],
+    "NEW_OPERATION_CANDIDATES": {
+      "all_pending_review": true,
+      "linked_review_wallets": 28,
+      "newly_discovered_by_these_runs": "UNPROVEN; existing candidate retention, not a causal discovery-time census",
+      "potential_existing_paused_identities": 2,
+      "potential_explicit_cohort_links": 0,
+      "reservoir_role_candidates": 19,
+      "review_rows_direct_to_cohort": 21,
+      "service_exchange": 4,
+      "treasury_role_candidates": 1,
+      "unknown_infrastructure": 4
+    },
+    "NEXT_ACTION": "Stop at audit. Restore disk/publication safety under separate authorization. Smallest subsequent intelligence task: expose existing per-launch typed outcome, selected edges, distinct funding-account evidence and missing-edge conditions in the current review contract; do not acquire history or promote candidates.",
+    "PARTIAL_FUNDING_ROUTES": {
+      "decoded_creator_funding_cases": 60,
+      "distinct_direct_funders": 45,
+      "explicit_funding_account_cases": 2,
+      "quality_partial_useful": 42,
+      "selected_edge_investigations": 61,
+      "selected_edges": 120
+    },
+    "RPC_EFFICIENCY": {
+      "all_role_reserved_credits": 32784,
+      "all_role_reserved_requests": 32784,
+      "cache": "Installed QualifiedResultMemo is process-local:256entries/2MiB,128KiB result cap;60s transaction/account and15s signatures TTL. No retained hit counters or measured billed-credit savings.",
+      "caveat": "Ledger root covers lifetime/descendant/all-role work, not a completed-run invoice. rpc_used is a logical counter and can include memo reuse. No measured cache savings or full actual dispatch count inferred.",
+      "distinct_budget_roots": 100,
+      "interpretation": "All-root request reservations include other workers, prior attempts and descendant work. Repeat keys are not necessarily failed-provider retries. Current PENDING publication makes ledger numbers provisional; no six-hour billing or per-run wire-call count claimed.",
+      "ledger_publication": "PENDING_UNVERIFIED_PUBLICATION",
+      "logical_rpc_counter_total": 1904,
+      "max_walkback_credits_per_root": 7924,
+      "mean_logical_rpc_counter_per_completion": 19.04,
+      "median_walkback_credits_per_root": 14,
+      "over1000_roots": 9,
+      "over1000_with_no_selected_edges": 1,
+      "repeat_request_key_reservation_percent": 93.69,
+      "retained_content_validated_offline": true,
+      "root_retry_reservations": 30715,
+      "top5": [
+        {
+          "all_role_requests": 7936,
+          "mint_sha256": "7a366269af3b1f27dc624c50317509b5f1a23101611c6056c4627bc0abd675d9",
+          "quality": "Partial but useful",
+          "repeat_key_reservations": 7872,
+          "selected_edges": 5,
+          "walkback_credits": 7924
+        },
+        {
+          "all_role_requests": 2741,
+          "mint_sha256": "2ca6d9a8a391cffbfefad3c8d39144524e62b2ffe18c5907144ec2604b6532f8",
+          "quality": "Known-CEX boundary",
+          "repeat_key_reservations": 2713,
+          "selected_edges": 3,
+          "walkback_credits": 2735
+        },
+        {
+          "all_role_requests": 2232,
+          "mint_sha256": "afdc94661d8cd6e62dcc594e396ac98d7c0be80fdb318c135511e43de9c6515b",
+          "quality": "Partial but useful",
+          "repeat_key_reservations": 2206,
+          "selected_edges": 2,
+          "walkback_credits": 2226
+        },
+        {
+          "all_role_requests": 2193,
+          "mint_sha256": "1ef112c61d5e0d0a8a11c7c019c7d746e7ceb9582cfb9c69cb97f60b09ad27ad",
+          "quality": "Partial but useful",
+          "repeat_key_reservations": 2156,
+          "selected_edges": 5,
+          "walkback_credits": 2187
+        },
+        {
+          "all_role_requests": 2084,
+          "mint_sha256": "b5ca9bd063a8b5b0c162e372c4443ad34a6e0b6eb9809a8e15f0d81bfc76740a",
+          "quality": "Known-CEX boundary",
+          "repeat_key_reservations": 2036,
+          "selected_edges": 2,
+          "walkback_credits": 2049
+        }
+      ],
+      "tracked_cases": 100,
+      "untracked_cases": 0,
+      "walkback_reserved_credits": 32102
+    },
+    "candidate_retention": {
+      "candidate_descendant_links": 0,
+      "candidate_review_states": {
+        "PENDING_REVIEW": 28
+      },
+      "candidate_roles": {
+        "MIXED_CAPITAL_RESERVOIR": 19,
+        "OPERATIONAL_TREASURY": 1,
+        "SERVICE_OR_EXCHANGE": 4,
+        "UNKNOWN_INFRASTRUCTURE": 4
+      },
+      "child_candidates_with_cohort_members": 0,
+      "explicit_cohort_workflow_provenance_matches": 0,
+      "infrastructure_candidate_wallets_linked": 28,
+      "population_counts": {
+        "confirmed_operation_matches": 324,
+        "potential_operation_current": 2,
+        "potential_operation_evidence_association": 183,
+        "potential_operation_identity": 2,
+        "potential_operation_workflows": 63,
+        "wt_infrastructure_candidate_descendants": 0,
+        "wt_infrastructure_candidates": 546,
+        "wt_ops_v2": 3,
+        "wt_ops_v2_wallets": 6,
+        "wt_treasury_review": 269
+      },
+      "potential_association_states": {},
+      "potential_identity_statuses": {
+        "PAUSED": 2
+      },
+      "potential_ids_with_cohort_evidence": 0,
+      "potential_mint_associations": 0,
+      "potential_mints_associated": 0,
+      "potential_wallet_associations": 0,
+      "treasury_review_rows_direct_mint": 21,
+      "treasury_review_rows_related": 46
+    },
+    "capped_tables": [],
+    "case_evidence_sha256": "4eac1d275aa0255538e6a21d85bc4e4df8184a0afa4ab07d3111fee39b5f330c",
+    "case_results": [
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "03e9e9a0124e1555176673155f7841218f9a15bdd3c7caadfdd70339994e0fb9",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 18,
+          "credits": 18,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 12
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "ba76d76fdeb7dcac4fd6312c9a1fa456a771b5597499331c9b461239756a1a94",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 7,
+          "credits": 7,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 1
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "b0dff4cc1dc97534e04afc4b2de3ee275498bb1d5dfb0718898b86655e56ece5",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 30,
+          "credits": 30,
+          "fallbacks": 0,
+          "pages": 7,
+          "retries": 0,
+          "walkback_credits": 24
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "3c1f150ddf2319b92dcf86deeb5b5651e506b42f6ac6ce9a5e142dfaaae3165b",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 10,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "bf3b6dd701f5b1f088d3e5658f4e42fc014c3d346e9e88e329de305aaba268ae",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 25,
+          "credits": 25,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 0,
+          "walkback_credits": 19
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "e72bdac61c7d31a9d018d8597813fee8ff93f2463eca9eff382c3091b5b284ad",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 28,
+          "credits": 28,
+          "fallbacks": 0,
+          "pages": 8,
+          "retries": 0,
+          "walkback_credits": 22
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "1e9bec64380179bbca18dd26488e43a75cda7e11b0e21e9027fdd1d8e76a59c4",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "fae021d5abdefe2eeb8f556a340b68484848e1e8e611a5f6c439c06234f1ccd2",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 9,
+          "credits": 9,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 1,
+          "walkback_credits": 3
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "3363a44d4c06dff71451f7910d40dc672979a050cf126e547546cc8b18dcd51c",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 866,
+          "credits": 866,
+          "fallbacks": 0,
+          "pages": 232,
+          "retries": 828,
+          "walkback_credits": 860
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "c38031bcac5c78c99231a7c88446074cd3321a4deaab41d8365637a030fa0494",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "8c112b2d22480263f8a6c2afd117a883869ed621050032e7b31348237484665f",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 1,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "9c37845e3536c52bd743b20270c2819bd8c322c4ef3af895097332970d3f6a38",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 24,
+          "credits": 24,
+          "fallbacks": 0,
+          "pages": 5,
+          "retries": 1,
+          "walkback_credits": 18
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "824c6fe5fc71562d2bbb81500f2422871f7e5286f91fd7ebb5627fc449ebd8ba",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 6,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "af4e902305e6d772584b026c81e8493d8dde09db6d844937141db094035b5ed4",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "741bcd6cf4063036046c97e05048a0442a35ee15f4c816a82d5da90356118b0c",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 1,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "f6a964cc1720061cd154ced08d751fa013ca41862eb22f251b778c5fa60ef908",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 19,
+          "credits": 19,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 3,
+          "walkback_credits": 13
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "df48f6cd21e13ba0b0ee012c4fc9d65f607462cc0102c0b75463b1c299885f45",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 35,
+          "credits": 35,
+          "fallbacks": 0,
+          "pages": 9,
+          "retries": 0,
+          "walkback_credits": 29
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 4,
+        "mint_sha256": "bae61f2c219fb25b6cffe1ae76092f9598b2f9056f6521d788b5c321aee7cc8e",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 4,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 438,
+          "credits": 438,
+          "fallbacks": 0,
+          "pages": 120,
+          "retries": 400,
+          "walkback_credits": 432
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 4,
+        "mint_sha256": "25f6b49669579992da41f2bb403edbaaf9d475703a9704d7d99dd739da9699e8",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 4,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "b56c7eb02e7eab65ad3f3b4cf89977d438f809f8144b360c92aec1d953ef1110",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "4fc9c4c3e2c171bb7de7c49c24c512939230e0043c429780327afb375591264f",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 10,
+          "credits": 10,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 4
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "f956a625e144b266ba96951800a199ce6eef57fb382ea2eed779bacfe3ffc32a",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 12,
+          "credits": 12,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 6
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "284ac8dd7c2169db460befc2301df8f5216f125535752871b56e8d979a3baac2",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 16,
+          "credits": 16,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 2,
+          "walkback_credits": 10
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "12c7251def6fc041f829d4f84d028f5525b83d8af3e7740030b6bafe5b1f22ca",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 26,
+          "credits": 26,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 0,
+          "walkback_credits": 20
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "7175bb8b07798691b00ee9a94e92f6f92d182840c2354b62f07f29954c3de83c",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 3,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 31,
+          "credits": 31,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 1,
+          "walkback_credits": 25
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 4,
+        "mint_sha256": "2cfc95a713f38093536dd1d7c28f6dda6491e5b3618baab28f02503925a23076",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 4,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "ee0abb71409efd0f0110ca621076f0232095dc9033d6a20374e6cc5c84cad2c4",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 1,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "7ec40f7fa709f27c4ff37edc235a9e7ba43992e7383c1bed665aa1cabf5f3df9",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 31,
+          "credits": 31,
+          "fallbacks": 0,
+          "pages": 7,
+          "retries": 0,
+          "walkback_credits": 25
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "8a92522f4f529b77a94cd5c542337603f98b882b222dda6fced605069952926d",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "204fa5d8835b59852241f14f6877a352a5402da7298aa6b4ced2887c48c1bb89",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 1,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "10483abd7d8808c039e817d3769806c44ac49f53ab363d901c777a2e7b1edf90",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 12,
+          "credits": 12,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 6
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "b16786b331ae6b7d17b025b9bb17502a5e366351e16a8a3ceca5fd24e500dc71",
+        "qualified_creator_launch": false,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 15,
+          "credits": 15,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 9
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "6eadee6056886b959d556b1f800e88d309ef77a1103f7a7878a959c482eb5881",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 1,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "cfa2ae785a3e6a308c806cb5326b70383b4b4c6f091a096b371a3984cb73ae87",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 15,
+          "credits": 15,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 9
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "d6abdfc4494c9be9ccfa78b844b81d3f1fe4145a1df9312f6881c524cd2293cb",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 12,
+          "credits": 12,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 6
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "19d407070e9ebb608d5be220d936a663207120df8e4e3c2031721bddcb0fbd7c",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 13,
+          "credits": 13,
+          "fallbacks": 0,
+          "pages": 2,
+          "retries": 4,
+          "walkback_credits": 7
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "da41f14bd00ccdee62210299e448f3da7667b3232cebc4edc43c7f88f2e891e1",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 9,
+          "credits": 9,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 1,
+          "walkback_credits": 3
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "efe7b0b36cbd0ce88929fc48987f8ce37f38878846de128acb011a1265b4fd40",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 34,
+          "credits": 34,
+          "fallbacks": 0,
+          "pages": 7,
+          "retries": 3,
+          "walkback_credits": 28
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "45925cf57c35ca5ddd3be41ea88d1024dd5b79e946ea5c67e0e27b09dc0ed845",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 15,
+          "credits": 15,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 9
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "9c39bc1a0ba09768ee2d75c045eb44b4721c6dd70213eb763e166d73e143a803",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 33,
+          "credits": 33,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 1,
+          "walkback_credits": 27
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 4,
+        "mint_sha256": "ab3c6b0702e94ebe5f1f715571a8eeea1c79d32f1b87e818998b7594ae521e55",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 4,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 530,
+          "credits": 530,
+          "fallbacks": 0,
+          "pages": 243,
+          "retries": 506,
+          "walkback_credits": 524
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "6db27b6ff44f0e67830389bcdb892aafc6fd93bb9dbe6f244a45de43f8c084b4",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 3,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 13,
+          "credits": 13,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 7
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "262baa33d3cd00fec839cc977b886d4806409a78201647a312ac8a217b0a8249",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "a387bfcec5cfa15eb4d2f8980c0944bc0fc7bd6467bd5e92f933d7b6a177c903",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "59f2beccfe5adacee234cd0ac643dafd594f5864b2635dc1939444974c88d1ce",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 1067,
+          "credits": 1067,
+          "fallbacks": 0,
+          "pages": 474,
+          "retries": 1052,
+          "walkback_credits": 1060
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "102f74b32b757e42831ae18663844e0c69f965463a487f93252065a964024f5d",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 24,
+          "credits": 24,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 8,
+          "walkback_credits": 18
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "029e35af7a9860f4146271658f8bdd84f84a0ad7e1b63d462b77ec7c2b3bc217",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 178,
+          "credits": 178,
+          "fallbacks": 0,
+          "pages": 41,
+          "retries": 156,
+          "walkback_credits": 172
+        },
+        "explicit_funding_account_rows": 1,
+        "max_selected_depth": 1,
+        "mint_sha256": "d9cecfeac8a4d80fbb28ba677731d203af832bea655fb654fc8e1add0059de58",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 8,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "3687dde179ff3dcef4605119581a1eca71b6b3c107f4356e12ad67d96caa193e",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 155,
+          "credits": 155,
+          "fallbacks": 0,
+          "pages": 23,
+          "retries": 133,
+          "walkback_credits": 149
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "56b9359eec8f0eb88d95d70df03a9599b1d6e054f41cc536ae3a1192d565a617",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 1397,
+          "credits": 1397,
+          "fallbacks": 0,
+          "pages": 518,
+          "retries": 1372,
+          "walkback_credits": 1391
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "a1c6d12456b5d6bf787869822e545ed9b4de4689b5524a9e1a0217870bc7666e",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 3,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 33,
+          "credits": 33,
+          "fallbacks": 0,
+          "pages": 8,
+          "retries": 18,
+          "walkback_credits": 27
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "bd4ce073aa40c96c5c5d81e66d1fec63bdea29d5b1ca6b102c225cffd9203b84",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 765,
+          "credits": 765,
+          "fallbacks": 0,
+          "pages": 234,
+          "retries": 728,
+          "walkback_credits": 759
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 4,
+        "mint_sha256": "a338c8e8364ebf02cf9865a4a0fabfc87ad375c0f0003b3cd88b778fe2c229c5",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 4,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 406,
+          "credits": 406,
+          "fallbacks": 0,
+          "pages": 137,
+          "retries": 368,
+          "walkback_credits": 400
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "6828227697320c1bfb1584fb0ff2c74e36c9fecc52466d7374df9307101b2a95",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 3,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 1,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "81a36a64b8ae5b51d4cd0a578ffe580a2751bfa4380ee86e4c57bcf4c36ba5d2",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 1142,
+          "credits": 1142,
+          "fallbacks": 0,
+          "pages": 474,
+          "retries": 1119,
+          "walkback_credits": 1137
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "0328046258e1ba75d61bf38f7e75777ff113a040af0e8b2e55add6db256763d1",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 2,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 2193,
+          "credits": 2193,
+          "fallbacks": 0,
+          "pages": 589,
+          "retries": 2156,
+          "walkback_credits": 2187
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 5,
+        "mint_sha256": "1ef112c61d5e0d0a8a11c7c019c7d746e7ceb9582cfb9c69cb97f60b09ad27ad",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 5,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 782,
+          "credits": 782,
+          "fallbacks": 0,
+          "pages": 403,
+          "retries": 769,
+          "walkback_credits": 779
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "f12c69acb072970dc2ffc23e4c26b34c318022479004bf07362f2bb2a5c8d10c",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 458,
+          "credits": 458,
+          "fallbacks": 0,
+          "pages": 188,
+          "retries": 444,
+          "walkback_credits": 451
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "b633d041a12cbc144546d168c67f505033f555261e8b5d556cae6cce211fa280",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 958,
+          "credits": 958,
+          "fallbacks": 0,
+          "pages": 317,
+          "retries": 924,
+          "walkback_credits": 952
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "0141afacbe1afcfdddb58fdf7ff9445967f99ba6ee37fe2ebb3fd6ec8a6023d5",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 3,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 588,
+          "credits": 588,
+          "fallbacks": 0,
+          "pages": 260,
+          "retries": 559,
+          "walkback_credits": 582
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "24db07b2a7db63bc035c5101a2866fc73d2ed5349665b17de66841e88eb3fbce",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 974,
+          "credits": 974,
+          "fallbacks": 0,
+          "pages": 425,
+          "retries": 960,
+          "walkback_credits": 968
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "52b9407c40c8f75738cd258614af45a3f191ed518e7d192120fadc495d89314f",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 13,
+          "credits": 13,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 7
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "dba0662080ec5ed055d5307336c1fcc460c445ba1fd72e3effce65345ff1e46a",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 1,
+          "walkback_credits": 11
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "c4fb3e6eeece2d332e4782ff0ef8f5caf612a39d027e6d008328553c23de1bde",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 2232,
+          "credits": 2232,
+          "fallbacks": 0,
+          "pages": 469,
+          "retries": 2206,
+          "walkback_credits": 2226
+        },
+        "explicit_funding_account_rows": 1,
+        "max_selected_depth": 2,
+        "mint_sha256": "afdc94661d8cd6e62dcc594e396ac98d7c0be80fdb318c135511e43de9c6515b",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 2084,
+          "credits": 2084,
+          "fallbacks": 0,
+          "pages": 808,
+          "retries": 2036,
+          "walkback_credits": 2049
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "b5ca9bd063a8b5b0c162e372c4443ad34a6e0b6eb9809a8e15f0d81bfc76740a",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 2,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 384,
+          "credits": 384,
+          "fallbacks": 0,
+          "pages": 56,
+          "retries": 359,
+          "walkback_credits": 378
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "6ad2cf956650769919be88ece097c97527b7b624ba524b03014333011e5c62c6",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 3,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 7936,
+          "credits": 7936,
+          "fallbacks": 0,
+          "pages": 1495,
+          "retries": 7872,
+          "walkback_credits": 7924
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 5,
+        "mint_sha256": "7a366269af3b1f27dc624c50317509b5f1a23101611c6056c4627bc0abd675d9",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 5,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 188,
+          "credits": 188,
+          "fallbacks": 0,
+          "pages": 25,
+          "retries": 166,
+          "walkback_credits": 182
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "564da678e63b5d515a8d511a33b1c12bb49d5d75d7e7a2b73d58ff1385787f2c",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 2741,
+          "credits": 2741,
+          "fallbacks": 0,
+          "pages": 974,
+          "retries": 2713,
+          "walkback_credits": 2735
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "2ca6d9a8a391cffbfefad3c8d39144524e62b2ffe18c5907144ec2604b6532f8",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 3,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 405,
+          "credits": 405,
+          "fallbacks": 0,
+          "pages": 178,
+          "retries": 390,
+          "walkback_credits": 399
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "3e380ff5ae6b2917b3eddae857cfb6205be9bd7b2369e9adc46cbc3f2cce010e",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 624,
+          "credits": 624,
+          "fallbacks": 0,
+          "pages": 318,
+          "retries": 606,
+          "walkback_credits": 618
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "5c762d9b415033a98c159109f5e0bcb46b7cd986fd14e87ba8db7c016d4e7e94",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 1131,
+          "credits": 1131,
+          "fallbacks": 0,
+          "pages": 556,
+          "retries": 1085,
+          "walkback_credits": 1095
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "c1356b1d664ac4fb0215a69db68264cdc2ca95990076e7e6ad8da77bfe871541",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "KNOWN_RELAY_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 1,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "82872b2a2c281682843f44bc5c709d0cf7938cd2a94869226d256fba987e8fc7",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 461,
+          "credits": 461,
+          "fallbacks": 0,
+          "pages": 94,
+          "retries": 407,
+          "walkback_credits": 429
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 5,
+        "mint_sha256": "3f39c966f238ea2539a6db690e9cca76aa5d82b6226c460bda1ebdd0caa86ffd",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 5,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 34,
+          "credits": 34,
+          "fallbacks": 0,
+          "pages": 9,
+          "retries": 9,
+          "walkback_credits": 28
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "9baf7472e9ce87f14f0a1a492ca84835d387f9658c1bb04787c25f7dd223db5e",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 2,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 39,
+          "credits": 39,
+          "fallbacks": 0,
+          "pages": 7,
+          "retries": 3,
+          "walkback_credits": 33
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 4,
+        "mint_sha256": "d92620de1f05148ccc63fda3c84785c2d5b19a00f6ad49a384cc267a69f91680",
+        "qualified_creator_launch": true,
+        "quality": "Known-CEX boundary",
+        "selected_edges": 4,
+        "typed_outcome": "KNOWN_CEX_REACHED"
+      },
+      {
+        "budget": {
+          "all_role_requests": 11,
+          "credits": 11,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 5
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "4185fdd48f10a22159f498d40ebcfb18ad8b8e878748b1b3feaa181510e9bdf0",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 12,
+          "credits": 12,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 5,
+          "walkback_credits": 6
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "8053da8085d173740cc9a1b862089709e6965a856611284db53154971ddc27a0",
+        "qualified_creator_launch": false,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "57f882670059f56be9d808c2ad8b7a1c748c7abd0e582c2265a03473d9e20342",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 31,
+          "credits": 31,
+          "fallbacks": 0,
+          "pages": 8,
+          "retries": 9,
+          "walkback_credits": 25
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "39185400b0dbee9f368004bd514f3e97e59a51f32d0a5cd694f43d1df4d9868c",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "66d46ffa1042284d670ec7b616c44410ab1c46207b203314a1813cc475ed8300",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 279,
+          "credits": 279,
+          "fallbacks": 0,
+          "pages": 61,
+          "retries": 230,
+          "walkback_credits": 273
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 3,
+        "mint_sha256": "c0c464e544a2e8eec44fcacf75bf2069b84ab0b41c3ed7f629e1df02f6b537fd",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 3,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "31b5f9554e9785b1db5e513f5f0e2b47976b682ac14f8e97dd408b5025f7dd1d",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 8
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "afb3396fcbd387905278a08867963c252b062bef1acb5799232a3fb2ada4bf5e",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 12,
+          "credits": 12,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 5,
+          "walkback_credits": 6
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "2642f7565f3cb2e927f375ddb916865cba914999a37fea6a221e6bd1c6d3d6ec",
+        "qualified_creator_launch": false,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "a9cab0044e0b14cb13ec25dbaa34163afde81f8206aadc06fe865b7808ae0f58",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 17,
+          "credits": 17,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "81c5f6461ff2b82a0cdd53724c964d055170bd7e91edfa272c6d76f61432c4de",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 18,
+          "credits": 18,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 12
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "5393b2ae99f3e34c3a81f99e99c625ecfdbaef63f0daeb26fdeba3fa6b092c43",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 16,
+          "credits": 16,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 10
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "33f38056095db8f44f460e7f2342f35e8fa54c90bd1723d6b8f20565519b63a2",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 29,
+          "credits": 29,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 6,
+          "walkback_credits": 23
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "e8f8e1f7d4f2e1e0b156670e0d41e8b02e07b401b8efb7f2b8b760bd882c6a77",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 16,
+          "credits": 16,
+          "fallbacks": 0,
+          "pages": 3,
+          "retries": 0,
+          "walkback_credits": 10
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "8c7a7d3fe61c8b5498bff6dd68d84ede651c035db0664d3829c94d4b17352c97",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 66,
+          "credits": 66,
+          "fallbacks": 0,
+          "pages": 20,
+          "retries": 44,
+          "walkback_credits": 60
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 2,
+        "mint_sha256": "4d171df483398714ff1aa88ecdd1dc4edd9024be9b3dbdb685a26ed7af0bcf9b",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 2,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 12,
+          "credits": 12,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 4,
+          "walkback_credits": 6
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "ae0f213dafa47fadb9b43e3202292f9b69351c54d49ebacf9ef85ac8c04eb571",
+        "qualified_creator_launch": false,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "LINEAGE_GAP"
+      },
+      {
+        "budget": {
+          "all_role_requests": 20,
+          "credits": 20,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "03a6426f724b541bf8a2edec9cd7fd6355df5aa94d79fb6af79d852b6f3cda13",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 14,
+          "credits": 14,
+          "fallbacks": 0,
+          "pages": 2,
+          "retries": 1,
+          "walkback_credits": 10
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "57d9eb1ac4dfa80d5997f3e95071d5a3ea135097b9d19310ff91b6df4466ae99",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 29,
+          "credits": 29,
+          "fallbacks": 0,
+          "pages": 8,
+          "retries": 10,
+          "walkback_credits": 23
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "0806b02dbfe178574ba3bac4aaae2b282319f67f95931689a12903d326f7ec3c",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 23,
+          "credits": 23,
+          "fallbacks": 0,
+          "pages": 6,
+          "retries": 0,
+          "walkback_credits": 17
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "42b1c8eaab3d0a67a705f7843aca3fbc899b148564c8d7e09a36fc12703d4fb7",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 13,
+          "credits": 13,
+          "fallbacks": 0,
+          "pages": 1,
+          "retries": 0,
+          "walkback_credits": 7
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 0,
+        "mint_sha256": "d8f2c1ba270609cffb1ad41d436a61031465e981682dfae656d62316b6bc0eee",
+        "qualified_creator_launch": true,
+        "quality": "Insufficient evidence",
+        "selected_edges": 0,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      },
+      {
+        "budget": {
+          "all_role_requests": 18,
+          "credits": 18,
+          "fallbacks": 0,
+          "pages": 4,
+          "retries": 0,
+          "walkback_credits": 14
+        },
+        "explicit_funding_account_rows": 0,
+        "max_selected_depth": 1,
+        "mint_sha256": "130e6335dd28ff3480cb6e27e9d0316dbe686dca07a6d0c5dde4e888f6cf8d18",
+        "qualified_creator_launch": true,
+        "quality": "Partial but useful",
+        "selected_edges": 1,
+        "typed_outcome": "INSUFFICIENT_EVIDENCE"
+      }
+    ],
+    "completion_window_utc": [
+      "2026-10-27T08:38:41+00:00",
+      "2026-10-28T09:25:21+00:00"
+    ],
+    "count": 100,
+    "efficiency": {
+      "all_role_reserved_credits": 32784,
+      "all_role_reserved_requests": 32784,
+      "caveat": "Ledger root covers lifetime/descendant/all-role work, not a completed-run invoice. rpc_used is a logical counter and can include memo reuse. No measured cache savings or full actual dispatch count inferred.",
+      "distinct_budget_roots": 100,
+      "ledger_publication": "PENDING_UNVERIFIED_PUBLICATION",
+      "logical_rpc_counter_total": 1904,
+      "max_walkback_credits_per_root": 7924,
+      "median_walkback_credits_per_root": 14,
+      "over1000_roots": 9,
+      "over1000_with_no_selected_edges": 1,
+      "retained_content_validated_offline": true,
+      "root_retry_reservations": 30715,
+      "top5": [
+        {
+          "all_role_requests": 7936,
+          "mint_sha256": "7a366269af3b1f27dc624c50317509b5f1a23101611c6056c4627bc0abd675d9",
+          "quality": "Partial but useful",
+          "repeat_key_reservations": 7872,
+          "selected_edges": 5,
+          "walkback_credits": 7924
+        },
+        {
+          "all_role_requests": 2741,
+          "mint_sha256": "2ca6d9a8a391cffbfefad3c8d39144524e62b2ffe18c5907144ec2604b6532f8",
+          "quality": "Known-CEX boundary",
+          "repeat_key_reservations": 2713,
+          "selected_edges": 3,
+          "walkback_credits": 2735
+        },
+        {
+          "all_role_requests": 2232,
+          "mint_sha256": "afdc94661d8cd6e62dcc594e396ac98d7c0be80fdb318c135511e43de9c6515b",
+          "quality": "Partial but useful",
+          "repeat_key_reservations": 2206,
+          "selected_edges": 2,
+          "walkback_credits": 2226
+        },
+        {
+          "all_role_requests": 2193,
+          "mint_sha256": "1ef112c61d5e0d0a8a11c7c019c7d746e7ceb9582cfb9c69cb97f60b09ad27ad",
+          "quality": "Partial but useful",
+          "repeat_key_reservations": 2156,
+          "selected_edges": 5,
+          "walkback_credits": 2187
+        },
+        {
+          "all_role_requests": 2084,
+          "mint_sha256": "b5ca9bd063a8b5b0c162e372c4443ad34a6e0b6eb9809a8e15f0d81bfc76740a",
+          "quality": "Known-CEX boundary",
+          "repeat_key_reservations": 2036,
+          "selected_edges": 2,
+          "walkback_credits": 2049
+        }
+      ],
+      "tracked_cases": 100,
+      "untracked_cases": 0,
+      "walkback_reserved_credits": 32102
+    },
+    "free_bytes": 395522048,
+    "handoff_free_bytes": 389128192,
+    "installed_walkback_revision": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "installed_worker_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+    "known_operations": {
+      "confirmed_match_records": 0,
+      "existing_mint_memberships": 0,
+      "queue_confirmed_watchtower": 0,
+      "watchtower_launch_records": 0
+    },
+    "observed_utc": "2026-10-28T10:49:42.350090+00:00",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "quality": {
+      "Insufficient evidence": 39,
+      "Known-CEX boundary": 19,
+      "Partial but useful": 42
+    },
+    "queue_outcomes": {
+      "LINEAGE_GAP": 44,
+      "NO_ATTRIBUTION_FOUND": 56
+    },
+    "reproduction": {
+      "case_joins": "Exact mint-indexed outcome,edge,transaction-role,provisioning-account,membership and launch lookups; bounded existing candidate and Potential owner populations. No table cap reached.",
+      "ledger": "Read existing journal ledger in memory; validate v2 structure and charge balance; publicationPENDING means provisional, no state mutation.",
+      "presentation": "Static source-contract inspection only; no API activation, port binds, browser acceptance or source changes.",
+      "selection": "SELECT * FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status='complete' ORDER BY enqueued_at LIMIT10001; require population below cap; sort fetched rows by(completed_at,mint)descending; take100."
+    },
+    "safety": {
+      "new_investigations": 0,
+      "production_changes": 0,
+      "promotions": 0,
+      "provider_calls": 0,
+      "replay_reset": 0,
+      "ui_changes": 0,
+      "v1_access": 0
+    },
+    "shared_infrastructure": {
+      "launches_sharing_direct_funder": 20,
+      "launches_sharing_nonboundary_direct_funder": 6,
+      "launches_sharing_selected_parent": 27,
+      "maximum_parent_launches": 11,
+      "repeated_direct_funder_wallets": 5,
+      "repeated_direct_funders_excluding_materialized_boundaries": 3,
+      "repeated_direct_wallets": [
+        {
+          "known_boundary_in_this_evidence": false,
+          "launch_count": 2,
+          "wallet_sha256": "479443affc03496d632f1f84332c7a3c01f20e49fe4f7e7ab2137a4b743a6062"
+        },
+        {
+          "known_boundary_in_this_evidence": false,
+          "launch_count": 2,
+          "wallet_sha256": "96b95e13e359a6034f7848f5b61527321396a384ce4cae5a21b65d8824f71d9c"
+        },
+        {
+          "known_boundary_in_this_evidence": true,
+          "launch_count": 9,
+          "wallet_sha256": "29dd35c2748f592b749a9d78e07d2c3e242c99400771930e0524d2e698c122a8"
+        },
+        {
+          "known_boundary_in_this_evidence": false,
+          "launch_count": 2,
+          "wallet_sha256": "9df130afe5a4725e4fbd931de3c58a4f49f49fe4aa8c943c3cd99aadfd7ab2f7"
+        },
+        {
+          "known_boundary_in_this_evidence": true,
+          "launch_count": 5,
+          "wallet_sha256": "e573c34253d154a86230345c9244b164ab07291be31f3a0a5e3c066eed6ada03"
+        }
+      ],
+      "repeated_selected_parent_wallets": 10
+    },
+    "source_revision": "b439ccf24168e7b11378a113106e255e98ba8834",
+    "topology": {
+      "complete_five_role_routes": 0,
+      "confirmed_treasury_identities": 0,
+      "creator_funding_transaction_rows": 60,
+      "creator_signature_atomic_flow_rows": 3,
+      "distinct_direct_funders": 45,
+      "distinct_provisioning_accounts": 2,
+      "distinct_subprov_fields": 32,
+      "investigations_with_explicit_provisioning_account": 2,
+      "investigations_with_retained_decoded_creator_funding": 60,
+      "investigations_with_selected_edges": 61,
+      "launches_with_strict_atomic_funding_accounts": 2,
+      "provisioning_projection_mechanisms": {
+        "WSOL_WRAP_CLOSE": 2
+      },
+      "qualified_creator_launches": 96,
+      "retained_temporary_accounts": 3,
+      "selected_edges": 120,
+      "strict_atomic_creator_funding_accounts": 2,
+      "subprov_fields_populated": 44,
+      "subprov_retained_states": {
+        "NO_ROW": 11,
+        "PROVISION_CANDIDATE": 33
+      },
+      "transaction_role_rows": 211
+    },
+    "typed_outcomes": {
+      "INSUFFICIENT_EVIDENCE": 47,
+      "KNOWN_CEX_REACHED": 19,
+      "KNOWN_RELAY_REACHED": 1,
+      "LINEAGE_GAP": 33
+    }
+  },
   "flex_v2_walkback_investigation_context_diagnosis": {
     "blocker": "Optional recurring-funder ownership acquisition runs after mint scope exit and aborts the batch when the gate refuses the unowned request. Correction not yet qualified.",
     "engineering_revision": "7cda51e3809c74d149f599870c01dbf276a18e64",
@@ -42061,7 +44112,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Explicitly authorize the existing conservative closed-state publication recovery followed by exactly one qualified bounded provider-validation probe, then natural acceptance. No source/schema/budget changes or exhausted replay needed.",
+  "next_action": "Stop at audit. Restore disk/publication safety under separate authorization. Smallest subsequent intelligence task: expose existing per-launch typed outcome, selected edges, distinct funding-account evidence and missing-edge conditions in the current review contract; do not acquire history or promote candidates.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -44250,8 +46301,8 @@
     "git_head": "b439ccf24168e7b11378a113106e255e98ba8834",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T10:25:51.560066+00:00",
-    "working_tree": "Read-only normal-operation recovery preflight HOLD. All three key bindings and matched generation verified. No production/gate/service changes; existing qualified conservative recovery alone cannot restore OPEN under no-artificial-request restriction."
+    "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",
+    "working_tree": "Strictly read-only latest100 intelligence audit completed in memory after disk fell below floor. No production/source/UI changes or provider calls. Only required compact handoff saved."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -45653,7 +47704,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_NORMAL_OPERATION_RECOVERY_HOLD",
+  "status": "FLEX_V2_WALKBACK_INTELLIGENCE_AUDIT_COMPLETE",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -47232,7 +49283,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_NO_QUALIFIED_OPEN_RESTORATION_WITHOUT_VALIDATION_PROBE",
+  "verdict": "INTELLIGENCE_PARTIAL_USEFUL_GOLDEN_BASELINE_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

@@ -26213,6 +26213,179 @@
     },
     "verdict": "APPROVED_TWO_FILE_DEPLOYMENT_ACCEPTED"
   },
+  "flex_v2_rpc_gap_readonly_check": {
+    "blocker": null,
+    "current": {
+      "availability": [
+        [
+          "MIGRATION",
+          "AVAILABLE",
+          1793201449,
+          "logsSubscribe confirmed"
+        ],
+        [
+          "MIGRATION",
+          "DOWN",
+          1793201441,
+          "websocket failure: SubscriptionUnavailable"
+        ],
+        [
+          "MIGRATION",
+          "AVAILABLE",
+          1793200554,
+          "logsSubscribe confirmed"
+        ],
+        [
+          "MIGRATION",
+          "DOWN",
+          1793200549,
+          "websocket failure: SubscriptionUnavailable"
+        ],
+        [
+          "MIGRATION",
+          "AVAILABLE",
+          1793200280,
+          "logsSubscribe confirmed"
+        ],
+        [
+          "BIRTH",
+          "AVAILABLE",
+          1793200236,
+          "subscribeNewToken sent on connected PumpPortal websocket"
+        ]
+      ],
+      "birth_canonical_exact_matches_current_journal_lower_bound": 1,
+      "canonical_completed_core_ops_handoffs_since_restoration": 41,
+      "database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "database": 89350144
+        },
+        "ops": {
+          "database": 164605952
+        }
+      },
+      "disk_floor_bytes": 2067108864,
+      "disk_free_bytes": 5969965056,
+      "elapsed_minutes": 65.31667987902959,
+      "existing_protected_terminal_evidence_preserved": true,
+      "findings": [],
+      "gate": "OPEN",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "investigation_limit": 100000,
+      "journals": {
+        "birth": {
+          "free_slots": 0,
+          "records": 512,
+          "states": {
+            "ACKED": 1,
+            "QUARANTINED": 511
+          }
+        },
+        "migration": {
+          "free_slots": 22,
+          "records": 490,
+          "states": {
+            "ACKED": 1,
+            "PENDING": 488,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "limitations": [
+        "Reserved worst-case credits are not billed credits.",
+        "Queue changes include housekeeping; not intelligence completions.",
+        "Current active-journal birth counts undercount reclaimed completed births."
+      ],
+      "new_exhausted_since_restoration": 0,
+      "next_action": "Report findings only; no engineering or changes authorized. Stop this one-time monitor.",
+      "observed_utc": "2026-10-28T15:31:42.318518+00:00",
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "publication_checksum_verified": true,
+      "quotas": {
+        "birth_terminal": {
+          "bytes": 778339,
+          "free_records": 7620,
+          "records": 572
+        },
+        "migration_deferred": {
+          "bytes": 1345032,
+          "free_records": 7681,
+          "records": 511
+        },
+        "migration_terminal": {
+          "bytes": 2033953,
+          "free_records": 6373,
+          "records": 1819
+        }
+      },
+      "replay_reset": 0,
+      "requests_by_method_since_restoration_including_one_probe": {
+        "rpc:getAccountInfo": 996,
+        "rpc:getMultipleAccounts": 154,
+        "rpc:getSignaturesForAddress": 377,
+        "rpc:getTokenAccountsByOwner": 2,
+        "rpc:getTokenLargestAccounts": 22,
+        "rpc:getTransaction": 636
+      },
+      "requests_per_second_since_restoration": 0.5580504102092695,
+      "reserved_credit_increase_since_acceptance": 1894,
+      "reserved_credits_by_worker_since_restoration_including_one_probe": {
+        "creator_resolution": 0,
+        "listener": 913,
+        "walkback": 1274
+      },
+      "reserved_credits_total": 76107,
+      "restarts": 0,
+      "restored_utc": "2026-10-28T14:26:22.634841+00:00",
+      "same_worker_pids": false,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 28017,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 28051,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 43753,
+          "state": "RUNNING"
+        }
+      },
+      "status": "PASS",
+      "uncertain_requests_preserved": 5,
+      "walkback_completions_since_restoration": 22,
+      "walkback_helius_error_categories": {
+        "HELIUS_ACQUISITION_DEFERRED": 126,
+        "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
+        "HELIUS_GATE_BUSY": 164,
+        "HELIUS_INVESTIGATION_REQUIRED": 25,
+        "HELIUS_REQUEST_RATE_LIMIT": 12,
+        "HELIUS_TRANSPORT_UNAVAILABLE": 1,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
+      },
+      "walkback_queue_changed_since_restoration": 123,
+      "walkback_states": {
+        "complete": 2019,
+        "failed": 56,
+        "pending": 99,
+        "waiting": 1552
+      }
+    },
+    "evidence_sha256": "14cf83b2ce544e41627b4618c27e9ee21f1f4b5ea08095203cc27adb6beedf67",
+    "gap_assessment": "Screenshot gap around15:02\u201315:11 overlaps independently measured15:07 disk-floor breach and intake JournalHold flapping; cannot classify it simply as no eligible work or prove every minute from chart alone. Storage recovery verified15:11.",
+    "next_action": "Continue existing authorized10-minute monitoring; no engineering or recovery action performed.",
+    "observed_utc": "2026-10-28T15:31:42.318518+00:00",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "status": "VERIFIED_STORAGE_INTERRUPTION_OVERLAP_CURRENT_PROCESSING_ACTIVE",
+    "tests": "Read-only retained evidence and bounded indexed health check; no regression suite"
+  },
   "flex_v2_runtime_ownership_capacity_deployment": {
     "acceptance": "Exact two runtime files and recovery pins installed coherently. Last coherent sample at186.52s:80 exact committed births,3 PumpSwap/1 PumpPortal new notification lower bound,1 canonical migration/exact completed handoff,2 Walkback completions,35 migration slots free. Full successful five-minute acceptance NOT achieved.",
     "blocker": null,
@@ -47882,7 +48055,7 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T15:25:14.246675+00:00",
+    "updated_at_utc": "2026-10-28T15:32:07.669952+00:00",
     "working_tree": "Read-only scheduled monitoring healthy: gateOPEN,39 completed handoffs,18 Walkback completions,6.03GB free; no production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",

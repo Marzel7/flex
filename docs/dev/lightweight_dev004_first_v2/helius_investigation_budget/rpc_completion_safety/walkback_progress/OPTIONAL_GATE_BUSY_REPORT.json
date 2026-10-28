@@ -1,0 +1,107 @@
+{
+  "FLEX_V2_WALKBACK_GATE_BUSY_STATUS": "PASS \u2014 QUALIFIED_NOT_DEPLOYED",
+  "EXACT_SOURCE_DELTA": {
+    "source_preimage": "b203c114887034dc77e2ee2be10d08985c6871ac",
+    "installed_worker_preimage_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501",
+    "candidate_worker_sha256": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414",
+    "runtime_lines_changed": 2,
+    "handler_change": "Catch BudgetDeferred only when str(exc) is exactly HELIUS_INVESTIGATION_REQUIRED or HELIUS_GATE_BUSY. Log the actual already-whitelisted code, continue to the next optional candidate.",
+    "required_recovery_delta": "One existing Walkback SHA256 pin in production_control.py; no other renderer function, role pin, schema, feature flag or runtime behaviour changes.",
+    "installed_worker_and_renderer_preimages_reverified_readonly": true
+  },
+  "OPTIONAL_DEFERRAL_BEHAVIOUR": {
+    "accepted_types": [
+      "BudgetDeferred(HELIUS_INVESTIGATION_REQUIRED)",
+      "BudgetDeferred(HELIUS_GATE_BUSY)"
+    ],
+    "candidate_preservation": "Unknown candidates are neither inserted/promoted nor attributed; canonical queue rows and existing evidence remain unchanged by the skipped optional checks. Later preexisting candidates continue through existing rules.",
+    "ownership": "No owner is created or borrowed. Busy release does not grant acquisition; a following unowned check still defers. Independently owned acquisition retains accepted behaviour.",
+    "unrelated_failures": "Wrong exception type with same text, integrity, generation, schema, storage, transport timeout, credit ceiling, cooldown and suffixed/unrecognized code all propagate unchanged.",
+    "retry_and_spending": "Optional checks leave queue retry counts and durable gate bytes unchanged, including prior nonzero spending and the100000-credit lifetime policy.",
+    "unchanged_scope": "Essential per-job gate contention/retry policy and global gate locking are unchanged."
+  },
+  "BATCH_HEARTBEAT_CONTINUITY": {
+    "original_counterexample": "Exact installed b203c114 optional function, actual drain_batch, real disposable cross-process gate lock: main fixture batch commits, then typed gate busy propagates; heartbeat/projection/review hooks are not invoked.",
+    "corrected_result": "Both accepted typed deferrals return through actual drain_batch and the actual run_loop post-batch AST tail; heartbeat, committed projection recovery and Deep-route review hooks are invoked in order, with no failure boundary.",
+    "fixture_limit": "Heartbeat/projection/review calls use inert observers to verify real scheduling continuity. Their production implementations and attribution semantics are unchanged and are not requalified as a broad feature suite.",
+    "repeat_restart": "Four repeated contention passes with freshly reopened gate owners and cleared process memo retain identical candidate/queue evidence and durable budget bytes.",
+    "rpc_acquisition": "No mock wire dispatch for optional deferral paths; no real provider calls in any test."
+  },
+  "PROVIDER_FREE_TEST_RESULTS": {
+    "new_focused_tests": {
+      "file": "tests/test_v2_optional_gate_busy_cycle.py",
+      "passed": 15,
+      "failed": 0,
+      "includes": [
+        "Original installed failure",
+        "Real disposable flock contention",
+        "Both accepted exact typed deferrals",
+        "Actual batch/run_loop-tail continuation",
+        "Heartbeat/projection/review invocation",
+        "Remaining candidates",
+        "Repeated contention/restart",
+        "No extra acquisition",
+        "Evidence/attempt/spending preservation",
+        "Unrelated errors propagate",
+        "Exact two-line runtime delta"
+      ]
+    },
+    "accepted_optional_controls": {
+      "file": "tests/test_v2_optional_funder_deferral.py",
+      "passed": 16,
+      "failed": 0,
+      "note": "Gate-busy moved from expected propagation to new positive deferral tests. Existing ownership, exclusions, valid acquisition and restart/dedup controls retained."
+    },
+    "directly_affected_recovery_controls": {
+      "file": "tests/test_v2_walkback_recovery_pins.py",
+      "passed": 13,
+      "failed": 0,
+      "includes": [
+        "Exact single renderer pin",
+        "Candidate restart/readback",
+        "Immediate installed b203c114 stale preimage rejected",
+        "Gate-unaware/mixed sources rejected",
+        "Fresh compact matched-pair spending/terminal/deferred/cursor preservation"
+      ]
+    },
+    "retained_fairness_controls": {
+      "file": "tests/test_v2_walkback_progress.py",
+      "selected_tests": [
+        "test_fair_1550_restart_and_bounded_sweep",
+        "test_two_concurrent_reconcilers_do_not_examine_same_head",
+        "test_all_277_synthetic_candidates_against_real_ledger",
+        "test_new_arrivals_cannot_extend_current_sweep",
+        "test_tied_enqueued_keys_are_fair"
+      ],
+      "passed": 5,
+      "failed": 0
+    },
+    "total_passed": 49,
+    "total_failed": 0,
+    "network": "Blocked-network disposable fixtures only. No production database paths opened by tests.",
+    "file_cap_bytes": 499000000,
+    "broad_suite_rerun": false
+  },
+  "CANDIDATE_SHA": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+  "FROZEN_BUNDLE_SHA256": "637e6da8a8fc93fcd5924babc1be7f2e0b2bd186c3203b7f53359aaf07e065c0",
+  "READY_FOR_DEPLOYMENT_PREFLIGHT": "YES \u2014 production safety/capacity/idle ownership checks remain for read-only preflight; no deployment authorization inferred.",
+  "PRODUCTION_MUTATIONS": 0,
+  "STORAGE": {
+    "free_bytes_at_evidence_freeze": 7812382720,
+    "minimum_floor_bytes": 2067108864,
+    "new_storage_owners_or_infrastructure": false,
+    "runtime_storage_format_or_retention_changes": false,
+    "test_kernel_single_file_cap_bytes": 499000000
+  },
+  "NEXT_ACTION": "Run the bounded read-only Walkback-only deployment preflight for this exact runtime/renderer bundle, verifying current installed preimages, idle ownership, disk/journal safety and matching candidate-aware recovery. Do not deploy.",
+  "SAFETY": {
+    "production_source_config_database_journal_changes": 0,
+    "service_restarts": 0,
+    "provider_calls": 0,
+    "budget_changes": 0,
+    "retry_replay_or_reset": 0,
+    "v1_access": 0,
+    "deployment": false
+  },
+  "qualified_utc": "2026-10-28T00:04:27.105382+00:00"
+}

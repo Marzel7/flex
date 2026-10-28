@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "status": "QUALIFIED_NOT_DEPLOYED",
+  "candidate_sha": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+  "accepted_installed_composition": "b203c114887034dc77e2ee2be10d08985c6871ac",
+  "generation": "DEV004-V2-20261024-dfb76562",
+  "payload": {
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "installed_target": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "installed_preimage_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501",
+      "candidate_sha256": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414",
+      "behavioural_delta": "Two lines: exact typed gate-busy optional deferral and accurate whitelisted diagnostic"
+    },
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-progress-b203c114/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47",
+      "candidate_sha256": "b64139ecc933f03134d126634b75b19a4fa7e18521f4f8ae13694499e7a77cc5",
+      "behavioural_delta": "Only existing Walkback source hash pin changes; renderer functions and other role pins unchanged",
+      "activation": "Through a candidate-pinned immutable recovery source root at separately authorized deployment; do not overwrite the existing immutable checkout."
+    }
+  },
+  "runtime_configuration": {
+    "new_flags": [],
+    "provider_policy_changes": false,
+    "schema_changes": false,
+    "existing_cursor_and_index_unchanged": true,
+    "stable_journal_and_gate_paths_unchanged": true,
+    "preimage_runtime_plan_sha256": "0211b8de896666ffdb6b1647ed85276438431ebaa856a80adbfd49e4b3ed773c",
+    "preimage_supervisor_configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320"
+  },
+  "deployment_boundary": "Walkback-only source activation/restart after separately authorized preflight. Listener and resolver source/configuration stay untouched.",
+  "recovery": "Matching candidate-aware renderer pins required. Retained fresh compact matched-pair recovery tests preserve gate allowance, spending, ownership, terminal/deferred custody and cursor. No gate-unaware or cursor-unaware fallback. No fallback activation authorized here.",
+  "authorization": "DEV qualification only; no production deployment."
+}

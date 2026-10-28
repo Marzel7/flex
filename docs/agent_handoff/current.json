@@ -30865,6 +30865,199 @@
       "source_changes": 0
     }
   },
+  "flex_v2_v1_retirement_successor_installation": {
+    "BIRTH_MIGRATION_WALKBACK_ACTIVITY": {
+      "accepted_five_minute_window": "NOT_COMPLETED; must restart after effective environment activation and safe gate recovery.",
+      "activity_caveat": "Retained journal observations are not exact full-window totals. First window did not qualify retirement-aware worker activation.",
+      "exhausted_replay": false,
+      "first_intermediate_window_only": {
+        "PumpPortal_and_PumpSwap_subscriptions": "Observed in bounded startup logs",
+        "Walkback_completions": 0,
+        "Walkback_queue": {
+          "complete": 2121,
+          "failed": 56,
+          "pending": 118,
+          "running": 1,
+          "waiting": 1551
+        },
+        "births": {
+          "canonical_readback_matches": 3,
+          "free": 3,
+          "fresh_RETRY_EXHAUSTED": 0,
+          "occupied": 509,
+          "retained_notifications_since_start": 3,
+          "states": {
+            "ACKED": 3,
+            "QUARANTINED": 506
+          }
+        },
+        "migrations": {
+          "free": 31,
+          "fresh_RETRY_EXHAUSTED": 0,
+          "occupied": 481,
+          "retained_notifications_since_start": 0,
+          "states": {
+            "PENDING": 480,
+            "RESOLVED": 1
+          }
+        },
+        "seconds": 70.49426198005676
+      }
+    },
+    "DISK_AND_WAL_HEALTH": {
+      "files_created_at_or_over500MB": false,
+      "free_bytes": 4910931968,
+      "gate_stage_size": 3514482,
+      "last_running_snapshot": {
+        "Core": {
+          "": 94715904,
+          "-shm": 32768,
+          "-wal": 0
+        },
+        "OPS": {
+          "": 167354368,
+          "-shm": 0,
+          "-wal": 0
+        },
+        "birth_journal": {
+          "canonical_readback_matches": 3,
+          "free": 3,
+          "fresh_RETRY_EXHAUSTED": 0,
+          "occupied": 509,
+          "retained_notifications_since_start": 3,
+          "states": {
+            "ACKED": 3,
+            "QUARANTINED": 506
+          }
+        },
+        "migration_journal": {
+          "free": 31,
+          "fresh_RETRY_EXHAUSTED": 0,
+          "occupied": 481,
+          "retained_notifications_since_start": 0,
+          "states": {
+            "PENDING": 480,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "storage_floor": 2067108864
+    },
+    "EXACT_BLOCKER": "A valid READY_V1 authoritative ledger coexists with an uncommitted helius-denial-v1.json.stage completion and no matching PENDING_V2 intent. Existing qualified Gate owner refuses publication/reconciliation with FileExistsError. The stopped owner is proven, but stage disposition has no accepted safe recovery path.",
+    "FLEX_V2_RETIREMENT_SUCCESSOR_STATUS": "HOLD_PARTIAL_INSTALLATION_NO_FINAL_ACCEPTANCE",
+    "GO_HOLD_DECISION": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "HELIUS_AND_SPENDING_INTEGRITY": {
+      "acquisition_state": "No workers running; no further acquisition initiated.",
+      "blocker": {
+        "authoritative_inflight": 1,
+        "authoritative_publication": "READY_V1_CHECKSUM_VALID",
+        "authoritative_sha256": "3d379a63299f197c84f62444766461980f3c414e36518285e5e2ea4e79d698dd",
+        "credits_retained": 15,
+        "gate_state": "OPEN",
+        "lifetime_limit": 100000,
+        "marker_sha256": "4f96f96fc814d868bb5ce3a8b03bae99d64e3497e6fcede4c4f8021133bfda9b",
+        "method": "getAccountInfo",
+        "no_credit_refund_or_request_replay": true,
+        "owner_exited": true,
+        "owner_pid": 74841,
+        "owner_role": "walkback",
+        "reconciliation": "REFUSED_BY_EXISTING_OWNER_FILE_EXISTS_STAGE; no accounting mutation committed",
+        "reserved_estimate": 87592,
+        "stage_bytes": 3514482,
+        "stage_sha256": "46ab72deffbef3a4856f283ea5bd57819dea7651dee66c44e4eee557d054b701",
+        "stage_vs_authoritative": {
+          "interpretation": "Uncommitted staged completion, no matching PENDING_V2 intent. Never adopted as an outcome.",
+          "outcomes_delta": 1,
+          "same_ownership": true,
+          "same_scopes": true,
+          "stage_inflight": 0
+        },
+        "uncertain_requests": 5
+      },
+      "credit_limit": 100000,
+      "gate_state": "OPEN and READY checksum valid; future publication fails on existing uncommitted stage.",
+      "original_five_uncertain_preserved": true,
+      "outstanding_request": "15-credit getAccountInfo owned by exited Walkback PID74841 remains INFLIGHT. Attempted qualified no-refund reconciliation was refused by existing .stage; no ledger mutation committed.",
+      "spending_refunds_budget_increases_retry_resets": 0,
+      "testing_provider_calls": 0
+    },
+    "INSTALLED_SOURCE_AND_CERTIFICATE": {
+      "Golden_tag_manifest_unchanged": true,
+      "candidate": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+      "certificate_matches_qualified_preview": true,
+      "certificate_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json.predecessor-retirement-v1.json",
+      "certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+      "certificate_stage_absent": true,
+      "runtime_source_hashes": {
+        "/Users/kevinkeaveney/Production/flex-listener/src/core/lightweight_runtime_entry.py": "5f49a70299820d6bb1602b78332babe962e0058a45b1913c933011cab9b2ccfb",
+        "/Users/kevinkeaveney/Production/flex-listener/src/core/paired_binding_guard.py": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0",
+        "/Users/kevinkeaveney/Production/flex-main-workers/src/core/lightweight_runtime_entry.py": "5f49a70299820d6bb1602b78332babe962e0058a45b1913c933011cab9b2ccfb",
+        "/Users/kevinkeaveney/Production/flex-main-workers/src/core/paired_binding_guard.py": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/lightweight_runtime_entry.py": "5f49a70299820d6bb1602b78332babe962e0058a45b1913c933011cab9b2ccfb",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/paired_binding_guard.py": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0"
+      },
+      "source_and_certificate_installation": "COMPLETED",
+      "successor_immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source"
+    },
+    "LIFECYCLE_AND_RECOVERY_COMPATIBILITY": {
+      "lifecycle": "Exactly one existing15-minute schedule retargeted to successor with same pins; metadata constructor validated. Schedule remains active.",
+      "live_recovery_executed": false,
+      "manual_cleanup_executed": false,
+      "runtime_plan_sha256": "1ab01875a31ea5fdadbc924b8cdf09b9ac03523788daad1e105f179521bef479",
+      "source_recovery_entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "source_references": "Successor-aware, certificate pins preserved, old guard fallback prohibited."
+    },
+    "NEXT_ACTION": "Qualify the smallest provider-free existing-owner recovery for READY_V1 plus orphan stage, preserving authoritative spending, original five uncertain requests, the15-credit request and staged evidence. Only after evidence-verified recovery, reconcile the exited owner without refund/replay, complete Supervisor reread/update for the three approved roles, verify effective pins, and run a fresh five-minute natural acceptance. Do not delete V1 or arbitrarily clear/adopt the stage.",
+    "V1_FILES_PRESERVED": {
+      "V1_content_reads": 0,
+      "V1_deleted_moved_renamed": 0,
+      "active_pumpswap_tokens_auxiliary_unchanged": true,
+      "device_inode_size_and_existence": "UNCHANGED for all identified database/WAL/SHM files"
+    },
+    "V2_ONLY_AUTHORITY": {
+      "current_generation": "DEV004-V2-20261024-dfb76562",
+      "effective_worker_activation": "INCOMPLETE: Supervisor cached program environments omitted certificate pins on the first start. Required reread/update was not reached because the gate stop-state check found one outstanding request.",
+      "metadata_validation": "PASS using explicit certificate pins in independent child validation",
+      "source_seals_physical_identity_and_retirement_proof": "VERIFIED"
+    },
+    "WORKER_PIDS_BEFORE_AFTER": {
+      "configuration_reload_status": "Correct on-disk config preserved; effective Supervisor reread/update and final start remain unfinished.",
+      "current": "ALL_THREE_STOPPED",
+      "dormant_services": "STOPPED_NOT_ACTIVATED",
+      "initial": {
+        "Walkback": 39439,
+        "listener": 39360,
+        "resolver": 39412
+      },
+      "intermediate_restart": {
+        "Walkback": 74841,
+        "listener": 74718,
+        "resolver": 74813
+      },
+      "why_stopped": "Approved quiescence for applying correct Supervisor environments; continued processing blocked by unresolved gate staging guard."
+    },
+    "frozen_Golden_changed": false,
+    "observed_utc": "2026-10-28T21:33:11.946663+00:00",
+    "production_flags": {
+      "Gate_state": "OPEN_READY_V1_WITH_BLOCKING_ORPHAN_STAGE",
+      "Golden_unchanged": true,
+      "V1_deletion_authorized": false,
+      "V1_files_preserved": true,
+      "all_three_workers_running": false,
+      "effective_worker_retirement_bindings_activated": false,
+      "lifecycle_successor_bindings_active": true,
+      "no_refund_or_reset": true,
+      "outstanding_inflight": 1,
+      "recovery_successor_bindings_active": true,
+      "reserved_credit_estimate": 87592,
+      "retirement_certificate_published": true,
+      "successor_source_installed": true,
+      "uncertain_requests": 5,
+      "workers_currently_STOPPED": true
+    },
+    "report_sha256": "166beaf5ed6b51aa11bbba088481ff58d6b14e5af52b0024fa9ec91fc45dcde5",
+    "source_changes_outside_approved_payload": 0
+  },
   "flex_v2_walkback_intelligence_quality_audit": {
     "COMPLETE_FUNDING_ROUTES": {
       "count": 0,
@@ -51582,8 +51775,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T21:14:27.718858+00:00",
-    "working_tree": "V1retirementcontract preflightGO_FOR_SEPARATELY_AUTHORIZED_INSTALLATION,notdeployed. Candidate561026bd/preimages13 verified;2083unchangedactive modules+6intendedpayload diffs. All3Supervisorworkers39360/39412/39439 RUNNING,V2ACTIVE,gateOPEN READY100k,5uncertain,87013estimate. Birth504/512,migration486/512,custodyheadroom,5.24GBfree vs2.556GBstagefloor. Previewcertificatee16be7de(2693B) onlyinmemory;no productioncertificate. Activationplan822c27cc requiresallreadercohort+pins includingrecovery and15mjob;fallbackcandidateonlyafteractivation. V1identitiesintact/no handles,51.846GBallocated. Goldenunchanged;NOdeletion."
+    "updated_at_utc": "2026-10-28T21:33:52.375103+00:00",
+    "working_tree": "URGENT_INSTALLATION_HOLD:successor561026bd installed,retirementcertificatee16be7de VERIFIED,V1intact. All3workersSTOPPED after intermediate74718/74813/74841 restarted withoutnewpins becauseSupervisorcache;requiredreread/update NOTyetdone. Quiescenceleft1getAccountInfo15creditreservation ownedbyexitedWalkback74841;qualifiedno-refundreconciliationREFUSED becauseorphanGate.stage46ab72de(3514482B). MainGateOPEN/READY3d379a63,87592reservedestimate,5uncertain,1inflight;stageuncommittedoutcomes+1 noPENDINGintent;noledgerchange/refund/replay. DoNOTclear/adoptstage. Recovery/lifecycleplanpinscoherent,single15mjobactive. Needfocused orphanstage recoveryqualification thenfinishreread/update+5macceptance. Goldenunchanged,noV1delete."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

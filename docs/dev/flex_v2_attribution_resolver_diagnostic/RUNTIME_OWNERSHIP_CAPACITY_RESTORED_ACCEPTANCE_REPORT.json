@@ -1,0 +1,305 @@
+{
+  "FLEX_V2_RUNTIME_DEPLOYMENT_STATUS": "PASS",
+  "CANDIDATE_SHA": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+  "INSTALLED_BUNDLE_SHA256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+  "INSTALLED_SOURCE_HASHES": {
+    "runtime/listener/src/core/migration_signature_journal.py": "663465aef0d452eee95c5077ecce0621b19e1406f8aad6122fc0fd3b8f04617b",
+    "runtime/walkback/src/core/walkback_worker.py": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3"
+  },
+  "ACTIVE_GENERATION": "DEV004-V2-20261024-dfb76562",
+  "GATE_PUBLICATION_RECOVERY": {
+    "status": "PASS_READY_CHECKSUM_VERIFIED_OPEN",
+    "procedure": "Existing conservative publication recovery, exact accounting preservation, then one explicitly authorized HTTP verification.",
+    "production_gate_not_blindly_reset": true,
+    "durable_validation_before_probe_finalization": true,
+    "probe_http_status": 200,
+    "probe_usable_transaction": true,
+    "operator_provider_requests": 1,
+    "raw_provider_payload_retained": false,
+    "authority": "User explicitly authorized all-three gate-writer stop/restart and one bounded probe.",
+    "current_gate_state_sha256": "44dfe7fbbd4d78014c47de984e3ecd5a2def69f557310ab28aac725d2b84d43f"
+  },
+  "LISTENER_WALKBACK_PIDS_BEFORE_AFTER": {
+    "listener": [
+      91474,
+      99484
+    ],
+    "walkback": [
+      91523,
+      99556
+    ],
+    "resolver_gate_recovery_restart_explicitly_authorized": [
+      76441,
+      99531
+    ]
+  },
+  "MIGRATION_JOURNAL_HEADROOM": {
+    "birth": {
+      "records": 498,
+      "free": 14,
+      "states": {
+        "QUARANTINED": 493,
+        "ACKED": 5
+      }
+    },
+    "migration": {
+      "records": 477,
+      "free": 35,
+      "states": {
+        "RESOLVED": 1,
+        "PENDING": 476
+      }
+    }
+  },
+  "VERIFIED_CUSTODY_TRANSFERS": {
+    "original_active_records_now_verified_OWNED": 18,
+    "new_deferred_identities": 0,
+    "new_identities_currently_OWNED": 0,
+    "preexisting_deferred_revisions_advanced": 146,
+    "deferred_currently_owned": 267,
+    "new_terminal_identities": 0
+  },
+  "ORIGINAL_NOTIFICATION_COVERAGE": {
+    "count": 491,
+    "accounted_for": {
+      "active": 471,
+      "deferred_evidence": 18,
+      "verified_canonical_handoff": 2
+    },
+    "unaccounted": 0
+  },
+  "WALKBACK_DEFERRAL_INTEGRITY": {
+    "typed_deferrals": {
+      "HELIUS_GATE_BUSY": 23,
+      "HELIUS_REQUEST_COOLDOWN": 1,
+      "HELIUS_ACQUISITION_DEFERRED": 4,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
+    },
+    "retry_claim_guards_preserved": true,
+    "preexisting_failed_jobs_unchanged": 54,
+    "retired_interrupted_claims": [
+      {
+        "old_state": "running",
+        "new_state": "failed",
+        "attempts_before": 3,
+        "attempts_after": 3,
+        "reason": "STALLED_RUNNING_JOB_ATTEMPTS_EXHAUSTED"
+      }
+    ],
+    "no_retry_reset_or_exhausted_replay": true,
+    "one_uncertain_request_deferral_remains_protected": true
+  },
+  "NATURAL_BIRTH_AND_MIGRATION_ACTIVITY": {
+    "birth_receipts": {
+      "new_birth_receipts": 83,
+      "COMMITTED": 83,
+      "exact_canonical_matches": 83
+    },
+    "new_notification_lower_bound": {
+      "PUMPPORTAL_MIGRATION": 2
+    },
+    "canonical_migrations_with_timestamp_since_activation": 1,
+    "exact_completed_handoffs": 1,
+    "walkback_completions": 3,
+    "walkback_outcomes": {
+      "NO_ATTRIBUTION_FOUND": 2,
+      "LINEAGE_GAP": 1
+    },
+    "completed_batches": [
+      {
+        "processed": 8,
+        "logical_rpc": 1,
+        "outcomes": {
+          "pending": 8
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 30,
+        "outcomes": {
+          "pending": 6,
+          "NO_ATTRIBUTION_FOUND": 2
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 2,
+        "outcomes": {
+          "pending": 8
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 31,
+        "outcomes": {
+          "pending": 7,
+          "LINEAGE_GAP": 1
+        }
+      }
+    ]
+  },
+  "OBSERVATION_WINDOW": {
+    "start_utc": "2026-10-28T12:23:09.252228+00:00",
+    "last_sample_completed_utc": "2026-10-28T12:29:42.846948+00:00",
+    "sample_start_elapsed_seconds": 381.64,
+    "samples": 4,
+    "at_least_five_minutes": true,
+    "scope": "Fresh restored window; previous interrupted acceptance retained separately."
+  },
+  "HELIUS_SPENDING": {
+    "natural_window": {
+      "state": "OPEN",
+      "credit_limit": 100000,
+      "history_preserved": true,
+      "reserved_credits_by_worker": {
+        "creator_resolution": 0,
+        "listener": 174,
+        "walkback": 63
+      },
+      "request_reservations": 237,
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "held": 5
+    },
+    "manual_probe_credits": 1,
+    "pre_recovery_reserved_credits": 73187,
+    "current_reserved_credits": 73629,
+    "history_and_100000_limit_preserved": true,
+    "billed_credit_claim": false
+  },
+  "DISK_AND_WAL_HEALTH": {
+    "free_bytes_last_sample": 4417536000,
+    "minimum_sampled_free_bytes": 3347091456,
+    "database_files": {
+      "core": {
+        "database": 86999040,
+        "-wal": 86552,
+        "-shm": 32768
+      },
+      "ops": {
+        "database": 164122624
+      }
+    },
+    "single_file_cap_bytes": 499000000,
+    "logs": {
+      "listener.log": {
+        "bytes": 166351,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "DISK_HEADROOM": 0,
+        "DISK_FLOOR": 0,
+        "Cannot operate on a closed database": 0,
+        "database is locked": 0,
+        "Traceback (most recent call last)": 0,
+        "NameError": 0
+      },
+      "listener_err.log": {
+        "bytes": 5463,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "DISK_HEADROOM": 0,
+        "DISK_FLOOR": 0,
+        "Cannot operate on a closed database": 0,
+        "database is locked": 0,
+        "Traceback (most recent call last)": 0,
+        "NameError": 0
+      },
+      "walkback_worker.log": {
+        "bytes": 5340,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "DISK_HEADROOM": 0,
+        "DISK_FLOOR": 0,
+        "Cannot operate on a closed database": 0,
+        "database is locked": 0,
+        "Traceback (most recent call last)": 0,
+        "NameError": 0
+      },
+      "walkback_worker_err.log": {
+        "bytes": 0,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "DISK_HEADROOM": 0,
+        "DISK_FLOOR": 0,
+        "Cannot operate on a closed database": 0,
+        "database is locked": 0,
+        "Traceback (most recent call last)": 0,
+        "NameError": 0
+      }
+    },
+    "no_checkpoint_or_compaction": true
+  },
+  "SERVICE_HEALTH": {
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 99484
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 99531
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 99556
+      }
+    },
+    "effective_v2_gate_telemetry_and_credential_bindings_verified_privately": true,
+    "walkback_heartbeat": {
+      "worker_name": "walkback_worker",
+      "last_seen": 1793190553,
+      "status": "HEALTHY",
+      "meta_json": {
+        "average_completion_latency_seconds": 8309.462,
+        "completed_last_hour": 13,
+        "completed_per_minute": 1,
+        "generated_at": 1793190553,
+        "healthy": true,
+        "heartbeat_age_seconds": 0,
+        "heartbeat_at": 1793190553,
+        "nested_write_failures_last_hour": 0,
+        "oldest_pending_age_seconds": 136793,
+        "oldest_pending_at": 1793053760,
+        "oldest_running_age_seconds": null,
+        "oldest_running_at": null,
+        "pending": 87,
+        "queue_depth": 87,
+        "reasons": [],
+        "running": 0,
+        "stalled_after_seconds": 180,
+        "stalled_running_jobs": 0,
+        "status": "HEALTHY",
+        "write_failures_last_hour": 0
+      }
+    }
+  },
+  "ROLLBACK_STATUS": "Not required. Compatible preimages and terminal/deferred/gate-aware fresh-pair recovery retained. No database or evidence rollback.",
+  "LIMITATIONS": [
+    "No fresh PumpSwap migration-account notification was observed in this restored window; subscription confirmations retained after restart, and three such notifications were admitted in the prior installed-source window. No synthetic event was injected.",
+    "One pre-existing running Walkback claim at attempts3 was retired by normal startup to protected STALLED_RUNNING_JOB_ATTEMPTS_EXHAUSTED at the same attempts3. It was not reset or replayed.",
+    "Five review-held RPC requests and one current uncertain-request deferral remain protected.",
+    "Storage remains dependent on maintained headroom; no automatic cleanup or storage-policy change was made."
+  ],
+  "PRODUCTION_ACTIONS": {
+    "additional_source_schema_or_configuration_changes": 0,
+    "gate_publication_recovery": true,
+    "explicitly_authorized_restarts": [
+      "watchtower_listener",
+      "creator_resolution_worker",
+      "walkback_worker"
+    ],
+    "provider_requests": 1,
+    "provider_requests_after_authorized_probe_for_testing": 0,
+    "budget_changes": 0,
+    "retry_reset_or_exhausted_replay": 0,
+    "v1_access": 0,
+    "historical_deletion": 0
+  },
+  "NEXT_ACTION": "Leave all three approved workers running under the OPEN shared gate and unchanged100000-credit lifetime limit. Maintain disk above the accepted reserve; keep protected and exhausted work unreplayed.",
+  "completed_utc": "2026-10-28T12:32:37.377962+00:00"
+}

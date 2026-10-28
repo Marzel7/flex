@@ -34842,7 +34842,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Run the bounded read-only Walkback-only deployment preflight for this exact runtime/renderer bundle, verifying current installed preimages, idle ownership, disk/journal safety and matching candidate-aware recovery. Do not deploy.",
+  "next_action": "Separately authorize the exact qualified worker/recovery-pin bundle. Refresh immediate preimages, gate, disk/journal safety and idle ownership; stage immutable candidate recovery authority, stop/install/start only Walkback, then observe natural processing. No deployment performed here.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -37028,11 +37028,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "d1c44420d42c7757543d11eaff2eb153e491af71",
+    "git_head": "2635e80625a5a2ca7970f66213caa9279c8c9c74",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T00:06:03.458474+00:00",
-    "working_tree": "DEV optional gate-busy correction qualified:49tests pass. Candidate3f75234d; two-line runtime delta and one required recovery hash pin. Production remains b203c114; no deployment."
+    "updated_at_utc": "2026-10-28T00:13:14.676942+00:00",
+    "working_tree": "Read-only optional gate-busy deployment preflight GO; candidate3f75234d not deployed. Production remains b203c114. Source, recovery pins, live authority, budget and storage gates pass."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -38434,7 +38434,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_WALKBACK_OPTIONAL_GATE_BUSY_DEV_PASS",
+  "status": "FLEX_V2_OPTIONAL_GATE_BUSY_PREFLIGHT_PASS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-28T00:06:03.458474+00:00",
+  "updated_at_utc": "2026-10-28T00:13:14.676942+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -40013,7 +40013,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "QUALIFIED_NOT_DEPLOYED",
+  "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -49398,5 +49398,207 @@
     "remaining_scope": "Underlying per-job gate lock contention and unknown high-level listener holder frame are unchanged; this correction prevents only optional-check cycle aborts.",
     "next_action": "Run the bounded read-only Walkback-only deployment preflight for this exact runtime/renderer bundle, verifying current installed preimages, idle ownership, disk/journal safety and matching candidate-aware recovery. Do not deploy.",
     "updated_at_utc": "2026-10-28T00:06:03.458474+00:00"
+  },
+  "flex_v2_walkback_optional_gate_busy_deployment_preflight": {
+    "status": "PASS",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "engineering_revision": "2635e80625a5a2ca7970f66213caa9279c8c9c74",
+    "candidate_sha": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+    "bundle_sha256": "637e6da8a8fc93fcd5924babc1be7f2e0b2bd186c3203b7f53359aaf07e065c0",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/OPTIONAL_GATE_BUSY_PREFLIGHT.json",
+    "report_sha256": "fbd790bce21bbf973e2e579deb8f5a470d324a0cd1ad6f75b8ff7e3b7fe559be",
+    "observed_utc": "2026-10-28T00:10:44.851046+00:00",
+    "source_integrity": {
+      "candidate": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+      "bundle_sha256": "637e6da8a8fc93fcd5924babc1be7f2e0b2bd186c3203b7f53359aaf07e065c0",
+      "payload": {
+        "runtime/walkback/src/core/walkback_worker.py": {
+          "candidate_sha256": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414",
+          "installed_preimage_sha256": "7ec02a09c8014ba4be95825c6128a810599c5f176a1d179eb92bc3c0e0c32501",
+          "match": true
+        },
+        "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+          "candidate_sha256": "b64139ecc933f03134d126634b75b19a4fa7e18521f4f8ae13694499e7a77cc5",
+          "installed_preimage_sha256": "6d8d9aa9a50a1645ee36238c1df9505b57885b82b26f64a75b43490ab3f4cf47",
+          "match": true
+        }
+      },
+      "exact_runtime_delta": "Two lines in optional handler only",
+      "required_recovery_delta": "One Walkback hash pin only",
+      "schema_or_flag_changes": false,
+      "retained_tests": {
+        "passed": 49,
+        "failed": 0,
+        "rerun": false
+      }
+    },
+    "runtime_authority": {
+      "production_source": "b203c114887034dc77e2ee2be10d08985c6871ac",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "runtime_plan_sha256": "0211b8de896666ffdb6b1647ed85276438431ebaa856a80adbfd49e4b3ed773c",
+      "supervisor_config_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+      "services": {
+        "watchtower_listener": {
+          "state": "RUNNING",
+          "pid": 70897,
+          "supervisor_parent_pid": 1131,
+          "matched_generation": "DEV004-V2-20261024-dfb76562",
+          "effective_binding_verification": true
+        },
+        "creator_resolution_worker": {
+          "state": "RUNNING",
+          "pid": 70926,
+          "supervisor_parent_pid": 1131,
+          "matched_generation": "DEV004-V2-20261024-dfb76562",
+          "effective_binding_verification": true
+        },
+        "walkback_worker": {
+          "state": "RUNNING",
+          "pid": 4522,
+          "supervisor_parent_pid": 1131,
+          "matched_generation": "DEV004-V2-20261024-dfb76562",
+          "effective_binding_verification": true
+        }
+      },
+      "existing_cursor_and_index_verified": true,
+      "queue_states": {
+        "complete": 1917,
+        "failed": 6,
+        "pending": 164,
+        "waiting": 1550
+      },
+      "active_claims": {
+        "count": 0,
+        "owners": [],
+        "lease_expirations": []
+      }
+    },
+    "helius": {
+      "state": "OPEN",
+      "publication_checksum_valid": true,
+      "coherent_unlocked_read": true,
+      "concurrent_publication_races_rejected": 0,
+      "limit": 100000,
+      "warning_level": 50000,
+      "policy_sha256": "ebc28131ddceb2f6f9fdb8f310f55c0399b0bd3d2a1f489c88b69ccac9b1d93a",
+      "highest_investigation_credits": 7936,
+      "spending_history_monotonic_against_pre_b203_start": true,
+      "five_preexisting_review_held_entries_unchanged": true,
+      "inflight": [],
+      "gate_lock_acquired_by_audit": false
+    },
+    "journals_and_custody": {
+      "journals": {
+        "birth.jsonl": {
+          "records": 499,
+          "free_slots": 13,
+          "bytes": 399244,
+          "states": {
+            "QUARANTINED": 473,
+            "ACKED": 26
+          },
+          "pure_validation_passed": true,
+          "unresolved_publication_stage_present": false
+        },
+        "migration.jsonl": {
+          "records": 498,
+          "free_slots": 14,
+          "bytes": 282323,
+          "states": {
+            "RESOLVED": 1,
+            "PENDING": 495,
+            "ACKED": 2
+          },
+          "pure_validation_passed": true,
+          "unresolved_publication_stage_present": false,
+          "source_eligible_deferred_candidates_untransferred": 495,
+          "dispatch_reserved_protected": 1
+        }
+      },
+      "custody_quotas": {
+        "TerminalEvidenceStore": {
+          "schema_and_contract_verified": true,
+          "used_records": 1808,
+          "record_limit": 8192,
+          "used_bytes": 2021087,
+          "byte_limit": 64000000,
+          "allocation_accounting_verified_against_records": true
+        },
+        "DeferredMigrationStore": {
+          "schema_and_contract_verified": true,
+          "used_records": 511,
+          "record_limit": 8192,
+          "used_bytes": 1344482,
+          "byte_limit": 64000000,
+          "allocation_accounting_verified_against_records": true
+        },
+        "BirthTerminalEvidenceStore": {
+          "schema_and_contract_verified": true,
+          "used_records": 512,
+          "record_limit": 8192,
+          "used_bytes": 697743,
+          "byte_limit": 64000000,
+          "allocation_accounting_verified_against_records": true
+        }
+      },
+      "records_transferred_or_replayed": 0,
+      "note": "Source-eligible deferred candidates are not claimed reclaimed. Any transfer remains existing independently verified custody; preflight performs no lifecycle writes."
+    },
+    "storage": {
+      "disk_free_bytes": 7795404800,
+      "floor_bytes": 2067108864,
+      "conservative_source_preparation_recovery_plus_floor_bytes": 2771751936,
+      "database_and_wal_sizes": {
+        "core": {
+          "database": 83042304
+        },
+        "ops": {
+          "database": 162865152
+        }
+      },
+      "single_file_cap_bytes": 499000000,
+      "no_absolute_wal_or_lock_duration_claim": true
+    },
+    "recovery": {
+      "current_role_source_pins_verified": 16,
+      "new_worker_pin": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414",
+      "other_role_and_cursor_pins_unchanged": true,
+      "fresh_pair_script_unchanged": true,
+      "recovery_config_preimage_hash_verified": true,
+      "retained_fresh_pair_gate_budget_terminal_deferred_cursor_controls": true,
+      "allowed_profile": "Exact new candidate-aware worker plus matching renderer. No stale/mixed or gate/cursor-unaware fallback; no automatic old-source restoration.",
+      "renderer_activation": "Use a new immutable candidate-pinned recovery source root; preserve existing b203c114 immutable checkout."
+    },
+    "deployment_boundary": {
+      "services_to_quiesce_and_restart": [
+        "walkback_worker"
+      ],
+      "untouched": [
+        "watchtower_listener",
+        "creator_resolution_worker"
+      ],
+      "idle_rule": "At execution require no Walkback RPC reservation and no running claim; verify old owner exited. Wait boundedly; never clear a reservation or reset a lease to manufacture readiness.",
+      "schema_initialization_required": false,
+      "preserve": [
+        "gate state and counters",
+        "100000-credit allowance",
+        "terminal/deferred custody",
+        "waiting cursor",
+        "protected candidates",
+        "retry counts and recovery rights",
+        "BIRDEYE authority and budgets"
+      ],
+      "executed": false
+    },
+    "production": {
+      "production_source_config_schema_database_journal_changes": 0,
+      "service_actions": 0,
+      "provider_calls": 0,
+      "exhausted_replay_or_retry_reset": 0,
+      "v1_database_access": 0
+    },
+    "blocker": null,
+    "next_action": "Separately authorize the exact qualified worker/recovery-pin bundle. Refresh immediate preimages, gate, disk/journal safety and idle ownership; stage immutable candidate recovery authority, stop/install/start only Walkback, then observe natural processing. No deployment performed here.",
+    "updated_at_utc": "2026-10-28T00:13:14.676942+00:00"
   }
 }

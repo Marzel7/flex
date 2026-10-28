@@ -26347,6 +26347,94 @@
     "status": "HOLD",
     "tests": "No new tests or provider requests. Existing qualified recovery contracts inspected; current raw ledger validated offline using accepted owner against retained baseline."
   },
+  "flex_v2_official_golden_freeze": {
+    "EVIDENCE_REFERENCES": {
+      "accepted_candidate_report": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-golden-candidate/8322e2c98a5a096863c253d33f79bff161fde629/GOLDEN_CANDIDATE_REPORT.json",
+      "candidate_report_sha256": "c93ff2ea00066a46de39c3be6646d557f11379b1064151ee50ac48939527bc88",
+      "manifest": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-golden-candidate/8322e2c98a5a096863c253d33f79bff161fde629/FROZEN_RUNTIME_MANIFEST.json",
+      "remote_immutable_evidence": "git cat-file tag flex-v2-golden-2026-10-28; exact manifest and accepted report embedded in annotated tag",
+      "remote_verification": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-golden-candidate/8322e2c98a5a096863c253d33f79bff161fde629/REMOTE_GOLDEN_TAG_VERIFICATION.json"
+    },
+    "FLEX_V2_GOLDEN_FREEZE_STATUS": "PASS_OFFICIAL_GOLDEN_BASELINE_FROZEN",
+    "FROZEN_RUNTIME_MANIFEST_SHA": "4dbba179cc7b0f05438069ab0df385df504667ef962e38d877806a6cef9bf75e",
+    "GOLDEN_TAG": "flex-v2-golden-2026-10-28",
+    "IMMUTABLE_SOURCE_COMMIT": "8322e2c98a5a096863c253d33f79bff161fde629",
+    "NEXT_ACTION": "Use this annotated tag and its exact embedded manifest as the Golden source/configuration authority. Keep live Flex unchanged. Any deployment,dormant activation,recovery or V1 retirement needs separate authorization.",
+    "OPERATIONAL_LIMITATIONS": [
+      "Protected Walkback/CREATE-waiting backlog and two blocked CREATE deliveries remain.",
+      "Historical at-handoff CREATE timing remains unverifiable.",
+      "Finite birth/migration journal and terminal/deferred custody capacity; narrow birth headroom remains operationally relevant.",
+      "Walkback first-claim latency remains an accepted limitation.",
+      "Browser-visible UI acceptance is not verified; dormant services remain stopped."
+    ],
+    "PRODUCTION_RUNTIME_CONTINUITY": {
+      "all_workers_running": true,
+      "cleanup_executions": 0,
+      "database_queries": 0,
+      "disk_free_bytes": 6424780800,
+      "gate_operations": 0,
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "installed_python_modules_matched": 2089,
+      "phase": "ACTIVE",
+      "production_deployment": false,
+      "provider_calls": 0,
+      "recovery_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "retention_schedule": "One existing15-minute lifecycle schedule; unchanged",
+      "retention_schedule_unchanged": true,
+      "service_restarts_or_signals": 0,
+      "source_configuration_database_journal_mutations": 0,
+      "supervisor_configuration_unchanged": true,
+      "worker_pids": [
+        39360,
+        39412,
+        39439
+      ]
+    },
+    "RECOVERY_AUTHORITY": {
+      "Walkback_interrupted_claim_restoration": "pending",
+      "entrypoint": "scripts/flex_v2_fresh_pair_recovery.py",
+      "entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "external_state": "Exact required paths and authority hashes identified in frozen manifest; not recreated or mutated.",
+      "gate_terminal_deferred_spending_and_uncertain_evidence": "Preserved qualified contracts",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "historical_DEV_worktree_dependency": false,
+      "renderer": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "renderer_sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb"
+    },
+    "REMOTE_TAG_VERIFICATION": {
+      "direct_target_type": "commit",
+      "embedded_candidate_report_byte_verified": true,
+      "embedded_manifest_byte_verified": true,
+      "independent_remote_fetch": true,
+      "manifest_sha256": "4dbba179cc7b0f05438069ab0df385df504667ef962e38d877806a6cef9bf75e",
+      "remote": "https://github.com/Marzel7/flex.git",
+      "source_commit": "8322e2c98a5a096863c253d33f79bff161fde629",
+      "tag": "flex-v2-golden-2026-10-28",
+      "tag_object": "9d9e63f070da4f69d618d24d242d068d213b0c43",
+      "tag_type": "annotated",
+      "verified_at_utc": "2026-10-28T20:20:16.330433+00:00"
+    },
+    "V1_RETIREMENT_GATE": "NOT_AUTHORIZED_BY_FREEZE. Separate preservation,dependency/recovery-independence and deletion authorization gates remain. No V1 contents accessed or deleted.",
+    "candidate_historical_status_fields": "Retained unchanged in original manifest/report; official freeze status is supplied by this annotated tag and freeze report.",
+    "candidate_manifest_bytes_unchanged": true,
+    "frozen_at_utc": "2026-10-28T20:21:07.700104+00:00",
+    "golden_tag_object": "9d9e63f070da4f69d618d24d242d068d213b0c43",
+    "production_flags": {
+      "V1_retirement_authorized": false,
+      "cleanup_executions_this_turn": 0,
+      "gate_operations_this_turn": 0,
+      "golden_baseline_frozen": true,
+      "golden_source_deployed_by_this_turn": false,
+      "production_changes_this_turn": 0,
+      "provider_calls_this_turn": 0,
+      "service_restarts_this_turn": 0
+    },
+    "qualification": "Reused accepted35 isolated and28 independent reconstruction controls; freeze reverified3312 source hashes locally and against remotely fetched evidence. No application-code changes.",
+    "report_sha256": "a2dd80ecb809d76456ad63fc4c429c87990e3399eb508296f8a5b8c6a87707f0",
+    "source_commit_amended_or_rebuilt": false,
+    "transport_security_note": "A credential-bearing Git remote URL appeared in earlier tool output. It is excluded from all published evidence; GitHub-token rotation is recommended separately. No credential or runtime binding was changed.",
+    "worktree_clean": true
+  },
   "flex_v2_operational_backlog_skip_restoration_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Operationalrestorecomplete;successfulnewresolverRPC_CREATErecoveryunobserved,sofullfunctionalacceptancePARTIAL. No429/lock/surgeevidencedinavailabletelemetry.",
@@ -50759,8 +50847,8 @@
     "git_head": "8322e2c98a5a096863c253d33f79bff161fde629",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T20:13:05.364674+00:00",
-    "working_tree": "Golden candidateGO_FOR_GOLDEN_FREEZE,not tagged/deployed. Single source8322e2c and credential-free manifest4dbba179;2089 installed Pythonmodules exact,3312 sourcehashes independently verified;35 isolated+28 reconstructed controlsPASS. Threeworkers39360/39412/39439 unchanged,gateOPEN100k,5uncertain;one15min lifecycle continues. No V1 access."
+    "updated_at_utc": "2026-10-28T20:21:35.355708+00:00",
+    "working_tree": "OfficialGoldenBaselinePASS:annotatedtag flex-v2-golden-2026-10-28 object9d9e63f0 directlypoints8322e2c; exactmanifest4dbba179 and acceptedreport embedded in remote tag and independently byteverified. Sourceworktreeclean;source3312 hashes reverified. No productionchanges/restarts/provider/gate operations,workers39360/39412/39439 and15min schedule unchanged. V1retirement remainsseparatelygated."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

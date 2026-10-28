@@ -1,0 +1,625 @@
+{
+  "ATTRIBUTION_STATUS": {
+    "classification": "VERIFIED_DIAGNOSIS_WITH_INCONCLUSIVE_HISTORY",
+    "finding": "No fixed-cohort case has durable qualified confirmed-operation authority. Do not equate unsuccessful bounded search with real absence of attribution. No existing membership or confirmed match was found for these23."
+  },
+  "STARTING_AUTHORITY": {
+    "handoff": "12db0c59d3a2974d30c803848ce9d7511f365398",
+    "base_source": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
+    "dedicated_branch": "codex/flex-v2-attribution-resolver-diagnostic",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex",
+    "window_utc": [
+      "2026-10-28T03:11:01Z",
+      "2026-10-28T09:11:01Z"
+    ],
+    "runtime_walkback_revision": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "installed_source_hashes": {
+      "listener": {
+        "pumpfun_curve_listener.py": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+        "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+      },
+      "creator_resolution": {
+        "creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+        "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+      },
+      "walkback": {
+        "walkback_worker.py": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+        "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+      }
+    }
+  },
+  "WALKBACK_23_OUTCOME_RECONCILIATION": {
+    "classification": "VERIFIED",
+    "count": 23,
+    "queue_outcomes": {
+      "NO_ATTRIBUTION_FOUND": 14,
+      "LINEAGE_GAP": 9
+    },
+    "typed_outcomes": {
+      "KNOWN_CEX_REACHED": 4,
+      "INSUFFICIENT_EVIDENCE": 11,
+      "LINEAGE_GAP": 8
+    },
+    "eligibility_registry_checks": {
+      "operator_memberships_fixed23": 0,
+      "operation_match_population_examined": 324,
+      "operation_match_population_capped": false,
+      "operation_matches_fixed23": 0,
+      "unconfirmed_subprov_predicates": [
+        {
+          "case": "WB03",
+          "known_subprov": true,
+          "known_treasury": false,
+          "cached_treasury_present": false
+        },
+        {
+          "case": "WB07",
+          "known_subprov": true,
+          "known_treasury": false,
+          "cached_treasury_present": false
+        },
+        {
+          "case": "WB11",
+          "known_subprov": true,
+          "known_treasury": false,
+          "cached_treasury_present": false
+        }
+      ],
+      "six_migrations_overlap_fixed23": 0,
+      "six_current_walkback_states": {
+        "pending": 5,
+        "complete": 1
+      }
+    },
+    "cases": [
+      {
+        "case": "WB01",
+        "mint_sha256": "25f6b49669579992da41f2bb403edbaaf9d475703a9704d7d99dd739da9699e8",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 4,
+        "qualification": "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED",
+        "missing_or_failed_condition": "No qualified next upstream parent after retained depth4. Empty history versus rejected/null/partial transactions is not durably distinguished.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB02",
+        "mint_sha256": "df48f6cd21e13ba0b0ee012c4fc9d65f607462cc0102c0b75463b1c299885f45",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB03",
+        "mint_sha256": "f6a964cc1720061cd154ced08d751fa013ca41862eb22f251b778c5fa60ef908",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_PREEXISTING_UNCONFIRMED_SUBPROV_ELIGIBILITY",
+        "missing_or_failed_condition": "Selected hop1 qualifies existing non-REJECTED predicate but is PROVISION_CANDIDATE without treasury; exact timestamped branch trace unavailable.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB04",
+        "mint_sha256": "741bcd6cf4063036046c97e05048a0442a35ee15f4c816a82d5da90356118b0c",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB05",
+        "mint_sha256": "af4e902305e6d772584b026c81e8493d8dde09db6d844937141db094035b5ed4",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB06",
+        "mint_sha256": "824c6fe5fc71562d2bbb81500f2422871f7e5286f91fd7ebb5627fc449ebd8ba",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "KNOWN_CEX_REACHED",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_KNOWN_CEX_BOUNDARY",
+        "missing_or_failed_condition": "No qualified canonical operator reached beyond custodial boundary; contract does not assign operation.",
+        "operator_id_present": false,
+        "should_retry": false
+      },
+      {
+        "case": "WB07",
+        "mint_sha256": "9c37845e3536c52bd743b20270c2819bd8c322c4ef3af895097332970d3f6a38",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_PREEXISTING_UNCONFIRMED_SUBPROV_ELIGIBILITY",
+        "missing_or_failed_condition": "Selected hop1 qualifies existing non-REJECTED predicate but is PROVISION_CANDIDATE without treasury; exact timestamped branch trace unavailable.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB08",
+        "mint_sha256": "6eadee6056886b959d556b1f800e88d309ef77a1103f7a7878a959c482eb5881",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB09",
+        "mint_sha256": "b16786b331ae6b7d17b025b9bb17502a5e366351e16a8a3ceca5fd24e500dc71",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "PARTIAL_TREASURY",
+        "creator_present": true,
+        "CREATE_state": "MISSING_OR_MALFORMED",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_PARTIAL_TREASURY_UNRESOLVED",
+        "missing_or_failed_condition": "No qualifying upstream funder of supplied subprov; input CREATE state is MISSING_OR_MALFORMED.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB10",
+        "mint_sha256": "10483abd7d8808c039e817d3769806c44ac49f53ab363d901c777a2e7b1edf90",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "KNOWN_CEX_REACHED",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_KNOWN_CEX_BOUNDARY",
+        "missing_or_failed_condition": "No qualified canonical operator reached beyond custodial boundary; contract does not assign operation.",
+        "operator_id_present": false,
+        "should_retry": false
+      },
+      {
+        "case": "WB11",
+        "mint_sha256": "12c7251def6fc041f829d4f84d028f5525b83d8af3e7740030b6bafe5b1f22ca",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_PREEXISTING_UNCONFIRMED_SUBPROV_ELIGIBILITY",
+        "missing_or_failed_condition": "Selected hop1 qualifies existing non-REJECTED predicate but is PROVISION_CANDIDATE without treasury; exact timestamped branch trace unavailable.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB12",
+        "mint_sha256": "284ac8dd7c2169db460befc2301df8f5216f125535752871b56e8d979a3baac2",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB13",
+        "mint_sha256": "8a92522f4f529b77a94cd5c542337603f98b882b222dda6fced605069952926d",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 2,
+        "qualification": "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED",
+        "missing_or_failed_condition": "No qualified next upstream parent after retained depth2. Empty history versus rejected/null/partial transactions is not durably distinguished.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB14",
+        "mint_sha256": "f956a625e144b266ba96951800a199ce6eef57fb382ea2eed779bacfe3ffc32a",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB15",
+        "mint_sha256": "7ec40f7fa709f27c4ff37edc235a9e7ba43992e7383c1bed665aa1cabf5f3df9",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "KNOWN_CEX_REACHED",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_KNOWN_CEX_BOUNDARY",
+        "missing_or_failed_condition": "No qualified canonical operator reached beyond custodial boundary; contract does not assign operation.",
+        "operator_id_present": false,
+        "should_retry": false
+      },
+      {
+        "case": "WB16",
+        "mint_sha256": "ee0abb71409efd0f0110ca621076f0232095dc9033d6a20374e6cc5c84cad2c4",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB17",
+        "mint_sha256": "2cfc95a713f38093536dd1d7c28f6dda6491e5b3618baab28f02503925a23076",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "KNOWN_CEX_REACHED",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 4,
+        "qualification": "VERIFIED_KNOWN_CEX_BOUNDARY",
+        "missing_or_failed_condition": "No qualified canonical operator reached beyond custodial boundary; contract does not assign operation.",
+        "operator_id_present": false,
+        "should_retry": false
+      },
+      {
+        "case": "WB18",
+        "mint_sha256": "8c112b2d22480263f8a6c2afd117a883869ed621050032e7b31348237484665f",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB19",
+        "mint_sha256": "204fa5d8835b59852241f14f6877a352a5402da7298aa6b4ced2887c48c1bb89",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB20",
+        "mint_sha256": "7175bb8b07798691b00ee9a94e92f6f92d182840c2354b62f07f29954c3de83c",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 3,
+        "qualification": "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED",
+        "missing_or_failed_condition": "No qualified next upstream parent after retained depth3. Empty history versus rejected/null/partial transactions is not durably distinguished.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB21",
+        "mint_sha256": "bae61f2c219fb25b6cffe1ae76092f9598b2f9056f6521d788b5c321aee7cc8e",
+        "queue_outcome": "LINEAGE_GAP",
+        "canonical_typed_outcome": "LINEAGE_GAP",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 4,
+        "qualification": "VERIFIED_BOUNDED_SEARCH_NEXT_PARENT_UNRESOLVED",
+        "missing_or_failed_condition": "No qualified next upstream parent after retained depth4. Empty history versus rejected/null/partial transactions is not durably distinguished.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB22",
+        "mint_sha256": "4fc9c4c3e2c171bb7de7c49c24c512939230e0043c429780327afb375591264f",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 0,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "No selected creator-funding edge retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      },
+      {
+        "case": "WB23",
+        "mint_sha256": "b56c7eb02e7eab65ad3f3b4cf89977d438f809f8144b360c92aec1d953ef1110",
+        "queue_outcome": "NO_ATTRIBUTION_FOUND",
+        "canonical_typed_outcome": "INSUFFICIENT_EVIDENCE",
+        "walkback_class": "FULL_WALKBACK",
+        "creator_present": true,
+        "CREATE_state": "VALID",
+        "selected_depth": 1,
+        "qualification": "VERIFIED_INSUFFICIENT_PERSISTED_EVIDENCE",
+        "missing_or_failed_condition": "Selected ordinary hop1; no qualified upstream edge/root retained.",
+        "operator_id_present": false,
+        "should_retry": true
+      }
+    ]
+  },
+  "LINEAGE_GAP_ROOT_CAUSE": {
+    "classification": "VERIFIED_MISSING_CONDITIONS; HISTORICAL_SEARCH_DETAIL_INCONCLUSIVE",
+    "nine_legacy_results": {
+      "known_CEX_boundary": 1,
+      "bounded_deeper_parent_unresolved": 4,
+      "preexisting_candidate_without_treasury": 3,
+      "partial_treasury_without_selected_upstream_parent": 1
+    },
+    "deep_missing_hops": {
+      "WB01": 5,
+      "WB13": 3,
+      "WB20": 4,
+      "WB21": 5
+    },
+    "candidate_stop_target": "WB03,WB07,WB11 retain selected hop1 and prior PROVISION_CANDIDATE rows without treasury. Installed pure-read predicate returns known_subprov=True, known_treasury=False, cached treasury absent. Existing early-return source branch yields LINEAGE_GAP. A future focused DEV qualification is appropriate; no promotion or missing-operation claim is justified.",
+    "negative_evidence_limit": "ARCHIVAL_GAP names a bounded unsuccessful parent search, not independently proven absence of archival/provider data or real funding."
+  },
+  "NO_ATTRIBUTION_ROOT_CAUSE": {
+    "classification": "VERIFIED_DISPOSITION; EXACT_NEGATIVE_SEARCH_CAUSE_INCONCLUSIVE",
+    "three_known_CEX_boundaries": 3,
+    "insufficient_evidence": 11,
+    "insufficient_breakdown": {
+      "no_selected_hop1": 10,
+      "ordinary_hop1_without_qualified_hop2": 1
+    },
+    "missing_detail": "Retained successful-candidate ledger does not record empty pages, valid null transactions and every excluded candidate. No exact negative-search reason is logged for the ten no-hop1 creator prefixes. No fabricated absence verdict.",
+    "transport_contract": "Installed adapter preserves typed gate errors and raises AcquisitionUnavailable for invalid/failed responses; valid null transaction may remain evidence insufficiency. No new calls were made to distinguish these histories."
+  },
+  "CREATOR_RESOLVER_STATUS": {
+    "classification": "VERIFIED",
+    "queue_states": {
+      "complete": 241,
+      "skipped": 376
+    },
+    "due_eligible": 0,
+    "fixed_window_admitted": 0,
+    "fixed_window_completed": 0,
+    "reason": "All six migrated subjects already have canonical creators/signatures and no resolver row. Admission requires missing creator and migrated lifecycle. Zero admitted/eligible work explains zero completions; no evidence of eligible-job starvation.",
+    "durable_records": "241 complete and376 skipped are retained historic outcomes; latest resolved1793021999 and updated1793022799 predate window.",
+    "errors": "Retained stderr tail contains DISK_HEADROOM producer-preflight exceptions, but file mtime2026-10-26T22:32:25Z predates the fixed window; do not attribute them to current zero completions."
+  },
+  "BIRTH_RETRY_STATUS": {
+    "classification": "VERIFIED_PROTECTED_CONFLICTS",
+    "receipt_count": 5,
+    "token_count": 4,
+    "canonical_records_present": 4,
+    "creator_and_signature_conflicts": 5,
+    "exact_active_journal_records": 5,
+    "journal_state": "QUARANTINED",
+    "journal_reason": "CORE_AUTHORITY_CONFLICT",
+    "payload_identity_verification": "For each receipt, independently recomputed existing birth_id equals receipt_identity and exact journal id; original supplied creator/signature match payload. Same-mint unrelated journal rows were not substituted.",
+    "webhook_rows_for_exact_signatures": 0,
+    "terminal_transfer_required_to_prove_preservation": false,
+    "progress_safety": "No automatic retry/acknowledgement/overwrite is justified. The source supplies IDENTITIES_VALID_UNVERIFIED_CHAIN only. Independent authority must resolve identity conflicts before any separately authorized replay. Compact RETRY_PENDING receipt text does not mean its protected journal entry is still actively retrying.",
+    "anchor_corroboration": "One token has a completed VALID canonical OPS anchor. Three have no OPS queue row. No invented anchor or parent; every original conflicting notification remains retained in active journal."
+  },
+  "SIX_MIGRATION_STAGE_RECONCILIATION": {
+    "classification": "VERIFIED_CURRENT_CONTRACT",
+    "cases": [
+      {
+        "case": "M1",
+        "mint_sha256": "f8b70e0e1ede2a8a2e704dc627600f1e801d6eac3106c1a1b9b1912ba82f0d38",
+        "canonical_creator_present": true,
+        "canonical_create_signature_present": true,
+        "handoff_COMPLETE_exact_signature": true,
+        "delivery_ACK_PUMPPORTAL": true,
+        "delivery_matches_core_signature_creator": true,
+        "ops_queue_anchor_matches_delivery": true,
+        "ops_anchor_VALID": true,
+        "creator_resolver_row_absent": true,
+        "current_walkback_status": "pending",
+        "separate_event_ledger_rows": 0
+      },
+      {
+        "case": "M2",
+        "mint_sha256": "2df9a7d83d9e809bd52af9e257a9d9ca4a2a322be0c5149e75d51549a31bde0e",
+        "canonical_creator_present": true,
+        "canonical_create_signature_present": true,
+        "handoff_COMPLETE_exact_signature": true,
+        "delivery_ACK_PUMPPORTAL": true,
+        "delivery_matches_core_signature_creator": true,
+        "ops_queue_anchor_matches_delivery": true,
+        "ops_anchor_VALID": true,
+        "creator_resolver_row_absent": true,
+        "current_walkback_status": "pending",
+        "separate_event_ledger_rows": 0
+      },
+      {
+        "case": "M3",
+        "mint_sha256": "17022f2255ff66b1fb6667c12cb51fb118197608cfcdee651851f74c6d734763",
+        "canonical_creator_present": true,
+        "canonical_create_signature_present": true,
+        "handoff_COMPLETE_exact_signature": true,
+        "delivery_ACK_PUMPPORTAL": true,
+        "delivery_matches_core_signature_creator": true,
+        "ops_queue_anchor_matches_delivery": true,
+        "ops_anchor_VALID": true,
+        "creator_resolver_row_absent": true,
+        "current_walkback_status": "pending",
+        "separate_event_ledger_rows": 0
+      },
+      {
+        "case": "M4",
+        "mint_sha256": "64955ec10e498698711f0e68891a98955ee115a4aad7242880c54cb8a2ed5df3",
+        "canonical_creator_present": true,
+        "canonical_create_signature_present": true,
+        "handoff_COMPLETE_exact_signature": true,
+        "delivery_ACK_PUMPPORTAL": true,
+        "delivery_matches_core_signature_creator": true,
+        "ops_queue_anchor_matches_delivery": true,
+        "ops_anchor_VALID": true,
+        "creator_resolver_row_absent": true,
+        "current_walkback_status": "pending",
+        "separate_event_ledger_rows": 0
+      },
+      {
+        "case": "M5",
+        "mint_sha256": "e72bdac61c7d31a9d018d8597813fee8ff93f2463eca9eff382c3091b5b284ad",
+        "canonical_creator_present": true,
+        "canonical_create_signature_present": true,
+        "handoff_COMPLETE_exact_signature": true,
+        "delivery_ACK_PUMPPORTAL": true,
+        "delivery_matches_core_signature_creator": true,
+        "ops_queue_anchor_matches_delivery": true,
+        "ops_anchor_VALID": true,
+        "creator_resolver_row_absent": true,
+        "current_walkback_status": "complete",
+        "separate_event_ledger_rows": 0
+      },
+      {
+        "case": "M6",
+        "mint_sha256": "666765f504b5a3f6e17fc42df427b6252d13932dc8f460f13c1dd361e2837a0e",
+        "canonical_creator_present": true,
+        "canonical_create_signature_present": true,
+        "handoff_COMPLETE_exact_signature": true,
+        "delivery_ACK_PUMPPORTAL": true,
+        "delivery_matches_core_signature_creator": true,
+        "ops_queue_anchor_matches_delivery": true,
+        "ops_anchor_VALID": true,
+        "creator_resolver_row_absent": true,
+        "current_walkback_status": "pending",
+        "separate_event_ledger_rows": 0
+      }
+    ],
+    "overlap_with_fixed23": 0,
+    "current_states": {
+      "pending": 5,
+      "complete": 1
+    },
+    "projection_authority": "Accepted walkback_create_handoff._activate writes wt_walkback_queue anchor directly and acknowledges only after OPS commit. It does not require wt_create_event_ledger rows for this Core-qualified path. All six accepted Core/intent/queue creator-signature identities match.",
+    "stranded_attribution": "No confirmed attribution evidence demonstrated stranded between those stages. The six new migrations are a different population from23 older completed jobs.",
+    "timing_limit": "Current agreement/ACK is verified; no unretained precise historical activation timestamp is manufactured."
+  },
+  "PROVIDER_CLOCK_STATUS": {
+    "classification": "BLOCKED_CURRENT_AUTHORITY",
+    "current_readback": {
+      "classification": "BLOCKED",
+      "read_error": "HELIUS_GATE_PUBLICATION_AMBIGUOUS",
+      "marker_at_read_end": "PENDING"
+    },
+    "observed_utc": "2026-10-28T09:52:44.044182+00:00",
+    "earlier_progress": "Current complete1965 versus1956 at09:11 proves nine additional queue completions before readback, not present provider availability.",
+    "current_limitation": "Gate reader refused HELIUS_GATE_PUBLICATION_AMBIGUOUS across bounded attempts; marker PENDING. Cannot independently verify current clock/budget state or declare blockage fully cleared. No marker clearing, state reset, probe or acquisition attempted.",
+    "last_error_limit": "Current pending gate/clock error text can be stale. Service RUNNING or retained clock labels alone are not availability proof."
+  },
+  "SERVICE_RESTART_FINDINGS": {
+    "classification": "VERIFIED_EVENTS; EXACT_CAUSAL_LINK_INCONCLUSIVE",
+    "listener_exits_utc": [
+      "2026-10-28T03:55:49.823Z",
+      "2026-10-28T04:56:47.648Z",
+      "2026-10-28T05:57:45.770Z"
+    ],
+    "listener_exit_status": 1,
+    "resolver_exit_utc": "2026-10-28T04:56:38.343Z",
+    "resolver_exit_status": 0,
+    "resolver_contract": "Expected clean exit, installed idle-queue uptime recycle branch and retained idle-recycle markers. No active resolver jobs in window; no demonstrated retry exhaustion or missing attribution caused by this recycle.",
+    "listener_contract": "Retained recent FATAL messages identify PumpPortal prolonged-outage exit path; installed listener also has distinct DB-handle watchdog. No timestamped per-exit Python stack connects each exit to a transaction in this cohort.",
+    "snapshot_limit": "Resolver failure diagnostic file262114/262144bytes; retained timestamps stop2026-10-03, so no Oct28 failure-phase proof. Do not label these as Helius credit denial or exact DNS/TLS failures from exit status alone.",
+    "current_services": {
+      "watchtower_listener": {
+        "status": "RUNNING",
+        "pid": 38003
+      },
+      "creator_resolution_worker": {
+        "status": "RUNNING",
+        "pid": 37767
+      },
+      "walkback_worker": {
+        "status": "RUNNING",
+        "pid": 34365
+      }
+    }
+  },
+  "DISK_HEADROOM": {
+    "classification": "VERIFIED_RESTORED",
+    "at_resumed_current_read_bytes": 3934785536,
+    "at_report_free_bytes": 2894929920,
+    "required_floor_bytes": 2067108864,
+    "single_file_cap_bytes": 499000000,
+    "checkout": "Dedicated sparse DEV worktree; no full database copies or runtime source modifications."
+  },
+  "EVIDENCE_HASHES": {
+    "/private/tmp/attribution-diagnostic-23.private.json": "1a23698f98b4bce41648e08bea32450b86f540d5dccc5dcdb34de082a3720dc0",
+    "/private/tmp/attribution-23-evidence.private.json": "6d1368f7ca9cf977a7d3d4e6683a7688cced8666012f77a1fd96e45cdee07951",
+    "/private/tmp/fixed-birth-migration-evidence.private.json": "0cd8c3685bc106c3c6e764b3add24ac0bc411613097fe3f4b9f52a300838e4ee",
+    "/private/tmp/exact-five-birth-custody.private.json": "6bd8d5713ecc65843a94fc97c42112c2f6f63f3dfcf78dab4268522fc1741231",
+    "/private/tmp/fixed-cohort-eligibility-summary.json": "a251ee8a3229411921c9359e577cdb564bef479e0c353f3121b9771949fab58a",
+    "/private/tmp/diagnostic-provider-runtime-summary.json": "db1b95c439893f876e1a67ae1dec98ffb1963b7eeb3f1aaf353c0b2e838a3dac"
+  },
+  "SAFETY": {
+    "production_source_schema_canonical_changes": 0,
+    "provider_calls": 0,
+    "service_restarts": 0,
+    "receipt_replay": 0,
+    "budget_changes": 0,
+    "BIRDEYE_policy_changes": 0,
+    "v1_access": 0,
+    "fixes_implemented": 0
+  },
+  "NEXT_SAFE_ACTION": {
+    "classification": "BLOCKED_PENDING_SEPARATE_AUTHORIZATION",
+    "priority": "First qualify evidence-verified shared gate-publication reconciliation; do not clear PENDING blindly or resume paid acquisition under ambiguous state.",
+    "secondary": "Separately qualify whether treasury-less PROVISION_CANDIDATE should stop a full upstream walk. Preserve strict attribution; do not promote or replay these cases. Keep five birth conflicts protected.",
+    "scope_stop": "Diagnosis only. No fixes or acquisition resumed."
+  },
+  "observed_utc": "2026-10-28T09:57:48.302205+00:00"
+}

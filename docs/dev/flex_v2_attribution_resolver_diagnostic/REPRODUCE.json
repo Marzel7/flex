@@ -1,0 +1,47 @@
+{
+  "fixed_window_utc": [
+    "2026-10-28T03:11:01Z",
+    "2026-10-28T09:11:01Z"
+  ],
+  "selection_sql": "SELECT * FROM wt_walkback_queue INDEXED BY ix_wbq_status WHERE status='complete' ORDER BY enqueued_at LIMIT 10001; filter completed_at within fixed UTC window; require23.",
+  "indexed_case_lookups": [
+    "wt_attribution_outcomes WHERE mint=?",
+    "wt_walkback_edge_candidates INDEXED BY ix_wwec_mint_hop WHERE mint=? LIMIT1001",
+    "operator_launch_membership WHERE mint=?",
+    "wt_discovered_subprovs WHERE subprov=?",
+    "wt_confirmed_treasuries WHERE treasury=?"
+  ],
+  "canonical_migration_selection": "Covering idx_psi0a_token_analysis_migration_tx capped10001, then exact migration_tx lookups and fixed migrated_at filter; require6.",
+  "receipt_selection": "Existing bounded namespace metadata inventory<=1600000; payload<=4096B; frozen reception window; exact five RETRY_PENDING receipts; recompute birth_id and match journal id. Never correlate by mint alone.",
+  "stage_lookups": [
+    "Core token_analysis WHERE mint=?",
+    "Core migration_walkback_handoff WHERE mint=?",
+    "Core wb_create_delivery WHERE mint=? LIMIT10",
+    "OPS wt_walkback_queue WHERE mint=?"
+  ],
+  "reader": "read_current_authority.py; network blocked; sqlite mode=ro/query_only; existing gate.read only; no lifecycle or restoration methods.",
+  "source_hashes": {
+    "listener": {
+      "pumpfun_curve_listener.py": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+      "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "creator_resolution": {
+      "creator_resolution_queue.py": "681c7f7ce3f9515badebc4bdfa7b5fd6a6e5eca0284c155505aa2204f4587a97",
+      "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    },
+    "walkback": {
+      "walkback_worker.py": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+      "helius_denial_gate.py": "623b81d79f1160a1b1e0b52b7c3904a1489416e8617658e3cff08ad0c30bd15f"
+    }
+  },
+  "private_evidence_hashes": {
+    "/private/tmp/attribution-diagnostic-23.private.json": "1a23698f98b4bce41648e08bea32450b86f540d5dccc5dcdb34de082a3720dc0",
+    "/private/tmp/attribution-23-evidence.private.json": "6d1368f7ca9cf977a7d3d4e6683a7688cced8666012f77a1fd96e45cdee07951",
+    "/private/tmp/fixed-birth-migration-evidence.private.json": "0cd8c3685bc106c3c6e764b3add24ac0bc411613097fe3f4b9f52a300838e4ee",
+    "/private/tmp/exact-five-birth-custody.private.json": "6bd8d5713ecc65843a94fc97c42112c2f6f63f3dfcf78dab4268522fc1741231",
+    "/private/tmp/fixed-cohort-eligibility-summary.json": "a251ee8a3229411921c9359e577cdb564bef479e0c353f3121b9771949fab58a",
+    "/private/tmp/diagnostic-provider-runtime-summary.json": "db1b95c439893f876e1a67ae1dec98ffb1963b7eeb3f1aaf353c0b2e838a3dac"
+  },
+  "cross_database_limit": "Independent read-only observations; no cross-database atomic snapshot claimed.",
+  "bounds": "Stop below2067108864free bytes; kernel499000000single-file cap; no DB copies; no new provider acquisition."
+}

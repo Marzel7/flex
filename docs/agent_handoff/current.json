@@ -22287,6 +22287,69 @@
       "worker_restarts": 0
     }
   },
+  "flex_v2_golden_recovery_install_preflight": {
+    "CANDIDATE_INTEGRITY": "Exact4ba3ee2012f9fb94d037bff87fc708e1905f7b06 source and c822c965f0c18c99c2286ea0e472763471e9b4054e8979e192d4334aea04d69b frozen bundle verified",
+    "DISK_SAFETY": "PASS:2.603GB free versus2.225GB calculated minimum including2.067GB floor,two rounded source allocations and64MiB metadata/publication reserve. Source-only staging selection is40.94MB logical/45.33MB rounded; no database copies or worker-package replacement.",
+    "FLEX_V2_RECOVERY_INSTALL_PREFLIGHT": "PASS_READ_ONLY",
+    "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_RECOVERY_ONLY_INSTALLATION",
+    "INSTALLED_PREIMAGE_MATCH": "PASS:current registered legacy tool and runtime-plan/config hashes match expected preimages; accepted gate-aware source preimage separately verified from immutable5e4e5942. New candidate entrypoint is not yet installed, as expected.",
+    "NEXT_ACTION": "Separately authorize recovery-only staging and atomic source/reference installation from the exact frozen bundle. Recheck preimages and headroom immediately; preserve old artifacts for evidence but never use legacy recovery fallback. Do not execute recovery,reload/restart workers,install cleanup or deleteV1.",
+    "RECOVERY_SOURCE_AND_PINS": "PASS:prospective primary rollback and execution registry bind corrected entrypoint and unchanged current renderer; stale/mixed/legacy pointer rejection controls reused. No claim the legacy installed pointer has already been changed.",
+    "RUNTIME_CONTINUITY": "All three existing workers RUNNING on matched ACTIVEV2; HeliusOPEN checksum verified without locks;100000-credit ceiling unchanged.",
+    "accepted_gate_aware_source_preimage_sha256": "56e0591e21ebf2bcd8617f3b8fb0cafca5230d71a8dd8c05c91454081f922888",
+    "all16_role_payload_pins_match": true,
+    "blocker": null,
+    "bundle_sha256": "c822c965f0c18c99c2286ea0e472763471e9b4054e8979e192d4334aea04d69b",
+    "candidate": "4ba3ee2012f9fb94d037bff87fc708e1905f7b06",
+    "candidate_entry_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+    "currently_registered_legacy_entry": {
+      "bytes": 5959,
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/tools/dev004_fresh_pair_recovery.py",
+      "sha256": "d70681fd65a3fc4f625ab597e614f9be8134d1d9593c6d87755040992122aae4"
+    },
+    "decision": "GO_FOR_SEPARATELY_AUTHORIZED_RECOVERY_ONLY_INSTALLATION",
+    "disk": {
+      "floor_plus_stage_requirement": 2224870400,
+      "free_bytes": 2603012096,
+      "largest_source_file": 1965198,
+      "logical_source_bytes": 40937106,
+      "mandatory_floor": 2067108864,
+      "rounded_source_bytes": 45326336,
+      "selected_checkout_files": 2152,
+      "source_and_atomic_stage_reserve_bytes": 157761536,
+      "sufficient": true
+    },
+    "engineering_revision": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
+    "gate": "OPEN",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "legacy_entry_unchanged_as_expected": true,
+    "limit": 100000,
+    "new_entrypoint_currently_absent_as_expected": true,
+    "no_reload_required": "Recovery script executes only with explicit --execute-authorized-recovery. Supervisor configuration and installed worker packages unchanged; no execution/import of recovery during installation.",
+    "observed_utc": "2026-10-28T18:06:04.351672+00:00",
+    "only_prospective_plan_deltas": [
+      "immutable source root/commit",
+      "rollback entrypoint path/hash/bytes",
+      "recovery entrypoint and renderer execution registry references"
+    ],
+    "production_actions": {
+      "gate_locks": 0,
+      "provider_calls": 0,
+      "restarts": 0,
+      "writes": 0
+    },
+    "prospective_plan_sha256": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1",
+    "qualification_reused": {
+      "artifact_reference_checks": 5,
+      "provider_free_tests": 16
+    },
+    "renderer_unchanged_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+    "report_sha256": "7fe2918a6a72df89b613c9b7d1190404192d87ca9c7f3af600b035090b5db4d5",
+    "runtime_plan_preimage_sha256": "8e61577ce647630947293abd97fdf9e941072b286ea47767034ac0143334d9e6",
+    "supervisor_configuration_unchanged": true,
+    "worker_environment_commands_flags_paths_changed": false,
+    "workers": "watchtower_listener              RUNNING   pid 43753, uptime 3:01:55\ncreator_resolution_worker        RUNNING   pid 28017, uptime 3:50:48\nwalkback_worker                  RUNNING   pid 28051, uptime 3:50:42\n"
+  },
   "flex_v2_golden_recovery_lifecycle_preflight": {
     "CURRENT_RUNTIME_MANIFEST": {
       "activation_or_golden_freeze": false,
@@ -49727,8 +49790,8 @@
     "git_head": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T18:00:53.060227+00:00",
-    "working_tree": "Recovery-only claim fix qualified:4ba3ee20 one-lineWalkbackpending transition;16focusedtests+5referencechecksPASS;privategate-awareentrypointbundle c822c965 frozen. LivegateOPEN workersunchanged,100k preserved. No deployment/lifecycleinit/V1access."
+    "updated_at_utc": "2026-10-28T18:06:05.899923+00:00",
+    "working_tree": "Recovery-only installation preflightGO for4ba3ee20:exact oldtool/currentplan/config preimages,newcandidate/renderer pins verified; allworkersRUNNING gateOPEN100k.2.60GBfree>2.225GBsource-stage requirement. No writes,locks,restarts or provider calls."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

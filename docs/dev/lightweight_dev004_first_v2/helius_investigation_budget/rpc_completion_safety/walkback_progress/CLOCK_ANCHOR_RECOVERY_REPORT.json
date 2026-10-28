@@ -1,0 +1,262 @@
+{
+  "status": "PASS",
+  "verdict": "RECOVERED_AND_NATURALLY_ACCEPTED",
+  "source_revision": "447190eec988b47eca8e95361ebff7a9ff0ca968",
+  "runtime_worker_source": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+  "qualification": {
+    "passed": 27,
+    "provider_calls": 0,
+    "network_blocked": true,
+    "single_file_cap_bytes": 499000000
+  },
+  "production_recovery": {
+    "status": "RECONCILED_ANCHORS_ONLY",
+    "mutated": true,
+    "before_sha256": "2e6365e393b97034fdb471dc954748c2717869cbc13102509556686e3e08b311",
+    "after_sha256": "8eb39f1b5cb0d058bf6cb04a6120eef771c369dc718ce781e115de77463ab6a2",
+    "old_wall": 1793148194,
+    "old_mono": 810645,
+    "new_wall": 1793176987,
+    "new_mono": 812828,
+    "minimum_proven_elapsed_seconds": 2183,
+    "maximum_cooldown_seconds": 120,
+    "observed_utc": "2026-10-28T08:43:07.453551+00:00",
+    "source": "447190eec988b47eca8e95361ebff7a9ff0ca968",
+    "tests_passed": 27,
+    "spending_preserved": true,
+    "services_unchanged": true,
+    "provider_test_calls": 0,
+    "clock_and_cas_attempts": 1,
+    "budget_limit": 100000,
+    "disk_free_bytes": 4041682944
+  },
+  "authority": "Explicit operator authorization; exact CAS under existing gate lock. Original stable-clock sample and immutable preimage retained locally; legitimate intervening accounting checked for monotonic history.",
+  "exact_mutation": "Only rpc_budget.wall and rpc_budget.mono. Entire remainder of durable state verified equal before publication/readback. No change to gate state,request keys/timestamps,rate counters,owners,credits,policy,denial counters or recovery rights.",
+  "cooldown_safety": "Required monotonic-proven minimum elapsed2183seconds exceeds120second maximum retained protection window; no in-flight reservation or active gate timer.",
+  "clock_final": {
+    "observed_utc": "2026-10-28T08:49:24.629096+00:00",
+    "clock_divergence_seconds": 1,
+    "new_clock_failure_current_rows": 2,
+    "gate_state": "OPEN",
+    "limit": 100000,
+    "all_original_spending_and_owners_preserved": true
+  },
+  "retained_clock_error_residue": {
+    "rows_by_current_status": {
+      "complete": 2,
+      "running": 1
+    },
+    "same_error_present_in_baseline": 3,
+    "newly_introduced_error": 0
+  },
+  "new_clock_error_log_occurrences": 0,
+  "acceptance_window_start": "2026-10-28T08:43:47.384762+00:00",
+  "acceptance": {
+    "per_job_busy_backoff_seconds": {
+      "5": 11
+    },
+    "observed_utc": "2026-10-28T08:49:24.453301+00:00",
+    "seconds_since_start_requested": 337.0,
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 38003
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 37767
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 34365
+      }
+    },
+    "optional_deferral_log_counts": {
+      "HELIUS_GATE_BUSY": 1,
+      "HELIUS_INVESTIGATION_REQUIRED": 5
+    },
+    "cycle_failure_records": {},
+    "completed_batches": 3,
+    "batch_summaries": [
+      {
+        "processed": 8,
+        "logical_rpc": 67,
+        "outcomes": {
+          "NO_ATTRIBUTION_FOUND": 3,
+          "LINEAGE_GAP": 1,
+          "pending": 4
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 33,
+        "outcomes": {
+          "pending": 7,
+          "LINEAGE_GAP": 1
+        }
+      },
+      {
+        "processed": 8,
+        "logical_rpc": 21,
+        "outcomes": {
+          "pending": 7,
+          "NO_ATTRIBUTION_FOUND": 1
+        }
+      }
+    ],
+    "processed_job_attempts": 24,
+    "natural_completions": 6,
+    "completion_outcomes": {
+      "LINEAGE_GAP": 2,
+      "NO_ATTRIBUTION_FOUND": 4
+    },
+    "heartbeat": {
+      "last_seen_epoch": 1793177339,
+      "age_seconds": 25.39,
+      "status": "HEALTHY",
+      "updated_after_activation": true
+    },
+    "queue_states": {
+      "waiting": 1550,
+      "complete": 1938,
+      "pending": 155,
+      "failed": 6
+    },
+    "examined_waiting_jobs_since_activation": 192,
+    "maximum_lookup_delta": 1,
+    "protected277": {
+      "waiting_protected": 277
+    },
+    "deferred_attempt_pairs": [
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 0,
+        "after": 0,
+        "jobs": 3
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 1,
+        "after": 1,
+        "jobs": 4
+      },
+      {
+        "code": "HELIUS_GATE_BUSY",
+        "before": 2,
+        "after": 2,
+        "jobs": 4
+      },
+      {
+        "code": "HELIUS_INVESTIGATION_REQUIRED",
+        "before": 0,
+        "after": 0,
+        "jobs": 1
+      },
+      {
+        "code": "HELIUS_INVESTIGATION_REQUIRED",
+        "before": 1,
+        "after": 1,
+        "jobs": 3
+      },
+      {
+        "code": "HELIUS_INVESTIGATION_REQUIRED",
+        "before": 2,
+        "after": 2,
+        "jobs": 3
+      }
+    ],
+    "preexisting_failed_jobs_untouched": 6,
+    "gate": {
+      "state": "OPEN",
+      "lifetime_credit_limit": 100000,
+      "reserved_credits_by_worker_since_activation": {
+        "creator_resolution": 0,
+        "listener": 12,
+        "walkback": 112
+      },
+      "highest_investigation_credits": 7936,
+      "inflight": [],
+      "review_held": 5,
+      "spending_history_and_owner_identity_monotonic": true
+    },
+    "journals": {
+      "birth.jsonl": {
+        "records": 510,
+        "free_slots": 2,
+        "states": {
+          "QUARANTINED": 491,
+          "ACKED": 19
+        }
+      },
+      "migration.jsonl": {
+        "records": 497,
+        "free_slots": 15,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 492,
+          "QUARANTINED": 2,
+          "ACKED": 2
+        }
+      }
+    },
+    "custody_quotas": {
+      "migration_terminal_owner_v1": {
+        "records": 1808,
+        "bytes": 2021087
+      },
+      "migration_deferred_owner_v1": {
+        "records": 511,
+        "bytes": 1344632
+      },
+      "birth_terminal_owner_v1": {
+        "records": 512,
+        "bytes": 697743
+      }
+    },
+    "schema_unchanged": true,
+    "cursor_durably_present": true,
+    "database_files": {
+      "core": {
+        "db": 83644416,
+        "-wal": 0,
+        "-shm": 32768
+      },
+      "ops": {
+        "db": 163098624
+      }
+    },
+    "disk_free_bytes": 2932502528,
+    "logs": {
+      "walkback_worker.log": {
+        "bytes": 4331,
+        "tracebacks": 0,
+        "sqlite_lock_errors": 0,
+        "capacity_errors": 0,
+        "disk_floor_errors": 0
+      },
+      "walkback_worker_err.log": {
+        "bytes": 0,
+        "tracebacks": 0,
+        "sqlite_lock_errors": 0,
+        "capacity_errors": 0,
+        "disk_floor_errors": 0
+      }
+    },
+    "provider_test_calls": 0
+  },
+  "services_restarted": [],
+  "source_or_schema_deployment": false,
+  "provider_probes": 0,
+  "manual_retry_replay_reset": 0,
+  "spending_limit": 100000,
+  "original_review_held_requests_preserved": 5,
+  "prior_failed_attempts": "First lock-busy and stale-checksum attempts refused before mutation; retained as local evidence.",
+  "rollback": "No service/source/database rollback invoked. Existing candidate-aware gate/terminal/deferred/cursor recovery remains authoritative.",
+  "limitations": [
+    "Explicit one-time forward-clock recovery, not an automatic bypass of future clock integrity failures.",
+    "Reserved credits are ledger accounting, not provider invoice totals.",
+    "Completions report evidence outcomes, not confirmed operation attribution.",
+    "No exhausted or previously failed job was reset or manually replayed."
+  ],
+  "next_action": "Leave all three workers running and monitor natural throughput, clock alignment and disk headroom. No additional recovery or provider probe required."
+}

@@ -23247,6 +23247,123 @@
     "updated_utc": "2026-10-28T13:43:30.832372+00:00",
     "verdict": "QUALIFIED_NOT_DEPLOYED"
   },
+  "flex_v2_helius_publication_restoration": {
+    "blocker": null,
+    "engineering_evidence_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "exhausted_replay": false,
+    "extra_diagnostic_provider_calls": 0,
+    "limitations": [
+      "Reserved worst-case credits are not invoiced credits.",
+      "Currently retained journal observations can undercount reclaimed births/migrations; no historical full scan performed.",
+      "Queue changes include housekeeping, not proof of completed intelligence.",
+      "Zero Walkback completions in window; queue changes alone do not prove intelligence completion."
+    ],
+    "next_action": "Leave all three workers running with Helius OPEN under the unchanged100000-credit investigation limit. No exhausted replay.",
+    "observation": {
+      "end_journals": {
+        "birth": {
+          "free": 7,
+          "records": 505,
+          "states": {
+            "ACKED": 6,
+            "QUARANTINED": 498,
+            "RESOLVED": 1
+          }
+        },
+        "migration": {
+          "free": 24,
+          "records": 488,
+          "states": {
+            "ACKED": 1,
+            "PENDING": 486,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "free_bytes": 2780471296,
+      "fresh_birth_exact_matches_lower_bound": 6,
+      "new_exhaustion": 0,
+      "new_verified_completed_handoffs": 1,
+      "publication_errors": 0,
+      "pumpswap": {
+        "effective_at": 1793198024,
+        "reason": "logsSubscribe confirmed",
+        "retained_confirmation": "VERIFIED",
+        "state": "AVAILABLE",
+        "transient_subscription_failure_recovered": true
+      },
+      "quotas": {
+        "birth_terminal": {
+          "bytes": 778339,
+          "records": 572
+        },
+        "migration_deferred": {
+          "bytes": 1345032,
+          "records": 511
+        },
+        "migration_terminal": {
+          "bytes": 2031558,
+          "records": 1817
+        }
+      },
+      "seconds": 301.52,
+      "stuck_reservations": 0,
+      "walkback_completions": 0,
+      "walkback_natural_reserved_credits": 4,
+      "walkback_queue_rows_changed": 30
+    },
+    "probe": {
+      "durable_validation_before_finalization": true,
+      "http_status": 200,
+      "requests": 1,
+      "reserved_credits": 1,
+      "usable_transaction_verified": true
+    },
+    "production_flags": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "helius_gate": "OPEN",
+      "investigation_limit": 100000,
+      "publication": "READY_V1_CHECKSUM_VERIFIED"
+    },
+    "report_sha256": "0d8b07d9849dda9c43436f539e5a8aba0f6218ac9b2a8f12ed3c590a5a9fb03c",
+    "restarts": 0,
+    "services": {
+      "creator_resolution_worker": {
+        "pid": 28017,
+        "state": "RUNNING"
+      },
+      "walkback_worker": {
+        "pid": 28051,
+        "state": "RUNNING"
+      },
+      "watchtower_listener": {
+        "pid": 27965,
+        "state": "RUNNING"
+      }
+    },
+    "source_candidate": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+    "source_schema_budget_changes": 0,
+    "spending": {
+      "credits_by_worker_including_probe": {
+        "creator_resolution": 0,
+        "listener": 288,
+        "walkback": 5
+      },
+      "credits_delta_including_probe": 293,
+      "five_uncertain_requests_preserved": true,
+      "highest_investigation_credits": 7936,
+      "requests_by_method_including_probe": {
+        "rpc:getAccountInfo": 222,
+        "rpc:getMultipleAccounts": 44,
+        "rpc:getSignaturesForAddress": 4,
+        "rpc:getTokenLargestAccounts": 9,
+        "rpc:getTransaction": 14
+      },
+      "reserved_credits_at_observation_end": 74213,
+      "spending_history_preserved": true
+    },
+    "status": "PASS_CONTROLLED_RESTORATION"
+  },
   "flex_v2_helius_recovery_compatibility": {
     "detailed_evidence": "Private local frozen bundle, runtime plan, protected configuration preimage and report; no credentials published.",
     "frozen_bundle_sha256": "9ba4be1871b8e0116e7fea356ab043fcdd2ddf24d4eafb93dbfaa373e9291e95",
@@ -47176,11 +47293,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "4601e0c466dbc37363559e75f7636952cd00acce",
+    "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T14:21:58.916299+00:00",
-    "working_tree": "Exact four-file publication fix deployed; conservative legacy recovery verified; all three workers running; Helius PAYMENT_DENIED. No reopening/probe."
+    "updated_at_utc": "2026-10-28T14:35:15.002578+00:00",
+    "working_tree": "Controlled Helius restoration PASS; exactly one validated probe; all three workers unchanged and OPEN. Zero Walkback completions in five-minute acceptance explicitly retained."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

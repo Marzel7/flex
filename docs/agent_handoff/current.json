@@ -28124,6 +28124,274 @@
       "preexisting_deferred_revisions_advanced": 146
     }
   },
+  "flex_v2_seven_day_lifecycle_final_preflight": {
+    "CANDIDATE_INTEGRITY": {
+      "accepted_controls_reused": {
+        "focused": 13,
+        "lifecycle": 31
+      },
+      "candidate": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+      "listener_five_line_delta_verified": true,
+      "new_test_runs": 0,
+      "renderer_two_hash_pin_substitutions_only": true
+    },
+    "DISK_AND_RUNTIME_SAFETY": {
+      "absolute_WAL_guarantee": false,
+      "all_supervisor_running": true,
+      "bindings_verified": true,
+      "birth_headroom_limitation": "Narrow but nonzero; recheck before activation; no receipt/journal reclamation or protected deletion authorized by lifecycle.",
+      "birth_journal_occupied_free": [
+        511,
+        1
+      ],
+      "custody_byte_quota_each": 67108864,
+      "custody_record_quota_each": 8192,
+      "deferred_quota_used_bytes": 1591154,
+      "deferred_quota_used_records": 605,
+      "floor_bytes": 2067108864,
+      "free_bytes": 5703348224,
+      "helius_limit": 100000,
+      "immutable_runtime_source_bytes": 40937350,
+      "kernel_file_cap": 499000000,
+      "max_runtime_source_file_bytes": 1965198,
+      "migration_journal_occupied_free": [
+        489,
+        23
+      ],
+      "minimum_floor_plus_reserve_bytes": 2150032140,
+      "owner_DB_start_ceiling": 480000000,
+      "owner_WAL_start_refusal_bytes": 8000000,
+      "snapshot": {
+        "birth_journal": {
+          "lines": 511,
+          "states": {
+            "ACKED": 5,
+            "QUARANTINED": 506
+          },
+          "top_keys": [
+            "ack",
+            "attempts",
+            "error_code",
+            "id",
+            "mint",
+            "payload",
+            "received_at",
+            "signature",
+            "source",
+            "state",
+            "version"
+          ]
+        },
+        "cache_callers": [
+          {
+            "bytes": 26206,
+            "installed_sha256": "58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7",
+            "qualified_sha256": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+            "role": "listener"
+          },
+          {
+            "bytes": 26206,
+            "installed_sha256": "58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7",
+            "qualified_sha256": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+            "role": "creator_resolution"
+          },
+          {
+            "bytes": 13514,
+            "installed_sha256": "02e83f42224c6a5e8e0439c69a91c4de66a596d589ff8f4c30d83651c219fd6c",
+            "qualified_sha256": "f6844c0dc609aa0a60cb81ba9ca6704fdd06bfcd78086fd8a5465de2c3f62d9e",
+            "role": "walkback"
+          }
+        ],
+        "db": {
+          "core": {
+            "files": {
+              "": 92364800,
+              "-shm": 32768,
+              "-wal": 0
+            },
+            "owner_tables": []
+          },
+          "ops": {
+            "files": {
+              "": 166387712,
+              "-shm": 0,
+              "-wal": 0
+            },
+            "migration_deferred_owner_v1_columns": [
+              "singleton",
+              "version",
+              "contract",
+              "used_records",
+              "used_bytes"
+            ],
+            "migration_terminal_owner_v1_columns": [
+              "singleton",
+              "version",
+              "contract",
+              "used_records",
+              "used_bytes"
+            ],
+            "owner_tables": [
+              "migration_terminal_owner_v1",
+              "migration_terminal_evidence_v1",
+              "migration_deferred_owner_v1",
+              "migration_deferred_evidence_v1"
+            ]
+          }
+        },
+        "exact_listener_delta_verified": true,
+        "free_bytes": 5703348224,
+        "gate": {
+          "budget_keys": [
+            "inflight",
+            "keys",
+            "mono",
+            "owners",
+            "policy",
+            "policy_sha256",
+            "rate",
+            "scopes",
+            "version",
+            "wall"
+          ],
+          "publication": "READY_V1_CHECKSUM_VALID",
+          "state": "OPEN"
+        },
+        "lifecycle_owner_sha256": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88",
+        "migration_journal": {
+          "lines": 489,
+          "states": {
+            "PENDING": 487,
+            "RESOLVED": 2
+          },
+          "top_keys": [
+            "ack",
+            "attempts",
+            "conflicting_mint",
+            "conflicting_slot",
+            "error_code",
+            "id",
+            "migration_slot",
+            "mint",
+            "notification_identity",
+            "received_at",
+            "retry_not_before",
+            "signature",
+            "source",
+            "state",
+            "version"
+          ]
+        },
+        "owner": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "phase": "ACTIVE"
+        },
+        "plan": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1",
+        "recovery_script": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+        "two_pins_only_verified": true
+      },
+      "stage_and_preimage_reserve_bytes": 82923276,
+      "terminal_quota_used_bytes": 2050329,
+      "terminal_quota_used_records": 1833,
+      "worker_pids": [
+        43753,
+        28017,
+        28051
+      ]
+    },
+    "FLEX_V2_LIFECYCLE_PREFLIGHT_STATUS": "PASS_READ_ONLY_PREFLIGHT",
+    "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_INSTALLATION",
+    "INSTALLED_PREIMAGE_MATCH": {
+      "cache_callers": [
+        {
+          "bytes": 26206,
+          "installed_sha256": "58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7",
+          "qualified_sha256": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+          "role": "listener"
+        },
+        {
+          "bytes": 26206,
+          "installed_sha256": "58cf2a632f48edc6c185f728876473695b7947a15e7a9f2c3d48b072a18aeef7",
+          "qualified_sha256": "28c0e05865b19486c6c19fd2e3c3774e09e53c3ce556af1424a2b026d90e3544",
+          "role": "creator_resolution"
+        },
+        {
+          "bytes": 13514,
+          "installed_sha256": "02e83f42224c6a5e8e0439c69a91c4de66a596d589ff8f4c30d83651c219fd6c",
+          "qualified_sha256": "f6844c0dc609aa0a60cb81ba9ca6704fdd06bfcd78086fd8a5465de2c3f62d9e",
+          "role": "walkback"
+        }
+      ],
+      "listener": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+      "renderer": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811"
+    },
+    "NEXT_ACTION": "Separately authorize exact lifecycle installation, initialization, coherent three-role caller reload and single15-minute schedule. Reverify disk,journal headroom and preimages immediately before activation. No Golden Baseline freeze or V1 retirement authorized.",
+    "RECOVERY_COMPATIBILITY": {
+      "fallback": "Exact compatible gate/terminal/deferred-aware source; no legacy recovery entrypoint; preserve pending claim semantics",
+      "full_live_plan_copied": false,
+      "installed_plan_sha256": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1",
+      "installed_script_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "pending_claim_correction_preserved": true,
+      "prospective_commit": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+      "prospective_source": "lifecycle-caller-e1b31c5a/source",
+      "renderer_sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb",
+      "source_hash_reference_delta_only": true
+    },
+    "REQUIRED_RELOAD_BOUNDARY": "Separately authorized listener,resolver,Walkback reloads required to load the three cache callers. Recovery renderer/reference install itself requires no worker restart. No reload performed.",
+    "RETENTION_OWNER_AND_CALLERS": {
+      "installation": [
+        "Stage immutable candidate runtime source and exact source/hash references",
+        "Install listener maintenance guard",
+        "Install three accepted role rpc_cache modules",
+        "Install matching recovery renderer/pins preserving current recovery script",
+        "Publish explicit lifecycle manifest and initialize versioned state",
+        "Activate exactly one existing-owner 15-minute schedule after coherent caller reloads"
+      ],
+      "legacy_maintenance_guard": "Paired-V2 entry returns before db_connect; runtime legacy maintenance flag remains0",
+      "owner": "runtime/listener/src/ops/v2_storage_lifecycle.py",
+      "scope": [
+        "Core rpc_response_cache",
+        "Core wss_metrics",
+        "OPS rpc_response_cache if present and qualified"
+      ],
+      "sha256": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88"
+    },
+    "SCHEDULE_AND_INITIALIZATION": {
+      "cadence": "*/15 * * * *",
+      "coherence": "Initialize under existing low-priority writer lease; enable schedule only after all three qualified cache callers and listener guard are active",
+      "current_user_schedule_entries": 0,
+      "currently_installed": false,
+      "execution": "Candidate immutable runtime/listener package; python -B -m src.ops.v2_storage_lifecycle --manifest <verified manifest> --sha256 <exact digest> --once --quiet",
+      "initialize": "Explicit matched-pair owner initialization; one state table per store, three family rows total",
+      "single_owner": "Existing lifecycle nonblocking lock, not Helius gate lock",
+      "state_table": "v2_storage_lifecycle_state"
+    },
+    "SEVEN_DAY_POLICY": {
+      "age": "Strictly older than604800seconds; exact7days protected",
+      "batch_rows": 64,
+      "cache": "Must also be expired; unknown schemas/dependencies protected",
+      "estimated_delete_bytes_per_step": 1000000,
+      "logs_temp": "Existing rotation retained; no competing cleanup or additional temp deletion included",
+      "physical_reuse": "Accepted qualification reused; no VACUUM",
+      "protected": [
+        "canonical birth/migration/CREATE",
+        "receipts/journals/retries/quarantine",
+        "terminal/deferred custody",
+        "Helius ledger/spending/uncertain requests",
+        "attribution/operations/funding/prices/BIRDEYE",
+        "unexpired cache and unknown dependencies"
+      ],
+      "steps_per_run": 3
+    },
+    "cleanup_deletions": 0,
+    "engineering_revision": "7c82ba922cfa2b05c64ec75cd123edac8238aaf7",
+    "evidence_sha256": "cf001089abc9a04a0fe52a600251317ca82411211a18094cfe38ef552fed4628",
+    "gate_locks": 0,
+    "observed_utc": "2026-10-28T19:05:16.407536+00:00",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "service_restarts": 0
+  },
   "flex_v2_seven_day_lifecycle_install_preflight": {
     "DISK_AND_RUNTIME_SAFETY": {
       "absolute_wal_or5GiB_guarantee": false,
@@ -50094,11 +50362,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "82555bacb892d0afaeff8e8831010a37b00038a2",
+    "git_head": "7c82ba922cfa2b05c64ec75cd123edac8238aaf7",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T19:01:49.162570+00:00",
-    "working_tree": "Lifecycle caller correction PASS, qualified not deployed; exact installed listener plus five-line paired-V2 guard and two renderer pins; 13 focused controls pass; recovery pending correction unchanged; live PIDs unchanged."
+    "updated_at_utc": "2026-10-28T19:05:31.210679+00:00",
+    "working_tree": "Final seven-day lifecycle preflight GO for separately authorized installation; e1b31c5a exact guard/two pins verified,13+31 accepted controls reused. Three cache callers require coherent role reloads. State/schedule absent. Live workers/PIDs unchanged,gateOPEN,100k limit,5.70GBfree;birth511/512,migration489/512 protected. No deployment."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

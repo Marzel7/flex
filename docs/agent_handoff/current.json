@@ -20811,6 +20811,192 @@
     "runtime_deployment_required": false,
     "status": "PASS_READ_ONLY_COHORT_COVERAGE_MEASURED"
   },
+  "flex_v2_enhanced_10m_report": {
+    "BIRTHS_RECEIVED_COMMITTED_RETRIED": {
+      "current_retained_exact_receipt_core_matches_lower_bound": 10,
+      "current_states": {
+        "ACKED": 10,
+        "QUARANTINED": 492
+      },
+      "notifications_unique_mints_commits_receipt_matches_retries_conflicts": {
+        "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
+        "value": "UNKNOWN"
+      }
+    },
+    "BIRTH_JOURNAL_START_END_RECLAIMED": {
+      "current_snapshot": {
+        "free_slots": 10,
+        "records": 502,
+        "states": {
+          "ACKED": 10,
+          "QUARANTINED": 492
+        }
+      },
+      "current_terminal_owner": {
+        "bytes": 805013,
+        "free_records": 7600,
+        "records": 592
+      },
+      "exact_boundary_occupancy_admissions_acknowledgements_reclamation_refusals": {
+        "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
+        "value": "UNKNOWN"
+      }
+    },
+    "CREATE_ANCHOR_COVERAGE": {
+      "reason": "No accepted prospective activation/handoff timing audit evidence read; current anchor coverage and exact activation counts not established by this bounded reader",
+      "value": "UNKNOWN"
+    },
+    "DISK_FREE_START_END": {
+      "current_database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "database": 89493504
+        },
+        "ops": {
+          "database": 164663296
+        }
+      },
+      "current_free_bytes": 5984378880,
+      "exact_window_start_end_and_log_receipt_growth": {
+        "reason": "No retained exact-boundary allocation telemetry",
+        "value": "UNKNOWN"
+      },
+      "existing_floor_bytes": 2067108864
+    },
+    "FLEX_V2_10M_HEALTH_STATUS": "HEALTHY",
+    "HELIUS_REQUESTS_RESERVED_CREDITS": {
+      "actual_requests_by_worker_method_and_exact_window_reserved_delta": {
+        "reason": "Cumulative reservation ledger is not an immutable dispatch event ledger; no exact UTC-boundary snapshots",
+        "value": "UNKNOWN"
+      },
+      "current_reservations": [],
+      "current_total_reserved_credits": 76622,
+      "gate": "OPEN",
+      "highest_lifetime_investigation": 7936,
+      "lifetime_limit": 100000,
+      "provider_billed_credits": "UNKNOWN",
+      "publication_checksum_verified": true
+    },
+    "MIGRATIONS_RECEIVED_COMPLETED_DEFERRED": {
+      "current_deferred_owner": {
+        "bytes": 1345032,
+        "free_records": 7681,
+        "records": 511
+      },
+      "new_deferred_reactivated_completed_exhausted_refusals": {
+        "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
+        "value": "UNKNOWN"
+      },
+      "notifications_by_source_unique_signatures_canonical_commits": {
+        "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
+        "value": "UNKNOWN"
+      },
+      "verified_completed_core_ops_handoffs": 6
+    },
+    "MIGRATION_JOURNAL_START_END_TRANSFERRED": {
+      "current_snapshot": {
+        "free_slots": 27,
+        "records": 485,
+        "states": {
+          "PENDING": 484,
+          "RESOLVED": 1
+        }
+      },
+      "current_terminal_owner": {
+        "bytes": 2037465,
+        "free_records": 6370,
+        "records": 1822
+      },
+      "exact_boundary_occupancy_admissions_transfers_reclamation_refusals": {
+        "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
+        "value": "UNKNOWN"
+      }
+    },
+    "NEW_ERRORS_OR_WARNINGS": {
+      "exact_window_errors": {
+        "reason": "No complete timestamp-filtered error ledger qualified; retained queue error categories are current state",
+        "value": "UNKNOWN"
+      },
+      "verified_current_findings": []
+    },
+    "NEXT_ACTION": "Continue existing read-only cadence and original17:14London end time. Report unsupported metrics UNKNOWN; no production instrumentation or engineering.",
+    "TREND_VS_PREVIOUS_WINDOW": {
+      "reason": "No previous qualified exact-window report",
+      "value": "UNKNOWN"
+    },
+    "WALKBACK_EXAMINED_COMPLETED_ATTRIBUTED": {
+      "completed": 1,
+      "completed_outcomes": {
+        "LINEAGE_GAP": 1
+      },
+      "confirmed_operations_qualified_funding_relationships_review_candidates": {
+        "reason": "No qualified relationship/attribution event window read; completion is not attribution",
+        "value": "UNKNOWN"
+      },
+      "current_queue_states": {
+        "complete": 2020,
+        "failed": 56,
+        "pending": 105,
+        "waiting": 1551
+      },
+      "current_retained_deferral_categories_not_window_events": {
+        "HELIUS_ACQUISITION_DEFERRED": 126,
+        "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
+        "HELIUS_GATE_BUSY": 158,
+        "HELIUS_INVESTIGATION_REQUIRED": 25,
+        "HELIUS_REQUEST_RATE_LIMIT": 26,
+        "HELIUS_TRANSPORT_UNAVAILABLE": 1
+      },
+      "examined_admitted": {
+        "reason": "No durable per-examination event counter qualified",
+        "value": "UNKNOWN"
+      }
+    },
+    "WINDOW_START_END": {
+      "end_exclusive": "2026-10-28T15:40:00+00:00",
+      "start_inclusive": "2026-10-28T15:30:00+00:00"
+    },
+    "WORKER_HEALTH": {
+      "current": {
+        "creator_resolution_worker": {
+          "pid": 28017,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 28051,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 43753,
+          "state": "RUNNING"
+        }
+      },
+      "restarts_during_exact_window": {
+        "reason": "PID snapshots do not establish every restart within exact window",
+        "value": "UNKNOWN"
+      }
+    },
+    "blocker": "Exact event/UTC-boundary metrics lacking retained authority remain UNKNOWN; no production blocker observed in current snapshot",
+    "reader_sha256": "fedc5b186e632a6f355032612ee275c3aabeeccdeb385a5b760257e6ad0caf5f",
+    "safety": {
+      "new_services_databases": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "replay_reset": 0,
+      "restarts": 0
+    },
+    "snapshot_utc": "2026-10-28T15:43:25.258141+00:00",
+    "source_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "supplemental_irregular_snapshot_comparison_not_exact_window": {
+      "disk_free_bytes_delta": 18747392,
+      "from": "2026-10-28T15:34:41.218212+00:00",
+      "reserved_credit_delta": 444,
+      "to": "2026-10-28T15:43:25.258141+00:00",
+      "worker_pids_unchanged": true
+    },
+    "tests": "No repeated qualification tests; existing bounded read-only owner/query contracts reused"
+  },
   "flex_v2_final_consolidation": {
     "critical_blocker": "Required dormant runtime composition lacks a qualified V2-safe launch/writer contract: API retains a legacy database fallback and shared writer lacks the accepted paired-generation guard. Existing dormant launch roots/configuration assumptions are not an authoritative V2 profile.",
     "detailed_evidence": "Local only; production-derived runtime metadata and incomplete manifest not published.",
@@ -27668,6 +27854,7 @@
     "automation_id": "flex-v2-two-hour-health-monitoring",
     "baseline_handoff": "269e0400",
     "blocker": null,
+    "cadence_minutes": 10,
     "checks": [
       {
         "credits": 75899,
@@ -27700,12 +27887,15 @@
     ],
     "duration_hours": 2,
     "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "enhanced_reporting_enabled": true,
     "future_checks": 12,
     "interval_minutes": 10,
-    "next_action": "Run bounded read-only checks at10-minute intervals; notify only meaningful changes/problems; delete automation after two hours and publish final summary.",
+    "next_action": "Use enhanced read-only adapter; reportUNKNOWN for unqualified telemetry; preserve original endpoint and delete automation after completion.",
+    "original_end_utc": "2026-10-28T17:14:16Z",
     "production_changes": 0,
     "production_flags": "No changes; latest runtime state remains evidence from previous verified check",
     "provider_calls": 0,
+    "reporting_window": "Most recent complete10-minute UTC interval; snapshot data explicitly separate",
     "status": "ACTIVE_READ_ONLY_HEALTHY",
     "tests": "Not applicable; scheduling only"
   },
@@ -48070,8 +48260,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T15:35:41.859040+00:00",
-    "working_tree": "Scheduled read-only check: gateOPEN,workers stable,no stuck reservations,41 handoffs22 Walkback completions; birth capacity tight but freshACK observed. No changes."
+    "updated_at_utc": "2026-10-28T15:45:55.402972+00:00",
+    "working_tree": "Existing monitoring report enhanced only; no production engineering. Exact15:30\u201315:40UTC:6 verified handoffs,1 Walkback completion LINEAGE_GAP; unsupported event metricsUNKNOWN."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

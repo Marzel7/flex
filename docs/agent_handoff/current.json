@@ -25315,6 +25315,32 @@
     "terminal_verified_records": 1789,
     "undefined_logger_errors": 0
   },
+  "flex_v2_post_restore_stall_diagnosis": {
+    "birth": "Existing natural overflow reclamation transferred 20 protected conflicts: terminal owner 512 to 532, active journal 511 to 493.",
+    "blocker": "Intermittent scheduling/ownership deferrals plus near-full overflow-only journal maintenance; original per-notification budget reason not retained.",
+    "engineering_revision": "8ce26bf4f44005ebecd3f545be99a0ed55c884d1",
+    "evidence_sha256": "789e4588a1809b1096fa895abe00afa0980fe2c40b8ece264ba9370c79e29a1a",
+    "lock_owner": "No exclusive owner captured in 45 OS samples; do not infer permanently stuck lock.",
+    "migration": "11:15:23UTC: 511 active, 501 PENDING, 8 ACKED, one RESOLVED, one QUARANTINED; 500 generic budget deferrals, two dispatch reservations. Protected custody quotas have headroom.",
+    "next_action": "Qualify the narrow typed scope-entry deferral correction first; preserve exact migration budget reasons and reuse bounded existing custody maintenance if admission reserve is required. No replay, reset or budget change.",
+    "production_flags": {
+      "credit_limit": 100000,
+      "gate": "OPEN",
+      "production_changes": false,
+      "provider_calls": 0,
+      "replay_reset": false
+    },
+    "proven_defect": {
+      "behaviour": "Catches BudgetDeferred from owned_context.__enter__, returns None, then executes wrapped function without scope; _admit rejects paid dispatch with HELIUS_INVESTIGATION_REQUIRED.",
+      "boundary": "scoped.enter",
+      "limitation": "Retained queue reason does not recover which original entry deferral occurred for each affected job.",
+      "path": "src/core/helius_http_protection.py"
+    },
+    "status": "PARTIAL_PROGRESS_VERIFIED_DIAGNOSIS",
+    "tests": "Read-only indexed canonical comparisons, bounded queue/journal reads, source trace, OS lock samples; no implementation or tests requiring acquisition.",
+    "updated_utc": "2026-10-28T11:16:24.667204+00:00",
+    "walkback": "Seven new completions: five LINEAGE_GAP, two NO_ATTRIBUTION_FOUND. Zero-completion premise superseded. Current-minute health oscillates."
+  },
   "flex_v2_prospective_admission_authority_qualification_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Existingtimestampsdonotuniversallyretainoriginaladmissionthroughsupportedrecreation/legacyfill.Requirement11HOLD;no mutabletimestamp substitution.",
@@ -46328,7 +46354,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "7994dd8d43069fde510a4288aa1b957d6e8b5d8f",
+    "git_head": "8ce26bf4f44005ebecd3f545be99a0ed55c884d1",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-28T10:52:43.152082+00:00",

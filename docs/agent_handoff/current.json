@@ -21781,6 +21781,443 @@
       "provider_free": true
     }
   },
+  "flex_v2_golden_readiness_assessment": {
+    "BIRTH_CREATE_COVERAGE": {
+      "at_handoff": "UNKNOWN; source-qualified current anchors do not prove historical activation commit timing",
+      "blocked": 2,
+      "blocked_reason": "OPS_STATE_INELIGIBLE; qualified PP source evidence retained; no repair or promotion",
+      "cohort_size": 53,
+      "current_coverage_percent": 96.23,
+      "qualified_current_CREATE_anchors": 51,
+      "verified_committed_PP_receipt_canonical_matches": 53
+    },
+    "FLEX_V2_GOLDEN_READINESS_STATUS": "PARTIAL",
+    "GO_HOLD_DECISION": "PARTIAL",
+    "HELIUS_SAFETY": {
+      "billed_credits": "UNKNOWN",
+      "highest_investigation": 7936,
+      "inflight": [],
+      "limit": 100000,
+      "reserved_credits": 79950,
+      "uncertain_requests_preserved": 5
+    },
+    "JOURNAL_SUSTAINABILITY": {
+      "assessment": "Reusable512-slot journals sustained the observed window with verified custody and acknowledged reclamation. Long-term reclamation-versus-intake rate and exact refusal counts remainUNKNOWN; finite protected owners stay bounded, never auto-expired. No quota increase required by observed evidence.",
+      "current": {
+        "birth": {
+          "accepted_independent_completion_readback_matches": 2,
+          "free": 1,
+          "occupied": 511,
+          "protected_records": 509,
+          "states": {
+            "ACKED": 2,
+            "QUARANTINED": 509
+          },
+          "structural_completed_candidates": 2
+        },
+        "migration": {
+          "accepted_independent_completion_readback_matches": 0,
+          "free": 25,
+          "occupied": 487,
+          "protected_records": 487,
+          "states": {
+            "PENDING": 485,
+            "QUARANTINED": 1,
+            "RESOLVED": 1
+          },
+          "structural_completed_candidates": 0
+        }
+      },
+      "quota": {
+        "birth_terminal": {
+          "bytes": 831848,
+          "free_records": 7580,
+          "records": 612
+        },
+        "migration_deferred": {
+          "bytes": 1355954,
+          "free_records": 7677,
+          "records": 515
+        },
+        "migration_terminal": {
+          "bytes": 2042103,
+          "free_records": 6366,
+          "records": 1826
+        }
+      },
+      "verified_custody_progress": {
+        "birth_terminal_evidence_v1": {
+          "new_rows_since_restoration": 40,
+          "new_transfer_states": {
+            "VERIFIED": 40
+          },
+          "old_identity_hash_state_preserved": true
+        },
+        "migration_terminal_evidence_v1": {
+          "new_rows_since_restoration": 13,
+          "new_transfer_states": {
+            "VERIFIED": 13
+          },
+          "old_identity_hash_state_preserved": true
+        }
+      }
+    },
+    "MIGRATION_TO_WALKBACK_COVERAGE": {
+      "admitted": 53,
+      "current_states_at_primary_snapshot": {
+        "complete": 14,
+        "failed": 0,
+        "pending": 39,
+        "running": 0,
+        "waiting": 0
+      },
+      "exact_canonical_matches": 53,
+      "first_claim_latency_seconds": {
+        "max": 1275,
+        "median": 1072,
+        "min": 913,
+        "observed": 53
+      },
+      "missing": 0,
+      "warning": "42 completions during monitoring cover all historical+recent jobs, not42 of this53-migration cohort."
+    },
+    "NEXT_ACTION": "Perform one bounded current-composition recovery and lifecycle deployment preflight using accepted source/tests; reconcile the existing frozen manifest with5e4e5942 and later accepted corrections. Separately authorize any installation. Do not freeze Golden Baseline or retire V1 yet.",
+    "RECOVERY_MANIFEST_COMPATIBILITY": {
+      "ancestor_relationship": true,
+      "complete_current_manifest": "NOT_RECONCILED_OR_FROZEN",
+      "current_recovery_renderer_and_16_role_payload_hashes": "PASS",
+      "current_shared_gate_terminal_deferred_CREATE_flags": "Preserved by exact installed recovery pins",
+      "current_source_commit": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+      "dormant_qualification": "81 accepted provider-free tests reused; API/UI/monitor/bridge remainSTOPPED; browser-visible acceptanceNOT_TESTED",
+      "older_dormant_frozen_manifest_commit": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
+      "sparse_current_source_packaging": "Only approved current runtime/recovery closure is installed; no assertion that all dormant launch artifacts are staged for current composition"
+    },
+    "REMAINING_CRITICAL_BLOCKERS": {
+      "mandatory_baseline_gates": [
+        "Qualified seven-day V2 disposable cleanup is not installed/initialized; execution and storage sustainability not established",
+        "Reconcile/freeze one exact current active+dormant source/configuration/fresh-pair recovery manifest",
+        "Backlog catch-up remains unproven and two CREATE intents remain protectedBLOCKED; keep these operational limitations explicit"
+      ],
+      "measurement_unknowns_are_not_failures": [
+        "Exact at-handoffCREATEcoverage",
+        "Exact-window births/RPCdispatches/reclamations/growth",
+        "Complete original277identity-set continuity"
+      ],
+      "new_demonstrated_production_safety_defect": null
+    },
+    "RUNTIME_STABILITY": "Current OPEN matched ACTIVE V2 and all three unchanged Supervisor-owned workers verified; completed two-hour evidence is separate from17:31 snapshot. No current critical failure demonstrated.",
+    "STORAGE_AND_RETENTION": {
+      "aggregate_growth": "UNKNOWN; no enforced5GiB ceiling or absoluteWAL guarantee claimed. No live maintenance invoked.",
+      "database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "database": 91164672
+        },
+        "ops": {
+          "database": 165367808
+        }
+      },
+      "disk_free_bytes_addendum": 3644973056,
+      "disk_free_bytes_primary": 3668484096,
+      "floor_bytes": 2067108864,
+      "logs": {
+        "files": 52,
+        "growth_rate": "UNKNOWN: no exact comparable log snapshots",
+        "largest_bytes": 20971548,
+        "total_bytes": 261740524
+      },
+      "protected_receipts": "Retained; current accepted policy does not require retirement of insufficiently evidenced receipts.",
+      "rotation": {
+        "creator_resolution_worker": {
+          "stderr_logfile_backups": "1",
+          "stderr_logfile_maxbytes": "5MB",
+          "stdout_logfile_backups": "2",
+          "stdout_logfile_maxbytes": "10MB"
+        },
+        "walkback_worker": {
+          "stderr_logfile_backups": "1",
+          "stderr_logfile_maxbytes": "2MB",
+          "stdout_logfile_backups": "2",
+          "stdout_logfile_maxbytes": "5MB"
+        },
+        "watchtower_listener": {
+          "stderr_logfile_backups": "2",
+          "stderr_logfile_maxbytes": "10MB",
+          "stdout_logfile_backups": "3",
+          "stdout_logfile_maxbytes": "20MB"
+        }
+      },
+      "scheduled_legacy_temp_owner": "03:00 cron exists; installed source differs from qualified2b3fd cleanup owner. Successful qualified seven-day V2 execution not proven.",
+      "v2_cache_wss_cleanup_owner_installed": false,
+      "v2_cache_wss_cleanup_state_initialized": false
+    },
+    "V1_RETIREMENT_READINESS": {
+      "active_three_worker_V1_bindings": false,
+      "active_three_worker_V1_file_references": [],
+      "decision": "NOT_READY_KEEP_V1",
+      "independent_current_bundle_restore": "Fresh compact matched-pair design and version-aware contracts qualified; current complete frozen restore composition not yet verified. No claim of live restoration or complete auxiliary-writer exclusion.",
+      "requirements": [
+        "Freeze exact current source/config/authority/compact recovery composition including canonical evidence, receipts,terminal/deferred custody,Helius spending and five uncertain requests",
+        "Establish accepted disposal/retention execution and aggregate storage sustainability",
+        "Verify all auxiliary/scheduled V1 authorities excluded and separately authorize retirement; no V1 access/deletion here"
+      ]
+    },
+    "WALKBACK_ELIGIBLE_BACKLOG_TREND": {
+      "acquisition_eligible": "UNKNOWN read-only without a reservation; no mutation attempted",
+      "current_unqualified_Core_signature_candidates": 278,
+      "definition_recent": "enqueued_at>=2026-10-28T15:14:16Z",
+      "historical_with_qualified_OPS_CREATE": 0,
+      "historical_without_qualified_OPS_CREATE": 1551,
+      "original277": "No records changed/promoted; original identity-set continuity not independently reidentified.",
+      "recent_with_qualified_OPS_CREATE": 0,
+      "recent_without_qualified_OPS_CREATE": 0,
+      "scheduler_due": 104,
+      "trend": "Around100 due/pending jobs persists; no sustained catch-up demonstrated. Exact net growth across exact monitoring boundariesUNKNOWN."
+    },
+    "accepted_evidence_reused": {
+      "cache_wss_cleanup_controls": 31,
+      "dormant_runtime_controls": 81,
+      "publication_controls": 132,
+      "receipt_controls": 9
+    },
+    "active_three_worker_db_bindings": "V2 exact verified in process environments",
+    "active_three_worker_v1_fd_references": [],
+    "backlog": {
+      "acquisition_eligible": "UNKNOWN per job without mutating reservations; due is not permission",
+      "counts": {
+        "complete": 2060,
+        "failed": 56,
+        "pending": 108,
+        "waiting": 1551
+      },
+      "due_last_reasons": {
+        "HELIUS_GATE_BUSY": 99,
+        "HELIUS_REQUEST_COOLDOWN": 1,
+        "NONE": 4
+      },
+      "original277_identity_set_continuity": "Not requalified or promoted; no writes. Exact original identity set not supplied to this reader.",
+      "scheduler_due": 104,
+      "waiting_split": {
+        "historical_without_qualified_CREATE": 1551
+      },
+      "waiting_split_recent_cutoff_utc": "2026-10-28T15:14:16Z",
+      "waiting_with_valid_core_signature_candidates_not_qualified": 278
+    },
+    "cleanup_versioned_state_tables_installed": {
+      "core": [],
+      "ops": []
+    },
+    "cohort": {
+      "at_handoff_anchor_coverage": "UNKNOWN: prospective commit-order audit not installed; receipt handoff initiation/acked_at not OPS activation proof",
+      "counts": {
+        "accepted_VALID_queue_anchor": 51,
+        "anchor_not_independently_qualified_now": 2,
+        "canonical_exact_migration": 53,
+        "delivery_ACK": 51,
+        "delivery_BLOCKED": 2,
+        "independently_qualified_current_anchor": 51,
+        "queue_complete": 14,
+        "queue_pending": 39,
+        "receipt_outcome_COMMITTED": 53,
+        "verified_committed_pumpportal_birth_receipt_core_match": 53
+      },
+      "definition": "53 exact handoffs completed15:14:16\u201317:14:16UTC",
+      "first_claim_seconds": {
+        "max": 1275,
+        "median": 1072,
+        "min": 913,
+        "observed": 53
+      }
+    },
+    "cohort_identity_evidence_local": "/private/tmp/flex-golden-readiness-cohort.private.json",
+    "cohort_identity_evidence_sha256": "916d09ee4fce7864cdc0517a2e1e9935efd32de4d29e999ca5bfab28ad9ee2aa",
+    "completed_monitoring": {
+      "automation_deleted": true,
+      "exact_window_credits_births_create_coverage": "UNKNOWN: no qualified exact-boundary/event telemetry",
+      "production_changes": 0,
+      "provider_calls": 0,
+      "verified_completed_core_ops_handoffs": 53,
+      "walkback_completions": 42,
+      "walkback_outcomes": {
+        "LINEAGE_GAP": 19,
+        "NO_ATTRIBUTION_FOUND": 23
+      },
+      "window_end_exclusive": "2026-10-28T17:14:16Z",
+      "window_start": "2026-10-28T15:14:16Z"
+    },
+    "database_files": {
+      "core": {
+        "-shm": 32768,
+        "-wal": 0,
+        "database": 91164672
+      },
+      "ops": {
+        "database": 165367808
+      }
+    },
+    "disk_free_bytes": 3668484096,
+    "engineering_revision": "30ad7094076e83119efef42026a97d18a18af849",
+    "evidence_sha256": "de2ab57870d31036e78f05f7ee5f9e06df033d7bac6608be237f48eaa4e534ec",
+    "helius": {
+      "billed_credits": "UNKNOWN",
+      "highest_investigation": 7936,
+      "inflight": [],
+      "limit": 100000,
+      "reserved_credits": 79950,
+      "uncertain_requests_preserved": 5
+    },
+    "journals": {
+      "birth": {
+        "accepted_independent_completion_readback_matches": 2,
+        "free": 1,
+        "occupied": 511,
+        "protected_records": 509,
+        "states": {
+          "ACKED": 2,
+          "QUARANTINED": 509
+        },
+        "structural_completed_candidates": 2
+      },
+      "migration": {
+        "accepted_independent_completion_readback_matches": 0,
+        "free": 25,
+        "occupied": 487,
+        "protected_records": 487,
+        "states": {
+          "PENDING": 485,
+          "QUARANTINED": 1,
+          "RESOLVED": 1
+        },
+        "structural_completed_candidates": 0
+      }
+    },
+    "observed_utc": "2026-10-28T17:31:29.115147+00:00",
+    "old_qualified_manifest": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "source_commit": "2b3fd78dab456ada9c8c54f15f9a0e92d1cb5bc1",
+      "source_differs_from_current": true,
+      "status": "Qualified DEV artifact, not current installed full-runtime freeze"
+    },
+    "owner_quotas": {
+      "birth_terminal": {
+        "bytes": 831848,
+        "free_records": 7580,
+        "records": 612
+      },
+      "migration_deferred": {
+        "bytes": 1355954,
+        "free_records": 7677,
+        "records": 515
+      },
+      "migration_terminal": {
+        "bytes": 2042103,
+        "free_records": 6366,
+        "records": 1826
+      }
+    },
+    "read_limitations": [
+      "Nonindexed completed-time selection was interrupted by conservative VM/time budget; accepted bounded queue-mint primary-key reader matched the reference53 instead. No query budget was raised.",
+      "Exact source of unrelated free-disk changes cannot be inferred from filesystem snapshots.",
+      "No gate methods/locks,maintenance,provider acquisition,service control or V1 content access."
+    ],
+    "readiness_scope": "Recoverable baseline consolidation is near; final freeze and V1retirement not qualified. No new DEV workstream needed for this assessment.",
+    "runtime": {
+      "checksum_valid_without_locks": true,
+      "gate": "OPEN",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "phase": "ACTIVE",
+      "recovery_payload_hashes_verified": 16,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 28017,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 28051,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 43753,
+          "state": "RUNNING"
+        }
+      },
+      "source_commit": "5e4e5942afbcab4f1ab5cbb1c7b4f9e3d3609636",
+      "supervisor_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320"
+    },
+    "safety": {
+      "V1_content_access": 0,
+      "gate_locks_acquired": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "qualification_tests_rerun": 0,
+      "restarts": 0
+    },
+    "supporting_metadata": {
+      "active_supervisor_rotation": {
+        "creator_resolution_worker": {
+          "stderr_logfile_backups": "1",
+          "stderr_logfile_maxbytes": "5MB",
+          "stdout_logfile_backups": "2",
+          "stdout_logfile_maxbytes": "10MB"
+        },
+        "walkback_worker": {
+          "stderr_logfile_backups": "1",
+          "stderr_logfile_maxbytes": "2MB",
+          "stdout_logfile_backups": "2",
+          "stdout_logfile_maxbytes": "5MB"
+        },
+        "watchtower_listener": {
+          "stderr_logfile_backups": "2",
+          "stderr_logfile_maxbytes": "10MB",
+          "stdout_logfile_backups": "3",
+          "stdout_logfile_maxbytes": "20MB"
+        }
+      },
+      "cache_wss_state_initialized": false,
+      "current_disk_free_bytes": 3644973056,
+      "dormant_service_status": "watchtower_api                   STOPPED   Not started\noperation_monitor_worker         STOPPED   Not started\noperation_monitor_bridge         STOPPED   Not started",
+      "journals_metadata": {
+        "complete_top_level_inventory": true,
+        "entries_examined": 6,
+        "recursive_allocation": "NOT_OBSERVABLE_READ_ONLY_WITHIN_BOUND",
+        "top_level_file_bytes": 3626930
+      },
+      "qualified_cache_wss_owner_installed_files": {
+        "listener": false,
+        "resolver": false,
+        "walkback": false
+      },
+      "supervisor_log_metadata": {
+        "files": 52,
+        "growth_rate": "UNKNOWN: no exact comparable log snapshots",
+        "largest_bytes": 20971548,
+        "total_bytes": 261740524
+      },
+      "tmp_metadata": {
+        "complete_top_level_inventory": true,
+        "entries_examined": 0,
+        "recursive_allocation": "NOT_OBSERVABLE_READ_ONLY_WITHIN_BOUND",
+        "top_level_file_bytes": 0
+      },
+      "two_blocked_queue_states": [
+        {
+          "audit_state": "MISSING_OR_MALFORMED",
+          "delivery_reason": "OPS_STATE_INELIGIBLE",
+          "has_anchor_signature": false,
+          "path_state": "CLAIMED",
+          "status": "pending"
+        },
+        {
+          "audit_state": "MISSING_OR_MALFORMED",
+          "delivery_reason": "OPS_STATE_INELIGIBLE",
+          "has_anchor_signature": false,
+          "path_state": "CLAIMED",
+          "status": "complete"
+        }
+      ]
+    }
+  },
   "flex_v2_helius_authorized_replacement_restoration": {
     "blocker": "Available disk fell below required floor; existing gate publication interrupted and now fail-closed. Do not infer provider outcome from PENDING marker. One live-owner reservation remains protected.",
     "disk_free_bytes": 1457991680,
@@ -48858,8 +49295,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T17:17:37.982172+00:00",
-    "working_tree": "Two-hour read-only monitoring complete/deleted:53 verified handoffs42 Walkbacks(19LINEAGE_GAP23NO_ATTRIBUTION_FOUND); finalgateOPEN stableworkers4.84GB, no stuck reservations. Protected accounting unchanged; exact unobservable metricsUNKNOWN. No production changes."
+    "updated_at_utc": "2026-10-28T17:37:16.958814+00:00",
+    "working_tree": "Strictly read-only Golden readinessPARTIAL:53/53committedPPbirths+admissions,51qualifiedcurrentCREATE,14complete39pending at17:31;cleanupqualifiedDEVnotinstalled,currentfullmanifestnotreconciled. GateOPEN stable workers;V1retirementNOT_READY. No locks/providercalls/changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

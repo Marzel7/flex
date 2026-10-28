@@ -20813,9 +20813,9 @@
   },
   "flex_v2_enhanced_10m_report": {
     "BIRTHS_RECEIVED_COMMITTED_RETRIED": {
-      "current_retained_exact_receipt_core_matches_lower_bound": 13,
+      "current_retained_exact_receipt_core_matches_lower_bound": 2,
       "current_states": {
-        "ACKED": 13,
+        "ACKED": 2,
         "QUARANTINED": 495
       },
       "notifications_unique_mints_commits_receipt_matches_retries_conflicts": {
@@ -20825,10 +20825,10 @@
     },
     "BIRTH_JOURNAL_START_END_RECLAIMED": {
       "current_snapshot": {
-        "free_slots": 4,
-        "records": 508,
+        "free_slots": 15,
+        "records": 497,
         "states": {
-          "ACKED": 13,
+          "ACKED": 2,
           "QUARANTINED": 495
         }
       },
@@ -20850,14 +20850,14 @@
       "current_database_files": {
         "core": {
           "-shm": 32768,
-          "-wal": 32992,
-          "database": 90316800
+          "-wal": 0,
+          "database": 90525696
         },
         "ops": {
-          "database": 165007360
+          "database": 165036032
         }
       },
-      "current_free_bytes": 4764508160,
+      "current_free_bytes": 4778319872,
       "exact_window_start_end_and_log_receipt_growth": {
         "reason": "No retained exact-boundary allocation telemetry",
         "value": "UNKNOWN"
@@ -20870,14 +20870,8 @@
         "reason": "Cumulative reservation ledger is not an immutable dispatch event ledger; no exact UTC-boundary snapshots",
         "value": "UNKNOWN"
       },
-      "current_reservations": [
-        {
-          "age_seconds": 0,
-          "method": "rpc:getTransaction",
-          "role": "walkback"
-        }
-      ],
-      "current_total_reserved_credits": 78413,
+      "current_reservations": [],
+      "current_total_reserved_credits": 78635,
       "gate": "OPEN",
       "highest_lifetime_investigation": 7936,
       "lifetime_limit": 100000,
@@ -20898,21 +20892,21 @@
         "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
         "value": "UNKNOWN"
       },
-      "verified_completed_core_ops_handoffs": 6
+      "verified_completed_core_ops_handoffs": 4
     },
     "MIGRATION_JOURNAL_START_END_TRANSFERRED": {
       "current_snapshot": {
-        "free_slots": 24,
-        "records": 488,
+        "free_slots": 29,
+        "records": 483,
         "states": {
-          "PENDING": 487,
+          "PENDING": 482,
           "RESOLVED": 1
         }
       },
       "current_terminal_owner": {
-        "bytes": 2038586,
-        "free_records": 6369,
-        "records": 1823
+        "bytes": 2039707,
+        "free_records": 6368,
+        "records": 1824
       },
       "exact_boundary_occupancy_admissions_transfers_reclamation_refusals": {
         "reason": "No proven complete retained event counters for this exact UTC window; reclaimed records cannot be counted retrospectively",
@@ -20928,33 +20922,33 @@
     },
     "NEXT_ACTION": "Continue existing read-only cadence and original17:14London end time. Report unsupported metrics UNKNOWN; no production instrumentation or engineering.",
     "TREND_VS_PREVIOUS_WINDOW": {
-      "completed_handoff_change": 3,
-      "walkback_completion_change": -1
+      "completed_handoff_change": -2,
+      "walkback_completion_change": 4
     },
     "WALKBACK_EXAMINED_COMPLETED_ATTRIBUTED": {
-      "completed": 1,
+      "completed": 5,
       "completed_outcomes": {
-        "LINEAGE_GAP": 1
+        "LINEAGE_GAP": 1,
+        "NO_ATTRIBUTION_FOUND": 4
       },
       "confirmed_operations_qualified_funding_relationships_review_candidates": {
         "reason": "No qualified relationship/attribution event window read; completion is not attribution",
         "value": "UNKNOWN"
       },
       "current_queue_states": {
-        "complete": 2041,
+        "complete": 2045,
         "failed": 56,
-        "pending": 110,
-        "running": 1,
+        "pending": 108,
         "waiting": 1551
       },
       "current_retained_deferral_categories_not_window_events": {
         "HELIUS_ACQUISITION_DEFERRED": 126,
         "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-        "HELIUS_GATE_BUSY": 192,
+        "HELIUS_GATE_BUSY": 199,
         "HELIUS_INVESTIGATION_REQUIRED": 25,
-        "HELIUS_REQUEST_COOLDOWN": 1,
-        "HELIUS_REQUEST_RATE_LIMIT": 14,
-        "HELIUS_TRANSPORT_UNAVAILABLE": 1
+        "HELIUS_REQUEST_RATE_LIMIT": 12,
+        "HELIUS_TRANSPORT_UNAVAILABLE": 1,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
       },
       "examined_admitted": {
         "reason": "No durable per-examination event counter qualified",
@@ -20962,8 +20956,8 @@
       }
     },
     "WINDOW_START_END": {
-      "end_exclusive": "2026-10-28T16:30:00+00:00",
-      "start_inclusive": "2026-10-28T16:20:00+00:00"
+      "end_exclusive": "2026-10-28T16:40:00+00:00",
+      "start_inclusive": "2026-10-28T16:30:00+00:00"
     },
     "WORKER_HEALTH": {
       "current": {
@@ -20987,12 +20981,12 @@
     },
     "blocker": null,
     "comparison_previous_snapshot": {
-      "from": "2026-10-28T16:26:41.310860+00:00",
-      "reserved_credit_delta": 450,
-      "to": "2026-10-28T16:36:40.376072+00:00",
+      "from": "2026-10-28T16:36:40.376072+00:00",
+      "reserved_credit_delta": 222,
+      "to": "2026-10-28T16:46:40.961366+00:00",
       "worker_pids_unchanged": true
     },
-    "evidence_sha256": "71e935ef1d3a76b2a68518c66a3cf76a8e7f1c22ea266caf74a3425f3cafe178",
+    "evidence_sha256": "af6aadbce696bd1ce421f1bd54af920f32b166748192de4f503d1efe22bc573e",
     "safety": {
       "new_services_databases": 0,
       "production_changes": 0,
@@ -21000,13 +20994,13 @@
       "replay_reset": 0,
       "restarts": 0
     },
-    "snapshot_utc": "2026-10-28T16:36:40.376072+00:00",
+    "snapshot_utc": "2026-10-28T16:46:40.961366+00:00",
     "source_revision": "30ad7094076e83119efef42026a97d18a18af849",
     "supplemental_irregular_snapshot_comparison_not_exact_window": {
-      "disk_free_bytes_delta": -18886656,
-      "from": "2026-10-28T16:26:41.310860+00:00",
-      "reserved_credit_delta": 450,
-      "to": "2026-10-28T16:36:40.376072+00:00",
+      "disk_free_bytes_delta": 13811712,
+      "from": "2026-10-28T16:36:40.376072+00:00",
+      "reserved_credit_delta": 222,
+      "to": "2026-10-28T16:46:40.961366+00:00",
       "worker_pids_unchanged": true
     },
     "tests": "Existing bounded read-only controls reused"
@@ -27697,6 +27691,18 @@
       [
         "MIGRATION",
         "AVAILABLE",
+        1793205695,
+        "logsSubscribe confirmed"
+      ],
+      [
+        "MIGRATION",
+        "DOWN",
+        1793205569,
+        "websocket failure: SubscriptionUnavailable"
+      ],
+      [
+        "MIGRATION",
+        "AVAILABLE",
         1793205389,
         "logsSubscribe confirmed"
       ],
@@ -27717,62 +27723,44 @@
         "DOWN",
         1793203202,
         "websocket failure: SubscriptionUnavailable"
-      ],
-      [
-        "MIGRATION",
-        "AVAILABLE",
-        1793203022,
-        "logsSubscribe confirmed"
-      ],
-      [
-        "MIGRATION",
-        "DOWN",
-        1793203017,
-        "websocket failure: SubscriptionUnavailable"
       ]
     ],
-    "birth_canonical_exact_matches_current_journal_lower_bound": 13,
-    "canonical_completed_core_ops_handoffs_since_restoration": 74,
+    "birth_canonical_exact_matches_current_journal_lower_bound": 2,
+    "canonical_completed_core_ops_handoffs_since_restoration": 75,
     "database_files": {
       "core": {
         "-shm": 32768,
-        "-wal": 32992,
-        "database": 90316800
+        "-wal": 0,
+        "database": 90525696
       },
       "ops": {
-        "database": 165007360
+        "database": 165036032
       }
     },
     "disk_floor_bytes": 2067108864,
-    "disk_free_bytes": 4764508160,
-    "elapsed_minutes": 130.28433176279069,
+    "disk_free_bytes": 4778319872,
+    "elapsed_minutes": 140.29451463222503,
     "existing_protected_terminal_evidence_preserved": true,
     "findings": [],
     "gate": "OPEN",
     "generation": "DEV004-V2-20261024-dfb76562",
     "highest_investigation_credits": 7936,
-    "inflight": [
-      {
-        "age_seconds": 0,
-        "method": "rpc:getTransaction",
-        "role": "walkback"
-      }
-    ],
+    "inflight": [],
     "investigation_limit": 100000,
     "journals": {
       "birth": {
-        "free_slots": 4,
-        "records": 508,
+        "free_slots": 15,
+        "records": 497,
         "states": {
-          "ACKED": 13,
+          "ACKED": 2,
           "QUARANTINED": 495
         }
       },
       "migration": {
-        "free_slots": 24,
-        "records": 488,
+        "free_slots": 29,
+        "records": 483,
         "states": {
-          "PENDING": 487,
+          "PENDING": 482,
           "RESOLVED": 1
         }
       }
@@ -27784,7 +27772,7 @@
     ],
     "new_exhausted_since_restoration": 0,
     "next_action": "Report findings only; no engineering or changes authorized. Stop this one-time monitor.",
-    "observed_utc": "2026-10-28T16:36:40.376072+00:00",
+    "observed_utc": "2026-10-28T16:46:40.961366+00:00",
     "production_mutations": 0,
     "provider_calls": 0,
     "publication_checksum_verified": true,
@@ -27800,28 +27788,28 @@
         "records": 511
       },
       "migration_terminal": {
-        "bytes": 2038586,
-        "free_records": 6369,
-        "records": 1823
+        "bytes": 2039707,
+        "free_records": 6368,
+        "records": 1824
       }
     },
     "replay_reset": 0,
     "requests_by_method_since_restoration_including_one_probe": {
-      "rpc:getAccountInfo": 1969,
-      "rpc:getMultipleAccounts": 276,
-      "rpc:getSignaturesForAddress": 813,
+      "rpc:getAccountInfo": 2024,
+      "rpc:getMultipleAccounts": 278,
+      "rpc:getSignaturesForAddress": 880,
       "rpc:getTokenAccountsByOwner": 2,
       "rpc:getTokenLargestAccounts": 35,
-      "rpc:getTransaction": 1398
+      "rpc:getTransaction": 1496
     },
-    "requests_per_second_since_restoration": 0.5747685260394456,
-    "reserved_credit_increase_since_acceptance": 4200,
+    "requests_per_second_since_restoration": 0.5601311893008473,
+    "reserved_credit_increase_since_acceptance": 4422,
     "reserved_credits_by_worker_since_restoration_including_one_probe": {
       "creator_resolution": 0,
-      "listener": 1688,
-      "walkback": 2805
+      "listener": 1694,
+      "walkback": 3021
     },
-    "reserved_credits_total": 78413,
+    "reserved_credits_total": 78635,
     "restarts": 0,
     "restored_utc": "2026-10-28T14:26:22.634841+00:00",
     "same_worker_pids": false,
@@ -27841,22 +27829,21 @@
     },
     "status": "PASS",
     "uncertain_requests_preserved": 5,
-    "walkback_completions_since_restoration": 44,
+    "walkback_completions_since_restoration": 48,
     "walkback_helius_error_categories": {
       "HELIUS_ACQUISITION_DEFERRED": 126,
       "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-      "HELIUS_GATE_BUSY": 192,
+      "HELIUS_GATE_BUSY": 199,
       "HELIUS_INVESTIGATION_REQUIRED": 25,
-      "HELIUS_REQUEST_COOLDOWN": 1,
-      "HELIUS_REQUEST_RATE_LIMIT": 14,
-      "HELIUS_TRANSPORT_UNAVAILABLE": 1
+      "HELIUS_REQUEST_RATE_LIMIT": 12,
+      "HELIUS_TRANSPORT_UNAVAILABLE": 1,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
     },
-    "walkback_queue_changed_since_restoration": 156,
+    "walkback_queue_changed_since_restoration": 157,
     "walkback_states": {
-      "complete": 2041,
+      "complete": 2045,
       "failed": 56,
-      "pending": 110,
-      "running": 1,
+      "pending": 108,
       "waiting": 1551
     }
   },
@@ -27990,6 +27977,23 @@
         },
         "window_handoffs": 6,
         "window_walkback_completed": 1
+      },
+      {
+        "credits": 78635,
+        "disk_free_bytes": 4778319872,
+        "notification": "DONT_NOTIFY_ROUTINE_HEALTHY",
+        "observed_utc": "2026-10-28T16:46:40.961366+00:00",
+        "outcomes": {
+          "LINEAGE_GAP": 1,
+          "NO_ATTRIBUTION_FOUND": 4
+        },
+        "status": "HEALTHY",
+        "window": {
+          "end_exclusive": "2026-10-28T16:40:00+00:00",
+          "start_inclusive": "2026-10-28T16:30:00+00:00"
+        },
+        "window_handoffs": 4,
+        "window_walkback_completed": 5
       }
     ],
     "duration_hours": 2,
@@ -48367,8 +48371,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T16:36:57.071865+00:00",
-    "working_tree": "Scheduled16:20\u201316:30UTC:6 handoffs1LINEAGE_GAP Walkback completion. GateOPEN stable workers4.76GB; one fresh reservation,no stuck RPC. Unsupported metricsUNKNOWN; no changes."
+    "updated_at_utc": "2026-10-28T16:46:56.541958+00:00",
+    "working_tree": "Scheduled16:30\u201316:40UTC:4 handoffs5 Walkbacks(4NO_ATTRIBUTION_FOUND1LINEAGE_GAP). GateOPEN stable workers4.78GB,no stuck reservations. Unsupported telemetryUNKNOWN; no changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

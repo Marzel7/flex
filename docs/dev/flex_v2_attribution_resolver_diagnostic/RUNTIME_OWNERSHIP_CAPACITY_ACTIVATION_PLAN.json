@@ -1,0 +1,43 @@
+{
+  "candidate_sha": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+  "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+  "authorization": "NOT_AUTHORIZED_BY_PREFLIGHT",
+  "payload": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3",
+      "installed_preimage_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-per-job-38da4ccd/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "installed_preimage_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27"
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "candidate_sha256": "663465aef0d452eee95c5077ecce0621b19e1406f8aad6122fc0fd3b8f04617b",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-listener/src/core/migration_signature_journal.py",
+      "installed_preimage_sha256": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9"
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+      "installed_preimage_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "installed_preimage_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a"
+    }
+  },
+  "source_configuration_delta": "Two runtime files; matching recovery renderer and immutable-source root/commit authority only. Preserve role commands, environment, flags, credentials, budgets and stable paths.",
+  "staging_bounds": {
+    "sparse_runtime_and_recovery_tree_bytes": 40996800,
+    "largest_source_blob_bytes": 1965198,
+    "required_free_with_deployment_reserve": 2771751936,
+    "note": "Do not perform a full repository checkout or copy databases. Exact candidate sparse checkout under a new immutable authority path only after separate authorization."
+  },
+  "steps": [
+    "Immediately reverify this exact candidate, installed preimages, matched ACTIVE pair, coherent OPEN gate, budget/spending invariants, disk reserve and custody/journal health.",
+    "Stage exact candidate sparse immutable source, two runtime replacements, candidate renderer, and all three preimages plus frozen runtime-plan/configuration rollback references. Preserve ownership and permissions. No schema/flag changes.",
+    "Reach accepted idle boundary for listener and Walkback: no affected-role RPC in flight and no running Walkback claim. Preserve current journals/custody/held requests; never clear an ambiguous reservation.",
+    "Using accepted Supervisor control, stop only listener and Walkback. Prove both previous owners exited. Recheck durable work and reservation ownership; HOLD if safe retirement cannot be established. Resolver stays running and unchanged.",
+    "Atomically install the two approved runtime files and bind recovery authority to the exact candidate immutable root/commit. Verify all hashes and both candidate recovery pins before starting either affected role.",
+    "Verify ACTIVE generation, shared gate/accounting, unchanged commands/flags/credentials and candidate-aware recovery/fallback. No gate reset or source/schema mixing.",
+    "Start listener and Walkback only. Verify exact process authority and unchanged resolver PID. Let existing admission-driven reserve maintenance perform at most20 verified transfers at the492 threshold; do not invoke replay/reset or force protected work.",
+    "Observe at least five minutes of natural activity. Verify typed ownership-entry deferrals, attempt preservation, no unowned dispatch, natural births/migrations, verified transfer/reusable slots, custody consistency, no recoverable-refusal crashes, reservations, disk and file/WAL safety. Report unobserved events honestly."
+  ],
+  "rollback": "On critical acceptance failure, quiesce only affected roles and coherently restore the exact two installed runtime preimages, old renderer and source-authority plan preimage. No database/journal rollback. Preserve every durable admission, protected record, accounting charge and held request. Revalidate pair/gate and source pins; never select terminal/deferred/gate-unaware fallback.",
+  "resolver_restart": false,
+  "provider_test_calls": 0,
+  "exhausted_replay_reset": false
+}

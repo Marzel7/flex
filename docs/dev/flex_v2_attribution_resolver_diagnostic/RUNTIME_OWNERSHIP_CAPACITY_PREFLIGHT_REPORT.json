@@ -1,0 +1,190 @@
+{
+  "FLEX_V2_RUNTIME_PREFLIGHT_STATUS": "PASS",
+  "CANDIDATE_INTEGRITY": {
+    "candidate": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+    "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "exact_git_blobs_and_frozen_hashes_match": true,
+    "accepted_tests_reused": 73
+  },
+  "INSTALLED_PREIMAGE_MATCH": {
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+      "candidate_sha256": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3",
+      "installed_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27",
+      "mode": "0o644",
+      "uid": 501,
+      "gid": 20
+    },
+    "runtime/listener/src/core/migration_signature_journal.py": {
+      "candidate_sha256": "663465aef0d452eee95c5077ecce0621b19e1406f8aad6122fc0fd3b8f04617b",
+      "installed_sha256": "cb78113715f1a32b62f43b490e0eee427a0030adfda6045e8c791565c9a5ecd9",
+      "mode": "0o644",
+      "uid": 501,
+      "gid": 20
+    },
+    "runtime/walkback/src/core/walkback_worker.py": {
+      "candidate_sha256": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+      "installed_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+      "mode": "0o644",
+      "uid": 501,
+      "gid": 20
+    }
+  },
+  "RECOVERY_COMPATIBILITY": {
+    "two_pins_exact": true,
+    "role_hashes_verified": 16,
+    "schema_or_flags_changed": false,
+    "fallback": "Exact installed runtime and renderer preimages together; terminal/deferred/gate-aware, no new schema or persisted fields.",
+    "fresh_pair_tests_reused": true
+  },
+  "HELIUS_BUDGET_INTEGRITY": {
+    "state": "OPEN",
+    "budget_limit": 100000,
+    "warning": 50000,
+    "reserved_credits": 72698,
+    "historical_credits_and_owners_preserved": true,
+    "highest_investigation_credits": 7936,
+    "held_requests": 5,
+    "inflight": []
+  },
+  "JOURNAL_CAPACITY": {
+    "snapshot_utc": "2026-10-28T11:41:12.245354+00:00",
+    "active": {
+      "birth": {
+        "records": 509,
+        "free": 3,
+        "bytes": 403646,
+        "states": {
+          "QUARANTINED": 506,
+          "ACKED": 3
+        }
+      },
+      "migration": {
+        "records": 510,
+        "free": 2,
+        "bytes": 288790,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 503,
+          "ACKED": 4,
+          "QUARANTINED": 2
+        },
+        "proactive_pending_candidates": 502,
+        "protected_dispatch_reservations": 2
+      }
+    },
+    "custody": {
+      "birth_terminal": {
+        "records": 532,
+        "bytes": 724585,
+        "remaining_records": 7660,
+        "accounting_verified": true
+      },
+      "migration_terminal": {
+        "records": 1810,
+        "bytes": 2023483,
+        "remaining_records": 6382,
+        "accounting_verified": true
+      },
+      "migration_deferred": {
+        "records": 511,
+        "bytes": 1344682,
+        "remaining_records": 7681,
+        "accounting_verified": true
+      }
+    },
+    "subsequent_transfer_eligibility": {
+      "active_snapshot_records": 502,
+      "eligibility": {
+        "protected_dispatch": 2,
+        "existing_compatible_owner": 219,
+        "new_owner_candidate": 274,
+        "not_pending_candidate": 7
+      },
+      "bounded_existing_deferred_payloads_validated": 511,
+      "bounded_terminal_payloads_validated": 1810,
+      "note": "Eligibility only; actual transfer still requires fresh guard validation, durable OPS commit and independent readback. No transfer performed."
+    },
+    "policy": {
+      "high_water": 492,
+      "batch_max": 20,
+      "journal_max": 512,
+      "deferred_max": 8192,
+      "admission_only": true,
+      "dispatch_reservations_protected": true,
+      "optional_quota_failure_keeps_existing_slots": true
+    },
+    "limitation": "Near-full active journals remain a live risk until deployment; capacity is finite. Eligible candidates are not reclaimed until a fresh durable commit/readback. Reserved dispatches remain protected."
+  },
+  "DISK_AND_RUNTIME_HEALTH": {
+    "disk": {
+      "free_bytes": 3087171584,
+      "required_with_deployment_reserve": 2771751936,
+      "single_file_cap": 499000000
+    },
+    "databases": {
+      "core": {
+        "inode": 1053704146,
+        "files": {
+          "database": 86421504
+        },
+        "page_size": 4096,
+        "pages": 21099,
+        "freelist_pages": 0,
+        "bounded_read_snapshot": "PASS",
+        "journal_mode": "wal"
+      },
+      "ops": {
+        "inode": 1053704157,
+        "files": {
+          "database": 163893248
+        },
+        "page_size": 4096,
+        "pages": 40013,
+        "freelist_pages": 0,
+        "bounded_read_snapshot": "PASS",
+        "journal_mode": "delete"
+      }
+    },
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 76395,
+        "supervisor_pid": 1131,
+        "package": "/Users/kevinkeaveney/Production/flex-listener",
+        "effective_binding_verified": true
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 76441,
+        "supervisor_pid": 1131,
+        "package": "/Users/kevinkeaveney/Production/flex-main-workers",
+        "effective_binding_verified": true
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 76510,
+        "supervisor_pid": 1131,
+        "package": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+        "effective_binding_verified": true
+      }
+    },
+    "walkback_claims_at_sample": 0,
+    "lock_scope": "Bounded read-only snapshots succeeded. No checkpoint, write-lock probe or absolute future-WAL guarantee.",
+    "accepted_ops_journal_mode": "delete; no WAL present at sample, no mode change performed."
+  },
+  "ACTIVATION_PLAN_SHA256": "0066b4d97c17d5005e2921bb4d18068aa8e0d64322200d31cb40ff13c823452f",
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "NEXT_ACTION": "Obtain separate authorization for exact two-runtime-file bundle and matching recovery authority, with coordinated listener/Walkback restart only. Recheck live safety immediately before execution.",
+  "PRODUCTION": {
+    "writes": 0,
+    "source_or_configuration_changes": 0,
+    "restarts": 0,
+    "provider_calls": 0,
+    "journal_transfers": 0,
+    "replay_reset": 0,
+    "v1_access": 0
+  },
+  "observed_utc": "2026-10-28T11:41:12.245354+00:00",
+  "completed_utc": "2026-10-28T11:44:32.964190+00:00"
+}

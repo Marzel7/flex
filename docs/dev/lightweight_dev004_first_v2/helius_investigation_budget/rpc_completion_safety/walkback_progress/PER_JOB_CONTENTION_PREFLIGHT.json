@@ -1,0 +1,202 @@
+{
+  "FLEX_V2_PER_JOB_CONTENTION_PREFLIGHT_STATUS": "PASS",
+  "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "observed_utc": "2026-10-28T00:38:22.916131+00:00",
+  "CANDIDATE_INTEGRITY": {
+    "candidate": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "bundle_sha256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
+    "payload": {
+      "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": {
+        "candidate_sha256": "ffd35acdbd6c50a4bc92bfdfba123eac4a72db105c44e9ef6a34a6cf41034c27",
+        "installed_preimage_sha256": "b64139ecc933f03134d126634b75b19a4fa7e18521f4f8ae13694499e7a77cc5",
+        "match": true
+      },
+      "runtime/walkback/src/core/walkback_worker.py": {
+        "candidate_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+        "installed_preimage_sha256": "75a069a5c1ff0859550b929a2f1f2ce2a719dd109bb5ffbb5dcead25e5736414",
+        "match": true
+      }
+    },
+    "exact_runtime_delta": "Bounded pre-dispatch authority retries, contention-only five-second durable deferral and same-priority rotation",
+    "required_recovery_delta": "One Walkback hash pin only",
+    "schema_or_flag_changes": false,
+    "retained_tests": {
+      "passed": 99,
+      "failed": 0,
+      "rerun": false
+    }
+  },
+  "INSTALLED_AUTHORITY": {
+    "production_source": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "runtime_plan_sha256": "16d21611b42e3605b3ecd51c39712e205975639fdfccdd317ec19db1225a7785",
+    "supervisor_config_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "services": {
+      "watchtower_listener": {
+        "state": "RUNNING",
+        "pid": 70897,
+        "supervisor_parent_pid": 1131,
+        "matched_generation": "DEV004-V2-20261024-dfb76562",
+        "effective_binding_verification": true
+      },
+      "creator_resolution_worker": {
+        "state": "RUNNING",
+        "pid": 70926,
+        "supervisor_parent_pid": 1131,
+        "matched_generation": "DEV004-V2-20261024-dfb76562",
+        "effective_binding_verification": true
+      },
+      "walkback_worker": {
+        "state": "RUNNING",
+        "pid": 26587,
+        "supervisor_parent_pid": 1131,
+        "matched_generation": "DEV004-V2-20261024-dfb76562",
+        "effective_binding_verification": true
+      }
+    },
+    "existing_cursor_and_index_verified": true,
+    "queue_states": {
+      "complete": 1930,
+      "failed": 6,
+      "pending": 160,
+      "waiting": 1550
+    },
+    "active_claims": {
+      "count": 0,
+      "owners": [],
+      "lease_expirations": []
+    }
+  },
+  "HELIUS_BUDGET_INTEGRITY": {
+    "state": "OPEN",
+    "publication_checksum_valid": true,
+    "coherent_unlocked_read": true,
+    "concurrent_publication_races_rejected": 0,
+    "limit": 100000,
+    "warning_level": 50000,
+    "policy_sha256": "ebc28131ddceb2f6f9fdb8f310f55c0399b0bd3d2a1f489c88b69ccac9b1d93a",
+    "highest_investigation_credits": 7936,
+    "spending_history_monotonic_against_pre_3f75234d_start": true,
+    "five_preexisting_review_held_entries_unchanged": true,
+    "inflight": [],
+    "gate_lock_acquired_by_audit": false,
+    "owner_identities_request_attempts_and_prior_charges_preserved": true
+  },
+  "JOURNAL_SAFETY": {
+    "journals": {
+      "birth.jsonl": {
+        "records": 499,
+        "free_slots": 13,
+        "bytes": 397558,
+        "states": {
+          "QUARANTINED": 484,
+          "ACKED": 15
+        },
+        "pure_validation_passed": true,
+        "unresolved_publication_stage_present": false
+      },
+      "migration.jsonl": {
+        "records": 498,
+        "free_slots": 14,
+        "bytes": 284150,
+        "states": {
+          "RESOLVED": 1,
+          "PENDING": 484,
+          "ACKED": 11,
+          "QUARANTINED": 2
+        },
+        "pure_validation_passed": true,
+        "unresolved_publication_stage_present": false,
+        "source_predicate_eligible_for_deferred_custody": 483,
+        "dispatch_reserved_protected": 2
+      }
+    },
+    "custody_quotas": {
+      "TerminalEvidenceStore": {
+        "schema_and_contract_verified": true,
+        "used_records": 1808,
+        "record_limit": 8192,
+        "used_bytes": 2021087,
+        "byte_limit": 64000000
+      },
+      "DeferredMigrationStore": {
+        "schema_and_contract_verified": true,
+        "used_records": 511,
+        "record_limit": 8192,
+        "used_bytes": 1344582,
+        "byte_limit": 64000000
+      },
+      "BirthTerminalEvidenceStore": {
+        "schema_and_contract_verified": true,
+        "used_records": 512,
+        "record_limit": 8192,
+        "used_bytes": 697743,
+        "byte_limit": 64000000
+      }
+    },
+    "records_transferred_or_replayed": 0,
+    "note": "Source-eligible deferred candidates are not claimed reclaimed. Any transfer remains existing independently verified custody; preflight performs no lifecycle writes."
+  },
+  "DISK_AND_WAL_HEALTH": {
+    "disk_free_bytes": 7468130304,
+    "floor_bytes": 2067108864,
+    "conservative_source_preparation_recovery_plus_floor_bytes": 2771751936,
+    "database_and_wal_sizes": {
+      "core": {
+        "database": 83374080,
+        "-wal": 0,
+        "-shm": 32768
+      },
+      "ops": {
+        "database": 163000320
+      }
+    },
+    "single_file_cap_bytes": 499000000,
+    "no_absolute_wal_or_lock_duration_claim": true
+  },
+  "RECOVERY_PINS_AND_FALLBACK": {
+    "current_role_source_pins_verified": 16,
+    "new_worker_pin": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a",
+    "other_role_and_cursor_pins_unchanged": true,
+    "fresh_pair_script_unchanged": true,
+    "recovery_config_preimage_hash_verified": true,
+    "retained_fresh_pair_gate_budget_terminal_deferred_cursor_controls": true,
+    "allowed_profile": "Exact new candidate-aware worker plus matching renderer. No stale/mixed or gate/cursor-unaware fallback; no automatic old-source restoration.",
+    "renderer_activation": "Use a new immutable candidate-pinned recovery source root; preserve existing3f75234d immutable checkout."
+  },
+  "DEPLOYMENT_BOUNDARY": {
+    "services_to_quiesce_and_restart": [
+      "walkback_worker"
+    ],
+    "untouched": [
+      "watchtower_listener",
+      "creator_resolution_worker"
+    ],
+    "idle_rule": "At execution require no Walkback RPC reservation and no running claim; verify old owner exited. Wait boundedly; never clear a reservation or reset a lease to manufacture readiness.",
+    "schema_initialization_required": false,
+    "preserve": [
+      "gate state and counters",
+      "100000-credit allowance",
+      "terminal/deferred custody",
+      "waiting cursor",
+      "protected candidates",
+      "retry counts and recovery rights",
+      "BIRDEYE authority and budgets"
+    ],
+    "executed": false
+  },
+  "EXACT_BLOCKER": null,
+  "NEXT_ACTION": "Separately authorize the exact qualified worker/recovery-pin bundle. Refresh immediate preimages, gate, disk/journal safety and idle ownership; stage immutable candidate recovery authority, stop/install/start only Walkback, then observe natural processing. No deployment performed here.",
+  "SAFETY": {
+    "production_source_config_schema_database_journal_changes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "exhausted_replay_or_retry_reset": 0,
+    "v1_database_access": 0
+  },
+  "PROTECTED_CANDIDATES": {
+    "waiting_unpromoted": 277,
+    "expected": 277,
+    "verified": true
+  }
+}

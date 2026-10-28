@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "One natural migration HANDOFF_IDENTITY refusal remains unclassified; runtime restored, no publication/capacity error observed.",
+  "blocker": null,
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -22947,6 +22947,63 @@
       "source_configuration_changes": 0
     }
   },
+  "flex_v2_handoff_identity_birth_headroom_diagnosis": {
+    "birth_headroom": {
+      "baseline_terminal_records": 712,
+      "capacity_refusals_in_bounded_complete_retained_logs": 0,
+      "interpretation": "headroom narrow and variable; existing reclamation/terminal custody continues, no reset/deletion performed",
+      "latest_ACKED": 6,
+      "latest_free": 12,
+      "latest_occupied": 500,
+      "latest_quarantined_core_authority_conflicts": 494,
+      "samples_free_slots": [
+        19,
+        3,
+        12
+      ],
+      "terminal_bytes": 994495,
+      "terminal_records": 732
+    },
+    "call_path": [
+      "pumpfun_curve_listener.py:8747 fast_path_register",
+      "pumpfun_curve_listener.py:1112 note_handoff",
+      "pumpportal_birth_audit.py:335 HANDOFF_IDENTITY",
+      "pumpfun_curve_listener.py:1115 OPS enqueue continues"
+    ],
+    "durable_readback": {
+      "canonical_handoff_signatures_match": 3,
+      "canonical_signatures_present": 3,
+      "compact_receipt_semantics": "ATTEMPTED BEFORE_OPS_SUBMIT; not transaction-commit timing proof",
+      "compact_receipts_match": 3,
+      "core_handoff_complete": 3,
+      "mints_checked": 3,
+      "ops_queue_present": 3,
+      "ops_queue_status": "pending, attempts0, no last_error"
+    },
+    "evidence_sha256": "8dca227a299ce5f8b803e8b73b90acbf1275d77bf565339cca640347d14e1429",
+    "next_action": "Leave workers running. No recovery/replay required for the three warnings. Monitor narrow birth headroom; any optional audit-warning correction requires separately authorized DEV work.",
+    "retained_warning_count": 3,
+    "root_cause": "fast_path_register calls _check_watchtower_migration(migration_tx=None); note_handoff requires string signature and validates before existing-receipt lookup; logs HANDOFF_IDENTITY and returns False. Caller warns and continues OPS enqueue/complete.",
+    "runtime": {
+      "all_running": true,
+      "free_bytes_observed": 4785881088,
+      "gate": "OPEN READY checksum verified without locking",
+      "investigation_limit": 100000,
+      "pids_unchanged": {
+        "Walkback": 77830,
+        "listener": 77731,
+        "resolver": 77785
+      }
+    },
+    "runtime_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "safety": "Read-only production; no provider calls, gate locks, signals/restarts, replay, configuration/source/schema/queue changes or V1 access. Only local diagnostic and required handoff artifacts written.",
+    "source_hashes": {
+      "audit_owner": "edd7982fe2a5b6ad9e0d5a52cb995287ea453ef7f5cc76adfebbf070a5f7000c",
+      "listener": "bdb3ea55b9162162885885f21766ed3515dad7ca7ba676b99d8fec17359f9986"
+    },
+    "status": "VERIFIED_DIAGNOSTIC_COMPLETE_RUNTIME_UNINTERRUPTED",
+    "warning_correspondence": "Three provenance-unavailable/enqueue log contexts correspond to three guard failures; stderr warnings have no per-event identity/timestamp, so individual cross-file ordering is not independently timed."
+  },
   "flex_v2_helius_authorized_replacement_restoration": {
     "blocker": "Available disk fell below required floor; existing gate publication interrupted and now fail-closed. Do not infer provider outcome from PENDING marker. One live-owner reservation remains protected.",
     "disk_free_bytes": 1457991680,
@@ -40299,7 +40356,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-28T22:01:11.361880+00:00",
+  "latest_at_utc": "2026-10-28T22:06:37.021557+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -49718,7 +49775,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave all three workers running. Read-only reconcile the single HANDOFF_IDENTITY refusal and monitor narrow birth headroom; no replay/reset or V1 deletion.",
+  "next_action": "Leave workers running. No recovery/replay required for the three warnings. Monitor narrow birth headroom; any optional audit-warning correction requires separately authorized DEV work.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -51907,8 +51964,8 @@
     "git_head": "64823aca9ae87324da7501f9894e3f67ff21e74a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T22:01:11.361880+00:00",
-    "working_tree": "Qualified recovery helper committed/published; installed runtime successor remains561026bd. Three workers RUNNING with verified retirement certificate bindings. Gate OPEN/READY, spending87592 preserved and outstanding request sixth uncertain. Five-minute acceptance restored births/migration admission/3Walkbacks; one HANDOFF_IDENTITY refusal remains unclassified. Golden and V1 unchanged."
+    "updated_at_utc": "2026-10-28T22:06:37.021557+00:00",
+    "working_tree": "Read-only follow-up complete. HANDOFF_IDENTITY is optional audit None-signature fast-path warning; all3 matched canonical migrations/handoffs/OPSqueues/receipts intact. Workers unchanged77731/77785/77830; gateOPENREADY. Latestbirth500/512,494protected,12free; no capacity refusal. No fixes/deployment/replay."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -53310,7 +53367,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PARTIAL_OPERATION_RESTORED_ONE_HANDOFF_REFUSAL",
+  "status": "VERIFIED_DIAGNOSTIC_COMPLETE_RUNTIME_UNINTERRUPTED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -54889,7 +54946,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PARTIAL",
+  "verdict": "PASS_DIAGNOSIS_WITH_NARROW_BIRTH_HEADROOM",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

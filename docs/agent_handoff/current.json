@@ -30130,6 +30130,419 @@
     "status": "COMPLETE_READ_ONLY_MONITOR_DELETED",
     "tests": "Not applicable; scheduling only"
   },
+  "flex_v2_v1_retirement_contract_deployment_preflight": {
+    "ALL_READER_COMPATIBILITY": {
+      "active_source_closure": {
+        "creator_resolution": {
+          "exact_payload_differences": [
+            "src/core/paired_binding_guard.py",
+            "src/core/lightweight_runtime_entry.py"
+          ],
+          "unchanged_installed_modules": 765
+        },
+        "listener": {
+          "exact_payload_differences": [
+            "src/core/paired_binding_guard.py",
+            "src/core/lightweight_runtime_entry.py"
+          ],
+          "unchanged_installed_modules": 682
+        },
+        "walkback": {
+          "exact_payload_differences": [
+            "src/core/paired_binding_guard.py",
+            "src/core/lightweight_runtime_entry.py"
+          ],
+          "unchanged_installed_modules": 636
+        }
+      },
+      "candidate_guard_sha256": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0",
+      "candidate_launcher_sha256": "5f49a70299820d6bb1602b78332babe962e0058a45b1913c933011cab9b2ccfb",
+      "current_certificate_bindings": "Not active; no certificate or stage exists.",
+      "dormant_packaging": "Not currently present in sparse production immutable root; full candidate staging supplies them. Remain stopped.",
+      "immutable_recovery_and_lifecycle_reader": "Currently old guard8b; must move together to the candidate source root, not remain on e1b31c5a.",
+      "installed_active_preimages": {
+        "creator_resolution": {
+          "src/core/lightweight_runtime_entry.py": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+          "src/core/paired_binding_guard.py": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+        },
+        "listener": {
+          "src/core/lightweight_runtime_entry.py": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+          "src/core/paired_binding_guard.py": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+        },
+        "walkback": {
+          "src/core/lightweight_runtime_entry.py": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+          "src/core/paired_binding_guard.py": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+        }
+      },
+      "legacy_aliases": "Retirement-selected launchers normalize inherited aliases after V2 validation.",
+      "six_guard_copies": "Same qualified bytes across three active packages and API/monitor/bridge source packages."
+    },
+    "CANDIDATE_INTEGRITY": {
+      "Golden_manifest_sha256": "4dbba179cc7b0f05438069ab0df385df504667ef962e38d877806a6cef9bf75e",
+      "Golden_tag_commit": "8322e2c98a5a096863c253d33f79bff161fde629",
+      "Golden_unchanged": true,
+      "bundle_sha256": "2eade502f3b7227ac345e67f841c3429b78bdb84ed101bd9d2d00144835f717f",
+      "candidate": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+      "clean_DEV_worktree": true,
+      "source_files_verified": 13
+    },
+    "DEPLOYMENT_SCOPE": {
+      "V1_deletion_in_scope": false,
+      "active_physical_source_files": 6,
+      "certificate_publication_requires_separate_authorization": true,
+      "plan": "/Users/kevinkeaveney/.codex/private-artifacts/flex-v2-v1-retirement/561026bdbbaa41e4c6a74424c8a7aabfdf063c90/DEPLOYMENT_ACTIVATION_PLAN.json",
+      "plan_sha256": "822c27cca04040c00078be27f2bec2acc89a9a22206edc044a0f97eae1bcea8f",
+      "restart_boundary": "Coordinated listener,resolver,Walkback reload; serialize existing lifecycle owner and replace only its one schedule command. No dormant activation.",
+      "source_only_hot_reload_sufficient": false,
+      "staged_runtime_contract_files": "All six guard copies, three launchers and dormant launcher; tests/docs not production runtime mutations."
+    },
+    "DISK_AND_RUNTIME_HEALTH": {
+      "Supervisor_parent": 1131,
+      "absolute_WAL_bound_claimed": false,
+      "all_running": true,
+      "current_free_bytes": 5241143296,
+      "custody_quotas_each": {
+        "bytes": 67108864,
+        "records": 8192
+      },
+      "dormant_services": "STOPPED",
+      "floor_plus_staging_preimage_reserve": 2556584050,
+      "full_source_stage_bytes": 244213305,
+      "snapshot": {
+        "active_preimages": {
+          "creator_resolution": {
+            "src/core/lightweight_runtime_entry.py": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+            "src/core/paired_binding_guard.py": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+          },
+          "listener": {
+            "src/core/lightweight_runtime_entry.py": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+            "src/core/paired_binding_guard.py": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+          },
+          "walkback": {
+            "src/core/lightweight_runtime_entry.py": "7af78a8e5056b305598a25198437e3a9ae7bfa4f25898e92255089848a34b287",
+            "src/core/paired_binding_guard.py": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+          }
+        },
+        "authority": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "manifest_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+          "manifest_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+          "phase": "ACTIVE"
+        },
+        "birth": {
+          "free": 8,
+          "occupied": 504,
+          "states": {
+            "ACKED": 6,
+            "QUARANTINED": 498
+          }
+        },
+        "candidate_sources_verified": 13,
+        "certificate_stage_exists": false,
+        "core_sizes": {
+          "": 94392320,
+          "-shm": 32768,
+          "-wal": 4152
+        },
+        "custody": {
+          "birth_terminal_owner_v1": [
+            712,
+            967560
+          ],
+          "migration_deferred_owner_v1": [
+            724,
+            1901149
+          ],
+          "migration_terminal_owner_v1": [
+            1839,
+            2057392
+          ]
+        },
+        "free_bytes": 5261021184,
+        "helius": {
+          "inflight": 0,
+          "lifetime_limit": 100000,
+          "publication": "READY_V1_CHECKSUM_VALID",
+          "reserved_credit_estimate": 87013,
+          "state": "OPEN",
+          "uncertain_requests": 5
+        },
+        "lifecycle_owner_sha256": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88",
+        "migration": {
+          "free": 26,
+          "occupied": 486,
+          "states": {
+            "PENDING": 484,
+            "RESOLVED": 2
+          }
+        },
+        "ops_sizes": {
+          "": 167223296,
+          "-shm": 0,
+          "-wal": 0
+        },
+        "production_certificate_exists": false,
+        "recovery": {
+          "entrypoint": {
+            "bytes": 6343,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/lifecycle-caller-e1b31c5a/source/scripts/flex_v2_fresh_pair_recovery.py",
+            "sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5"
+          },
+          "plan_sha256": "c5efe07eff00e8cf5ca214cb286b5ba545ece8a616d1f2ef15d7b6744c02d80e",
+          "renderer": {
+            "bytes": 27451,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/lifecycle-caller-e1b31c5a/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+            "sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb"
+          },
+          "source_commit": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+          "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/lifecycle-caller-e1b31c5a/source"
+        }
+      },
+      "unrelated_legacy_cron_entries": "Preserved; monitor-wrapper path absent and hourly audit command relative to HOME has no corresponding script there. No repair or execution attempted. Temp lifecycle runner explicitly denies V1 files.",
+      "workers": {
+        "Walkback": 39439,
+        "listener": 39360,
+        "resolver": 39412
+      }
+    },
+    "EXPECTED_RECLAIMABLE_BYTES": {
+      "APFS_snapshot_or_shared_extent_caveat": true,
+      "V1_handles_observed": 0,
+      "allocated": 51846840320,
+      "both_original_identities_match": true,
+      "excluded": [
+        "pumpswap_tokens.db active creator_repository auxiliary",
+        "active Core/OPS V2",
+        "fresh V2 rollback pair",
+        "retirement markers,pair metadata,seals,certificate,accounting,journals,receipts and custody"
+      ],
+      "immediate_physical_reclaim_guaranteed": false
+    },
+    "FLEX_V2_V1_RETIREMENT_PREFLIGHT_STATUS": "PASS_READ_ONLY",
+    "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_INSTALLATION",
+    "NEXT_ACTION": "Authorize only this frozen installation/activation plan, including explicit certificate publication and coherent all-reader bindings while both V1 databases remain present. Recheck live prerequisites immediately. Physical V1 deletion requires a separate post-installation retirement authorization.",
+    "RECOVERY_AND_ROLLBACK": {
+      "Golden_original_requirements": "Golden remains unchanged; its original validation still requires predecessor files. It is not a post-deletion fallback.",
+      "accepted_tests_reused": 54,
+      "all_three_unchanged_from_Golden": true,
+      "candidate_aware_fallback": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/v1-retirement-561026bd/source",
+      "fresh_compact_successor_recovery": "Qualified with original fixture files absent, preserved73920 credits, five uncertain requests, custody and pending claims.",
+      "lifecycle_owner_sha256": "f3cb065f7f2799eb2140bc0d31a33e92d2543728fea2aa1b7f59ac7437e53b88",
+      "mixed_source_or_certificate_policy": "Reject any activation/fallback whose mapped hashes,pins,source root or process cohort differs. Legacy guards cannot validate absent V1 and are never eligible fallback after retirement.",
+      "recovery_entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "renderer_sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb",
+      "rollback_profiles": {
+        "Golden_reproduction": "Frozen Golden remains unchanged and reproducible under its original retained-predecessor requirements.",
+        "after_authority_activation": "Candidate-aware source/configuration only; preserve certificate,pins,retired markers,source pair/seals,all V2 data and accounting. Never restore Golden/legacy guard as operational fallback after physical retirement.",
+        "before_publication": "Verified preimages remain available while original V1 is intact and no retirement-selected configuration is active."
+      }
+    },
+    "RETIREMENT_CERTIFICATE_AUTHORITY": {
+      "certificate_created": false,
+      "configuration_binding": {
+        "FLEX_DB_PREDECESSOR_RETIREMENT_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json.predecessor-retirement-v1.json",
+        "FLEX_DB_PREDECESSOR_RETIREMENT_SHA256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6"
+      },
+      "no_silent_missing_file_retirement": true,
+      "preview": {
+        "V1_contents_opened": 0,
+        "V1_file_inventory": [
+          {
+            "allocated_bytes": 35652194304,
+            "device": 16777234,
+            "exists": true,
+            "hard_links": 1,
+            "inode": 549513179,
+            "logical_bytes": 35652194304,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+            "role": "core",
+            "symlink": false
+          },
+          {
+            "allocated_bytes": 0,
+            "device": 16777234,
+            "exists": true,
+            "hard_links": 1,
+            "inode": 1060285891,
+            "logical_bytes": 0,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-wal",
+            "role": "core",
+            "symlink": false
+          },
+          {
+            "allocated_bytes": 32768,
+            "device": 16777234,
+            "exists": true,
+            "hard_links": 1,
+            "inode": 1060285892,
+            "logical_bytes": 32768,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-shm",
+            "role": "core",
+            "symlink": false
+          },
+          {
+            "exists": false,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-journal",
+            "role": "core"
+          },
+          {
+            "allocated_bytes": 16194613248,
+            "device": 16777234,
+            "exists": true,
+            "hard_links": 1,
+            "inode": 421043107,
+            "logical_bytes": 16194387968,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+            "role": "ops",
+            "symlink": false
+          },
+          {
+            "exists": false,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-wal",
+            "role": "ops"
+          },
+          {
+            "exists": false,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-shm",
+            "role": "ops"
+          },
+          {
+            "exists": false,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-journal",
+            "role": "ops"
+          }
+        ],
+        "current_pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+        "current_successor_generation": "DEV004-V2-20261024-dfb76562",
+        "expected_certificate_bytes": 2693,
+        "expected_certificate_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json.predecessor-retirement-v1.json",
+        "expected_certificate_sha256_if_current_authority_unchanged": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+        "expected_reclaimable_allocation_bytes": 51846840320,
+        "fsync_or_publication_calls": 0,
+        "predecessor": {
+          "generation": "DEV004-V1-20261024",
+          "stores": {
+            "core": {
+              "device": 16777234,
+              "generation": "DEV004-V1-20261024",
+              "inode": 549513179,
+              "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+              "role": "core"
+            },
+            "ops": {
+              "device": 16777234,
+              "generation": "DEV004-V1-20261024",
+              "inode": 421043107,
+              "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+              "role": "ops"
+            }
+          }
+        },
+        "production_certificate_created": false,
+        "read_only_preview_only": true,
+        "retired_marker_sha256": {
+          "core": "1394720c261e58381f193481d22c3219ac8cded2bf6f1f393cfc2650cebd9c8c",
+          "ops": "b90503025bb3dc8751beab1ac6fdd074f7d7dff20a00efd73ded7792e28a27cd"
+        },
+        "successor_pair_configuration_seals": {
+          "core": "e85c53a96d5baa6b2349b7ce4218ceb83fd6ee7ec4635a0f5ec0e4c6e5a25db5",
+          "ops": "d526f2afb78407b0e6ca0e7f2843bf2babe2350b7e6bec306a2352262995dda5"
+        }
+      },
+      "publication_rules": "Explicit existing owner, original files present, ACTIVE V2 verified, both original retirement markers and seals exact; bounded immutable publication, fsync/readback and no unresolved stage.",
+      "source_and_configuration_binding": "Certificate binds exact original successor pair manifest and pair-bound configuration seals. The immutable candidate file-hash cohort and activation-plan hash independently bind reader source/configuration; the certificate does not grant code-version authority."
+    },
+    "V1_FILE_INVENTORY": [
+      {
+        "allocated_bytes": 35652194304,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 549513179,
+        "logical_bytes": 35652194304,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "role": "core",
+        "symlink": false
+      },
+      {
+        "allocated_bytes": 0,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 1060285891,
+        "logical_bytes": 0,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-wal",
+        "role": "core",
+        "symlink": false
+      },
+      {
+        "allocated_bytes": 32768,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 1060285892,
+        "logical_bytes": 32768,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-shm",
+        "role": "core",
+        "symlink": false
+      },
+      {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-journal",
+        "role": "core"
+      },
+      {
+        "allocated_bytes": 16194613248,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 421043107,
+        "logical_bytes": 16194387968,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "role": "ops",
+        "symlink": false
+      },
+      {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-wal",
+        "role": "ops"
+      },
+      {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-shm",
+        "role": "ops"
+      },
+      {
+        "exists": false,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-journal",
+        "role": "ops"
+      }
+    ],
+    "observed_utc": "2026-10-28T21:13:03.560254+00:00",
+    "production_flags": {
+      "Golden_tag_unchanged": true,
+      "V1_deletion_authorized": false,
+      "certificate_published": false,
+      "contract_installed": false,
+      "gate_locks": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "retirement_pins_active": false,
+      "service_restarts": 0
+    },
+    "report_sha256": "6b945fa096ff384f6f070422361ad659bde854a261e11aeb9ceb70e255857a34",
+    "safety": {
+      "V1_content_access": 0,
+      "V1_deletions": 0,
+      "certificate_publications": 0,
+      "database_copies": 0,
+      "gate_locks": 0,
+      "manual_cleanup": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "worker_restarts": 0
+    }
+  },
   "flex_v2_v1_retirement_contract_qualification": {
     "CANDIDATE_SHA": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "EXACT_LEGACY_DEPENDENCY": "Existing _manifest->_identity required original predecessor files to be stat-verifiable. Default behavior remains unchanged without an explicit checksum-pinned certificate.",
@@ -51169,8 +51582,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T20:56:34.355566+00:00",
-    "working_tree": "V1retirementcontractDEV_PASS_NOT_DEPLOYED:561026bd checksum-pinned immutable existing-owner certificate, sixsharedguards and retirement-only launch aliases;54 providerfreecontrolsPASS. Actualfresh recovery preserves73920credits/5uncertain,terminal/deferred,pendingclaims;Golden recovery/renderer/lifecycle source unchanged. Golden tag8322e2c+manifest4dbba179 untouched. Prodguards8b unchanged,workers39360/39412/39439 running,no certificate/prodchanges/V1deletion. Next exact all-reader deploymentpreflight."
+    "updated_at_utc": "2026-10-28T21:14:27.718858+00:00",
+    "working_tree": "V1retirementcontract preflightGO_FOR_SEPARATELY_AUTHORIZED_INSTALLATION,notdeployed. Candidate561026bd/preimages13 verified;2083unchangedactive modules+6intendedpayload diffs. All3Supervisorworkers39360/39412/39439 RUNNING,V2ACTIVE,gateOPEN READY100k,5uncertain,87013estimate. Birth504/512,migration486/512,custodyheadroom,5.24GBfree vs2.556GBstagefloor. Previewcertificatee16be7de(2693B) onlyinmemory;no productioncertificate. Activationplan822c27cc requiresallreadercohort+pins includingrecovery and15mjob;fallbackcandidateonlyafteractivation. V1identitiesintact/no handles,51.846GBallocated. Goldenunchanged;NOdeletion."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

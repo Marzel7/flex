@@ -27498,6 +27498,18 @@
       [
         "MIGRATION",
         "AVAILABLE",
+        1793201449,
+        "logsSubscribe confirmed"
+      ],
+      [
+        "MIGRATION",
+        "DOWN",
+        1793201441,
+        "websocket failure: SubscriptionUnavailable"
+      ],
+      [
+        "MIGRATION",
+        "AVAILABLE",
         1793200554,
         "logsSubscribe confirmed"
       ],
@@ -27518,65 +27530,53 @@
         "AVAILABLE",
         1793200236,
         "subscribeNewToken sent on connected PumpPortal websocket"
-      ],
-      [
-        "BIRTH",
-        "DOWN",
-        1793200230,
-        "websocket failure: JournalHold"
-      ],
-      [
-        "BIRTH",
-        "AVAILABLE",
-        1793200222,
-        "subscribeNewToken sent on connected PumpPortal websocket"
       ]
     ],
-    "birth_canonical_exact_matches_current_journal_lower_bound": 3,
-    "canonical_completed_core_ops_handoffs_since_restoration": 39,
+    "birth_canonical_exact_matches_current_journal_lower_bound": 1,
+    "birth_capacity_note": "512/512 at snapshot,511 protected and1ACKED. Follow-up read confirms ACKED birth reception age10.9seconds, indicating fresh intake despite tight headroom. No JOURNAL_CAPACITY marker found in bounded350KB listener stdout tail; do not infer guaranteed sustained capacity.",
+    "canonical_completed_core_ops_handoffs_since_restoration": 41,
     "comparison_previous": {
-      "completed_handoff_delta": 7,
-      "from_utc": "2026-10-28T15:11:38.627324+00:00",
-      "reserved_credit_delta": 579,
-      "walkback_completion_delta": 6,
+      "completed_handoff_delta": 0,
+      "from_utc": "2026-10-28T15:31:42.318518+00:00",
+      "reserved_credit_delta": 71,
+      "walkback_completion_delta": 0,
       "worker_pids_unchanged": true
     },
     "database_files": {
       "core": {
         "-shm": 32768,
-        "-wal": 0,
-        "database": 89247744
+        "-wal": 65952,
+        "database": 89382912
       },
       "ops": {
-        "database": 164593664
+        "database": 164618240
       }
     },
     "disk_floor_bytes": 2067108864,
-    "disk_free_bytes": 6033575936,
-    "elapsed_minutes": 58.33206810951233,
-    "evidence_sha256": "de5bc55708917addda35e8fc93a2a87749bf63ebb02e42d238b543271e0a2989",
+    "disk_free_bytes": 5965631488,
+    "elapsed_minutes": 68.29765804608662,
+    "evidence_sha256": "1399d5cd4df628b4fd2b7b2b64ec5eb242b2cd8740ffaf94aa5769f5420d440a",
     "existing_protected_terminal_evidence_preserved": true,
     "findings": [],
     "gate": "OPEN",
     "generation": "DEV004-V2-20261024-dfb76562",
     "highest_investigation_credits": 7936,
     "inflight": [],
-    "installed_four_file_hashes_verified": true,
     "investigation_limit": 100000,
     "journals": {
       "birth": {
-        "free_slots": 2,
-        "records": 510,
+        "free_slots": 0,
+        "records": 512,
         "states": {
-          "ACKED": 3,
-          "QUARANTINED": 507
+          "ACKED": 1,
+          "QUARANTINED": 511
         }
       },
       "migration": {
-        "free_slots": 26,
-        "records": 486,
+        "free_slots": 40,
+        "records": 472,
         "states": {
-          "PENDING": 485,
+          "PENDING": 471,
           "RESOLVED": 1
         }
       }
@@ -27587,8 +27587,8 @@
       "Current active-journal birth counts undercount reclaimed completed births."
     ],
     "new_exhausted_since_restoration": 0,
-    "next_action": "Continue authorized read-only10-minute checks until approximately2026-10-28T17:14:16Z, then delete automation and summarize. No engineering or production changes.",
-    "observed_utc": "2026-10-28T15:24:43.472717+00:00",
+    "next_action": "Continue authorized read-only checks until17:14London, watching tight birth journal capacity. No engineering, transfers or changes.",
+    "observed_utc": "2026-10-28T15:34:41.218212+00:00",
     "production_mutations": 0,
     "provider_calls": 0,
     "publication_checksum_verified": true,
@@ -27604,28 +27604,28 @@
         "records": 511
       },
       "migration_terminal": {
-        "bytes": 2033953,
-        "free_records": 6373,
-        "records": 1819
+        "bytes": 2035072,
+        "free_records": 6372,
+        "records": 1820
       }
     },
     "replay_reset": 0,
     "requests_by_method_since_restoration_including_one_probe": {
-      "rpc:getAccountInfo": 941,
-      "rpc:getMultipleAccounts": 150,
-      "rpc:getSignaturesForAddress": 325,
+      "rpc:getAccountInfo": 1015,
+      "rpc:getMultipleAccounts": 154,
+      "rpc:getSignaturesForAddress": 395,
       "rpc:getTokenAccountsByOwner": 2,
       "rpc:getTokenLargestAccounts": 22,
-      "rpc:getTransaction": 539
+      "rpc:getTransaction": 670
     },
-    "requests_per_second_since_restoration": 0.5654408355865352,
-    "reserved_credit_increase_since_acceptance": 1686,
+    "requests_per_second_since_restoration": 0.5510193820692755,
+    "reserved_credit_increase_since_acceptance": 1965,
     "reserved_credits_by_worker_since_restoration_including_one_probe": {
       "creator_resolution": 0,
-      "listener": 901,
-      "walkback": 1078
+      "listener": 913,
+      "walkback": 1345
     },
-    "reserved_credits_total": 75899,
+    "reserved_credits_total": 76178,
     "restarts": 0,
     "restored_utc": "2026-10-28T14:26:22.634841+00:00",
     "same_worker_pids": false,
@@ -27645,21 +27645,22 @@
     },
     "status": "PASS",
     "uncertain_requests_preserved": 5,
-    "walkback_completions_since_restoration": 18,
+    "walkback_completions_since_restoration": 22,
     "walkback_helius_error_categories": {
       "HELIUS_ACQUISITION_DEFERRED": 126,
       "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 51,
-      "HELIUS_GATE_BUSY": 163,
+      "HELIUS_GATE_BUSY": 165,
       "HELIUS_INVESTIGATION_REQUIRED": 25,
       "HELIUS_REQUEST_COOLDOWN": 1,
-      "HELIUS_REQUEST_RATE_LIMIT": 12,
-      "HELIUS_TRANSPORT_UNAVAILABLE": 1
+      "HELIUS_REQUEST_RATE_LIMIT": 10,
+      "HELIUS_TRANSPORT_UNAVAILABLE": 1,
+      "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1
     },
-    "walkback_queue_changed_since_restoration": 121,
+    "walkback_queue_changed_since_restoration": 123,
     "walkback_states": {
-      "complete": 2015,
+      "complete": 2019,
       "failed": 56,
-      "pending": 102,
+      "pending": 100,
       "waiting": 1551
     }
   },
@@ -27681,6 +27682,20 @@
         "observed_utc": "2026-10-28T15:24:43.472717+00:00",
         "status": "PASS",
         "walkback_completions": 18
+      },
+      {
+        "credits": 76178,
+        "disk_free_bytes": 5965631488,
+        "gate": "OPEN",
+        "handoffs": 41,
+        "journal_free": {
+          "birth": 0,
+          "migration": 40
+        },
+        "notification": "DONT_NOTIFY_ROUTINE_HEALTHY",
+        "observed_utc": "2026-10-28T15:34:41.218212+00:00",
+        "status": "PASS",
+        "walkback_completions": 22
       }
     ],
     "duration_hours": 2,
@@ -48055,8 +48070,8 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T15:32:07.669952+00:00",
-    "working_tree": "Read-only scheduled monitoring healthy: gateOPEN,39 completed handoffs,18 Walkback completions,6.03GB free; no production changes."
+    "updated_at_utc": "2026-10-28T15:35:41.859040+00:00",
+    "working_tree": "Scheduled read-only check: gateOPEN,workers stable,no stuck reservations,41 handoffs22 Walkback completions; birth capacity tight but freshACK observed. No changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

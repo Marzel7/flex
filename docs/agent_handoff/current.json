@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Existing HELIUS_BUDGET_CLOCK_AMBIGUOUS guard blocks paid processing: wall elapsed28040s versus monotonic elapsed1431s, divergence26609s exceeds5s. Fresh window has27 pending clock-integrity failures with attempts0->1 and zero newly reserved credits. Complete five-minute successful acceptance not established.",
+  "blocker": null,
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -20881,6 +20881,270 @@
     "verdict": "REPLACEMENT_PROBE_PASS_RESTORATION_INTERRUPTED_BY_STORAGE_FLOOR_AND_AMBIGUOUS_PUBLICATION",
     "walkback": "RUNNING; natural accounted acquisition resumed"
   },
+  "flex_v2_helius_clock_anchor_recovery": {
+    "blocker": null,
+    "clock_final": {
+      "all_original_spending_and_owners_preserved": true,
+      "clock_divergence_seconds": 1,
+      "gate_state": "OPEN",
+      "limit": 100000,
+      "new_clock_failure_current_rows": 2,
+      "observed_utc": "2026-10-28T08:49:24.629096+00:00"
+    },
+    "cooldown_safety": "Required monotonic-proven minimum elapsed2183seconds exceeds120second maximum retained protection window; no in-flight reservation or active gate timer.",
+    "engineering_revision": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
+    "exact_mutation": "Only rpc_budget.wall and rpc_budget.mono. Entire remainder of durable state verified equal before publication/readback. No change to gate state,request keys/timestamps,rate counters,owners,credits,policy,denial counters or recovery rights.",
+    "installed_walkback_revision": "38da4ccd6c36856a43939eed9afa0e374fff269c",
+    "limitations": [
+      "Explicit one-time forward-clock recovery, not an automatic bypass of future clock integrity failures.",
+      "Reserved credits are ledger accounting, not provider invoice totals.",
+      "Completions report evidence outcomes, not confirmed operation attribution.",
+      "No exhausted or previously failed job was reset or manually replayed."
+    ],
+    "natural_acceptance": {
+      "batch_summaries": [
+        {
+          "logical_rpc": 67,
+          "outcomes": {
+            "LINEAGE_GAP": 1,
+            "NO_ATTRIBUTION_FOUND": 3,
+            "pending": 4
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 33,
+          "outcomes": {
+            "LINEAGE_GAP": 1,
+            "pending": 7
+          },
+          "processed": 8
+        },
+        {
+          "logical_rpc": 21,
+          "outcomes": {
+            "NO_ATTRIBUTION_FOUND": 1,
+            "pending": 7
+          },
+          "processed": 8
+        }
+      ],
+      "completed_batches": 3,
+      "completion_outcomes": {
+        "LINEAGE_GAP": 2,
+        "NO_ATTRIBUTION_FOUND": 4
+      },
+      "cursor_durably_present": true,
+      "custody_quotas": {
+        "birth_terminal_owner_v1": {
+          "bytes": 697743,
+          "records": 512
+        },
+        "migration_deferred_owner_v1": {
+          "bytes": 1344632,
+          "records": 511
+        },
+        "migration_terminal_owner_v1": {
+          "bytes": 2021087,
+          "records": 1808
+        }
+      },
+      "cycle_failure_records": {},
+      "database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 83644416
+        },
+        "ops": {
+          "db": 163098624
+        }
+      },
+      "deferred_attempt_pairs": [
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 3
+        },
+        {
+          "after": 1,
+          "before": 1,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 4
+        },
+        {
+          "after": 2,
+          "before": 2,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 4
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_INVESTIGATION_REQUIRED",
+          "jobs": 1
+        },
+        {
+          "after": 1,
+          "before": 1,
+          "code": "HELIUS_INVESTIGATION_REQUIRED",
+          "jobs": 3
+        },
+        {
+          "after": 2,
+          "before": 2,
+          "code": "HELIUS_INVESTIGATION_REQUIRED",
+          "jobs": 3
+        }
+      ],
+      "disk_free_bytes": 2932502528,
+      "examined_waiting_jobs_since_activation": 192,
+      "gate": {
+        "highest_investigation_credits": 7936,
+        "inflight": [],
+        "lifetime_credit_limit": 100000,
+        "reserved_credits_by_worker_since_activation": {
+          "creator_resolution": 0,
+          "listener": 12,
+          "walkback": 112
+        },
+        "review_held": 5,
+        "spending_history_and_owner_identity_monotonic": true,
+        "state": "OPEN"
+      },
+      "heartbeat": {
+        "age_seconds": 25.39,
+        "last_seen_epoch": 1793177339,
+        "status": "HEALTHY",
+        "updated_after_activation": true
+      },
+      "journals": {
+        "birth.jsonl": {
+          "free_slots": 2,
+          "records": 510,
+          "states": {
+            "ACKED": 19,
+            "QUARANTINED": 491
+          }
+        },
+        "migration.jsonl": {
+          "free_slots": 15,
+          "records": 497,
+          "states": {
+            "ACKED": 2,
+            "PENDING": 492,
+            "QUARANTINED": 2,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "logs": {
+        "walkback_worker.log": {
+          "bytes": 4331,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        },
+        "walkback_worker_err.log": {
+          "bytes": 0,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        }
+      },
+      "maximum_lookup_delta": 1,
+      "natural_completions": 6,
+      "observed_utc": "2026-10-28T08:49:24.453301+00:00",
+      "optional_deferral_log_counts": {
+        "HELIUS_GATE_BUSY": 1,
+        "HELIUS_INVESTIGATION_REQUIRED": 5
+      },
+      "per_job_busy_backoff_seconds": {
+        "5": 11
+      },
+      "preexisting_failed_jobs_untouched": 6,
+      "processed_job_attempts": 24,
+      "protected277": {
+        "waiting_protected": 277
+      },
+      "provider_test_calls": 0,
+      "queue_states": {
+        "complete": 1938,
+        "failed": 6,
+        "pending": 155,
+        "waiting": 1550
+      },
+      "schema_unchanged": true,
+      "seconds_since_start_requested": 337.0,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 37767,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 34365,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 38003,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "new_clock_error_log_occurrences": 0,
+    "next_action": "Leave all three workers running and monitor natural throughput, clock alignment and disk headroom. No additional recovery or provider probe required.",
+    "old_error_residue": {
+      "newly_introduced_error": 0,
+      "rows_by_current_status": {
+        "complete": 2,
+        "running": 1
+      },
+      "same_error_present_in_baseline": 3
+    },
+    "operation": {
+      "after_sha256": "8eb39f1b5cb0d058bf6cb04a6120eef771c369dc718ce781e115de77463ab6a2",
+      "before_sha256": "2e6365e393b97034fdb471dc954748c2717869cbc13102509556686e3e08b311",
+      "budget_limit": 100000,
+      "clock_and_cas_attempts": 1,
+      "disk_free_bytes": 4041682944,
+      "maximum_cooldown_seconds": 120,
+      "minimum_proven_elapsed_seconds": 2183,
+      "mutated": true,
+      "new_mono": 812828,
+      "new_wall": 1793176987,
+      "observed_utc": "2026-10-28T08:43:07.453551+00:00",
+      "old_mono": 810645,
+      "old_wall": 1793148194,
+      "provider_test_calls": 0,
+      "services_unchanged": true,
+      "source": "447190eec988b47eca8e95361ebff7a9ff0ca968",
+      "spending_preserved": true,
+      "status": "RECONCILED_ANCHORS_ONLY",
+      "tests_passed": 27
+    },
+    "production_actions": {
+      "anchor_only_recovery": 1,
+      "manual_exhausted_replay": 0,
+      "provider_probes": 0,
+      "restarts": 0,
+      "runtime_source_schema_changes": 0
+    },
+    "qualified_utility_revision": "447190eec988b47eca8e95361ebff7a9ff0ca968",
+    "recovery_warning": "Never restore an old full ledger preimage over newer accounting. Private preimages are evidence only; recovery was exact CAS of two anchors.",
+    "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/CLOCK_ANCHOR_RECOVERY_REPORT.json",
+    "report_sha256": "2cd53ab3ed0110f3d2498dc60110a0fc3c0750f5038765763807ea7bda65a993",
+    "runtime_flags": "Unchanged OPEN shared gate;100000credit lifetime ceiling; all existing terminal/deferred/CREATE guards preserved. No counter or retry reset.",
+    "status": "PASS",
+    "tests": {
+      "network_blocked": true,
+      "passed": 27,
+      "provider_calls": 0,
+      "single_file_cap_bytes": 499000000
+    }
+  },
   "flex_v2_helius_completion_deployment": {
     "acceptance": {
       "error_counts": {
@@ -25142,6 +25406,7 @@
     "tests": "99 accepted provider-free controls reused, no rerun."
   },
   "flex_v2_walkback_per_job_contention_production_deployment": {
+    "acceptance_resolution": "Clock guard reconciled under qualified explicit CAS; fresh337second natural observation6completions3batches; spending and all277protected preserved.",
     "actions": {
       "budget_changes": 0,
       "exhausted_replay_reset": 0,
@@ -25154,7 +25419,7 @@
       "schema_changes": 0,
       "v1_access": 0
     },
-    "blocker": "Existing HELIUS_BUDGET_CLOCK_AMBIGUOUS guard blocks paid processing: wall elapsed28040s versus monotonic elapsed1431s, divergence26609s exceeds5s. Fresh window has27 pending clock-integrity failures with attempts0->1 and zero newly reserved credits. Complete five-minute successful acceptance not established.",
+    "blocker": null,
     "bundle_sha256": "40225fe9adade8366711f47d0133f611092016d6c0dc26dc597c5ddae3d222f4",
     "candidate_sha": "38da4ccd6c36856a43939eed9afa0e374fff269c",
     "clock_guard": {
@@ -25183,7 +25448,7 @@
       }
     },
     "engineering_revision": "f702419b8fa5f6c2f9c7af51d57621a0077cb7f2",
-    "five_minute_acceptance_completed": false,
+    "five_minute_acceptance_completed": true,
     "generation": "DEV004-V2-20261024-dfb76562",
     "initial_valid_acceptance": {
       "batch_summaries": [
@@ -25376,7 +25641,7 @@
       "supervisor_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
       "worker_sha256": "3a7d8351f65fd0e40b27a78547f0bbd668de6c0a3e1510a2dcfc2c91dcc94b6a"
     },
-    "next_action": "Qualify evidence-verified reconciliation of durable budget clock anchors after the observed wall/monotonic discontinuity, preserving all spending, owners, reservations, retry evidence and100000credit ceiling. No arbitrary reset. Then repeat only the interrupted natural acceptance window; do not replay exhausted work.",
+    "next_action": "Leave all three workers running and monitor natural throughput, clock alignment and disk headroom. No additional recovery or provider probe required.",
     "production_flags": "Shared gate last read OPEN; existing clock-integrity guard refuses paid dispatch.100000credit ceiling,terminal/deferred/CREATE flags unchanged. No allowance reset or gate restoration by this task.",
     "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/PER_JOB_CONTENTION_DEPLOYMENT.json",
     "report_sha256": "cc28d8e47acc40d589d98f7927f80990dfac725b3392876dd2cf3711319f5a7f",
@@ -25574,7 +25839,7 @@
       "worker_matches_candidate": true
     },
     "spending_history_preserved": true,
-    "status": "PARTIAL",
+    "status": "PASS",
     "tests": "99 accepted controls reused. Natural initial window:2 batches,1 NO_ATTRIBUTION_FOUND completion,7 current5s deferrals. Resumed window:4 batches,0 completions,4 current5s deferrals,27 clock integrity failures; no cycle failures."
   },
   "flex_v2_walkback_per_job_contention_qualification": {
@@ -40709,7 +40974,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Qualify evidence-verified reconciliation of durable budget clock anchors after the observed wall/monotonic discontinuity, preserving all spending, owners, reservations, retry evidence and100000credit ceiling. No arbitrary reset. Then repeat only the interrupted natural acceptance window; do not replay exhausted work.",
+  "next_action": "Leave all three workers running and monitor natural throughput, clock alignment and disk headroom. No additional recovery or provider probe required.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -42895,11 +43160,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "f702419b8fa5f6c2f9c7af51d57621a0077cb7f2",
+    "git_head": "61d6bdfcb958a11bac6d1927ecce8012f862bcf2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T08:31:15.531496+00:00",
-    "working_tree": "38da4ccd worker and matching recovery pin installed; only Walkback restarted. Natural acceptance halted by existing budget clock integrity guard. No provider probes or accounting reset."
+    "updated_at_utc": "2026-10-28T08:49:24.453301+00:00",
+    "working_tree": "Qualified447190ee offline recovery changed only durable clock anchors. Runtime38da4ccd unchanged; five-minute natural acceptance PASS. No restarts, probes or exhausted replay during clock recovery."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -44301,7 +44566,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_PER_JOB_CONTENTION_DEPLOYMENT_PARTIAL",
+  "status": "FLEX_V2_CLOCK_RECOVERY_AND_WALKBACK_ACCEPTANCE_PASS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -45880,7 +46145,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "INSTALLED_ACCEPTANCE_HOLD_CLOCK_GUARD",
+  "verdict": "RECOVERED_AND_NATURALLY_ACCEPTED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

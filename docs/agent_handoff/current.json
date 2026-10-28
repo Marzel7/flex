@@ -22350,6 +22350,93 @@
     "worker_environment_commands_flags_paths_changed": false,
     "workers": "watchtower_listener              RUNNING   pid 43753, uptime 3:01:55\ncreator_resolution_worker        RUNNING   pid 28017, uptime 3:50:48\nwalkback_worker                  RUNNING   pid 28051, uptime 3:50:42\n"
   },
+  "flex_v2_golden_recovery_installation": {
+    "DISK_HEADROOM": {
+      "free_bytes": 5575958528,
+      "mandatory_floor": 2067108864,
+      "minimum_staging_requirement": 2224870400
+    },
+    "FLEX_V2_RECOVERY_INSTALL_STATUS": "PASS",
+    "HELIUS_GATE_STATUS": {
+      "five_uncertain_requests_preserved": true,
+      "investigation_limit": 100000,
+      "no_gate_operation_by_installer": true,
+      "publication": "READY_CHECKSUM_VALID_WITHOUT_LOCK",
+      "state": "OPEN"
+    },
+    "INSTALLED_RECOVERY_HASHES": {
+      "renderer": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+      "runtime_plan": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1",
+      "script": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "supervisor_configuration": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320"
+    },
+    "NEXT_ACTION": "Recovery-only installation complete. Leave Flex running. Next independent step is separately authorized seven-day lifecycle installation preflight/activation; no cleanup, live recovery,Goldenfreeze orV1deletion authorized here.",
+    "RECOVERY_ENTRYPOINT_AUTHORITY": {
+      "clean_immutable_checkout_verified": true,
+      "legacy_pointer_replaced": true,
+      "old_legacy_artifacts_retained_for_evidence_only": true,
+      "primary_entrypoint": {
+        "bytes": 6343,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source/scripts/flex_v2_fresh_pair_recovery.py",
+        "sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5"
+      },
+      "source_commit": "4ba3ee2012f9fb94d037bff87fc708e1905f7b06",
+      "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/golden-recovery-4ba3ee20/source"
+    },
+    "WORKER_PID_CONTINUITY": {
+      "after": {
+        "creator_resolution_worker": 28017,
+        "walkback_worker": 28051,
+        "watchtower_listener": 43753
+      },
+      "all_unchanged": true,
+      "before": {
+        "creator_resolution_worker": 28017,
+        "walkback_worker": 28051,
+        "watchtower_listener": 43753
+      }
+    },
+    "candidate": "4ba3ee2012f9fb94d037bff87fc708e1905f7b06",
+    "cleanup_installations": 0,
+    "completed_utc": "2026-10-28T18:26:17.380295+00:00",
+    "database_journal_writes_initiated": 0,
+    "engineering_revision": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
+    "execution_evidence_sha256": "b258d69dcd65dc09ad91406f395be5b6e0009cc7bbd89933d03f515cae11e8e3",
+    "five_uncertain_requests_preserved": true,
+    "free_bytes": 5575958528,
+    "gate": "OPEN",
+    "gate_locks_publications": 0,
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "limit": 100000,
+    "phase": "PASS_INSTALLED_NO_RECOVERY_EXECUTED",
+    "production_changes_scope": "Only dedicated immutable recovery source checkout and frozen recovery-plan references; no Supervisor or worker package changes.",
+    "provider_calls_initiated": 0,
+    "publication": "READY_CHECKSUM_VERIFIED_WITHOUT_LOCK",
+    "qualified_contract": "Interrupted RUNNING Walkback -> pending; attempts and next_retry_at preserved; core retry semantics unchanged.16acceptedprovider-freecontrols+5referencechecks reused.",
+    "recovery_executions": 0,
+    "rejected_stale_reference_checks": [
+      "legacy_entry",
+      "entry_hash",
+      "renderer_hash",
+      "wrong_source"
+    ],
+    "renderer_sha256": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+    "runtime_plan_sha256": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1",
+    "source_script_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+    "supervisor_configuration_sha256": "d3c45bf5b681a726df0243cb8ec156534e7ade1fada8f7fc54f48ffd613fc320",
+    "worker_payloads_unchanged": true,
+    "worker_pids_after": {
+      "creator_resolution_worker": 28017,
+      "walkback_worker": 28051,
+      "watchtower_listener": 43753
+    },
+    "worker_pids_before": {
+      "creator_resolution_worker": 28017,
+      "walkback_worker": 28051,
+      "watchtower_listener": 43753
+    },
+    "worker_restarts_signals": 0
+  },
   "flex_v2_golden_recovery_lifecycle_preflight": {
     "CURRENT_RUNTIME_MANIFEST": {
       "activation_or_golden_freeze": false,
@@ -49790,8 +49877,8 @@
     "git_head": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T18:06:05.899923+00:00",
-    "working_tree": "Recovery-only installation preflightGO for4ba3ee20:exact oldtool/currentplan/config preimages,newcandidate/renderer pins verified; allworkersRUNNING gateOPEN100k.2.60GBfree>2.225GBsource-stage requirement. No writes,locks,restarts or provider calls."
+    "updated_at_utc": "2026-10-28T18:27:18.548111+00:00",
+    "working_tree": "Recovery-only4ba3ee20 installed and pinned;primary legacy pointer replaced; workers43753/28017/28051 unchanged,gateOPEN100k preserved,5.58GBfree. No recoveryexecution,DB/journalmutation,gateoperation,cleanup orrestart."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

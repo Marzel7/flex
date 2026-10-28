@@ -25309,6 +25309,66 @@
       "2026-10-28T09:11:01+00:00"
     ]
   },
+  "flex_v2_lifecycle_caller_qualification": {
+    "CANDIDATE_SHA": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+    "EXACT_SOURCE_DELTA": "Exact installed listener plus accepted five-line guard; renderer only two listener hash substitutions. No whole-file legacy replacement.",
+    "FLEX_V2_LIFECYCLE_CALLER_STATUS": "PASS_QUALIFIED_NOT_DEPLOYED",
+    "NEXT_ACTION": "Resume existing seven-day lifecycle installation preflight using this exact listener/renderer candidate and accepted cache callers. No deployment, initialization or schedule activation authorized.",
+    "PAIRED_V2_MAINTENANCE_GUARD": "Returns before database access when DEV004_PAIRED_BINDING_REQUIRED=1; disabled behavior preserved.",
+    "PROVIDER_FREE_TEST_RESULTS": {
+      "passed": 13,
+      "prior_retention_controls_reused": 31,
+      "unaffected_cache_rerun": "Sparse checkout import dependencies prevented optional redundant cache controls; accepted qualification reused. Directly affected controls all passed."
+    },
+    "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+    "RECOVERY_PIN_COMPATIBILITY": {
+      "accepted_retention_controls_reused": 31,
+      "candidate": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+      "files": {
+        "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb",
+        "runtime/listener/src/core/pumpfun_curve_listener.py": "bdb3ea55b9162162885885f21766ed3515dad7ca7ba676b99d8fec17359f9986"
+      },
+      "installed_listener_preimage": "15e31d294371d18302c04209775c130237a9ba220080c17aec3bda281856750c",
+      "installed_plan_sha256": "9888b3983ffa1ea95a4c5e2877224978ce52ce5918178a69d3c033a8bb95b3d1",
+      "installed_renderer_preimage": "203438f7d356d65df1424080ce85755c46d83b3ca70e9ec255dd772be3691811",
+      "production_changes": false,
+      "prospective_recovery_references": {
+        "immutable_source_commit": "e1b31c5acbe15ebab401a4c32066764f55370cb8",
+        "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/lifecycle-caller-e1b31c5a/source",
+        "recovery_entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+        "recovery_relative_entrypoint": "scripts/flex_v2_fresh_pair_recovery.py",
+        "renderer_relative_path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+        "renderer_sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb",
+        "status": "REFERENCE_DELTA_ONLY_NOT_INSTALLED"
+      },
+      "recovery_entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "status": "QUALIFIED_NOT_DEPLOYED",
+      "tests_passed": 13
+    },
+    "bundle_sha256": "e10553b78869a56e01960418e42e52b049f48e6986c307f5d86e0bbd378f6cf7",
+    "engineering_revision": "82555bacb892d0afaeff8e8831010a37b00038a2",
+    "observed_utc": "2026-10-28T19:01:03.113733+00:00",
+    "publication_note": "Full runtime plan intentionally not copied; freeze contains only nonsecret source/hash reference delta.",
+    "runtime_continuity": {
+      "disk_free_bytes": 5713162240,
+      "gate_publication": "READY_V1 checksum valid without locks",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "installed_listener_and_recovery_unchanged": true,
+      "worker_pids": [
+        43753,
+        28017,
+        28051
+      ]
+    },
+    "safety": {
+      "V1_access": 0,
+      "cleanup_deletions": 0,
+      "gate_locks": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "service_restarts": 0
+    }
+  },
   "flex_v2_listener_exit_diagnosis": {
     "cause": "Installed PumpSwap WS reconnect loop explicitly os._exit(1) after10 consecutive failures; fatal logs align with two original exits. Recurred during bounded observation. Underlying exception masked by broad connection/refused log classifier; network root cause unproven.",
     "current_stability": "Not established; whole listener repeatedly replaced while PumpPortal births otherwise active.",
@@ -50034,11 +50094,11 @@
   },
   "project": {
     "branch": "codex/flex-v2-attribution-resolver-diagnostic",
-    "git_head": "43dc4cdd7061606b6aef4de97cddba9f1189d88a",
+    "git_head": "82555bacb892d0afaeff8e8831010a37b00038a2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T18:53:07.809916+00:00",
-    "working_tree": "Seven-day lifecycle installation preflightHOLD:owner/livecache-WSSschemasPASS;currentlistenermissingqualifiedpaired-maintenanceguard fixtureFAIL. FlagOFF0 preservesnormalruntime. Three cachecallers + guard/currentpins requirefocusedDEVintegration.4ba3ee20 recoveryunchanged,gateOPEN,5.75GBfree;no productionchanges."
+    "updated_at_utc": "2026-10-28T19:01:49.162570+00:00",
+    "working_tree": "Lifecycle caller correction PASS, qualified not deployed; exact installed listener plus five-line paired-V2 guard and two renderer pins; 13 focused controls pass; recovery pending correction unchanged; live PIDs unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

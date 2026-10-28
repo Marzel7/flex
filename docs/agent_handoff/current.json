@@ -30130,6 +30130,230 @@
     "status": "COMPLETE_READ_ONLY_MONITOR_DELETED",
     "tests": "Not applicable; scheduling only"
   },
+  "flex_v2_v1_retirement_preflight": {
+    "ACTIVE_RUNTIME_INDEPENDENCE": {
+      "Helius_BIRDEYE_configuration": "Unchanged by this task; no provider request or gate read/lock/publication.",
+      "V1_open_handles_observed": 0,
+      "complete_independence": false,
+      "durable_evidence": "Current V2 stores,journals,receipt/custody owners and accounting remain selected and untouched; accepted preservation evidence reused, not a new live content audit.",
+      "existing_legacy_listener_aliases": "Initial process environment still contains FLEX_DB_PATH and OPS_V2_DB_PATH pointing to V1. No active read/write through those aliases proven by metadata; diagnosis stopped at the definitive predecessor dependency.",
+      "primary_worker_Core_OPS_bindings": "Matched ACTIVE V2",
+      "runtime_metadata": {
+        "V1_lsof_diagnostics": 0,
+        "V1_lsof_rc": 1,
+        "V1_open_handle_records": 0,
+        "crontab_V1_references": 0,
+        "crontab_entries": 4,
+        "workers": {
+          "creator_resolution_worker": {
+            "V1_environment_keys": [],
+            "bindings": {
+              "CREATOR_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+              "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+              "DEV004_PAIRED_BINDING_REQUIRED": "1",
+              "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+              "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+              "FLEX_DB_PAIR_ROLE": "runtime",
+              "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+              "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+              "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+            },
+            "pid": 39412
+          },
+          "walkback_worker": {
+            "V1_environment_keys": [],
+            "bindings": {
+              "CREATOR_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+              "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+              "DEV004_PAIRED_BINDING_REQUIRED": "1",
+              "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+              "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+              "FLEX_DB_PAIR_ROLE": "runtime",
+              "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+              "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+              "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+            },
+            "pid": 39439
+          },
+          "watchtower_listener": {
+            "V1_environment_keys": [
+              "FLEX_DB_PATH",
+              "OPS_V2_DB_PATH"
+            ],
+            "bindings": {
+              "CREATOR_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/pumpswap_tokens.db",
+              "DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+              "DEV004_PAIRED_BINDING_REQUIRED": "1",
+              "FLEX_DB_PAIR_AUTHORITY": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/owner.json",
+              "FLEX_DB_PAIR_MANIFEST": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/pair.json",
+              "FLEX_DB_PAIR_ROLE": "runtime",
+              "FLEX_HELIUS_DENIAL_GATE_ENABLED": "1",
+              "HELIUS_DENIAL_GATE_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/journals/helius-denial-v1.json",
+              "WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite"
+            },
+            "pid": 39360
+          }
+        }
+      }
+    },
+    "EXACT_BLOCKER": "paired_binding_guard._manifest calls _identity for both V1 predecessor databases. _identity requires each file to exist with its recorded device/inode. Simulated absence of either file raises PAIR_DATABASE_IDENTITY_MISMATCH.",
+    "EXPECTED_RECLAIMABLE_BYTES": {
+      "filesystem_allocated_bytes": 51846840320,
+      "guaranteed_immediate_reclaim": false,
+      "logical_bytes": 51846615040,
+      "note": "APFS snapshots/shared extents may reduce immediate physical recovery. No deletion is authorized.",
+      "scope_exclusions": [
+        "Active Core/OPS V2 files",
+        "Fresh compact V2 rollback pair",
+        "pumpswap_tokens.db shared creator_repository auxiliary required by V2",
+        "V1 retirement/pair metadata and durable recovery/evidence state"
+      ]
+    },
+    "FLEX_V2_V1_RETIREMENT_PREFLIGHT": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "GOLDEN_TAG_AND_COMMIT": {
+      "manifest_sha256": "4dbba179cc7b0f05438069ab0df385df504667ef962e38d877806a6cef9bf75e",
+      "source_commit": "8322e2c98a5a096863c253d33f79bff161fde629",
+      "source_worktree_clean": true,
+      "tag": "flex-v2-golden-2026-10-28"
+    },
+    "GO_HOLD_DECISION": "HOLD",
+    "NEXT_ACTION": "Separately authorize a focused DEV-only predecessor-retirement contract qualification that preserves sealed generation/identity and retirement proof without requiring obsolete V1 database files. Requalify active/recovery paths and revisit inherited V1 aliases before repeating retirement preflight. Do not remove predecessor fields, bypass guards or delete files.",
+    "RECOVERY_INDEPENDENCE": {
+      "Walkback_pending_claim_correction": "PRESERVED",
+      "accepted_compact_recovery_controls": "Reused; preserve spending,uncertain requests,retry rights and terminal/deferred custody when predecessor files remain.",
+      "entry_failure": "Official fresh-pair recovery calls c.bind(v2), then c.g.validate_pair before recovery; the active pair fails validation when either V1 predecessor file is absent.",
+      "entrypoint": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/lifecycle-caller-e1b31c5a/source/scripts/flex_v2_fresh_pair_recovery.py",
+      "entrypoint_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "exact_dependency": {
+        "V1_contents_opened": 0,
+        "active_pair_generation": "DEV004-V2-20261024-dfb76562",
+        "current_metadata_validation": "PASS",
+        "database_connections": 0,
+        "failure_path": "validate_pair -> _manifest -> _identity(previous stores) -> _fingerprint -> PAIR_DATABASE_IDENTITY_MISMATCH",
+        "files_removed_or_modified": 0,
+        "gate_operations": 0,
+        "missing_predecessor_metadata_simulation": {
+          "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db": "PAIR_DATABASE_IDENTITY_MISMATCH",
+          "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db": "PAIR_DATABASE_IDENTITY_MISMATCH"
+        },
+        "predecessor_generation": "DEV004-V1-20261024",
+        "predecessor_paths_match_V1": true,
+        "provider_calls": 0,
+        "source_sha256": "8b0eddf89eb0f0150c843de48ce27ad65f7c6c61e709cbf1736d14a574154fde"
+      },
+      "legacy_reference_classification": "Renderer legacy V1 functions are not the selected recovery entrypoint. The blocker is the mandatory predecessor identity check on the official V2 path.",
+      "prior_qualification_limit": "Golden source/configuration/recovery composition was verified with predecessor files retained. V1-file deletion was not qualified by that acceptance.",
+      "result": "FAIL_V1_FILE_METADATA_DEPENDENCY"
+    },
+    "ROLLBACK_COMPATIBILITY": {
+      "lifecycle_dormant_contracts": "Existing matched-pair contracts preserved; all share the predecessor guard and cannot establish deletion safety.",
+      "result": "Existing fresh V2 recovery remains qualified only with current predecessor authority intact. Not independent of V1 file existence.",
+      "spending_history_100000_limit_retry_rights": "No changes"
+    },
+    "V1_FILE_INVENTORY": [
+      {
+        "allocated_bytes": 35652194304,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 549513179,
+        "kind": "database",
+        "logical_bytes": 35652194304,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "resolved_path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db",
+        "role": "core",
+        "symlink": false
+      },
+      {
+        "allocated_bytes": 0,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 1060285891,
+        "kind": "-wal",
+        "logical_bytes": 0,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-wal",
+        "resolved_path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-wal",
+        "role": "core",
+        "symlink": false
+      },
+      {
+        "allocated_bytes": 32768,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 1060285892,
+        "kind": "-shm",
+        "logical_bytes": 32768,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-shm",
+        "resolved_path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-shm",
+        "role": "core",
+        "symlink": false
+      },
+      {
+        "exists": false,
+        "kind": "-journal",
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db-journal",
+        "role": "core"
+      },
+      {
+        "allocated_bytes": 16194613248,
+        "device": 16777234,
+        "exists": true,
+        "hard_links": 1,
+        "inode": 421043107,
+        "kind": "database",
+        "logical_bytes": 16194387968,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "resolved_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "role": "ops",
+        "symlink": false
+      },
+      {
+        "exists": false,
+        "kind": "-wal",
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-wal",
+        "role": "ops"
+      },
+      {
+        "exists": false,
+        "kind": "-shm",
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-shm",
+        "role": "ops"
+      },
+      {
+        "exists": false,
+        "kind": "-journal",
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db-journal",
+        "role": "ops"
+      }
+    ],
+    "disk_free_bytes": 6359998464,
+    "observed_utc": "2026-10-28T20:28:35.372357+00:00",
+    "production_flags": {
+      "Golden_tag_unchanged": true,
+      "V1_deletion_authorized": false,
+      "V1_retirement_qualified": false,
+      "cleanup_executions": 0,
+      "gate_operations": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "service_restarts": 0
+    },
+    "report_sha256": "2a987b476a1aea51bbcae13f4fe080781c415ec9f8ebfd97cdedc067f01ab99e",
+    "runtime_generation": "DEV004-V2-20261024-dfb76562",
+    "safety": {
+      "V1_content_reads": 0,
+      "cleanup_executions": 0,
+      "database_connections": 0,
+      "files_deleted_moved_or_renamed": 0,
+      "gate_operations": 0,
+      "production_writes": 0,
+      "provider_calls": 0,
+      "service_restarts_or_signals": 0,
+      "source_changes": 0
+    }
+  },
   "flex_v2_walkback_intelligence_quality_audit": {
     "COMPLETE_FUNDING_ROUTES": {
       "count": 0,
@@ -50847,8 +51071,8 @@
     "git_head": "8322e2c98a5a096863c253d33f79bff161fde629",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T20:21:35.355708+00:00",
-    "working_tree": "OfficialGoldenBaselinePASS:annotatedtag flex-v2-golden-2026-10-28 object9d9e63f0 directlypoints8322e2c; exactmanifest4dbba179 and acceptedreport embedded in remote tag and independently byteverified. Sourceworktreeclean;source3312 hashes reverified. No productionchanges/restarts/provider/gate operations,workers39360/39412/39439 and15min schedule unchanged. V1retirement remainsseparatelygated."
+    "updated_at_utc": "2026-10-28T20:29:13.278838+00:00",
+    "working_tree": "V1retirementpreflightHOLD:V2guard _manifest->_identity requiresoriginalV1filedevice/inode; in-memoryabsenceofeitheroriginalDB provesPAIR_DATABASE_IDENTITY_MISMATCH. PrimaryworkersbindV2,zeroV1handlesobserved;listenerhaslegacyV1aliasesnotfullytracedaftercriticalblocker. V1files51,846,840,320allocatedbytes identified;activeauxpumpswap_tokens.db excluded. No source/prod/DB/gate/providerchanges. Workers39360/39412/39439 unchanged. Golden8322e2c/tag intact;retirementNOTauthorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

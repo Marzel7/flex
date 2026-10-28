@@ -1479,8 +1479,42 @@ def _persist_hop1_evidence(ops: sqlite3.Connection, *, mint: str, creator: str, 
 
 # ── per-row processing ─────────────────────────────────────────────────────────
 
-@_helius_scoped('walkback','row')
+def _defer_helius_claim(ops, row, exc, rpc_used=0):
+    """Preserve the exact typed restriction and refund only this owned claim."""
+    from src.core.helius_denial_gate import BudgetDeferred
+    reason = str(exc)
+    if not reason.startswith('HELIUS_') or len(reason) > 100 or not all(c.isupper() or c.isdigit() or c == '_' for c in reason):
+        reason = 'HELIUS_ACQUISITION_DEFERRED'
+    refund = int(isinstance(exc, BudgetDeferred))
+    delay = 5 if refund and reason == 'HELIUS_GATE_BUSY' else 300
+    now = int(time.time())
+    ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error=?,rpc_used=rpc_used+?,updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",
+                (refund, now + delay, reason, rpc_used, now, row['mint'], row['attempts'] + 1,
+                 os.environ.get('WALKBACK_WORKER_ID', f'walkback-{os.getpid()}')))
+    ops.commit()
+    return rpc_used
+
+
 def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
+    # Ownership must be established before entering any RPC-dependent work.
+    # The shared permissive decorator is unchanged for other worker roles.
+    if os.environ.get('FLEX_HELIUS_DENIAL_GATE_ENABLED') != '1':
+        return _process_owned_row(ops, row)
+    from src.core.helius_http_protection import owned_context
+    from src.core.helius_denial_gate import BudgetDeferred
+    _helius_install('walkback')
+    context = owned_context('mint:' + row['mint'])
+    try:
+        context.__enter__()
+    except BudgetDeferred as exc:
+        return _defer_helius_claim(ops, row, exc)
+    try:
+        return _process_owned_row(ops, row)
+    finally:
+        context.__exit__(*__import__('sys').exc_info())
+
+
+def _process_owned_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
     """
     Process one walkback row. Returns RPC credits consumed.
     Writes result back to DB. Never raises — errors are caught and stored.
@@ -1746,15 +1780,7 @@ def _process_row(ops: sqlite3.Connection, row: sqlite3.Row) -> int:
             if isinstance(e, _HeliusDeferred):
                 # Keep the already-started claim count, but never turn denial
                 # into a negative evidence verdict or retry-budget reset.
-                from src.core.helius_denial_gate import BudgetDeferred
-                claim_refund = int(isinstance(e, BudgetDeferred))
-                reason = str(e)
-                if not reason.startswith('HELIUS_') or len(reason) > 100 or not all(c.isupper() or c.isdigit() or c == '_' for c in reason):
-                    reason = 'HELIUS_ACQUISITION_DEFERRED'
-                # Lock contention is transient scheduling pressure, not acquisition failure.
-                retry_delay = 5 if isinstance(e, BudgetDeferred) and reason == "HELIUS_GATE_BUSY" else 300
-                ops.execute("UPDATE wt_walkback_queue SET status='pending',attempts=MAX(0,attempts-?),lease_expires_at=0,next_retry_at=?,last_error=?,rpc_used=rpc_used+?,updated_at=? WHERE mint=? AND status='running' AND attempts=? AND claimed_by=?",(claim_refund,int(time.time())+retry_delay,reason,rpc[0],int(time.time()),mint,attempts + 1,os.environ.get('WALKBACK_WORKER_ID',f'walkback-{os.getpid()}')))
-                ops.commit();return rpc[0]
+                return _defer_helius_claim(ops, row, e, rpc[0])
         err = str(e)
         print(f"[WALKBACK] error processing {mint[:16]}…: {err}", flush=True)
         if attempts >= MAX_ATTEMPTS:

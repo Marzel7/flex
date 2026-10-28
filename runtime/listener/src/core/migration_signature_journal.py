@@ -10,6 +10,7 @@ import fcntl
 import hashlib
 import json
 import os
+import sqlite3
 from pathlib import Path
 
 MAX_RECORD_BYTES = 4096
@@ -218,7 +219,7 @@ class MigrationJournal:
         with self._lock():
             return self._read()
 
-    def _change(self, fn):
+    def _change(self, fn, *, admission_reserve=False):
         if self.tmp.exists() and (self.verify_completed is not None or self.terminal_owner is not None or self.deferred_owner is not None):
             self.recover_reclamation()
         with self._lock():
@@ -227,6 +228,10 @@ class MigrationJournal:
             result = fn(records)
             def over_budget():
                 return len(records)>MAX_RECORDS or sum(len(json.dumps(r,sort_keys=True,separators=(',',':')).encode())+1 for r in records)>MAX_JOURNAL_BYTES
+            # Keep one bounded batch of admission reserve before saturation.
+            # BirthJournal has a separately qualified retention owner/policy.
+            if admission_reserve and type(self) is MigrationJournal and len(records) >= MAX_RECORDS - MAX_BATCH and not over_budget():
+                self._maintain_reserve(records, keep=result.get('id') if isinstance(result,dict) else None)
             if over_budget():
                 keep=result.get('id') if isinstance(result,dict) else None
                 if self.verify_completed is not None:
@@ -239,6 +244,25 @@ class MigrationJournal:
             self._publish(records)
             if self.deferred_owner is not None:self.deferred_owner.settle_active(records)
             return result
+
+    def _maintain_reserve(self, rows, keep=None):
+        remaining = MAX_BATCH
+        if self.verify_completed is not None:
+            remaining -= len(self._reclaim(rows, self.verify_completed, remaining, keep=keep))
+        for owner, transfer, kwargs in (
+            (self.terminal_owner, self._reclaim_terminal, {'keep': keep}),
+            (self.deferred_owner, self._defer, {'keep': {keep}})):
+            if remaining <= 0 or owner is None:
+                continue
+            try:
+                remaining -= len(transfer(rows, remaining, **kwargs))
+            except Exception as exc:
+                # Optional early maintenance may meet the existing finite owner
+                # quota. Existing active slots remain usable; mandatory overflow
+                # transfer below still refuses admission. Never hide corruption,
+                # readback, generation, lock, disk or publication failures.
+                if (type(exc).__name__ != 'TerminalHold' and not (isinstance(exc, sqlite3.IntegrityError) and getattr(exc, 'sqlite_errorcode', None) == sqlite3.SQLITE_CONSTRAINT_TRIGGER)) or str(exc) not in ('TERMINAL_CAPACITY', 'DEFERRED_CAPACITY'):
+                    raise
 
     def _defer(self, rows, limit, keep=()):
         selected=sorted((r for r in rows if r['id'] not in keep and r['state'] in {'PENDING','RESOLVED'} and r.get('error_code')!='DISPATCH_RESERVED'),key=lambda r:(r['received_at'],r['id']))[:limit]
@@ -423,7 +447,7 @@ class MigrationJournal:
             rows.append(incoming)
             return dict(incoming)
         # The independently durable input always precedes any Core/OPS read.
-        row = self._change(change)
+        row = self._change(change, admission_reserve=True)
         if self.resolve_completed is not None and row['state'] not in {'ACKED','QUARANTINED','RETRY_EXHAUSTED'}:
             try:
                 resolved = self.resolve_completed(dict(row))

@@ -25796,6 +25796,26 @@
     "terminal_verified_records": 1789,
     "undefined_logger_errors": 0
   },
+  "flex_v2_post_restoration_monitor": {
+    "automation_id": "flex-v2-post-restoration-health-check",
+    "baseline_handoff": "c7066fa6",
+    "blocker": null,
+    "follow_up_minutes": 20,
+    "next_action": "Run one bounded read-only health check when scheduled, publish results, then stop the follow-up. No engineering, provider calls, restarts or replay.",
+    "production_actions_this_turn": 0,
+    "provider_calls_this_turn": 0,
+    "scope": [
+      "gate publication",
+      "RPC reservations/spending",
+      "journal/custody headroom",
+      "migration completions",
+      "Walkback progress",
+      "worker and storage safety"
+    ],
+    "source_changes": 0,
+    "status": "SCHEDULED_READ_ONLY",
+    "tests": "Not applicable: scheduling only; no new runtime verdict"
+  },
   "flex_v2_post_restore_stall_diagnosis": {
     "birth": "Existing natural overflow reclamation transferred 20 protected conflicts: terminal owner 512 to 532, active journal 511 to 493.",
     "blocker": "Intermittent scheduling/ownership deferrals plus near-full overflow-only journal maintenance; original per-notification budget reason not retained.",
@@ -47296,7 +47316,7 @@
     "git_head": "30ad7094076e83119efef42026a97d18a18af849",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T14:35:15.002578+00:00",
+    "updated_at_utc": "2026-10-28T14:47:34.309844+00:00",
     "working_tree": "Controlled Helius restoration PASS; exactly one validated probe; all three workers unchanged and OPEN. Zero Walkback completions in five-minute acceptance explicitly retained."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",

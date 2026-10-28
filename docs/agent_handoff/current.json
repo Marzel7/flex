@@ -37028,10 +37028,10 @@
   },
   "project": {
     "branch": "codex/flex-v2-final-consolidation",
-    "git_head": "2635e80625a5a2ca7970f66213caa9279c8c9c74",
+    "git_head": "1e453f85727deb29a4a6c8d4a391e40e82045e9e",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T00:13:14.676942+00:00",
+    "updated_at_utc": "2026-10-28T00:14:28.865543+00:00",
     "working_tree": "Read-only optional gate-busy deployment preflight GO; candidate3f75234d not deployed. Production remains b203c114. Source, recovery pins, live authority, budget and storage gates pass."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -39797,7 +39797,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-28T00:13:14.676942+00:00",
+  "updated_at_utc": "2026-10-28T00:14:28.865543+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -49402,11 +49402,11 @@
   "flex_v2_walkback_optional_gate_busy_deployment_preflight": {
     "status": "PASS",
     "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
-    "engineering_revision": "2635e80625a5a2ca7970f66213caa9279c8c9c74",
+    "engineering_revision": "1e453f85727deb29a4a6c8d4a391e40e82045e9e",
     "candidate_sha": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
     "bundle_sha256": "637e6da8a8fc93fcd5924babc1be7f2e0b2bd186c3203b7f53359aaf07e065c0",
     "report": "docs/dev/lightweight_dev004_first_v2/helius_investigation_budget/rpc_completion_safety/walkback_progress/OPTIONAL_GATE_BUSY_PREFLIGHT.json",
-    "report_sha256": "fbd790bce21bbf973e2e579deb8f5a470d324a0cd1ad6f75b8ff7e3b7fe559be",
+    "report_sha256": "a48039425cad71f7465ab0df78efba314ee9a1361f572e51eff56a202ca999f2",
     "observed_utc": "2026-10-28T00:10:44.851046+00:00",
     "source_integrity": {
       "candidate": "3f75234d9a10c39e7ddcbe9a45e9fdef5407401f",
@@ -49511,8 +49511,8 @@
           },
           "pure_validation_passed": true,
           "unresolved_publication_stage_present": false,
-          "source_eligible_deferred_candidates_untransferred": 495,
-          "dispatch_reserved_protected": 1
+          "dispatch_reserved_protected": 1,
+          "source_predicate_eligible_for_deferred_custody": 495
         }
       },
       "custody_quotas": {
@@ -49542,7 +49542,7 @@
         }
       },
       "records_transferred_or_replayed": 0,
-      "note": "Source-eligible deferred candidates are not claimed reclaimed. Any transfer remains existing independently verified custody; preflight performs no lifecycle writes."
+      "note": "This is source-predicate eligibility only, not verified reclamation or a claim that an OPS copy is absent. Any transfer requires the existing durable commit/readback guards; preflight performs no lifecycle writes."
     },
     "storage": {
       "disk_free_bytes": 7795404800,
@@ -49599,6 +49599,6 @@
     },
     "blocker": null,
     "next_action": "Separately authorize the exact qualified worker/recovery-pin bundle. Refresh immediate preimages, gate, disk/journal safety and idle ownership; stage immutable candidate recovery authority, stop/install/start only Walkback, then observe natural processing. No deployment performed here.",
-    "updated_at_utc": "2026-10-28T00:13:14.676942+00:00"
+    "updated_at_utc": "2026-10-28T00:14:28.865543+00:00"
   }
 }

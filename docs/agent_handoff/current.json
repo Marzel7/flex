@@ -23602,6 +23602,184 @@
     },
     "status": "PASS_QUALIFIED_NOT_DEPLOYED"
   },
+  "flex_v2_post_3f75234d_progress_audit": {
+    "birth_capacity_note": "First sample512/512 including33ACKED; eight seconds later495/512 including16ACKED, showing natural reclamation. Audit performed no lifecycle mutations.",
+    "evidence": {
+      "completed_batches": 8,
+      "completion_outcomes": {
+        "LINEAGE_GAP": 2,
+        "NO_ATTRIBUTION_FOUND": 2
+      },
+      "cursor_durably_present": true,
+      "custody_quotas": {
+        "birth_terminal_owner_v1": {
+          "bytes": 697743,
+          "records": 512
+        },
+        "migration_deferred_owner_v1": {
+          "bytes": 1344482,
+          "records": 511
+        },
+        "migration_terminal_owner_v1": {
+          "bytes": 2021087,
+          "records": 1808
+        }
+      },
+      "cycle_failure_records": {},
+      "database_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 83247104
+        },
+        "ops": {
+          "db": 162938880
+        }
+      },
+      "deferred_attempt_pairs": [
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 32
+        },
+        {
+          "after": 1,
+          "before": 1,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 2
+        },
+        {
+          "after": 2,
+          "before": 2,
+          "code": "HELIUS_GATE_BUSY",
+          "jobs": 1
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_INVESTIGATION_REQUIRED",
+          "jobs": 6
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_REQUEST_COOLDOWN",
+          "jobs": 3
+        },
+        {
+          "after": 0,
+          "before": 0,
+          "code": "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW",
+          "jobs": 1
+        }
+      ],
+      "disk_free_bytes": 7491452928,
+      "examined_waiting_jobs_since_activation": 320,
+      "gate": {
+        "highest_investigation_credits": 7936,
+        "inflight": [],
+        "lifetime_credit_limit": 100000,
+        "reserved_credits_by_worker_since_activation": {
+          "creator_resolution": 0,
+          "listener": 7,
+          "walkback": 192
+        },
+        "review_held": 5,
+        "spending_history_and_owner_identity_monotonic": true,
+        "state": "OPEN"
+      },
+      "heartbeat": {
+        "age_seconds": 4.29,
+        "last_seen_epoch": 1793147293,
+        "status": "HEALTHY",
+        "updated_after_activation": true
+      },
+      "journals": {
+        "birth.jsonl": {
+          "free_slots": 17,
+          "records": 495,
+          "states": {
+            "ACKED": 16,
+            "QUARANTINED": 479
+          }
+        },
+        "migration.jsonl": {
+          "free_slots": 15,
+          "records": 497,
+          "states": {
+            "ACKED": 7,
+            "PENDING": 488,
+            "QUARANTINED": 1,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "logs": {
+        "walkback_worker.log": {
+          "bytes": 11194,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        },
+        "walkback_worker_err.log": {
+          "bytes": 0,
+          "capacity_errors": 0,
+          "disk_floor_errors": 0,
+          "sqlite_lock_errors": 0,
+          "tracebacks": 0
+        }
+      },
+      "maximum_lookup_delta": 1,
+      "natural_completions": 4,
+      "observed_utc": "2026-10-28T00:28:17.359419+00:00",
+      "optional_deferral_log_counts": {
+        "HELIUS_GATE_BUSY": 8,
+        "HELIUS_INVESTIGATION_REQUIRED": 8
+      },
+      "preexisting_failed_jobs_untouched": 6,
+      "processed_job_attempts": 64,
+      "protected277": {
+        "waiting_protected": 277
+      },
+      "provider_test_calls": 0,
+      "queue_states": {
+        "complete": 1925,
+        "failed": 6,
+        "pending": 160,
+        "running": 1,
+        "waiting": 1550
+      },
+      "schema_unchanged": true,
+      "seconds_since_start_requested": 490.71,
+      "services": {
+        "creator_resolution_worker": {
+          "pid": 70926,
+          "state": "RUNNING"
+        },
+        "walkback_worker": {
+          "pid": 26587,
+          "state": "RUNNING"
+        },
+        "watchtower_listener": {
+          "pid": 70897,
+          "state": "RUNNING"
+        }
+      }
+    },
+    "exhausted_replay": 0,
+    "limitations": "No full sweep yet; completed outcomes are two NO_ATTRIBUTION_FOUND and two LINEAGE_GAP, not confirmed operation attribution. Deferral pairs are current snapshot counts, not total distinct historical deferrals.",
+    "next_action": "Continue bounded natural monitoring. Optional-cycle fix is working; per-job contention remains. Waiting sweep is incomplete. No replay, restart or budget change.",
+    "production_changes": 0,
+    "provider_calls": 0,
+    "restarts": 0,
+    "spending_note": "Reserved ledger credits, not provider invoice. Five preexisting review-held entries remain protected; no active reservations at readback.",
+    "status": "PASS",
+    "waiting_coverage_denominator": 1550,
+    "waiting_coverage_percent": 20.65,
+    "window_start": "2026-10-28T00:20:06.581395Z"
+  },
   "flex_v2_post_disk_gate_recovery": {
     "blocker": "FRESH_BOUNDED_RESTORATION_PROBE_NOT_AUTHORIZED_AFTER_PREVIOUS_ONE_WAS_USED",
     "completed_utc": "2026-10-27T21:17:05.279810+00:00",
@@ -39833,7 +40011,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave all three roles running. Observe sustained throughput and journal capacity separately; no exhausted replay or budget changes.",
+  "next_action": "Continue bounded natural monitoring. Optional-cycle fix is working; per-job contention remains. Waiting sweep is incomplete. No replay, restart or budget change.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -42022,8 +42200,8 @@
     "git_head": "6aece15b67146255156712a8d926c2aeefc5983f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-28T00:25:30.897276+00:00",
-    "working_tree": "Exact3f75234d optional gate-busy worker and matching recovery pin deployed; five-minute natural acceptance PASS. Only Walkback restarted."
+    "updated_at_utc": "2026-10-28T00:28:17.359419+00:00",
+    "working_tree": "Read-only post3f75234d progress audit; production unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -43425,7 +43603,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "FLEX_V2_OPTIONAL_GATE_BUSY_DEPLOYMENT_PASS",
+  "status": "FLEX_V2_POST_3F75234D_PROGRESS_PASS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -45004,7 +45182,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "DEPLOYED_ACCEPTED",
+  "verdict": "PASS_PROGRESS_OBSERVED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

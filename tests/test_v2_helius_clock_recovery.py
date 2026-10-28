@@ -98,3 +98,19 @@ def test_review_held_signature_remains_blocked(case):
  assert after['rpc_budget']['keys']==before['rpc_budget']['keys']
  with pytest.raises(e.m.BudgetDeferred,match='UNCERTAIN'):e.reserve2()
  assert e.g.read()==after
+
+
+def test_live_owner_publication_can_advance_without_losing_history(case):
+ e=case;first_raw=e.g.path.read_bytes();e.g.register_origin('mint:new-legitimate-subject','2'*64);digest=hashlib.sha256(e.g.path.read_bytes()).hexdigest();before=e.g.read()
+ result=recovery.reconcile_forward_clock(e.g,expected_sha256=digest,first_sample=e.sample,first_state_raw=first_raw)
+ assert result['mutated'];after=e.g.read();expected=copy.deepcopy(before);expected['rpc_budget'].update(wall=e.now[0],mono=e.mono[0]);assert after==expected
+
+@pytest.mark.parametrize('defect',['wrong_preimage','refund','owner_rebind'])
+def test_changed_ledger_history_cannot_bypass_sample_authority(case,defect):
+ e=case;first_raw=e.g.path.read_bytes();s=e.g.read()
+ if defect=='wrong_preimage':first_raw=b'wrong'
+ elif defect=='refund':q=s['rpc_budget']['scopes'][e.h._hash('mint:root')];q['credits']=0;q['workers']={r:0 for r in q['workers']}
+ else:s['rpc_budget']['owners'][e.h._hash('mint:root')]['proof']='3'*64
+ s['outcomes']+=1;e.g.save(s);digest=hashlib.sha256(e.g.path.read_bytes()).hexdigest();before=e.g.path.read_bytes()
+ with pytest.raises(RuntimeError):recovery.reconcile_forward_clock(e.g,expected_sha256=digest,first_sample=e.sample,first_state_raw=first_raw)
+ assert e.g.path.read_bytes()==before

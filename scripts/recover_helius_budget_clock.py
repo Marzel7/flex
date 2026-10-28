@@ -5,6 +5,7 @@ Caller preserves private immutable preimages before invoking this operator actio
 """
 import copy
 import hashlib
+import json
 
 
 def clock_sample(gate):
@@ -15,7 +16,7 @@ def clock_sample(gate):
                 state_sha256=hashlib.sha256(gate.path.read_bytes()).hexdigest())
 
 
-def reconcile_forward_clock(gate, *, expected_sha256, first_sample):
+def reconcile_forward_clock(gate, *, expected_sha256, first_sample, first_state_raw=None):
     """CAS two anchors only, after all time-dependent RPC protections elapsed.
 
     Pending/uncertain reservations are never released. No outcome is inferred.
@@ -38,8 +39,24 @@ def reconcile_forward_clock(gate, *, expected_sha256, first_sample):
         now = int(gate.clock()); mono = int(gate.monotonic())
         if not isinstance(first_sample, dict) or first_sample.get('generation') != gate.generation:
             refuse('SAMPLE_AUTHORITY')
-        if first_sample.get('state_sha256') != expected_sha256 or (first_sample.get('anchor_wall'), first_sample.get('anchor_mono')) != (budget['wall'], budget['mono']):
+        if (first_sample.get('anchor_wall'), first_sample.get('anchor_mono')) != (budget['wall'], budget['mono']):
             refuse('SAMPLE_AUTHORITY')
+        if first_sample.get('state_sha256') != expected_sha256:
+            # A stable-clock observation need not freeze other workers' durable
+            # ownership/counter publication. Bind its original immutable bytes,
+            # and prove that history advanced without deletion or rebinding.
+            if not isinstance(first_state_raw, bytes) or len(first_state_raw) > 16777216 or hashlib.sha256(first_state_raw).hexdigest() != first_sample.get('state_sha256'):
+                refuse('SAMPLE_AUTHORITY')
+            prior = json.loads(first_state_raw)
+            old = prior['rpc_budget']
+            if prior['generation'] != gate.generation or old['policy'] != budget['policy'] or (old['wall'], old['mono']) != (budget['wall'], budget['mono']):
+                refuse('HISTORY_CHANGED')
+            if any(budget['owners'].get(k) != v for k,v in old['owners'].items()) or any(k not in budget['scopes'] or budget['scopes'][k]['credits'] < v['credits'] for k,v in old['scopes'].items()):
+                refuse('HISTORY_CHANGED')
+            if any(k not in budget['keys'] or budget['keys'][k]['credits'] < v['credits'] or budget['keys'][k]['attempts'] < v['attempts'] or (v['status']=='OWNER_EXIT_UNCERTAIN' and budget['keys'][k] != v) for k,v in old['keys'].items()):
+                refuse('HISTORY_CHANGED')
+            if any(state[k] < prior[k] for k in ('reservations','outcomes')):
+                refuse('HISTORY_CHANGED')
         if any(type(first_sample.get(k)) is not int for k in ('wall','mono')):
             refuse('SAMPLE_CLOCK')
         dw = now-first_sample['wall']; dm = mono-first_sample['mono']

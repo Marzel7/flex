@@ -1,0 +1,218 @@
+{
+  "FLEX_V2_RUNTIME_DEPLOYMENT_STATUS": "HOLD_ACCEPTANCE_BLOCKED_AFTER_INSTALL",
+  "INSTALLED_SOURCE_HASHES": {
+    "runtime/listener/src/core/migration_signature_journal.py": "663465aef0d452eee95c5077ecce0621b19e1406f8aad6122fc0fd3b8f04617b",
+    "runtime/walkback/src/core/walkback_worker.py": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+    "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py": "588056de605a617d9aea3aef69bfe9b2fbc3209c318f9623b4c85cfb1e454cc3"
+  },
+  "INSTALLED_SOURCE_AUTHORITY": {
+    "candidate": "a8179c8bc703a8247188d75ff0cca87d6644635c",
+    "bundle_sha256": "c374ee80088a60dc9920db8519308535cf62a2fa17473868838cf8535796726b",
+    "runtime_plan_sha256": "847559417191e375ffac67459f95ea1d67bebcb49390bfe544a8673967c2108a",
+    "matched_generation": "DEV004-V2-20261024-dfb76562",
+    "configuration_unchanged": true,
+    "source_and_recovery_coherent": true
+  },
+  "LISTENER_WALKBACK_PIDS_BEFORE_AFTER": {
+    "listener": [
+      76395,
+      91474
+    ],
+    "walkback": [
+      76510,
+      91523
+    ],
+    "resolver_unchanged": {
+      "state": "RUNNING",
+      "pid": 76441
+    }
+  },
+  "MIGRATION_JOURNAL_HEADROOM": {
+    "before_records": 503,
+    "before_free_slots": 9,
+    "last_safe_sample": {
+      "records": 477,
+      "free": 35,
+      "states": {
+        "RESOLVED": 1,
+        "PENDING": 476
+      }
+    },
+    "hold_sample": {
+      "records": 484,
+      "free_slots": 28,
+      "states": {
+        "RESOLVED": 1,
+        "PENDING": 483
+      }
+    },
+    "source_threshold": 492,
+    "max_combined_proactive_batch": 20,
+    "quota_changes": false
+  },
+  "VERIFIED_CUSTODY_TRANSFERS": {
+    "original_active_records_now_in_independently_decoded_OWNED_OPS_custody": 25,
+    "protected_terminal_preimages_preserved": true,
+    "new_terminal_records_during_last_safe_sample": 3,
+    "interpretation": "Aggregate natural transitions, not an operator-triggered transfer. Exact owner hash/provenance and original identity verified; no unresolved notification acknowledged to free space."
+  },
+  "WALKBACK_DEFERRAL_INTEGRITY": {
+    "last_safe_deferral_counts": {
+      "HELIUS_GATE_BUSY": 19,
+      "HELIUS_REQUEST_COOLDOWN": 3
+    },
+    "protected_failed_jobs_unchanged": 53,
+    "retry_accounting": "Current claim-only deferrals; no retry reset or exhausted replay.",
+    "no_unowned_dispatch": "Gate and ownership protections remain installed; typed entry reasons preserved.",
+    "qualification_reused": 73
+  },
+  "NATURAL_BIRTH_AND_MIGRATION_ACTIVITY": {
+    "last_safe_sample_utc": "2026-10-28T11:56:01.635549+00:00",
+    "seconds_after_activation": 186.52,
+    "counts": {
+      "birth_receipts": {
+        "new_birth_receipts": 81,
+        "COMMITTED": 80,
+        "exact_canonical_matches": 80,
+        "RETRY_PENDING": 1
+      },
+      "new_notification_lower_bound": {
+        "PUMPSWAP_MIGRATION_ACCOUNT": 3,
+        "PUMPPORTAL_MIGRATION": 1
+      },
+      "canonical_migrations_with_timestamp_since_activation": 1,
+      "exact_completed_handoffs": 1,
+      "walkback_completions": 2,
+      "walkback_outcomes": {
+        "NO_ATTRIBUTION_FOUND": 1,
+        "LINEAGE_GAP": 1
+      },
+      "completed_batches": [
+        {
+          "processed": 8,
+          "logical_rpc": 51,
+          "outcomes": {
+            "pending": 7,
+            "LINEAGE_GAP": 1
+          }
+        },
+        {
+          "processed": 8,
+          "logical_rpc": 38,
+          "outcomes": {
+            "pending": 7,
+            "NO_ATTRIBUTION_FOUND": 1
+          }
+        },
+        {
+          "processed": 8,
+          "logical_rpc": 54,
+          "outcomes": {
+            "pending": 8
+          }
+        }
+      ]
+    },
+    "subscription_evidence": {
+      "pumpswap_subscription_log_lines": 2,
+      "pumpportal_subscription_log_lines": 1
+    },
+    "limitation": "Positive results cover the last coherent sample only. Full five-minute successful acceptance NOT achieved; later observations failed storage/publication guards."
+  },
+  "HELIUS_SPENDING": {
+    "publication": "AMBIGUOUS_PENDING_V1",
+    "stage_exists": false,
+    "state_sha256": "facd6a2d60edcf6a95dfb46e9e7853c00de265b2a06143c3fa0d63d02753bc50",
+    "marker_sha256": "c1fefbd756dcb671d73b2585fff74d54f927c3b2aa4aab2efd0892309d7a3abf",
+    "state_mtime_epoch": 1793188614.034795,
+    "embedded_OPEN_label_not_authoritative": true,
+    "acquisition_permission": "FAIL_CLOSED",
+    "unpublished_body_accounting_only": {
+      "history_monotonic": true,
+      "credit_limit": 100000,
+      "total_reserved_credits": 73187,
+      "natural_credit_delta_by_worker": {
+        "creator_resolution": 0,
+        "listener": 6,
+        "walkback": 157
+      },
+      "request_reservation_delta": 163,
+      "held_requests_preserved": 5,
+      "inflight_in_retained_body": 0
+    }
+  },
+  "DISK_AND_WAL_HEALTH": {
+    "staged_free_bytes": 3006939136,
+    "activated_free_bytes": 3001892864,
+    "last_safe_free_bytes": 3015868416,
+    "hold_free_bytes": 1870188544,
+    "mandatory_floor": 2067108864,
+    "deployment_reserve_floor": 2771751936,
+    "last_safe_database_files": {
+      "core": {
+        "database": 86675456,
+        "-wal": 144232,
+        "-shm": 32768
+      },
+      "ops": {
+        "database": 164048896
+      }
+    },
+    "logs_since_activation": {
+      "listener.log": {
+        "DISK_FLOOR": 72,
+        "DISK_HEADROOM": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0
+      },
+      "listener_err.log": {
+        "DISK_FLOOR": 0,
+        "DISK_HEADROOM": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0
+      },
+      "walkback_worker.log": {
+        "DISK_FLOOR": 0,
+        "DISK_HEADROOM": 16,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 3,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0
+      },
+      "walkback_worker_err.log": {
+        "DISK_FLOOR": 0,
+        "DISK_HEADROOM": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "MIGRATION_ADMISSION_REFUSED": 0
+      }
+    },
+    "file_limit_bytes": 499000000,
+    "cause_boundary": "Existing gate publisher writes PENDING_V1 before disk-floor check; current floor breach, absent staging file and retained floor refusals established. Exact failed gate mutation not inferred from marker.",
+    "no_cleanup_or_deletion": true
+  },
+  "ROLLBACK_STATUS": "Not executed: a source-only rollback cannot repair publication ambiguity; gate validation/storage preconditions prohibit safe recovery. Exact compatible preimages remain staged; installed source/recovery authority is coherent.",
+  "GO_HOLD_DECISION": "HOLD_SINGLE_CRITICAL_BLOCKER",
+  "EXACT_BLOCKER": "Disk below required floor during natural acceptance; durable Helius publication marker PENDING_V1 cannot authorize acquisition.",
+  "NEXT_ACTION": "Restore stable headroom above required reserve, then separately qualify/reconcile the existing publication marker against retained durable accounting using the accepted recovery mechanism. No reset, blind marker clear or provider probe.",
+  "PRODUCTION_ACTIONS": {
+    "runtime_files_installed": 2,
+    "matching_recovery_pins_activated": 2,
+    "restarted": [
+      "watchtower_listener",
+      "walkback_worker"
+    ],
+    "resolver_restart": false,
+    "schema_changes": false,
+    "feature_flag_changes": false,
+    "provider_calls_for_testing": 0,
+    "budget_changes": 0,
+    "replay_reset": 0,
+    "v1_access": 0,
+    "historical_deletion": 0,
+    "gate_reset_or_marker_clear": false
+  },
+  "observed_utc": "2026-10-28T12:01:48.595084+00:00",
+  "evidence_paths_local_only": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/runtime-ownership-capacity-a8179c8b"
+}

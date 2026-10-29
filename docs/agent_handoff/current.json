@@ -30683,6 +30683,246 @@
     "status": "PASS",
     "tests": "Reuse47 passing provider-free retirement/recovery controls; exact source hashes unchanged, current V2-only authority checks PASS"
   },
+  "flex_v2_production_continuity_clock_readiness_20261029": {
+    "blocker": "Currentacquisitionremainsoffunderclockguarduntilseparatelyauthorizedanchor-onlyreconciliation.42clockblockedpendingjobsat3attemptsremainprotectedandnotautomaticallyreplayed. No immediateclock-recoveryreadinessblocker.",
+    "continuity_risks": [
+      {
+        "impact": "HostsleepstopsCPU/intakeregardlessSupervisorRUNNINGstate;wakecanleaveclockguardblocked.",
+        "minimum_requirement": "Separatelyrevieweffectiveproductionpowerpolicyacrossactualpowerstates/lid/userSleep. CurrentACprofile reports sleep0,butincidentwasUsingBatt. Do notassumeACsettingalonepreventssuspend;noOSsettingschanged.",
+        "point": "Singlehostsleep/poweravailability"
+      },
+      {
+        "existing_protection": "Currentpublisherpreparationorderandcompleted-publicationrecovery,finitebudgets,checksumsandindependentreadback.",
+        "impact": "OneinvalidclockanchororambiguouspublicationblocksallHeliusacquisition. Correctprotectionmustremain;requiresqualifiedexplicitrecovery.",
+        "point": "Sharedgateclock/publicationauthority"
+      },
+      {
+        "existing_limit": "NoHA/newinfrastructureproposed;futuredeploymentmustqualifyupstreamrecoverabilityorobtainexplicitbounded-outageacceptance.",
+        "impact": "Delivered/admittednotificationsdurable;unreceivedeventswhilelistenerstopped/hostsleepshaveunprovedreplay/retention. Journalsdonotprovezerolossacrossnetwork/restartgaps.",
+        "point": "SinglereceiverandupstreamWebSocketdelivery"
+      },
+      {
+        "current": "Birth511/512but13independentlyverifiedACKs; migration478/512;OPSquotasbelowlimits.",
+        "impact": "512activejournalsand8192custodyquotascanrefuseadmission. Protectedrecordsnotdeletable;verifiedtransfer/reclamationonly.",
+        "point": "Finitejournal/custodycapacity"
+      },
+      {
+        "impact": "ClockerrorisIntegrity,notBudgetDeferred. Currenthandlerkeepsstartedclaimcount;42clockblockedpendingjobsnowat3attempts. Clock-onlyrecoverydoesnotresetorautomaticallyrevivethem.",
+        "next": "Preserveattempts/protectedevidence;separatelyassessaffectedretryrightsafteracquisitionrestoration. Noqueuechangesorblanketreplay.",
+        "point": "Integritydeferralsandattemptceilings"
+      },
+      {
+        "current": "Bothretiredpathsabsent,certificateandmatchedACTIVEpairvalidate.",
+        "impact": "External/stalerawSQLitecreationcantriggerproperidentityrefusal. Sharedpreopenguardcoversmanagedreaders,notarbitraryexternalprograms.",
+        "point": "Retiredpathnamespaceandsourceauthority"
+      }
+    ],
+    "current_processing": {
+      "Helius_acquisition_eligible_now": false,
+      "birth_timing_caveat": "ACK/canonicalreadbackverified; receive_time isnot exactcommit time.",
+      "births_continue_independently": true,
+      "handoff_scope": "Bounded indexed completehandoffs admittedwithinlastday, canonicalsignatureverified.",
+      "last_HTTP_completed": "2026-10-29T21:36:10+00:00",
+      "last_Walkback_completed": "2026-10-29T21:35:26+00:00",
+      "last_verified_canonical_birth_ACK_receive_time": "2026-10-29T22:04:29.942348+00:00",
+      "last_verified_migration_handoff_completed": "2026-10-29T21:23:49+00:00",
+      "observed_utc": "2026-10-29T22:04:33.586154+00:00",
+      "queue": {
+        "Walkback_pending_reasons": {
+          "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 80,
+          "HELIUS_GATE_BUSY": 55,
+          "null": 2
+        },
+        "Walkback_statuses": {
+          "complete": 2418,
+          "failed": 56,
+          "pending": 137,
+          "waiting": 1551
+        },
+        "birth_commit_time_caveat": "ACK/canonicalreadbackverified; receive_time isnot exactcommit time.",
+        "clock_pending_attempts": {
+          "1": 8,
+          "2": 30,
+          "3": 42
+        },
+        "latest_Walkback_completed": 1793309726,
+        "latest_retained_canonical_birth_ACK_receive_time": 1793311469.942348,
+        "latest_verified_canonical_handoff_completed": 1793309029
+      },
+      "workers": {
+        "listener": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 23351,
+          "status": "watchtower_listener              RUNNING   pid 23351, uptime 3:10:28"
+        },
+        "resolver": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 23363,
+          "status": "creator_resolution_worker        RUNNING   pid 23363, uptime 3:10:17"
+        },
+        "walkback": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 28791,
+          "status": "walkback_worker                  RUNNING   pid 28791, uptime 2:24:09"
+        }
+      }
+    },
+    "engineering_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "future_deployment_requirements": [
+      "IsolatedDEV,exactinstalledsourcepreimagesandfrozenpayload/recoverypins;nohistoricalworktreeorlegacyfallbackdependency.",
+      "ValidateactualRPCeligibilityincludingclockanchorarithmetic\u2014notjustOPEN/READYorRUNNING\u2014andindependentdurableaccountingbeforeanyinstall.",
+      "Reloadonlyaffectedroles;preserveunaffectedPIDs;provethree-rolebindingcoherencewithoutmixedincompatiblesources.",
+      "Preserveeverydeliveredjournal/receipt/custodyidentitythroughreloadandverifydurablereadback. Unreceivedupstreamnotificationsareanexplicitgap:provequalifiedreplayorobtainbounded-outageacceptance;neverclaimlosslessintakefromjournalpreservationalone.",
+      "Noclockanchor/gatepublication/reconciliation/probeasincidentalinstallstep;eachrequiresseparateexplicitoperationauthorization.",
+      "Compatiblecandidate-awarerecoveryandrollbackmustpreservepreopenprotection,retirementcertificate,Heliusspending,sixuncertainrequests,retryrights,terminal/deferredcustody,CREATEandlifecycle.",
+      "Naturalbirthcanonicalreadback,migrationhandoffsandeligibleWalkbackprogress;noartificialproviderrequests. Separateperformanceinconclusivefromsafetyfailure.",
+      "Independentlyverifyoriginalexhausted/failed/protectedevidence,attemptintegrity,newexhaustion/capacityrefusals,disk/WAL/fileboundsandexistinglifecycle.",
+      "Stoponclockfailure,ambiguouspublication,source/generation/certificatechange,retiredpathreappearance,unresolvedRPCownership,unsafeaccounting/spending,disk-floorfailureorunqualifiedadmissionloss. Neverbypassfailedguard."
+    ],
+    "installed_runtime_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "next_action": "Separately authorize one execution of the existing accepted anchor-only clock reconciliation with fresh CAS/stability/accounting checks and naturalacceptance. No sourcechange,workerrestart,providerprobe,refundorqueue resetneeded/authorized. Then separatelyreview42clock-ceilingjobswithoutautomaticreplay. Hostsleepcontinuityriskrequiresseparateoperationalpower-policyreview,notanotherperformancepatch.",
+    "production_flags": {
+      "V1_content_access": 0,
+      "clock_anchor_modifications": 0,
+      "counter_refunds_resets": 0,
+      "new_infrastructure": 0,
+      "production_gate_locks_or_publications": 0,
+      "production_or_DEV_source_changes": 0,
+      "provider_calls_or_probes": 0,
+      "queue_journal_database_mutations": 0,
+      "recovery_execution": 0,
+      "worker_restarts_or_signals": 0
+    },
+    "recent_incidents": [
+      {
+        "class": "Confirmedexternalcondition+correctsafetyrefusal",
+        "evidence": "OSsleep/wakeinterval,clockimplementation,30\u201331secondcounterdifference,120secondstablepostwakepair.",
+        "incident": "Current2026-10-29T21:36sleep/wakeclockambiguity",
+        "source_install_correlation": "Walkbackrestart19:40precedessleepby~116minutes;sourcegateunchanged. No causalinstallationevidence."
+      },
+      {
+        "class": "Qualifiedexplicitforward-clockrecovery;underlyingpriorclockjumptypenotprovedhere",
+        "evidence": "Accepted447190eeutility,27tests,anchor-onlymutationandnaturalprocessing;preservedhistory. Do notassumeeverypriorjumpwassleep.",
+        "incident": "Priorclockrecovery2026-10-28T08:43"
+      },
+      {
+        "class": "Demonstratedsoftwaredefect;exacthistoricalpublisher/syscalllimited",
+        "evidence": "LegacyownerpublishedPENDINGbeforedisk/stagepreflight;disposableDISK_FLOORrefusalpoisonedREADYwithoutledgerchange. Corrected5e4e5942publisherstagesordinarywritesfirst. CurrentREADYvalid,no.stage;notcurrentcause.",
+        "incident": "LegacyrecurringPENDING_V1"
+      },
+      {
+        "class": "Correctfail-closedresponseatinterruptedpublicationboundary",
+        "evidence": "Retainedorphanstageandinstallation/stopboundaryverified;acceptedreconciliationrequiredindependentdurableproof. Exacttermination/syscallcauseunresolved;do notinferproviderrequestsuccess/failurefromstage.",
+        "incident": "Orphanstage/interruptedsuccessoractivation"
+      },
+      {
+        "class": "Confirmedfilesystemreplacement+correctpairedguardrefusal;creatorUNKNOWN",
+        "evidence": "Zero-byteinode1081681106differentfromretired421043107;quarantinedunderexplicitauthority. Oldnative-open-before-retirement-fencegapdemonstrated,current6d6e3e81preopenguardmitigatesmanagedpaths. No proofstalelaunchdjobwascreator;externalrawSQLitecanstillbypass.",
+        "incident": "Retiredwt_ops_v2.dbemptyreplacement2026-10-29T09:19:42"
+      },
+      {
+        "class": "Authorizedoperationalinterruptions;oneearlierexpectedresolverexitcauseunknown",
+        "evidence": "18:54coordinatedreloadand19:40WalkbackonlyreloadretainedinSupervisor. CurrentPIDsunchanged. Singlelistenerstopcreatestransportavailabilitygap;notprovedlosslessforallunreceivednotifications.",
+        "incident": "Workerrestart/deploymentboundaries"
+      },
+      {
+        "class": "Confirmedshared-resourcecontentionandcorrectboundeddeferral",
+        "evidence": "Sharedexclusiveaccountingpublicationlockandretaineddeferrals;current5-attempt100msentryretrydoesnotretryIntegrityclockerrors. Exactlockhold-timeorproductionperformancecausalbenefitnotproved.",
+        "incident": "HELIUS_GATE_BUSY"
+      }
+    ],
+    "recovery_readiness": {
+      "checks_passed": 42,
+      "current_copied_byte_owner_decode": {
+        "Gate_instance_created": false,
+        "current_ready_sha256": "b82674542a17a297545be1b109fab5c0b078109a3bd629badc1654743c406271",
+        "lock_or_read_or_save_called": false,
+        "semantic_schema_valid": true
+      },
+      "current_owner_publication_compatibility": "All3installedgateownersmatchimmutablecurrent45bf95f3source. Currentownerrecognizesreconcile_forward_clockasclock_updateandusesqualifiedstaged/fsyncedchecksumpublication. Recoveryutilitybytesmatchaccepted447190ee;27acceptedprovider-freecontrolsreused.",
+      "failed_checks": [],
+      "idempotence": "ALREADY_VALIDreturnswithoutmutation;staleCASrefusesSTATE_CHANGED;moving/backward/reboot clocks,denials,timers,futuretimestamps,cooldownuncertaintyandinflightremainfail-closed. Noautomaticretry/reset/refund.",
+      "in_memory_validation": {
+        "Gate_instance_created": false,
+        "all_other_fields_identical": true,
+        "existing_owner_decoder_passes_copied_bytes": true,
+        "hypothetical_anchor_only_state_semantically_valid": true,
+        "ledger_or_anchor_modified": false,
+        "live_Gate_read_lock_save_or_recovery_called": false
+      },
+      "no_restart_or_provider_probe_required": true,
+      "not_executed": true,
+      "operator_scope_if_separately_authorized": "Capturefreshprivateimmutablepreimages;stable\u22655second samples;currentREADY/checksum/policy/owners/noinflight/horizon/timers;CASundertheexistingownerlock;changeonlyrpc_budget.wall/mono. Immediateunder-lockreadbackmustbeexacttwo-fielddelta. Separatelock-freereadbackafterpublicationverifieshistorymonotonicand6uncertainunchangedwhennaturalworkersresume.",
+      "procedure": {
+        "accepted_utility_revision": "447190eec988b47eca8e95361ebff7a9ff0ca968",
+        "current_clock_valid": false,
+        "divergence_seconds": 31,
+        "exact_proposed_delta": "Only rpc_budget.wall and rpc_budget.mono; current state remains OPEN; no other field changes.",
+        "existing_anchors": {
+          "mono": 945611,
+          "wall": 1793309770
+        },
+        "first_sample": {
+          "anchor_mono": 945611,
+          "anchor_wall": 1793309770,
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "mono": 947164,
+          "state_sha256": "91b48be8a5d1f869073238af29f54f971c7703009ded8f01300b8f7c2b5ff55e",
+          "wall": 1793311354
+        },
+        "fresh_CAS_recheck_required": true,
+        "function": "reconcile_forward_clock",
+        "lock_or_recovery_invoked": false,
+        "maximum_cooldown_horizon": 120,
+        "monotonic_elapsed": 1673,
+        "new_tests_run": 0,
+        "previous_accepted_tests": 27,
+        "proven_minimum_elapsed_minus_margin": 1668,
+        "second_sample": {
+          "dm": 120,
+          "dw": 120,
+          "mono": 947284,
+          "state_sha256": "50c61b0539a3b3dfe92c694fb62c1eabafbba545a8e0a0142886538d14f5d8c2",
+          "wall": 1793311474
+        },
+        "utility_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/walkback-contention-45bf95f3/source/scripts/recover_helius_budget_clock.py",
+        "utility_sha256": "d46225baac1253cf7a6f8ffac111f7f52f5c9b431c219bd048dc3a3f0c9a762b",
+        "wall_elapsed": 1704
+      },
+      "sample_lifetime": "Currentproofisnotfuturemutationauthority;everyguard/CASmustberecheckedat execution. SHAadvancementonlywithacceptedfirst_state_rawmonotonic-historyproof.",
+      "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_CLOCK_RECOVERY"
+    },
+    "report_path": "/private/tmp/flex-clock-continuity-readiness-20261029/CONTINUITY_AND_RECOVERY_REPORT.json",
+    "report_sha256": "215d630cc23c8dc6afb8167ed776f3f6e6cf827533a63a4e5d7ca81b18b88a13",
+    "root_cause": {
+      "OSreported_sleep_seconds": 33,
+      "allowed_seconds": 5,
+      "classification": "ConfirmedhostIdleSleep/wakepluscorrectclockguardrefusal",
+      "clock_discrepancy_seconds": 31,
+      "gatecode_unchanged": true,
+      "lastRPC_UTC": "2026-10-29T21:36:10Z",
+      "no_new_source_change_recommended": true,
+      "proof": "Pythonmonotonic=mach_absolute_time;localAppleSDKheaderdocumentscontinuousclockadvancessleepunlikeabsolute. Lastanchorat21:36:10,postwakewall-minus-mono30\u201331s;two120s/120s samplesstable. Notinferredfromtimingalone.",
+      "sleep_request_UTC": "2026-10-29T21:36:08Z",
+      "wake_UTC": "2026-10-29T21:36:41Z"
+    },
+    "spending": {
+      "highest_investigation": 7936,
+      "inflight": 0,
+      "latest_HTTP_completed": 1793309770,
+      "ledger_sha256": "50c61b0539a3b3dfe92c694fb62c1eabafbba545a8e0a0142886538d14f5d8c2",
+      "limit": 100000,
+      "publication": "READY_CHECKSUM_VALID",
+      "reserved_estimate": 133396,
+      "reserved_requests": 133396,
+      "state": "OPEN",
+      "uncertain": 6
+    },
+    "status": "GO_FOR_SEPARATELY_AUTHORIZED_CLOCK_RECOVERY",
+    "tests": "Reuse27acceptedclockutilitycontrols,currentpublisherqualificationandcurrent191compositioncontrols; no tests/sourcechanges. CurrentledgerdecodedinmemorybyexistingownerwithoutGateinstance/lock/read/save.",
+    "updated_at_utc": "2026-10-29T22:11:17.637433+00:00",
+    "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_CLOCK_RECOVERY"
+  },
   "flex_v2_prospective_admission_authority_qualification_20261021": {
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "blocker": "Existingtimestampsdonotuniversallyretainoriginaladmissionthroughsupportedrecreation/legacyfill.Requirement11HOLD;no mutabletimestamp substitution.",
@@ -55566,7 +55806,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separately authorize the existing qualified clock-recovery safety preflight/reconciliation after independentdurableclockverification. Preserveallspending,sixuncertainrequests,100000limitandcurrentqueueattempts; do notreset/replayorprobe. Assessperformanceagainonlyafteracquisitionauthorityisvalid.",
+  "next_action": "Separately authorize one execution of the existing accepted anchor-only clock reconciliation with fresh CAS/stability/accounting checks and naturalacceptance. No sourcechange,workerrestart,providerprobe,refundorqueue resetneeded/authorized. Then separatelyreview42clock-ceilingjobswithoutautomaticreplay. Hostsleepcontinuityriskrequiresseparateoperationalpower-policyreview,notanotherperformancepatch.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -57755,8 +57995,8 @@
     "git_head": "45bf95f37f0120f6600c33e65d1a444324a08b06",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T21:51:22.472626+00:00",
-    "working_tree": "Read-only90maudit20:09\u201321:39UTCHOLD.24handoffs/admissions,25completions(4inwindowadmissions/21older),ratio1.04; exactboundarybacklogstocksUNKNOWN,current137PENDING/0RUNNING,1551historicalWAITINGintact. Latest50firstclaimmedian2661.5s(44.4m)vs26.6prior,8unclaimed,30unfinished. Meaningfulbenefitnotproven. Currentworkers23351/23363/28791unchanged andREADYchecksumvalid,butbudgetclock30sdivergence>5s preventsRPC;lastcompleted21:36:10.6uncertain/cap100000/historypreserved,0inflight.44clockblockedjobs,1attempt3; no recovery/reset/provider/gatelock/source/runtimechanges. Nextseparatequalifiedclockrecoverypreflight urgently."
+    "updated_at_utc": "2026-10-29T22:11:17.637433+00:00",
+    "working_tree": "Strictread-onlycontinuityreview: GOforseparatelyauthorizedclockrecovery,notexecuted. ConfirmedmacOSIdleSleep21:36:08/wake21:36:41,Pythonmach_absolute_timeexcludedpause\u219231sanchoroffset>5s. All3RUNNINGsamePIDs23351/23363/28791;matchedACTIVE/certvalid,retiredpathsabsent. READY/OPEN133396reserved,sixuncertain100000cap,0inflight;nowstable120s/120s,conservative1668s>120cooldown.42readinesschecksPASS; currentimmutablehelpermatchesaccepted447190ee,d46225baSHA,27testsreused. Onlyanchorswouldchange,nomutationnow. LastbirthACKreceive22:04:29verified;handoff21:23:49,Walkback21:35:26,RPC21:36:10.80clockblockedjobs42at3attempts\u2014no replay/reset. Birth511with13verifiedACK,migration478,custodybelowquota,disk47.7GB/WAL0. Nextauthorizequalifiedanchoronlyreconciliation; separatehostsleep-policyreview; no sourcefix/deploy/restart/probe."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -59158,7 +59398,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "HOLD_CURRENT_HELIUS_BUDGET_CLOCK_AMBIGUOUS",
+  "status": "GO_FOR_SEPARATELY_AUTHORIZED_CLOCK_RECOVERY",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

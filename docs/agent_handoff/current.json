@@ -30496,6 +30496,167 @@
       "provider_free": true
     }
   },
+  "flex_v2_retired_path_recreation_root_cause_audit_20261029": {
+    "active_references": {
+      "Supervisor_dormant_roles": "API,bridge,monitors,funding,webhook,evidence/Cascade roles STOPPED. No activation performed.",
+      "active_workers": {
+        "Walkback": 77830,
+        "all_RUNNING": true,
+        "bindings": "Supervisor WT_OPS_DB_PATH and OPS_V2_DB_PATH point active.runtime/dev004-v2/databases/ops.sqlite. Retiredcertificatebindings unchanged. No activeV1database binding demonstrated.",
+        "listener": 82435,
+        "resolver": 82452
+      },
+      "catalog_limit": "17launchplists inspected; one unrelatedTeamsUpdaterDaemon plist unreadable and skipped. No broadprivileged filesystem audit attempted.",
+      "cron": {
+        "existing_jobs": [
+          {
+            "lifecycle": false,
+            "references_flex": true,
+            "retired_path_reference": false,
+            "schedule": "*/5 * * * *",
+            "script_paths": [
+              "/Users/kevinkeaveney/Dev/claude/flex/run_helius_monitor.sh"
+            ],
+            "sha256": "ab94096792dd4ae2a8d67aa5d68d4098cc0107e89892e58fc44a6ff358285bc6"
+          },
+          {
+            "lifecycle": false,
+            "references_flex": false,
+            "retired_path_reference": false,
+            "schedule": "0 * * * *",
+            "script_paths": [
+              "/audit_pumpswap_migration_coverage.py"
+            ],
+            "sha256": "0f15d707a74fb481d213edb4e6b1a5d2bf26a9ce08cf85032fc58aea92462abc"
+          },
+          {
+            "lifecycle": false,
+            "references_flex": true,
+            "retired_path_reference": false,
+            "schedule": "0 3 * * *",
+            "script_paths": [],
+            "sha256": "e380c362985da62e64cb8bd14886acd09486755f80841b3efcab62799cb3b7cc"
+          },
+          {
+            "lifecycle": true,
+            "references_flex": true,
+            "retired_path_reference": false,
+            "schedule": "*/15 * * * *",
+            "script_paths": [],
+            "sha256": "efed6e9857b431d8f350c4a325a612d3344cd9262de7f305de9a2658cadf6c95"
+          }
+        ],
+        "five_minute_monitor": "Referencedrun_helius_monitor.sh is currentlyabsent; no executionevidence atincident.",
+        "hourly_migration_audit": "Standalone tool opens Core via explicitmode=ro and doesnot reference OPS target. Its schedule and RPCcode do not identify anOPScreator. Not executed duringaudit.",
+        "legacy_03AM_runner": "Existingstorage_lifecycle_runner scheduled03:00; explicitcanonical denylist includeswt_ops_v2.db; no09:19execution record. Not run byagent.",
+        "qualified_15minute_lifecycle": "ExistingexplicitV2owner is cache/WSS-only and usescurrentV2paths; no evidence it created the predecessor replacement."
+      },
+      "health_and_recovery": "Existing /private/tmp health reporters useexplicitV2mode=ro. Current freshpair recovery usesV2stores and metadata-only predecessor validation; no live recovery execution.",
+      "launchd": {
+        "KeepAlive": true,
+        "configured_WT_OPS_DB_PATH": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "incident_attribution": "Not proven: stalejobcurrentlycannotlaunch frommissingcwd; logfilepredatesincident. It is a latent unsafe launch contract, not a verified creator.",
+        "job": "com.flex.dev035-api",
+        "loaded_state": "NoPID, laststatus78",
+        "log_mtime_epoch": 1792184038.2505746,
+        "paired_binding_env_present": false,
+        "working_directory": "/private/tmp/flex-dev035-health-scope",
+        "working_directory_exists": false
+      },
+      "package_local_legacy_defaults": "Installed packages have physical, nonsymlink database directories; their package-local default paths do not resolve to the incident primaryrepository path. Existence of dormant copiedsource/reference is not proof execution."
+    },
+    "blocker": "No retainedfilesystemcreation/open event identifiesactorat09:19:42UTC. Cannotproveuniversalpreventionofexternalprograms.",
+    "checkpoint": "flex-v2-post-v1-retirement-2026-10-28",
+    "creator": {
+      "diagnostics_gap": "Connection lifecycle logs inspected are stale(Oct9/Oct24); incidentSQLmetadata readback had0records within09:19:40..09:19:45. The SQLstream does not provide exhaustive fileopen/creatorPIDcoverage.",
+      "evidence": "No retained creation/open audit ties inode1081681106 to a PID/callsite. Zero-byte metadata alone cannot distinguish SQLite implicitcreate from ordinary filesystem creation. No writer inferred from subsequentguard failures.",
+      "no_new_instrumentation": true,
+      "timing_correlation_not_attribution": "AcceptedDEVtests ended09:16:29/09:17:10; filebirth09:19:42; candidatecommit09:20:02. Git hooks directory empty and no inspected startupcustomization. Neither temporal proximity nor absence of a retained trace proves a creator.",
+      "verdict": "UNRESOLVED"
+    },
+    "engineering_revision": "5e4362bb54131349f963099f82afd9fe05c9ea19",
+    "evidence_sha256": {
+      "CRON_EXECUTION_REFERENCES.json": "f3bf609b4113ae37eb69187f4af3338c7d0781289c991592ad096fffc8082ff2",
+      "CRON_INVENTORY.json": "7005924ab6bb2cf0407e64216c2b1e5bb06cf453965febcdc5985de132c1d496",
+      "CRON_MODULES.json": "0f0dac4014d4f6ad913fb8c15d3be2db82009020ecd5d6a8081b0d609ec56430",
+      "DORMANT_API_JOB.json": "6ce5bdb6bc9fe89b50f73f00bba03602569fb2d3d337f10412b1310e7212bacd",
+      "END_SAFETY.json": "51cacad532efbaaea3d7d34038a5881afbd9c7152add13f25e451461c8662d9e",
+      "INCIDENT_SQL_METADATA.json": "1cca7febc1b7e23ef09249969437cff5e4d3d125220de3af4d3f6c886344d222",
+      "LAUNCHD_INVENTORY.json": "326e021fe823d229dc91e8794c5a004fc840db8ac3a8996c1fb43a9d69d8671b",
+      "PACKAGE_DB_LINKS.json": "c4d9d799bfa374b0d399aad1d0558c51c8b1602c8f300ea380b2dc3bb5b515b6",
+      "PACKAGE_PATHS.json": "287906d0c8a02d56f8169804b2fe6aa488f187f4e3349411e9a2dcd49373398f",
+      "RETAINED_DIAGNOSTICS.json": "6f7a9b330a8d2619dfaf4f7463e63395e8af561df69b9f8e6c73ba94978e454e"
+    },
+    "forensic_identity": {
+      "contents_accessed": false,
+      "original_certified_predecessor": {
+        "device": 16777234,
+        "inode": 421043107,
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+      },
+      "quarantine_metadata_matches": true,
+      "quarantined_replacement": {
+        "birthtime_utc": "2026-10-29T09:19:42.708585Z",
+        "device": 16777234,
+        "gid": 20,
+        "inode": 1081681106,
+        "links": 1,
+        "original_mode": "0644",
+        "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-path-quarantine-20261029T095930Z/wt_ops_v2.db.empty-inode-1081681106",
+        "regular": true,
+        "size_bytes": 0,
+        "uid": 501
+      },
+      "retired_path_absent_now": true
+    },
+    "implicit_creation_paths": {
+      "existing_retirement_guard": "paired_binding_guard refuses replacedidentity onvalidation; it doesnot intercept every OS/nativeSQLiteopen in external/unboundprocesses. SQLwrite-time fencing is later than filecreation.",
+      "late_fence_effect": "A zero-byte file can therefore exist even if subsequentPRAGMA/transaction is rejected. This is a source-supported possible mechanism, not proof of incidentexecution.",
+      "standalone_example": "Primaryrepository src/ops/operation_identity.py resolves OPS_V2_DB_PATH or legacyROOT/database/wt_ops_v2.db; _connect(path) uses bare sqlite3.connect(path). In an unbound utility this is a directimplicit-create exposure. ActiveV2workers haveOPS_V2_DB_PATHoverrides.",
+      "unwrapped_paths": "Many manual/historical scripts use relative database/wt_ops_v2.db defaults; only invocation plus path/binding evidence can classify anactualcreator. No such invocationproof retained for09:19:42.",
+      "verified_central_order": "Installed src/utils/db_locking.py db_connect(read_only=False) calls _sqlite3_connect_orig(path,...factory=TrackedConnection) before PRAGMA calls and _retirement_statement_check/_assert_not_retired. Default SQLite open permits missing-file creation before later retirement/write fencing."
+    },
+    "minimum_prevention": {
+      "assessment_only": true,
+      "filesystem_protection": "Not justified by retainedincident attribution. Parentdirectorypermissions would affect legitimateotherdatabase/files and absent-pathprotection is not a simplefilemodechange. No permission/ACL/tombstone changes recommended here.",
+      "read_only_utilities": "Use explicit non-creating URI mode=ro forinspection, mode=rw forexisting-storewrites. Missingdatabase must fail; creation belongs only to existingexplicitbootstrap/schema owners. RemoveunsafeV1fallback whenV2authorityrequired.",
+      "smallest_source_level_control": "Qualify pre-open refusal of certificate/marker-retired predecessor paths in the existing shared database-open boundary, before invoking nativeSQLiteconnect. Do not silently reroute historicaloperations toactiveOPS or weakenpairedvalidation.",
+      "source_guard_sufficiency": "Sufficient for callers covered by that boundary; cannotguarantee prevention of arbitrary externalnativeSQLite/file creation whilecreatorisunknown. Do not claim a universalfix.",
+      "stale_launch_contract": "Separately qualify rejection/retirement of the obsolete APIlaunchcontract before it can ever be started. No launchctl/job changes made."
+    },
+    "next_action": "Keep production unchanged. Separately authorize only narrow DEV qualification of pre-open retired-path rejection/non-creating existing-store connections in the existingconnector. Preserve the stale launch contract as an explicit prerequisite for any future activation; do not disable or edit schedules under this audit. Exactincidentcreator remainsUNRESOLVED unless anexistingOS/processopen audit is supplied.",
+    "production_flags": "UNCHANGED; runtimehealthy and checkpoints/evidencepreserved.",
+    "production_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "production_risk": {
+      "current_runtime": "Recovered and stable; allthreePIDsunchanged throughaudit, OPENREADY100000cap6uncertain, retiredpathabsent.",
+      "operational_cost": "Anynewreplacement triggers strictpairrefusal and canhaltallthreeacquisitionpaths again; guardshouldremainstrict.",
+      "recurrence": "Potential remains while anyunbound/legacyutility mayimplicitlycreate predecessor path. Exactcreatornotknown, so recurrence cannot be declaredfixed."
+    },
+    "raw_provider_or_DB_contents_published": false,
+    "report_path": "/private/tmp/flex-retired-path-recreation-audit-20261029/RECREATION_AUDIT_REPORT.json",
+    "report_sha256": "3b0c3a7d4eba1cee5101188f264a20e7e4e7901fbcd68414abec9e82f560c729",
+    "source_sha256": {
+      "/Users/kevinkeaveney/Dev/claude/flex/scripts/audit_pumpswap_migration_coverage.py": "c6ce31662d2aa5e5fd9ca9367c4d9804defa4e81565980493dcb0d96c4c08911",
+      "/Users/kevinkeaveney/Dev/claude/flex/src/ops/operation_identity.py": "e04efa14bf0402657cd51b5854018e03c6a4637cb7484f9aa1fd41e367beeccc",
+      "/Users/kevinkeaveney/Dev/claude/flex/src/ops/storage_lifecycle_runner.py": "17d63b0737256f3de121f75411f6d0b35e6e8647e57238c18d16f8e2a3f3eadc",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/paired_binding_guard.py": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0",
+      "/Users/kevinkeaveney/Production/flex-listener/src/utils/db_locking.py": "0b3810f083c7e7721da0486e3abc3d18005eaa2380992f7c0ff3e70873e4fec0"
+    },
+    "status": "PARTIAL_EXACT_CREATOR_UNRESOLVED_PREOPEN_RISK_VERIFIED",
+    "tests": "None; strictread-onlysource/config/log/metadata audit. No DEVchanges, fixtures, serviceactions or probes.",
+    "timeline": {
+      "bounded_evidence": "At most8MiB per sixnamed retainedlogs, metadata/checksums only elsewhere; no large archive or source modifications.",
+      "first_listener_unexpected_exit": "2026-10-29T09:21:27.396Z status1; repeatedstartupfailures thereafter",
+      "first_precisely_timestamped_guard_refusal": "2026-10-29T09:19:53.001Z WalkbackPID77830cycle_completed PairedBindingError",
+      "first_resolver_unexpected_exit": "2026-10-29T09:24:45.122Z status1; repeatedstartupfailures thereafter",
+      "lifecycle": "Existing single15minuteschedule hash unchanged; owner cleanup allows disposableRPCcache/WSS only. No retained event proves lifecycle created this replacement.",
+      "preceding_known_DEV_tests": "Mainqualifiedsuite ended09:16:29.523624Z; comparison ended09:17:10.554333Z. Engineeringcommit timestamp09:20:02Z. None establishes who created the file at09:19:42; no Git hooks found in configured hooks directory, no startupsitecustomization loaded in inspected Python process.",
+      "replacement_filesystem_birthtime_utc": "2026-10-29T09:19:42.708585Z",
+      "scope_limit": "Listener/resolver error lines lack per-exception timestamps; firstglobalfailuretime cannot be refined beyond retained evidence. Filesystembirthtime plus actualguardidentity establishes cause of refusal, not creatorattribution."
+    },
+    "updated_at_utc": "2026-10-29T10:22:35.311302+00:00",
+    "verdict": "UNRESOLVEDcreator; knownpre-openfencinggap supports only narrow separatelyauthorizedDEVqualification, notclaimincidentattribution."
+  },
   "flex_v2_retirement_identity_failure_diagnosis_20261029": {
     "Walkback_continuity": {
       "PID": 77830,
@@ -55933,8 +56094,8 @@
     "git_head": "5e4362bb54131349f963099f82afd9fe05c9ea19",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T10:08:59.411054+00:00",
-    "working_tree": "AuthorizedretiredpathrecoveryPASS. ExactemptyOPSreplacementinode1081681106quarantinedoutsideDBdir,originalpathabsent;all3guardsACTIVEV2pass,certificateunchanged. Listener82435resolver82452restored,Walkback77830notrestarted.320s naturalwindow19birthcommits3WalkbackLINEAGE_GAPcompletions1PPmigrationPENDING,0newcanonicalhandoffs(unobserved).175RPCreservations/creditsnatural;6uncertain772originalscopeshistory100000cap preserved;closinginflight0. Birthfree4migrationfree25disk52GB. No source/config/gatechanges/probes/replay;contentioncandidateundeployed."
+    "updated_at_utc": "2026-10-29T10:22:35.311302+00:00",
+    "working_tree": "READONLYretiredpathrecreationauditPARTIAL. Forensicinode1081681106zero-byteunchanged,retiredpathabsent,workers82435/82452/77830RUNNING,OPENREADY100000cap6uncertain. Exact09:19:42creatorUNRESOLVED(noPID/openaudit). Sourcegapverified: defaultnativeSQLiteopen precedesretirementstatementfence; unboundprimaryutilitieshavelegacyfallback. StalelaunchdDEV035APIexplicitWT_OPSV1binding butnoPID/missingcwd/oldlog\u2014notprovencreator. Current3SupervisorV2bindingscorrect. No implementation/providers/gatelocks/servicechanges/V1content."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

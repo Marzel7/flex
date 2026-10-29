@@ -19785,6 +19785,211 @@
     "status": "PASS",
     "tests": "Reuse47 compact provider-free controls; all immediate per-unlink authority checks and309second natural acceptance PASS"
   },
+  "flex_v2_authorized_retired_path_recovery_20261029": {
+    "Helius_activity": {
+      "caveat": "Durable reservation/credit counters are local estimates, not billedcredits. HTTP200 outcome counters include natural WebSocketconnection outcomes; do not label all177 as HTTPRPCresponses.",
+      "closing_inflight": [],
+      "gate": "OPEN_READY_CHECKSUM_VALID",
+      "latest_independent_inflight_count": 0,
+      "natural_HTTP_reservation_delta": 175,
+      "probe_requests": 0,
+      "reserved_credit_delta": 175,
+      "response_status_delta": {
+        "200": 177,
+        "401": 0,
+        "other": 0,
+        "transport_error": 0
+      },
+      "worker_credit_delta": {
+        "creator_resolution": 0,
+        "listener": 0,
+        "walkback": 175
+      }
+    },
+    "blocker": null,
+    "engineering_revision": "5e4362bb54131349f963099f82afd9fe05c9ea19",
+    "evidence_sha256": {
+      "AUTHORITY_BEFORE.json": "c6cdeaceb7603d294b1782afea578b8a9b8a21c078784e785be80fe44c249b26",
+      "FINAL_VERIFICATION.json": "73e2a21d23c08f987637fadd78acc57ee46dcc6f98d6258ffc6b580f2ad84700",
+      "GUARDS_AFTER.json": "b61c03ec964ceda5f368b832296b90280ba4b15836ccc393be408671a6acb7a5",
+      "OBSERVATION_BASELINE.json": "534d26910fbc2cc8ed5b2abd1bb91bcaebac2423981082092af0bb8561a77beb",
+      "OBSERVATION_LATEST.json": "a7992b0ea9a41ceaa880dce27773e5b47b3b2708cbf3dd82f87b107f52183393",
+      "QUARANTINE_RESULT.json": "43ed010fa61787ade7e972991b3035fec82fb4a269976525f092997c4ddd3c59",
+      "RESTORATION.json": "1661ba17d02393cd5f5fa0263cb005c200429814754e316d64cf1c3f7a2b4e4a",
+      "SEEN_NATURAL_MIGRATIONS.json": "df86b86c1748d5c019fc4830627b9bc6bf815ce8ef52770a64d5509876c51a72",
+      "SPENDING_PRESERVATION.json": "b36520fa426d06b701a3c7512ad2aa9a6574b348e51c354118742ee3ef984ac8",
+      "SUBSCRIPTIONS.json": "d5027eb309ddb3954b8764714edaa30eb0915f0b08728e0594fb4523d5d1acd8"
+    },
+    "natural_acceptance": {
+      "PumpPortal_subscription_confirmed": true,
+      "PumpSwap_subscription_confirmed": true,
+      "Walkback_outcomes": {
+        "LINEAGE_GAP": 2,
+        "NO_ATTRIBUTION_FOUND": 1
+      },
+      "attribution_caveat": "Processing completions, not confirmedoperationattributions.",
+      "birth_identities_seen_lower_bound": 21,
+      "canonical_migration_handoffs_completed_in_window": 0,
+      "migration_completion_limit": "No freshcanonicalcompletion or freshPumpSwapnotification demonstrated in the5minute window. PumpSwapsubscriptionready and1PumpPortalnotificationadmitted; do not manufacture events or infer failure from missing observations.",
+      "new_Walkback_completions": 3,
+      "new_birth_states": {
+        "ACKED": 19,
+        "QUARANTINED": 2
+      },
+      "new_migration_notifications_durably_seen": 1,
+      "new_quarantines": "2CORE_AUTHORITY_CONFLICT records preserved under existing policy; no reset/replay.",
+      "new_retirement_publication_capacity_or_retry_exhaustion_errors": 0,
+      "notification_sources": {
+        "PUMPPORTAL_MIGRATION": 1
+      },
+      "notification_states": {
+        "PENDING": 1
+      },
+      "verified_new_birth_ACK_canonical_COMMITTED_matches": 19
+    },
+    "next_action": "Leave allthreeworkers running. Preserve forensic quarantine and certificate/markers. The process that created the empty replacement remainsUNKNOWN; investigate only read-only if separately requested. Walkback contention deployment remains undeployed and needs resumed read-only preflight before any installation.",
+    "pair_authority": {
+      "active_V2_unchanged": {
+        "V2_stores": {
+          "core": {
+            "device": 16777234,
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "inode": 1053704146,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+            "role": "core"
+          },
+          "ops": {
+            "device": 16777234,
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "inode": 1053704157,
+            "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+            "role": "ops"
+          }
+        },
+        "certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+        "generation": "DEV004-V2-20261024-dfb76562",
+        "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783"
+      },
+      "all_three_installed_guards": {
+        "creator_resolution_worker": "DEV004-V2-20261024-dfb76562",
+        "walkback_worker": "DEV004-V2-20261024-dfb76562",
+        "watchtower_listener": "DEV004-V2-20261024-dfb76562"
+      },
+      "certificate_markers_seals_unchanged": true,
+      "no_guard_or_certificate_change": true
+    },
+    "production_flags": "Existingflagsunchanged. Onlyexplicitlyauthorizedemptyfilequarantine and failedlistener/resolverstopretry/start; Walkbacknotrestarted. No activeDB/gate/config/source/schema edits byagent.",
+    "production_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "quarantined_file": {
+      "ctime": "Rename ctime changes recorded separately; original metadata preserved in forensic provenance.",
+      "destination": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-path-quarantine-20261029T095930Z/wt_ops_v2.db.empty-inode-1081681106",
+      "device": 16777234,
+      "identity_uid_gid_mode_mtime_preserved": true,
+      "inode": 1081681106,
+      "no_open_handles_before_move": true,
+      "no_other_file_quarantined_or_deleted": true,
+      "original_certified_predecessor_inode": 421043107,
+      "provenance": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-path-quarantine-20261029T095930Z/PROVENANCE.json",
+      "retired_path_absence_verified": true,
+      "same_filesystem_rename": true,
+      "size": 0,
+      "source": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db"
+    },
+    "raw_DB_or_provider_content_published": false,
+    "remaining_uncertainty": "ReplacementcreatorUNKNOWN; birthheadroomtight; Walkbackcontentiondeploymentstillrequiresfreshpreflight.",
+    "report_path": "/private/tmp/flex-retired-path-recovery-20261029/RECOVERY_REPORT.json",
+    "report_sha256": "d1d224a2fa55f71af49d49fc9395c88e4c04a9ecd2ffe65d6cbb498823680493",
+    "spending_integrity": {
+      "100000_lifetime_limit_unchanged": true,
+      "all_original_scope_histories_preserved": 772,
+      "counters_nondecreasing": true,
+      "highest_investigation_at_closing_snapshot": 7936,
+      "no_gate_restore_reset_refund_or_probe": true,
+      "reserved_credits_at_later_verification": 108232,
+      "reserved_credits_before_quarantine": 107950,
+      "six_uncertain_exactly_preserved": true
+    },
+    "status": "PASS_RECOVERY_WITH_NATURAL_COMPLETION_OBSERVATION_LIMIT",
+    "storage_and_custody": {
+      "birth_journal_closing": {
+        "free": 4,
+        "occupied": 508,
+        "states": {
+          "ACKED": 5,
+          "QUARANTINED": 503
+        }
+      },
+      "capacity_refusal_in_observed_logs": false,
+      "custody_owner_readback": {
+        "birth_terminal_owner_v1": [
+          {
+            "contract": "f0bfbf5ae463fd61e6b8d2e700687265b50928c7966199a2c8a15eba647d240c",
+            "singleton": 1,
+            "used_bytes": 1426864,
+            "used_records": 1052,
+            "version": 1
+          }
+        ],
+        "migration_deferred_owner_v1": [
+          {
+            "contract": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+            "singleton": 1,
+            "used_bytes": 2905248,
+            "used_records": 1109,
+            "version": 1
+          }
+        ],
+        "migration_terminal_owner_v1": [
+          {
+            "contract": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+            "singleton": 1,
+            "used_bytes": 2092696,
+            "used_records": 1869,
+            "version": 1
+          }
+        ]
+      },
+      "database_files_closing": {
+        "core.sqlite": 100519936,
+        "ops.sqlite": 170754048
+      },
+      "disk_free_bytes_closing": 52015153152,
+      "limitation": "Birthheadroom remains tight(4free atclosing), but acceptednaturalreclamation/receipt commits continue. No protectedevidence deletion or capacityincrease.",
+      "migration_journal_closing": {
+        "free": 25,
+        "occupied": 487,
+        "states": {
+          "PENDING": 486,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "tests": "Independentread-only installedguards/identity checks and320secondnaturalobservation; no probes/artificialevents.",
+    "updated_at_utc": "2026-10-29T10:08:59.411054+00:00",
+    "verdict": "PASS authorizedrecovery; normalprocessingresumed. Freshcanonicalhandoffcompletionnotobserved inwindow.",
+    "worker_restoration": {
+      "Walkback": {
+        "PID": 77830,
+        "restarted": false,
+        "state": "RUNNING"
+      },
+      "controls": "Stopped only failed listener/resolver automatic BACKOFF retry loops, verified STOPPED, quarantined exactfile and revalidated allguards, then started only those two roles.",
+      "listener": {
+        "PID": 82435,
+        "state": "RUNNING"
+      },
+      "natural_observation": [
+        "2026-10-29T10:01:10.383781+00:00",
+        "2026-10-29T10:06:30.422363+00:00"
+      ],
+      "observed_seconds": 320.03858160972595,
+      "post_start_stability": "AllthreeRUNNING beyond7minutes at final status read; no unrelatedserviceactions.",
+      "resolver": {
+        "PID": 82452,
+        "state": "RUNNING"
+      }
+    }
+  },
   "flex_v2_birth_conflict_capacity": {
     "acceptance": {
       "all_three_workers_running": true,
@@ -55728,8 +55933,8 @@
     "git_head": "5e4362bb54131349f963099f82afd9fe05c9ea19",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T09:50:34.273000+00:00",
-    "working_tree": "READONLYP0identitydiagnosisVERIFIED. RetiredOPSpath wt_ops_v2.db recreated0bytesdevice16777234inode1081681106 vs certified421043107;birth09:19:42.708585UTC. CoreV1absent; cert/markers/currentV2pairsealsmatch. All3installedguardsdeterministicallyPAIR_RETIRED_PREDECESSOR_REPLACED. Configunchanged/liveWalkbackbindingscorrect. Walkback77830alivebutouterloopfails45s,listener/resolverBACKOFF. CreatorUNKNOWN,nohandles. HOLDrecoveryrequiresauthorization;nochanges/provider/gatelocks/restarts/V1content. Performance deployment remainsHOLD."
+    "updated_at_utc": "2026-10-29T10:08:59.411054+00:00",
+    "working_tree": "AuthorizedretiredpathrecoveryPASS. ExactemptyOPSreplacementinode1081681106quarantinedoutsideDBdir,originalpathabsent;all3guardsACTIVEV2pass,certificateunchanged. Listener82435resolver82452restored,Walkback77830notrestarted.320s naturalwindow19birthcommits3WalkbackLINEAGE_GAPcompletions1PPmigrationPENDING,0newcanonicalhandoffs(unobserved).175RPCreservations/creditsnatural;6uncertain772originalscopeshistory100000cap preserved;closinginflight0. Birthfree4migrationfree25disk52GB. No source/config/gatechanges/probes/replay;contentioncandidateundeployed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

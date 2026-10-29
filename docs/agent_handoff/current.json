@@ -38271,6 +38271,225 @@
       "elapsed_seconds": []
     }
   },
+  "flex_v2_walkback_throughput_idle_capacity_audit_20261029": {
+    "accounting": "Retained latestattemptrecords606(545Walkback61listener)06\u201307;427(337Walkback90listener)07\u201308. Not exactdispatch/billedcredits;earlierretrytimestamps overwritten.",
+    "arrivals_vs_completions": {
+      "hourly": [
+        {
+          "admissions_minus_completions": 3,
+          "canonical_COMPLETE_handoffs_verified_by_completion_time": 10,
+          "canonical_handoffs_by_stored_migration_time": 10,
+          "completed": 7,
+          "completed_same_hour_admissions": 0,
+          "completion_to_admission_ratio": 0.7,
+          "failed_with_timestamp": 0,
+          "fresh_admissions": 10,
+          "fresh_identity_completions": 7,
+          "fresh_outside_original1654_completions": 3,
+          "handoff_coverage": "Queue-linked admissions within prior2hours and exactCore migration identity; not a global completion-time index census.",
+          "net_eligible_stock_change": "UNKNOWN; flow balance is not eligible stock change",
+          "new_Walkback_admissions": 10,
+          "newly_eligible": "UNKNOWN: no immutable eligibility-transition timestamps",
+          "original103_historical_PENDING_completions": 4,
+          "original1551_completions": 0,
+          "pending_start_end": "UNKNOWN: exact-hour stock snapshots unavailable",
+          "window": [
+            "2026-10-29T06:00:00+00:00",
+            "2026-10-29T07:00:00+00:00"
+          ]
+        },
+        {
+          "admissions_minus_completions": 5,
+          "canonical_COMPLETE_handoffs_verified_by_completion_time": 15,
+          "canonical_handoffs_by_stored_migration_time": 15,
+          "completed": 10,
+          "completed_same_hour_admissions": 3,
+          "completion_to_admission_ratio": 0.6666666666666666,
+          "failed_with_timestamp": 0,
+          "fresh_admissions": 15,
+          "fresh_identity_completions": 10,
+          "fresh_outside_original1654_completions": 9,
+          "handoff_coverage": "Queue-linked admissions within prior2hours and exactCore migration identity; not a global completion-time index census.",
+          "net_eligible_stock_change": "UNKNOWN; flow balance is not eligible stock change",
+          "new_Walkback_admissions": 15,
+          "newly_eligible": "UNKNOWN: no immutable eligibility-transition timestamps",
+          "original103_historical_PENDING_completions": 1,
+          "original1551_completions": 0,
+          "pending_start_end": "UNKNOWN: exact-hour stock snapshots unavailable",
+          "window": [
+            "2026-10-29T07:00:00+00:00",
+            "2026-10-29T08:00:00+00:00"
+          ]
+        }
+      ],
+      "interpretation": "12.5admissions/hour vs8.5completions/hour. 17completions include5original historicalPENDING identities; none of1551WAITING. Work is completing, but observed total throughput does not exceed arrivals.",
+      "newly_eligible": "UNKNOWN: no durable first-eligibility transition census.",
+      "two_hour_totals": {
+        "completed_investigations": 17,
+        "completion_admission_ratio": 0.68,
+        "failed_with_qualified_timestamp": 0,
+        "fresh_outside_original1654_completions": 12,
+        "global_exact_handoff_completion_count": "UNKNOWN beyond indexed exact cohort coverage",
+        "original103_pending_completions": 5,
+        "original1551_WAITING_completions": 0,
+        "retained_Walkback_admissions": 25,
+        "verified_queue_linked_canonical_handoffs": 25
+      }
+    },
+    "backlog": {
+      "actual_snapshot_stock_change": {
+        "end": "2026-10-29T08:57:19+00:00",
+        "identities_entered": 9,
+        "identities_exited": 3,
+        "net_stock_change": 6,
+        "not_exact_hour": true,
+        "start": "2026-10-29T08:12:19Z",
+        "unfinished_end": 103,
+        "unfinished_start": 97
+      },
+      "assessment": "Actionable unfinished stock grew97->103over observed45minutes; current system is not demonstrably catching up.",
+      "current_queue": {
+        "acquisition_eligible": "UNKNOWN without active dispatch/owner/lock checks",
+        "due": 101,
+        "due_last_errors": {
+          "HELIUS_GATE_BUSY": 94,
+          "NONE": 7
+        },
+        "fresh_waiting": 0,
+        "historical_still_waiting": 1551,
+        "states": {
+          "complete": 2255,
+          "failed": 56,
+          "pending": 103,
+          "waiting": 1551
+        }
+      },
+      "exact_hour_stock_change": "UNKNOWN. Two-hour admissions-minus-completions is+8flow, not asserted as exact eligible stock growth.",
+      "historical_exclusion": "Only exact1551identities stillWAITING excluded. FreshWAITING0; original historical PENDING that still exist remain visible."
+    },
+    "blocker": "Untimestamped batches and no immutable firsteligibility/dispatch chronology prevent exact skippedcycle/idlecapacity attribution.",
+    "checkpoint": "flex-v2-post-v1-retirement-2026-10-28",
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "evidence_sha256": {
+      "BATCH_SECTION_COUNTS.json": "b61861d365a5fa3de18a0650deca91e7b48126a371723f006bebcb4b845c530e",
+      "LATEST50.json": "681e2cb6df71cfa26afe11825b2b79928db51327124e00d38de6acc7b7955f2a",
+      "QUEUE_READBACK.json": "57306a2047a94da2bd8b4613e782e8b3b79c2ae7123ae066e0adeb8b4654f64c",
+      "SUMMARY.json": "e88d8e23e3f0a1ac0e21264cd801475f554a98b980bfb55d21d687e9b7d8217a",
+      "audit_readonly.py": "d02fc8df5c91d754876124632189c9ab2fa8379427fc6e76c4e5f343b125e277"
+    },
+    "gate_path": "Silent preselection blocked() returns on guarded nonblocking lock failure; ownership-entry and preRPCvalidation also guarded. Perjobretry5s vsloop45s. No lock-owner/gapcausalityassertion.",
+    "latest50_latency": {
+      "admission_to_first_claim": {
+        "max_seconds": 1584,
+        "median_seconds": 1326.0,
+        "negative_ordering_not_latency": 0,
+        "observed": 43,
+        "p90_seconds": 1504
+      },
+      "first_claim_to_completion": {
+        "max_seconds": 7839,
+        "median_seconds": 445.0,
+        "negative_ordering_not_latency": 0,
+        "observed": 18,
+        "p90_seconds": 7687
+      },
+      "handoff_to_admission": {
+        "max_seconds": 0,
+        "median_seconds": 0.0,
+        "negative_ordering_not_latency": 49,
+        "observed": 1,
+        "p90_seconds": 0
+      },
+      "incomplete": 32,
+      "latest50_statuses": {
+        "complete": 18,
+        "pending": 32
+      },
+      "migration_range": [
+        "2026-10-29T04:36:29+00:00",
+        "2026-10-29T08:54:05+00:00"
+      ],
+      "unclaimed": 7
+    },
+    "next_action": "Keep production unchanged. Preserve this evidence; if improvement is pursued, separately authorize focused provider-free qualification of bounded pre-selection/ownership gate-contention retry only, preserving fail-closed checks, accounting and retry rights. Do not increase concurrency, budgets or request rates.",
+    "observed_utc": "2026-10-29T08:57:19+00:00",
+    "production_flags": "UNCHANGED",
+    "raw_rows_published": false,
+    "report_path": "/private/tmp/flex-walkback-utilization-20261029/AUDIT_REPORT.json",
+    "report_sha256": "8f839ed5db735ce4e91712601193c683ba87506f8ba9178cabaf45549eaeda7c",
+    "runtime_safety": {
+      "READY_checksum": true,
+      "birth_journal": {
+        "free": 4,
+        "occupied": 508,
+        "states": {
+          "ACKED": 10,
+          "QUARANTINED": 498
+        }
+      },
+      "certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+      "database_sizes": {
+        "databases/core.sqlite": 100311040,
+        "databases/core.sqlite-wal": 0,
+        "databases/ops.sqlite": 170643456
+      },
+      "disk_free_bytes": 50509897728,
+      "gate_state": "OPEN",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "highest_root_reserved_credits": 7936,
+      "inflight": 0,
+      "inflight_ages_seconds": [],
+      "lifetime_reserved_credits": 107604,
+      "limit": 100000,
+      "migration_journal": {
+        "free": 30,
+        "occupied": 482,
+        "states": {
+          "PENDING": 481,
+          "RESOLVED": 1
+        }
+      },
+      "pair_physical_identities_verified": {
+        "core": true,
+        "ops": true
+      },
+      "phase": "ACTIVE",
+      "uncertain": 6,
+      "workers_RUNNING": {
+        "listener": 77731,
+        "resolver": 97138,
+        "walkback": 77830
+      }
+    },
+    "scheduler": {
+      "append_section": "06:54:01..08:57:19UTC,notexact2h",
+      "batch": 8,
+      "exact_idle_skip_time": "UNKNOWN",
+      "interval_seconds": 45,
+      "logged_batches": 67,
+      "pending_slots": 521,
+      "processed_slots": 534,
+      "verbose_trace": false
+    },
+    "status": "PARTIAL_OBSERVABILITY_WITH_VERIFIED_REPEATED_CONTENTION",
+    "tests": "No tests/source changes; bounded indexed read-only records, retained logs, lock-free ledgerchecksum, processstatus only. No providers/gatelocks/restarts/replay/V1 access.",
+    "updated_at_utc": "2026-10-29T09:01:59.221196+00:00",
+    "verdict": "Not exceeding observed arrivals; actionable backloggrew. Repeatedperjobgatebusyproven;exactutilization/availablecapacityduringgapsUNKNOWN. No deploymentjustified.",
+    "verified_gate_contention": {
+      "five_second_deferral_footprint": 94,
+      "interpretation": "Matching pending status, exactbusyreason, next_retry=updated_at+5 and later timestamp match installed typed busy-deferral writer. Overlap with prior snapshot proves repeated job contention, not merely oldlabels. Current exclusive lock ownership/availablecapacity during deferrals still UNKNOWN.",
+      "latest_deferral_timestamp_range": [
+        "2026-10-29T08:31:43+00:00",
+        "2026-10-29T08:56:24+00:00"
+      ],
+      "pending_gatebusy": 94,
+      "same_identity_busy_in_0812_snapshot_and_newer_busy_deferral": 89
+    },
+    "window": [
+      "2026-10-29T06:00:00+00:00",
+      "2026-10-29T08:00:00+00:00"
+    ]
+  },
   "flex_v2_walkback_zero_completion_readonly_diagnosis": {
     "blocker": "Confirmed waiting-selection starvation plus reproduced intra-job duplicate-acquisition cooldown/retry cycle; exact54live deferral allocation unavailable because original codes discarded.",
     "engineering_revision": "294919378a6df77ccad167fd310b1b0039a4a99d",
@@ -54945,8 +55164,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T08:12:47.240929+00:00",
-    "working_tree": "Read-only actionable backlog report08:12:19Z complete.1551exacthistoricalidentitiesstillWAITING excludedonlyfromcurrentwork;97PENDING/0RUNNING/0freshWAITING,97scheduler-dueVALIDanchors. AcquisitioneligibleUNKNOWN.06\u201307UTC10admissions7completions(+3flow);07\u201308UTC15/10(+5flow),actualnetstockUNKNOWN. No source/runtime/dashboard/schedule changes/providers/gatelocks/replay."
+    "updated_at_utc": "2026-10-29T09:01:59.221196+00:00",
+    "working_tree": "Read-only utilization audit snapshot08:57:19UTC, exact06\u201308UTCwindow:25admissions17completions(12fresh/5original103),notcatchingup. Current103PENDING0RUNNING101due,1551historicalWAITINGexcluded. Actual08:12->08:57stock97->103(+6).94typed5sbusydeferralsrecent08:31\u201308:56;89repeatbusyidentities. Latest50firstclaimmedian22.1m,43claimed18complete7unclaimed. Exactbatchidle/gapcausalityUNKNOWN. All3RUNNING,OPENREADY6uncertain100000cap,maxroot7936,inflight0. No changes/providers/gatelocks."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

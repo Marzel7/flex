@@ -26604,6 +26604,69 @@
     "updated_at_utc": "2026-10-29T07:27:50.900353+00:00",
     "verdict": "HOLD deletion; audit complete"
   },
+  "flex_v2_historical_waiting_permanent_retirement_audit_20261029": {
+    "blocker": "No qualified permanent retirement contract. Terminal relabeling misstates results/rights; deletion loses enforced queue dedup.",
+    "checkpoint": "flex-v2-post-v1-retirement-2026-10-28",
+    "dedup_authority": {
+      "Helius": "Separate durable owner/root and request accounting; preserves spending and100000creditlimit, but not a substitute historical no-investigation tombstone for queue deletion.",
+      "exception": "force=True explicitly deletes/reinserts; it is an override, not retirement. Current inspected production attribution call does not pass force.",
+      "normal_admission": "Existing row returns without new investigation, regardless of current status.",
+      "owner": "wt_walkback_queue primary key mint and enqueue_migration existing-row check; INSERT OR IGNORE normal admission."
+    },
+    "engineering": {
+      "existing_UI_or_API_change": "Not implemented or qualified here; do not claim current dashboards already apply the exclusion.",
+      "permanent_retirement": "Unsupported by qualified current contracts; requires separately authorized contract qualification/change. No new queue/database/infrastructure is necessary or recommended by this audit.",
+      "processing_effect": "WAITING does not consume8job processing slots; bounded32row anchor-reconciliation maintenance continues. Reporting exclusion does not permanently stop this work or later qualified reactivation.",
+      "reporting_exclusion": "No runtime or Helius change needed for ad hoc read-only reports. Filter the exact1551identities from actionable counts, retain a separate historical CREATE-waiting count, and leave fresh WAITING visible."
+    },
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Leave all1551rows unchanged. In subsequent read-only operational reports, separate this exact historical cohort from current actionable workload and show its count explicitly. Do not relabel as retired/complete/failed or feed it to seven-day cleanup. No engineering task is required for reporting-only separation.",
+    "population": {
+      "changed_admissions": 0,
+      "cohort_readback_sha256": "e060f83363f27561e41bc57f0ad31962026134c61a3298fed3e007cbe03d46d3",
+      "current_WAITING": 1551,
+      "identities": 1551,
+      "identity_basis": "Original exact cohort retained in prior evidence inventory; no replacement by date-only query.",
+      "nonzero_attempts": 0,
+      "recorded_RPC_usage_nonzero": 0,
+      "unique_mints": 1551
+    },
+    "production_flags": "UNCHANGED",
+    "raw_rows_published": false,
+    "readmission": {
+      "delete_rows": "Absent mint can be reinserted with new enqueued_at and default attempts; no consulted retired-mint exclusion owner found.",
+      "existing_WAITING": "Fair anchor reconciliation can move WAITING to PENDING upon qualified OPS CREATE evidence. CREATE handoff owner also activates eligible WAITING rows.",
+      "pseudo_terminal": "May avoid current selectors but has unqualified semantics, side effects and recovery/readback compatibility. Cannot certify permanent suppression.",
+      "recovery": "Fresh-pair recovery restores interrupted RUNNING only to pending; no retirement contract is added; WAITING preserved.",
+      "retain_rows": "Normal admission deduplicates; no new row."
+    },
+    "report_path": "/private/tmp/flex-historical-permanent-retirement-20261029/AUDIT_REPORT.json",
+    "report_sha256": "71b5b65b6dafed9ac25084d2ac65d19c40d9f9967f160f6aef375c5c110274f0",
+    "retention": {
+      "Walkback_queue_eligible": false,
+      "allowed": "Core rpc_response_cache and wss_metrics; OPS rpc_response_cache only. Strict older-than-seven-days plus TTL and bounded guards.",
+      "result": "Lifecycle cannot retire/delete these rows without expanding protected-data deletion rights. No lifecycle changes recommended."
+    },
+    "retirement_mechanism": {
+      "complete": "Investigation/classification result; can drive attribution and projection. Not a neutral retirement state.",
+      "existing_terminal_or_deferred_custody": "Migration notification custody retains migration admission/retry evidence, not a qualified replacement for Walkback queue identity and retirement authority.",
+      "failed": "Actual acquisition failure/exhaustion; failure helpers may materialize outcomes and update candidates. Not authorized retirement.",
+      "retired_archived_cancelled": "No qualified producer/reader/recovery contract found. status TEXT accepting arbitrary text is not functional support.",
+      "skipped": "Classified SKIP result, not an arbitrary historical exclusion.",
+      "supported": false
+    },
+    "runtime_safety": {
+      "all_workers": "RUNNING; listener77731,resolver97138,Walkback77830",
+      "disk_free_bytes": 51971883008,
+      "gate": "OPEN READY checksum valid; lock-free byte read only",
+      "investigation_limit": 100000,
+      "uncertain_requests": 6
+    },
+    "status": "HOLD_PERMANENT_RETIREMENT",
+    "tests": "None. No production/DEV changes, provider calls, gate locks, restarts, replay, V1 access or Golden checkpoint changes. Local diagnostic artifacts and mandatory aggregate handoff only.",
+    "updated_at_utc": "2026-10-29T07:58:09.585429+00:00",
+    "verdict": "HOLD_PERMANENT_RETIREMENT; REPORTING_ONLY_EXCLUSION_IS_SUFFICIENT_FOR_REPORTING_GOAL"
+  },
   "flex_v2_historical_waiting_vs_CREATE_improvements_20261029": {
     "activation_boundaries": {
       "birth_retry_activation_bound": "Installed/start observation26Oct10:51:25.538172Z; accepted natural observation10:51:41.808887..10:56:41.808887Z.",
@@ -54770,8 +54833,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T07:44:47.988669+00:00",
-    "working_tree": "Read-only historical CREATE audit complete; original1551WAITINGunchanged.1379(88.91%)before25Octdeliveryfix,172after;1517before26Octbirthretry,34after. Latest100exactcanonical migrations100receipt/Core+VALIDOPSqueue+ACKdelivery,0WAITING. At-handoffOPSactivation/initialadmissionstateUNKNOWN. No production/DEVchanges/providers/gatelocks/replay."
+    "updated_at_utc": "2026-10-29T07:58:09.585429+00:00",
+    "working_tree": "Read-only permanent historical WAITING retirement audit complete. Exact1551remainWAITING; originaladmissions/attempts preserved. No qualified neutral terminal/retired/exclusion state; lifecycle excludes queue. HOLD permanentretirement. Reporting-only exactcohort separation sufficient; no engineering required for ad hoc reports. All3RUNNING,OPENREADY100000cap6uncertain. No changes/providers/gatelocks/restarts/replay."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

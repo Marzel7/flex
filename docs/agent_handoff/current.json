@@ -26546,6 +26546,64 @@
     "storage_safety": "Final disk free1049006080 bytes, below established2GB floor. No cleanup performed; stopped further audit reads.",
     "verdict": "ACCOUNT_LEVEL_USAGE_UNVERIFIED_OUTAGE_AMPLIFICATION_DEMONSTRATED"
   },
+  "flex_v2_historical_waiting_evidence_inventory_20261029": {
+    "authority": "Queue presence is enforced admission dedup guard; original retry/admission/lookup tracking not independently replaced. Deletion could recreate fresh metadata. WAITING does not use active8job batch.",
+    "blocker": "Zero fully redundant rows qualified; enforced dedup/retry/lookup authority would be lost.",
+    "checkpoint": "flex-v2-post-v1-retirement-2026-10-28",
+    "classification": {
+      "A": 0,
+      "B": 1551,
+      "C": 0,
+      "D": 0,
+      "precedence": "B>A>D>C; operational guard precedence, not unique intelligence claim"
+    },
+    "cohort": {
+      "admission_changes": 0,
+      "canonical_exact_COMPLETE_handoffs": 1551,
+      "current_Core_creator_conflicts": 1,
+      "distinct_creator_wallets": 222,
+      "distinct_migration_signatures": 1551,
+      "earliest_utc": "2026-10-21T19:13:44Z",
+      "latest_utc": "2026-10-28T14:52:40Z",
+      "original": 1551,
+      "queue_creators": 277,
+      "status_changes": 0,
+      "still_WAITING": 1551,
+      "unique_mints": 1551
+    },
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "evidence": "Queue funding/partial-path/attribution fields absent1551; indexed child checks0. Canonical migration+COMPLETE handoff1551; unqualifiedCREATEcandidates278; matchingbirthreceipts277, current singlecreator-consistent276. QualifiedOPSanchors0. No global unindexed funding scan; unknowns explicit.",
+    "next_action": "No cleanup authorized or justified. If reducing historical anchor-maintenance work is required, separately qualify exclusion using existing selectors while retaining rows and retry/dedup authority.",
+    "per_job_evidence_sha256": "c16b352307b1aa2496d1eb9b64648060b657441c6590248b02ed9f9097ff3692",
+    "production_flags": "Unchanged",
+    "raw_rows_published": false,
+    "report_path": "/private/tmp/flex-historical-waiting-evidence-20261029/AUDIT_REPORT.json",
+    "report_sha256": "3fffc63b466a69e941b63d5d323bbd03c7975cc2f38d41392a0ab257d4aa77f3",
+    "runtime_safety": {
+      "all_running": true,
+      "birth_journal": {
+        "free": 1,
+        "occupied": 511
+      },
+      "disk_free_bytes": 52296228864,
+      "gate": "OPEN_READY_CHECKSUM_VALID",
+      "investigation_limit": 100000,
+      "migration_journal": {
+        "free": 30,
+        "occupied": 482
+      },
+      "uncertain_requests": 6,
+      "workers": {
+        "listener": 77731,
+        "resolver": 97138,
+        "walkback": 77830
+      }
+    },
+    "status": "AUDIT_COMPLETE_HOLD_DELETION",
+    "tests": "No tests or source changes; bounded indexed read-only audit only. No providers/gatelocks/restarts/replay/V1 access.",
+    "updated_at_utc": "2026-10-29T07:27:50.900353+00:00",
+    "verdict": "HOLD deletion; audit complete"
+  },
   "flex_v2_historical_walkback_deletion_preflight": {
     "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "next_action": "Retain all rows. If fresh-job service is the goal, separately qualify a small change to the existing worker selection/priority policy while preserving historical rows, rather than deleting evidence or creating a new queue/scheduler/schema. No deletion authorization should be sought for this unqualified set.",
@@ -54411,8 +54469,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T07:04:12.657875+00:00",
-    "working_tree": "Strictreadonly8haudit22:00Oct28\u201306:00Oct29UTCcomplete;source/checkpointunchanged.82admissions111completions,totalretainedunfinished1668->1639(-29). Fresh70/45(+25),older66completed. Latest50firstclaimmedian17.8m,p9021.6m,max26.4m,48started31completeby06,2/19censored. Workflow76LINEAGE_GAP35NOATTR;typed27CEX2relay1unknowninfra,0confirmedops. Resolver1expectedexit0respawn97138;listener77731Walkback77830continuous. OPENREADY6uncertain100000cap;noobservedcapacity/publicationfailures. Exacteligiblestocks/spendUNKNOWN. No changes/providers/gatelocks."
+    "updated_at_utc": "2026-10-29T07:27:50.900353+00:00",
+    "working_tree": "Read-only historical WAITING evidence inventory complete. Exact1551unchanged; B1551 protected operational authority, A0/C0/D0 under B>A>D>C. No deletion/source/runtime changes. All3RUNNING; OPENREADY100000cap6uncertain; birth511/512,migration482/512; disk52.3GB."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -21035,6 +21035,34 @@
     "tests": "Read-only diagnostic execution and pure-read installed predicates only; network blocked in diagnostic reader. No fix qualification or broad suites.",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex"
   },
+  "flex_v2_clock_held_dev_qualification_20261029": {
+    "blocker": null,
+    "branch": "codex/flex-v2-clock-held-eligibility",
+    "candidate_scope": "Walkback worker + Walkback startup recovery helper + two corresponding renderer source pins. No other runtime readers changed.",
+    "cohort_read_only_compatibility": "79/79 match exact candidate eligibility; production rows untouched.",
+    "engineering_revision": "d638192610075c98f8c3378be48d791353b9b762",
+    "installed_runtime_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "limitations": [
+      "One bounded opportunity does not promise completion or bypass budgets.",
+      "Production reactivation is not authorized by DEV qualification.",
+      "Used/interrupted recovery opportunity remains held for review.",
+      "Engineering source candidate committed locally only; handoff publication does not export engineering branch."
+    ],
+    "next_action": "Run read-only exact-candidate deployment preflight, including installed worker/health preimages, existing infrastructure columns, gate/custody/recovery/storage authority. Any deployment and production reactivation require separate explicit authorization.",
+    "preservation": "Original attempts retained; one new owned execution records its own attempt. No historical decrement/reset. Helius ledger unchanged;100000 cap and six uncertain preserved. Clock holds and interrupted recovery custody cannot be finalized into fabricated NO_ATTRIBUTION_FOUND.",
+    "production_flags": {
+      "deployment": false,
+      "gate_operations": false,
+      "provider_calls": false,
+      "queue_writes": false,
+      "replay": false,
+      "restarts": false
+    },
+    "qualification_report": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-walkback-requalified/flex/docs/dev/lightweight_dev004_first_v2/clock_held_eligibility/QUALIFICATION.json",
+    "qualification_sha256": "43475291b0904d532dcf188a1472605d78db00aca971e83d3cfab76a9ba9a760",
+    "tests": "76 passed:22 clock-held,45 contention/composition,9 compact recovery; real lifetime cap, six uncertain, interrupted and concurrent claim controls. Unchanged accepted gate controls reused.",
+    "verdict": "DEV_PASS_READY_FOR_READ_ONLY_PREFLIGHT"
+  },
   "flex_v2_clock_stability_check_20261029": {
     "births_observed_lower_bound": 17,
     "blocker": null,
@@ -58311,7 +58339,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-walkback-requalified",
-    "git_head": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "git_head": "d638192610075c98f8c3378be48d791353b9b762",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-29T22:26:13.490178+00:00",

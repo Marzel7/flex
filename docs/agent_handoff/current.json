@@ -33936,6 +33936,378 @@
     "updated_at_utc": "2026-10-29T08:12:47.240929+00:00",
     "verdict": "97currentunfinished jobs distinguished from1551historicalCREATEWAITING; eligibility not asserted from due status."
   },
+  "flex_v2_walkback_gate_contention_correction_qualification_20261029": {
+    "accounting_integrity": {
+      "checks": "Real gate reservations/finish owners used; same successful workload costs8credits in either version, no duplicate acquisition. Lifetime ceiling refusal, cooldown, uncertain denial, providerpayment/authdenial, invalid publication/generation/storage remain guarded. No retry boundary wraps reservations, provider dispatch, completion or uncertain requests.",
+      "durability": "Restart and compact recovery preserve originating owner bindings, sixuncertain request records, lifetime history, terminal/deferred custody, pending retry rights and CREATE evidence.",
+      "fixture_preserved_existing_credits": 73920,
+      "limit": 100000,
+      "uncertain_requests_preserved": 6
+    },
+    "blocker": null,
+    "branch": "codex/flex-v2-walkback-contention",
+    "bundle_manifest_sha256": "92473ce8807d338e205611d2a71d77bc06004a562dc1f1ddcbcf645ada54bdec",
+    "checkpoint": "flex-v2-post-v1-retirement-2026-10-28",
+    "engineering_revision": "5e4362bb54131349f963099f82afd9fe05c9ea19",
+    "evidence_sha256": {
+      "baseline_harness_limits.json": "7ac2e5e99e6ba0cb68384afea20102ae5607b6fd0193ce78104d662c8ecedbff",
+      "comparison.xml": "4828030a7de41a7a62c0abcda4c28cefd2f927f8aef1f3b947485feb1708a1a4",
+      "qualified.xml": "c98b2d4da735574100c389d581afd7c7d18bc8274540cc21be6b8704a1c2e3fb"
+    },
+    "exact_delta": {
+      "limits": "Five attempts total, four25ms sleeps, maximum100ms intentional backoff per entry. At most900ms intentional backoff for selection+8ownership entries; validation/I/O time is additional. No new flags, schema, queue, budgets, concurrency or rate settings.",
+      "recovery": "Exactly one Walkback worker SHA256 value changes in the accepted renderer. Fresh-pair recovery entrypoint remains byte-identical.",
+      "runtime": "Only runtime/walkback/src/core/walkback_worker.py: two bounded pre-dispatch helpers; pre-selection invokes qualified current/blocked checks without swallowing typed contention before retries; ownership entry recreates context for each retry.",
+      "unrelated_code": "Listener, resolver, CREATE, gate/publication/accounting owner, scheduler SELECT/priority, claim and retry-refund handlers, lifecycle and recovery claim loop unchanged."
+    },
+    "failure_paths": {
+      "not_claimed": "No assumption all production RPC gaps have this cause; fixture benefit is conditional on lock availability within100ms.",
+      "ownership": "Installed owned_context entry failure returns own claim toPENDING and refunds its attempt. Candidate retries only entry before _process_owned_row. Failed generator context is recreated, not re-entered.",
+      "preselection": "Installed blocked() catches typed busy and returnsTrue before SELECT: batch is skipped until existing45s polling loop. Candidate retries exact typed busy then preserves the original fail-closed skip if still blocked."
+    },
+    "implementation_benefit_proven": "YES_IN_PROVIDER_FREE_CONTROLLED_WORKLOAD; production magnitude UNKNOWN",
+    "isolated_worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-walkback-contention/flex",
+    "next_action": "Run separately authorized read-only Walkback-only deployment preflight for this exact candidate/payload/recovery pin. Do not deploy, restart, probe, replay or alter budgets.",
+    "performance": {
+      "comparisons": {
+        "ownership-False": {
+          "candidate": {
+            "attempts": 8,
+            "batches_skipped_with_pending": 0,
+            "claim_times_relative_seconds": [
+              0,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05
+            ],
+            "claimed": 8,
+            "completed": 8,
+            "credits": 8,
+            "dispatches": 8,
+            "first_claims": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "gatebusy_deferrals": 0,
+            "pending": 0,
+            "reserved": 8,
+            "simulated_elapsed_seconds": 0.05,
+            "sleep_seconds": 0.05
+          },
+          "installed": {
+            "attempts": 8,
+            "batches_skipped_with_pending": 0,
+            "claim_times_relative_seconds": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45
+            ],
+            "claimed": 16,
+            "completed": 8,
+            "credits": 8,
+            "dispatches": 8,
+            "first_claims": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "gatebusy_deferrals": 8,
+            "pending": 0,
+            "reserved": 8,
+            "simulated_elapsed_seconds": 45,
+            "sleep_seconds": 0
+          }
+        },
+        "ownership-True": {
+          "candidate": {
+            "attempts": 8,
+            "batches_skipped_with_pending": 0,
+            "claim_times_relative_seconds": [
+              0,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05
+            ],
+            "claimed": 8,
+            "completed": 8,
+            "credits": 8,
+            "dispatches": 8,
+            "first_claims": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "gatebusy_deferrals": 0,
+            "pending": 0,
+            "reserved": 8,
+            "simulated_elapsed_seconds": 0.05,
+            "sleep_seconds": 0.05
+          },
+          "installed": {
+            "attempts": 0,
+            "batches_skipped_with_pending": 0,
+            "claim_times_relative_seconds": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              90,
+              90,
+              90,
+              90,
+              90,
+              90,
+              90,
+              90,
+              135,
+              135,
+              135,
+              135,
+              135,
+              135,
+              135,
+              135
+            ],
+            "claimed": 32,
+            "completed": 0,
+            "credits": 0,
+            "dispatches": 0,
+            "first_claims": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "gatebusy_deferrals": 8,
+            "pending": 8,
+            "reserved": 0,
+            "simulated_elapsed_seconds": 135,
+            "sleep_seconds": 0
+          }
+        },
+        "selection-False": {
+          "candidate": {
+            "attempts": 8,
+            "batches_skipped_with_pending": 0,
+            "claim_times_relative_seconds": [
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05
+            ],
+            "claimed": 8,
+            "completed": 8,
+            "credits": 8,
+            "dispatches": 8,
+            "first_claims": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "gatebusy_deferrals": 0,
+            "pending": 0,
+            "reserved": 8,
+            "simulated_elapsed_seconds": 0.05,
+            "sleep_seconds": 0.05
+          },
+          "installed": {
+            "attempts": 8,
+            "batches_skipped_with_pending": 1,
+            "claim_times_relative_seconds": [
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45
+            ],
+            "claimed": 8,
+            "completed": 8,
+            "credits": 8,
+            "dispatches": 8,
+            "first_claims": [
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45,
+              45
+            ],
+            "gatebusy_deferrals": 0,
+            "pending": 0,
+            "reserved": 8,
+            "simulated_elapsed_seconds": 45,
+            "sleep_seconds": 0
+          }
+        },
+        "selection-True": {
+          "candidate": {
+            "attempts": 8,
+            "batches_skipped_with_pending": 0,
+            "claim_times_relative_seconds": [
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05,
+              0.05
+            ],
+            "claimed": 8,
+            "completed": 8,
+            "credits": 8,
+            "dispatches": 8,
+            "first_claims": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "gatebusy_deferrals": 0,
+            "pending": 0,
+            "reserved": 8,
+            "simulated_elapsed_seconds": 0.05,
+            "sleep_seconds": 0.05
+          },
+          "installed": {
+            "attempts": 0,
+            "batches_skipped_with_pending": 4,
+            "claim_times_relative_seconds": [],
+            "claimed": 0,
+            "completed": 0,
+            "credits": 0,
+            "dispatches": 0,
+            "first_claims": [],
+            "gatebusy_deferrals": 0,
+            "pending": 8,
+            "reserved": 0,
+            "simulated_elapsed_seconds": 135,
+            "sleep_seconds": 0
+          }
+        }
+      },
+      "contention_fairness": "Real4reader fixture shows every reader progresses within bounded attempts, ledger unchanged; contendedjob cannot starve23others and configuredpriority preserved. Production lock-duration distribution/utilization improvement remains unmeasured.",
+      "controlled_workload": "Identical eight-job fixture, actual installed and candidate worker AST/claim function, real durable gate reservation/completion owners, blocked network and synthetic provider outcomes. Virtual shared lock contention lasts50ms; fourpoll horizon with45s interval. Additional real subprocess flock controls validate actual lock failure/release.",
+      "latency_precision": "Queue first started_at is whole-second; separate virtual event claim times and elapsed timing retain50ms precision. Ownership does not improve already-recorded first claim; it improves productive-entry/completion delay.",
+      "summary": "Single transient: preselection skips1batch installed vs0candidate; all8complete at simulated45s vs0.05s, same8reservedcredits. Ownership installed16claims/8deferrals vs8claims/0deferrals; both8completions/8credits, at45s vs0.05s. Repeated poll-aligned50ms windows: installed0complete in4polls vs8candidate; extra8candidate reservations are the8authorized fixture jobs, each charged once. Persistent contention retries remain bounded, no RPC/reservation/spend, attempts refunded."
+    },
+    "production_continuity": {
+      "disk_free_bytes": 48885555200,
+      "gate": "OPEN_READY_checksum_valid",
+      "limit": 100000,
+      "production_worker_sha256": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+      "uncertain": 6,
+      "workers_PID_unchanged": {
+        "listener": 77731,
+        "resolver": 97138,
+        "walkback": 77830
+      }
+    },
+    "production_flags": "UNCHANGED; no production source/config/state writes, gate locks, provider calls, signals/restarts or replay. Golden checkpoints unchanged.",
+    "production_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "raw_provider_or_production_records_published": false,
+    "ready_for_deployment_preflight": true,
+    "recovery": {
+      "deployment_scope": "Walkback worker plus its recovery hash pin. No listener/resolver reload or gate/accounting change required. Exact live source/preimage, certificate/config/reference and storage verification remains for separate preflight.",
+      "frozen_checkpoint": "Unchanged source561026b and existing Golden tags; candidate is a separate branch/commit.",
+      "passed": true,
+      "verified": "Current candidate-aware renderer hash validation/rejection, matched compact pair, predecessor certificate with original V1 absent in fixtures, source/config readback, sixuncertain/spend recovery, terminal/deferred custody, interruptedWalkbackclaims->pending, idempotence and seven-day lifecycle/current caller."
+    },
+    "report_path": "/private/tmp/flex-contention-qualification/FINAL_REPORT.json",
+    "report_sha256": "98c8cd29d44f82f41e3ff35d6a3b62b7395b417ce6683b9e973b297a26ebb54f",
+    "source_publication": "LOCAL_IMMUTABLE_COMMIT_ONLY; engineering source not pushed or deployed",
+    "status": "DEV_PASS_QUALIFIED_NOT_DEPLOYED",
+    "tests": {
+      "comparison_metrics_rerun": {
+        "passed": 4,
+        "seconds": 1.46
+      },
+      "excluded_details": "Three parameters of an older role-wide legacy-maintenance harness excluded: creator_resolution/walkback fail with same NameError on byte-identical baseline source; listener coverage replaced by accepted current-caller controls. One historical whole-renderer hash assertion excluded because it predates current required worker pin; new exact-baseline renderer delta assertion passes. Older tests/code unchanged. Initial wider runs and baseline proof retained locally; no hidden runtime fix.",
+      "largest_disposable_fixture_file_bytes": 1110016,
+      "network": "socket connect and create_connection blocked; no provider call/probe or live WebSocket. All DB/gate/flock writes use disposable fixtures. No production gate locks.",
+      "selected_suite": {
+        "deselected_historical_controls": 4,
+        "failed": 0,
+        "new_focused_controls": 44,
+        "passed": 124,
+        "reused_current_compatibility_controls": 80,
+        "seconds": 13.87
+      }
+    },
+    "updated_at_utc": "2026-10-29T09:20:49.374919+00:00",
+    "verdict": "DEV_PASS; controlled scheduling benefit and safety demonstrated, no production benefit magnitude claimed. Deployment not authorized."
+  },
   "flex_v2_walkback_intelligence_quality_audit": {
     "COMPLETE_FUNDING_ROUTES": {
       "count": 0,
@@ -55160,12 +55532,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "detached immutable post-retirement checkpoint",
-    "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "branch": "codex/flex-v2-walkback-contention",
+    "git_head": "5e4362bb54131349f963099f82afd9fe05c9ea19",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T09:01:59.221196+00:00",
-    "working_tree": "Read-only utilization audit snapshot08:57:19UTC, exact06\u201308UTCwindow:25admissions17completions(12fresh/5original103),notcatchingup. Current103PENDING0RUNNING101due,1551historicalWAITINGexcluded. Actual08:12->08:57stock97->103(+6).94typed5sbusydeferralsrecent08:31\u201308:56;89repeatbusyidentities. Latest50firstclaimmedian22.1m,43claimed18complete7unclaimed. Exactbatchidle/gapcausalityUNKNOWN. All3RUNNING,OPENREADY6uncertain100000cap,maxroot7936,inflight0. No changes/providers/gatelocks."
+    "updated_at_utc": "2026-10-29T09:20:49.374919+00:00",
+    "working_tree": "DedicatedisolatedDEV cleancommit5e4362bb. Walkback-onlyexacttypedgatebusyretrybeforeselection/ownership,5attempts4x25ms,max100msentry. Currentgate/accounting/sourceguards unchanged; rendereroneworkerpin.124qualifiedcontrolspass,4historicalchecksrecordedexcluded; controlled50mscontention improvement45s->0.05s,same8credits singletransient. Sixuncertain73920fixturehistory/freshpair/certificate/custody/lifecyclepassed. DEV_PASSnotdeployed; prod561026workerpreimageca87unchanged,3PIDscontinuous. SourcecommitLOCAL_ONLY."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

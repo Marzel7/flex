@@ -35461,6 +35461,397 @@
     "updated_at_utc": "2026-10-29T19:33:01.722921+00:00",
     "verdict": "GO_FOR_SEPARATELY_AUTHORIZED_WALKBACK_ONLY_DEPLOYMENT"
   },
+  "flex_v2_walkback90_performance_audit_20261029": {
+    "admissions": 24,
+    "backlog": {
+      "admissions_per_hour": 16.0,
+      "completion_to_admission_ratio": 1.0416666666666667,
+      "completions_per_hour": 16.666666666666668,
+      "current_PENDING": 137,
+      "current_RUNNING": 0,
+      "current_complete": 2418,
+      "current_failed": 56,
+      "current_scheduler_due": 93,
+      "exact_end_PENDING_RUNNING": "UNKNOWN",
+      "exact_start_PENDING_RUNNING": "UNKNOWN",
+      "failed_with_terminal_timestamp_in_window": 0,
+      "reason": "No20:09/21:39stocksnapshots; do notinferstockfromflowswhenothertransitionsunverified.",
+      "retained_admission_minus_completion_flow": -1,
+      "stock_trend": "UNVERIFIED. Retainedflowfavorableby1job only; notproofsustainedbacklogshrinkage."
+    },
+    "birth_migration": {
+      "assessment": "Birthanddurableadmissioncontinue; currentclockguardpreventsHelius-dependentacquisition. Do not equateOPEN/RUNNINGwithusableRPC.",
+      "birth": {
+        "source_qualified_commit_receipts_accepted_in_window_lower_bound": 14,
+        "total_canonical_birth_commits_in_window": "UNKNOWN: no complete time-indexed birth commit ledger qualified",
+        "verified_migration_cohort_receipt_matches": 24
+      },
+      "exact90minute_admission_refusal_events": "UNKNOWN: complete time-qualifiedeventledger notavailable.",
+      "new_admitted_notification_identities_lower_bounds": {
+        "not_total_notifications": true,
+        "retained_admitted_unique_notification_identities_lower_bound": 82,
+        "source_counts_lower_bounds": {
+          "PUMPPORTAL_MIGRATION": 34,
+          "PUMPSWAP_MIGRATION_ACCOUNT": 48
+        }
+      },
+      "new_migration_retry_exhaustion": 0,
+      "protected_migration_exhausted": 1319,
+      "qualified_CREATE_for_window_migrations": {
+        "atomic_OPS_at_handoff_coverage": "UNKNOWN",
+        "birth_receiptaccepted_before_exacthandoffmarker": 24,
+        "canonical_migrations": 24,
+        "coverage_percent": 100,
+        "current_qualified_OPS_CREATE_and_ACK": 24,
+        "exact_birth_receipt_Core_matches": 24
+      }
+    },
+    "blocker": "Checksum-validOPEN/READYledger fails unchanged_tickguard: wall_delta553s versusmonotonic_delta523s =>30sdiscrepancy>5s. LastHTTPcompleted21:36:10UTC.44pendingclocklabelsatsafetyread;1attempts3. No clock recovery authorized or performed.",
+    "completions": 25,
+    "engineering_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "fresh_vs_older": {
+      "admitted_before_window": 21,
+      "admitted_within_window": 4,
+      "cohort_current_states": {
+        "waiting": 1551
+      },
+      "cohort_current_still_WAITING": 1551,
+      "fresh_current_WAITING": 0,
+      "from_exact1551historicalWAITINGcohort": 0,
+      "old_policy_cutoff_completions_before20261028T225511Z": 0
+    },
+    "gatebusy": {
+      "attempt_integrity": "73retainedbusyjobs havecumulativedelta0;3have+1since19:40\u2014notattributedtoabudgetdeferralbecauseothergenuineattemptsbetween snapshotsunobserved. Acceptedtyped-busyrefundtests/sourceunchanged. ClockerrorisIntegrity,notBudgetDeferred; installedhandlerkeepsalready-startedclaimcount.1clock-blockedjobnowattempts3. No reset/replay authorized.",
+      "busy_attempt_delta_vs19:40baseline": {
+        "0": 73,
+        "1": 3
+      },
+      "current_clock_attempt_distribution": {
+        "1": 24,
+        "2": 19,
+        "3": 1
+      },
+      "current_clock_blocked_jobs": 44,
+      "current_clock_rows_at_retry_ceiling": 1,
+      "current_pending_reasons": {
+        "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 44,
+        "HELIUS_GATE_BUSY": 88,
+        "NONE": 5
+      },
+      "current_retained_BUSY": 88,
+      "distinct_current_BUSY_rows_updated_within_window_lower_bound": 84,
+      "fresh_vs_historical_event_counts": "UNKNOWN:no completeeventhistory.",
+      "interpretation": "128\u219288labels isnot a measuredcontentionratereduction;44clocklabelsreplacedsomeerrors. BoundedretryintentionallydoesnotretryIntegrity.",
+      "new_retry_progress_after_bounded_retries": "UNKNOWN: no per-entrysuccess/attemptcounter qualified.",
+      "ownership_vs_preselection_and_batches_skipped": "UNKNOWN:no time-qualifiedcompleteboundary telemetry.",
+      "predeployment_retained_BUSY": 128,
+      "total90minute_contention_deferral_events": "UNKNOWN:last_erroroverwritten,successfulinternalretries/selectionskipsnotexhaustivelylogged."
+    },
+    "handoffs": 24,
+    "helius": {
+      "billing_and_available_provider_allowance": "UNKNOWN; no provider/billingquerymade.",
+      "comparable_predeployment_credit_efficiency": "UNKNOWN; no matchedusagewindow. No billed-credit savings claimed.",
+      "current": {
+        "cap": 100000,
+        "clock": {
+          "absolute_delta_difference_seconds": 30,
+          "guard_passes": false,
+          "maximum_allowed_seconds": 5,
+          "monotonic_delta": 523,
+          "recorded_monotonic": 945611,
+          "recorded_wall_epoch": 1793309770,
+          "sample_monotonic": 946134,
+          "sample_wall_epoch": 1793310323,
+          "static_guard": "helius_denial_gate.py::_tick; no Gate/current/read/blocked operation called",
+          "wall_delta": 553
+        },
+        "exact_90minute_reservations_credits_methods": "UNKNOWN:no exact20:09and21:39ledger snapshots; key timestamps overwritten",
+        "highest_lifetime_investigation": 7936,
+        "inflight": [],
+        "latest_HTTP_completed_outcome_epoch": 1793309770,
+        "provider_balance_or_allowance": "UNKNOWN:no billing/providerquerymade",
+        "publication": "READY_CHECKSUM_VALID",
+        "reserved_estimate_total": 133396,
+        "state": "OPEN",
+        "uncertain_exactly_preserved": 6
+      },
+      "exact90minute_credits_per_completion_ratio": "UNKNOWN; cannotdivide creditdelta fromadifferentintervalby25windowcompletions.",
+      "exact90minute_requests_reserved_credits_by_worker_methods": "UNKNOWN:no exactboundaryledger snapshots.",
+      "supplemental_since_deployment_distinct_interval": {
+        "Walkback_reserved_credits_per_completion_window_ratio": 127.6842105263158,
+        "completions": 38,
+        "end_epoch": 1793310323.703608,
+        "interval_utc": [
+          "2026-10-29T19:40:24.095718+00:00",
+          "2026-10-29T21:45:23.703608+00:00"
+        ],
+        "method_attempt_sum_matches_requests": true,
+        "request_reservations": 5456,
+        "reservation_attempt_method_deltas": {
+          "rpc:getAccountInfo": 1824,
+          "rpc:getMultipleAccounts": 126,
+          "rpc:getSignaturesForAddress": 1244,
+          "rpc:getTokenAccountsByOwner": 2,
+          "rpc:getTokenLargestAccounts": 14,
+          "rpc:getTransaction": 2246
+        },
+        "reserved_estimate_by_worker": {
+          "creator_resolution": 0,
+          "listener": 604,
+          "walkback": 4852
+        },
+        "reserved_estimate_delta": 5456,
+        "start_epoch": 1793302824.095718
+      }
+    },
+    "installed_runtime_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "latencies": {
+      "admission_to_completion": {
+        "max_seconds": 5509,
+        "median_seconds": 2790.0,
+        "n": 20,
+        "p90_seconds": 5439
+      },
+      "admission_to_first_claim": {
+        "max_seconds": 2878,
+        "median_seconds": 2661.5,
+        "n": 42,
+        "p90_seconds": 2845
+      },
+      "claimed_by_window_end": 42,
+      "comparison": "Sample median44.4min versus26.6minprior; notimproved. Differentcohorts/rightcensoring andcurrentclockinterruption preclude causalclaim.",
+      "completed_by_window_end": 20,
+      "current_median_first_claim_minutes": 44.358333333333334,
+      "current_statuses": {
+        "complete": 20,
+        "pending": 30
+      },
+      "first_claim_to_completion": {
+        "max_seconds": 3191,
+        "median_seconds": 17.0,
+        "n": 20,
+        "p90_seconds": 2808
+      },
+      "handoff_to_admission": {
+        "max_seconds": 1,
+        "median_seconds": -4.0,
+        "n": 50,
+        "p90_seconds": -1
+      },
+      "n": 50,
+      "previous_median_first_claim_minutes": 26.6,
+      "timing_note": "Handoff bookkeeping follows queue admission; negative handoff-to-admission is not delay. Firststarted timestamps COALESCE-preserved. Incomplete cases right-censored at2026-10-29T21:39:00Z.",
+      "unclaimed_at_window_end": 8,
+      "unfinished_at_window_end": 30
+    },
+    "next_action": "Separately authorize the existing qualified clock-recovery safety preflight/reconciliation after independentdurableclockverification. Preserveallspending,sixuncertainrequests,100000limitandcurrentqueueattempts; do notreset/replayorprobe. Assessperformanceagainonlyafteracquisitionauthorityisvalid.",
+    "performance": {
+      "answers": {
+        "actionable_backlog_shrinking": "ExactstocksUNKNOWN; favorableflowaloneinsufficient.",
+        "completions_exceeded_admissions": "Yes25vs24duringwindow;1jobmarginonly.",
+        "firstclaim_improved": "No inlatest50sample:44.4minmedianvs26.6prior;8unclaimedexcludedfromlatencystatsbutreported.",
+        "fresh_gatebusy_deferrals_decreased": "UNKNOWN; retainedlabeldropisnotaratedecrease,clockrefusalsarepresent.",
+        "further_investigation_justified": "Yes: qualifiedclock-state recovery preflight urgentlybeforemoreattemptsareconsumed. No newengineeringor replay.",
+        "retry_measurable_production_benefit": "Notprovenbythisaudit; slightlypositiveflowbutworsesampledlatencyandclockinterruption.",
+        "spending_proportional_to_progress": "Exact90ratioUNKNOWN. Different19:40\u219221:45interval:4852Walkbackreservedcredits/38completions=127.7localestimatedcreditspercompletion; notper-jobcostorbilling.",
+        "stable_to_leave_unchanged": "Workers/storage/publicationstable,butRPCnotnormallyusable. Do notdeclarehealthyacquisition. No changesauthorizedinthisaudit."
+      },
+      "verdict": "NO"
+    },
+    "production_flags": {
+      "DEV_source_changes": 0,
+      "V1_access": 0,
+      "database_copies": 0,
+      "new_monitor_or_service": 0,
+      "production_changes": 0,
+      "production_gate_locks_or_publications": 0,
+      "provider_calls_or_probes": 0,
+      "queue_journal_database_mutations": 0,
+      "worker_restarts_or_signals": 0
+    },
+    "report_path": "/private/tmp/flex-walkback-90m-20261029/AUDIT_REPORT.json",
+    "report_sha256": "f8c853bfd1b32524467a564c28d7067892702d196928829d3f6a92c7352a99c0",
+    "runtime": {
+      "PIDs_unchanged_since_deployment": true,
+      "certificate_source_paths_Golden_checks": {
+        "Golden_unchanged": true,
+        "certificate": true,
+        "disk_floor": true,
+        "exact_renderer": true,
+        "exact_worker": true,
+        "file_limits": true,
+        "postretirement_unchanged": true,
+        "retired_paths_absent": true,
+        "single_15minute_lifecycle": true
+      },
+      "critical_blocker": {
+        "clock_code_changed_by_retry_candidate": false,
+        "clock_guard": {
+          "absolute_delta_difference_seconds": 30,
+          "guard_passes": false,
+          "maximum_allowed_seconds": 5,
+          "monotonic_delta": 523,
+          "recorded_monotonic": 945611,
+          "recorded_wall_epoch": 1793309770,
+          "sample_monotonic": 946134,
+          "sample_wall_epoch": 1793310323,
+          "static_guard": "helius_denial_gate.py::_tick; no Gate/current/read/blocked operation called",
+          "wall_delta": 553
+        },
+        "code": "HELIUS_BUDGET_CLOCK_AMBIGUOUS",
+        "last_successful_HTTP_completed_outcome": "2026-10-29T21:36:10+00:00",
+        "ledger_publication": "READY_CHECKSUM_VALID",
+        "payment_state": "OPEN\u2014notPAYMENT_DENIED",
+        "recovery_attempted": false,
+        "scope": "Clock/accountingvalidationrefusesproviderreservation despiteOPEN/READY. No evidenceofcountercorruption orprovidercreditexhaustion.",
+        "static_source": "runtime/walkback/src/core/helius_denial_gate.py::_tick atline421; abs(wall_delta-monotonic_delta)>5 raisesIntegrity.",
+        "underlying_clock_discontinuity_cause": "UNKNOWN: no inferenceofsleep,NTP,networkoutagefromtimestampsalone."
+      },
+      "installed_gate_hashes_unchanged_from_predeployment": {
+        "creator_resolution": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+        "listener": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+        "walkback": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946"
+      },
+      "matched_ACTIVE_generation": "DEV004-V2-20261024-dfb76562",
+      "source_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+      "worker_restarts_in_exact_window": 0,
+      "workers": {
+        "listener": {
+          "PID_unchanged": true,
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 23351,
+          "status": "watchtower_listener              RUNNING   pid 23351, uptime 2:51:18"
+        },
+        "resolver": {
+          "PID_unchanged": true,
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 23363,
+          "status": "creator_resolution_worker        RUNNING   pid 23363, uptime 2:51:07"
+        },
+        "walkback": {
+          "PID_unchanged": true,
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 28791,
+          "status": "walkback_worker                  RUNNING   pid 28791, uptime 2:04:59"
+        }
+      }
+    },
+    "status": "HOLD_CURRENT_HELIUS_BUDGET_CLOCK_AMBIGUOUS",
+    "storage": {
+      "current_custody": {
+        "birth_terminal": {
+          "bytes": 1721612,
+          "free_records": 6920,
+          "records": 1272
+        },
+        "migration_deferred": {
+          "bytes": 4256089,
+          "free_records": 6565,
+          "records": 1627
+        },
+        "migration_terminal": {
+          "bytes": 2127975,
+          "free_records": 6293,
+          "records": 1899
+        }
+      },
+      "current_disk_free_bytes": 46690746368,
+      "current_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 109379584
+        },
+        "ops": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 175026176
+        }
+      },
+      "current_journals": {
+        "birth": {
+          "current_ACK_born_during_window_lower_bound": 0,
+          "errors": {
+            "CORE_AUTHORITY_CONFLICT": 492,
+            "null": 2
+          },
+          "free": 18,
+          "occupied": 494,
+          "shape_eligible_protected_transfer": 492,
+          "states": {
+            "ACKED": 2,
+            "QUARANTINED": 492
+          },
+          "verified_reclaimable_ACK": 2
+        },
+        "migration": {
+          "errors": {
+            "DISPATCH_RESERVED": 7,
+            "HELIUS_BUDGET_DEFERRED": 474
+          },
+          "free": 31,
+          "occupied": 481,
+          "states": {
+            "PENDING": 480,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "current_lifecycle": {
+        "core": [
+          {
+            "cursor": "",
+            "cycles": 103,
+            "deleted": 0,
+            "examined": 0,
+            "family": "rpc_response_cache",
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "last_batch_hash": "387709f05f84e572c898bb7776b3723845b699093554736b88a20b211d034f33",
+            "last_cutoff": 1792705500,
+            "upper_key": "",
+            "version": 1
+          },
+          {
+            "cursor": "6272",
+            "cycles": 0,
+            "deleted": 0,
+            "examined": 6272,
+            "family": "wss_metrics",
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "last_batch_hash": "c337ee49d10c8270a82186c230fea3a5caa79eb9182c686c284a59651792e83e",
+            "last_cutoff": 1792705501,
+            "upper_key": "74280",
+            "version": 1
+          }
+        ],
+        "ops": [
+          {
+            "cursor": "",
+            "cycles": 0,
+            "deleted": 0,
+            "examined": 0,
+            "family": "rpc_response_cache",
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "last_batch_hash": "",
+            "last_cutoff": 0,
+            "upper_key": "",
+            "version": 1
+          }
+        ]
+      },
+      "exact90minute_reclamation_transfers": "UNKNOWN:no exactboundaryeventcounter; preservedquotas/custody belowbounds andverifiedcurrentACKreadback.",
+      "single15minute_schedule": true
+    },
+    "tests": "No tests or DEVsource changes. Bounded indexed retainedV2queries, lock-free ledger/clock arithmetic and metadata-onlypairedvalidation.",
+    "updated_at_utc": "2026-10-29T21:51:22.472626+00:00",
+    "verdict": "HOLD: current30secondwall/monotonicdiscrepancyexceeds5secondguard. Keepallworkersuntouchedandfail-closedprotectionintact; no recoveryperformed.",
+    "window": {
+      "current_safety_observed": "2026-10-29T21:45:23.168088+00:00",
+      "definition": "Most recent90completedminutes frozen atfirst indexedexecution; current safety snapshot reported separately.",
+      "end_exclusive": "2026-10-29T21:39:00+00:00",
+      "start_inclusive": "2026-10-29T20:09:00+00:00"
+    }
+  },
   "flex_v2_walkback_actionable_backlog_reporting_20261029": {
     "acquisition_eligible": {
       "READY_checksum": true,
@@ -55175,7 +55566,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave allworkersRUNNING. A later read-only comparison over a longer naturalwindow can assessfirstclaimlatency andcompletion-vs-admissiontrend; no automaticmonitor or furtherengineeringstarted.",
+  "next_action": "Separately authorize the existing qualified clock-recovery safety preflight/reconciliation after independentdurableclockverification. Preserveallspending,sixuncertainrequests,100000limitandcurrentqueueattempts; do notreset/replayorprobe. Assessperformanceagainonlyafteracquisitionauthorityisvalid.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -57364,8 +57755,8 @@
     "git_head": "45bf95f37f0120f6600c33e65d1a444324a08b06",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T19:48:24.648719+00:00",
-    "working_tree": "45bf95f3Walkbackdeployedwithmatchingrecoverypin/sourceauthority. OnlyWalkbackrestarted23381\u219228791; listener23351/resolver23363unchangedRUNNING.338secSAFETYPASS:23finishedbatchclaims,1completion,22pending(17busy/3cooldown/2review),0busyattemptincrease;13birthcommitslowerbound/2handoffs. OPENREADY6uncertain100000cap,0stuck;276reservedestimateincrease(221Walkback,55listener),highest7936. Birth500/512+1verifiedACK,migration489/512,disk48GB,WAL0. No publication/identity/capacity/exhaustionerrors. PerformanceINCONCLUSIVE;2freshadmissionsunclaimed,backlog141\u2192142. Explicitreference-updateauthorizationresolvedinitialreviewblock; optionalconstructorcheckskippedread-onlyvalidationused. No furtherengineering/monitoring."
+    "updated_at_utc": "2026-10-29T21:51:22.472626+00:00",
+    "working_tree": "Read-only90maudit20:09\u201321:39UTCHOLD.24handoffs/admissions,25completions(4inwindowadmissions/21older),ratio1.04; exactboundarybacklogstocksUNKNOWN,current137PENDING/0RUNNING,1551historicalWAITINGintact. Latest50firstclaimmedian2661.5s(44.4m)vs26.6prior,8unclaimed,30unfinished. Meaningfulbenefitnotproven. Currentworkers23351/23363/28791unchanged andREADYchecksumvalid,butbudgetclock30sdivergence>5s preventsRPC;lastcompleted21:36:10.6uncertain/cap100000/historypreserved,0inflight.44clockblockedjobs,1attempt3; no recovery/reset/provider/gatelock/source/runtimechanges. Nextseparatequalifiedclockrecoverypreflight urgently."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -58767,7 +59158,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_SAFETY_ACCEPTANCE_PERFORMANCE_INCONCLUSIVE",
+  "status": "HOLD_CURRENT_HELIUS_BUDGET_CLOCK_AMBIGUOUS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

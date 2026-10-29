@@ -21172,6 +21172,44 @@
     "tests": "76 accepted provider-free controls reused; read-only installed hash, Supervisor/process, strict metadata pair/certificate validation, exact79indexed queue identities, lock-free ledger checksum/accounting and storage/schedule readback. No tests or engineering changes this turn.",
     "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER_RECOVERY_ADMISSION_CONTRACT"
   },
+  "flex_v2_clock_held_single_claim_qualification_20261029": {
+    "blocker": null,
+    "branch": "codex/flex-v2-clock-single-claim",
+    "durable_claim": "Existing OPS counter consumed once; attempts remain exactly3. No counter refund or re-eligibility after deferral/restart; uncertain/interrupted claims held for review.",
+    "engineering_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "installed_runtime_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "limitations": [
+      "DEV qualification does not authorize installation or recovery admission.",
+      "One committed claim is not a promised completion or attribution.",
+      "No fallback to old45 or rejected d638 after single-claim custody activation.",
+      "Candidate commit local only; source publication not performed."
+    ],
+    "next_action": "Read-only exact-candidate deployment preflight including immutable source/reference hashes, exact79cohort drift, current uncertainty exclusions, application/gate ordering, current cap/clock/retirement/custody/storage authority. No deployment or recovery claim activation is authorized.",
+    "production_flags": {
+      "deployment": false,
+      "production_gate_locks": false,
+      "provider_calls": false,
+      "queue_writes_replay_reset": false,
+      "source_configuration_changes": false,
+      "worker_restarts": false
+    },
+    "rejected_candidate": "d638192610075c98f8c3378be48d791353b9b762",
+    "report": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-walkback-requalified/flex/docs/dev/lightweight_dev004_first_v2/clock_held_single_claim/QUALIFICATION.json",
+    "report_sha256": "fe0288bd020609edd8718ee1247c649d8684cb9c3153541073048327bdc2cfef",
+    "source_scope": "Current installed45composition +2Walkback runtime readers and corresponding renderer pins; no listener/resolver/gate/HTTP/lifecycle/CREATE/fairness/checkpoint changes. No schema or new database.",
+    "tests": "91passed:37clock-specific,45contention/composition,9compact-pair. Network forbidden. Atomic concurrent consumption, precommit interruption, restart/deferral/review custody, uncertainty exclusion, clock/publication refusal and OPS-before-gate ordering. Actual100000gate cap and6uncertain controls retained.",
+    "uncertainty_exclusion": {
+      "cap": 100000,
+      "eligible": 78,
+      "evidence_sha256": "e2c833fca907758be5e1b7dfe8a9ee97da9f17d47eb9123d019e29d2d0ca940b",
+      "exact_identity_evidence": "/private/tmp/flex-clock-single-claim/UNCERTAIN_INVESTIGATION.private.json",
+      "excluded_uncertain_root": 1,
+      "original_cohort": 79,
+      "six_original_uncertain_preserved": true,
+      "unchanged_at_three_attempts": 79
+    },
+    "verdict": "DEV_PASS_READY_FOR_READ_ONLY_PREFLIGHT"
+  },
   "flex_v2_clock_stability_check_20261029": {
     "births_observed_lower_bound": 17,
     "blocker": null,
@@ -58448,7 +58486,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-walkback-requalified",
-    "git_head": "d638192610075c98f8c3378be48d791353b9b762",
+    "git_head": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-29T22:26:13.490178+00:00",

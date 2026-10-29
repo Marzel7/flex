@@ -21210,6 +21210,105 @@
     },
     "verdict": "DEV_PASS_READY_FOR_READ_ONLY_PREFLIGHT"
   },
+  "flex_v2_clock_single_claim_activation_20261029": {
+    "accounting": {
+      "cap": 100000,
+      "clock_divergence_seconds": 0,
+      "credit_increase_by_worker": {
+        "creator_resolution": 0,
+        "listener": 23,
+        "walkback": 147
+      },
+      "disk_free_bytes": 47315771392,
+      "gate": "OPEN_READY_CHECKSUM_VALID",
+      "inflight": [],
+      "journals": {
+        "birth": {
+          "free": 9,
+          "occupied": 503
+        },
+        "migration": {
+          "free": 38,
+          "occupied": 474
+        }
+      },
+      "observed_epoch": 1793317367.294175,
+      "reserved_credit_increase": 170,
+      "reserved_estimate": 135283,
+      "six_uncertain_exact": true
+    },
+    "blocker": "Five whole-cycle HELIUS_GATE_BUSY aborts,zero completions. Source-only fixture reproduces new _claim_clock_recovery gate.current() escaping before its try/except; production retained trace identifies queue/cycle boundary but no inner frame.",
+    "engineering_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "fallback": "Single-claim-aware source8retained. Do not restart old45/rejected d638; they are not compatible fallbacks. No live recovery run. Original Golden tags unchanged.",
+    "installed_hashes": {
+      "Walkback_still_stopped": true,
+      "at": 1793316613.0944488,
+      "configuration_unchanged": true,
+      "fresh_pair_recovery_sha256": "50967f4cd1109dd8cdae78acb629fa586b7ad2733e55b0bc5dd5e257871edcc5",
+      "installed": {
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py": "9ffaa54f9a1b5ae4d2e32e5fbd0338618d7ef55c1f1652b2610c0052654f1bbc",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/walkback_health.py": "455ab10609d6cdcaff22a5c2ef3b58ca5374beade0a524ee796105c8f791d4dc"
+      },
+      "lifecycle_schedule_unchanged": true,
+      "listener_resolver_unchanged": true,
+      "matched_generation": "DEV004-V2-20261024-dfb76562",
+      "recovery_renderer_sha256": "576cfba0e3939015a76016af555b8fdfd90bc228db93bfb4025e779c849131aa",
+      "runtime_plan_sha256": "1bfffc5d9352e33aef10ae86eabd6716b0272e15ecc07d69227c154ce0855250"
+    },
+    "installed_runtime_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "natural_activity": {
+      "all_Walkback_completions": 0,
+      "birth_ACKs_lower_bound": 13,
+      "canonical_handoffs_lower_bound": 3,
+      "cycle_aborts": 5,
+      "migration_admissions_lower_bound": 10
+    },
+    "next_action": "Separately authorize focused DEV qualification of typed gate-busy handling at recovery admission before claim consumption, including whole-batch continuation. Preserve7already-consumed review holds,71unused rights,1uncertainty exclusion, all attempts/spending. Do not restart old45 or rejected d638, replay held requests, reset rights or bypass guards. Listener/resolver remain running; Walkback stays safely stopped pending a qualified correction.",
+    "production_flags": {
+      "Walkback_failure_stop": true,
+      "Walkback_only_restart": true,
+      "listener_resolver_restarts": false,
+      "manual_gate_publication_or_clock_changes": false,
+      "manual_queue_writes_or_retry_reset": false,
+      "matching_immutable_recovery_references_installed": true,
+      "old_source_rollback": false,
+      "provider_probes": 0,
+      "schema_budget_changes": false,
+      "two_Walkback_runtime_files_installed": true
+    },
+    "recovery_claims": {
+      "admitted": 7,
+      "all_original_attempts_preserved_at3": 79,
+      "completed": 0,
+      "maximum_authorized": 78,
+      "no_duplicate_claims_observed": true,
+      "review_held_rights_consumed": 7,
+      "uncertainty_exclusion_unchanged": 1,
+      "unused_rights": 71
+    },
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/clock-held-single-claim-8b42d2f5/installation/FINAL_DEPLOYMENT_REPORT.json",
+    "report_sha256": "75fe9afa2f090bfedf765370ddba70996de2c4cef60cc5625f0f71d837f9fba6",
+    "tests": "Exact live preimages/pins,ACTIVE pair/certificate,6uncertain/100000cap,79cohort checks passed.91accepted controls reused.519.78seconds bounded natural snapshots plus extended logs to safe stop; new provider-free source reproduction exposed uncovered entry contention. No unqualified fix applied.",
+    "verdict": "HOLD_ACCEPTANCE_FAILED_SAFE_WALKBACK_STOP",
+    "workers": {
+      "listener": {
+        "pid": 23351,
+        "state": "RUNNING",
+        "unchanged": true
+      },
+      "resolver": {
+        "pid": 23363,
+        "state": "RUNNING",
+        "unchanged": true
+      },
+      "walkback": {
+        "before_pid": 28791,
+        "current_state": "STOPPED",
+        "installed_process_pid": 73077,
+        "reason": "Qualified failure boundary after acceptance failures; no old-source rollback."
+      }
+    }
+  },
   "flex_v2_clock_single_claim_preflight_20261029": {
     "activation_plan": "/private/tmp/flex-clock-single-claim-preflight/ACTIVATION_PLAN.json",
     "activation_plan_sha256": "c314d9d9ff4a2a260342f7061bd184f430f82c744b49b4de5ba40481e2e33f64",

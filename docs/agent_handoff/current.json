@@ -33936,6 +33936,69 @@
     "updated_at_utc": "2026-10-29T08:12:47.240929+00:00",
     "verdict": "97currentunfinished jobs distinguished from1551historicalCREATEWAITING; eligibility not asserted from due status."
   },
+  "flex_v2_walkback_contention_final_deployment_preflight_20261029": {
+    "blocker": "Live retirement authority fails with PAIR_RETIRED_PREDECESSOR_REPLACED; listener and resolver are BACKOFF rather than required RUNNING. This is independent of the undeployed candidate.",
+    "candidate_integrity": {
+      "bundle_manifest_sha256": "92473ce8807d338e205611d2a71d77bc06004a562dc1f1ddcbcf645ada54bdec",
+      "payload_hashes": [
+        {
+          "candidate_match": true,
+          "candidate_sha256": "3524ce52e82074ffd6bb1f424505a0b844073d4d04ad7d9f7eb10426b82d6726",
+          "installed_preimage_match": true,
+          "installed_sha256": "ca87ebccbfa5eb6800956434d010a524877288ae86d13528e972be5f5166dba9",
+          "path": "runtime/walkback/src/core/walkback_worker.py"
+        },
+        {
+          "candidate_match": true,
+          "candidate_sha256": "eec41a8bfdb9e198e5e9086e2d9f49cb2ce02fa68a590b94c77cbb2f8609bc93",
+          "installed_preimage_match": true,
+          "installed_sha256": "f17661015050d7e580affddbee8bd7037f014f7a0b00a11169aa39dc41e94feb",
+          "path": "docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py"
+        }
+      ],
+      "qualification": "124accepted passingcontrols reused; no test rerun or source change.",
+      "retry_contract": "Exact typed HELIUS_GATE_BUSY only; fiveattempts/four25mssleeps;100msintentionalbackoff perentry. Dispatch/reservation paths outsideretry."
+    },
+    "engineering_revision": "5e4362bb54131349f963099f82afd9fe05c9ea19",
+    "guard_meaning": "Installed guard raises when retired predecessor path fingerprint differs from certified device/inode. Offending path/identity not inspected under noV1access constraint; no deletion/reset/restart attempted.",
+    "helius_safety": {
+      "full_live_admission_safety": "NOT_PASSED: current paired-retirement validation refuses; do not infer acquisition safety from OPENledgerstate.",
+      "lock_free_snapshot": {
+        "READY_checksum": true,
+        "inflight_count": 0,
+        "limit": 100000,
+        "state": "OPEN",
+        "uncertain": 6
+      }
+    },
+    "installed_preimages_match": true,
+    "next_action": "Separately authorize a bounded read-only retirement-authority diagnosis to reconcile the predecessor-identity refusal against the immutable certificate and retained filesystem/publication evidence. No restart, deletion, gate reset or deployment until authority is proven safe. Then resume this same preflight.",
+    "production_flags": "UNCHANGED; preflight only, no service/gate/source/config/queue mutations.",
+    "production_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "recovery": {
+      "DEV_qualification": "Acceptedcompactpair/certificate/sixuncertain/custody/pendingrestoration/lifecyclecontrols passed.",
+      "live_authority": "FAIL: installed listener/resolver both refuse PAIR_RETIRED_PREDECESSOR_REPLACED.",
+      "live_recovery_not_executed": true,
+      "required_future_source_reference_update": "Candidate renderer must run from an immutable candidate source root with frozen-runtime-plan immutable_source_root/commit and recovery entrypoint references updated coherently. Do not replace renderer inside original immutable561026source or modify the checkpoint."
+    },
+    "reload_boundary": "Proposed correction remains Walkback-only plus candidate-aware recovery source/reference installation; listener/resolver changes or recovery are not authorized by this preflight. Exact executable activation/rollback plan is not approved while live authority gate fails.",
+    "report_path": "/private/tmp/flex-walkback-contention-preflight-20261029/PREFLIGHT_REPORT.json",
+    "report_sha256": "afb16f83418643f1b54e702e1b893c9233cd617173c17b34e678a08a29c9b554",
+    "runtime": {
+      "Walkback": "RUNNING pid77830",
+      "bounded_log_read": "Last16KiB each of four existing role logs; matching repeated startup/cycle exceptions. No provider requests or gate locks.",
+      "disk_free_bytes": 50997358592,
+      "listener": "BACKOFF Exited too quickly",
+      "remaining_live_checks": "Stopped after critical runtime/authority failure; do not claim complete WAL/journal/custody/lifecycle live acceptance.",
+      "resolver": "BACKOFF Exited too quickly",
+      "specific_error": "PairedBindingError: PAIR_RETIRED_PREDECESSOR_REPLACED in both installed role paired_binding_guard._retirement."
+    },
+    "source_publication": "Candidate remains LOCAL_ONLY; aggregate handoff publication only.",
+    "status": "HOLD_SINGLE_CRITICAL_BLOCKER",
+    "tests": "124accepted provider-free qualification controls reused; no rerun.",
+    "updated_at_utc": "2026-10-29T09:41:14.890657+00:00",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER"
+  },
   "flex_v2_walkback_gate_contention_correction_qualification_20261029": {
     "accounting_integrity": {
       "checks": "Real gate reservations/finish owners used; same successful workload costs8credits in either version, no duplicate acquisition. Lifetime ceiling refusal, cooldown, uncertain denial, providerpayment/authdenial, invalid publication/generation/storage remain guarded. No retry boundary wraps reservations, provider dispatch, completion or uncertain requests.",
@@ -55536,8 +55599,8 @@
     "git_head": "5e4362bb54131349f963099f82afd9fe05c9ea19",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T09:20:49.374919+00:00",
-    "working_tree": "DedicatedisolatedDEV cleancommit5e4362bb. Walkback-onlyexacttypedgatebusyretrybeforeselection/ownership,5attempts4x25ms,max100msentry. Currentgate/accounting/sourceguards unchanged; rendereroneworkerpin.124qualifiedcontrolspass,4historicalchecksrecordedexcluded; controlled50mscontention improvement45s->0.05s,same8credits singletransient. Sixuncertain73920fixturehistory/freshpair/certificate/custody/lifecyclepassed. DEV_PASSnotdeployed; prod561026workerpreimageca87unchanged,3PIDscontinuous. SourcecommitLOCAL_ONLY."
+    "updated_at_utc": "2026-10-29T09:41:14.890657+00:00",
+    "working_tree": "READONLYdeploymentpreflightHOLD. Candidate5e4362bbworker+rendererhashes/installedpreimagesmatch,124controlsreused. Live listener/resolverBACKOFF bothPAIR_RETIRED_PREDECESSOR_REPLACED; Walkback77830RUNNING butpairauthorityfails. OPENREADY100000cap6uncertain0inflightdoesnotgrantadmissionsafety. No deploy/sourcechanges/restarts/gatelocks/providers/V1access. Remainingpreflightchecks stopped. Exactnextactionboundedretirement-authoritydiagnosis separatelyauthorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

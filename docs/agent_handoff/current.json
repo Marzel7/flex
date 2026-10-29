@@ -30496,6 +30496,57 @@
       "provider_free": true
     }
   },
+  "flex_v2_retired_path_preopen_qualification_20261029": {
+    "ACTIVE_V2_COMPATIBILITY": "Actual active V2 writes pass. Managed current stores use mode=rw and cannot be recreated after disappearance. Existing pair/certificate functions unchanged. Explicit bootstrap allocation remains owned by recovery.",
+    "CANDIDATE_SHA": "enclosing immutable Git commit",
+    "EXACT_SOURCE_DELTA": "Pre-native-open guard in six packaged shared connectors and native DWS adapters; existing-only operation identity utility in root/three roles; read-only existing-only audited discovery census; 12 runtime recovery pins. No worker business, gate, certificate, lifecycle or recovery-entrypoint logic changed.",
+    "EXISTING_STORE_NO_CREATE": "operation_identity and audited discovery census use existing_only. Missing stores fail without creation. Unbound unrelated unmarked stores and in-memory behavior unchanged.",
+    "EXTERNAL_CREATOR_LIMITATION": "Stale com.flex.dev035-api launchd job references retired WT_OPS_DB_PATH and missing /private/tmp/flex-dev035-health-scope cwd. Unmodified. It can bypass candidate by loading stale/unwrapped native SQLite; unmanaged/raw SQLite is outside connector protection. Exact incident creator remains unresolved. No filesystem protection changes.",
+    "FLEX_V2_RETIRED_PATH_PREVENTION_STATUS": "DEV_PASS_QUALIFIED_NOT_DEPLOYED",
+    "NEXT_ACTION": "Read-only coherent multi-role source/recovery/lifecycle/dormant-reader preflight for this exact candidate; no deployment authorized.",
+    "PRE_OPEN_REFUSAL": "Actual tracked/patched/native/DWS entrypoints reject both certified original predecessor paths before SQLite invocation; paths remain absent. Invalid certificate, mixed generation and ambiguous marker fail closed. Legitimate qualified known-V2 predecessor read-only recovery remains supported.",
+    "PROVIDER_FREE_TEST_RESULTS": {
+      "actual_native_recovery": "Compact native backup/transfer and full retirement-aware fresh pair fixture with six uncertain requests, 73920 fixture reserved credits and 100000 limit pass.",
+      "deselected": 3,
+      "failed": 0,
+      "network": "Provider/socket connection blocked in new fixtures; zero live provider requests.",
+      "passed": 147,
+      "selection": "Focused preopen + predecessor + retirement recovery + Walkback pending recovery + lifecycle controls; excludes three historical paired-maintenance harness cases, unchanged baseline caller covered separately.",
+      "xml_sha256": "d91c9f46b8b20db12af4fea729ddf7e2e260f9b73e2c340204e307a2fb2a3386"
+    },
+    "READY_FOR_DEPLOYMENT_PREFLIGHT": true,
+    "RECOVERY_COMPATIBILITY": "Renderer pins all changed active runtime modules. Existing retirement certificate and current recovery entrypoint retained; Walkback pending restoration, terminal/deferred custody, CREATE, lifecycle and accounting preservation controls pass. No frozen tag changed. Future installation requires coherent immutable source/configuration and all affected readers.",
+    "blocker": null,
+    "candidate_branch": "codex/flex-v2-retired-path-prevention",
+    "created_at": "2026-10-29T18:42:05.536652+00:00",
+    "engineering_revision": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+    "manifest_sha256": "7aaddc1770770c88ac061e6c1dfef5e98f9aaab99d0deacf6d6165933a680703",
+    "production": {
+      "certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+      "disk_free_bytes": 49054752768,
+      "gate": "OPEN with lock-free READY checksum verified",
+      "gate_locks": 0,
+      "installed_preimages": "12/12 matched baseline561026",
+      "investigation_limit": 100000,
+      "modified": false,
+      "provider_calls": 0,
+      "resolver_pid_note": "Current resolver PID differs from prior handoff82452; no Codex restart/signal performed. Cause not investigated in focused DEV task.",
+      "v1_content_access": false,
+      "worker_restarts_or_signals": 0,
+      "workers_running": {
+        "listener": 82435,
+        "resolver": 9452,
+        "walkback": 77830
+      }
+    },
+    "production_flags": "No production changes/deployment/provider calls/gate locks/restarts/V1 access; current OPEN/READY100000; original tags unchanged.",
+    "production_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "qualification_sha256": "43c3d9150e72c6dff0788eeb97582dfcf072a0d7482c13568c168a1494044ddc",
+    "report_path": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-retired-path-prevention/flex/docs/dev/lightweight_dev004_first_v2/retired_path_preopen/QUALIFICATION.json",
+    "six_uncertain_requests": "6 OWNER_EXIT_UNCERTAIN verified by lock-free read; no reconciliation or accounting mutation",
+    "source_published": false,
+    "updated_at_utc": "2026-10-29T18:42:33.401950+00:00"
+  },
   "flex_v2_retired_path_recreation_root_cause_audit_20261029": {
     "active_references": {
       "Supervisor_dormant_roles": "API,bridge,monitors,funding,webhook,evidence/Cascade roles STOPPED. No activation performed.",
@@ -53905,7 +53956,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave production unchanged and preserve all historical/protected rows. Retain this exact eight-hour arrival/completion baseline for the next comparable completed-window check. If the measured fresh delay is unacceptable, seek separate focused DEV qualification of pre-selection contention handling; do not delete the backlog or change budgets.",
+  "next_action": "Read-only coherent multi-role source/recovery/lifecycle/dormant-reader preflight for this exact candidate; no deployment authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -56090,12 +56141,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-walkback-contention",
-    "git_head": "5e4362bb54131349f963099f82afd9fe05c9ea19",
+    "branch": "codex/flex-v2-retired-path-prevention",
+    "git_head": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T10:22:35.311302+00:00",
-    "working_tree": "READONLYretiredpathrecreationauditPARTIAL. Forensicinode1081681106zero-byteunchanged,retiredpathabsent,workers82435/82452/77830RUNNING,OPENREADY100000cap6uncertain. Exact09:19:42creatorUNRESOLVED(noPID/openaudit). Sourcegapverified: defaultnativeSQLiteopen precedesretirementstatementfence; unboundprimaryutilitieshavelegacyfallback. StalelaunchdDEV035APIexplicitWT_OPSV1binding butnoPID/missingcwd/oldlog\u2014notprovencreator. Current3SupervisorV2bindingscorrect. No implementation/providers/gatelocks/servicechanges/V1content."
+    "updated_at_utc": "2026-10-29T18:42:33.401950+00:00",
+    "working_tree": "Clean dedicated DEV candidate. 147 provider-free controls passed; 3 known historical harness cases excluded. No production edits. All3RUNNING; resolver now9452 without Codex signal; gateOPENREADY cap100000 sixuncertain. Next coherent read-only deployment preflight; external native/stale-source bypass remains explicit."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -57497,7 +57548,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PARTIAL:OVERALL_RETAINED_BACKLOG_SHRINKING_FRESH_BACKLOG_GROWING",
+  "status": "DEV_PASS_QUALIFIED_NOT_DEPLOYED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

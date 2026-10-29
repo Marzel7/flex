@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "HOLD_SINGLE_CRITICAL_BLOCKER: these are protected evidence/retry/deduplication-owner rows, not disposable scheduling entries; existing runtime has no evidence-preserving deletion and anti-recreation contract.",
+  "blocker": "HOLD_SINGLE_CRITICAL_BLOCKER: unfinished queue rows remain protected CREATE/funding/retry/deduplication owners; deleting them is not evidence-preserving under the existing runtime.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -26182,7 +26182,7 @@
         "free_bytes": 53198401536,
         "gate": {
           "limit": 100000,
-          "reserved": 90680,
+          "reserved": 91593,
           "state": "OPEN"
         },
         "gate_locks": false,
@@ -26203,6 +26203,44 @@
     "report_sha256": "760113600b342de2b7b466c90d99b50002bbde0ff75e577b813cd07ed0232af1",
     "status": "HOLD",
     "tests": "Read-only frozen identity/current row comparison, indexed FK/Core/CREATE dependencies and installed source tracing only. No tests or production transactions."
+  },
+  "flex_v2_historical_walkback_deletion_recheck": {
+    "blocker": "HOLD_SINGLE_CRITICAL_BLOCKER: unfinished queue rows remain protected CREATE/funding/retry/deduplication owners; deleting them is not evidence-preserving under the existing runtime.",
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Do not delete. Retain historical records and separately qualify fresh-job prioritization in the existing worker if desired; no new queue or scheduler is necessary. Never include the two newly completed rows in an unfinished cleanup.",
+    "production_flags": {
+      "V1_access": false,
+      "deletion": false,
+      "gate": "OPENREADY6uncertain100000cap",
+      "provider_calls": false,
+      "source_changes": false,
+      "workers": "same3RUNNING"
+    },
+    "recheck": {
+      "at": 1793233244.149737,
+      "current_target_states": {
+        "complete": 2,
+        "pending": 101,
+        "waiting": 1551
+      },
+      "dependency_source_checkpoint_hashes_unchanged": true,
+      "frozen_population": 1654,
+      "gate_state": "OPEN",
+      "limit": 100000,
+      "protected_uncertain_current_states": {
+        "pending": 3
+      },
+      "protected_uncertain_jobs": 3,
+      "reserved_credits": 91593,
+      "uncertain_requests": 6,
+      "unfinished_VALID_anchors": 101,
+      "unfinished_before_cutoff": 1652,
+      "unfinished_funding_signatures": 89
+    },
+    "report_path": "/private/tmp/flex-historical-walkback-deletion-preflight/RECHECK_REPORT.json",
+    "report_sha256": "f5adeb0832f6ac15edf7c40dc292f5fbd4fde6bde3b153f01ffcf64aac2b33ae",
+    "status": "HOLD",
+    "tests": "Reused source/dependency analysis after checkpoint-hash verification; fresh indexed frozen-identity and protected-state readbacks only."
   },
   "flex_v2_intake_stability": {
     "critical_blocker": "Qualified retry correction is not installed; live no-op warnings remain. Golden acceptance pending controlled preflight and separately authorized deployment.",
@@ -42233,7 +42271,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-29T00:00:42.279992+00:00",
+  "latest_at_utc": "2026-10-29T00:21:23.852442+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -51652,7 +51690,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Retain all rows. If fresh-job service is the goal, separately qualify a small change to the existing worker selection/priority policy while preserving historical rows, rather than deleting evidence or creating a new queue/scheduler/schema. No deletion authorization should be sought for this unqualified set.",
+  "next_action": "Do not delete. Retain historical records and separately qualify fresh-job prioritization in the existing worker if desired; no new queue or scheduler is necessary. Never include the two newly completed rows in an unfinished cleanup.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -53841,8 +53879,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T00:00:42.279992+00:00",
-    "working_tree": "ReadonlydeletionpreflightHOLD:exact103PENDING+1551WAITING stillold/unfinished.3pendingrootshaveprotecteduncertainrequests(exclude);103VALIDOPSCREATEanchors,88fundersignatures/wallets,1subprovider. After3excluded100anchors87fundersigsstillat risk. All1654CorehandoffsCOMPLETE;103CoreCREATEACK. NoqueueDELETEtriggercascade/currentmembershipFKrefs, but queueownsevidence/retry/dedupstate. CREATEdispatcherdoesnotrebuildmissingrows; laterenqueuecanrecreatewithnewtime/attempts. No deletion or changes. All3PIDssame,OPENREADY6uncertain100000cap."
+    "updated_at_utc": "2026-10-29T00:21:23.852442+00:00",
+    "working_tree": "ReadonlyrepeatpreflightHOLD:1654originaltargetsnow101pending1551waiting2complete(exclude).1652stillunfinishedprecut;101VALIDOPSCREATEanchors89fundingsigs.3uncertainpendingexclusionspreserved. Dependencyfilesmatchimmutablecheckpoint. All3PIDssameRUNNING,OPENREADY6uncertain100000limit. No deletion or changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -55244,7 +55282,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "HISTORICAL_WALKBACK_CLEANUP_HOLD",
+  "status": "HISTORICAL_WALKBACK_CLEANUP_RECHECK_HOLD",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -56823,7 +56861,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_PROTECTED_QUEUE_EVIDENCE_AND_IDENTITY_AUTHORITY",
+  "verdict": "HOLD_PROTECTED_EVIDENCE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

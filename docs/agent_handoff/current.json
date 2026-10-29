@@ -19501,6 +19501,25 @@
     "window_end_utc": "2026-10-26T09:18:48.178858Z",
     "window_start_utc": "2026-10-25T21:18:48.178858Z"
   },
+  "flex_v2_79_clock_held_audit_20261029": {
+    "blocker": "79/79 attempts=3 excluded by attempts<3 despite due retry times; current gate OPEN checksum valid, divergence1 second",
+    "cohort_unchanged": 79,
+    "engineering_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "investigation_limit": 100000,
+    "next_action": "Separate DEV authorization for evidence-preserving clock-hold retry eligibility and truthful terminal classification. Keep existing attempts and spending; any future cohort reactivation requires separate explicit authority. No replay recommended under this audit.",
+    "production_flags": {
+      "provider_calls": false,
+      "replay": false,
+      "restarts": false,
+      "writes": false
+    },
+    "report": "/private/tmp/flex-79-clock-held-audit/REPORT.json",
+    "report_sha256": "07f6d3b2a05941074799e7b27334c501f537764e52f96101de736a200090819a",
+    "restart_risk": "Startup finalize_exhausted_pending can mark non-ACQUISITION_UNAVAILABLE exhausted pending rows failed with NO_ATTRIBUTION_FOUND; no restart performed.",
+    "tests": "79 identity-indexed read-only queue lookups; exact installed source hash match; effective max attempts3; lock-free checksum/clock/accounting snapshot; Supervisor status",
+    "uncertain_preserved": 6,
+    "verdict": "VERIFIED_RETRY_CEILING_BLOCKER_NO_CHANGES"
+  },
   "flex_v2_architecture_redundancy_golden_audit": {
     "baseline_created": false,
     "critical_finding": "P0 migration-journal saturation: captured512records including511protected RETRY_EXHAUSTED and1ACKED; bounded recent logs demonstrate JOURNAL_CAPACITY refusals and PumpPortal reconnects. Do not infer lost-event count or delete protected records.",

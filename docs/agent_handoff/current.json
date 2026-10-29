@@ -30547,6 +30547,167 @@
     "source_published": false,
     "updated_at_utc": "2026-10-29T18:42:33.401950+00:00"
   },
+  "flex_v2_retired_path_prevention_deployment_20261029": {
+    "acceptance": {
+      "bounded_logs_truncated": [],
+      "canonical_Core_OPS_handoffs_lower_bound": 3,
+      "canonical_birth_ACK_matches_observed_lower_bound": 9,
+      "end_epoch": 1793300378.744789,
+      "new_log_error_tokens": {
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "PAIR_RETIRED_DATABASE_OPEN": 0,
+        "PAIR_RETIRED_PREDECESSOR_REPLACED": 0,
+        "PumpPortal": 0,
+        "PumpSwap": 3,
+        "RETRY_EXHAUSTED": 0,
+        "Traceback (most recent call last)": 0
+      },
+      "new_migration_admissions_current_journal_lower_bound": 2,
+      "qualification": "Natural retained evidence only; lower bounds account for journal reclamation. Walkback completion is not attribution.",
+      "start_epoch": 1793300067.4144828,
+      "walkback_completions_lower_bound": 2,
+      "walkback_queue": {
+        "complete": 2372,
+        "failed": 56,
+        "pending": 133,
+        "running": 1,
+        "waiting": 1551
+      },
+      "window_seconds": 311.3303060531616
+    },
+    "blocker": null,
+    "engineering_revision": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+    "helius": {
+      "cap": 100000,
+      "history_monotonic": true,
+      "inflight": [],
+      "measurement": "Local durable reserved worst-case credits; not billed credits. Status deltas are retained natural response evidence.",
+      "natural_response_status_deltas_since_quiescence": {
+        "200": 242,
+        "401": 0,
+        "other": 0,
+        "transport_error": 0
+      },
+      "no_gate_operations": true,
+      "no_test_provider_calls": true,
+      "publication": "READY_CHECKSUM_VALID",
+      "request_reservation_increase": 195,
+      "reserved_estimate": 126705,
+      "reserved_increase": 195,
+      "state": "OPEN",
+      "uncertain": 6,
+      "uncertain_preserved": true
+    },
+    "installed_runtime_revision": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+    "installed_source_hashes": {
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/database_write_service.py": "e67d6e1d84bc15328e5002b27dd7a23eb16476b8c62213911ae15b977c2e4b13",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/paired_binding_guard.py": "e21478adb8536e525f0eff8d836260a6940d265a2ae885776625c8376a59ad57",
+      "/Users/kevinkeaveney/Production/flex-listener/src/ops/operation_identity.py": "df51acac8fc5f601e85460ef36b51af39e574978ade6c8f41c24cb77f67d66e0",
+      "/Users/kevinkeaveney/Production/flex-listener/src/utils/db_locking.py": "19e4bc8cfbfa0f1187d60f83f75c70e697ea955ec52722c0cae4f0b8f8e78de9",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/core/database_write_service.py": "e67d6e1d84bc15328e5002b27dd7a23eb16476b8c62213911ae15b977c2e4b13",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/core/paired_binding_guard.py": "e21478adb8536e525f0eff8d836260a6940d265a2ae885776625c8376a59ad57",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/ops/operation_identity.py": "df51acac8fc5f601e85460ef36b51af39e574978ade6c8f41c24cb77f67d66e0",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/utils/db_locking.py": "19e4bc8cfbfa0f1187d60f83f75c70e697ea955ec52722c0cae4f0b8f8e78de9",
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/database_write_service.py": "e67d6e1d84bc15328e5002b27dd7a23eb16476b8c62213911ae15b977c2e4b13",
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/paired_binding_guard.py": "e21478adb8536e525f0eff8d836260a6940d265a2ae885776625c8376a59ad57",
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/ops/operation_identity.py": "df51acac8fc5f601e85460ef36b51af39e574978ade6c8f41c24cb77f67d66e0",
+      "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/utils/db_locking.py": "797b23d0811f2721973b19ebcb8f157e28824091dad38807f81620be8fee23b6"
+    },
+    "next_action": "Leave all3approvedworkersRUNNING. Keep candidate-aware recovery/lifecycle authority. No further engineering or acquisition initiated. Birthjournal finiteheadroom remains explicit operational limitation.",
+    "production_flags": "Authorizedexactcandidateinstalled,only3approvedworkersreloaded. No testproviderrequests,gatelocks,budgetchanges,certificatechanges,DBcopies,V1access,replay,unrelatedserviceactions.",
+    "recovery": {
+      "all12newpins_verified": true,
+      "frozen_tags_unchanged": true,
+      "immutable_source_commit": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+      "immutable_source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-preopen-6d6e3e81/source",
+      "lifecycle_constructor_validated_no_cleanup": true,
+      "no_schema_changes": true,
+      "plan_sha256": "eca4f36bb5666899bec2736278acbeaf68e9896ec2e60c0b454ec5a0fa917b52",
+      "preimages": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-preopen-6d6e3e81/installation/preimages",
+      "recovery_entrypoint": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-preopen-6d6e3e81/source/scripts/flex_v2_fresh_pair_recovery.py",
+      "renderer": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-preopen-6d6e3e81/source/docs/dev/lightweight_dev004_first_v2/quarantine_continuation/production_control.py",
+      "single_15minute_lifecycle_schedule": true
+    },
+    "report_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-preopen-6d6e3e81/installation/DEPLOYMENT_REPORT.json",
+    "report_sha256": "0eef7d5418e22c009b9c41248b6ebf2c633ec5de179f830f34fa7a7a843a8f32",
+    "residual_risk": "Stale com.flex.dev035-api job remains unchanged. Stale source or direct unwrapped native SQLite can bypass corrected connector; this is source-level protection, not OS-wide denial. Original creator remains unproven. No dormant activation.",
+    "retired_paths": {
+      "both_absent": true,
+      "certificate_unchanged": true,
+      "no_V1_content_access": true,
+      "pair_and_owner_unchanged": true
+    },
+    "source_root": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/retired-preopen-6d6e3e81/source",
+    "status": "PASS",
+    "storage": {
+      "all_quiesced_journal_bytes_unchanged_during_install": true,
+      "birth": {
+        "current_fresh_canonical_ACK_lower_bound": 5,
+        "free": 2,
+        "occupied": 510,
+        "states": {
+          "ACKED": 5,
+          "QUARANTINED": 505
+        },
+        "verified_reclaimable_ack": 5
+      },
+      "birth_reclamation_observed": "Journal went512with9verifiedACK to510with5verifiedACK whileprotectedquarantines increased503to505; functioning reclamation, finite headroom remains tight.",
+      "custody": {
+        "birth_terminal": {
+          "bytes": 1641620,
+          "records": 1212
+        },
+        "migration_deferred": {
+          "bytes": 3875808,
+          "records": 1481
+        },
+        "migration_terminal": {
+          "bytes": 2119854,
+          "records": 1892
+        }
+      },
+      "disk_free_bytes": 48733888512,
+      "files": {
+        "core": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 106954752
+        },
+        "ops": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 173539328
+        }
+      },
+      "migration": {
+        "free": 25,
+        "occupied": 487,
+        "states": {
+          "PENDING": 486,
+          "RESOLVED": 1
+        }
+      },
+      "no_terminal_exhaustion_growth": true
+    },
+    "tests": "147accepted provider-free controls reused; exact livepreimages/pins rechecked,311seconds naturalacceptance",
+    "updated_at_utc": "2026-10-29T19:00:41.928977+00:00",
+    "workers": {
+      "RUNNING_stable": true,
+      "listener": {
+        "after": 23351,
+        "before": 82435
+      },
+      "resolver": {
+        "after": 23363,
+        "before": 9452
+      },
+      "walkback": {
+        "after": 23381,
+        "before": 77830
+      }
+    }
+  },
   "flex_v2_retired_path_prevention_deployment_preflight_20261029": {
     "AFFECTED_READERS": "Three active shared SQLite/native DWS connectors and existing-store operation_identity utilities; root shared connectors, monitor-worker/bridge package copies, discovery census; candidate recovery renderer, current fresh-pair entrypoint and existing single lifecycle caller. No business worker changes.",
     "CANDIDATE_INTEGRITY": {
@@ -54085,7 +54246,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separately authorize exact candidate coherent3worker installation and source/recovery/lifecycle references using frozen plan; immediate safety checks mandatory. No deployment performed.",
+  "next_action": "Leave all3approvedworkersRUNNING. Keep candidate-aware recovery/lifecycle authority. No further engineering or acquisition initiated. Birthjournal finiteheadroom remains explicit operational limitation.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -56274,8 +56435,8 @@
     "git_head": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T18:47:54.030085+00:00",
-    "working_tree": "Clean candidate; read-only preflight PASS, all24preimages and111checks pass. Workers82435/9452/77830 unchanged. OPENREADY cap100000,sixuncertain exacthash unchanged,spending monotonic. Birth508/512 with6verifiedACK,502protected; migration472/512,custodybelowquotas,disk49.1GB,WAL0. Candidate notdeployed. Externalstale/nativebypass remains. Next separatelyauthorize coherent3worker/source/recovery/lifecycle installation."
+    "updated_at_utc": "2026-10-29T19:00:41.928977+00:00",
+    "working_tree": "Cleancandidate6d6e3e81deployedfromstableimmutableauthority. Only3workersreloaded,now23351/23363/23381RUNNING.311secacceptancePASS:>=9birthcommits,3canonicalhandoffs,2Walkbackcompletions. OPENREADY,6uncertainpreserved,100000cap,0stuck. Retiredpathsabsent,certificate/tagsunchanged. Birth510/512+5verifiedACK,migration487/512;disk48.7GB. Candidateawarerecovery/lifecycleactive. Externalstale/nativebypassriskremains."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -57677,7 +57838,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+  "status": "PASS_RETIRED_PATH_PREVENTION_DEPLOYED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

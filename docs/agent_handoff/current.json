@@ -30291,6 +30291,135 @@
       "provider_free": true
     }
   },
+  "flex_v2_retirement_identity_failure_diagnosis_20261029": {
+    "Walkback_continuity": {
+      "PID": 77830,
+      "effective_bindings_correct": true,
+      "guard_failure_also_present": true,
+      "latest_retained_failure_epoch": 1793267214.908,
+      "outer_loop": "Installed run_loop catches Exception, logs cycle_completed failure/outer loop error, sleeps45seconds and continues. Thus Supervisor RUNNING means process alive, not healthy acquisition or completed investigations."
+    },
+    "affected_predecessor": {
+      "actual": {
+        "allocated": 0,
+        "birthtime": 1793265582.7085845,
+        "ctime_ns": 1793265582708584555,
+        "device": 16777234,
+        "exists": true,
+        "gid": 20,
+        "inode": 1081681106,
+        "links": 1,
+        "mode": "0o644",
+        "mtime_ns": 1793265582708584555,
+        "regular": true,
+        "resolved_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+        "size": 0,
+        "symlink": false,
+        "uid": 501
+      },
+      "creation_process": "UNKNOWN. No durable creatorPID/audittrail identified; timestamp proximity to other events is not attributed as causation.",
+      "expected": {
+        "device": 16777234,
+        "inode": 421043107
+      },
+      "open_handles": "lsof exactpath returned no open handles at observation; no contents opened.",
+      "path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "path_resolution": "Absolute physical path, regular file, no symlink, linkcount1. No path-resolution ambiguity observed.",
+      "replaced_file_contents": "NOT_ACCESSED; metadata size0means no payload bytes present.",
+      "retired_Core_path": "Remains absent; retained sidecars/markers untouched.",
+      "stable_independent_metadata_recheck": true
+    },
+    "authority_consistency": {
+      "active_V2": {
+        "core": {
+          "generation_matches": true,
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/core.sqlite",
+          "physical_matches": true,
+          "seal_sha256_matches": true
+        },
+        "ops": {
+          "generation_matches": true,
+          "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/databases/ops.sqlite",
+          "physical_matches": true,
+          "seal_sha256_matches": true
+        }
+      },
+      "certificate_sha256": "e16be7de87715424b80f0a69fc806773870ca65c539e47bd4aae8dde2e1bb8f6",
+      "conclusion": "Certificate, original historical identities, retired markers and active V2 physical seals/generation remain consistent. The new empty predecessor replacement is the refusal trigger; no certificate repair is indicated.",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "phase": "ACTIVE",
+      "retired_markers_match": {
+        "core": true,
+        "ops": true
+      },
+      "state": "VERIFIED",
+      "successor_manifest_matches": true
+    },
+    "blocker": "ExactnewemptyOPSpredecessor replacement invalidatesretirementguard. Quarantine/startnotauthorized;creatorunknown.",
+    "engineering_revision": "5e4362bb54131349f963099f82afd9fe05c9ea19",
+    "environment_comparison": {
+      "all_roles_same_safe_authority_bindings": true,
+      "config_sha256": "82317a4f0b673584221e9e7921b912cbf399b1b8f8c8eb9727d49edaea76ef88",
+      "listener_resolver_live_environment": "Workers areBACKOFF; no stable currentPIDenvironment to inspect. UnchangedSupervisor configuration specifies correctV2pair/certificate; direct guard probes using those exact whitelisted bindings deterministically reproduce the error.",
+      "live_Walkback_matches_config": true,
+      "matches_post_retirement_checkpoint": true,
+      "stale_binding_hypothesis": "Not supported; actual predecessor file identity differs."
+    },
+    "evidence_sha256": {
+      "CONFIG_BINDINGS.json": "299dbaf54527a87a80156fb71ba10b7a95865f8b019851a93b79000a3ab0ccf5",
+      "DETERMINISTIC_GUARD_READBACK.json": "c18b64447479afcaff7e3fbbe7cfc7bea73d0fe528fcac46e54e445ab9cbdc9b",
+      "IDENTITY.json": "b0439fc67a200965d16ebe72528657f154264a7aeb7f6d1952ff12c5cb8995f1",
+      "LIFECYCLE_SCHEDULE.json": "8d30df651536dba83986f22c2b396e1ee017a144427aeff4540d6dfe5944d9cf",
+      "LOG_TIMELINE.json": "db7eb2b5a032af2c4b0629fd1c7b4084550224ac5c9411ba811e78382b1bce35",
+      "SUPERVISOR_TIMELINE.json": "71ad313ee5ddf61406c509ddde169eb37aec360fc83d263d970689b0a6c95819",
+      "WALKBACK_EFFECTIVE_BINDINGS.json": "1e51b8a3894859289f58dc277589760f0b45baeb07d0418d7833085c73cb314c"
+    },
+    "guard_failure": {
+      "branch": "paired_binding_guard._retirement: actual=_fingerprint(old); if actual exists and(device,inode) differs from certificate predecessor identity ->PAIR_RETIRED_PREDECESSOR_REPLACED.",
+      "deterministic_readonly_validation": {
+        "creator_resolution_worker": {
+          "error": "PAIR_RETIRED_PREDECESSOR_REPLACED",
+          "guard_sha256": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0"
+        },
+        "walkback_worker": {
+          "error": "PAIR_RETIRED_PREDECESSOR_REPLACED",
+          "guard_sha256": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0"
+        },
+        "watchtower_listener": {
+          "error": "PAIR_RETIRED_PREDECESSOR_REPLACED",
+          "guard_sha256": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0"
+        }
+      },
+      "installed_guard_sha256": "d896c04da5459f98064020503c2daa1d67849699445a1adaa486aa9baab27ae0",
+      "meaning": "A different physical regular file exists at the retired OPS predecessor path. Missing retired paths are allowed with valid certificate; replacement identity is explicitly refused."
+    },
+    "next_action": "Authorize narrowly scoped exact-stub quarantine and guard revalidation before any worker start. Keep Walkback performance deployment onHOLD. Preserve all sixuncertainrequests and spending authority; do not modify certificate or markers.",
+    "production_flags": "UNCHANGED; no service/config/gate/DB/marker/certificate mutations.",
+    "production_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "raw_DB_or_provider_content_published": false,
+    "report_path": "/private/tmp/flex-retirement-identity-diagnosis-20261029/DIAGNOSIS_REPORT.json",
+    "report_sha256": "b91205a13ee5fba2f26d6c784f94e7213c42b5e1ff50a6d7af3e3d00fb178bb9",
+    "safe_recovery_option": {
+      "authorization": "Not granted under this diagnosis; no quarantine/removal/start executed.",
+      "minimum_candidate": "Separately authorize controlled quarantine of only the newly recreated zero-byte wt_ops_v2.db (device16777234,inode1081681106), after repeated exactidentity/type/linkcount/size/noopenhandle checks. Preserve its metadata and all certificate/marker/sidecar/V2 evidence. Do not restore original V1 or rewrite retirement authority.",
+      "recurrence_risk": "Filecreator remainsUNKNOWN. If stub reappears, identity changes, handles appear, or any authoritycheckfails, stop and investigate; do not repeatedlydelete or bypassguard.",
+      "then": "Read-only revalidate allthreepairguards; only if they pass, use accepted Supervisor controls to start listener/resolver. Keep Walkback running unless an independently proven recovery guard requires otherwise. No Heliusprobe, gate reset, budget change or exhaustedreplay needed by this diagnosed fault."
+    },
+    "status": "VERIFIED_CAUSE_HOLD_RECOVERY_AUTHORIZATION",
+    "tests": "No DEV tests/source changes. Three installed guards executed as standalone read-only metadata validation using whitelisted exact Supervisor bindings; each deterministically refuses same replacedpredecessor. No V1contentsopened.",
+    "timeline": {
+      "bounded_evidence": "At most8MiB per sixnamed retainedlogs, metadata/checksums only elsewhere; no large archive or source modifications.",
+      "first_listener_unexpected_exit": "2026-10-29T09:21:27.396Z status1; repeatedstartupfailures thereafter",
+      "first_precisely_timestamped_guard_refusal": "2026-10-29T09:19:53.001Z WalkbackPID77830cycle_completed PairedBindingError",
+      "first_resolver_unexpected_exit": "2026-10-29T09:24:45.122Z status1; repeatedstartupfailures thereafter",
+      "lifecycle": "Existing single15minuteschedule hash unchanged; owner cleanup allows disposableRPCcache/WSS only. No retained event proves lifecycle created this replacement.",
+      "preceding_known_DEV_tests": "Mainqualifiedsuite ended09:16:29.523624Z; comparison ended09:17:10.554333Z. Engineeringcommit timestamp09:20:02Z. None establishes who created the file at09:19:42; no Git hooks found in configured hooks directory, no startupsitecustomization loaded in inspected Python process.",
+      "replacement_filesystem_birthtime_utc": "2026-10-29T09:19:42.708585Z",
+      "scope_limit": "Listener/resolver error lines lack per-exception timestamps; firstglobalfailuretime cannot be refined beyond retained evidence. Filesystembirthtime plus actualguardidentity establishes cause of refusal, not creatorattribution."
+    },
+    "updated_at_utc": "2026-10-29T09:50:34.273000+00:00",
+    "verdict": "HOLD_FOR_SEPARATELY_AUTHORIZED_EXACT_FILE_RECOVERY"
+  },
   "flex_v2_retry_only_source": {
     "blocker": null,
     "deployment_authorized": true,
@@ -55599,8 +55728,8 @@
     "git_head": "5e4362bb54131349f963099f82afd9fe05c9ea19",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T09:41:14.890657+00:00",
-    "working_tree": "READONLYdeploymentpreflightHOLD. Candidate5e4362bbworker+rendererhashes/installedpreimagesmatch,124controlsreused. Live listener/resolverBACKOFF bothPAIR_RETIRED_PREDECESSOR_REPLACED; Walkback77830RUNNING butpairauthorityfails. OPENREADY100000cap6uncertain0inflightdoesnotgrantadmissionsafety. No deploy/sourcechanges/restarts/gatelocks/providers/V1access. Remainingpreflightchecks stopped. Exactnextactionboundedretirement-authoritydiagnosis separatelyauthorized."
+    "updated_at_utc": "2026-10-29T09:50:34.273000+00:00",
+    "working_tree": "READONLYP0identitydiagnosisVERIFIED. RetiredOPSpath wt_ops_v2.db recreated0bytesdevice16777234inode1081681106 vs certified421043107;birth09:19:42.708585UTC. CoreV1absent; cert/markers/currentV2pairsealsmatch. All3installedguardsdeterministicallyPAIR_RETIRED_PREDECESSOR_REPLACED. Configunchanged/liveWalkbackbindingscorrect. Walkback77830alivebutouterloopfails45s,listener/resolverBACKOFF. CreatorUNKNOWN,nohandles. HOLDrecoveryrequiresauthorization;nochanges/provider/gatelocks/restarts/V1content. Performance deployment remainsHOLD."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

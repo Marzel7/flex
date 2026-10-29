@@ -19531,6 +19531,228 @@
     "status": "COMPLETE_READ_ONLY_WITH_EXPLICIT_UNKNOWNS",
     "updated_at_utc": "2026-10-25T18:15:56.349016+00:00"
   },
+  "flex_v2_authorized_clock_anchor_recovery_20261029": {
+    "RPC": {
+      "HTTP_status_increases": {
+        "200": 108,
+        "401": 0,
+        "other": 0,
+        "transport_error": 0
+      },
+      "cap": 100000,
+      "clock_divergence_seconds": 0,
+      "eligibility_restored_proof": "Clockguardvalid0seconds; READYchecksumvalid, OPEN, existingpolicyunchanged,and108newHTTP200outcomes. OneactiveWalkbackreservationage1secondnotstuck.",
+      "inflight": [
+        {
+          "age_seconds": 1,
+          "role": "walkback"
+        }
+      ],
+      "latest_HTTP_completed": 1793312610,
+      "observation_seconds": 361.7862927913666,
+      "provider_probes_or_tests": 0,
+      "publication": "READY_CHECKSUM_VALID",
+      "reservation_count_increase": 109,
+      "reserved_credit_increase": 109,
+      "reserved_credit_increase_by_worker": {
+        "creator_resolution": 0,
+        "listener": 6,
+        "walkback": 103
+      },
+      "reserved_estimate_total": 133505,
+      "six_uncertain_exact": true,
+      "state": "OPEN"
+    },
+    "accounting": {
+      "all79_rows_identity_status_attempts_error_unchanged": true,
+      "before_reserved_estimate": 133396,
+      "final_reserved_estimate": 133505,
+      "natural_reserved_estimate_increase": 109,
+      "not_provider_billing": true,
+      "operator_refund_or_reset": false,
+      "original42_held_population_note": "Heldpopulationgrewbeforeexecution; preserveentire79-rowexecutioncensus,notonlyearlier42. Firstattempt78-rowcensusisexactsubsetofpreserved79. No queuewrites/replay/reset.",
+      "original_history_monotonic_after_natural_resumption": true,
+      "per_investigation_limit": 100000,
+      "policy_and_request_keys_cooldowns_owners_unchanged_at_reconciliation": true,
+      "protected_ceiling_rows_at_execution": 79,
+      "six_uncertain_requests_exact": true
+    },
+    "blocker": null,
+    "clock_anchors": {
+      "after_reconciliation": {
+        "monotonic": 948060,
+        "wall": 1793312250
+      },
+      "before": {
+        "monotonic": 945611,
+        "wall": 1793309770
+      },
+      "before_sha256": "b82674542a17a297545be1b109fab5c0b078109a3bd629badc1654743c406271",
+      "cooldown_horizon_seconds": 120,
+      "exact_after_sha256": "f0cd92b440ad5f7d6bb8ddc3c2606a8bf9be7acc40d1beaf0b1989d50672ce78",
+      "final_observed_discrepancy_seconds": 0,
+      "minimum_proven_elapsed_seconds": 2449,
+      "only_two_fields_changed_independent_hash_proof": true,
+      "reconciliation_UTC": "2026-10-29T22:17:30+00:00",
+      "utility_revision": "447190eec988b47eca8e95361ebff7a9ff0ca968",
+      "utility_sha256": "d46225baac1253cf7a6f8ffac111f7f52f5c9b431c219bd048dc3a3f0c9a762b"
+    },
+    "engineering_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "installed_runtime_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "lock_history": {
+      "first_attempt": "TypedHELIUS_GATE_BUSYbeforelock/body;noanchorchange,ledgerREADY,0inflight.",
+      "qualified_followup": "Freshpreimagesandstableclockproof;existingboundedprelockhandlingavailable10x100ms,butacquiredonfirstattemptofsecondinvocation. Exactlyonesuccessfultwo-anchorpublication. No CAS/body/providerretry."
+    },
+    "next_action": "Leaveall3workersRUNNINGwithvalidOPEN/READYclockauthority. Do notreset/replayceilingheldjobs. Separatelyreviewhostsleepcontinuityandprotectedretryrights;laterread-onlythroughputcomparisononlyifrequested.",
+    "production_flags": {
+      "V1_access": 0,
+      "actual_successful_clock_mutations": 1,
+      "database_copies": 0,
+      "fields_changed": [
+        "rpc_budget.wall",
+        "rpc_budget.mono"
+      ],
+      "provider_probes": 0,
+      "queue_replay_reset": 0,
+      "source_or_configuration_changes": 0,
+      "spending_resets_refunds": 0,
+      "worker_restarts": 0
+    },
+    "progress": {
+      "Walkback_completions": 0,
+      "Walkback_finished_batches": 3,
+      "Walkback_processed_claims": 24,
+      "Walkback_states": {
+        "complete": 2418,
+        "failed": 56,
+        "pending": 137,
+        "running": 1,
+        "waiting": 1551
+      },
+      "batch_outcomes": {
+        "pending": 24
+      },
+      "canonical_birth_ACKs_verified_lower_bound": 16,
+      "canonical_handoffs_verified_lower_bound": 1,
+      "interpretation": "EligibleRPCacquisitionandbatchprocessingresumed;0newcompletionsinshortwindow. Oldclocklabelsremainonunselected/protectedrowsandarenotnewclockfailures. No throughputbenefitclaimed.",
+      "migration_admissions_observed_lower_bound": 3,
+      "new_clock_error_rows_since_recovery": 0,
+      "pending_reasons_current": {
+        "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 98,
+        "HELIUS_GATE_BUSY": 36,
+        "HELIUS_REQUEST_COOLDOWN": 1,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+        "null": 1
+      }
+    },
+    "remaining_limitations": [
+      "79protectedpendingjobsat3attemptsremainunchanged; anchorrecoverydoesnotrestoretheirretryeligibility. Separatequalificationandauthorizationrequiredforanylaterrecovery;noautomaticreplay.",
+      "ZeroWalkbackcompletionsobservedalthough24claimsand103naturalWalkbackreservationsresumed;longerread-onlywindowneededforperformanceassessment.",
+      "Hostsleep/wakeavailabilityriskremains; noOSpowerpolicychanged.",
+      "Finitebirthjournalheadroomremains;10ACKindependentlyverifiedreclaimableatclosing."
+    ],
+    "report_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/clock-anchor-recovery-20261029T2215-attempt2/FINAL_ACCEPTANCE_REPORT.json",
+    "report_sha256": "0b7699f3f59387dad36d6461478047475a4b3c234f8984076b56230d1e6a66bb",
+    "status": "PASS_ANCHOR_ONLY_RECOVERY_AND_NATURAL_ACCEPTANCE",
+    "storage": {
+      "bounded_logs_complete": true,
+      "custody": {
+        "birth_terminal": {
+          "bytes": 1721612,
+          "records": 1272
+        },
+        "migration_deferred": {
+          "bytes": 4375896,
+          "records": 1673
+        },
+        "migration_terminal": {
+          "bytes": 2130223,
+          "records": 1901
+        }
+      },
+      "disk_free_bytes": 47716110336,
+      "files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 109793280
+        },
+        "ops": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 175075328
+        }
+      },
+      "journals": {
+        "birth": {
+          "free": 1,
+          "occupied": 511,
+          "states": {
+            "ACKED": 10,
+            "QUARANTINED": 500,
+            "RESOLVED": 1
+          },
+          "verified_reclaimable_ACK": 10
+        },
+        "migration": {
+          "free": 37,
+          "occupied": 475,
+          "states": {
+            "PENDING": 474,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "new_error_tokens": {
+        "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "PAIR_RETIRED_PREDECESSOR_REPLACED": 0,
+        "RETRY_EXHAUSTED": 0,
+        "Traceback (most recent call last)": 0
+      }
+    },
+    "tests": "Exactaccepted447190eeutilityused;27acceptedcontrolsreused. Independenttwo-fieldSHA/readbackproof;362secondnaturalacceptance,no syntheticprovidertraffic.",
+    "updated_at_utc": "2026-10-29T22:26:13.490178+00:00",
+    "verdict": "ClockrecoveryPASS; normalRPCeligiblewithvalidclock/OPENREADY. No claimofWalkbackthroughputrecovery;79ceilingheldrowspreserved,0newcompletionsinobservation.",
+    "workers": {
+      "after": {
+        "listener": {
+          "RUNNING": true,
+          "pid": 23351,
+          "uptime": "3:29:28"
+        },
+        "resolver": {
+          "RUNNING": true,
+          "pid": 23363,
+          "uptime": "3:29:17"
+        },
+        "walkback": {
+          "RUNNING": true,
+          "pid": 28791,
+          "uptime": "2:43:09"
+        }
+      },
+      "before": {
+        "listener": {
+          "pid": 23351,
+          "state": "RUNNING"
+        },
+        "resolver": {
+          "pid": 23363,
+          "state": "RUNNING"
+        },
+        "walkback": {
+          "pid": 28791,
+          "state": "RUNNING"
+        }
+      },
+      "both_retired_paths_absent": true,
+      "current_source_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+      "restarts_or_signals": 0,
+      "source_configuration_certificate_pair_markers_Golden_unchanged": true
+    }
+  },
   "flex_v2_authorized_exact_v1_retirement": {
     "engineering_revision": "64823aca9ae87324da7501f9894e3f67ff21e74a",
     "installed_runtime_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
@@ -55806,7 +56028,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separately authorize one execution of the existing accepted anchor-only clock reconciliation with fresh CAS/stability/accounting checks and naturalacceptance. No sourcechange,workerrestart,providerprobe,refundorqueue resetneeded/authorized. Then separatelyreview42clock-ceilingjobswithoutautomaticreplay. Hostsleepcontinuityriskrequiresseparateoperationalpower-policyreview,notanotherperformancepatch.",
+  "next_action": "Leaveall3workersRUNNINGwithvalidOPEN/READYclockauthority. Do notreset/replayceilingheldjobs. Separatelyreviewhostsleepcontinuityandprotectedretryrights;laterread-onlythroughputcomparisononlyifrequested.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -57995,8 +58217,8 @@
     "git_head": "45bf95f37f0120f6600c33e65d1a444324a08b06",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T22:11:17.637433+00:00",
-    "working_tree": "Strictread-onlycontinuityreview: GOforseparatelyauthorizedclockrecovery,notexecuted. ConfirmedmacOSIdleSleep21:36:08/wake21:36:41,Pythonmach_absolute_timeexcludedpause\u219231sanchoroffset>5s. All3RUNNINGsamePIDs23351/23363/28791;matchedACTIVE/certvalid,retiredpathsabsent. READY/OPEN133396reserved,sixuncertain100000cap,0inflight;nowstable120s/120s,conservative1668s>120cooldown.42readinesschecksPASS; currentimmutablehelpermatchesaccepted447190ee,d46225baSHA,27testsreused. Onlyanchorswouldchange,nomutationnow. LastbirthACKreceive22:04:29verified;handoff21:23:49,Walkback21:35:26,RPC21:36:10.80clockblockedjobs42at3attempts\u2014no replay/reset. Birth511with13verifiedACK,migration478,custodybelowquota,disk47.7GB/WAL0. Nextauthorizequalifiedanchoronlyreconciliation; separatehostsleep-policyreview; no sourcefix/deploy/restart/probe."
+    "updated_at_utc": "2026-10-29T22:26:13.490178+00:00",
+    "working_tree": "AuthorizedclockrecoveryPASS22:17:30UTCusingexact447190eeutility(d46225ba). Onlywall1793309770\u21921793312250andmono945611\u2192948060changed;independentexpectedSHAf0cd92b4/readbackverified. No source/config/restart/probe/reset/replay. Firsttypedprelockbusyrefusalnonmutating;freshfollowup1lockattempt1successfulpublication.362secnaturalacceptance:108HTTP200,109reservations(103Walkback,6listener),1activeage1snone stuck;133396\u2192133505reservedestimate,6uncertain/100000cappreserved,clockdifference0. PIDs23351/23363/28791unchanged.16canonicalbirthACKlowerbound,3migrationadmissions,1handoff,24Walkbackclaims/0completions. All79executionceilingrowspendingattempt3unchanged(includesinitial78census). Oldclocklabelsresidue,0newclock/pub/identity/exhaustion/capacityerrors. Birth511/512+10verifiedACK,migration475/512,disk47.7GB/WAL0. Hostsleepandretry-ceilingworkremainseparatereview; noautomaticmonitoring."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -59398,7 +59620,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "GO_FOR_SEPARATELY_AUTHORIZED_CLOCK_RECOVERY",
+  "status": "PASS_ANCHOR_ONLY_RECOVERY_AND_NATURAL_ACCEPTANCE",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

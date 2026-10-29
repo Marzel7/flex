@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "HOLD_SINGLE_CRITICAL_BLOCKER: unfinished queue rows remain protected CREATE/funding/retry/deduplication owners; deleting them is not evidence-preserving under the existing runtime.",
+  "blocker": "No current runtime safety failure. Fresh70admissions45completions grew25unfinished despite aggregate82/111 shrink29; exact eligible boundary counts and8hspend unavailable.",
   "blockers": [
     "HANDOFF_TRANSPORT_DEGRADED"
   ],
@@ -21054,6 +21054,538 @@
       "provider_free": true
     },
     "verdict": "GO_FOR_GOLDEN_BASELINE_FREEZE"
+  },
+  "flex_v2_eight_hour_walkback_throughput_audit": {
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "next_action": "Leave production unchanged and preserve all historical/protected rows. Retain this exact eight-hour arrival/completion baseline for the next comparable completed-window check. If the measured fresh delay is unacceptable, seek separate focused DEV qualification of pre-selection contention handling; do not delete the backlog or change budgets.",
+    "production_flags": {
+      "V1_access": false,
+      "gate": "OPENREADY6uncertain100000cap",
+      "gate_locks": false,
+      "lifecycle": "single15minute schedule",
+      "production_changes": false,
+      "provider_calls": false,
+      "workers": "all3RUNNING;resolver97138naturalrestartinwindow"
+    },
+    "report_path": "/private/tmp/flex-eight-hour-walkback-audit-20261029/AUDIT_REPORT.json",
+    "report_sha256": "308f3636cabad813d08fa9dc868cd9154e755f64420105d7c3cd2b38070872e6",
+    "status": "PARTIAL:OVERALL_RETAINED_BACKLOG_SHRINKING_FRESH_BACKLOG_GROWING",
+    "summary": {
+      "COMPLETIONS_BY_HOUR": [
+        {
+          "admissions": 12,
+          "completions": 19,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 0,
+          "fresh_completions": 0,
+          "hour_UTC": "2026-10-28T22:00:00+00:00"
+        },
+        {
+          "admissions": 9,
+          "completions": 8,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 9,
+          "fresh_completions": 0,
+          "hour_UTC": "2026-10-28T23:00:00+00:00"
+        },
+        {
+          "admissions": 10,
+          "completions": 10,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 10,
+          "fresh_completions": 3,
+          "hour_UTC": "2026-10-29T00:00:00+00:00"
+        },
+        {
+          "admissions": 6,
+          "completions": 19,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 6,
+          "fresh_completions": 7,
+          "hour_UTC": "2026-10-29T01:00:00+00:00"
+        },
+        {
+          "admissions": 10,
+          "completions": 9,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 10,
+          "fresh_completions": 5,
+          "hour_UTC": "2026-10-29T02:00:00+00:00"
+        },
+        {
+          "admissions": 13,
+          "completions": 13,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 13,
+          "fresh_completions": 9,
+          "hour_UTC": "2026-10-29T03:00:00+00:00"
+        },
+        {
+          "admissions": 13,
+          "completions": 15,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 13,
+          "fresh_completions": 8,
+          "hour_UTC": "2026-10-29T04:00:00+00:00"
+        },
+        {
+          "admissions": 9,
+          "completions": 18,
+          "failed_with_terminal_timestamp": 0,
+          "fresh_admissions": 9,
+          "fresh_completions": 13,
+          "hour_UTC": "2026-10-29T05:00:00+00:00"
+        }
+      ],
+      "CREATE_WAITING_BACKLOG": {
+        "comparison": "Same count in pre-window/current-activation and prior audit snapshots; exact22:00 and06:00 state snapshots absent.",
+        "current_historical_waiting": 1551,
+        "eligible_for_reactivation": "No newly qualified waiting anchor demonstrated by last indexed readback; preserve all evidence and retry rights.",
+        "exact_new_jobs_entering_WAITING_during_window": "UNKNOWN: transient waiting->pending activations lack a complete immutable state-transition ledger. No current WAITING row has enqueued_at within window.",
+        "last_verified_evidence_categories": {
+          "MISSING_CREATE_EVIDENCE": 1273,
+          "UNQUALIFIED_ANCHOR": 278
+        },
+        "last_verified_qualified_OPS_ledger_anchors_among_waiting": 0,
+        "scheduler_impact": "WAITING excluded from eight-job claim query; separate32-row CREATE maintenance uses local cycle time, not claim slots. Exact maintenance delay UNKNOWN."
+      },
+      "EXACT_REMAINING_UNCERTAINTIES": [
+        "Historical PENDING,WAITING,RUNNING and dispatch-eligible states at exact22:00 and06:00 boundaries.",
+        "Exact new deferral/reactivation event counts; repeated labels and claims are not new admissions.",
+        "Exact8h provider dispatches,billed credits,per-investigation credit deltas and unnecessary repeats/cache savings.",
+        "Gate lock owner/hold time, skipped cycle count and per-phase latency attribution.",
+        "Transient CREATE waiting/promotions and original OPS activation commit timestamps.",
+        "Three typed projection source-version timestamps lag their queue metadata by1second.",
+        "Selectedlatest50 bounded handoff partition may exclude older-admitted late completions; cohort comparison is not a controlled experiment."
+      ],
+      "FIRST_CLAIM_LATENCY": {
+        "case_file": "/private/tmp/flex-eight-hour-walkback-audit-20261029/FIFTY_HANDOFF_CASES.json",
+        "case_file_sha256": "f6e450c3f24342825d80de22078824aac6f50a246663843072d6c636618add7b",
+        "cases": 50,
+        "claimed_by06": 48,
+        "comparison": "Median first claim1065s(17.8min),p901298s(21.6min),max1584s(26.4min), improved versus prior1694s(28.2min) observation. Different bounded cohorts, not a controlled intervention.",
+        "completed_by06": 31,
+        "current_status_after_window": {
+          "complete": 33,
+          "pending": 17
+        },
+        "incomplete_at06": 19,
+        "query_plans": [
+          "SEARCH migration_walkback_handoff USING INDEX idx_migration_walkback_handoff_due (state=? AND next_attempt_at>? AND next_attempt_at<?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "selection": "Latest50 verified canonical-signature COMPLETE handoffs admitted and completed within eight-hour window; up to150 indexed candidates, per-mint PK verification.",
+        "stats": {
+          "admission_to_first_claim": {
+            "max_seconds": 1584,
+            "median_seconds": 1065.0,
+            "n": 48,
+            "p90_seconds": 1298
+          },
+          "canonical_migration_event_to_admission": {
+            "max_seconds": 2,
+            "median_seconds": 0.0,
+            "n": 50,
+            "p90_seconds": 1
+          },
+          "canonical_migration_event_to_completion": {
+            "max_seconds": 11751,
+            "median_seconds": 3286.0,
+            "n": 31,
+            "p90_seconds": 7304
+          },
+          "first_claim_to_completion": {
+            "max_seconds": 10605,
+            "median_seconds": 1871.0,
+            "n": 31,
+            "p90_seconds": 6378
+          },
+          "handoff_record_to_admission": {
+            "max_seconds": 0,
+            "median_seconds": -3.0,
+            "n": 50,
+            "p90_seconds": -2
+          },
+          "handoff_record_to_completion": {
+            "max_seconds": 11751,
+            "median_seconds": 3283.0,
+            "n": 31,
+            "p90_seconds": 7301
+          }
+        },
+        "timing_semantics": "Canonical migrated_at is recorded migration event time, not database commit time. Handoff completed_at is bookkeeping record time. Queue admission usually precedes handoff completion. First start is COALESCE-preserved under this unchanged Walkback PID; completion intervals include deferrals and are not active RPC time. Times after06 are right-censored.",
+        "unclaimed_at06": 2
+      },
+      "FRESH_VS_HISTORICAL_PROCESSING": {
+        "cutoff": "2026-10-28T22:55:11Z",
+        "cutoff_meaning": "Prior proposed policy boundary from immutable checkpoint observation, not an active scheduling partition.",
+        "final_hour_fresh": {
+          "admissions": 9,
+          "completions": 13
+        },
+        "first4_hours": {
+          "admissions": 37,
+          "completions": 56,
+          "fresh_admissions": 25,
+          "fresh_completions": 10
+        },
+        "fresh_admissions": 70,
+        "fresh_completions": 45,
+        "fresh_unfinished_end": 25,
+        "fresh_unfinished_start": 0,
+        "historical_admissions_during_window": 12,
+        "historical_completions": 66,
+        "historical_net_unfinished_change": -54,
+        "interpretation": "Aggregate catch-up is real in retained records, but66 of111 completions served older work. Fresh unfinished stock grew25 across window; fresh completions improved late, with13 versus9 fresh arrivals in05\u201306. Do not infer indefinite growth or a proven steady-state from one window.",
+        "last4_hours": {
+          "admissions": 45,
+          "completions": 55,
+          "fresh_admissions": 45,
+          "fresh_completions": 35
+        }
+      },
+      "HELIUS_SPENDING_AND_CONTENTION": {
+        "active_or_stuck_now": [
+          {
+            "age_seconds": 1.3091681003570557,
+            "credits": 1,
+            "role": "walkback"
+          }
+        ],
+        "current_cumulative_accounting_not_eight_hour": {
+          "Walkback_lifetime_root_credit_max": 7924,
+          "Walkback_lifetime_root_credit_median": 19.0,
+          "Walkback_lifetime_roots_with_spend": 604,
+          "by_worker": {
+            "creator_resolution": 0,
+            "listener": 10245,
+            "walkback": 95299
+          },
+          "total_reserved": 105544
+        },
+        "current_pending_last_error_counts": {
+          "HELIUS_GATE_BUSY": 82,
+          "HELIUS_REQUEST_COOLDOWN": 1,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 2,
+          "None": 5
+        },
+        "distinct_investigations_consuming_credits_in_window": "UNKNOWN",
+        "dominance": "Contention is demonstrated and repeatedly delays useful work; exact fraction of eight-hour latency due to contention versus serial acquisition/maintenance is NOT_OBSERVABLE_READ_ONLY.",
+        "exact_eight_hour_Walkback_requests": "UNKNOWN",
+        "exact_eight_hour_reserved_credits_by_worker_method": "UNKNOWN",
+        "exact_gatebusy_ownerentry_cooldown_budget_event_counts": "UNKNOWN",
+        "lifetime_investigation_ceiling": 100000,
+        "median_max_window_credits_per_investigation": "UNKNOWN",
+        "repeated_acquisition": "2249 currently retained Walkback request keys last attempted in window have lifetime attempts>1. Repetition is not proof of unnecessary acquisition; exact cache reuse and billed savings UNKNOWN.",
+        "retained_request_identity_lower_bounds": {
+          "Walkback_distinct_request_identity_lower_bound": 3240,
+          "by_method_distinct_identity_lower_bounds": {
+            "rpc:getAccountInfo": 816,
+            "rpc:getSignaturesForAddress": 776,
+            "rpc:getTransaction": 1648
+          },
+          "keys_with_lifetime_attempts_gt1": 2249,
+          "not_exact_requests_or_credits": "Only last-at timestamp and lifetime attempts/credits survive per key; requests reused after06:00 are outside this selection and repeated attempts within window cannot be separated."
+        },
+        "six_uncertain_preserved": true,
+        "spending_not_billing": true,
+        "verified_contention_example_in_window": "Prior independently verified23:22-era211s snapshot pair had16 fresh typed busy deferrals, no new first claims/completions,30 locally reserved credits. This proves contention within window, not eight-hour event totals.",
+        "why_unknown": "No exact22:00/06:00 full accounting snapshots. Ledger stores lifetime counters and last attempt per identity; cannot separate repeat times/root spend within window or treat keys at window timestamps as all requests."
+      },
+      "INVESTIGATION_OUTCOMES": {
+        "completed_investigations": 111,
+        "confirmed_known_operation_matches": 0,
+        "confirmed_new_operation_attribution": 0,
+        "current_operator_membership_matches_for111": 0,
+        "interpretation": "The raw workflow and typed-attribution counts are two views of the same111 investigations, not additive. Known CEX/relay boundaries are useful intelligence, not confirmed operation attribution.",
+        "known_CEX_boundaries": 27,
+        "known_relay_boundaries": 2,
+        "raw_queue_workflow_outcomes": {
+          "LINEAGE_GAP": 76,
+          "NO_ATTRIBUTION_FOUND": 35
+        },
+        "source_version_exactly_aligned_projections": 108,
+        "source_version_lag": "Three LINEAGE_GAP projections match completion time but queue updated_at advanced1s; do not infer lost evidence or new failure. All111 projection materialization timestamps precede06.",
+        "typed_attribution_projection_for_same111_completions": {
+          "INSUFFICIENT_EVIDENCE": 18,
+          "KNOWN_CEX_REACHED": 27,
+          "KNOWN_RELAY_REACHED": 2,
+          "LINEAGE_GAP": 63,
+          "UNKNOWN_INFRASTRUCTURE": 1
+        },
+        "unknown_infrastructure_candidate_not_confirmed_operation": 1
+      },
+      "JOURNAL_AND_STORAGE_HEALTH": {
+        "Supervisor_events": [
+          {
+            "at": 1793246081.026,
+            "message": "INFO exited: creator_resolution_worker (exit status 0; expected)"
+          },
+          {
+            "at": 1793246081.989,
+            "message": "INFO spawned: 'creator_resolution_worker' with pid 97138"
+          },
+          {
+            "at": 1793246087.299,
+            "message": "INFO success: creator_resolution_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)"
+          }
+        ],
+        "actual_capacity_refusals_observed": 0,
+        "covering_log_evidence": "No JOURNAL_CAPACITY,TERMINAL_CAPACITY,DEFERRED_CAPACITY,unverified-transfer orpublication-ambiguity token in bounded append sections spanning before22 throughafter06. Files predate window under normal Supervisor rotation. No immutable refusal counter; do not invent occupancy-full frequency.",
+        "current_observation": {
+          "at": "2026-10-29T06:44:08.711503+00:00",
+          "birth": {
+            "errors": {
+              "CORE_AUTHORITY_CONFLICT": 507,
+              "None": 2
+            },
+            "free": 3,
+            "occupied": 509,
+            "states": {
+              "ACKED": 2,
+              "QUARANTINED": 507
+            }
+          },
+          "core": {
+            "": 99545088,
+            "-shm": 0,
+            "-wal": 0
+          },
+          "custody": {
+            "birth_terminal_owner_v1": {
+              "contract": "f0bfbf5ae463fd61e6b8d2e700687265b50928c7966199a2c8a15eba647d240c",
+              "singleton": 1,
+              "used_bytes": 1400203,
+              "used_records": 1032,
+              "version": 1
+            },
+            "migration_deferred_owner_v1": {
+              "contract": "836dbc9cf77c1aef4048cb83ae24e832da67b551995b7a9ef2dd780b02f15745",
+              "singleton": 1,
+              "used_bytes": 2704784,
+              "used_records": 1032,
+              "version": 1
+            },
+            "migration_terminal_owner_v1": {
+              "contract": "d7fe62ecec89c170def5d6cc05e0d7dfc9df585973781266ba3edcaeffa9f588",
+              "singleton": 1,
+              "used_bytes": 2092696,
+              "used_records": 1869,
+              "version": 1
+            }
+          },
+          "free_bytes": 53163409408,
+          "migration": {
+            "errors": {
+              "DISPATCH_RESERVED": 1,
+              "HELIUS_BUDGET_DEFERRED": 485
+            },
+            "free": 26,
+            "occupied": 486,
+            "states": {
+              "PENDING": 485,
+              "RESOLVED": 1
+            }
+          },
+          "ops": {
+            "": 170336256,
+            "-shm": 0,
+            "-wal": 0
+          }
+        },
+        "current_owner_state": {
+          "core": {
+            "columns": [
+              "family",
+              "version",
+              "generation",
+              "cursor",
+              "upper_key",
+              "examined",
+              "deleted",
+              "cycles",
+              "last_cutoff",
+              "last_batch_hash"
+            ],
+            "rows": [
+              {
+                "cursor": "",
+                "cycles": 45,
+                "deleted": 0,
+                "examined": 0,
+                "family": "rpc_response_cache",
+                "generation": "DEV004-V2-20261024-dfb76562",
+                "last_batch_hash": "7c24e2d9d545b0043e8c11306ad6c058b3a5d862d76d3fb54c52ad58839cf7ff",
+                "last_cutoff": 1792651500,
+                "upper_key": "",
+                "version": 1
+              },
+              {
+                "cursor": "2816",
+                "cycles": 0,
+                "deleted": 0,
+                "examined": 2816,
+                "family": "wss_metrics",
+                "generation": "DEV004-V2-20261024-dfb76562",
+                "last_batch_hash": "a8a694498d0bd7f21c48abff577859e7cccc930007ed74d405f5de4a0020ad2d",
+                "last_cutoff": 1792651500,
+                "upper_key": "74280",
+                "version": 1
+              }
+            ]
+          },
+          "ops": {
+            "columns": [
+              "family",
+              "version",
+              "generation",
+              "cursor",
+              "upper_key",
+              "examined",
+              "deleted",
+              "cycles",
+              "last_cutoff",
+              "last_batch_hash"
+            ],
+            "rows": [
+              {
+                "cursor": "",
+                "cycles": 0,
+                "deleted": 0,
+                "examined": 0,
+                "family": "rpc_response_cache",
+                "generation": "DEV004-V2-20261024-dfb76562",
+                "last_batch_hash": "",
+                "last_cutoff": 0,
+                "upper_key": "",
+                "version": 1
+              }
+            ]
+          }
+        },
+        "disk_exact_window_trend": "UNKNOWN: no exact22/06 filesystem snapshots. V1 retirement within window previously measured netavailablegain51846950912; currentfree53.16GB. Do not compare irregular snapshots as exact-eight-hour disk change.",
+        "exact_eight_hour_reclamation_and_transfers": "UNKNOWN: no exact boundary custody/journal snapshots or immutable transfer event timestamps. Prior161s audit verified8birthACKreclaims and12deferred custody removals; current counters have ample quota room.",
+        "gate_publication": {
+          "READY_valid": true,
+          "highest_investigation": 7936,
+          "inflight": 0,
+          "ledger_bytes": 4263996,
+          "lifetime_limit": 100000,
+          "next_at": 1793197883,
+          "probe_until": 0,
+          "reserved": 105412,
+          "state": "OPEN",
+          "uncertain": 6
+        },
+        "lifecycle_interpretation": "Owner scanning continues; current cumulative deleted0, WSSexamined2816 and recent cutoff. Exact-eight-hour run/examined deltas UNKNOWN. No cleanup executed by audit.",
+        "lifecycle_verified_single15minute_schedule": true,
+        "resolver_restart": "Expected exitstatus0 at03:54:41UTC,spawned97138, RUNNING03:54:47; cause beyond retained status not investigated. Audit initiated no restart.",
+        "restart_counts": {
+          "Walkback": 0,
+          "listener": 0,
+          "resolver": 1
+        }
+      },
+      "NET_ELIGIBLE_BACKLOG_CHANGE": {
+        "arrival_rate_per_hour": 10.25,
+        "completion_rate_per_hour": 13.875,
+        "exact_eligible_change": "UNKNOWN",
+        "net_retained_unfinished_change": -29,
+        "no_false_precision": "Do not label reconstructed total unfinished stock as exact dispatch-eligible backlog.",
+        "observed_aggregate_direction": "SHRINKING",
+        "unfinished_total_end": 1639,
+        "unfinished_total_start": 1668
+      },
+      "NEW_ADMISSIONS": {
+        "current_failed_total": 56,
+        "fresh_at_or_after_cutoff": 70,
+        "historical_before_checkpoint_cutoff": 12,
+        "jobs_failed_with_retained_terminal_or_state_update_in_window": 0,
+        "new_deferral_events": "UNKNOWN: mutable last_error/updated_at are not an immutable event ledger",
+        "per_hour": 10.25,
+        "reactivation_events": "UNKNOWN: state transitions are not fully timestamped",
+        "retained_queue_admissions": 82,
+        "scope": "Counts from preserved queue timestamps, not distinct claims/deferrals or all migration notifications. No queue deletion/replay/reset was performed or authorized."
+      },
+      "NEXT_ACTION": "Leave production unchanged and preserve all historical/protected rows. Retain this exact eight-hour arrival/completion baseline for the next comparable completed-window check. If the measured fresh delay is unacceptable, seek separate focused DEV qualification of pre-selection contention handling; do not delete the backlog or change budgets.",
+      "QUEUE_START_END": {
+        "PENDING_end": "UNKNOWN",
+        "PENDING_start": "UNKNOWN",
+        "RUNNING_start_end": "UNKNOWN",
+        "WAITING_end": "UNKNOWN exact-boundary snapshot",
+        "WAITING_start": "UNKNOWN exact-boundary snapshot",
+        "current_snapshot_UTC": "2026-10-29T06:44:08.711503+00:00",
+        "current_states": {
+          "complete": 2240,
+          "failed": 56,
+          "pending": 90,
+          "running": 0,
+          "waiting": 1551
+        },
+        "eligible_start_end": "UNKNOWN: no complete eligibility/cooldown/activation event history or exact boundary snapshots",
+        "reconstruction_basis": "Original enqueued_at plus terminal completed_at, retaining all current unfinished rows; normal installed owner paths preserve identities and terminal states. One old completed row lacks completed_at but updated_at predates window. All56 failed rows have terminal/updated evidence before window. This reconstructs total unfinished retained stock, not historical PENDING/WAITING/eligible split.",
+        "retained_unfinished_stock_reconstruction": {
+          "end": {
+            "fresh_at_or_after_checkpoint_cutoff": 25,
+            "historical_before_checkpoint_cutoff": 1614,
+            "retained_unfinished_total": 1639
+          },
+          "start": {
+            "fresh_at_or_after_checkpoint_cutoff": 0,
+            "historical_before_checkpoint_cutoff": 1668,
+            "retained_unfinished_total": 1668
+          }
+        }
+      },
+      "SCHEDULER_EFFICIENCY": {
+        "broader_covering_retained_section": {
+          "counts_are_not_exact_eight_hour": true,
+          "end": "2026-10-29T06:54:01.925855+00:00",
+          "localRPC80_budget_early_exits": 36,
+          "logged_batches": 383,
+          "processed_claim_slots": 2979,
+          "processed_histogram": {
+            "3": 2,
+            "4": 6,
+            "5": 9,
+            "6": 5,
+            "7": 14,
+            "8": 347
+          },
+          "start": "2026-10-28T21:54:48.751212+00:00"
+        },
+        "claim_phase": "Ownership entry occurs after persisted first claim; it affects acquisition/completion. Pre-selection gate readiness can delay claims themselves. Entry-only retries cannot be described as a complete first-claim fix.",
+        "effective_configuration": {
+          "WALKBACK_BATCH_SIZE": "8",
+          "WALKBACK_INTERVAL_SEC": "45",
+          "WALKBACK_MAX_ATTEMPTS": "3",
+          "WALKBACK_RPC_BUDGET_BATCH": "80",
+          "WALKBACK_TRACE_VERBOSE": "default"
+        },
+        "exact_eight_hour_cycles_examined_claimed_completed_per_cycle_skipped_batches": "UNKNOWN: success trace disabled and batch-done lines lack timestamps; gateblocked pre-selection exits before logging a batch.",
+        "interval": "45s sleep after serial work and maintenance, not a guaranteed45s cycle.",
+        "repeat_selection_verification": "Earlier211s pair moved never-claimed ranks26->10 and64->48 while16 old claims returned pending; no frozen fairness. Repeated historical retry work still occupies service slots.",
+        "selection": "pending/expired running,attempts<3,retry time due; priorityDESC, then updated_at for retained gatebusy else originalenqueued_at; eight maximum."
+      },
+      "SUSTAINABILITY_DECISION": {
+        "Helius_contention_dominant": "Demonstrated contributor; dominance proportion NOT_OBSERVABLE_READ_ONLY.",
+        "catch_up_without_changes": "Plausible if aggregate surplus persists, not proven indefinitely; fresh tail remains and protected uncertain work cannot be auto-replayed.",
+        "eligible_backlog_growing_or_shrinking": "Exact dispatch-eligible boundary counts UNKNOWN; total retained unfinished stock shrank29, while fresh unfinished grew25.",
+        "fresh_intake_exceeding_completion_capacity": "Fresh70 arrivals versus45fresh completions across window:yes for that cohort. Total82versus111:no aggregate overload in this window. Latest fresh hour13completions versus9arrivals improved.",
+        "historical_jobs_delay_fresh": "Yes, supported by selection order, rank progress and66older completions; historical WAITING is a separate non-runnable evidence backlog.",
+        "scheduler_sufficient": "Enough aggregate service to reduce total unfinished stock over observed workload, but not a demonstrated low-latency fresh service guarantee.",
+        "smallest_justified_improvement": "If fresher service is required, separately qualify a narrowly bounded typed pre-selection gate-busy validation retry in the existing worker. Do not add queues, delete historical evidence, increase budgets or broadly enlarge batches. No implementation authorized here.",
+        "verdict": "PARTIAL:OVERALL_BACKLOG_DRAINING_BUT_FRESH_NEAR_REAL_TIME_SERVICE_NOT_PROVEN"
+      },
+      "WINDOW_START_END": {
+        "end_exclusive": "2026-10-29T06:00:00+00:00",
+        "execution_started_UTC": "2026-10-29T06:42:38Z",
+        "hours": 8,
+        "selection": "Latest eight completed UTC hours at audit start; window remains frozen even though read-only verification finishes after07:00.",
+        "start_inclusive": "2026-10-28T22:00:00+00:00"
+      }
+    },
+    "tests": "Read-only retained queue timestamp census using existing status indexes,50verified handoff PK joins,typed outcome readbacks and bounded logs; no tests/source changes."
   },
   "flex_v2_end_to_end_creator_coverage_20261019": {
     "engineering_revision": "read-only audit; listener bf1bdfc59b4acfed0338a493189d91d212bda50f; resolver eed84eaa0b88a3d0cd93dd9767f8b0d8680bc215 with live worker SHA256 797350867ea10fdbef03933de033241ccd18bb0d137812aacac0e328ffa5fefb; Walkback afbe9e58b11eb2e4d616246da123ce31ab45700c",
@@ -42271,7 +42803,7 @@
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
   "last_updated": "2026-10-24T13:28:28.483340+00:00",
-  "latest_at_utc": "2026-10-29T00:21:23.852442+00:00",
+  "latest_at_utc": "2026-10-29T07:04:12.657875+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -51690,7 +52222,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Do not delete. Retain historical records and separately qualify fresh-job prioritization in the existing worker if desired; no new queue or scheduler is necessary. Never include the two newly completed rows in an unfinished cleanup.",
+  "next_action": "Leave production unchanged and preserve all historical/protected rows. Retain this exact eight-hour arrival/completion baseline for the next comparable completed-window check. If the measured fresh delay is unacceptable, seek separate focused DEV qualification of pre-selection contention handling; do not delete the backlog or change budgets.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -53879,8 +54411,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T00:21:23.852442+00:00",
-    "working_tree": "ReadonlyrepeatpreflightHOLD:1654originaltargetsnow101pending1551waiting2complete(exclude).1652stillunfinishedprecut;101VALIDOPSCREATEanchors89fundingsigs.3uncertainpendingexclusionspreserved. Dependencyfilesmatchimmutablecheckpoint. All3PIDssameRUNNING,OPENREADY6uncertain100000limit. No deletion or changes."
+    "updated_at_utc": "2026-10-29T07:04:12.657875+00:00",
+    "working_tree": "Strictreadonly8haudit22:00Oct28\u201306:00Oct29UTCcomplete;source/checkpointunchanged.82admissions111completions,totalretainedunfinished1668->1639(-29). Fresh70/45(+25),older66completed. Latest50firstclaimmedian17.8m,p9021.6m,max26.4m,48started31completeby06,2/19censored. Workflow76LINEAGE_GAP35NOATTR;typed27CEX2relay1unknowninfra,0confirmedops. Resolver1expectedexit0respawn97138;listener77731Walkback77830continuous. OPENREADY6uncertain100000cap;noobservedcapacity/publicationfailures. Exacteligiblestocks/spendUNKNOWN. No changes/providers/gatelocks."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -55282,7 +55814,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "HISTORICAL_WALKBACK_CLEANUP_RECHECK_HOLD",
+  "status": "PARTIAL:OVERALL_RETAINED_BACKLOG_SHRINKING_FRESH_BACKLOG_GROWING",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -56861,7 +57393,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_PROTECTED_EVIDENCE",
+  "verdict": "PARTIAL_OVERALL_DRAINING_FRESH_BACKLOG_GROWING",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

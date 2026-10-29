@@ -21016,6 +21016,84 @@
     "tests": "Read-only diagnostic execution and pure-read installed predicates only; network blocked in diagnostic reader. No fix qualification or broad suites.",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex"
   },
+  "flex_v2_clock_stability_check_20261029": {
+    "births_observed_lower_bound": 17,
+    "blocker": null,
+    "clock_divergence_seconds": 0,
+    "disk_free_bytes": 47576387584,
+    "engineering_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "handoffs_observed_lower_bound": 0,
+    "held_jobs_unchanged": 79,
+    "investigation_limit": 100000,
+    "journals": {
+      "birth": {
+        "free": 8,
+        "occupied": 504,
+        "states": {
+          "ACKED": 3,
+          "QUARANTINED": 501
+        },
+        "verified_reclaimable_ACK": 3
+      },
+      "migration": {
+        "free": 25,
+        "occupied": 487,
+        "states": {
+          "PENDING": 486,
+          "RESOLVED": 1
+        }
+      }
+    },
+    "limitations": [
+      "Natural birth and migration identity observations are lower bounds; zero observed handoffs does not prove absence outside bounded readback.",
+      "One listener JournalHold MINT_CONFLICT followed the existing QUARANTINED signature branch; no replay or correction.",
+      "79 pre-existing clock-ceiling jobs remain unchanged; no retry reset.",
+      "AC power pmset sleep=1 with current idle-prevention assertion; persistent prevention after display-off was not independently proven.",
+      "Reserved credits are local accounting estimates, not provider billing."
+    ],
+    "migration_admissions_observed_lower_bound": 7,
+    "next_action": "Leave all three workers running. Do not repeat clock recovery. Review protected ceiling-held jobs, Walkback throughput and persistent host sleep prevention separately when authorized.",
+    "production_flags": {
+      "changes": false,
+      "probes": false,
+      "recovery_executed": false,
+      "restarts": false
+    },
+    "report": "/private/tmp/flex-clock-stability-20261029T2243/STABILITY_REPORT.json",
+    "report_sha256": "8c6e2c7d130b54763ed9d8a2ef98e2243197ada0e59059db33a638919747b375",
+    "reservations": 104,
+    "reserved_delta_by_worker": {
+      "creator_resolution": 0,
+      "listener": 18,
+      "walkback": 86
+    },
+    "reserved_estimate_total": 134024,
+    "rpc_successes": 104,
+    "tests": "318.449-second natural read-only acceptance; lock-free checksum/clock/accounting checks, indexed V2 readback, physical identity and unchanged authority hashes. No recovery tests rerun because already recovered.",
+    "uncertain_preserved": 6,
+    "verdict": "ALREADY_RECOVERED_STABILITY_PASS",
+    "walkback_claims_in_finished_batches": 16,
+    "walkback_completions": 0,
+    "window_end_utc": "2026-10-29T22:49:26.892985+00:00",
+    "window_start_utc": "2026-10-29T22:44:08.443780+00:00",
+    "workers": {
+      "listener": {
+        "RUNNING": true,
+        "pid": 23351,
+        "uptime": "3:55:22"
+      },
+      "resolver": {
+        "RUNNING": true,
+        "pid": 23363,
+        "uptime": "3:55:11"
+      },
+      "walkback": {
+        "RUNNING": true,
+        "pid": 28791,
+        "uptime": "3:09:03"
+      }
+    }
+  },
   "flex_v2_controlled_restoration_after_deferred_activation": {
     "additional_reserved_credits": 1,
     "authorized_probe_requests": 1,

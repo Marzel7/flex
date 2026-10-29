@@ -21063,6 +21063,115 @@
     "tests": "76 passed:22 clock-held,45 contention/composition,9 compact recovery; real lifetime cap, six uncertain, interrupted and concurrent claim controls. Unchanged accepted gate controls reused.",
     "verdict": "DEV_PASS_READY_FOR_READ_ONLY_PREFLIGHT"
   },
+  "flex_v2_clock_held_preflight_20261029": {
+    "blocker": "Recovery admission is not durably single-claim/uncertainty-aware: pre-entry deferral resets the opportunity counter permitting another claim; one uncertain-owner root remains candidate-eligible instead of review-held. Existing gate matching-key protection remains intact but does not satisfy the stricter admission contract.",
+    "candidate_integrity": "Full candidate resolved;3installed preimages and candidate hashes match; no unrelated runtime changes.",
+    "conditional_plan": "/private/tmp/flex-clock-held-preflight/CONDITIONAL_PLAN_NOT_AUTHORIZED.json",
+    "engineering_revision": "d638192610075c98f8c3378be48d791353b9b762",
+    "helius": {
+      "cap": 100000,
+      "clock_divergence_seconds": 1,
+      "inflight_ages": [],
+      "publication": "READY_CHECKSUM_VALID",
+      "reserved_estimate": 134549,
+      "six_uncertain_exact": true,
+      "state": "OPEN"
+    },
+    "installed_runtime_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
+    "next_action": "Separately authorize minimal DEV correction to durably bound recovery admission and exclude uncertain-owner investigations for review; preserve attempts, spending, six uncertain requests and100000 cap. Requalify affected controls and repeat read-only preflight. No deployment or recovery admission now.",
+    "population": {
+      "active_claims": 0,
+      "candidate_sql_eligible": 79,
+      "cohort_roots_with_uncertain_request": 1,
+      "conflicting_owners": 0,
+      "original_identities": 79,
+      "pending_at_three_attempts": 79,
+      "unchanged_original_fields": 79
+    },
+    "production_flags": {
+      "deployment": false,
+      "gate_locks": false,
+      "gate_publication": false,
+      "provider_calls": false,
+      "queue_writes": false,
+      "recovery_claim_activation": false,
+      "restarts": false
+    },
+    "reload_boundary": "Walkback only after corrected candidate and separate source+claim authorization; listener/resolver unchanged.",
+    "report": "/private/tmp/flex-clock-held-preflight/PREFLIGHT_REPORT.json",
+    "report_sha256": "bdae7663cdae76f06a04de27bdb30022a12c212c72705a2ffca0b2b3c7d212a1",
+    "runtime": {
+      "birth_ACK_qualification_note": "A later bounded snapshot independently matched1 reclaimable ACK; snapshots are not atomic across journal and Core.",
+      "custody": {
+        "birth_terminal": {
+          "used_bytes": 1721612,
+          "used_records": 1272
+        },
+        "migration_deferred": {
+          "used_bytes": 4461961,
+          "used_records": 1706
+        },
+        "migration_terminal": {
+          "used_bytes": 2133738,
+          "used_records": 1904
+        }
+      },
+      "db_wal_files": {
+        "core": 110452736,
+        "core-shm": 0,
+        "core-wal": 0,
+        "ops": 175255552,
+        "ops-shm": 0,
+        "ops-wal": 0
+      },
+      "disk_free_bytes": 47685206016,
+      "journals_snapshot": {
+        "birth": {
+          "free": 1,
+          "occupied": 511,
+          "states": {
+            "ACKED": 6,
+            "QUARANTINED": 505
+          }
+        },
+        "migration": {
+          "free": 22,
+          "occupied": 490,
+          "states": {
+            "PENDING": 489,
+            "RESOLVED": 1
+          }
+        }
+      },
+      "lifecycle": {
+        "15_minute": true,
+        "lines_sha256": [
+          "5b37f76a6a0ce9fe46dfacd4826d64f901b9f3006b0f0c0190948d7a74b0fff4"
+        ],
+        "matching_lines": 1,
+        "source_paths_match": true
+      },
+      "workers": {
+        "creator_resolution": {
+          "RUNNING": true,
+          "authority_bindings_match": true,
+          "pid": 23363
+        },
+        "listener": {
+          "RUNNING": true,
+          "authority_bindings_match": true,
+          "pid": 23351
+        },
+        "walkback": {
+          "RUNNING": true,
+          "authority_bindings_match": true,
+          "pid": 28791
+        }
+      }
+    },
+    "tests": "76 accepted provider-free controls reused; read-only installed hash, Supervisor/process, strict metadata pair/certificate validation, exact79indexed queue identities, lock-free ledger checksum/accounting and storage/schedule readback. No tests or engineering changes this turn.",
+    "verdict": "HOLD_SINGLE_CRITICAL_BLOCKER_RECOVERY_ADMISSION_CONTRACT"
+  },
   "flex_v2_clock_stability_check_20261029": {
     "births_observed_lower_bound": 17,
     "blocker": null,

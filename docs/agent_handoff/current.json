@@ -30547,6 +30547,135 @@
     "source_published": false,
     "updated_at_utc": "2026-10-29T18:42:33.401950+00:00"
   },
+  "flex_v2_retired_path_prevention_deployment_preflight_20261029": {
+    "AFFECTED_READERS": "Three active shared SQLite/native DWS connectors and existing-store operation_identity utilities; root shared connectors, monitor-worker/bridge package copies, discovery census; candidate recovery renderer, current fresh-pair entrypoint and existing single lifecycle caller. No business worker changes.",
+    "CANDIDATE_INTEGRITY": {
+      "accepted_tests": 147,
+      "changed_source_files": 24,
+      "clean": true,
+      "commit": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+      "manifest_sha256": "7aaddc1770770c88ac061e6c1dfef5e98f9aaab99d0deacf6d6165933a680703",
+      "tests_rerun": false,
+      "three_historical_harness_cases_excluded": true
+    },
+    "EXTERNAL_CREATOR_RISK": {
+      "job": "com.flex.dev035-api",
+      "modified": false,
+      "risk": "Stale source/native SQLite may bypass corrected connector; not proven incident creator.",
+      "sha256": "9f37096873702b323ca5c264c75fe040c8d551713f200389491eb19284caa95d",
+      "stale_path": "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db",
+      "working_directory_exists": false
+    },
+    "FLEX_V2_RETIRED_PATH_PREFLIGHT_STATUS": "PASS_READ_ONLY_PREFLIGHT",
+    "GO_HOLD_DECISION": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
+    "HELIUS_AND_RUNTIME_SAFETY": {
+      "birth_journal_recheck": {
+        "epoch": 1793299586.5638888,
+        "free": 4,
+        "independently_verified_reclaimable_ack": 6,
+        "occupied": 508,
+        "states": {
+          "ACKED": 6,
+          "QUARANTINED": 502
+        }
+      },
+      "custody": {
+        "birth_terminal": {
+          "bytes": 1641620,
+          "records": 1212
+        },
+        "migration_deferred": {
+          "bytes": 3849795,
+          "records": 1471
+        },
+        "migration_terminal": {
+          "bytes": 2119854,
+          "records": 1892
+        }
+      },
+      "database_files": {
+        "core": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 106766336
+        },
+        "ops": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 173436928
+        }
+      },
+      "free_bytes": 49070587904,
+      "helius": {
+        "inflight": 0,
+        "limit": 100000,
+        "publication": "READY_CHECKSUM_VALID",
+        "reserved_estimate": 126286,
+        "state": "OPEN",
+        "uncertain": 6
+      },
+      "migration_journal": {
+        "free": 40,
+        "occupied": 472,
+        "states": {
+          "PENDING": 471,
+          "RESOLVED": 1
+        }
+      },
+      "retired_absence": {
+        "/Users/kevinkeaveney/Dev/claude/flex/database/flex_complete_database.db": true,
+        "/Users/kevinkeaveney/Dev/claude/flex/database/wt_ops_v2.db": true
+      },
+      "staging_payload_bytes": 1260112,
+      "workers": {
+        "creator_resolution": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 9452,
+          "retirement_validated": true
+        },
+        "listener": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 82435,
+          "retirement_validated": true
+        },
+        "walkback": {
+          "generation": "DEV004-V2-20261024-dfb76562",
+          "pid": 77830,
+          "retirement_validated": true
+        }
+      }
+    },
+    "INSTALLED_PREIMAGE_MATCH": "24/24 source preimages matched; includes12 installed active runtime modules plus root/dormant/tool and renderer source. All candidate/pin checks passed.",
+    "NEXT_ACTION": "Separately authorize exact candidate coherent3worker installation and source/recovery/lifecycle references using frozen plan; immediate safety checks mandatory. No deployment performed.",
+    "RECOVERY_COMPATIBILITY": "Current certificate and retirement-aware matchedpair guard validate in all3roles. 147 accepted controls reused; exact candidate pins verified without importing renderer. Six uncertain requests,100000cap,custody,Walkbackpending/lifecycle contracts preserved. Original Golden and post-retirement tags unchanged.",
+    "RELOAD_BOUNDARY": "Coordinated listener/resolver/Walkback reload required. Coherent immutable recovery-plan and lifecycle-reference transition; dormant services stay stopped; no schema changes.",
+    "SPENDING_HISTORY_VERIFICATION": {
+      "all_retained_baseline_scopes_preserved_monotonically": true,
+      "baseline_reserved_estimate": 107950,
+      "final_reserved_estimate": 126333,
+      "six_uncertain_requests_exact_hash_unchanged": true,
+      "worker_PID_continuity_this_preflight": true
+    },
+    "activation_plan_path": "/private/tmp/flex-retired-preopen-preflight/ACTIVATION_PLAN.json",
+    "activation_plan_sha256": "5b85bb6812b7c359eaafea267b34cc58369332a0c6db190f190109c96e73ecd0",
+    "blocker": null,
+    "checks_passed": 111,
+    "engineering_revision": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+    "gate_locks": 0,
+    "observed_at": "2026-10-29T18:47:06.825308+00:00",
+    "production_changes": 0,
+    "production_flags": "Strict read-only:0productionchanges,0providerrequests,0gatelocks,0restarts,0queuechanges,0V1contentaccess.",
+    "provider_calls": 0,
+    "remaining_limitations": [
+      "Birthjournal headroom remains tight; verify ACKreadback/custody anew at activation.",
+      "External arbitrary/stale-source native SQLite remains capable of recreation; creator of original incident unproven.",
+      "Source candidate remains local,not remotely published; stage exact immutable commit before activation."
+    ],
+    "report_path": "/private/tmp/flex-retired-preopen-preflight/PREFLIGHT_REPORT.json",
+    "report_sha256": "69008fdac4dce3eaa24687b08e12c1c3010ea9cd6d24c9c41d8e3e65a29ad167",
+    "restarts": 0,
+    "tests": "147 accepted controls reused; no rerun or source edits."
+  },
   "flex_v2_retired_path_recreation_root_cause_audit_20261029": {
     "active_references": {
       "Supervisor_dormant_roles": "API,bridge,monitors,funding,webhook,evidence/Cascade roles STOPPED. No activation performed.",
@@ -53956,7 +54085,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Read-only coherent multi-role source/recovery/lifecycle/dormant-reader preflight for this exact candidate; no deployment authorized.",
+  "next_action": "Separately authorize exact candidate coherent3worker installation and source/recovery/lifecycle references using frozen plan; immediate safety checks mandatory. No deployment performed.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -56145,8 +56274,8 @@
     "git_head": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T18:42:33.401950+00:00",
-    "working_tree": "Clean dedicated DEV candidate. 147 provider-free controls passed; 3 known historical harness cases excluded. No production edits. All3RUNNING; resolver now9452 without Codex signal; gateOPENREADY cap100000 sixuncertain. Next coherent read-only deployment preflight; external native/stale-source bypass remains explicit."
+    "updated_at_utc": "2026-10-29T18:47:54.030085+00:00",
+    "working_tree": "Clean candidate; read-only preflight PASS, all24preimages and111checks pass. Workers82435/9452/77830 unchanged. OPENREADY cap100000,sixuncertain exacthash unchanged,spending monotonic. Birth508/512 with6verifiedACK,502protected; migration472/512,custodybelowquotas,disk49.1GB,WAL0. Candidate notdeployed. Externalstale/nativebypass remains. Next separatelyauthorize coherent3worker/source/recovery/lifecycle installation."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -57548,7 +57677,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "DEV_PASS_QUALIFIED_NOT_DEPLOYED",
+  "status": "GO_FOR_SEPARATELY_AUTHORIZED_DEPLOYMENT",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

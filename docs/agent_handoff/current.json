@@ -26604,6 +26604,307 @@
     "updated_at_utc": "2026-10-29T07:27:50.900353+00:00",
     "verdict": "HOLD deletion; audit complete"
   },
+  "flex_v2_historical_waiting_vs_CREATE_improvements_20261029": {
+    "activation_boundaries": {
+      "birth_retry_activation_bound": "Installed/start observation26Oct10:51:25.538172Z; accepted natural observation10:51:41.808887..10:56:41.808887Z.",
+      "earlier_birth_receipt_persistence_and_identity_matching": "Exact initial production activation UNKNOWN. Retained19Oct17:52:32 audit proves enabled receipt persistence and three exact COMMITTED/Core controls by then; do not equate source38ddf8b commit time to activation.",
+      "later_recovery_corrections": "Already accepted composition retained; no demonstrated CREATE semantic boundary attributed to logger, custody, retirement or recovery-only changes. Exact independent CREATE activation effect UNKNOWN.",
+      "migration_delivery_fix_activation_bound": "Approved194cf66d installed25Oct17:17:18.273970Z; new listener confirmed RUNNING25Oct17:17:35.158174Z. Split uses confirmed-running boundary.",
+      "original_OPS_materialization_owner": "Current wb_create_control activated_at1792357618 is control-epoch authority, not proof every later source improvement was active then. Exact initial implementation activation UNKNOWN.",
+      "verified_boundaries": [
+        {
+          "active": 1792656487,
+          "name": "PumpPortal numeric birth parser",
+          "proof": "retained deployment Supervisor start epoch",
+          "revision": "65da0e227727da5fb19a75950cae8de1c05bc9ab"
+        },
+        {
+          "active": 1792948655.158174,
+          "name": "Migration-time source-qualified CREATE intent and delivery",
+          "proof": "STARTED.json running readback; install17:17:18, actual process start bounded17:17:18..17:17:35",
+          "revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3"
+        },
+        {
+          "active": 1793011885.538172,
+          "name": "Birth retry correction",
+          "proof": "installation.json start_epoch; natural acceptance1793011901..1793012201",
+          "revision": "ca1678b780696cd62ceb125ef3abe6561198bd12"
+        }
+      ]
+    },
+    "before_after_summary": [
+      {
+        "after": 1444,
+        "before": 107,
+        "boundary": "PumpPortal numeric birth parser",
+        "matched24h": {
+          "after": {
+            "at_handoff_qualified": "UNKNOWN",
+            "canonical_migrations": 1033,
+            "current_VALID_Core_match": 1,
+            "current_WAITING": 314,
+            "current_WAITING_rate": 0.30396902226524686,
+            "current_qualified_ACK_or_ledger": 1,
+            "current_queue_status": {
+              "MISSING": 718,
+              "complete": 1,
+              "waiting": 314
+            },
+            "excluded_nonmatching": 0,
+            "initial_WAITING_admission_rate": "UNKNOWN: no immutable initial-state log for complete cohort",
+            "window": [
+              "2026-10-22T08:08:07+00:00",
+              "2026-10-23T08:08:07+00:00"
+            ]
+          },
+          "before": {
+            "at_handoff_qualified": "UNKNOWN",
+            "canonical_migrations": 529,
+            "current_VALID_Core_match": 1,
+            "current_WAITING": 107,
+            "current_WAITING_rate": 0.20226843100189035,
+            "current_qualified_ACK_or_ledger": 1,
+            "current_queue_status": {
+              "MISSING": 421,
+              "complete": 1,
+              "waiting": 107
+            },
+            "excluded_nonmatching": 249,
+            "initial_WAITING_admission_rate": "UNKNOWN: no immutable initial-state log for complete cohort",
+            "window": [
+              "2026-10-21T08:08:07+00:00",
+              "2026-10-22T08:08:07+00:00"
+            ]
+          }
+        }
+      },
+      {
+        "after": 172,
+        "before": 1379,
+        "boundary": "Migration-time source-qualified CREATE intent and delivery",
+        "matched24h": {
+          "after": {
+            "at_handoff_qualified": "UNKNOWN",
+            "canonical_migrations": 543,
+            "current_VALID_Core_match": 355,
+            "current_WAITING": 171,
+            "current_WAITING_rate": 0.3149171270718232,
+            "current_qualified_ACK_or_ledger": 355,
+            "current_queue_status": {
+              "complete": 369,
+              "failed": 3,
+              "waiting": 171
+            },
+            "excluded_nonmatching": 0,
+            "initial_WAITING_admission_rate": "UNKNOWN: no immutable initial-state log for complete cohort",
+            "window": [
+              "2026-10-25T17:17:35.158174+00:00",
+              "2026-10-26T17:17:35.158174+00:00"
+            ]
+          },
+          "before": {
+            "at_handoff_qualified": "UNKNOWN",
+            "canonical_migrations": 768,
+            "current_VALID_Core_match": 154,
+            "current_WAITING": 532,
+            "current_WAITING_rate": 0.6927083333333334,
+            "current_qualified_ACK_or_ledger": 129,
+            "current_queue_status": {
+              "MISSING": 78,
+              "complete": 158,
+              "waiting": 532
+            },
+            "excluded_nonmatching": 0,
+            "initial_WAITING_admission_rate": "UNKNOWN: no immutable initial-state log for complete cohort",
+            "window": [
+              "2026-10-24T17:17:35.158174+00:00",
+              "2026-10-25T17:17:35.158174+00:00"
+            ]
+          }
+        }
+      },
+      {
+        "after": 34,
+        "before": 1517,
+        "boundary": "Birth retry correction",
+        "matched24h": {
+          "after": {
+            "at_handoff_qualified": "UNKNOWN",
+            "canonical_migrations": 324,
+            "current_VALID_Core_match": 282,
+            "current_WAITING": 33,
+            "current_WAITING_rate": 0.10185185185185185,
+            "current_qualified_ACK_or_ledger": 282,
+            "current_queue_status": {
+              "complete": 274,
+              "failed": 6,
+              "pending": 11,
+              "waiting": 33
+            },
+            "excluded_nonmatching": 0,
+            "initial_WAITING_admission_rate": "UNKNOWN: no immutable initial-state log for complete cohort",
+            "window": [
+              "2026-10-26T10:51:25.538172+00:00",
+              "2026-10-27T10:51:25.538172+00:00"
+            ]
+          },
+          "before": {
+            "at_handoff_qualified": "UNKNOWN",
+            "canonical_migrations": 562,
+            "current_VALID_Core_match": 323,
+            "current_WAITING": 220,
+            "current_WAITING_rate": 0.3914590747330961,
+            "current_qualified_ACK_or_ledger": 323,
+            "current_queue_status": {
+              "complete": 342,
+              "waiting": 220
+            },
+            "excluded_nonmatching": 0,
+            "initial_WAITING_admission_rate": "UNKNOWN: no immutable initial-state log for complete cohort",
+            "window": [
+              "2026-10-25T10:51:25.538172+00:00",
+              "2026-10-26T10:51:25.538172+00:00"
+            ]
+          }
+        }
+      }
+    ],
+    "blocker": "No implementation requested; historical blocked Core creator conflict retained.",
+    "checkpoint": "flex-v2-post-v1-retirement-2026-10-28",
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "evidence_hashes": {
+      "COMPARISON_CASES.json": "b49c8fc795a561a61d605ba27ffc3775b037b5cb30f063a6290f6540cb7926f5",
+      "HISTORICAL.json": "328eae4c93205d73f43ba2b3167fb17f45e1331b73f41305e1a2100e6f37485d",
+      "RECENT_100.json": "6aa0865f14a95f9316e8f3eb5eb029c337cdb7c7b5c628af6683fa376865d79b",
+      "SUMMARY.json": "5f008a1cdd5dd02b1b7f9a9d84f5f92f45ad91fec9cf18f5f3f840aeac349277",
+      "read_only_audit.py": "8675f79f49f0a5bf8f9d0f1aa2a43a36fb23662cc61fcc34f924484e4d965b89"
+    },
+    "exact_cohort": {
+      "CREATE_evidence": {
+        "birth_receipt": 277,
+        "candidate": 278,
+        "no_candidate_or_matching_birth_receipt": 1273
+      },
+      "admission_range": [
+        "2026-10-21T19:13:44+00:00",
+        "2026-10-28T14:52:40+00:00"
+      ],
+      "current_VALID_anchors": 0,
+      "current_statuses": {
+        "waiting": 1551
+      },
+      "daily_admission": {
+        "2026-10-21": 96,
+        "2026-10-22": 234,
+        "2026-10-23": 341,
+        "2026-10-24": 312,
+        "2026-10-25": 439,
+        "2026-10-26": 128,
+        "2026-10-27": 0,
+        "2026-10-28": 1
+      },
+      "daily_migration": {
+        "2026-10-21": 96,
+        "2026-10-22": 234,
+        "2026-10-23": 341,
+        "2026-10-24": 312,
+        "2026-10-25": 439,
+        "2026-10-26": 128,
+        "2026-10-27": 0,
+        "2026-10-28": 1
+      },
+      "migration_range": [
+        "2026-10-21T19:13:44+00:00",
+        "2026-10-28T14:52:40+00:00"
+      ],
+      "population": 1551
+    },
+    "interpretation": {
+      "answer": "Predominantly legacy relative to25Oct migration-time delivery and26Oct birth-retry corrections, not relative to every prior birth improvement.",
+      "backlog_stability": "1551remainWAITING;0currentqualifiedanchors.1273have no storedCREATEcandidate or matching birth receipt in checked retained evidence.276birthreceipts match sole currentCorecreator and may warrant separate owner qualification; unavailable original evidence is not proven for all1551.",
+      "coverage_recent": "100/100 exact birth/Core matches, VALID OPS queue signature/Core matches, and exact ACK deliveries;0blocked/missing deliveries and0currentWAITING. The separate CREATE event ledger has0exactrows: source-qualified queue delivery is the accepted authority here.",
+      "current_regression": "No current general delivery regression demonstrated in latest100. Post-fix blocked conflict remains; no guarantee for unobserved notifications or all future migrations.",
+      "decline": "Matched24h current-WAITING/canonical migration proportions: before/after delivery532/768=69.27% vs171/543=31.49%; birth-retry220/562=39.15% vs33/324=10.19%. These are present unresolved prevalence, not historical initial WAITING rates or controlled causal effect.",
+      "predates_birth_retry": "1517/1551=97.81%;34admitted afterward",
+      "predates_delivery_fix": "1379/1551=88.91%;172admitted afterward",
+      "predates_numeric_birth_parser": "107/1551=6.90%;1444admitted afterward"
+    },
+    "next_action": "Keep the1551rows protected; do not delete or replay. No broad CREATE pipeline correction is justified by recent100coverage. If historical recovery is desired, separately assess the known blocked Core-authority conflict and276receipt-backed prospects through the existing owner, without assuming admission eligibility.",
+    "production_flags": "UNCHANGED",
+    "raw_rows_published": false,
+    "recent100": {
+      "anchor_lookup_nonzero": 0,
+      "anchor_recovered_timestamp_present": 0,
+      "anchor_sources": {
+        "creator_funding_queue": 98,
+        "token_analysis": 2
+      },
+      "at_handoff_qualified": "UNKNOWN: retained delivery ACK/first_seen timestamps are not atomic commit identities",
+      "birth_receipt_before_handoff": 100,
+      "birth_receipt_exact": 100,
+      "canonical_exact": 100,
+      "current_statuses": {
+        "complete": 65,
+        "pending": 34,
+        "running": 1
+      },
+      "delivery_states": {
+        "ACK": 100
+      },
+      "exact_ACK": 100,
+      "exact_ledger": 0,
+      "initial_admission_state": "NOT_DURABLY_OBSERVABLE: current row lacks immutable initial-state history; no WAITING now, 100 VALID anchors and exact ACK deliveries.",
+      "migration_range": [
+        "2026-10-28T22:11:16+00:00",
+        "2026-10-29T07:39:05+00:00"
+      ],
+      "qualified_ACK_or_ledger": 100,
+      "queue_VALID_Core_match": 100,
+      "total": 100
+    },
+    "report_path": "/private/tmp/flex-historical-create-audit-20261029/AUDIT_REPORT.json",
+    "report_sha256": "703c3cbe20a3aba51feb4d7e6a5f6daf25ca301e29a1985631a8cac0432414a3",
+    "runtime_safety": {
+      "all_workers_RUNNING": {
+        "listener": 77731,
+        "resolver": 97138,
+        "walkback": 77830
+      },
+      "birth_journal": {
+        "free": 9,
+        "occupied": 503,
+        "states": {
+          "ACKED": 9,
+          "QUARANTINED": 494
+        }
+      },
+      "disk_free_bytes": 51983966208,
+      "gate": "OPEN_READY_CHECKSUM_VALID_LOCK_FREE_READ",
+      "inflight_at_final_read": 0,
+      "limit": 100000,
+      "migration_journal": {
+        "free": 23,
+        "occupied": 489,
+        "states": {
+          "ACKED": 1,
+          "PENDING": 487,
+          "RESOLVED": 1
+        }
+      },
+      "uncertain_requests": 6
+    },
+    "status": "PARTIAL_TIMING_VERIFIED_PREDOMINANTLY_LEGACY",
+    "tests": "No tests or source changes; bounded indexed read-only diagnostic. No provider calls, gate locks/publication, restarts, queue/retry changes or V1 access.",
+    "uncertainties": [
+      "Exact first activation of older birth persistence/canonical identity/OPS materialization improvements is UNKNOWN.",
+      "At-handoff qualified CREATE availability UNKNOWN: receipt acceptance can precede handoff while OPS activation commit time remains unproven. All100recent receipts predate recorded handoff completion, which is not OPS activation proof.",
+      "Initial queue state history unavailable; current WAITING prevalence cannot establish exact initial WAITING admission rate.",
+      "Comparable windows span restarts, cutover, missing queues and provider/storage changes; association does not isolate the effect of one fix. Pre-delivery window has78canonical migrations with no retained queue row. Earlier numeric-parser windows include many missing queue rows and249excluded nonmatching canonical signatures in before window, so not a clean performance comparison.",
+      "Absence of retained birth/CREATE evidence does not prove provider non-delivery, never-captured evidence or irrecoverability."
+    ],
+    "updated_at_utc": "2026-10-29T07:44:47.988669+00:00",
+    "verdict": "Predominantly legacy relative to25Octdelivery and26Octbirthretry; no general regression demonstrated in latest100. Exact initial rates/at-handofftiming UNKNOWN."
+  },
   "flex_v2_historical_walkback_deletion_preflight": {
     "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "next_action": "Retain all rows. If fresh-job service is the goal, separately qualify a small change to the existing worker selection/priority policy while preserving historical rows, rather than deleting evidence or creating a new queue/scheduler/schema. No deletion authorization should be sought for this unqualified set.",
@@ -54469,8 +54770,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T07:27:50.900353+00:00",
-    "working_tree": "Read-only historical WAITING evidence inventory complete. Exact1551unchanged; B1551 protected operational authority, A0/C0/D0 under B>A>D>C. No deletion/source/runtime changes. All3RUNNING; OPENREADY100000cap6uncertain; birth511/512,migration482/512; disk52.3GB."
+    "updated_at_utc": "2026-10-29T07:44:47.988669+00:00",
+    "working_tree": "Read-only historical CREATE audit complete; original1551WAITINGunchanged.1379(88.91%)before25Octdeliveryfix,172after;1517before26Octbirthretry,34after. Latest100exactcanonical migrations100receipt/Core+VALIDOPSqueue+ACKdelivery,0WAITING. At-handoffOPSactivation/initialadmissionstateUNKNOWN. No production/DEVchanges/providers/gatelocks/replay."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -21260,6 +21260,357 @@
     },
     "verdict": "GO_FOR_GOLDEN_BASELINE_FREEZE"
   },
+  "flex_v2_eight_hour_full_operational_audit_20261029_11_19": {
+    "CREATE": {
+      "atomic_OPS_at_handoff": "UNKNOWN",
+      "birth_accepted_before_exact_handoff_marker": 134,
+      "qualified_current_ACK_anchor": 134,
+      "receipt_Core_exact": 134
+    },
+    "Walkback_admissions": 134,
+    "Walkback_completions": 103,
+    "blocker": "No current availability/safety blocker demonstrated. Walkback throughput deficit verified; exact hourly birth/RPC/transfer event totals unavailable.",
+    "current_helius_snapshot": {
+      "billing": "UNKNOWN",
+      "cap": 100000,
+      "exact_hourly_requests_reserved_credits": "UNKNOWN",
+      "highest_lifetime_investigation": 7936,
+      "inflight": [],
+      "lifetime_current_key_method_counts": {
+        "rpc:getAccountInfo": 7487,
+        "rpc:getMultipleAccounts": 1961,
+        "rpc:getSignaturesForAddress": 3516,
+        "rpc:getTokenAccountsByOwner": 18,
+        "rpc:getTokenLargestAccounts": 85,
+        "rpc:getTransaction": 7766
+      },
+      "publication": "READY_CHECKSUM_VALID",
+      "reserved_by_worker": {
+        "creator_resolution": 0,
+        "listener": 13436,
+        "walkback": 113548
+      },
+      "reserved_estimate": 126984,
+      "state": "OPEN",
+      "uncertain": 6
+    },
+    "engineering_revision": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+    "fresh_vs_historical_completions": {
+      "cutoff": "2026-10-28T22:55:11Z",
+      "fresh": 93,
+      "historical": 10
+    },
+    "hourly": [
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 15,
+        "Walkback_completions": 17,
+        "births_committed": "UNKNOWN",
+        "errors": "UNKNOWN",
+        "handoffs": 15,
+        "hour": "2026-10-29T11:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 15,
+        "Walkback_completions": 16,
+        "births_committed": "UNKNOWN",
+        "errors": "UNKNOWN",
+        "handoffs": 15,
+        "hour": "2026-10-29T12:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 12,
+        "Walkback_completions": 13,
+        "births_committed": "UNKNOWN",
+        "errors": "UNKNOWN",
+        "handoffs": 11,
+        "hour": "2026-10-29T13:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 16,
+        "Walkback_completions": 8,
+        "births_committed": "UNKNOWN",
+        "errors": "UNKNOWN",
+        "handoffs": 17,
+        "hour": "2026-10-29T14:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 19,
+        "Walkback_completions": 12,
+        "births_committed": "UNKNOWN",
+        "errors": "Resolver expected exit/restart; other errors UNKNOWN",
+        "handoffs": 19,
+        "hour": "2026-10-29T15:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 21,
+        "Walkback_completions": 14,
+        "births_committed": "UNKNOWN",
+        "errors": "UNKNOWN",
+        "handoffs": 21,
+        "hour": "2026-10-29T16:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 16,
+        "Walkback_completions": 12,
+        "births_committed": "UNKNOWN",
+        "errors": "UNKNOWN",
+        "handoffs": 15,
+        "hour": "2026-10-29T17:00:00+00:00"
+      },
+      {
+        "Helius_credits": "UNKNOWN",
+        "Walkback_admissions": 20,
+        "Walkback_completions": 11,
+        "births_committed": "UNKNOWN",
+        "errors": "Authorized3-worker reload; other errors UNKNOWN",
+        "handoffs": 21,
+        "hour": "2026-10-29T18:00:00+00:00"
+      }
+    ],
+    "intelligence": {
+      "completed_with_retained_creator_funding_signature": 85,
+      "distinct_retained_creator_funding_tuples": 85,
+      "new_qualified_relationships_first_created_in_window": "UNKNOWN",
+      "queue_outcomes": {
+        "LINEAGE_GAP": 68,
+        "NO_ATTRIBUTION_FOUND": 35
+      },
+      "reason": "No immutable first-insertion/qualification ledger proved for funding edges; queue completion not confirmed operation membership.",
+      "typed_missing": 0,
+      "typed_operator_ids_present": 0,
+      "typed_terminal_boundaries": {
+        "INSUFFICIENT_EVIDENCE|CREATOR": 13,
+        "INSUFFICIENT_EVIDENCE|UNKNOWN": 2,
+        "KNOWN_CEX_REACHED|CEX": 30,
+        "KNOWN_RELAY_REACHED|AUTOMATION": 1,
+        "LINEAGE_GAP|INFRASTRUCTURE": 55,
+        "UNKNOWN_INFRASTRUCTURE|INFRASTRUCTURE": 2
+      }
+    },
+    "latest50": {
+      "admission_to_first_claim": {
+        "max_seconds": 2069,
+        "median_seconds": 1597,
+        "n": 45,
+        "p90_seconds": 1906
+      },
+      "claimed_by_window_end": 45,
+      "completed_by_window_end": 7,
+      "current_statuses": {
+        "complete": 7,
+        "pending": 43
+      },
+      "first_claim_to_completion": {
+        "max_seconds": 7663,
+        "median_seconds": 2988,
+        "n": 7,
+        "p90_seconds": 7663
+      },
+      "handoff_to_admission": {
+        "max_seconds": 0,
+        "median_seconds": -3.0,
+        "n": 50,
+        "p90_seconds": -3
+      },
+      "n": 50,
+      "timing_note": "Handoff completion is bookkeeping after queue admission; negative handoff-to-admission does not imply causal inversion. started_at COALESCE-preserved; incomplete jobs right-censored at19UTC.",
+      "unclaimed_at_window_end": 5
+    },
+    "migration_handoffs": 134,
+    "new_exhaustion": 0,
+    "next_action": "Leaveproductionunchanged. If improvinglatency isauthorizednext, qualify current6d6e3e81compositioncompatibility for already-provenWalkback-onlyboundedpreselection/ownershipcontentionretry; do notinstallold5e4362bundleormixrecoverypins. Preservebirthcapacitywarning. Noengineeringperformed.",
+    "production_flags": {
+      "DEV_source_changes": 0,
+      "V1_access": 0,
+      "database_copies": 0,
+      "gate_locks_or_publication": 0,
+      "new_monitor_or_service": 0,
+      "production_changes": 0,
+      "provider_calls": 0,
+      "queue_or_journal_mutations": 0,
+      "service_signals_or_restarts": 0
+    },
+    "protected_notification_conflicts": {
+      "CANONICAL_SIGNATURE_CONFLICT": 4,
+      "NOTIFICATION_SUBJECT_CONFLICT": 16,
+      "total": 20
+    },
+    "queue_snapshot": {
+      "acquisition_eligible": "UNKNOWN: reservationcost/keycooldown/lock/ownerentryrequiredispatch-timechecks; no gate lock taken.",
+      "current_queue": {
+        "complete": 2373,
+        "failed": 56,
+        "pending": 134,
+        "running": 1,
+        "waiting": 1551
+      },
+      "due_known_owner_below_cap": 132,
+      "exact_historical_WAITING_cohort": 1551,
+      "fresh_WAITING": 0,
+      "historical_now_qualified_anchor": 0,
+      "historical_states": {
+        "waiting": 1551
+      },
+      "interpretation": "134admissions versus103completions =>31additional retained unfinished jobs. No newretainedfailedterminaltimestamps; all1551historicalWAITINGremainseparate. Exact historical scheduler-eligible state snapshots at11/19 unavailable.",
+      "retained_unfinished_flow_delta": 31,
+      "scheduler_due": 132
+    },
+    "report_path": "/private/tmp/flex-8h-operational-20261029-11-19/AUDIT_REPORT.json",
+    "report_sha256": "1b119e074ff76def77e8e2ca0cd0f8dcd1c96501d9f3e8ec07a6975862fc7004",
+    "retained_unfinished_flow_delta": 31,
+    "retention": {
+      "Golden_checkpoints": "OriginalGolden8322e2c9andpostretirement561026bdunchanged.",
+      "current_files": {
+        "core": {
+          "-shm": 32768,
+          "-wal": 0,
+          "db": 107110400
+        },
+        "ops": {
+          "-shm": 0,
+          "-wal": 0,
+          "db": 173674496
+        }
+      },
+      "current_free_bytes": 49801379840,
+      "current_lifecycle_state": {
+        "core": [
+          {
+            "cursor": "",
+            "cycles": 92,
+            "deleted": 0,
+            "examined": 0,
+            "family": "rpc_response_cache",
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "last_batch_hash": "08f83173e96d4f514eb90a9d84c14d871fa8116d3409ff00a1b1afc6453561bf",
+            "last_cutoff": 1792695600,
+            "upper_key": "",
+            "version": 1
+          },
+          {
+            "cursor": "5632",
+            "cycles": 0,
+            "deleted": 0,
+            "examined": 5632,
+            "family": "wss_metrics",
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "last_batch_hash": "26a9eb763d0fcd287e0029bd1809295e3b7a2481635fa56f85189f42fc0f6e84",
+            "last_cutoff": 1792695600,
+            "upper_key": "74280",
+            "version": 1
+          }
+        ],
+        "ops": [
+          {
+            "cursor": "",
+            "cycles": 0,
+            "deleted": 0,
+            "examined": 0,
+            "family": "rpc_response_cache",
+            "generation": "DEV004-V2-20261024-dfb76562",
+            "last_batch_hash": "",
+            "last_cutoff": 0,
+            "upper_key": "",
+            "version": 1
+          }
+        ]
+      },
+      "exact11to19diskgrowth": "UNKNOWN: noexactboundarysnapshots. Candidatecheckout244268368bytesisaknownauthorizedallocationinsidethewindow; notassumedallgrowth.",
+      "exact8hruns": "UNKNOWN: ownerstateaggregatesdonotretainfullschedulehistory.",
+      "file_limits": "CurrentDB/WALbelow499000000bytes; mandatoryfloor2067108864bytes.",
+      "latest_cutoff": "2026-10-22T19:00:00Z",
+      "qualified_deletions_observed": "0cumulativeinpresentownerstate; no protecteddata deletion licensed.5632WSSrowsexamined,currentRPCcachecycle92. Exact8hdeltaUNKNOWN.",
+      "single15minute_schedule": true
+    },
+    "runtime": {
+      "both_retired_paths_absent": true,
+      "current_postdeployment_error_tokens": {
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "PAIR_RETIRED_DATABASE_OPEN": 0,
+        "PAIR_RETIRED_PREDECESSOR_REPLACED": 0,
+        "PumpPortal": 0,
+        "PumpSwap": 3,
+        "RETRY_EXHAUSTED": 0,
+        "Traceback (most recent call last)": 0
+      },
+      "current_workers": "watchtower_listener              RUNNING   pid 23351, uptime 0:16:40\ncreator_resolution_worker        RUNNING   pid 23363, uptime 0:16:29\nwalkback_worker                  RUNNING   pid 23381, uptime 0:16:24\n",
+      "downtime_assessment": "15:59:44.972resolverexpectedexit0;respawn15:59:45.984,RUNNING15:59:51.020;self-exitcauseUNRESOLVED. Authorized18:53:50..18:54:27reload: listenerSTOPPED\u2192RUNNING25.700s,resolver16.202s,Walkback21.839s. SupervisorforcedresolverSIGKILLafter15secondstopgrace;quiescedgatehad0inflightandverifiedaccounting,notanunplannedcrash. ApplicationreadytimingvsRUNNINGcannotbeequated.",
+      "eight_hour_publication_and_identity_error_totals": "UNKNOWN; olduntimestampedlinesincludeprior09:19incidentoutsidewindow; no erroneousassignment.",
+      "first_last_useful_processing": "Per-hourhandoff/completionrecordsproveusefulprocessingacrossall8hours;continuousbirthfirst/lastcommittelemetryUNKNOWN.",
+      "matched_ACTIVE_generation": "DEV004-V2-20261024-dfb76562",
+      "source": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
+      "supervisor_events": [
+        "2026-10-29 15:59:44,972 INFO exited: creator_resolution_worker (exit status 0; expected)",
+        "2026-10-29 15:59:45,984 INFO spawned: 'creator_resolution_worker' with pid 9452",
+        "2026-10-29 15:59:51,020 INFO success: creator_resolution_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
+        "2026-10-29 18:53:50,422 WARN stopped: watchtower_listener (terminated by SIGTERM)",
+        "2026-10-29 18:54:05,428 WARN stopped: creator_resolution_worker (terminated by SIGKILL)",
+        "2026-10-29 18:54:05,441 WARN stopped: walkback_worker (terminated by SIGTERM)",
+        "2026-10-29 18:54:05,977 INFO spawned: 'watchtower_listener' with pid 23351",
+        "2026-10-29 18:54:16,122 INFO success: watchtower_listener entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)",
+        "2026-10-29 18:54:16,124 INFO spawned: 'creator_resolution_worker' with pid 23363",
+        "2026-10-29 18:54:21,630 INFO success: creator_resolution_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
+        "2026-10-29 18:54:21,633 INFO spawned: 'walkback_worker' with pid 23381",
+        "2026-10-29 18:54:27,280 INFO success: walkback_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)"
+      ],
+      "valid_retirement_certificate": true
+    },
+    "status": "PARTIAL_CURRENT_RUNTIME_HEALTHY_WALKBACK_BACKLOG_GROWING",
+    "storage": {
+      "capacity_refusal_eight_hours": "UNKNOWN; zero observed in complete postdeployment bounded log interval, historical untimestamped6tokens not safely allocated.",
+      "current_birth": {
+        "current_fresh_canonical_ACK_lower_bound": 1,
+        "free": 2,
+        "occupied": 510,
+        "states": {
+          "ACKED": 1,
+          "QUARANTINED": 509
+        },
+        "verified_reclaimable_ack": 1
+      },
+      "current_custody": {
+        "birth_terminal": {
+          "bytes": 1641620,
+          "records": 1212
+        },
+        "migration_deferred": {
+          "bytes": 3912197,
+          "records": 1495
+        },
+        "migration_terminal": {
+          "bytes": 2119854,
+          "records": 1892
+        }
+      },
+      "current_migration": {
+        "free": 25,
+        "occupied": 487,
+        "states": {
+          "PENDING": 486,
+          "RESOLVED": 1
+        }
+      },
+      "exact_boundary_occupancy_admissions_reclamation_transfers": "UNKNOWN; irregular snapshots not substituted for exact11/19 boundaries.",
+      "protected_birth_transfer_shape_count": 509,
+      "reclamation_verified_in_deployment_observation": "Birth journal512with9verifiedACK\u2192510with5verifiedACK whileprotectedquarantinesincreased503\u2192505; currentstreamcontinues. This is observedturnover, not8hfullcounter.",
+      "transfer_safety": "CORE_AUTHORITY_CONFLICTshape only; active capacity releases require existingOPSdurablecommit+independentreadback. No transfer attempted."
+    },
+    "tests": "No tests/source changes. Bounded indexed retained evidence, lock-free gate checksum and current authority validation only.",
+    "updated_at_utc": "2026-10-29T19:13:31.886245+00:00",
+    "verdict": "PARTIAL: KEEP_CURRENT_RUNTIME_RUNNING; NO_RECOVERY_OR_RESET_JUSTIFIED. THROUGHPUT_SHORTFALL_AND_TELEMETRY_GAPS_REMAIN.",
+    "window": {
+      "end_exclusive": "2026-10-29T19:00:00+00:00",
+      "start": "2026-10-29T11:00:00+00:00"
+    }
+  },
   "flex_v2_eight_hour_walkback_throughput_audit": {
     "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "next_action": "Leave production unchanged and preserve all historical/protected rows. Retain this exact eight-hour arrival/completion baseline for the next comparable completed-window check. If the measured fresh delay is unacceptable, seek separate focused DEV qualification of pre-selection contention handling; do not delete the backlog or change budgets.",
@@ -54246,7 +54597,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave all3approvedworkersRUNNING. Keep candidate-aware recovery/lifecycle authority. No further engineering or acquisition initiated. Birthjournal finiteheadroom remains explicit operational limitation.",
+  "next_action": "Leaveproductionunchanged. If improvinglatency isauthorizednext, qualify current6d6e3e81compositioncompatibility for already-provenWalkback-onlyboundedpreselection/ownershipcontentionretry; do notinstallold5e4362bundleormixrecoverypins. Preservebirthcapacitywarning. Noengineeringperformed.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -56435,8 +56786,8 @@
     "git_head": "6d6e3e81095fa65c90ac051aae8d6d748d6b2c97",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T19:00:41.928977+00:00",
-    "working_tree": "Cleancandidate6d6e3e81deployedfromstableimmutableauthority. Only3workersreloaded,now23351/23363/23381RUNNING.311secacceptancePASS:>=9birthcommits,3canonicalhandoffs,2Walkbackcompletions. OPENREADY,6uncertainpreserved,100000cap,0stuck. Retiredpathsabsent,certificate/tagsunchanged. Birth510/512+5verifiedACK,migration487/512;disk48.7GB. Candidateawarerecovery/lifecycleactive. Externalstale/nativebypassriskremains."
+    "updated_at_utc": "2026-10-29T19:13:31.886245+00:00",
+    "working_tree": "Read-only11:00\u201319:00UTC8hauditPARTIAL; no source/runtime changes.134canonicalhandoffs,134Walkbackadmissions,103completions,+31retainedunfinished;134/134qualifiedcurrentCREATE. Historical1551allWAITING. Latest50firstclaimmedian1597s,p901906,max2069,5unclaimedat19UTC. Currentall3RUNNING/OPENREADY/6uncertain/100000cap,retiredpathsabsent.0newexhaustion;20protectedconflictingnotifications. Birth/RPC/transferexacthourtotalsUNKNOWN. Nextleaveunchanged; separatecurrent-sourcecontentionqualificationifauthorized."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -57838,7 +58189,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_RETIRED_PATH_PREVENTION_DEPLOYED",
+  "status": "PARTIAL_CURRENT_RUNTIME_HEALTHY_WALKBACK_BACKLOG_GROWING",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",

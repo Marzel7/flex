@@ -33824,6 +33824,118 @@
     "report_sha256": "166beaf5ed6b51aa11bbba088481ff58d6b14e5af52b0024fa9ec91fc45dcde5",
     "source_changes_outside_approved_payload": 0
   },
+  "flex_v2_walkback_actionable_backlog_reporting_20261029": {
+    "acquisition_eligible": {
+      "READY_checksum": true,
+      "exact_count": "UNKNOWN",
+      "gate": "OPEN",
+      "limit": 100000,
+      "reason": "OPEN/READY and a due/VALID queue row do not prove current ownership-entry success, lock availability, per-request reservation/cooldown/cache state, complete evidence or remaining worst-case budget. Proving admission would require prohibited active gate checks. No gate lock acquired.",
+      "scheduler_candidate_upper_bound": 97,
+      "uncertain_requests": 6
+    },
+    "backlog": {
+      "all_queue_statuses": {
+        "complete": 2252,
+        "failed": 56,
+        "pending": 97,
+        "waiting": 1551
+      },
+      "all_retained_unfinished_including_history": 1648,
+      "current_nonhistorical_unfinished": 97,
+      "definition": "All unfinished rows minus ONLY original historical cohort identities still WAITING. Includes fresh WAITING visibly as evidence-blocked; does not imply all are executable.",
+      "pending_plus_running": 97
+    },
+    "blocker": "Exact acquisition-eligible count and net stock movement not established by retained evidence.",
+    "comparable_periods": [
+      {
+        "actual_net_unfinished_stock_change": "UNKNOWN: no synchronized start/end stock snapshot; timestamp-incomplete terminal rows and other state transitions are not invented.",
+        "admissions_minus_completions": 3,
+        "completion_timestamps": 7,
+        "failed_terminal_timestamps": 0,
+        "fresh_admissions_outside_exact_historical_cohort": 10,
+        "historical_identity_readmissions_at_current_enqueued_timestamp": 0,
+        "retained_admissions": 10,
+        "skipped_terminal_timestamps": 0,
+        "window_end_exclusive": "2026-10-29T07:00:00+00:00",
+        "window_start": "2026-10-29T06:00:00+00:00"
+      },
+      {
+        "actual_net_unfinished_stock_change": "UNKNOWN: no synchronized start/end stock snapshot; timestamp-incomplete terminal rows and other state transitions are not invented.",
+        "admissions_minus_completions": 5,
+        "completion_timestamps": 10,
+        "failed_terminal_timestamps": 0,
+        "fresh_admissions_outside_exact_historical_cohort": 15,
+        "historical_identity_readmissions_at_current_enqueued_timestamp": 0,
+        "retained_admissions": 15,
+        "skipped_terminal_timestamps": 0,
+        "window_end_exclusive": "2026-10-29T08:00:00+00:00",
+        "window_start": "2026-10-29T07:00:00+00:00"
+      }
+    ],
+    "engineering_revision": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
+    "fresh_waiting": 0,
+    "historical": {
+      "cohort_missing": 0,
+      "current_historical_states": {
+        "waiting": 1551
+      },
+      "exact_original_identities": 1551,
+      "reactivated_retained_under_current_state": [],
+      "still_WAITING_excluded_only": 1551
+    },
+    "net_backlog_change": {
+      "actual_change": "UNKNOWN without comparable stock snapshots",
+      "caveat": "Flow balance is not asserted as exact backlog change; failures, skipped outcomes, reactivation and timestamp coverage can differ.",
+      "retained_admissions_minus_completions": [
+        {
+          "admissions_minus_completions": 3,
+          "window_end_exclusive": "2026-10-29T07:00:00+00:00",
+          "window_start": "2026-10-29T06:00:00+00:00"
+        },
+        {
+          "admissions_minus_completions": 5,
+          "window_end_exclusive": "2026-10-29T08:00:00+00:00",
+          "window_start": "2026-10-29T07:00:00+00:00"
+        }
+      ]
+    },
+    "next_action": "Use this split for read-only operational reports: retain historical CREATE-waiting as a separate count, show fresh WAITING separately, and prioritize observation of due PENDING/RUNNING progress. No queue or dashboard/schedule changes.",
+    "observed_utc": "2026-10-29T08:12:19+00:00",
+    "pending": 97,
+    "production_flags": "UNCHANGED; originalretry/dedup/spending authority preserved",
+    "queue_readback_sha256": "3d0c2f2088068d2c21e19c7eed93f0d9f239471e87d1b1c2dd3cd8616d1afbd3",
+    "raw_rows_published": false,
+    "report_path": "/private/tmp/flex-actionable-backlog-20261029/REPORT.json",
+    "report_sha256": "3a16e589a101200b4f0c90161101bb6fb892d46fbae376d630a0e3d62f68e4b1",
+    "running": 0,
+    "scheduler_due": {
+      "attempt_ceiling": 3,
+      "due_with_VALID_anchor": 97,
+      "expired_running_due": 0,
+      "matching_current_worker_selection_predicate": 97,
+      "pending_at_attempt_ceiling": 0,
+      "pending_due": 97,
+      "pending_future_retry": 0,
+      "retained_error_caveat": "Historical last_error is not proof of current gate contention.",
+      "retained_last_error_counts": {
+        "HELIUS_GATE_BUSY": 93,
+        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+        "NONE": 3
+      },
+      "snapshot_time": "2026-10-29T08:12:19+00:00"
+    },
+    "status": "PASS_READ_ONLY_REPORT_WITH_ELIGIBILITY_AND_STOCK_LIMITS",
+    "tests": "No tests/source changes; read-only indexed bounded queue snapshot and lock-free gate checksum observation. No providers/restarts/replay/V1 access or dashboard/schedule changes.",
+    "timestamp_limits": {
+      "complete_without_completed_at": 1,
+      "enqueued_timestamp_missing": 0,
+      "failed_without_completed_at": 5,
+      "skipped_without_completed_at": 0
+    },
+    "updated_at_utc": "2026-10-29T08:12:47.240929+00:00",
+    "verdict": "97currentunfinished jobs distinguished from1551historicalCREATEWAITING; eligibility not asserted from due status."
+  },
   "flex_v2_walkback_intelligence_quality_audit": {
     "COMPLETE_FUNDING_ROUTES": {
       "count": 0,
@@ -54833,8 +54945,8 @@
     "git_head": "561026bdbbaa41e4c6a74424c8a7aabfdf063c90",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T07:58:09.585429+00:00",
-    "working_tree": "Read-only permanent historical WAITING retirement audit complete. Exact1551remainWAITING; originaladmissions/attempts preserved. No qualified neutral terminal/retired/exclusion state; lifecycle excludes queue. HOLD permanentretirement. Reporting-only exactcohort separation sufficient; no engineering required for ad hoc reports. All3RUNNING,OPENREADY100000cap6uncertain. No changes/providers/gatelocks/restarts/replay."
+    "updated_at_utc": "2026-10-29T08:12:47.240929+00:00",
+    "working_tree": "Read-only actionable backlog report08:12:19Z complete.1551exacthistoricalidentitiesstillWAITING excludedonlyfromcurrentwork;97PENDING/0RUNNING/0freshWAITING,97scheduler-dueVALIDanchors. AcquisitioneligibleUNKNOWN.06\u201307UTC10admissions7completions(+3flow);07\u201308UTC15/10(+5flow),actualnetstockUNKNOWN. No source/runtime/dashboard/schedule changes/providers/gatelocks/replay."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {

@@ -2,14 +2,14 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "HELIUS_BUDGET_CLOCK_AMBIGUOUS:wall_elapsed2892sversusmonotonic_elapsed2880sat23:22:36UTC. OPENdoesnotproveaccountingeligibility.",
+    "blocker": "HELIUS_BUDGET_CLOCK_AMBIGUOUSafterbatterysleep;workersRUNNINGbutpaidRPCclockineligible. Noanchors/powersettingschanged.",
     "database_writes": 0,
-    "milestone": "Authorizedfrozen15independentresearchscopequalification",
-    "next_action": "Stopasrequired. ExistingHeliusaccountingclockauthorityrequiresseparatelyauthorizedassessment/recoverybeforethisdiagnosticcanqualify. Preserveoriginal15and30request/30creditceiling;noautomaticrecoveryorRPCretry.",
+    "milestone": "BatterypolicyIdleSleeptoHeliusclockrefusal",
+    "next_action": "Stopafterdiagnosis. Separatelyauthorizebatteryidle-sleeppreventionandqualifiedclockrecoveryifdesired;neitherexecuted. Preserveaccounting,sevenuncertainrequestsandallqueueevidence.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "HOLD_BEFORE_RPC",
-    "tests": "SamplehashPASS,costpolicy/publicationchecksumsPASS,clockpreflightFAIL12secondsversus5secondinstalledlimit. Noengineering/tests/providerdispatch."
+    "status": "COMPLETE_DIAGNOSIS_NO_RECOVERY",
+    "tests": "Noengineering/tests. pmsetrecords22:35:31..45IdleSleeponbattery;currentioregBattery94%;12sclockdelta>5s.154sobservation0HTTPRPCreservations/credits;37post-sleepclockerrorrows."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57768,7 +57768,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stopasrequired. ExistingHeliusaccountingclockauthorityrequiresseparatelyauthorizedassessment/recoverybeforethisdiagnosticcanqualify. Preserveoriginal15and30request/30creditceiling;noautomaticrecoveryorRPCretry.",
+  "next_action": "Stopafterdiagnosis. Separatelyauthorizebatteryidle-sleeppreventionandqualifiedclockrecoveryifdesired;neitherexecuted. Preserveaccounting,sevenuncertainrequestsandallqueueevidence.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59957,8 +59957,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T23:22:59.603206+00:00",
-    "working_tree": "Sourceunchanged. Authorizednon-Corediagnosticstoppedon12secondsharedbudgetclockfailurebeforeRPCorscopeinitialization. Onlyprivate/tmpread-onlypreflightreportandmandatoryaggregatehandoff."
+    "updated_at_utc": "2026-10-30T23:31:14.634351+00:00",
+    "working_tree": "Sourceunchanged. ReadonlyOSpower/process/logmetadata,passivegatesnapshotsandguardedOPS/journals. Norecoveryorconfigurationchange;private/tmpreportandmandatoryaggregatehandoffonly."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62939,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_CURRENT_PROVIDER_ACCOUNTING_CLOCK_INVALID",
+  "verdict": "DIAGNOSIS_COMPLETE_BATTERY_IDLE_SLEEP_CAUSED_CLOCK_GUARD_BLOCK",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -65073,6 +65073,131 @@
     "safety": "HELIUS=7; BIRDEYE=7; lifecycle calls=0; retries=0; raw provider payload retention=false; provenance append-only=true; authoritative/legacy entry overwrite=false; source/template/renderer/API/supervisor/production/trading changes=0.",
     "status": "PASS_BACKFILL_API_RENDERED_VERIFIED",
     "two_row_diagnostic": "HOLD_WINDOW_NOT_MATURE: the user approved one bounded lifecycle retry for SIX6900 4uTHA7hUfZD1PKWQBVtuCEWnBjgB6xaL7GfJrPRDpump and ROACH. The observable UTC time is 2026-10-02; SIX6900's qualified seven-day horizon ends 2026-10-08T22:50:48Z. Its prior Stage-2 ending before that point correctly failed closed. A retry before the horizon closes would deterministically be incomplete, so no provider request was made. Preserve the approval and run exactly one bounded existing-policy retry for each target only after both horizons mature; retain failed-closed behavior if coverage remains incomplete. No UI/renderer, production, Supervisor, Current-MC, or DEV018 changes."
+  },
+  "watchtower_battery_sleep_helius_clock_diagnostic_20261030": {
+    "CLOCK_CHANGES": 0,
+    "CLOCK_DISCREPANCY": {
+      "allowed_seconds": 5,
+      "anchors_monotonic": 1010772,
+      "anchors_wall": 1793399664,
+      "installed_refusal": "HELIUS_BUDGET_CLOCK_AMBIGUOUS",
+      "mechanism": "Afterbatteryidle-sleep,wallandmonotonicelapsedtimefromretainedanchorsdifferby12s. _tickrejectsabs(delta)>5beforeHTTPreservation/dispatch. Sleep14secondsisconsistentwith12secondexcludedmonotonicinterval;exactlow-levelclocktraceabsent.",
+      "seconds": 12,
+      "stable_across_observation": true
+    },
+    "DATABASE_WRITES": 0,
+    "HELIUS_GATE_STATUS": {
+      "RPC_clock_eligible": false,
+      "active_reservations": 0,
+      "investigation_credit_limit": 100000,
+      "publication_valid": true,
+      "spending_preserved": true,
+      "state": "OPEN",
+      "uncertain_requests": 7
+    },
+    "LAST_POWER_TRANSITION": {
+      "exact_unplug_instant": "UNKNOWN;22:35:25isfirstretainedbatteryobservation,nothardwaredetachproof.",
+      "first_retained_battery_state": "2026-10-30T22:35:25Z",
+      "last_retained_AC_summary": "2026-10-30T20:58:10Z",
+      "sleep_duration_logged_seconds": 14,
+      "sleep_reason": "Idle Sleep",
+      "sleep_start": "2026-10-30T22:35:31Z",
+      "wake": "2026-10-30T22:35:45Z",
+      "wake_reason": "Keyboard/UserActivity"
+    },
+    "LAST_SUCCESSFUL_HELIUS_REQUEST": {
+      "UTC": "2026-10-30T22:34:24Z",
+      "comparison": "61secondsbeforefirstretainedbatterysummary,67secondsbeforesleep. Exactfirstblockedrequesttimestampnotretained.",
+      "evidence": "DurableHTTP_COMPLETEDkey.at;installed_finish_httpupdatesatontheHTTP200completion.",
+      "method": "getAccountInfo",
+      "pid": 61521,
+      "worker": "walkback"
+    },
+    "NEXT_ACTION": "Stopafterdiagnosis. Separatelyauthorizebatteryidle-sleeppreventionandqualifiedclockrecoveryifdesired;neitherexecuted. Preserveaccounting,sevenuncertainrequestsandallqueueevidence.",
+    "POWER_MANAGEMENT_EVIDENCE": {
+      "AC_policy": {
+        "lowpowermode": 0,
+        "sleep_minutes": 0
+      },
+      "AppNap": "Noevidenceofcurrentworkerfullsuspension. LowPowerModemaythrottleCPU,butisnotneededtoexplainthepreRPCclockrefusal.",
+      "at_sleep": "PowerlogreportsNoAssertionsbeforeIdleSleeponbattery;audioidlesleepassertionsreleased22:35:24.",
+      "battery_policy": {
+        "lowpowermode": 1,
+        "sleep_minutes": 1
+      },
+      "current_assertions": "powerd/displayandsharingdHandoffpreventidle;noneownedbythreeFlexworkerPIDs. No persistentFlexsleepassertionverified.",
+      "network": "en0IPv4/DNSReachableflagobserved;noexternalconnectivityprobe. ListenerConnectionrefusedtailmessagesareSSE_BROADCASTlocalservice,notHeliusresponses."
+    },
+    "POWER_SETTING_CHANGES": 0,
+    "POWER_SOURCE": {
+      "charge_percent": 94,
+      "initial_pmset_note": "InitialrestrictedpmsetreadsaidACdespitebattery discharging;escalatedread-onlypmsetandioregagreebattery. No power setting changed.",
+      "ioreg_ExternalChargeCapable": false,
+      "ioreg_ExternalConnected": false,
+      "ioreg_IsCharging": false,
+      "source": "BATTERY"
+    },
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVIDER_CALLS": 0,
+    "REQUESTS_BLOCKED_BY_CLOCK": {
+      "clock_error_rows_updated_after_sleep": 37,
+      "currently_pending_clock_labels": 109,
+      "not_a_zero_eligible_work_inference": true,
+      "recent_observation": {
+        "end": "2026-10-30T23:29:44+00:00",
+        "interpretation": "1newtotalreservation/outcomecorrespondstoWebSocketconnectionaccounting;HTTPbudgetreservationcountremains162773. DonotconfuseWSwithRPCcalls.",
+        "new_HTTP_RPC_reservations": 0,
+        "new_reserved_credits": 0,
+        "new_total_outcomes": 1,
+        "new_total_reservations": 1,
+        "seconds": 154,
+        "start": "2026-10-30T23:27:10+00:00"
+      },
+      "retained_Walkback_clock_error_rows": 162,
+      "total_attempt_count": "UNKNOWN;clockraisesbeforecreditreservationandnocumulativeblockcounterexists."
+    },
+    "ROOT_CAUSE": "BatteryoperationindirectlyenabledIdleSleepunderseparatebatterysettings. The22:35sleep/wakeintervalleftretainedclockanchors12secondsapart,causingallpaidRPCadmissionstosfailclosedafterwake. Itisnotdirectbattery-specificapplicationdisableornewproviderHTTPfailures. Earlier12secondambiguityandcurrentzeroHTTPactivitysharetheclockrefusal;fulllow-levelsleepclocktrace/preciseunplugtimeunavailable.",
+    "STATUS": "DIAGNOSIS_COMPLETE_BATTERY_IDLE_SLEEP_CAUSED_CLOCK_GUARD_BLOCK",
+    "WORKER_HEALTH": {
+      "Walkback": {
+        "CPU_percent_observed": 37.9,
+        "Supervisor": "RUNNING",
+        "pid": 61521,
+        "process_state": "R"
+      },
+      "listener": {
+        "CPU_percent_observed": 28.8,
+        "Supervisor": "RUNNING",
+        "pid": 45328,
+        "process_state": "R"
+      },
+      "resolver": {
+        "CPU_percent_observed": 0.0,
+        "Supervisor": "RUNNING",
+        "natural_start_approx": "2026-10-30T22:00:40Z",
+        "pid": 1422,
+        "process_state": "S"
+      },
+      "suspension": "NonecurrentlyT/stopped;listener/Walkbackactivelyscheduled. HistoricalAppNapnotindependentlymeasured."
+    },
+    "WORKER_PROGRESS": {
+      "Walkback": {
+        "admissions_since_sleep": 0,
+        "completed_since_sleep": 0,
+        "note": "Started_atrowsarenottotalattempts.109pendingclocklabelsand37post-sleepclockupdatesdemonstrateworkblockedbeforepaidacquisition.",
+        "queue_states": {
+          "complete": 2658,
+          "failed": 56,
+          "pending": 143,
+          "waiting": 1551
+        },
+        "rows_started_at_since_sleep": 2
+      },
+      "birth": "2residentACKEDbirthsreceivedaftersleep,latest23:28:28.228373UTC;continuedpersistenceevidence,notglobalbirthcount.",
+      "migration": "50residentrecordsfirstadmittedaftersleep;latest23:24:36UTC. Countsarenotcanonicalcompletions.",
+      "resolver": "RUNNINGandcurrentWALmonitorlooplogactivity;resolvedjobthroughputnotqualifiedbythisaudit."
+    },
+    "WORKER_SIGNALS_OR_RESTARTS": 0
   },
   "watchtower_birdeye_authoritative_binding_20261008": {
     "binding_result": "The clean isolated source fails closed with MISSING_AUTHORITATIVE_BIRDEYE_CREDENTIAL under an empty environment. A one-shot, ephemeral process environment populated by the existing authority's BIRDEYE record passed the isolated binding presence check. The value was never printed, logged, hashed, serialized, stored, or copied into the isolated checkout/configuration. The binding implementation consults BIRDEYE only; historical aliases are not a fallback path.",

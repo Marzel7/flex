@@ -2,14 +2,16 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "Exact canonical completion throughput UNKNOWN: Core query exceeded1second/250000VM bound.",
+    "blocker": "Core exact-signature terminal readback unavailable;0current safe removals proven.",
     "database_writes": 0,
-    "milestone": "Migration versus Walkback reconciliation",
-    "next_action": "NONE. Stop after observational reconciliation. Exact canonical throughput remains UNKNOWN under existing Core guard and query bounds.",
+    "engineering_revision": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
+    "milestone": "Historical migration backlog safe-removal qualification",
+    "next_action": "Retain every outstanding record. Stop after this audit. Safe active-queue retirement cannot be authorized from present evidence; exact canonical terminal readback is unavailable under current guard.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "COMPLETE_PARTIAL_EVIDENCE",
-    "tests": "No tests or engineering. Bounded OPS query-only reads under OS write/network-denial guard; Core one indexed query stopped at existing safety bound."
+    "status": "HOLD",
+    "tests": "No tests/engineering; indexed bounded query-only OPS read under OS write/network-denial; custody envelope hashes and provenance verified. Single Core readonly attempt refused; guard unchanged.",
+    "verdict": "HOLD_NO_REMOVALS_QUALIFIED_CORE_READ_UNAVAILABLE"
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57768,7 +57770,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE. Stop after observational reconciliation. Exact canonical throughput remains UNKNOWN under existing Core guard and query bounds.",
+  "next_action": "Retain every outstanding record. Stop after this audit. Safe active-queue retirement cannot be authorized from present evidence; exact canonical terminal readback is unavailable under current guard.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59957,8 +59959,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T19:44:35.861070+00:00",
-    "working_tree": "No engineering changes; bounded read-only observation and private/tmp evidence only. Aggregate handoff transport update."
+    "updated_at_utc": "2026-10-30T19:53:58.149665+00:00",
+    "working_tree": "Engineering branch unchanged and clean; bounded read-only audit evidence in private/tmp. Mandatory aggregate handoff only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62939,7 +62941,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "OBSERVATION_PARTIAL_EXACT_CORE_THROUGHPUT_UNKNOWN",
+  "verdict": "HOLD_NO_REMOVALS_QUALIFIED_CORE_READ_UNAVAILABLE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -66520,6 +66522,67 @@
     "runtime_deployment_required": false,
     "safety": "Read-only source/UI trace: source changes=0; database changes=0; provider calls=0; listener/monitor/consumer process changes=0; no historical backfill started.",
     "status": "PASS_UI_GAP_CLASSIFIED_SEPARATELY_FROM_CURRENT_MONITOR_RECOVERY"
+  },
+  "watchtower_historical_migration_backlog_verification_20261030": {
+    "CUSTODY": {
+      "OWNED_deferred": 2285,
+      "overlap": 0,
+      "resident": 490,
+      "resident_stable": true
+    },
+    "DATABASE_WRITES": 0,
+    "DEV_STATUS": "HOLD_NO_REMOVALS_QUALIFIED_CORE_READ_UNAVAILABLE",
+    "NEXT_ACTION": "Retain every outstanding record. Stop after this audit. Safe active-queue retirement cannot be authorized from present evidence; exact canonical terminal readback is unavailable under current guard.",
+    "ORIGINAL_2767_RECONCILIATION": {
+      "new_since_original": 9,
+      "original_departures": 1,
+      "original_still_outstanding": 2766
+    },
+    "PRESERVED_PRIOR_WALKBACK_METRICS": {
+      "1h": {
+        "admissions": 9,
+        "completions": 9
+      },
+      "6h": {
+        "admissions": 96,
+        "completions": 105
+      },
+      "endpoint": "2026-10-30T19:43:50Z",
+      "not_recomputed_as_terminal_notification_proof": true
+    },
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVIDER_CALLS": 0,
+    "REMAINING_ACTIONABLE_BACKLOG": {
+      "do_not_subtract_unknown": true,
+      "proven_actionable_subset": "UNKNOWN",
+      "retained_outstanding_after_hypothetical_removal": 2775
+    },
+    "REMOVAL_SAFETY_EVIDENCE": {
+      "Core": "One mode=ro attempt under existing OS write-denial guard failed unable to open database file. No bypass, retry, immutable mode or sidecar permission change.",
+      "custody_hash_and_provenance_verified": {
+        "migration_deferred_evidence_v1": 2361,
+        "migration_terminal_evidence_v1": 1943
+      },
+      "departure": "One original signature absent from current resident/OWNED/ACTIVE/terminal snapshot; no terminal proof. Remains UNKNOWN, not counted as successful completion or removal candidate.",
+      "duplicates": "Shared mint hints are not proof of equivalent completed notification obligations.",
+      "missing_subject": 1617,
+      "on_chain_migration_dates": "UNKNOWN: retained received_at is Watchtower admission time, not on-chain event date. Age alone does not qualify retirement.",
+      "protected_jobs": "No removal candidates; no protected Walkback job changes or new eligibility granted.",
+      "reclamation_contract": "ACKED plus clean evidence plus independently verified exact signature/mint canonical record, COMPLETE same-signature handoff, OPSqueue existence; protected terminal rows require verified durable terminal owner readback. No current outstanding record meets proven removal contract. OWNED means pending custody, not terminal.",
+      "retained_64_canonical_signature_proof_matches": 0,
+      "shared_subject_excess_signatures": 12,
+      "subject_known": 1158,
+      "subject_mints": 1146,
+      "terminal_overlap_with_original_or_current": 0
+    },
+    "SAFE_REMOVAL_CANDIDATES": 0,
+    "SNAPSHOT_TIME": "2026-10-30T19:52:48+00:00",
+    "STILL_ACTIONABLE": "0 independently qualified;2775remain operationally outstanding PENDING/RESOLVED; no terminal inference",
+    "TOTAL_OUTSTANDING": 2775,
+    "UNKNOWN": 2775,
+    "VERIFIED_DUPLICATE_OR_SUPERSEDED": 0,
+    "VERIFIED_TERMINAL": 0,
+    "VERIFIED_TERMINAL_QUARANTINE": 0
   },
   "watchtower_historical_offset_coverage_preflight_20261006": {
     "authoritative_cohort": "96 operation_monitor_facts rows for operation_id watchtower/watchtower_deep have canonical migration signature, timestamp, and slot in database/flex_complete_database.db token_analysis. 93 also have a canonical PumpSwap pool; three named mints lack a recorded pool but retain the other canonical boundary fields.",

@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Keep exact private synthetic repository published and restricted cloud draft unpublished. Resolve supported cloud-bound read-only filesystem/mount verification before declaring workspace isolation qualified. Do not use generic local shell, broaden connector grants, publish an unverified environment, or run the investigation. Account-level pre-existing Flex grant remains an explicit limitation.",
+  "next_action": "Stop with HOLD. Obtain a supported execution tool demonstrably bound to this cloud task before any further verification or investigation. Do not treat generic workdir, setup metadata or published config as isolation proof. No automatic retry, additional task, API substitution or security relaxation.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T16:03:15.939035+00:00",
-    "working_tree": "Flex engineering/production unchanged at512042fa; standalone synthetic root d748d309 published only to private research repository. Required handoff transport updated."
+    "updated_at_utc": "2026-10-30T16:13:05.454350+00:00",
+    "working_tree": "Flex engineering and production unchanged at512042fa. Phase1K report/frozen verifier retained under /private/tmp; required handoff transport only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T16:03:15.939035+00:00",
+  "updated_at_utc": "2026-10-30T16:13:05.454350+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PUBLICATION_PASS_CLOUD_RUNTIME_QUALIFICATION_HOLD",
+  "verdict": "HOLD_CLOUD_EXECUTION_BINDING_NOT_PROVEN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -64509,6 +64509,143 @@
     "status": "PARTIAL_PUBLICATION_PASS_CLOUD_HOLD",
     "tests": "Prepush private UI plus empty secret/webhook inventories; all4 SHA256s and6 complete Git objects reverified. Isolated root push; independent fresh bare fetch verifies exactly main/d748d309,one root,4 remote SHA256s. No remote changes after cloud setup. Cloud metadata revision2 proves provider cloud,running,network disabled/enforced,secrets/vars/outbound IDs empty; filesystem proof missing.",
     "verdict": "PUBLICATION_PASS_CLOUD_RUNTIME_QUALIFICATION_HOLD"
+  },
+  "watchtower_agent_phase1k_20261030": {
+    "blocker": "Actual task exposes only metadata bound to managed cloud instance; generic shell has no proven cloud binding. Status starting/offline,capabilities empty,network state unknown. Cannot qualify actual checkout/mounts/credentials/network; stopped without executing.",
+    "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
+    "next_action": "Stop with HOLD. Obtain a supported execution tool demonstrably bound to this cloud task before any further verification or investigation. Do not treat generic workdir, setup metadata or published config as isolation proof. No automatic retry, additional task, API substitution or security relaxation.",
+    "prior_handoff": "ba1db65c",
+    "production_flags": {
+      "Flex_source_changes": 0,
+      "additional_agents": 0,
+      "environment_published": true,
+      "investigation_sessions": 0,
+      "private_evidence_access": false,
+      "private_evidence_transmission": false,
+      "production_mutations": 0,
+      "separately_billed_API_calls": 0,
+      "user_initiated_retries": 0,
+      "verification_tasks": 1
+    },
+    "report": {
+      "CLOUD_CHECKOUT_SHA": "UNKNOWN; remote Git authority verified at expected SHA but no actual cloud checkout readback.",
+      "CLOUD_FILE_INVENTORY": "UNKNOWN in cloud; remote exact four-file inventory and SHA256s PASS.",
+      "CLOUD_REPOSITORY": "Marzel7/watchtower-agent-research",
+      "CLOUD_WORKSPACE_ISOLATION": {
+        "account_connector_limit": "Pre-existing Flex connector grant remains unchanged. Only research repo selected for this environment; account-wide research-only isolation not claimed.",
+        "actual_tools": "Read-only cloud_environment_environment_status used through functions.exec. Generic exec_command cloud binding not established; not invoked.",
+        "environment_published": true,
+        "filesystem_and_mount_proof": "NOT_OBSERVED; no inferred absence of production paths or credential access.",
+        "model_selector": "GPT-6.1 Sol Light",
+        "publication_count": 1,
+        "published_configuration": "Only research repository; Only me; network disabled; no install/start scripts, configured secrets/variables/VPN key/OIDC identities.",
+        "raw_status_checked": "Expanded actual Environment status tool output in UI, matching frozen result.",
+        "retry_or_extra_agents": false,
+        "runtime_status": {
+          "capabilities": [],
+          "connectivity": "offline",
+          "desired_phase": "running",
+          "environment_id": "ccarenv_b64_Y2NhcmVudl81M2RiOWU1M2UzMmM4MTkxODM1NmI5NDJlM2YyNjMxNA",
+          "failure": null,
+          "network_diagnostics": null,
+          "network_policy": {
+            "mode": "disabled",
+            "state": "unknown"
+          },
+          "observations_current": true,
+          "observed_phase": "starting",
+          "observed_spec_revision": "1",
+          "outbound_identities": [],
+          "provider": "cloud",
+          "runtime_variables": [],
+          "secrets": [],
+          "spec_revision": "1"
+        },
+        "task_url": "https://chatgpt.com/local/01a18d93-b5fa-7428-8f4c-c8318a490068",
+        "verification_task_count": 1
+      },
+      "MULTI_OPERATION_ACCURACY": "NOT_EVALUATED; no frozen investigation output and no independent reasoning score.",
+      "NETWORK_RESTRICTIONS": {
+        "egress_probe_count": 0,
+        "external_repository_access": "UNKNOWN; no production or external code requests.",
+        "fresh_task_readback": "disabled/state unknown while starting; not enforcement proof.",
+        "previous_setup": "Earlier setup instance revision2 reported disabled/enforced; not substituted for this task instance.",
+        "published_config": "disabled"
+      },
+      "NEXT_ACTION": "Stop with HOLD. Obtain a supported execution tool demonstrably bound to this cloud task before any further verification or investigation. Do not treat generic workdir, setup metadata or published config as isolation proof. No automatic retry, additional task, API substitution or security relaxation.",
+      "PHASE1K_STATUS": "HOLD_CLOUD_EXECUTION_BINDING_NOT_PROVEN",
+      "PRIVATE_EVIDENCE_EXPOSURE": false,
+      "PRODUCTION_MUTATIONS": 0,
+      "SECRET_ACCESS": {
+        "actual_credential_availability": "UNKNOWN; no secret values or stores read.",
+        "configured_metadata": "secrets/runtime_variables/outbound_identities empty"
+      },
+      "SUBSCRIPTION_USAGE": {
+        "exact_task_tokens_or_credits": "UNKNOWN; rounded shared percentage does not prove zero consumption.",
+        "investigation_sessions": 0,
+        "ordinaryUsageAllowed": true,
+        "planType": "prolite",
+        "route": "Signed-in ChatGPT Codex Cloud published-environment selection; no separately billed API transport configured or called. Child did not independently establish billing provenance.",
+        "separate_API_inference_calls": 0,
+        "shared_used_percent_after": 19,
+        "shared_used_percent_before": 19,
+        "verification_tasks": 1,
+        "window_minutes": 10080
+      },
+      "SYNTHETIC_REASONING_RESULT": "NOT_RUN; verification gate failed. No hypotheses or reviewer answers submitted.",
+      "expected_commit": "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff",
+      "expected_files": [
+        {
+          "bytes": 9488,
+          "credential_wallet_path_dependency_scan": "PASS",
+          "file": "MULTI_OPERATION_SCHEMA.json",
+          "sha256": "02a1deb60a82a5089ad2d1e31c406ef5fd952322e547bc2dd01aca4500245d65"
+        },
+        {
+          "bytes": 2869,
+          "credential_wallet_path_dependency_scan": "PASS",
+          "file": "PHASE_A_BEHAVIOURAL_REFERENCE.md",
+          "sha256": "7d7f2e3ce20000e1ff5aa2d243c209d6a01ba37c65ba09aedc91cdf65e4c8d19"
+        },
+        {
+          "bytes": 12117,
+          "credential_wallet_path_dependency_scan": "PASS",
+          "file": "SYNTHETIC_MULTI_OPERATION_INPUT.json",
+          "sha256": "6a9b9a4dd71a1979ca84eccc0cacd17f5da7087c1f2a591c3c9a2500818dd8d6"
+        },
+        {
+          "bytes": 782,
+          "credential_wallet_path_dependency_scan": "PASS",
+          "file": "INVESTIGATION_INSTRUCTIONS.md",
+          "sha256": "d7fdc0079228c47958e8b522f1d77df404eed821891288df1dbffbba14606615"
+        }
+      ],
+      "finished_at_utc": "2026-10-30T16:12:39.779994+00:00",
+      "frozen_verification_sha256": "2f1ed129048a23cbaae7590ddac439ef84bc5259fa3d5da2d3d06710482f81d8",
+      "network_draft": "disabled",
+      "official_execution_path_sources": [
+        "https://learn.chatgpt.com/docs/cloud",
+        "https://learn.chatgpt.com/docs/environments/cloud-environments"
+      ],
+      "pre_inference_subscription_snapshot": {
+        "ordinaryUsageAllowed": true,
+        "planType": "prolite",
+        "usedPercent": 19,
+        "windowMinutes": 10080
+      },
+      "prior_handoff": "ba1db65c",
+      "remote_final_refs": "Only refs/heads/main at d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff after task.",
+      "remote_readback": "PASS: private UI,one branch,one root,exact four remote SHA256s rechecked.",
+      "secrets_draft": 0,
+      "setup_actions": "Only publishing existing restricted synthetic-only draft to make one supported verification task available; no new dependencies or repository edits.",
+      "started_at_utc": "2026-10-30T16:07:45.282060+00:00"
+    },
+    "report_path": "/private/tmp/watchtower-phase1k/PHASE1K_REPORT.json",
+    "report_sha256": "f8030f10f38be93458262f9cae25b03e96a6d5e4d1501aed70b4784c6154682a",
+    "research_root_commit": "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff",
+    "status": "HOLD",
+    "tests": "Read-only remote fetch: private UI,one root,one branch,exact4 hashes and no new refs. Existing restricted environment published once; one selected-environment verifier task. Its actual status tool output inspected; cloud execution binding unproven, so no shell, filesystem, mount, credential or egress probes. No unchanged test suite rerun.",
+    "verdict": "HOLD_CLOUD_EXECUTION_BINDING_NOT_PROVEN"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

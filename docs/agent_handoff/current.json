@@ -2,31 +2,14 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "authorization_consumed_at_utc": "2026-08-12T20:55:26Z",
-    "census_output": "logs/oip_migration_census.jsonl",
-    "closed_at_receive_utc_ns": 1786569813044579000,
-    "closed_at_utc": "2026-08-12T21:23:33.044579Z",
-    "end_condition": "first of 20 distinct marked migrations, 60 clean minutes, or production impact",
-    "endpoint_detected_at_utc": "2026-08-12T22:09:59Z",
-    "endpoint_evaluation": {
-      "clean_minutes_60": false,
-      "distinct_migrations_20": true,
-      "endpoint_reached": true,
-      "endpoint_reason": "20_DISTINCT_MARKED_MIGRATIONS",
-      "production_impact": false
-    },
-    "name": "OIP v2.2E.2B2R fresh marked-cohort migration census",
-    "next_action": "RA4-C1 completed on fixture; retain H11 on HOLD until RA4-C2 evidence and production-safe transition authorizes change.",
-    "note": "Closed at the twentieth marked migration received after the 1,389-record high-water. Both listener and worker had B2M loaded. No Codex-initiated provider call, service/configuration change, or Evidence/Cohort action occurred.",
-    "observed_duration_minutes": 283.1,
-    "observed_duration_seconds": 16986.044579,
-    "pre_authorization_file_high_water_records": 1389,
-    "pre_authorization_records_excluded": 1389,
-    "qualification_requirement": "Count only post-boundary migrations whose current-mint queue/envelope is marked observation_required=true; do not use B2K or pre-boundary records.",
-    "qualified_distinct_mints": 20,
-    "qualified_events": 20,
-    "qualified_start_checkpoint_utc": "2026-08-12T20:55:26Z",
-    "qualified_start_receive_utc_ns_exclusive": 1786568002689241000
+    "blocker": "Exact canonical completion throughput UNKNOWN: Core query exceeded1second/250000VM bound.",
+    "database_writes": 0,
+    "milestone": "Migration versus Walkback reconciliation",
+    "next_action": "NONE. Stop after observational reconciliation. Exact canonical throughput remains UNKNOWN under existing Core guard and query bounds.",
+    "production_changes": false,
+    "provider_calls": 0,
+    "status": "COMPLETE_PARTIAL_EVIDENCE",
+    "tests": "No tests or engineering. Bounded OPS query-only reads under OS write/network-denial guard; Core one indexed query stopped at existing safety bound."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57785,7 +57768,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE. Stop afterobservationalcomparison. No fixes, additional acquisition, environment changes or replay proposed.",
+  "next_action": "NONE. Stop after observational reconciliation. Exact canonical throughput remains UNKNOWN under existing Core guard and query bounds.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59957,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T19:36:21.287534+00:00",
-    "working_tree": "Noengineering/codechanges. Observation-only throughput data/report under/private/tmp. Required handoff JSON transport only."
+    "updated_at_utc": "2026-10-30T19:44:35.861070+00:00",
+    "working_tree": "No engineering changes; bounded read-only observation and private/tmp evidence only. Aggregate handoff transport update."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "THROUGHPUT_OBSERVATION_PARTIAL_CORE_REFUSED_STOCK_GROWING",
+  "verdict": "OBSERVATION_PARTIAL_EXACT_CORE_THROUGHPUT_UNKNOWN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67702,6 +67685,71 @@
     "snapshot_utc": "2026-10-30T19:32:14+00:00",
     "status": "THROUGHPUT_OBSERVATION_PARTIAL_CORE_REFUSED_STOCK_GROWING",
     "windows": "Fixedendpoint19:32:14UTC;1h18:32:14,3h16:32:14,6h13:32:14,24hOct29_19:32:14. Allendexclusive."
+  },
+  "watchtower_migration_walkback_reconciliation_20261030": {
+    "canonical_handoff_completion_retained_sample_lower_bounds": {
+      "1": 5,
+      "24": 64,
+      "6": 64
+    },
+    "core_read": "Single guarded indexed COMPLETE-state query interrupted at explicit1second/250000VM-instruction limit; no retry or relaxation. Exact completion windows UNKNOWN.",
+    "current_notification_population": {
+      "known_subject_signatures": 1156,
+      "known_unique_mints": 1144,
+      "matched_queue_rows": {
+        "TTWofwAge91oFhZs7kpQdyrVRkmevgM88xijGvQFbKo": {
+          "attempts": 1,
+          "completed_at": 1792991860,
+          "enqueued_at": 1792991847,
+          "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+          "last_error": null,
+          "mint": "TTWofwAge91oFhZs7kpQdyrVRkmevgM88xijGvQFbKo",
+          "started_at": 1792991859,
+          "status": "complete"
+        }
+      },
+      "missing_subject": 1611,
+      "outstanding": 2767
+    },
+    "database_writes": 0,
+    "earlier_measurements": "17:52:36UTC retained queue metrics1h15/23,6h105/120,24h260/232. Reproduced identicaldefinitions at19:43:50UTC:9/9,96/105,237/233; rolling-window endpoints differ.",
+    "endpoint_utc": "2026-10-30T19:43:50+00:00",
+    "first_unmatched_stage": "1611current outstanding signatures have neither resolved mint nor notification hint;1156subject-known signatures yield1144mints but only1current queue mint match. Other1155signature rows cannot be assigned a precise canonical failure stage without Core proof.",
+    "join_limitations": "Notification signature and Walkback mint are different keys. Current subject hints give provisional mint matches, not canonical signature proof. Processed notifications may have been acknowledged/reclaimed. The64historical exact-signature canonical handoffs prove45currently complete Walkbacks,19pending; not complete event coverage. No proof that unmatched Walkbacks are unrelated to migrations.",
+    "next_action": "NONE. Stop after observational reconciliation. Exact canonical throughput remains UNKNOWN under existing Core guard and query bounds.",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "semantics": "Notification stock is unresolved signature custody. Walkback is idempotent per mint. Core handoff COMPLETE acknowledges durable OPS queue presence, not investigation completion. Missing CREATE may produce waiting; some classes complete without RPC. Queue admission enqueued_at and investigation completed_at differ from notification received_at and on-chain event time.",
+    "status": "OBSERVATION_PARTIAL_EXACT_CORE_THROUGHPUT_UNKNOWN",
+    "windows": {
+      "1": {
+        "Walkback_admissions": 9,
+        "Walkback_completions": 9,
+        "current_notification_admissions_with_queue_mint": 0,
+        "historically_canonical_proven_Walkback_completions_lower_bound": 8,
+        "retained_notification_admissions_lower_bound": 72
+      },
+      "24": {
+        "Walkback_admissions": 237,
+        "Walkback_completions": 233,
+        "current_notification_admissions_with_queue_mint": 0,
+        "historically_canonical_proven_Walkback_completions_lower_bound": 45,
+        "retained_notification_admissions_lower_bound": 890
+      },
+      "6": {
+        "Walkback_admissions": 96,
+        "Walkback_completions": 105,
+        "current_notification_admissions_with_queue_mint": 0,
+        "historically_canonical_proven_Walkback_completions_lower_bound": 45,
+        "retained_notification_admissions_lower_bound": 374
+      }
+    },
+    "workers": {
+      "listener": 45328,
+      "resolver": 75943,
+      "status": "RUNNING",
+      "walkback": 61521
+    }
   },
   "watchtower_minimal_runtime_candidate_20261007": {
     "candidate": "Dedicated isolated worktree and branch created from the frozen tag. The candidate removes only the stale MIN_LIVE_MARKET_CAP import from src/core/main.py and adds tests/test_watchtower_main_import_contract.py. The frozen annotated tag and its source were not modified; no API-recovery commit was cherry-picked.",

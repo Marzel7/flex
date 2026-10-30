@@ -2,14 +2,14 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "Currentexactcanonicalhandoffreadbackunavailable;1685missingmintsubjects; no basisfor actionabletotal or terminalretentioninflation.",
+    "blocker": "9knownCoreoriginrowsnotfullyprovenprovider/ownereligible;genericbudgetlabelsnottypedcurrentdenials.",
     "database_writes": 0,
-    "milestone": "Notification-signature versus mint-Walkback measurement reconciliation",
-    "next_action": "Stop after reconciliation. Keep notification custody and mintWalkbackmetrics separate; do not label2913as outstandingWalkbacks, inferzeroobligations, or remove records.",
+    "milestone": "Migration notification eligibility classification",
+    "next_action": "Stop.0immediateeligibleproven;9remaineligibilityunknown;2906freshrecordsstructurallyblocked. OWNEDcustodyaloneisnotterminalormerelyhistorical;retainall.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "INDETERMINATE",
-    "tests": "No tests/engineering. Bounded guardedOPSread; singleCoremode=roopenrefused; reused64retainedcanonicalhandoffproofs and matchedreceiptcensus."
+    "status": "COMPLETE_WITH9UNKNOWN_ELIGIBILITIES",
+    "tests": "No tests or engineering. Existingwrite/networkdenialguard;indexedCoremintproofread1216subjects. Firstchangingcustodysnapshotrecheckedonceandstable."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57768,7 +57768,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stop after reconciliation. Keep notification custody and mintWalkbackmetrics separate; do not label2913as outstandingWalkbacks, inferzeroobligations, or remove records.",
+  "next_action": "Stop.0immediateeligibleproven;9remaineligibilityunknown;2906freshrecordsstructurallyblocked. OWNEDcustodyaloneisnotterminalormerelyhistorical;retainall.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59957,8 +59957,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T22:51:21.833971+00:00",
-    "working_tree": "No engineering/source changes. Guarded bounded readonly observation, private/tmp audit artifacts, mandatory aggregate handoff only."
+    "updated_at_utc": "2026-10-30T22:54:50.370039+00:00",
+    "working_tree": "Engineering/source unchanged. Guarded bounded readonly eligibility observation plus private/tmpreport and mandatory aggregatehandoff."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62939,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "INDETERMINATE_METRIC_UNIT_MISMATCH_PROVEN_ACTIONABLE_NOTIFICATION_TOTAL_UNKNOWN",
+  "verdict": "OBSERVATION_COMPLETE_ZERO_IMMEDIATE_ELIGIBILITY_PROVEN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67469,6 +67469,89 @@
     },
     "status": "COMPLETE_PARTIAL_MIGRATION_IDENTITY_AUDIT",
     "tests": "611exactsignature samplemint comparisons passed; all968PumpPortal taggedsubjects present; historical20creatorfields20/20verified; exactold20signatureoverlap0; sourcehash/line referencesrecorded. No broadsuite repeated."
+  },
+  "watchtower_migration_notification_eligibility_20261030": {
+    "CLASSIFICATION_FRESH2915": {
+      "DEFERRED_CANONICAL_OWNERSHIP_UNQUALIFIED": 1220,
+      "DEFERRED_FUTURE_RETRY": 0,
+      "DEFERRED_MISSING_MINT": 1686,
+      "DEFERRED_PROVIDER_BUDGET": 0,
+      "ELIGIBLE_IMMEDIATE": 0,
+      "UNKNOWN_ELIGIBILITY": 9
+    },
+    "CLASSIFICATION_ORIGINAL2913": {
+      "DEFERRED_CANONICAL_OWNERSHIP_UNQUALIFIED": 1219,
+      "DEFERRED_FUTURE_RETRY": 0,
+      "DEFERRED_MISSING_MINT": 1685,
+      "DEFERRED_PROVIDER_BUDGET": 0,
+      "ELIGIBLE_IMMEDIATE": 0,
+      "UNKNOWN_ELIGIBILITY": 9
+    },
+    "CLASSIFICATION_PRECEDENCE": [
+      "Missingmintsubject",
+      "SubjectnotpresentinrequiredCoreorigin",
+      "Futureretrydeadline",
+      "Currenttypedproviderbudgetdenial",
+      "Fullyprovenimmediateeligibility",
+      "Unknown"
+    ],
+    "COUNT_SEMANTICS": "Counts classify primaryprovenblocker, not all simultaneousconditions.0budget/eligiblemeans0independentlyproven, not proofnofunds/noeligiblework. MissingCoremintproof derivedfromindexedmode=roread1216uniquesubjectmintsat22:53:33; custodyconsistencyrecheck22:53:54.",
+    "CUSTODY": {
+      "OWNED": 2426,
+      "resident": 489,
+      "resident_stable": true
+    },
+    "DATABASE_WRITES": 0,
+    "FRESH_TOTAL": 2915,
+    "NEXT_ACTION": "Stop.0immediateeligibleproven;9remaineligibilityunknown;2906freshrecordsstructurallyblocked. OWNEDcustodyaloneisnotterminalormerelyhistorical;retainall.",
+    "ORIGINAL2913": {
+      "departures": 0,
+      "new_since": 2,
+      "remaining": 2913
+    },
+    "PRESERVED_WALKBACK_FINDING": {
+      "6h_admissions": 96,
+      "6h_completions": 105,
+      "endpoint": "2026-10-30T19:43:50Z",
+      "not_notification_completions": true
+    },
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVIDER_CALLS": 0,
+    "RECENT_ATTEMPTS_AND_PROGRESS": {
+      "baseline": "2026-10-30T22:50:06Z",
+      "end": "2026-10-30T22:53:54+00:00",
+      "limitation": "No retainedlastattempttimestamp/completeattempt-eventhistory; attemptsreversedafterbudgetdeferral. Deadlineadvancement demonstratesredeferral, notRPCsorcompletion. Current5dispatchmarkersincludeoldunresolvedmarker, not5recentproviderattempts.",
+      "of_those_unknown9": 0,
+      "original2913_departures": 0,
+      "original_attempt_counter_increases": 0,
+      "original_retry_deadline_advances": 108,
+      "progress": "No verified originalnotificationcompletion or stockreduction in comparable3m48swindow; +2newnotifications. This shortobservation doesnot proveglobalstall.",
+      "qualified_immediate_jobs_attempted": "UNKNOWN:0fullyqualifiedimmediatejobsproven; this doesnot meannoattemptsoccurred.",
+      "verified_notification_completions": 0
+    },
+    "SCHEDULER_VS_ELIGIBILITY": {
+      "future_included_in_structurallyblocked_buckets": 152,
+      "future_retry_deadlines": 152,
+      "scheduler_due": 2763,
+      "why_future_category_zero": "Allfuture-deadline rows alreadyhavemissingmint or unqualifiedCoreorigin, which takeprecedence. Due doesnot equal qualifiedprovideracquisition."
+    },
+    "SNAPSHOT_TIME": "2026-10-30T22:53:54+00:00",
+    "STATUS": "OBSERVATION_COMPLETE_ZERO_IMMEDIATE_ELIGIBILITY_PROVEN",
+    "TYPED_VS_GENERIC": {
+      "DISPATCH_RESERVED": 5,
+      "current_typed_ownership_denials_retained": "No exactcurrenttypeddenial retained; missingorigin proved by current inputs and installed core_identity_proof rules, not generic label.",
+      "current_typed_provider_budget_denials_independently_proven": 0,
+      "generic_HELIUS_BUDGET_DEFERRED": 2910,
+      "source_collapse": "scoped enter catchesBudgetDeferred; ownership may fail beforeacquisition. Genericjournal.defer_budget writesHELIUS_BUDGET_DEFERRED and reversesprovisionalattempt. Never infercreditexhaustion or rate-limitfromlabel."
+    },
+    "UNKNOWN9": {
+      "Core_origin_subject_exists": 9,
+      "DISPATCH_RESERVED": 5,
+      "existing_canonical_exact_signature_handoff_requires_review": 1,
+      "generic_deferred": 4,
+      "note": "DISPATCH_RESERVED isjournalattemptmarker, not durableproviderreservation or dispatchproof; no paidrequest inferred.",
+      "other8_current_provider_owner_admission_unproven": 8
+    }
   },
   "watchtower_migration_origin_historical_audit_20261030": {
     "CREATE_reconciliation": {

@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Offline synthetic counter is not a live tokenizer; enabled one-shot HTTP transport/OS isolation and account/API compatibility remain unqualified. All private/paid execution requires separate explicit approval.",
+  "blocker": "No qualified real full-input tokenizer, enabled/qualified one-shot HTTP transport or OS egress/filesystem isolation; account/API compatibility untested. Paid/private inference remains unauthorized.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review offline candidate. Qualify a pinned full-input tokenizer and one-shot bounded no-retry HTTP adapter plus process isolation. Any paid synthetic compatibility request needs separate explicit approval (proposed one minimal synthetic request <=$0.01) for exact model/endpoint; private Phase A transmission is separately gated after synthetic proof. No source deployment, QEMU retry or private inference authorized.",
+  "next_action": "Separate DEV authorization for pinned tokenizer and bounded no-retry HTTP transport/OS boundary qualification. Any paid synthetic compatibility request needs exact model/endpoint/count/spend approval; private PhaseA disclosure remains a later separate approval.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "d316d363037d01aa8e82c42a4da4e7cbe7265507",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T14:27:20.882683+00:00",
-    "working_tree": "Clean isolated research-only Phase 1E offline controller/tests/report commit; installed Flex untouched."
+    "updated_at_utc": "2026-10-30T14:36:52.628785+00:00",
+    "working_tree": "Clean unchanged Phase1E research revision; attached report reviewed against frozen source/test hashes. No new source or runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T14:27:20.882683+00:00",
+  "updated_at_utc": "2026-10-30T14:36:52.628785+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1E_OFFLINE_CONTROLLER_PASS; LIVE_EXECUTION_HOLD",
+  "verdict": "PHASE1E_OFFLINE_PASS_RETAINED_AFTER_ATTACHED_REPORT_REVIEW; LIVE_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -66517,6 +66517,25 @@
     "runtime_deployment_required": false,
     "safety": "Read-only source, queue, and SQLite URI mode=ro inspection only. No source changes, no agent-initiated database writes, provider calls, manual claims, queue acknowledgements, restarts, consumer actions, Byzantine work, opening work, or historical backfill. 5tY and WAITING_FOR_ENTRY_REFERENCE rows were not repaired.",
     "status": "HOLD_EXISTING_SCHEDULER_ELIGIBILITY_DEFECT"
+  },
+  "watchtower_phase1e_attached_report_review_20261030": {
+    "blocker": "No qualified real full-input tokenizer, enabled/qualified one-shot HTTP transport or OS egress/filesystem isolation; account/API compatibility untested. Paid/private inference remains unauthorized.",
+    "engineering_revision": "d316d363037d01aa8e82c42a4da4e7cbe7265507",
+    "mode": "Static read-only review of attached Phase1E report against frozen source; no implementation authorization inferred.",
+    "next_action": "Separate DEV authorization for pinned tokenizer and bounded no-retry HTTP transport/OS boundary qualification. Any paid synthetic compatibility request needs exact model/endpoint/count/spend approval; private PhaseA disclosure remains a later separate approval.",
+    "production_flags": {
+      "private_data_transmission": false,
+      "production_mutations": 0,
+      "provider_inference_calls": 0,
+      "source_changes": false,
+      "worker_restarts_signals": 0
+    },
+    "report_sha256": "40bbc78a9415d47b8cbd82d9b6c8a396c589f17978f0c176647bc313db884eda",
+    "source_and_test_hashes_match_report": true,
+    "syntax_validation": "PASS",
+    "tests": "Reuse58prior offline synthetic passes, not rerun. No new runtime/model/API tests.",
+    "updated_at_utc": "2026-10-30T14:36:52.628785+00:00",
+    "verdict": "OFFLINE_CONTROLLER_PASS_RETAINED; LIVE_EXECUTION_HOLD"
   },
   "watchtower_plain_xfer_treasury_audit": {
     "69sn_intersection": "Queue treasury, token attribution and materialized canonical outcome repeat69SN. Discovered-subprov row associates F7p3dFrj with69SN but confidenceLOW/stateREJECTED_INFRASTRUCTURE/reasonKNOWN_INFRASTRUCTURE_REGISTRY_MATCH/subprov_typeNON_PROVISIONING_RECIPIENT/wrap_close_count0. Exact indexed provisioning-edge lookup69SN->F7p3dFrj returned none. This is label-level intersection, not proven transaction lineage. Do not infer69SN upstream or common controller.",

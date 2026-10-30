@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stop. Resolve supported cloud task execution binding/readiness at the platform/client layer before further task submissions. No prompt-only retries, local substitution, security relaxation or investigation.",
+  "next_action": "Have OpenAI platform support inspect this exact durable task/managed-instance pair using the prepared packet and supply current lifecycle diagnostics plus the supported bound execution interface or a compatible-client remedy. Do not submit more prompts/tasks or change permissions while unresolved. Packet prepared only; not sent.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T16:17:42.324497+00:00",
-    "working_tree": "Flex engineering/production unchanged. Parent performed orchestration/reporting only; Phase1L verification requested solely in new selected Cloud task. Required transport JSON updated."
+    "updated_at_utc": "2026-10-30T16:25:52.539418+00:00",
+    "working_tree": "Engineering/production unchanged; Phase1M read-only diagnostics and support packet under /private/tmp. Required transport JSON only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T16:17:42.324497+00:00",
+  "updated_at_utc": "2026-10-30T16:25:52.539418+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_EXECUTION_IDENTITY_GATE",
+  "verdict": "HOLD_NONINFERENCE_RUNTIME_OBSERVABILITY_AND_EXEC_BINDING",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -64743,6 +64743,85 @@
     "status": "HOLD",
     "tests": "One new task explicitly selected published research Cloud environment. Identity checked first through task-bound environment_status; raw tool output inspected. Cloud exec binding unproven and starting/offline, so no shell/file/hash/mount/network/credential tests ran. No verification commands executed in parent/local Flex session; no retries or unchanged suites.",
     "verdict": "HOLD_EXECUTION_IDENTITY_GATE"
+  },
+  "watchtower_agent_phase1m_20261030": {
+    "blocker": "Current managed-instance readiness/provisioning and supported shell-to-instance binding are inaccessible through available non-inference diagnostics.",
+    "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
+    "next_action": "Have OpenAI platform support inspect this exact durable task/managed-instance pair using the prepared packet and supply current lifecycle diagnostics plus the supported bound execution interface or a compatible-client remedy. Do not submit more prompts/tasks or change permissions while unresolved. Packet prepared only; not sent.",
+    "prior_handoff": "eb8a1665",
+    "production_flags": {
+      "Flex_engineering_changes": 0,
+      "credential_inspection": false,
+      "environment_permission_changes": 0,
+      "new_model_requests": 0,
+      "new_tasks": 0,
+      "private_evidence_transmission": false,
+      "production_mutations": 0
+    },
+    "report": {
+      "CLOUD_EXECUTION_BINDING": "Managed metadata has implicit task association. Generic shell binding remains unproven; no conclusion inferred from task URL or /workspace metadata.",
+      "CLOUD_STARTUP_FAILURE": {
+        "control_plane_mismatch": "App read_thread resolves durable Codex chat; installed CLI cloud status rejects same UUID with404 Invalid task ID. This is an inspection-interface incompatibility, not proof of VM failure.",
+        "demonstrated_failure": "NONE established",
+        "historical_failure_field": null,
+        "recorded_turn_error": null,
+        "root_cause_limit": "Original verification stopped at identity gate while VM reported starting. No provisioning logs/current VM state available; no startup failure root cause asserted."
+      },
+      "EXISTING_TASK_STATE": {
+        "VM_current_state": "UNKNOWN; no supported fresh VM lifecycle surface accessible without an inference turn.",
+        "fresh_read_thread": {
+          "cwd": "/workspace",
+          "hostId": "durable",
+          "id": "01a18d98-b8df-7346-bf5d-a1e9a662d055",
+          "kind": "codex",
+          "status": {
+            "type": "idle"
+          },
+          "turn_completed_at_unix": 1793376981,
+          "turn_completed_at_utc": "2026-10-30T16:16:21+00:00",
+          "turn_duration_ms": 20247,
+          "turn_error": null,
+          "turn_started_at_unix": 1793376961,
+          "turn_started_at_utc": "2026-10-30T16:16:01+00:00",
+          "turn_status": "completed"
+        },
+        "interpretation": "Agent turn completed normally and chat idle; not a currently working turn. cwd is metadata only, not filesystem/execution proof.",
+        "last_known_VM_state": "Historical original task status starting/offline, failure null; cannot assert still starting or failed now."
+      },
+      "Flex_repository_access": false,
+      "NEW_MODEL_INFERENCE_REQUESTS": 0,
+      "NEW_TASKS": 0,
+      "NEXT_ACTION": "Have OpenAI platform support inspect this exact durable task/managed-instance pair using the prepared packet and supply current lifecycle diagnostics plus the supported bound execution interface or a compatible-client remedy. Do not submit more prompts/tasks or change permissions while unresolved. Packet prepared only; not sent.",
+      "PHASE1M_STATUS": "HOLD_NONINFERENCE_RUNTIME_OBSERVABILITY_AND_EXEC_BINDING",
+      "PRODUCTION_MUTATIONS": 0,
+      "REMAINING_BLOCKER": "Current managed-instance readiness/provisioning and supported shell-to-instance binding are inaccessible through available non-inference diagnostics.",
+      "SUPPORTED_EXECUTION_INTERFACE": {
+        "CLI_cloud_status": "Installed supported command, read-only attempt once; incompatible identifier response. No cloud exec/list/default interactive mode used.",
+        "CLI_documentation": "Official cloud list/status inspection documented; installed help corroborates status. Documentation alone does not prove this durable task has shell access.",
+        "app_read_thread": "Supported fresh chat/turn metadata only; used once.",
+        "browser": "Existing task UI reviewed; Chat actions only Rename,Share,Copy,Archive. Existing Environment status output is saved transcript, not live refresh.",
+        "cloud_shell": "No supported task-bound execution interface demonstrated. Generic exec_command was not invoked as a cloud substitute.",
+        "page_WebMCP": "No tools available."
+      },
+      "actual_latest_handoff": "eb8a1665",
+      "credential_inspection": false,
+      "environment_permission_changes": 0,
+      "observed_at_utc": "2026-10-30T16:25:25.877939+00:00",
+      "private_evidence_transmission": false,
+      "requested_prior_handoff": "de4dade0",
+      "sources": [
+        "https://learn.chatgpt.com/docs/cli/reference#codex-cloud",
+        "https://learn.chatgpt.com/docs/environments/cloud-environments"
+      ],
+      "support_packet": "/private/tmp/watchtower-phase1m/PLATFORM_SUPPORT_PACKET.json",
+      "support_packet_sha256": "134b643c709d3c1801e3d5ca8358c2a09f311fe48e555085f180955d6a0c3e89"
+    },
+    "report_path": "/private/tmp/watchtower-phase1m/PHASE1M_REPORT.json",
+    "report_sha256": "5492f56301b69e84d7c40cb0481c8404d7811ec75a19e47fe3bbcfa9fdbd4b74",
+    "requested_handoff": "de4dade0",
+    "status": "HOLD",
+    "tests": "Read existing task using purpose-built read_thread: durable/idle,completed20.247s,error null. Inspect existing browser UI and no-WebMCP result. Official docs+installed CLI status help; one read-only CLI status call404 Invalid task ID. No fresh model/shell-in-cloud,repo/network isolation probes,or unchanged suites.",
+    "verdict": "HOLD_NONINFERENCE_RUNTIME_OBSERVABILITY_AND_EXEC_BINDING"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

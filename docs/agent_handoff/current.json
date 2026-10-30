@@ -2,14 +2,14 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "Nocurrentseparatelyaccounteddiagnosticrouteexplicitlyqualifiedfornon-Coremintsfound. Approvalneededforboundeddiagnosticroutequalificationandexecution,notguardbypass.",
+    "blocker": "HELIUS_BUDGET_CLOCK_AMBIGUOUS:wall_elapsed2892sversusmonotonic_elapsed2880sat23:22:36UTC. OPENdoesnotproveaccountingeligibility.",
     "database_writes": 0,
-    "milestone": "Frozen15non-Corehistoricaldiagnosticroutequalificationcheck",
-    "next_action": "Stop. Awaitexplicitqualification/authorizationofnon-Corediagnosticaccountingroutewithnamedlimits;do notrunhistoricaldirectHTTPscriptsorchangeproductionguards.",
+    "milestone": "Authorizedfrozen15independentresearchscopequalification",
+    "next_action": "Stopasrequired. ExistingHeliusaccountingclockauthorityrequiresseparatelyauthorizedassessment/recoverybeforethisdiagnosticcanqualify. Preserveoriginal15and30request/30creditceiling;noautomaticrecoveryorRPCretry.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "HOLD",
-    "tests": "Noengineering/tests. Originalsamplemanifesthashverified;installedROLES/ownerrequirementinspected;olderrun-scopedresearchroutesnotreused."
+    "status": "HOLD_BEFORE_RPC",
+    "tests": "SamplehashPASS,costpolicy/publicationchecksumsPASS,clockpreflightFAIL12secondsversus5secondinstalledlimit. Noengineering/tests/providerdispatch."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57768,7 +57768,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stop. Awaitexplicitqualification/authorizationofnon-Corediagnosticaccountingroutewithnamedlimits;do notrunhistoricaldirectHTTPscriptsorchangeproductionguards.",
+  "next_action": "Stopasrequired. ExistingHeliusaccountingclockauthorityrequiresseparatelyauthorizedassessment/recoverybeforethisdiagnosticcanqualify. Preserveoriginal15and30request/30creditceiling;noautomaticrecoveryorRPCretry.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59957,8 +59957,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T23:18:56.896116+00:00",
-    "working_tree": "Sourceunchanged. Boundedreadonlyroute/authorityassessment;frozen15integrityverified;noRPC. Private/tmpreportandmandatoryaggregatehandoffonly."
+    "updated_at_utc": "2026-10-30T23:22:59.603206+00:00",
+    "working_tree": "Sourceunchanged. Authorizednon-Corediagnosticstoppedon12secondsharedbudgetclockfailurebeforeRPCorscopeinitialization. Onlyprivate/tmpread-onlypreflightreportandmandatoryaggregatehandoff."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62939,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_NO_CURRENT_APPROVED_DIAGNOSTIC_ROUTE_ESTABLISHED",
+  "verdict": "HOLD_CURRENT_PROVIDER_ACCOUNTING_CLOCK_INVALID",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -64987,6 +64987,62 @@
     "null_entry": "NULL_ENTRY_BLOCKS_ABSOLUTE_PEAK=false. It blocks the current entry-relative terminal finalizer and ratio, not absolute running-peak retention.",
     "safety": "READ_ONLY: source/config/schema/database/process/provider/RPC/backfill changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "MIXED"
+  },
+  "watchtower_authorized15_diagnostic_clock_preflight_20261030": {
+    "AUTHORIZATION": "Currentuserexplicitlyauthorizednon-Coreindependentresearchscopeforfrozen15;noadditionalpermissionblockclaimed. QualificationstoppedonlivebudgetclockfailurebeforeindependentscopeorRPCdispatch.",
+    "CLOCK_ANCHOR_CHANGES": 0,
+    "CREATE_DATES_VERIFIED": 0,
+    "CREDENTIAL_VALUES_ACCESSED": false,
+    "DATABASE_WRITES": 0,
+    "DIAGNOSTIC_SCOPE_STATUS": "HOLD_CURRENT_PROVIDER_ACCOUNTING_CLOCK_INVALID",
+    "FAILED_PREREQUISITE": {
+      "active_reservations": 0,
+      "clock_discrepancy_seconds": 12,
+      "gate_state": "OPEN",
+      "installed_allowed_seconds": 5,
+      "investigation_limit": 100000,
+      "ledger_sha256": "ba6b387bea2bb50b8b6471b641e319b5b42934792ccf0d2b8e6faba263fc1b8c",
+      "method_credits": {
+        "rpc:getSignaturesForAddress": 1,
+        "rpc:getTransaction": 1
+      },
+      "monotonic_elapsed": 2880,
+      "monotonic_now": 1013652,
+      "observed_utc": "2026-10-30T23:22:36+00:00",
+      "policy_checksum_valid": true,
+      "publication_checksum_valid": true,
+      "retained_monotonic": 1010772,
+      "retained_wall": 1793399664,
+      "uncertain_requests": 7,
+      "wall_elapsed": 2892,
+      "wall_now": 1793402556,
+      "would_raise": "HELIUS_BUDGET_CLOCK_AMBIGUOUS"
+    },
+    "GATE_LOCKS_OR_WRITES": 0,
+    "MINTS_SELECTED": 15,
+    "MINTS_TESTED": 0,
+    "NEXT_ACTION": "Stopasrequired. ExistingHeliusaccountingclockauthorityrequiresseparatelyauthorizedassessment/recoverybeforethisdiagnosticcanqualify. Preserveoriginal15and30request/30creditceiling;noautomaticrecoveryorRPCretry.",
+    "PRE_ADMISSION_AGE_DISTRIBUTION": "UNKNOWN_ALL15",
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVIDER_CREDITS_CONSUMED": 0,
+    "PROVIDER_CREDITS_RESERVED": 0,
+    "RESULTS": "All15previousCREATE_DATE_UNKNOWNresultsremainunchanged. Noearliesttransactionorbirthinferred.",
+    "RPC_REQUESTS": 0,
+    "SAMPLE": {
+      "count": 15,
+      "replacements": 0,
+      "sample_sha256": "689e1f28b590cc708e8aea765e1a257ff9bddb943cf53aec79aefe03a7f8d5de",
+      "seed": 20261030,
+      "unchanged": true
+    },
+    "TOKENS_OLDER_THAN_30_DAYS": "UNKNOWN",
+    "TOKENS_OLDER_THAN_7_DAYS": "UNKNOWN",
+    "UNRESOLVED_MINTS": 15,
+    "VERIFIED_PROVIDER_COSTS": {
+      "policy_checksum_valid": true,
+      "rpc:getSignaturesForAddress": 1,
+      "rpc:getTransaction": 1
+    }
   },
   "watchtower_backfill_first_available_exact7_20261002": {
     "audit": "docs/audits/watchtower_backfill_first_available_exact7.v1.json sha256 e4eb35055249aaf224ee61ac811445c31c7ead59c6911b4b2fc6c49e13a1db1c",

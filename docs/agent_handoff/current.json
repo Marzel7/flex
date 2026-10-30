@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No independently supported novel AI operation. Live Core data open refused under write-denial guard; no bypass. Ownership, complete topology and global novelty unproven.",
+  "blocker": "Q05 control continuity/full topology absent. Q09 shared source is already classified Kraken CEX; synchronized withdrawals do not prove common ownership.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review Q05/Q09 with retained evidence only; consider deterministic cross-case role-reuse and synchronized-funding reports in a separately authorized task. Do not promote or acquire evidence automatically.",
+  "next_action": "Close Q09 as insufficient for an operation candidate given known CEX boundary. Retain Q05 as a low-confidence review lead; current retained evidence is insufficient for promotion or further automatic investigation. Stop here.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T16:57:12.098872+00:00",
-    "working_tree": "Clean; private research artifacts under /private/tmp. No engineering or production changes."
+    "updated_at_utc": "2026-10-30T17:38:53.573373+00:00",
+    "working_tree": "Engineering unchanged; focused private research artifacts only; required handoff transport JSON."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "COMPLETE_LIMITED_AI_VALUE",
+  "verdict": "COMPLETE_Q05_Q09_INSUFFICIENT_OPERATION_EVIDENCE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67857,6 +67857,36 @@
     "runtime_deployment_required": false,
     "safety": "Read-only source and handoff review only; Supervisor commands=0; service actions=0; DB/queue writes=0; provider calls=0; source/runtime changes=0.",
     "status": "PASS_NON_BLOCKING_DEFERRED_ENDPOINT_CONFIRMED"
+  },
+  "watchtower_q05_q09_evidence_qualification_20261030": {
+    "completed_at": "2026-10-30T17:38:53.573373+00:00",
+    "direct_transfers_crossvalidated": 4,
+    "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
+    "evidence_preservation": "Original pilot candidates, H01/H02, validation, sealed 100 cases/392 records and ten packet hashes verified unchanged. No Core reopen or bypass.",
+    "limitations": [
+      "No raw transaction revalidation",
+      "CREATE timestamps absent; sealed Core creator identities used",
+      "Slots from queue provenance",
+      "Rounded edge amounts differ from exact role amounts",
+      "Other candidate runs not scanned; global novelty unknown"
+    ],
+    "new_relationships_since_pilot": 0,
+    "next_action": "Close Q09 as insufficient for an operation candidate given known CEX boundary. Retain Q05 as a low-confidence review lead; current retained evidence is insufficient for promotion or further automatic investigation. Stop here.",
+    "private_evidence_published": false,
+    "private_report_path": "/private/tmp/watchtower-q05-q09-qualification/FINAL_REVIEW.json",
+    "private_report_sha256": "fc177e15efff55bcc2184396344d83039ff89ddd0c5ab2a04814b2c38d747fd1",
+    "production_flags": {
+      "canonical_promotions": false,
+      "database_writes": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "worker_changes": false
+    },
+    "q05": "Retained creator/source-signer role reuse and two sequential direct transfers corroborated, 3529 seconds apart. No common-control proof or complete topology; retain low-confidence lead.",
+    "q09": "Two identical exact-role transfer amounts at same recorded slot/time corroborated. Existing source map and two retained KNOWN_CEX_REACHED outcomes identify source as Kraken. Deprioritize as new operation.",
+    "status": "COMPLETE_Q05_Q09_INSUFFICIENT_OPERATION_EVIDENCE",
+    "supported_novel_hypotheses": 0,
+    "tests": "114 successful audited indexed OPS queries under existing ro/query_only/authorizer/OS deny-write guard; four exact endpoint/signature/signer checks; two related CEX-boundary outcomes and known-run/canonical references checked. Two script/schema/container errors caused partial read-only attempts; fixed without changing production."
   },
   "watchtower_range_backfill_preflight_20261006": {
     "bounds": "Opening=1 request. Successful historical ranges=6. Existing per-range retry ceiling=1, thus maximum historical physical attempts=12 and maximum total=13. No pagination, adaptive expansion, or range past 24h. Raw provider retention=false; one-job/1MiB checkpoint cap remains.",

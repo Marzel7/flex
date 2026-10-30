@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stop qualification. Request a decision on the explicitly relaxed subscription-cloud research option; no private experiment authorized.",
+  "next_action": "Sign into Codex cloud on the web and provide an inspectable published synthetic-only research environment. Verify subscription entitlement, exact checkout, tools, network policy, no secrets/VPN/production links before the one synthetic task. No additional inference approval needed for that one task if original conditions pass; private experiment remains unauthorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "55c7f72a036af15125b751b99864083ad5a67202",
+    "git_head": "707659fc84ddc3b6d8a30aebc97c9732f2202280",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T15:27:44.407776+00:00",
-    "working_tree": "Clean Phase1H research decision/report commit; production/evidence/controller unchanged."
+    "updated_at_utc": "2026-10-30T15:38:19.869869+00:00",
+    "working_tree": "Clean Phase1I preparation/report commit; production/evidence unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T15:27:44.407776+00:00",
+  "updated_at_utc": "2026-10-30T15:38:19.869869+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1H_UNSUPPORTED_STRICT_INSTALLED_SUBSCRIPTION_RUNNER",
+  "verdict": "HOLD_CLOUD_ENVIRONMENT_NOT_QUALIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -64216,6 +64216,85 @@
     "status": "UNSUPPORTED",
     "tests": "Reused qualified synthetic boundary and unchanged research/test hashes. No unchanged tests rerun; version-matched public source plus retained interfaces inspected.",
     "verdict": "INSTALLED_SUBSCRIPTION_RUNNER_STRICT_CONTROLS_NOT_DEMONSTRATED"
+  },
+  "watchtower_agent_phase1i_20261030": {
+    "blocker": "Cloud browser requires sign-in; available project inventory local-only; actual published Codex cloud policy/entitlement cannot be inspected. Codex app computer use denied; not bypassed.",
+    "engineering_revision": "707659fc84ddc3b6d8a30aebc97c9732f2202280",
+    "next_action": "Sign into Codex cloud on the web and provide an inspectable published synthetic-only research environment. Verify subscription entitlement, exact checkout, tools, network policy, no secrets/VPN/production links before the one synthetic task. No additional inference approval needed for that one task if original conditions pass; private experiment remains unauthorized.",
+    "prior_handoff": "cee41fa8",
+    "production_flags": {
+      "API_inference_calls": 0,
+      "cloud_tasks": 0,
+      "mutations": 0,
+      "private_transmission": false
+    },
+    "report": {
+      "CODEX_CLOUD_ENTITLEMENT": {
+        "app_subscription": "ordinaryUsageAllowed=true; planType=prolite. Does not prove cloud entitlement.",
+        "browser": "Codex cloud landing page requires login; sign-in modal observed, no identity or credentials entered.",
+        "cloud_environment_api": "Available create_thread cloud target is ChatGPT Work Cloud, not verified Codex published environment selector; not substituted.",
+        "projects": "Purpose-built listing exposes only local flex project, no cloud environment."
+      },
+      "MULTI_OPERATION_REASONING_ACCURACY": "NOT_EVALUATED; no frozen model findings.",
+      "NEXT_ACTION": "Sign into Codex cloud on the web and provide an inspectable published synthetic-only research environment. Verify subscription entitlement, exact checkout, tools, network policy, no secrets/VPN/production links before the one synthetic task. No additional inference approval needed for that one task if original conditions pass; private experiment remains unauthorized.",
+      "PHASE1I_STATUS": "HOLD_CLOUD_ENVIRONMENT_NOT_QUALIFIED",
+      "PRODUCTION_MUTATIONS": 0,
+      "SUBSCRIPTION_USAGE": {
+        "development_usage": "Shared account usage cannot isolate Codex development consumption; no reset or credits used.",
+        "experiment_inference_tasks": 0,
+        "experiment_tokens": "Not applicable; no experiment inference",
+        "observed_used_percent": 18,
+        "ordinary_usage_allowed": true,
+        "remaining_percent": 82,
+        "window_minutes": 10080
+      },
+      "SYNTHETIC_INVESTIGATION_RESULT": "NOT_RUN; zero tasks created, no task slot consumed.",
+      "UNSUPPORTED_HYPOTHESES": "NOT_EVALUATED; missing observation is not zero unsupported claims.",
+      "WORKSPACE_ISOLATION": {
+        "app_ui": "Computer-use access to com.openai.codex denied for safety; no bypass attempted.",
+        "cloud": "No environment configuration or runtime verified; tools/network/secrets/VPN/mount policy UNKNOWN.",
+        "excluded": "No Git history, Flex code, private packets, manifests, database, credentials, Phase B answers or production connection configuration.",
+        "files": {
+          "INVESTIGATION_INSTRUCTIONS.md": {
+            "bytes": 782,
+            "sha256": "d7fdc0079228c47958e8b522f1d77df404eed821891288df1dbffbba14606615"
+          },
+          "MULTI_OPERATION_SCHEMA.json": {
+            "bytes": 9488,
+            "sha256": "02a1deb60a82a5089ad2d1e31c406ef5fd952322e547bc2dd01aca4500245d65"
+          },
+          "PHASE_A_BEHAVIOURAL_REFERENCE.md": {
+            "bytes": 2869,
+            "sha256": "7d7f2e3ce20000e1ff5aa2d243c209d6a01ba37c65ba09aedc91cdf65e4c8d19"
+          },
+          "SYNTHETIC_MULTI_OPERATION_INPUT.json": {
+            "bytes": 12117,
+            "sha256": "6a9b9a4dd71a1979ca84eccc0cacd17f5da7087c1f2a591c3c9a2500818dd8d6"
+          }
+        },
+        "local_synthetic_staging": "/private/tmp/watchtower-phase1i-synthetic-workspace"
+      },
+      "base_revision": "55c7f72a036af15125b751b99864083ad5a67202",
+      "evidence_integrity": [
+        {
+          "all_file_hashes": "PASS",
+          "manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac"
+        },
+        {
+          "all_file_hashes": "PASS",
+          "manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69"
+        }
+      ],
+      "official_documentation": "https://learn.chatgpt.com/docs/environments/cloud-environments",
+      "preserved": "100 cases,392 records,10 packets,reference,schema,blinding and controller unchanged. No original datasets regenerated.",
+      "prior_handoff": "cee41fa8",
+      "private_evidence_transmission": false,
+      "separate_API_inference_calls": 0
+    },
+    "report_sha256": "19d8b903e8c323ad1a2419e455509329bd6a596674bd0c9ab135d0c4d48bcbaf",
+    "status": "HOLD",
+    "tests": "All sealed manifest/file hashes reverified. Synthetic staging exact four-file allowlist,25,256 bytes. No unchanged model/controller/sandbox suites rerun.",
+    "verdict": "HOLD_CLOUD_ENVIRONMENT_NOT_QUALIFIED"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

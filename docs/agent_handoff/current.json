@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Live-drain rate stillunproven. CoreaccessintermittencyconsistentwithWAL/SHMavailability underunchangeddeny-writeguard; originaldeniedsyscallnotretained.",
+  "blocker": "CoreguardedreadagainCANTOPEN; stoppedwithoutretry/bypass. CurrentcanonicalcompletionsUNKNOWN. Retainednonterminalstock2754growing, completionadjustedliveunfinishedtotalUNKNOWN.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE. Leave runtime and guards unchanged. Existing guarded indexed reads can verify a bounded recent completion cohort when access succeeds; no claim that the live actionable queue is reducing.",
+  "next_action": "NONE. Stop afterobservationalcomparison. No fixes, additional acquisition, environment changes or replay proposed.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T19:24:46.891016+00:00",
-    "working_tree": "Noengineering/codechanges. Read-only Core access diagnosis data under/private/tmp; required handoff JSON only."
+    "updated_at_utc": "2026-10-30T19:36:21.287534+00:00",
+    "working_tree": "Noengineering/codechanges. Observation-only throughput data/report under/private/tmp. Required handoff JSON transport only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "CORE_GUARDED_READ_WORKS_RECENT_COMPLETIONS_VERIFIED",
+  "verdict": "THROUGHPUT_OBSERVATION_PARTIAL_CORE_REFUSED_STOCK_GROWING",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67622,6 +67622,86 @@
     "safety": "Provider calls=0; source/database/queue/fact/Opening/LIVE/runtime/process changes=0; HIGGS remains excluded from the ten-token cohort due to missing canonical PumpSwap pool.",
     "simulation": "All ten could be given a simulated t entry under distinct MIGRATION_SECOND_MC_FALLBACK provenance, but simulated multiple count=0 and simulated time-to-peak count=0 because no retained peak evidence exists. Four t-to-t+2 pairs show +0.661856%, +0.937510%, +1.247374%, and +1.407316% changes (mean +1.063514%, median +1.092442%, max absolute +1.407316%); no t-to-t+1 pair exists.",
     "status": "HOLD_METRIC_EVIDENCE_INSUFFICIENT_CLASS_C"
+  },
+  "watchtower_migration_throughput_backlog_observation_20261030": {
+    "admissions": {
+      "coverage": "Resident+deferred+terminalretainedreceived_at; reclaimedcompletedadmissionsmaybemissing. Notretrycounts.",
+      "exact_1h_3h_6h_24h": "UNKNOWN",
+      "retained_deduplicated_lower_bounds": [
+        68,
+        173,
+        370,
+        885
+      ]
+    },
+    "authority": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+      "stores": {
+        "core": {
+          "bytes": 117796864,
+          "device": 16777234,
+          "inode": 1053704146
+        },
+        "ops": {
+          "bytes": 179126272,
+          "device": 16777234,
+          "inode": 1053704157
+        }
+      }
+    },
+    "canonical_completions": {
+      "current_windows": "UNKNOWN_CORE_READ_REFUSED",
+      "historical64_overlap_current": 0,
+      "historical_reference": "64verifiedCore/OPScompletehandoffsandatleast10between18:23:26.313680and19:23:26.313680UTC;notcurrenttotals"
+    },
+    "comparisons": {
+      "18:51:45": {
+        "added": 43,
+        "closing": 2754,
+        "opening": 2712,
+        "removed_verified_quarantine": 1,
+        "signature_set_difference": 0,
+        "stock_change": 42
+      },
+      "19:16:51": {
+        "added": 20,
+        "closing": 2754,
+        "opening": 2734,
+        "removed": 0,
+        "signature_set_difference": 0,
+        "stock_change": 20
+      }
+    },
+    "current_stock": {
+      "OWNED_nonterminal": 2271,
+      "fresh_canonical_adjusted_total": "UNKNOWN",
+      "overlap": 0,
+      "resident_nonterminal": 483,
+      "unique_retained_nonterminal": 2754
+    },
+    "drain_ETA": "NOT_DEFENSIBLE",
+    "engineering_revision": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
+    "live_vs_historical": "Noonchaineventageinferencefromadmissiontime/source/custody.",
+    "next_action": "NONE. Stop afterobservationalcomparison. No fixes, additional acquisition, environment changes or replay proposed.",
+    "private_evidence_published": false,
+    "private_report_path": "/private/tmp/watchtower-throughput-observation-20261030/FINAL_REPORT.json",
+    "private_report_sha256": "3da4baf95be4befb51f1be28e154b562f6cd4327210800f0cbd52b0abaa6a7aa",
+    "production_flags": {
+      "config_changes": 0,
+      "database_writes": 0,
+      "engineering_changes": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "replay": 0,
+      "restarts": 0
+    },
+    "queue_trend": "GROWINGretainednonterminal;INDETERMINATEcanonicalunfinished/liveactionable",
+    "reconciliation_limit": "Snapshotsetidentitybalanceisnotcompleteeventflowledger; exactrollingwindowopeningstocksandglobalterminalexitsUNKNOWN. Noquarantine/ACK/attemptedmarkerclassifiedsuccessfulcanonicalcompletion.",
+    "safety": "OPSexistingmode=ro/query_only/authorizer boundedPKreads; CoreunchangedOSdenywrite/networkguard,oneattemptfailedthenstopped. SubsequentmetadataWAL/SHMabsent. Noenvironmentchangeorcheckpoint.",
+    "snapshot_utc": "2026-10-30T19:32:14+00:00",
+    "status": "THROUGHPUT_OBSERVATION_PARTIAL_CORE_REFUSED_STOCK_GROWING",
+    "windows": "Fixedendpoint19:32:14UTC;1h18:32:14,3h16:32:14,6h13:32:14,24hOct29_19:32:14. Allendexclusive."
   },
   "watchtower_minimal_runtime_candidate_20261007": {
     "candidate": "Dedicated isolated worktree and branch created from the frozen tag. The candidate removes only the stale MIN_LIVE_MARKET_CAP import from src/core/main.py and adds tests/test_watchtower_main_import_contract.py. The frozen annotated tag and its source were not modified; no API-recovery commit was cherry-picked.",

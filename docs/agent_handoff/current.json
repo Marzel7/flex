@@ -33876,6 +33876,61 @@
     "status": "PARTIAL_PROVENANCE_AUDIT_COMPLETE",
     "verification": "14\u201321OctUTC cohort130393identifiedbirthmints/130365unambiguous/28ambiguous;7361repeatcreators account100083births=76.77%known. Strictreceipt-provenPPsubset76.28%. Repeat migration rate0.86%vs6.83%single;29.20%allobservedmigrations. Full7dayPPtransportprovenance unavailable."
   },
+  "flex_v2_sleep_change_rollback_audit_20261030": {
+    "blocker": "Original wall/monotonic guard introducede6aaf27f onOct26,not by later recovery changes; _tickAST is identical through current8source. Current ledger stillhas24699second mismatch and one live-owned unresolved reservation.",
+    "chronology": "e6originalclock/reservations -> b8V2lifetime ownership ->455completion/uncertainty ->d7/447explicit anchor tools ->f09/5e4publisher correction ->d638/8clock-held admission ->61operator-only custody DEV. Source authored and production observation times kept separate in report.",
+    "copied_ledger_compatibility": "e7/e6 failGATE_STATE,b8failsREQUEST_STATE;455decodes but retains same clock refusal and older publication defects. Semantic decode is not full recovery compatibility.",
+    "current_state": {
+      "cap": 100000,
+      "clock_divergence_seconds": 24699,
+      "cohort": {
+        "consumed": 7,
+        "current_false_attribution_outcomes": 0,
+        "pending_attempt3": 79,
+        "review": 7,
+        "total": 79,
+        "unused_original_eligible": 71
+      },
+      "gate": "OPEN_READY_CHECKSUM_VALID",
+      "gate_source_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "hypothetical_whole_worker45_finalizer_target_count": 79,
+      "inflight": [
+        {
+          "owner_pid": 23351,
+          "reserved_credit": 1,
+          "role": "listener",
+          "selector": "rpc:getAccountInfo"
+        }
+      ],
+      "installed_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+      "no_source_or_runtime_changes": true,
+      "normal_pending_under3": 101,
+      "observed_epoch": 1793351652.822946,
+      "reserved_estimate": 135412,
+      "six_uncertain": 6
+    },
+    "engineering_revision": "61a9026292c009d2bce864b4c20e4ed30103a24b",
+    "installed_runtime_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "last_pre_helper_working_runtime": "38da4ccd6c36856a43939eed9afa0e374fff269c initial00:42:02UTC Oct28 snapshot; Gateimplementation455f160d hash623b81d7. Initial123second evidence is not a new whole-runtime rollback certification.",
+    "next_action": "Run read-only recovery preflight for61a9026292c009d2bce864b4c20e4ed30103a24b under the current ledger and planned owner quiescence. Do not change code or data now; any Walkback admission-only selective rollback needs separate DEV authorization.",
+    "production_flags": {
+      "V1_access": false,
+      "live_gate_locks_publication": false,
+      "provider_calls": false,
+      "queue_database_mutations": false,
+      "reservation_anchor_changes": false,
+      "rollback_deployment": false,
+      "signals_restarts": false,
+      "source_config_changes": false
+    },
+    "recommendation": "Retain current sharedHeliusGate and all data/custody safeguards. Use already-qualified conservative custody-plus-anchor recovery for Helius after verified wake policy/owner fencing. For Walkback,qualify a minimal withdrawal of historical recovery admission while retaining review/finalization protections,so normal jobs can resume without adding another recovery mechanism.",
+    "report": "/private/tmp/flex-sleep-rollback-audit-20261030/FINAL_REPORT.json",
+    "report_sha256": "acae83d35a05de15cda302555dcd3eef524d0accc035822844f2102a97cae7f0",
+    "rollback_risks": "Whole old38/45worker startup finalizer would target79pending attempts3 and fabricateNO_ATTRIBUTION_FOUND. Must retain current consumed-right/review/finalization guards. No ledger-era rollback or field deletion is safe.",
+    "selective_feasibility": "Potential DEV-only withdrawal of historical admission bypass from drain/pending selection,retaining8custody/finalizer/health/typed-deferral protections. Would leave79protected and101normal below-ceiling pending visible(subject to due/evidence/gate rules). Not implemented or qualified for deployment.",
+    "tests": "Read-only immutable Git chronology,AST/function hashes,accepted38initialworking and455six-hour evidence,historical decoder checks on bounded private copied bytes,indexed current79cohort lookups,and Supervisor/process metadata. No runtime functions executed against live gate,no locks/publications/no source changes.",
+    "verdict": "HOLD_FOR_SOURCE_ROLLBACK_SHARED_GATE_REVERSION_WILL_NOT_RESTORE"
+  },
   "flex_v2_sqlite_audit_access_diagnosis": {
     "bounded_connection_test": "One controlled read-only connection per database succeeded: file:path?mode=ro, uri=True, PRAGMA query_only=ON, busy_timeout=250ms. Core SELECT 1 and schema_version completed in 20.89ms; its exact nonexistent-mint lookup used the queue primary-key covering index. OPS SELECT 1 and schema_version completed in 0.16ms. No immutable=1 flag was used.",
     "canonical_writes": 0,

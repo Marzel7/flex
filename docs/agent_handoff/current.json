@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Cannot independently prove >=4 GiB available memory for proposed 2 GiB guest on 8 GiB live Mac. Disk passes; stop before any downloads, builds or launches.",
+  "blocker": "Existing cloud clients require explicit external-evidence/provider-policy approval and synthetic isolation qualification. No proven ten-request bound for coding-agent sessions; direct tool-free API is preferred metered design.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leave Flex unchanged. Reassess the same architecture only when independently proven >=4 GiB memory headroom exists, or explicitly approve a separate offline host. No architecture/model substitution, workload shutdown or private Phase A execution authorized.",
+  "next_action": "Choose synthetic-only qualification of named direct API/model/provider with <=$0.25 cap (recommended), or pinned existing Claude headless tool-free route. Separately approve changed external-data boundary and exact private packet transmission only after synthetic controls pass. No implementation/inference approved by this assessment.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "86fb8c5023b4195a63d09664489387261d618b7e",
+    "git_head": "896d04881f8bcb0fd92423609d10f502fb75892a",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T13:56:18.996624+00:00",
-    "working_tree": "Clean research-only Phase 1C report commit. Resource gate failed before artifact preparation or execution; installed Flex untouched."
+    "updated_at_utc": "2026-10-30T14:06:42.201198+00:00",
+    "working_tree": "Clean research-only Phase 1D comparison/report commit; no integration or operational settings changed."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T13:56:18.996624+00:00",
+  "updated_at_utc": "2026-10-30T14:06:42.201198+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1C_HOLD_RESOURCE_PREFLIGHT_FAILED; NO_RUNTIME_OR_INFERENCE_EXECUTION",
+  "verdict": "PHASE1D_ASSESSMENT_COMPLETE; HOLD_PRIVATE_AGENT_EXECUTION",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63563,6 +63563,143 @@
     "tests": "Original sealed package/ten packet hashes and reference/protocol/instruction equality PASS. Resource gate FAIL. All synthetic isolation/reasoning tests NOT_RUN, not failed.",
     "updated_at_utc": "2026-10-30T13:56:18.996624+00:00",
     "verdict": "HOLD_RESOURCE_PREFLIGHT_FAILED"
+  },
+  "watchtower_agent_phase1d_20261030": {
+    "blocker": "No qualified external-data/private transmission approval or executed tool-free OS/transport isolation proof; account policy and actual entitlement unverified.",
+    "engineering_revision": "896d04881f8bcb0fd92423609d10f502fb75892a",
+    "next_action": "Choose synthetic-only qualification of named direct API/model/provider with <=$0.25 cap (recommended), or pinned existing Claude headless tool-free route. Separately approve changed external-data boundary and exact private packet transmission only after synthetic controls pass. No implementation/inference approved by this assessment.",
+    "prior_handoff": "8053710ec34486cf8cda0066fc3bfe713d540f4d",
+    "production_flags": {
+      "AI_investigation_calls": 0,
+      "QEMU_retry": false,
+      "new_runtime_installation": false,
+      "paid_experiment_inference": 0,
+      "private_external_transmission": false,
+      "production_DB_gate_access": false,
+      "production_mutations": false,
+      "worker_restarts_signals": false
+    },
+    "report": {
+      "CLAUDE_INTEGRATION_CAPABILITY": {
+        "bundled_binary_bytes": 275988512,
+        "bundled_binary_sha256": "6b5ec691195e551b02c41df9f7d723f4ea61eaa03c2df90acefe3736f1aeb620",
+        "editor_schema_defaults": {
+          "attachOpenFile": true,
+          "attachSelection": true,
+          "continueAfterReload": true,
+          "usePythonEnvironment": true
+        },
+        "effective_layered_config": "NOT_VERIFIED; no relevant overrides in inspected single VS Code user file, managed/project/profile settings unresolved",
+        "effective_model_account_billing": "UNKNOWN; credentials/auth status not accessed",
+        "installed_markers_present": [
+          "--tools",
+          "--disallowedTools",
+          "--bare",
+          "--restricted",
+          "--strict-mcp-config",
+          "--max-turns",
+          "--max-budget-usd",
+          "--json-schema",
+          "--no-session-persistence"
+        ],
+        "manifest_sha256": "5e835db0ad3c2ac62aa4a107783069969c5faf47456bc31d664e97452440864b",
+        "markers_not_execution_proof": true,
+        "older_disk_version": "2.1.310",
+        "registered_extension": "Anthropic.claude-code",
+        "safe_user_configuration": {
+          "explicit_model_observed": false,
+          "hooks_key_present": false,
+          "permission_allow_entry_count": 2,
+          "permission_deny_entry_count": 0
+        },
+        "version": "2.1.312"
+      },
+      "CODEX_INTEGRATION_CAPABILITY": {
+        "bundled_binary_bytes": 260393424,
+        "bundled_binary_sha256": "97026b7ea245a7a9f17d8522a2ba4a8cd2f1c01dac0f62483a4bfe427d76082e",
+        "effective_entitlement_and_session_config": "UNKNOWN; no agent/status/auth command run",
+        "interfaces": "IDE + bundled CLI; PATH CLI is Volta shim, not independently resolved to bundled version",
+        "manifest_sha256": "0d0d72b170641126d2a93bd83887e033f5ed96275dc14de91d5142060d31ce38",
+        "registered_extension": "openai.chatgpt",
+        "tool_controls": "Read-only sandbox and shell_tool disable documented; all-tools-empty effective mode not qualified. Read-only still allows reads/commands. No session launched.",
+        "user_config_model": "gpt-6.1-sol",
+        "user_config_reasoning": "low",
+        "version": "26.1021.22027"
+      },
+      "CREDIT_USAGE_ESTIMATE": {
+        "Claude_Sonnet_5_5_raw_model_estimate_USD": 0.22528,
+        "Codex_development_usage": "Separate; not measured",
+        "actual_AI_investigation_calls": 0,
+        "actual_experiment_input_output_tokens": 0,
+        "actual_paid_experiment_inference": 0,
+        "configured_Codex_6_1_Sol_raw_token_estimate_credits": 5.632,
+        "estimate_caveat": "No harness/hidden extra context, tax, regional/contract uplift or cached savings included. API account access unverified. Subscription allowance not interchangeable with USD/API billing. Not measured savings, hard billing guarantee or cheapest-model proof.",
+        "gpt_5_4_mini_snapshot": "gpt-5.4-mini-2026-03-17",
+        "maximum_generated_tokens_including_reasoning": 10240,
+        "maximum_input_tokens": 61440,
+        "maximum_proposed_requests": 10,
+        "maximum_total_tokens": 71680,
+        "mini_standard_uncached_USD_per_M_input_output": [
+          0.75,
+          4.5
+        ],
+        "mini_target_USD": 0.09216,
+        "proposed_API_application_reservation_cap_USD": 0.25,
+        "request_controls": "Direct API controller would durably consume <=10 slots including unknown outcomes; no SDK/transport retry, tools, follow-ups, repair or model fallback; per-request token limit and sequential cost reservation. Extension sessions/agent-turn limits do not prove upstream request cap."
+      },
+      "NEXT_APPROVAL_REQUIRED": "Choose synthetic-only qualification of named direct API/model/provider with <=$0.25 cap (recommended), or pinned existing Claude headless tool-free route. Separately approve changed external-data boundary and exact private packet transmission only after synthetic controls pass. No implementation/inference approved by this assessment.",
+      "PHASE1D_STATUS": "ASSESSMENT_COMPLETE; HOLD_PRIVATE_INFERENCE_AND_EXECUTION",
+      "PRIVATE_DATA_BOUNDARY": {
+        "candidate_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69",
+        "candidate_packets": 10,
+        "cohort": 100,
+        "credentials": "No keychain/auth file/credential store/secret value or login command accessed; configuration output restricted to non-secret allowlisted fields",
+        "hash_verification": "PASS; all sealed file and ten packet hashes match",
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "phase_A": "Only neutral reference + one packet + instructions/schema; never baseline/query audit/full source docs/workspace context",
+        "private_evidence_regenerated": false,
+        "private_evidence_transmitted": false,
+        "provider_privacy": "Account-specific plan/training/retention unresolved; API store=false not ZDR; no assumption that subscription and API policies match",
+        "reference_instructions_schema_protocol_match_base": true,
+        "retained_records": 392
+      },
+      "PRODUCTION_MUTATIONS": 0,
+      "RECOMMENDED_ARCHITECTURE": "Separately approved minimal direct text-API controller using pinned GPT-5.4 Mini, no tools, one packet/reference per fresh request, structured response validation/seal and independent Phase B review. Lowest-overhead metered design, not measured cheapest subscription cost or proven quality. Existing Claude headless is alternative synthetic-qualification candidate if integration reuse is required. No private IDE session recommended.",
+      "RESOURCE_REQUIREMENTS": {
+        "cloud_clients": "No local model/VM; lower planned overhead but exact peak memory and inference CPU unmeasured",
+        "largest_existing_binary_inspected_bytes": 275988512,
+        "local_QEMU": "HOLD_FROM_PHASE1C; not retried on this host",
+        "new_files_below_500000000": true,
+        "new_installs": 0
+      },
+      "TOOL_FREE_INFERENCE_AVAILABLE": {
+        "Claude_headless": "DOCUMENTED_AND_INSTALLED_MARKERS_PRESENT; NOT_EXECUTION_QUALIFIED; built-in empty toolset plus independent MCP deny needed",
+        "Codex_IDE": "NOT_PROVEN_ALL_TOOLS_EMPTY",
+        "direct_text_API": "DESIGN_SUPPORTS_NO_TOOLS_BY_OMISSION; not implemented or called",
+        "none_offline_cloud": "Cloud inference requires external transmission, so original zero-network requirement must be explicitly revised"
+      },
+      "UNRESOLVED_SECURITY_GAPS": [
+        "No executed tool/host filesystem/egress isolation tests for either client",
+        "Effective managed/workspace/model/account policy not verified",
+        "Provider external-data/training/retention acceptance absent",
+        "Client internals can retry/reason internally; ten turns/sessions not ten requests",
+        "IDE/editor context, auto-resume and inherited plugin/MCP hooks must be excluded",
+        "Trusted credential transport and controller runtime must be qualified; no prompts/outputs may execute",
+        "Resource safety of a future lightweight caller still requires preflight; no production access"
+      ],
+      "base_revision": "86fb8c5023b4195a63d09664489387261d618b7e",
+      "comparison_file": "PHASE1D_COMPARISON.md",
+      "comparison_sha256": "49c99110c6581e6bab494393ee0667f810e65d23f4ca03899c61b55318977c48",
+      "observed_at_utc": "2026-10-30T14:06:21.348418+00:00",
+      "prior_handoff": "8053710ec34486cf8cda0066fc3bfe713d540f4d",
+      "production_database_gate_access": 0,
+      "production_worker_signals_restarts": 0,
+      "public_documentation_browsing_only": true
+    },
+    "report_sha256": "f8c59976f1a7a4fda50a86baa3d2f42ef90b5bc04b469c7688d5161618877424",
+    "tests": "Original package/ten packet hashes and neutral reference/instructions/schema/blinded protocol equality PASS; report JSON and three cost arithmetic checks PASS. Static installed-extension/binary inspection only. No runtime, isolation or capability tests executed.",
+    "updated_at_utc": "2026-10-30T14:06:42.201198+00:00",
+    "verdict": "ASSESSMENT_COMPLETE_HOLD_PRIVATE_EXECUTION"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

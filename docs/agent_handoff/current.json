@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Existing cloud clients require explicit external-evidence/provider-policy approval and synthetic isolation qualification. No proven ten-request bound for coding-agent sessions; direct tool-free API is preferred metered design.",
+  "blocker": "Offline synthetic counter is not a live tokenizer; enabled one-shot HTTP transport/OS isolation and account/API compatibility remain unqualified. All private/paid execution requires separate explicit approval.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Choose synthetic-only qualification of named direct API/model/provider with <=$0.25 cap (recommended), or pinned existing Claude headless tool-free route. Separately approve changed external-data boundary and exact private packet transmission only after synthetic controls pass. No implementation/inference approved by this assessment.",
+  "next_action": "Review offline candidate. Qualify a pinned full-input tokenizer and one-shot bounded no-retry HTTP adapter plus process isolation. Any paid synthetic compatibility request needs separate explicit approval (proposed one minimal synthetic request <=$0.01) for exact model/endpoint; private Phase A transmission is separately gated after synthetic proof. No source deployment, QEMU retry or private inference authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "896d04881f8bcb0fd92423609d10f502fb75892a",
+    "git_head": "d316d363037d01aa8e82c42a4da4e7cbe7265507",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T14:06:42.201198+00:00",
-    "working_tree": "Clean research-only Phase 1D comparison/report commit; no integration or operational settings changed."
+    "updated_at_utc": "2026-10-30T14:27:20.882683+00:00",
+    "working_tree": "Clean isolated research-only Phase 1E offline controller/tests/report commit; installed Flex untouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T14:06:42.201198+00:00",
+  "updated_at_utc": "2026-10-30T14:27:20.882683+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1D_ASSESSMENT_COMPLETE; HOLD_PRIVATE_AGENT_EXECUTION",
+  "verdict": "PHASE1E_OFFLINE_CONTROLLER_PASS; LIVE_EXECUTION_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63700,6 +63700,119 @@
     "tests": "Original package/ten packet hashes and neutral reference/instructions/schema/blinded protocol equality PASS; report JSON and three cost arithmetic checks PASS. Static installed-extension/binary inspection only. No runtime, isolation or capability tests executed.",
     "updated_at_utc": "2026-10-30T14:06:42.201198+00:00",
     "verdict": "ASSESSMENT_COMPLETE_HOLD_PRIVATE_EXECUTION"
+  },
+  "watchtower_agent_phase1e_20261030": {
+    "blocker": "Real full-input tokenizer/counter not qualified; no enabled HTTP transport or OS egress/filesystem boundary; account snapshot access and exact server schema compatibility not tested. No paid/private execution authorized.",
+    "engineering_revision": "d316d363037d01aa8e82c42a4da4e7cbe7265507",
+    "next_action": "Review offline candidate. Qualify a pinned full-input tokenizer and one-shot bounded no-retry HTTP adapter plus process isolation. Any paid synthetic compatibility request needs separate explicit approval (proposed one minimal synthetic request <=$0.01) for exact model/endpoint; private Phase A transmission is separately gated after synthetic proof. No source deployment, QEMU retry or private inference authorized.",
+    "prior_handoff": "b0c35cf1da61be2b5c8ec2e37ce80d857a896ef1",
+    "production_flags": {
+      "QEMU_retry": false,
+      "gate_access": false,
+      "new_dependency_installation": false,
+      "operational_DB_access": false,
+      "private_external_transmission": false,
+      "private_packets_loaded_by_controller": false,
+      "production_changes": false,
+      "provider_inference_calls": 0,
+      "worker_restarts_signals": false
+    },
+    "report": {
+      "AI_inference_calls_local_or_external": 0,
+      "API_CALLS_EXECUTED": 0,
+      "CONTROLLER_IMPLEMENTATION": {
+        "allowlisted_future_endpoint": "https://api.openai.com/v1/responses",
+        "cache": "Controller/model/endpoint/approved inputs/reference/schema/prompt/counter identity; completed output hash verified",
+        "freeze": "Phase A hash manifest, failed/unknown entries included; subsequent new dispatch refused; no Phase B reader/self-grader",
+        "mode": "Offline library; only SyntheticTransport accepted; no HTTP transport, credentials, live flag or model tools",
+        "model": "gpt-5.4-mini-2026-03-17",
+        "output_contract": "Narrow controller-specific Phase A schema; original qualified OUTPUT_SCHEMA.json unchanged. Exact future approval must include proposed controller schema.",
+        "request": "Fixed prompt + reference + one approved packet; tools=[], tool_choice=none, strict structured output, effort=none, Standard tier, store=false, no history/truncation/background",
+        "sha256": "9370096239a0f02df998953478bf2fafe3d8c7ac16e0c700087da14bfb5cf839",
+        "source": "research/watchtower_agent_feasibility/controller_offline.py",
+        "state": "Checksummed/fsynced/atomic private files, initialization marker, nonblocking lock; slot consumed before dispatch; interrupted/unknown rights held; no retries/refunds/new allowance"
+      },
+      "COST_LIMIT_ENFORCEMENT": {
+        "USD_per_million_generated": 4.5,
+        "USD_per_million_input": 0.75,
+        "actual_spend_USD": 0,
+        "caveat": "Application reservation estimate at approved Standard rates, not provider/account-wide hard billing cap or proof of current contract price. No cache savings assumed. Inconsistent actual usage halts.",
+        "future_application_envelope_USD": 0.25,
+        "maximum_ten_slot_estimate_USD": 0.09216,
+        "offline_tests": "PASS; reserve full worst-case even unknown failure; rates bound to source revision",
+        "reserved_per_slot_USD": 0.009216
+      },
+      "Codex_development_usage": "Separate from experiment inference; not measured",
+      "MODEL_AVAILABILITY": {
+        "account_entitlement": "UNKNOWN_NOT_QUERIED",
+        "exact_request_server_compatibility": "NOT_RUN_OFFLINE_ONLY",
+        "public_documentation": "Snapshot listed; structured outputs, effort=none and rates verified in official documentation",
+        "source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini"
+      },
+      "NEXT_APPROVAL_REQUIRED": "Review offline candidate. Qualify a pinned full-input tokenizer and one-shot bounded no-retry HTTP adapter plus process isolation. Any paid synthetic compatibility request needs separate explicit approval (proposed one minimal synthetic request <=$0.01) for exact model/endpoint; private Phase A transmission is separately gated after synthetic proof. No source deployment, QEMU retry or private inference authorized.",
+      "PHASE1E_STATUS": "OFFLINE_CONTROLLER_PASS; LIVE_EXECUTION_HOLD",
+      "PRIVACY_BOUNDARY": {
+        "OS_boundary": "Future HTTP process filesystem/credential/egress sandbox not qualified by offline unit tests; no general coding agent used",
+        "all_original_and_derived_file_hashes_verified": true,
+        "candidate_packets": 10,
+        "cohort_cases": 100,
+        "credentials_loaded": false,
+        "evidence_regenerated": false,
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "packet_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69",
+        "private_evidence_transmission": false,
+        "private_packets_loaded_by_controller": false,
+        "production_DB_access": false,
+        "provider_requirements": "Explicit named provider/model/data transmission approval; account-specific retention/training/ZDR verified; store=false not ZDR; normal API abuse monitoring may retain up to30 days",
+        "retained_records": 392,
+        "source_schema_protocol_reference_preserved": true
+      },
+      "PRODUCTION_MUTATIONS": 0,
+      "SYNTHETIC_TEST_RESULTS": {
+        "command": "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python -B -m pytest tests/test_watchtower_controller_offline.py -q --disable-warnings -p no:cacheprovider",
+        "dependency": "Existing jsonschema 4.19.1; no install",
+        "failed": 0,
+        "last_run_seconds": 0.3,
+        "network": "Socket connection methods denied across entire module; no actual transport used",
+        "not_tested": "Actual model reasoning, tokenizer correctness/provider framing, authenticated model availability, remote API/schema acceptance, HTTP/OS isolation. Model responses are handwritten fixtures, not AI findings.",
+        "passed": 58,
+        "scope": [
+          "Five-role preservation and explicit synthetic role contradiction",
+          "Missing edges, hypothetical/direct distinction and contradictory chronology",
+          "No confirmation output state; unknown references/tools refused",
+          "Structured JSON/schema/usage/refusal/incomplete/model validation",
+          "Per-call input and generated-output/hidden-reasoning accounting gates",
+          "Ten durable slots, aggregate token and cost reservation ceilings",
+          "Failure/timeout/restart/crash consumption, no retry",
+          "Actual own-process short deadline interruption, no worker signal",
+          "Concurrency, initialization/orphan/erased-state refusal, short-write fail-closed",
+          "Cache/freeze tamper detection and changed identity rejection",
+          "Baseline/secret/path/symlink/live-transport/model substitution refusal",
+          "Original ASCII-escaped record hash compatibility"
+        ],
+        "test_sha256": "a7aafea339b2bd06ac9c1e70c920da9e68c1cda41b74f76b6d65653503ace143"
+      },
+      "TOKEN_LIMIT_ENFORCEMENT": {
+        "API_output_parameter": "max_output_tokens=1024 covers visible plus hidden reasoning per official API documentation; no remote verification",
+        "live_input_admission": "HOLD until exact full-input model/tokenizer/framing bound qualified",
+        "maximum_generated_per_request_including_reasoning": 1024,
+        "maximum_input_per_request": 6144,
+        "maximum_requests": 10,
+        "maximum_reserved_total_tokens": 71680,
+        "no_private_packet_fit_claim": true,
+        "offline_gate_tests": "PASS",
+        "on_invalid_or_missing_usage": "Consumed slot and halt, no retry",
+        "real_input_tokenizer": "NOT_INSTALLED_OR_QUALIFIED; fixture counter is explicitly live_qualified=false"
+      },
+      "base_revision": "896d04881f8bcb0fd92423609d10f502fb75892a",
+      "new_installs": 0,
+      "observed_at_utc": "2026-10-30T14:26:41.479779+00:00",
+      "prior_handoff": "b0c35cf1da61be2b5c8ec2e37ce80d857a896ef1"
+    },
+    "report_sha256": "40bbc78a9415d47b8cbd82d9b6c8a396c589f17978f0c176647bc313db884eda",
+    "tests": "58 provider-free synthetic tests PASS, final run0.30s. All original/derived evidence hashes and reference/protocol/schema equality PASS. No actual model or HTTP tests.",
+    "updated_at_utc": "2026-10-30T14:27:20.882683+00:00",
+    "verdict": "OFFLINE_CONTROLLER_PASS_LIVE_EXECUTION_HOLD"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

@@ -2,14 +2,15 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "No on-chain timestamp recovered for original2775/current2781from bounded approved local sources. Existing Core path now works;0current exactterminal proofs.",
+    "blocker": "1623originals lack timestampedWSreceipt; no independent same-signature migrationblockTime; receipt cannot prove chain age.",
     "database_writes": 0,
-    "milestone": "Migration on-chain timestamp and guarded Core access audit",
-    "next_action": "Stop. Retain unknown-age and unresolved notifications. Existing guarded indexed path works when Core readonly sidecars are naturally available; no recovery, cleanup or engineering proposed.",
+    "engineering_revision": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
+    "milestone": "Original2781WebSocketreceipt and origin audit",
+    "next_action": "Stop after observation. Retain unresolved records. No cleanup or engineering proposed. Receipt dates must remain distinct from onchainmigration dates.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "COMPLETE_WITH_UNKNOWN_TIMESTAMPS",
-    "tests": "No engineering/tests; guarded indexed exactsignature Core/OPS readbacks for2782unique prior/current targets. Existing Core guard unchanged."
+    "status": "COMPLETE_PARTIAL_PROVENANCE",
+    "tests": "No tests or engineering; bounded indexed OPS readonly guard;30MBexistingcensus and4MiBboundedlogtails; source contract inspection."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57768,7 +57769,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stop. Retain unknown-age and unresolved notifications. Existing guarded indexed path works when Core readonly sidecars are naturally available; no recovery, cleanup or engineering proposed.",
+  "next_action": "Stop after observation. Retain unresolved records. No cleanup or engineering proposed. Receipt dates must remain distinct from onchainmigration dates.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59957,8 +59958,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T20:00:50.436626+00:00",
-    "working_tree": "Engineering/source unchanged; bounded readonly local observations and private/tmp reports only. Mandatory handoff transport update."
+    "updated_at_utc": "2026-10-30T22:45:21.739427+00:00",
+    "working_tree": "Engineering unchanged; bounded guarded readonly custody snapshot and existing receipt/log observations. Private/tmp audit data only plus mandatory handoff transport."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62939,7 +62940,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "READ_ONLY_AUDIT_COMPLETE_TIMESTAMP_AGE_UNKNOWN",
+  "verdict": "OBSERVATION_COMPLETE_RECEIPT_DATES_PARTIAL_ONCHAIN_AGE_UNVERIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67880,6 +67881,91 @@
       "resolver": 75943,
       "status": "RUNNING",
       "walkback": 61521
+    }
+  },
+  "watchtower_migration_websocket_origin_timestamp_audit_20261030": {
+    "ADMISSION_RANGE_UTC": [
+      "2026-10-26T05:17:26Z",
+      "2026-10-30T19:57:36Z"
+    ],
+    "AUDIT_STATUS": "OBSERVATION_COMPLETE_RECEIPT_DATES_PARTIAL_ONCHAIN_AGE_UNVERIFIED",
+    "CLASSIFICATION_NOTE": "1233prove receipt on a live WebSocket connection, not near-chain-execution delivery.1150prove earlier admission only, with original WS source not independently proven.398remaining origin unknown.0proven original replay does not prove replay absent. Existing later journal retries/custody movement are separate, not new original receipt.",
+    "DATABASE_WRITES": 0,
+    "FIRST_JOURNAL_ADMISSION_DATE_DISTRIBUTION": {
+      "2026-10-26_or_earlier": 1,
+      "2026-10-27": 647,
+      "2026-10-28": 588,
+      "2026-10-29": 892,
+      "2026-10-30": 653
+    },
+    "FIRST_RECEIPT_DATE_DISTRIBUTION": {
+      "2026-10-26_or_earlier": 0,
+      "2026-10-27": 311,
+      "2026-10-28": 254,
+      "2026-10-29": 338,
+      "2026-10-30": 255,
+      "TOTAL": 2781,
+      "UNKNOWN": 1623
+    },
+    "HISTORICAL_RECOVERY_EVIDENCE": {
+      "custody": "OWNED is unfinished durable custody; journal replay re-enters same handler with preserved source tag. Seeing source=PUMPSWAP orPUMPPORTAL during retry does not prove a new socket receipt.",
+      "installed_callers": "Only2external _schedule_journal_migration callsites: PumpSwap migration-account logsNotification and PumpPortal migration/migrate websocket payload. Third caller replays journal.pending with same source/hint and empty logs.",
+      "latest_custody_transfer_time": "UNKNOWN; revision and custody are retained but no wallclocklasttransfer column.",
+      "latest_retry_time": "UNKNOWN; retry_not_before/due are eligibility deadlines, not actual retrytime.",
+      "original_replay_count": "0independently demonstrated; not proof none occurred.",
+      "retry_provenance": "admit reuses existing resident/deferred original row and preservesreceived_at/source/notificationidentity. Deferred _same_origin enforces source/id/admission identity. All2773remaining originals agree with prior snapshot."
+    },
+    "NEXT_ACTION": "Stop after observation. Retain unresolved records. No cleanup or engineering proposed. Receipt dates must remain distinct from onchainmigration dates.",
+    "ORIGINAL_COHORT_RECONCILIATION": {
+      "departures": 8,
+      "fresh_outstanding": 2907,
+      "new_since_original": 134,
+      "original": 2781,
+      "original_identity_source_admission_unchanged_for_remaining": 2773,
+      "stable_resident_during_custody_snapshot": true,
+      "still_outstanding": 2773
+    },
+    "ORIGINAL_WEBSOCKET_PROVENANCE_UNVERIFIED_TOTAL": 1548,
+    "OUTSTANDING_PROCESSING_OBLIGATIONS": {
+      "age_does_not_prove_terminal": true,
+      "original_currently_unresolved": 2773,
+      "original_departures_obligation": "8UNKNOWNwithoutfreshterminalproof; not presumedcomplete.",
+      "safe_removals_authorized": 0
+    },
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVIDER_CALLS": 0,
+    "RECEIPT_DATE_LIMITATION": "Earliest retained PumpPortal receive boundary, not proof no earlier receipt existed.75additional exactsignaturePumpSwap socket logs have no line timestamp.1158dated matches all share same UTC date as original journal admission.",
+    "RECEIPT_TO_ADMISSION_DELAY": {
+      "PumpPortal_admission_minus_receive_seconds_min": -0.994255781173706,
+      "PumpPortal_max": 0.13699793815612793,
+      "PumpPortal_median": -0.47175395488739014,
+      "PumpPortal_original_source_count": 994,
+      "PumpSwap_admission_minus_PumpPortal_receive_min": -31.629594802856445,
+      "PumpSwap_max": -0.16652584075927734,
+      "PumpSwap_original_source_with_later_PumpPortal_receipt_count": 164,
+      "interpretation": "Journal floors int(time.time()) to seconds. Negative subsecond differences are precision loss, not negative latency. These994pairs are consistent with admission within approximately1second; cannot measure exact subsecond delay.",
+      "interpretation_crosssource": "PumpSwap admission can precede later PumpPortal observation by up to31.630seconds. That is cross-channel receipt ordering, not retry-to-receipt delay or chain latency."
+    },
+    "RECEIPT_VS_BLOCKTIME_VALIDATION": {
+      "maximum_delay": "UNKNOWN",
+      "receipt_as_onchain_age": "NOT_QUALIFIED",
+      "representativeness": "UNQUALIFIED. Prior exactsignaturetimestamp audit found0getTransactioncache/transfer-indexmatches for all2781originals. No independent migrationblockTime available; no provider calls made.",
+      "same_signature_onchain_samples": 0,
+      "typical_delay": "UNKNOWN"
+    },
+    "SNAPSHOT_TIME": "2026-10-30T22:43:54+00:00",
+    "UNKNOWN_ORIGIN": 398,
+    "VERIFIED_HISTORICAL_ADMISSION": 1150,
+    "VERIFIED_LIVE_RECEIPTS": 1233,
+    "VERIFIED_REPLAYED_RECEIPTS": 0,
+    "WEBSOCKET_RECONNECTIONS": {
+      "bounded_log_pattern_counts": {
+        "PumpPortal_reconnect_attempt_lines": 156,
+        "WebSocket_reconnect_lines": 31
+      },
+      "continuous_connection": "NOT_PROVEN; bounded logs show repeated reconnection attempts.",
+      "coverage": "Last1MiB of each of4retainedlistenerstdoutlogs=4MiB total; loglines have no timestamp. Counts are matching lines, not distinct outages or fullperiod frequency.",
+      "provider_backfill": "No retained proof of historical provider delivery. Installed subscriptions have no historical startslot/date; this is not proof providers never buffer/replay."
     }
   },
   "watchtower_minimal_runtime_candidate_20261007": {

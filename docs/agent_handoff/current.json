@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No approved isolated provider-free/write-denied agent runtime and private-data handling boundary identified; incremental intelligence NOT_EVALUATED.",
+  "blocker": "No approved installed isolated runtime; llama.cpp/QEMU/kernel/image exact hashes, enforcement controls and live-host resource admission remain unqualified. No inference executed.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review sealed local evidence package and evaluation specification; approve exact runtime isolation and private-data handling before any agent execution. No production implementation or deployment.",
+  "next_action": "Review Phase 1B proposal for named local Qwen2.5-0.5B-Instruct Q4_K_M/llama.cpp/no-NIC QEMU experiment. Separately approve artifact acquisition/build and synthetic isolation qualification; require exact immutable hashes, isolation PASS and private-data/resource approval before any private inference. No production feature/deployment.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "f4816f29cb3239b95006a8d3b39b145e659964f3",
+    "git_head": "2bd84bf7f78d630b006c226d906239cb00d49bce",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T13:36:57.957033+00:00",
-    "working_tree": "Clean isolated research worktree; preparation-only evidence extractor and evaluation specification. Installed production remains a2c8f232 unchanged."
+    "updated_at_utc": "2026-10-30T13:46:42.851550+00:00",
+    "working_tree": "Clean isolated Phase 1B research-only commit; no installed runtime changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T13:36:57.957033+00:00",
+  "updated_at_utc": "2026-10-30T13:46:42.851550+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_APPROVED_INVESTIGATION_RUNTIME_REQUIRED; bounded evidence package and evaluation specification complete; no agent run.",
+  "verdict": "PHASE1B_DESIGN_READY_FOR_REVIEW; HOLD_AGENT_EXECUTION",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63361,6 +63361,91 @@
     "research_commit": "f4816f29cb3239b95006a8d3b39b145e659964f3",
     "updated_at_utc": "2026-10-30T13:36:57.957033+00:00",
     "verdict": "HOLD"
+  },
+  "watchtower_agent_phase1b_20261030": {
+    "base_research_revision": "f4816f29cb3239b95006a8d3b39b145e659964f3",
+    "prior_handoff": "2140655bb4e9a729872ca5d97e716e29473fd05f",
+    "production_flags": {
+      "AI_inference_calls": 0,
+      "gate_operations": false,
+      "private_external_transmission": false,
+      "production_DB_access": false,
+      "production_changes": false,
+      "provider_calls": 0,
+      "runtime_installed_or_executed": false,
+      "worker_signals_restarts": false
+    },
+    "report": {
+      "AI_CALLS_EXECUTED": 0,
+      "BEHAVIOURAL_REFERENCE_STATUS": "READY_WITH_HISTORICAL_ATTESTATION_LIMIT; reused nine research sources, distilled identity-free reference; no new historical acquisition",
+      "CANDIDATES_PREPARED": 10,
+      "ESTIMATED_INFERENCE_BUDGET": {
+        "Codex_development_usage": "Separate and not measured",
+        "VM_memory_GiB": 2,
+        "VM_vCPU": 1,
+        "actual_tokenizer_counts": "NOT_MEASURED",
+        "context": 8192,
+        "maximum_aggregate_tokens": 71680,
+        "maximum_calls": 10,
+        "maximum_input_tokens_per_call": 6144,
+        "maximum_output_tokens_per_call": 1024,
+        "maximum_total_CPU_seconds": 6000,
+        "maximum_total_wall_seconds": 7200,
+        "paid_experiment_inference_used": 0,
+        "savings": "UNMEASURED"
+      },
+      "EVIDENCE_INTEGRITY": {
+        "all_original_file_hashes_match": true,
+        "cohort": 100,
+        "normalized_records": 392,
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "regenerated": false
+      },
+      "ISOLATED_RUNTIME_CANDIDATE": {
+        "host": "Apple M2, 8 CPU cores, 8 GB RAM",
+        "installed": false,
+        "model": "Qwen/Qwen2.5-0.5B-Instruct-GGUF/qwen2.5-0.5b-instruct-q4_k_m.gguf",
+        "publisher_hash_is_not_local_verification": true,
+        "publisher_model_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+        "runtime": "Pinned llama.cpp direct inference in minimal ARM64 Linux QEMU guest, no server or agent framework",
+        "runtime_kernel_and_image_pins": "UNRESOLVED_BEFORE_EXECUTION"
+      },
+      "ISOLATION_ENFORCEMENT_STATUS": "PROPOSED_NOT_IMPLEMENTED_OR_TESTED; no NIC/no production mounts/read-only staged inputs/tool-free inference/seccomp/host sandbox/controller quotas require synthetic proof before private execution",
+      "NEXT_APPROVAL_REQUIRED": "Approve named local model/VM architecture and artifact acquisition/build plus synthetic isolation qualification. Private inference remains gated on exact runtime/image/model hashes, isolation PASS and resource/private-data approval; no runtime/model installed now.",
+      "PAID_EXPERIMENT_INFERENCE": 0,
+      "PRIVATE_DATA_BOUNDARY": "Original private package and baseline remain outside Git. Ten derived evidence packets remain local 0700/0600. No private evidence transmitted externally; public runtime metadata browsed only.",
+      "PRODUCTION_MUTATIONS": 0,
+      "REFERENCE_PROVENANCE_AND_LEAKAGE_CHECK": {
+        "cohort_identity_overlap_in_reference": 0,
+        "full_provenance": "REFERENCE_PROVENANCE.json reviewer-only",
+        "held_out_baseline_used_by_builder": false,
+        "historical_source_count": 9,
+        "phase_a_reference_sha256": "7d7f2e3ce20000e1ff5aa2d243c209d6a01ba37c65ba09aedc91cdf65e4c8d19",
+        "qualification": "Historical source attestations, not newly independently verified raw data; precise operation identities and outcome labels withheld."
+      },
+      "STATUS": "DESIGN_READY_FOR_REVIEW_EXECUTION_HOLD",
+      "VALIDATION_CHECKS": {
+        "all_packet_hashes": true,
+        "bounded_files": true,
+        "builder_parses": true,
+        "no_baseline_or_queue_hints": true,
+        "original_records_unchanged": true,
+        "original_seal_unchanged": true,
+        "private_modes": true,
+        "ten_packets": true
+      },
+      "candidate_packet_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69",
+      "packet_builder_sha256": "d19c2da64b08670213389bd2d638316d35073d59fdb1a93bb0d537a952caa4f7",
+      "packet_total_bytes": 69955,
+      "phase_a_instruction_sha256": "50a741bdc88615816461968c5a8375fd18e2a1900ce9761ef6e97a770c53eb36",
+      "private_packet_path": "/private/tmp/watchtower-agent-phase1b-packets",
+      "source_handoff_discrepancy": "Research worktree inherited current.json is stale historical context (1e292f25); requested 2140655b resolved and dedicated agent-handoff current matched prepared experiment. No replacement of engineering worktree handoff."
+    },
+    "report_sha256": "45d1f0d8ac0d8d2b17e57058d0e90308a7dc3f67ed1928cc6d72a9d516df73d8",
+    "revision": "2bd84bf7f78d630b006c226d906239cb00d49bce",
+    "runtime_enforcement": "PROPOSAL_ONLY_NOT_QUALIFIED",
+    "tests": "Eight actual preparation validation checks PASS (packet hashes/count/byte bounds/modes/original records/blinding/original seal/builder syntax); reference identity-overlap check PASS; original ten extractor controls reused, not rerun. Isolation controls NOT_RUN.",
+    "updated_at_utc": "2026-10-30T13:46:42.851550+00:00"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

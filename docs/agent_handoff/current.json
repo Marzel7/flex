@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven.",
+  "blocker": "No approved isolated provider-free/write-denied agent runtime and private-data handling boundary identified; incremental intelligence NOT_EVALUATED.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leaveexistingruntimeunchanged. Do notdeclarecaughtuporpromiseearlierclearanceETA. Nextusefulread-onlycomparisoniscomparablebacklogstockandnewmigrationfirstclaimlatencyafterfurthernaturaldrain;noscheduler/retention/gateengineeringornewmonitorcreated.",
+  "next_action": "Review sealed local evidence package and evaluation specification; approve exact runtime isolation and private-data handling before any agent execution. No production implementation or deployment.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59970,12 +59970,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-walkback-restoration",
-    "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "branch": "codex/watchtower-agent-feasibility",
+    "git_head": "f4816f29cb3239b95006a8d3b39b145e659964f3",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T12:57:51.781909+00:00",
-    "working_tree": "Read-onlycatchupaudit:notcaughtup78active(77pending/1running),80->78stockmatches4in/6outover13.54min. Post-restoration32cohort22claimedmed27min/p9030.2/max31.6/10unclaimed. All79unchanged/exact1551WAITING;50/50CREATEcoverage. Runtime/Heliushealthy,ACsleep0nowverified.Nochanges."
+    "updated_at_utc": "2026-10-30T13:36:57.957033+00:00",
+    "working_tree": "Clean isolated research worktree; preparation-only evidence extractor and evaluation specification. Installed production remains a2c8f232 unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T12:57:51.781909+00:00",
+  "updated_at_utc": "2026-10-30T13:36:57.957033+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_NEAR_REAL_TIME_AND_CATCHUP_CLAIM;GO_KEEP_EXISTING_RUNTIME_RUNNING. Currentcapacityoutpacesadmissionsinsampledwindowbut78jobsand~27minfreshfirstclaimmedianremain.",
+  "verdict": "HOLD_APPROVED_INVESTIGATION_RUNTIME_REQUIRED; bounded evidence package and evaluation specification complete; no agent run.",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63204,6 +63204,163 @@
     "next_action": "REVIEW_GENUINE_PENDING_TREASURY_CANDIDATES_BY_RETAINED_EVIDENCE",
     "safety": "READ_ONLY: DB writes/provider/RPC/approval/rejection actions=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "STALE_ROWS_PRESENT"
+  },
+  "watchtower_agent_feasibility_experiment_20261030": {
+    "installed_runtime_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "preparation_report_sha256": "4ca9481df27dddd7617d3065612775dacae7fad60ab5dc0257d3a21da1cc11f2",
+    "prior_verified_handoff": "bf721fa0",
+    "report": {
+      "AGENT_RUNTIME_AND_ISOLATION": {
+        "agent_run": false,
+        "approved_investigation_runtime_found": false,
+        "existing_orchestrator": "scripts/agent_orchestrator.pyisengineeringorchestration,workspace-writechildandexternalResponsesAPIreviewpath;notused/approvedforprivateinvestigationdata.",
+        "external_model_transmission": false,
+        "required_future_boundary": "Approvedruntime/privatedatahandling;read-onlysealedpackageonly;no mountedproductionpaths,shell/DB/write-tools/credentials;enforcednetworkdenial. Prompt-onlyrestrictionsnotasandbox.",
+        "unapproved_framework_installation": false
+      },
+      "CANDIDATE_RELATIONSHIPS": {
+        "agent_proposals": "NOT_EVALUATED",
+        "reference_warning": "Sharedwalletappearancesarenotproofsharedoperation,ancestryorwalletrole. Nohypothesisisproposed/promotedbythispreparation.",
+        "repeated_wallet_reference_groups": 25
+      },
+      "COHORT_SELECTION": {
+        "base_source_commit": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+        "candidate_pool": 839,
+        "completed_investigations": 100,
+        "legacy_outcomes": {
+          "LINEAGE_GAP": 56,
+          "NO_ATTRIBUTION_FOUND": 29,
+          "WATCHTOWER_CONFIRMED": 15
+        },
+        "materialized_outcome_types": {
+          "CANONICAL_OPERATOR_REACHED": 15,
+          "INSUFFICIENT_EVIDENCE": 17,
+          "KNOWN_CEX_REACHED": 15,
+          "KNOWN_RELAY_REACHED": 3,
+          "LINEAGE_GAP": 50
+        },
+        "primary_selection_reasons": {
+          "LINEAGE_GAP": 25,
+          "NO_ATTRIBUTION_FOUND": 20,
+          "WATCHTOWER_CONFIRMED": 15,
+          "existing_confirmed_match_control": 10,
+          "known_CEX_boundary_control": 10,
+          "repeated_retained_wallet_hint": 15,
+          "separate_funding_account_control": 5
+        },
+        "stratification_caveat": "Purposefulcase-controlcohort,notpopulationprevalenceorunbiasedprecisionestimate."
+      },
+      "DECISION": "HOLD",
+      "DETERMINISTIC_COMPARISON": {
+        "executed_agent_comparison": false,
+        "inputs": "Normalizedevidencecases,held-outdeterministicoutcomes/attributions/confirmedmatches/treasury/subproviderandmembershipreferences",
+        "metrics_specified": [
+          "uniqueproposals",
+          "alreadyknownrelations",
+          "supportednovelhypotheses",
+          "unsupported/contradictedproposals",
+          "knowncontrolrecovery",
+          "rolecollapse/fabrication/unsupportedconfirmation",
+          "incrementalintelligencevsexistingpresentation"
+        ],
+        "prepared": true,
+        "response_contract": "research/watchtower_agent_feasibility/OUTPUT_SCHEMA.json",
+        "specification": "research/watchtower_agent_feasibility/EVALUATION.md"
+      },
+      "EVIDENCE_COVERAGE": {
+        "cases_with_truncation": 0,
+        "credential_pattern_scan": "PASS forapi-key/Bearer/private-keymarkers;notaproofofallpossiblesecretformats. Nocredentialfieldswereextracted.",
+        "edge_candidate_cases": 71,
+        "manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "normalized_records": 392,
+        "package_bytes": 1302397,
+        "package_file_hashes": {
+          "QUERY_AUDIT.json": {
+            "bytes": 422977,
+            "sha256": "8979636da7d1d85155ef54e8dcdbf0c7caae7a2af67e7e21da8ac325500301ed"
+          },
+          "SUMMARY.json": {
+            "bytes": 950,
+            "sha256": "9969186ee72e5ac2972618600849c7609f1c79c43374242bb4770dcaf24ce402"
+          },
+          "deterministic_baseline.jsonl": {
+            "bytes": 366910,
+            "sha256": "0cd198d09a3db1fb0362a89cdf91e271cf87839c5175b853321500fc6f0481bf"
+          },
+          "evidence_cases.jsonl": {
+            "bytes": 505150,
+            "sha256": "ffdd3c14f6b9b882fa267068d061674a093c0c09d01281d12ab72baa887746d6"
+          },
+          "repeated_wallet_references.json": {
+            "bytes": 6410,
+            "sha256": "db49ce24c6ecce87af8be5d76d3467bc0bae1f5b83b78228ce3671e699d2817e"
+          }
+        },
+        "package_private_path": "/private/tmp/watchtower-agent-evidence-20261030T1310",
+        "privacy": "Privatefiles0700directory/0600files,outsideGit;no rawRPCpayloadsorcredentials. Aggregatehashesonlyinsharedhandoff.",
+        "records_by_table": {
+          "Core.token_analysis": 100,
+          "wt_provisioning_edges": 72,
+          "wt_provisioning_wallet_edges": 10,
+          "wt_provisioning_wallets": 5,
+          "wt_walkback_edge_candidates": 205
+        },
+        "roles_and_provenance": "Originalsignatures,slots,timestamps,amounts,temporary/provisioningaccountsandrecordhashesretained. Queuewalletlabelsremainhints,nofilledmissingedges.",
+        "separate_Funding_Account_cases": 5,
+        "source_window": "Shortautocommitreadwindow,notatomiccross-databasesnapshot;completedselectedqueuestaterechecked;sourcephysicalidentityunchanged."
+      },
+      "INTELLIGENCE_VALUE": "UNKNOWN_AGENT_NOT_RUN; cannotclaimPROMISINGorLIMITED_VALUEfromreferencecounts. Evidencepackageisreadyforreview,notproductionintegration.",
+      "NEXT_ACTION": "Reviewthesealedlocalpackageandevaluationprotocol;approveanexactisolatedprovider-free/write-deniedruntimeandprivatedatahandlingbeforeexecutingtheagentexperiment. No productionfeature/deploymentrecommended.",
+      "NOVEL_VS_EXISTING_FINDINGS": {
+        "agent_already_known": "NOT_EVALUATED",
+        "agent_supported_novel": "NOT_EVALUATED",
+        "baseline_existing_confirmed_match_cases": 10,
+        "baseline_operation_membership_reference_cases": 0,
+        "baseline_registry_reference_cases": 55,
+        "interpretation": "ExistingCONFIRMED_MATCHreferencesarenotnewagentfindings. LegacyWATCHTOWER_CONFIRMEDlabelsnotindependentcanonicaloperationmembershipproof. Nocohortwalletmatchedthesixretainedoperationmembershiprows.",
+        "registry_slice_capped": false
+      },
+      "PRODUCTION_IMPACT": {
+        "V1_access": false,
+        "V2_database_queue_registry_membership_writes": false,
+        "all_RUNNING_unchanged": true,
+        "budget_changes": false,
+        "files_500MB_or_larger_created": false,
+        "live_gate_operations": 0,
+        "new_DB_schema_queue_infrastructure": false,
+        "production_agent_service": false,
+        "promotion_confirmation": false,
+        "provider_calls": 0,
+        "source_configuration_changes": false,
+        "worker_PID_readback": [
+          45328,
+          45387,
+          61521
+        ],
+        "worker_signals_restarts": false
+      },
+      "TEST_RESULTS": {
+        "actual_agent_tests": 0,
+        "passed": 10,
+        "scope": "Syntheticlocalfixtureextractorsafety,privatedatahashes/limits,read-onlyDB/noATTACH/no-create,originalroles/signatures/amounts/times,non-confirmingresponsecontract"
+      },
+      "UNSUPPORTED_HYPOTHESES": {
+        "controls": "BlindedPhaseAthenfrozencomparisonPhaseB;humanindependentqualifiedevidencereview. NoCONFIRMEDoutputstate;requireexactevidencerefs,roles,missingedges,contradictionsandalternatives.",
+        "false_positive_risks": [
+          "SharedCEX/payment/servicewallets",
+          "CommonamountsorSDK/WSOLpatterns",
+          "ConflatingFundingAccountswithSubProviders",
+          "Post-launchfundingmistakenforpre-launchancestry",
+          "Treatingqueuehints,missingdataorlegacylabelsascanonicalfacts",
+          "Baselineleakageandduplicatedclaims"
+        ],
+        "measured_count": "NOT_EVALUATED;notzero"
+      },
+      "WATCHTOWER_AGENT_EXPERIMENT_STATUS": "HOLD_APPROVED_AGENT_RUNTIME_REQUIRED; boundedpackageandprotocolpreparedonly"
+    },
+    "research_commit": "f4816f29cb3239b95006a8d3b39b145e659964f3",
+    "updated_at_utc": "2026-10-30T13:36:57.957033+00:00",
+    "verdict": "HOLD"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

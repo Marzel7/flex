@@ -1034,9 +1034,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No current runtime safety failure. Fresh70admissions45completions grew25unfinished despite aggregate82/111 shrink29; exact eligible boundary counts and8hspend unavailable.",
+  "blocker": "Helius clock gap24699s plus unresolved one-credit listener request with live PID23351; Walkback STOPPED after failed8b recovery admission; AC idle sleep1minute still enabled.",
   "blockers": [
-    "HANDOFF_TRANSPORT_DEGRADED"
+    "Helius clock gap24699s plus unresolved one-credit listener request with live PID23351; Walkback STOPPED after failed8b recovery admission; AC idle sleep1minute still enabled."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -25557,6 +25557,73 @@
       "service_restarts": 0,
       "source_configuration_changes": 0
     }
+  },
+  "flex_v2_golden_stability_review_20261030": {
+    "blocker": "Helius clock gap24699s plus unresolved one-credit listener request with live PID23351; Walkback STOPPED after failed8b recovery admission; AC idle sleep1minute still enabled.",
+    "current_operational_status": {
+      "Walkback": "STOPPED",
+      "birth_intake": "Continuing; retained11/11ACK_Core_mint_matches",
+      "birth_slots": {
+        "free": 9,
+        "occupied": 503
+      },
+      "clock_gap_seconds": 24699,
+      "disk_free_bytes": 44779659264,
+      "gate": "OPEN_READY_CHECKSUM_VALID_BUT_CLOCK_INELIGIBLE",
+      "inflight_listener_getAccountInfo_credits": 1,
+      "investigation_cap": 100000,
+      "last_Walkback_complete_utc": "2026-10-29T23:13:48Z",
+      "last_indexed12h_handoff_complete_utc": "2026-10-30T01:05:29Z",
+      "lifecycle": "single*/15schedule; recent cleanup success NOT_PROVEN",
+      "listener_pid": 23351,
+      "migration_slots": {
+        "free": 21,
+        "occupied": 491
+      },
+      "pair_generation": "DEV004-V2-20261024-dfb76562",
+      "reserved_estimate_not_billed": 135412,
+      "resolver_pid": 12602,
+      "retired_paths_absent": true,
+      "uncertain": 6
+    },
+    "engineering_revision": "61a9026292c009d2bce864b4c20e4ed30103a24b",
+    "essential_vs_optional": "Retain retirement/preopen/accounting/publication/custody/finalization protections. Historical recovery admission optional and failed acceptance; preserve7consumed/71unused/1uncertainty exclusion/79attempt3. CurrentGate same bytes acrossGolden/post/current; clockguard predatedGolden. No wholesale checkpointrollback.",
+    "installed_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "next_action": "Separately authorize one bounded recovery preflight for existing61a90262/447190ee procedure, with explicit owner-fencing plan and persistent AC-awake policy verification; independently qualify admission-only historical recovery withdrawal retaining all79 protections. No recovery, restart, rollback or source change performed in this review.",
+    "preferred_option": "B \u2014 SELECTIVE SIMPLIFICATION. Keep stabilized safeguards; withdraw only optional historical recovery admission after narrow qualification; use existing conservative operator recovery for independent clock/reservation blockage.",
+    "production_flags": {
+      "V1_access": false,
+      "checkpoint_tags_changed": false,
+      "clock_anchor_changes": false,
+      "configuration_changes": false,
+      "gate_locks_or_publication": false,
+      "provider_calls": false,
+      "reservation_or_queue_mutations": false,
+      "source_changes": false,
+      "worker_restarts_or_signals": false
+    },
+    "report": "/private/tmp/flex-golden-stability-review-20261030/FINAL_REPORT.json",
+    "report_sha256": "7d37454f7b8e81747aa1cc164596e834bb18fac2da122bd8ca1b923619823eaa",
+    "source_verification": {
+      "current_gate_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "existing_installed_role_files_matched": 2145,
+      "post_Golden_source_changes": "561 retirement;648 one-timeoperator recovery;6d preopen;45 boundedcontention;8b historicaladmission andcustody; d638notseparatelyinstalled",
+      "source_only_optin_or_offline_utilities_absent": 5
+    },
+    "tests": {
+      "accepted_controls_reused": {
+        "contention": 191,
+        "operator_custody_DEV_only": 86,
+        "orphan_stage": 15,
+        "preopen": 147,
+        "retirement": 54,
+        "single_claim": 91
+      },
+      "new_tests": 0,
+      "scope": "No broad reruns; current indexedreadqueries,sourcehashes,metadata-onlypairvalidation; source-onlynewadmission defect reproduction reused."
+    },
+    "updated_at_utc": "2026-10-30T09:50:20.443911+00:00",
+    "verdict": "AUDIT_COMPLETE_PREFERRED_B_PRODUCTION_HOLD"
   },
   "flex_v2_handoff_identity_birth_headroom_diagnosis": {
     "birth_headroom": {
@@ -56727,7 +56794,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leaveall3workersRUNNINGwithvalidOPEN/READYclockauthority. Do notreset/replayceilingheldjobs. Separatelyreviewhostsleepcontinuityandprotectedretryrights;laterread-onlythroughputcomparisononlyifrequested.",
+  "next_action": "Separately authorize one bounded recovery preflight for existing61a90262/447190ee procedure, with explicit owner-fencing plan and persistent AC-awake policy verification; independently qualify admission-only historical recovery withdrawal retaining all79 protections. No recovery, restart, rollback or source change performed in this review.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -58912,12 +58979,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-v2-walkback-requalified",
+    "branch": "codex/flex-v2-clock-reservation-custody",
     "git_head": "61a9026292c009d2bce864b4c20e4ed30103a24b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-29T22:26:13.490178+00:00",
-    "working_tree": "AuthorizedclockrecoveryPASS22:17:30UTCusingexact447190eeutility(d46225ba). Onlywall1793309770\u21921793312250andmono945611\u2192948060changed;independentexpectedSHAf0cd92b4/readbackverified. No source/config/restart/probe/reset/replay. Firsttypedprelockbusyrefusalnonmutating;freshfollowup1lockattempt1successfulpublication.362secnaturalacceptance:108HTTP200,109reservations(103Walkback,6listener),1activeage1snone stuck;133396\u2192133505reservedestimate,6uncertain/100000cappreserved,clockdifference0. PIDs23351/23363/28791unchanged.16canonicalbirthACKlowerbound,3migrationadmissions,1handoff,24Walkbackclaims/0completions. All79executionceilingrowspendingattempt3unchanged(includesinitial78census). Oldclocklabelsresidue,0newclock/pub/identity/exhaustion/capacityerrors. Birth511/512+10verifiedACK,migration475/512,disk47.7GB/WAL0. Hostsleepandretry-ceilingworkremainseparatereview; noautomaticmonitoring."
+    "updated_at_utc": "2026-10-30T09:50:20.443911+00:00",
+    "working_tree": "Read-only Golden stability review complete. PreferredBselective admission simplification afterseparatequalification; currentruntime8bclockblocked/Walkbackstopped. No source orproductionchanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -60319,7 +60386,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_ANCHOR_ONLY_RECOVERY_AND_NATURAL_ACCEPTANCE",
+  "status": "AUDIT_COMPLETE_PREFERRED_B_PRODUCTION_HOLD",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -61682,7 +61749,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-28T00:14:28.865543+00:00",
+  "updated_at_utc": "2026-10-30T09:50:20.443911+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -61898,7 +61965,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PARTIAL_OVERALL_DRAINING_FRESH_BACKLOG_GROWING",
+  "verdict": "AUDIT_COMPLETE_PREFERRED_B_PRODUCTION_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

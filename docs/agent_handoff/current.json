@@ -2,15 +2,14 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "1623originals lack timestampedWSreceipt; no independent same-signature migrationblockTime; receipt cannot prove chain age.",
+    "blocker": "Currentexactcanonicalhandoffreadbackunavailable;1685missingmintsubjects; no basisfor actionabletotal or terminalretentioninflation.",
     "database_writes": 0,
-    "engineering_revision": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
-    "milestone": "Original2781WebSocketreceipt and origin audit",
-    "next_action": "Stop after observation. Retain unresolved records. No cleanup or engineering proposed. Receipt dates must remain distinct from onchainmigration dates.",
+    "milestone": "Notification-signature versus mint-Walkback measurement reconciliation",
+    "next_action": "Stop after reconciliation. Keep notification custody and mintWalkbackmetrics separate; do not label2913as outstandingWalkbacks, inferzeroobligations, or remove records.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "COMPLETE_PARTIAL_PROVENANCE",
-    "tests": "No tests or engineering; bounded indexed OPS readonly guard;30MBexistingcensus and4MiBboundedlogtails; source contract inspection."
+    "status": "INDETERMINATE",
+    "tests": "No tests/engineering. Bounded guardedOPSread; singleCoremode=roopenrefused; reused64retainedcanonicalhandoffproofs and matchedreceiptcensus."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57769,7 +57768,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stop after observation. Retain unresolved records. No cleanup or engineering proposed. Receipt dates must remain distinct from onchainmigration dates.",
+  "next_action": "Stop after reconciliation. Keep notification custody and mintWalkbackmetrics separate; do not label2913as outstandingWalkbacks, inferzeroobligations, or remove records.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59958,8 +59957,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T22:45:21.739427+00:00",
-    "working_tree": "Engineering unchanged; bounded guarded readonly custody snapshot and existing receipt/log observations. Private/tmp audit data only plus mandatory handoff transport."
+    "updated_at_utc": "2026-10-30T22:51:21.833971+00:00",
+    "working_tree": "No engineering/source changes. Guarded bounded readonly observation, private/tmp audit artifacts, mandatory aggregate handoff only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62940,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "OBSERVATION_COMPLETE_RECEIPT_DATES_PARTIAL_ONCHAIN_AGE_UNVERIFIED",
+  "verdict": "INDETERMINATE_METRIC_UNIT_MISMATCH_PROVEN_ACTIONABLE_NOTIFICATION_TOTAL_UNKNOWN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67817,6 +67816,90 @@
       "other_current_signatures": "2780no exact token_analysis.migration_tx match; absence is not terminalproof.",
       "safe_removal_authority": "NONE for current outstanding population. No removal executed."
     }
+  },
+  "watchtower_migration_walkback_metric_units_reconciliation_20261030": {
+    "ALREADY_HANDED_OFF": {
+      "current_notification_exact_handoff_total": "UNKNOWN_Core_open_failed",
+      "qualified_retained_positive_control_cohort": 64,
+      "those64in_current_custody": 0
+    },
+    "BOUNDED_COHORT": {
+      "canonical_handoff_verified_at": "2026-10-30T19:23:26.313680Z",
+      "conclusion": "These64processedcanonicalhandoffs are absent from current reportednotificationbacklog. No demonstrated inflation from those completedhandoffs.",
+      "current_notification_custody": 0,
+      "current_queue_status": {
+        "complete": 56,
+        "pending": 8
+      },
+      "first_global_notification": "UNKNOWN; retainedPumpPortalreceipts only where matched. Exact per-signature receipt/handoff/queue timeline saved in OBSERVATION.json.",
+      "receipt_matches": 64,
+      "selection": "Reuse64exactsignature canonicalCOMPLETEhandoffs independently verified19:23:26UTC, with current22:50OPSreadback; no new broadselection."
+    },
+    "CURRENT_CUSTODY": {
+      "ACKED_or_terminal_in_count": 0,
+      "ACTIVE_receipts_excluded": 63,
+      "OWNED_deferred": 2438,
+      "resident": 475
+    },
+    "DATABASE_WRITES": 0,
+    "DISTINCT_MINTS": {
+      "distinct_unqualified_subject_mints": 1215,
+      "excess_signatures_sharing_subject": 13,
+      "known_subject_signatures": 1228,
+      "missing_subject_signatures": 1685,
+      "total_distinct_actual_canonical_mints": "UNKNOWN"
+    },
+    "MEASUREMENT_VERDICT": "INDETERMINATE",
+    "METRIC_DEFINITION_MISMATCH": {
+      "OWNED_deferred": "2438durablePENDINGnotifications with retained retryrights. Custody movement is not completion.",
+      "Walkback_admissions": "One idempotent mint row, measured by retained enqueued_at. Multiple signature notifications may represent one mint.",
+      "Walkback_completions": "Queue complete with retained completed_at. Investigation outcome is separate from confirmed attribution and notification completion.",
+      "actual_actionable_migration_backlog": "Notifications with proven remaining obligation and current identity/ownership/provider eligibility. Cannot infer it from custody count or missingmint.",
+      "canonical_handoff_COMPLETE": "Exactsignature/mint Core record plus same-signature COMPLETEhandoff and durable OPSmintqueue existence; handoff COMPLETE is not investigation completion.",
+      "migration_notification_admissions": "First durable admission per transaction signature. Not onchain event count or unique mint count.",
+      "resident_occupancy": "All retained journal rows; fresh475are474PENDING+1RESOLVED. Residency is custody, not completion count."
+    },
+    "NEXT_ACTION": "Stop after reconciliation. Keep notification custody and mintWalkbackmetrics separate; do not label2913as outstandingWalkbacks, inferzeroobligations, or remove records.",
+    "NOTIFICATION_SIGNATURES": 2913,
+    "PRESERVED_WALKBACK_FINDING": {
+      "6h_admissions": 96,
+      "6h_completions": 105,
+      "endpoint": "2026-10-30T19:43:50Z",
+      "limitation": "Flow implies9fewerunfinishedinvestigations only under consistent lifecycle accounting; not notificationcompletions or an independently measured stockdifference.",
+      "net_flow": -9
+    },
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVIDER_CALLS": 0,
+    "RECONCILIATION_TO_2907": {
+      "all2907stillpresent": true,
+      "departures": 0,
+      "new": 6
+    },
+    "RETAINED_ONLY": "0proven current outstandingnotifications meet completedrequiredcontract. This is a qualification count, not proof none are terminal. ACTIVE63receipts already excluded.",
+    "SIGNATURE_LEVEL_EXCEPTION": {
+      "conclusion": "CompleteWalkbackdoesnot satisfy exactnotificationhandoff. Do not label retained-only or safe removal.",
+      "current_queue_status": "complete",
+      "evidence": "/private/tmp/watchtower-migration-timestamps-20261030/OBSERVATION.json",
+      "mint": "TTWofwAge91oFhZs7kpQdyrVRkmevgM88xijGvQFbKo",
+      "retained_Core_exacttoken_signature": true,
+      "retained_handoff_signature": "5ocqn8nYMe9vuWbj29BvkSxU2rWPrnNdbYV21YgYAhpU2JPasX34GLzdQNVvUsqLiWcGj1ao2KQFPmJSehHDBAc1",
+      "signature": "5JqbECWLMUoz6eviDMfReifq7SKZoGjiBMRfWAWKFQfLVfwbmcNhono9QYdQTcVN8nq31tjCGSq4Cmuj4GUm61sG"
+    },
+    "SNAPSHOT_TIME": "2026-10-30T22:50:06+00:00",
+    "STILL_ACTIONABLE": "UNKNOWN. Pending/RESOLVEDcustody is not independently proven acquisitioneligibility.",
+    "UNRECONCILED": {
+      "fully_current_exactsignature_reconciled": "UNKNOWN_dueCoreguardrefusal",
+      "missing_subject": 1685,
+      "subject_only": 1228
+    },
+    "WALKBACK_COMPLETED": {
+      "current_custody_subject_matched_mints": 1,
+      "exactnotification_completion_not_proven": true,
+      "qualified64cohort_current_complete": 56,
+      "qualified64cohort_current_pending": 8,
+      "those_mints_complete": 1
+    },
+    "WHY_INDETERMINATE": "Metric-unit mismatch is proven, but no evidence establishes that growingcurrentcustody is mostly terminalretention or whollyrealactionablework. ExistingguardedCoreopen failed. Currentknownsubjectmatch1doesnot meet exactsignaturecontract;1685identitiesmissing. Cannot subtractunknowns or reinterpret them as Walkbacks."
   },
   "watchtower_migration_walkback_reconciliation_20261030": {
     "canonical_handoff_completion_retained_sample_lower_bounds": {

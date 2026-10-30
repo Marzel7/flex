@@ -21210,6 +21210,39 @@
     },
     "verdict": "DEV_PASS_READY_FOR_READ_ONLY_PREFLIGHT"
   },
+  "flex_v2_clock_reservation_custody_qualification_20261030": {
+    "Walkback_separation": "Installed8b42d2f5 unchanged. Admission handler g.current() before try/except still uncorrected; Walkback remains stopped by prior HOLD.7consumed rights,71unused,1exclusion and attempts3 untouched. This candidate does not authorize restart.",
+    "blocker": null,
+    "branch": "codex/flex-v2-clock-reservation-custody",
+    "crash_restart": "Precommit refusal preserves charged bytes; interrupted rename/stage and unknown markers fail closed. Committed exact target requires existing publisher durability proof before READY. Fresh-reader zero-inflight, idempotence, no uncertain replay/late success and exhausted cap preservation qualified.",
+    "custody_contract": "Require exact CAS/sample/forward stable clock and originalPID absence twice. One sole INFLIGHT ticket moves to existing OWNER_EXIT_UNCERTAIN receipt, preserving identity,root,originalPID/at/credit/attempts and all counters/anchors. Six prior uncertainties remain exact; result7. No paid acquisition before separate zero-inflight/readback+anchor recovery.",
+    "engineering_revision": "61a9026292c009d2bce864b4c20e4ed30103a24b",
+    "helper_sha256": "43de6a43b32b86474a1465bcd85d7ec83e23daab9cb0075609e60e7b8f3a770e",
+    "installed_runtime_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "limitations": [
+      "DEV_PASS is not production recovery authority.",
+      "Persistent AC sleep prevention/boot-clock continuity must be reverified before recovery.",
+      "Operator helper is committed locally only; no engineering source export performed.",
+      "Caller must bind exact installed Gate/clock helper and ACTIVE pair/certificate, preserve preimages and independently read back custody before any separate anchor operation."
+    ],
+    "next_action": "Read-only exact operator-helper recovery preflight: verify immutable helper/Gate/clock hashes,request/ticket/root/PID/CAS,ACTIVE pair/certificate,power/boot/clock stability,custody/storage and plan for independently proven writer termination. Production quiescence,custody publication,separate anchors and worker restoration each require explicit subsequent authorization; Walkback remains separate.",
+    "owner_fence": "Current live PID23351 is NOT authorized for transfer. Future separately authorized writer quiescence must establish actual process absence; no age/timeout or caller boolean substitute.",
+    "production_flags": {
+      "anchors_changed": false,
+      "live_gate_locks_publication": false,
+      "provider_calls": false,
+      "recovery_executed": false,
+      "refund_reset_replay": false,
+      "source_config_changes": false,
+      "worker_signals_restarts": false
+    },
+    "ready_for_recovery_preflight": true,
+    "report": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-walkback-requalified/flex/docs/dev/lightweight_dev004_first_v2/clock_reservation_custody/QUALIFICATION.json",
+    "report_sha256": "5fb7b8dfa4c9b2cd4988fcad27f9715cdb6ce04d71a5798d5ff995a379a43e78",
+    "scope": "New operator-only helper scripts/reconcile_helius_clock_reservation.py. No runtime Gate/HTTP/Walkback/renderer/lifecycle changes, no new schema/queue/database.",
+    "tests": "86applicable controls passed:34new custody,23existing anchor,20completion,9compact recovery.2obsolete baseline publication assertions independently fail on unchanged installed Gate; equivalent stronger current-publisher controls pass. No new runtime changes.",
+    "verdict": "DEV_PASS_OPERATOR_ONLY_READY_FOR_RECOVERY_PREFLIGHT"
+  },
   "flex_v2_clock_single_claim_activation_20261029": {
     "accounting": {
       "cap": 100000,
@@ -58825,7 +58858,7 @@
   },
   "project": {
     "branch": "codex/flex-v2-walkback-requalified",
-    "git_head": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "git_head": "61a9026292c009d2bce864b4c20e4ed30103a24b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-29T22:26:13.490178+00:00",

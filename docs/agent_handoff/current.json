@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Birth quarantine496 constrains journal capacity; migration pending/deferred substantial. Core guard limits canonical birth/handoff reconciliation. No defensible whole-backlog ETA.",
+  "blocker": "Migration ownership bootstrap requires mint/Core origin before transaction acquisition;286signature-only records cannot satisfy this from retained record alone. Exact other denials collapsed;85birth-token canonical states UNKNOWN under Core guard.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Read-only qualify birth CORE_AUTHORITY_CONFLICT and exact migration budget-denial causes; reconcile Treasury overlap and last lifecycle execution. No repair/replay authorized.",
+  "next_action": "Stop this diagnostic. Request separate narrow DEV qualification of the migration ownership/bootstrap and denial-reason path; leave birth evidence, capacities and all workers unchanged.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T17:56:30.353877+00:00",
-    "working_tree": "Engineering unchanged; read-only operational audit under /private/tmp. Required handoff JSON only."
+    "updated_at_utc": "2026-10-30T18:22:14.629018+00:00",
+    "working_tree": "Engineering unchanged; private read-only birth/migration diagnosis artifacts in /private/tmp. Handoff transport JSON only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "DEGRADED_PROCESSING_RECENT_WALKBACK_CATCHUP",
+  "verdict": "COMPLETE_PARTIAL_BIRTH_MIGRATION_DIAGNOSIS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -65188,6 +65188,87 @@
     "status": "PARTIAL",
     "tests": "runner py_compile, JSON validation, and retained-source SHA-256 readback passed",
     "verdict": "BIRDEYE_TRADE_ROUTE_PARTIAL"
+  },
+  "watchtower_birth_migration_backlog_diagnosis_20261030": {
+    "birth": {
+      "capacity": "Lazy overflow verifiedACK reclamation then bounded terminal transfer functioning; full does not itself prove refusal. No capacity increase justified.",
+      "completed_VALID_OPS_correlations": {
+        "different_supplied_signatures": 14,
+        "events": 14,
+        "mints": 3
+      },
+      "continuing_quarantine_identities_absent_from_prior_resident_set": 18,
+      "end_ACKED": 17,
+      "end_occupied": 512,
+      "end_quarantined_events": 495,
+      "end_unique_tokens": 88,
+      "other85canonical_presence": "UNKNOWN",
+      "prior_quarantined": 496,
+      "root_cause": "Existing canonical CREATE/creator conflict guards terminally retain observations before begin_attempt. Exact conflict subtype globally unavailable; do not equate repeated per-mint signatures to unique births/loss.",
+      "start_occupied": 510,
+      "start_quarantined_events": 494,
+      "start_unique_signatures": 494,
+      "start_unique_tokens": 88,
+      "verified_departed_terminal_custody": 20,
+      "zero_attempts_quarantined": 494
+    },
+    "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
+    "helius": "OPEN/READY checksum verified,7uncertain exact,100000cap unchanged,highest7936.97successful-response increment during198s; listener acquisition not globally stopped. No provider calls initiated.",
+    "migration": {
+      "ACTIVEpayload_states": {
+        "ACKED": 52,
+        "PENDING": 27
+      },
+      "arrivals_or_reactivations": 4,
+      "budget_migration_alias_bindings": 0,
+      "cause_limit": "Signature-only origin prerequisite obstruction demonstrated by source/data. Exact reason for other197 cannot be proven: generic BudgetDeferred loses detail. Not a proven100000credit-ceiling problem.",
+      "deferred_metadata": {
+        "ACTIVE": 79,
+        "OWNED": 2185,
+        "OWNED_time_due": 2107
+      },
+      "departed_to_verified_identity_preserving_OWNED_custody": 14,
+      "end_occupied": 473,
+      "flow": "Occupancy decline is custody rotation, not completion. Post-token-migration processing journal, not V1-to-V2 DB conversion.",
+      "hinted_or_resolved_subjects": 197,
+      "new_retained_ACK": 0,
+      "oldest_received": "2026-10-26T05:17:26+00:00",
+      "retry_not_before_advanced_unchanged_attempts": 34,
+      "signature_only_no_subject": 286,
+      "start_errors": {
+        "DISPATCH_RESERVED": 2,
+        "HELIUS_BUDGET_DEFERRED": 481
+      },
+      "start_occupied": 483,
+      "start_states": {
+        "PENDING": 482,
+        "RESOLVED": 1
+      },
+      "unique_start_signatures": 483
+    },
+    "next_action": "Stop this diagnostic. Request separate narrow DEV qualification of the migration ownership/bootstrap and denial-reason path; leave birth evidence, capacities and all workers unchanged.",
+    "private_evidence_published": false,
+    "private_report_path": "/private/tmp/watchtower-birth-migration-diagnosis-20261030/FINAL_REPORT.json",
+    "private_report_sha256": "1eb9f246b7a4d6acaba1a5c76c67a386fcdfffbb618b747552ec499d28e0e77e",
+    "protections": {
+      "database_writes": 0,
+      "gate_locks": 0,
+      "historical1551_WAITING": true,
+      "production_mutations": 0,
+      "protected79_full_rows_unchanged": true,
+      "provider_calls": 0,
+      "replay": 0,
+      "restarts_signals": 0
+    },
+    "recommended_scope": "Separately authorized narrow DEV qualification of migration ownership bootstrap and exact pre-dispatch denial retention. Do not weaken guards, grant unowned acquisition, reset spending or increase capacity. Birth classifications await safe canonical evidence.",
+    "runtime": "Matched physical V2 identities/certificate pair seal. Listener45328/resolver75943/Walkback61521 RUNNING, same prior PIDs; configured/source hashes retained. Core not reopened.",
+    "status": "COMPLETE_PARTIAL_BIRTH_MIGRATION_DIAGNOSIS",
+    "tests": "Bounded indexed OPS correlations; exact journal identity comparisons;20birth terminal envelope checksum/allocation/protected-right checks;14migration-departure immutable-origin checks in OWNED custody; source-only predicate trace. No production owner APIs invoked.",
+    "window": {
+      "end": "2026-10-30T18:18:06+00:00",
+      "seconds": 198,
+      "start": "2026-10-30T18:14:48+00:00"
+    }
   },
   "watchtower_bound_opening_recovery_20261005": {
     "blocker": "Two complete-boundary rows, 2n3bPZcfbcUNgaP6Ktw8E1wYoycAhuR1sSHa7uB6pump and 7hGwu7u8X6Bb88B1eGYKWbTsUiWtpmBLQ9YQ1nxFpump, are existing reconstructed waiting envelopes without assignment.event_id and birth.monitor_admission_event_id. The active DEV soak gate rejects them in MonitorQueue.soak_allows before claim, so MonitorWorker.process_once never reaches _entry_inventory or strict_migration_window.dispatch. This is an exact existing-path compatibility boundary; no repair was attempted.",

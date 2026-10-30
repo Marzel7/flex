@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review creation-time privacy gate failure. Empty repository is now verified private; local exact root d748d309 remains unchanged. Resume publication only after the failed-gate incident is reviewed, with immediate privacy/security recheck; then independently verify remote history and selected-repository cloud access. No synthetic investigation authorization.",
+  "next_action": "Keep exact private synthetic repository published and restricted cloud draft unpublished. Resolve supported cloud-bound read-only filesystem/mount verification before declaring workspace isolation qualified. Do not use generic local shell, broaden connector grants, publish an unverified environment, or run the investigation. Account-level pre-existing Flex grant remains an explicit limitation.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T15:52:10.024098+00:00",
-    "working_tree": "Existing Flex engineering unchanged at512042fa; isolated synthetic root remains local. Required transport report only."
+    "updated_at_utc": "2026-10-30T16:03:15.939035+00:00",
+    "working_tree": "Flex engineering/production unchanged at512042fa; standalone synthetic root d748d309 published only to private research repository. Required handoff transport updated."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T15:52:10.024098+00:00",
+  "updated_at_utc": "2026-10-30T16:03:15.939035+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_CREATION_TIME_PRIVACY_GATE_FAILED_CORRECTED_EMPTY",
+  "verdict": "PUBLICATION_PASS_CLOUD_RUNTIME_QUALIFICATION_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -64301,22 +64301,39 @@
     "verdict": "HOLD_NO_SYNTHETIC_ONLY_CLOUD_REPOSITORY"
   },
   "watchtower_agent_phase1j_20261030": {
-    "blocker": "Empty repository created public during failed visibility UI selection, corrected to private before any push. Fail-closed stop; no cloud grants or inference.",
+    "blocker": "Cloud running/network disabled enforced but capabilities empty; no cloud-bound exec target, VM checkout/hash/mount proof unavailable. Existing account connector Flex grant unchanged; not account-wide research-only.",
     "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
     "isolated_research_repository_root_commit": "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff",
-    "next_action": "Review creation-time privacy gate failure. Empty repository is now verified private; local exact root d748d309 remains unchanged. Resume publication only after the failed-gate incident is reviewed, with immediate privacy/security recheck; then independently verify remote history and selected-repository cloud access. No synthetic investigation authorization.",
-    "prior_handoff": "fab1ca93",
+    "next_action": "Keep exact private synthetic repository published and restricted cloud draft unpublished. Resolve supported cloud-bound read-only filesystem/mount verification before declaring workspace isolation qualified. Do not use generic local shell, broaden connector grants, publish an unverified environment, or run the investigation. Account-level pre-existing Flex grant remains an explicit limitation.",
+    "prior_handoff": "158c2767",
     "production_flags": {
       "API_inference_calls": 0,
       "Flex_engineering_changes": 0,
-      "cloud_access_grants": false,
+      "cloud_access_grants": true,
+      "cloud_draft_published": false,
+      "cloud_investigation_tasks": 0,
       "cloud_tasks": 0,
       "private_evidence_exposure": false,
       "production_mutations": 0,
-      "remote_repo_created": true
+      "remote_repo_created": true,
+      "research_root_published": true
     },
     "report": {
-      "CLOUD_ACCESS_BOUNDARY": "NOT_GRANTED; no connector/environment permission changes or Flex access expansion.",
+      "CLOUD_ACCESS_BOUNDARY": {
+        "account_isolation_limit": "Account connector still has pre-existing Flex access. Only research repository selected in this draft; cannot assert account-wide research-only access.",
+        "baseline": [
+          "Marzel7/flex"
+        ],
+        "environment": "Research-only, Only me, draft saved but not published.",
+        "installation_id": "152931915",
+        "mode": "Only select repositories",
+        "observation": "GitHub success banner and disabled Save showed saved state; research grant added, Flex grant unchanged. Save actor not independently attributed from UI actions; observed final state verified.",
+        "permission_categories": "Existing app permissions unchanged: read checks/status/metadata; read/write actions/code/issues/PRs/workflows. No all-repositories grant.",
+        "saved_after": [
+          "Marzel7/flex",
+          "Marzel7/watchtower-agent-research"
+        ]
+      },
       "FOUR_FILE_ALLOWLIST": [
         {
           "bytes": 9488,
@@ -64351,22 +64368,33 @@
         "no_alternates_remotes_hooks_submodules": true,
         "root_has_no_parent": true
       },
-      "NEXT_ACTION": "Review creation-time privacy gate failure. Empty repository is now verified private; local exact root d748d309 remains unchanged. Resume publication only after the failed-gate incident is reviewed, with immediate privacy/security recheck; then independently verify remote history and selected-repository cloud access. No synthetic investigation authorization.",
-      "PHASE1J_STATUS": "HOLD_CREATION_TIME_PRIVACY_GATE_FAILED_CORRECTED_EMPTY",
+      "NEXT_ACTION": "Keep exact private synthetic repository published and restricted cloud draft unpublished. Resolve supported cloud-bound read-only filesystem/mount verification before declaring workspace isolation qualified. Do not use generic local shell, broaden connector grants, publish an unverified environment, or run the investigation. Account-level pre-existing Flex grant remains an explicit limitation.",
+      "PHASE1J_STATUS": "PUBLICATION_PASS_CLOUD_RUNTIME_QUALIFICATION_HOLD",
       "PRIVATE_EVIDENCE_EXPOSURE": false,
       "PRODUCTION_MUTATIONS": 0,
-      "REPOSITORY_VISIBILITY": "PRIVATE_NOW_VERIFIED in GitHub Settings: This repository is currently private. Initially public at creation; corrected while empty.",
+      "REPOSITORY_VISIBILITY": "PRIVATE verified before push in GitHub Settings and after push by repository Private label.",
       "RESEARCH_REPOSITORY": {
         "creation_attempt": "Signed-in GitHub creation UI: visibility selection action failed during UI update; empty repository was created public. Private creation prerequisite failed. No git push or file upload performed.",
         "github_metadata_readback": "404 Not Found; absent or inaccessible, not proof of nonexistence. No create/push performed.",
         "local_path": "/private/tmp/watchtower-phase1j-preparation/watchtower-agent-research",
         "proposed": "Marzel7/watchtower-agent-research",
+        "publication": "Exact root SHA pushed from isolated /private/tmp repository to refs/heads/main; no origin/remotes added to source repository.",
         "remote_configured": false,
         "root_commit": "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff",
         "url": "https://github.com/Marzel7/watchtower-agent-research"
       },
-      "SUBSCRIPTION_USAGE": "No experiment inference; subscription route not newly qualified in this turn.",
-      "SYNTHETIC_INVESTIGATION_RESULT": "NOT_RUN; zero cloud tasks.",
+      "SUBSCRIPTION_USAGE": {
+        "experiment_investigation_calls": 0,
+        "planType": "prolite",
+        "remaining_percent": 82,
+        "reset_or_purchase": false,
+        "route": "Signed-in ChatGPT Codex Cloud setup UI; no API-key transport configured or invoked. App shared subscription ordinaryUsageAllowed true.",
+        "separately_billed_API_inference_calls": 0,
+        "setup_tokens": "UNKNOWN; setup reasoning occurred, usage cannot be attributed from shared percentage",
+        "used_percent": 18,
+        "window_minutes": 10080
+      },
+      "SYNTHETIC_INVESTIGATION_RESULT": "NOT_RUN; zero synthetic/private investigation tasks. Setup/metadata qualification assistant turns occurred, separately identified; no evidence interpretation requested.",
       "approval": {
         "boundary": "Approval covers publication and cloud access qualification only; no model task.",
         "repository_creation_publication": true,
@@ -64377,6 +64405,44 @@
         "step1": "Approve creating private Marzel7/watchtower-agent-research and publishing exactly the sealed four-file root commit.",
         "step2": "Approve giving Codex Cloud selected-repository access to this research repository only, without adding Flex to the experiment."
       },
+      "cloud_runtime_evidence": {
+        "capabilities": [],
+        "connectivity": "connected",
+        "draft": {
+          "install_script": null,
+          "mount_path": "",
+          "network_policy": {
+            "type": "disabled"
+          },
+          "pending_runtime_requirements": [],
+          "ref": "main",
+          "repository_id": "github-1439927921",
+          "repository_name_ui": "Marzel7/watchtower-agent-research",
+          "revision": 2,
+          "runtime_requirements": [],
+          "secrets": [],
+          "start_skill": null
+        },
+        "environment_id": "ccarenv_b64_Y2NhcmVudl80YTFjYWNmMmY5NGM4MTkxOWEwMWMxNzdjMzc5NTVkYw",
+        "limitations": "No supported cloud-bound exec target available in setup; generic shell was not used. Actual VM HEAD/file hashes/mounts and absence of host-home/Flex mounts NOT_VERIFIED. Network metadata enforcement observed; no active network probes.",
+        "network_policy": {
+          "mode": "disabled",
+          "state": "enforced"
+        },
+        "observations_current": true,
+        "observed_phase": "running",
+        "observed_spec_revision": "2",
+        "outbound_identities": [],
+        "private_connections_ui": {
+          "OIDC": "No attached identity displayed; runtime outbound_identities empty",
+          "Tailscale": "Key not set"
+        },
+        "provider": "cloud",
+        "runtime_variables": [],
+        "secrets": [],
+        "setup_chat_url": "https://chatgpt.com/local/01a18d89-1a14-724a-936d-8979ee87f06a?hostId=local",
+        "spec_revision": "2"
+      },
       "incident": {
         "containment": "No file uploads, commits, remote additions, push or cloud grants. Restricted empty repository to private using GitHub visibility flow.",
         "continuation": "Stopped all publication and access qualification per mandatory fail-closed condition.",
@@ -64385,7 +64451,7 @@
         "mechanism": "AX index visibility click reported shadow-root error; subsequent UI showed Creating repository with Public selection. Exact triggering UI/user event cannot be independently reconstructed.",
         "sensitive_data_exposure": "No file or credential contents transmitted; repository name briefly public."
       },
-      "last_checked_utc": "2026-10-30T15:51:37.199349+00:00",
+      "last_checked_utc": "2026-10-30T16:02:59.821254+00:00",
       "mandatory_prepublication_security": {
         "exact_file_allowlist_and_SHA256": "PASS",
         "objects": {
@@ -64410,13 +64476,39 @@
         "synthetic_facts": 31,
         "total_bytes": 25256
       },
-      "published_commit": null
+      "published_commit": "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff",
+      "remote_verification": {
+        "commit_count": 1,
+        "four_remote_blob_SHA256s": "PASS",
+        "refs": [
+          "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff\trefs/heads/main"
+        ],
+        "remote_commit": "d748d3094c54fdf9ddd5bfeb95e4490a0169e3ff",
+        "verification": "Independent fresh bare fetch; no tags or additional branches; all four blobs hashed."
+      },
+      "repository_metadata_checks": {
+        "Actions_secrets": "none",
+        "Agents_secrets": "none",
+        "Codespaces_secrets": "none",
+        "Dependabot_secrets": "none",
+        "secrets_values_read": false,
+        "webhooks": "none listed",
+        "workflows": "none: exact four-file tree"
+      },
+      "resumption_authorization": "User authorized exact d748d309 publication after privacy/hash recheck and research-only cloud qualification; investigation explicitly prohibited.",
+      "setup_actions": {
+        "automated_onboarding": "Get started creates setup chat and starts automatic assistant. Stopped before installation/inspection execution; first retained tool calls only environment status and config read.",
+        "bounded_qualification": "One explicit metadata-only follow-up; read current environment status and draft; returned HOLD and stopped.",
+        "dependencies_or_repository_changes": false,
+        "environment_published": false,
+        "filesystem_or_shell_execution": false
+      }
     },
     "report_path": "/private/tmp/watchtower-phase1j-preparation/PHASE1J_REPORT.json",
-    "report_sha256": "b7c21eac1f5db7175b45a5f9f569ceea6b5313353318333e1690ccda2c9aa0f3",
-    "status": "HOLD_PRIVACY_GATE_FAILED",
-    "tests": "Mandatory whole-history scan PASS: exactly6 objects (4blobs/1tree/1root), exact hashes/allowlist, clean/no symlinks/LFS/submodules/hooks/alternates/remotes. GitHub settings private and empty Quick setup page observed after containment; no published commit.",
-    "verdict": "HOLD_CREATION_TIME_PRIVACY_GATE_FAILED_CORRECTED_EMPTY"
+    "report_sha256": "830dc5c0a6898da5aa80c3b139df5a2d19923184369e0428d7fd86760f6a8276",
+    "status": "PARTIAL_PUBLICATION_PASS_CLOUD_HOLD",
+    "tests": "Prepush private UI plus empty secret/webhook inventories; all4 SHA256s and6 complete Git objects reverified. Isolated root push; independent fresh bare fetch verifies exactly main/d748d309,one root,4 remote SHA256s. No remote changes after cloud setup. Cloud metadata revision2 proves provider cloud,running,network disabled/enforced,secrets/vars/outbound IDs empty; filesystem proof missing.",
+    "verdict": "PUBLICATION_PASS_CLOUD_RUNTIME_QUALIFICATION_HOLD"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

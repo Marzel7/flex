@@ -1034,9 +1034,11 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Execution requires separately authorized listener/resolver quiescence and independently provenPID23351absence; live-intake pause unavoidable with qualified existingfence. No source mismatch. Walkback remains separateSTOPPED.",
+  "blocker": "Heliusrestored;WalkbackseparateSTOPPEDadmissiondefect. Hostsleeprecurrenceriskandfinitebirthheadroomremain.",
   "blockers": [
-    "Execution requires separately authorized listener/resolver quiescence and independently provenPID23351absence; live-intake pause unavoidable with qualified existingfence. No source mismatch. Walkback remains separateSTOPPED."
+    "Walkback remains STOPPED pending separately authorized admission correction",
+    "AC idle sleep recurrence risk; power configuration unchanged",
+    "Finite birth-journal headroom"
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -19770,6 +19772,149 @@
       "current_source_revision": "45bf95f37f0120f6600c33e65d1a444324a08b06",
       "restarts_or_signals": 0,
       "source_configuration_certificate_pair_markers_Golden_unchanged": true
+    }
+  },
+  "flex_v2_authorized_conservative_helius_recovery_20261030": {
+    "birth_migration_acceptance": {
+      "Walkback_completions": 0,
+      "Walkback_reason": "Intentionally stopped; separate failed-admission qualification remains.",
+      "bounded_logs_complete": true,
+      "canonical_Core_OPS_handoffs_lower_bound": 3,
+      "canonical_births_lower_bound": 9,
+      "migration_admissions_lower_bound": 4,
+      "new_errors": {
+        "HELIUS_BUDGET_CLOCK_AMBIGUOUS": 0,
+        "HELIUS_GATE_PUBLICATION_AMBIGUOUS": 0,
+        "JOURNAL_CAPACITY": 0,
+        "PAIR_RETIRED_PREDECESSOR_REPLACED": 0,
+        "RETRY_EXHAUSTED": 0,
+        "Traceback (most recent call last)": 0
+      }
+    },
+    "blocker": "NoHeliusrecoveryacceptanceblocker. Walkbackseparatestoppedadmissiondefect;hostsleepandfinitejournalheadroomremainlimitations.",
+    "clock": {
+      "final_observation_gap_seconds": 1,
+      "independent_exact_delta_readback": true,
+      "new_mono": 965505,
+      "new_wall": 1793354397,
+      "old_mono": 958141,
+      "old_wall": 1793322334,
+      "only_two_anchors_changed": true,
+      "valid_tolerance_seconds": 5
+    },
+    "custody": {
+      "credits": 1,
+      "identity_owner_credit_provenance_preserved": true,
+      "independent_zero_inflight_before_anchors": true,
+      "method": "getAccountInfo",
+      "refund_replay_reassignment": false,
+      "six_prior_uncertain_exact": true,
+      "status": "OWNER_EXIT_UNCERTAIN",
+      "ticket": "eb0a02cddaa045de829c53204ea117ef",
+      "uncertain_total": 7
+    },
+    "engineering_revision": "61a9026292c009d2bce864b4c20e4ed30103a24b",
+    "installed_runtime_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "intake_interruption": {
+      "Supervisor_resolution_seconds": 1,
+      "both_RUNNING_verified_by_utc": "2026-10-30T10:00:59.328675+00:00",
+      "control_window_seconds": 130.8624451160431,
+      "control_window_start_utc": "2026-10-30T09:58:48.466230+00:00",
+      "limitation": "No uninterrupted capture claim; process restart is not exact WebSocket reconnect timestamp. Actual new notifications observed after restoration.",
+      "listener_new_process_start_utc": "2026-10-30T10:00:25+00:00",
+      "listener_process_absent_start_utc": "2026-10-30T09:58:50+00:00",
+      "listener_process_gap_seconds": 95
+    },
+    "natural_helius_activity": {
+      "OPEN_READY_checksum_valid": true,
+      "active_reservations_end": [],
+      "clock_divergence_seconds_end": 1,
+      "completed_RPC_request_identities_since_reopening_through_final_read": 25,
+      "completed_identities_after_formal_start_through_final_read": 19,
+      "formal_acceptance_reservation_delta": 18,
+      "formal_acceptance_seconds": 321.4502148628235,
+      "no_stuck_reservations_observed": true,
+      "provider_test_calls": 0,
+      "reservations_since_reopening_through_final_read": 25,
+      "status200_counter_delta": 25,
+      "status_caveat": "Transport status counters need not equal distinct completed RPC request identities. These are not provider billing.",
+      "tolerance_seconds": 5
+    },
+    "next_action": "Leave listener45328/resolver45387 RUNNING withHeliusOPEN/READY. Walkback remainsSTOPPED pending separatelyauthorizedDEVadmission correction/simplification. Preserve7uncertain/79protectedrows and100000cap. HostACsleep recurrence risk andfinitebirthjournalheadroom remain; no automaticmonitoring orpowerchange.",
+    "owner_fencing": {
+      "both_exited_independently_verified": true,
+      "only_listener_resolver_stopped": true,
+      "original_PIDs": [
+        23351,
+        12602
+      ],
+      "qualified_helper_two_OS_absence_checks": true
+    },
+    "production_flags": {
+      "V1_access": false,
+      "Walkback_restart": false,
+      "authorized_exact_request_to_uncertainty": true,
+      "authorized_listener_resolver_stop_start": true,
+      "authorized_two_clock_anchors": true,
+      "checkpoint_changes": false,
+      "configuration_changes": false,
+      "provider_probes": 0,
+      "refund_reset_replay": false,
+      "source_changes": false
+    },
+    "report": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/conservative-clock-recovery-20261030T1000/FINAL_ACCEPTANCE_REPORT.json",
+    "report_sha256": "cfb91e02dd83f2d54c30e6c58eef240f750e9c4b4eda2c176a7df5332afdbdcd",
+    "spending_and_retry_preservation": {
+      "all79entire_protected_rows_unchanged": true,
+      "consumed_rights": 7,
+      "custody_anchor_spending_delta": 0,
+      "investigation_lifetime_cap": 100000,
+      "natural_increase_through_final_read": 25,
+      "no_reset_or_replay": true,
+      "not_billed_credits": true,
+      "original_attempts_each": 3,
+      "reserved_estimate_acceptance_end": 135436,
+      "reserved_estimate_before": 135412,
+      "reserved_estimate_final_read": 135437,
+      "uncertain": 7,
+      "uncertainty_exclusion": 1,
+      "unused_rights": 71
+    },
+    "storage": {
+      "birth_slots": [
+        502,
+        10
+      ],
+      "core_ops_WAL": [
+        0,
+        0
+      ],
+      "custody_within_8192_record_64MB_bounds": true,
+      "disk_free_bytes": 46866341888,
+      "migration_slots": [
+        484,
+        28
+      ],
+      "reclamation_observed": true,
+      "retired_paths_absent": true
+    },
+    "tests": {
+      "accepted_recovery_controls_reused": 86,
+      "natural_acceptance_seconds": 321.4502148628235,
+      "new_tests": 0
+    },
+    "updated_at_utc": "2026-10-30T10:08:28.879099+00:00",
+    "verdict": "PASS_AUTHORIZED_HELIUS_RECOVERY_LISTENER_RESOLVER_ACCEPTANCE",
+    "worker_pids": {
+      "Walkback": "STOPPED throughout",
+      "listener": [
+        23351,
+        45328
+      ],
+      "resolver": [
+        12602,
+        45387
+      ]
     }
   },
   "flex_v2_authorized_exact_v1_retirement": {
@@ -56857,7 +57002,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separately authorize the exact two-phase custody/anchor recovery and bounded listener+resolver stop/start, explicitly accepting the live-intake capture gap. Leave Walkback stopped and all79protected jobs unchanged. No new source mechanism is required.",
+  "next_action": "Leave listener45328/resolver45387 RUNNING withHeliusOPEN/READY. Walkback remainsSTOPPED pending separatelyauthorizedDEVadmission correction/simplification. Preserve7uncertain/79protectedrows and100000cap. HostACsleep recurrence risk andfinitebirthjournalheadroom remain; no automaticmonitoring orpowerchange.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59046,8 +59191,8 @@
     "git_head": "61a9026292c009d2bce864b4c20e4ed30103a24b",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T09:55:54.022668+00:00",
-    "working_tree": "Conservative recovery preflight read-only complete;GO onlyforseparatelyauthorizedboundedintakeinterruption. No execution/sourcechanges."
+    "updated_at_utc": "2026-10-30T10:08:28.879099+00:00",
+    "working_tree": "AuthorizedconservativeHeliusrecoveryPASS. Listener/resolverRUNNING45328/45387;WalkbackSTOPPED. Exact1creditcustody->7uncertain,twoanchorrecovery,321snaturalacceptance;no source/configchanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -60449,7 +60594,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "GO_SEPARATE_RECOVERY_BOUNDED_INTAKE_PAUSE",
+  "status": "PASS_CONSERVATIVE_HELIUS_RECOVERY_WALKBACK_REMAINS_STOPPED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -61812,7 +61957,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T09:55:54.022668+00:00",
+  "updated_at_utc": "2026-10-30T10:08:28.879099+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62028,7 +62173,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "GO_SEPARATE_RECOVERY_BOUNDED_INTAKE_PAUSE",
+  "verdict": "PASS_CONSERVATIVE_HELIUS_RECOVERY_WALKBACK_REMAINS_STOPPED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

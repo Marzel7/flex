@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No effective empty model-visible registry proven. unified_exec readback true despite disable; built-in openai provider zero HTTP/SSE retry overrides rejected; request/continuation bounds unknown. Do not infer tools from flags.",
+  "blocker": "No independently supported novel AI operation. Live Core data open refused under write-denial guard; no bypass. Ownership, complete topology and global novelty unproven.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Have OpenAI platform support inspect this exact durable task/managed-instance pair using the prepared packet and supply current lifecycle diagnostics plus the supported bound execution interface or a compatible-client remedy. Do not submit more prompts/tasks or change permissions while unresolved. Packet prepared only; not sent.",
+  "next_action": "Review Q05/Q09 with retained evidence only; consider deterministic cross-case role-reuse and synchronized-funding reports in a separately authorized task. Do not promote or acquire evidence automatically.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T16:25:52.539418+00:00",
-    "working_tree": "Engineering/production unchanged; Phase1M read-only diagnostics and support packet under /private/tmp. Required transport JSON only."
+    "updated_at_utc": "2026-10-30T16:57:12.098872+00:00",
+    "working_tree": "Clean; private research artifacts under /private/tmp. No engineering or production changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD_NONINFERENCE_RUNTIME_OBSERVABILITY_AND_EXEC_BINDING",
+  "verdict": "COMPLETE_LIMITED_AI_VALUE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -68559,6 +68559,44 @@
     "runtime_deployment_required": true,
     "safety": "No database/queue mutation, cleanup, Supervisor action, provider call, source change, listener change, or large artifact occurred.",
     "status": "HOLD_EXPLICIT_LIVE_CACHE_PURGE_AUTHORIZATION_REQUIRED"
+  },
+  "watchtower_supervised_operation_discovery_pilot_20261030": {
+    "ai_added_hypotheses": 2,
+    "canonical_assigned": 25,
+    "canonical_unassigned": 75,
+    "completed_at": "2026-10-30T16:57:12.098872+00:00",
+    "contradicted_ai_hypotheses": 0,
+    "deterministic_questions": 10,
+    "disk_available_bytes_end": 41823039488,
+    "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
+    "findings": "Two provisional deterministic cross-case leads: creator/funder role reuse and synchronized identical-amount direct funding. No new confirmed operation or AI graph credit. Existing service flags prevent naive merges.",
+    "investigations": 100,
+    "known_operator_records_reviewed": 10,
+    "limitations": [
+      "Exploratory/unblinded; no independent human reviewer or blinded score",
+      "Only two cases have retained wt_launch_audit rows; unavailable live Core data limits creator/timing proof",
+      "Registry and endpoint coverage capped; absence does not prove novelty",
+      "Funding Account intermediary and ownership unknown where absent; never collapse roles",
+      "Normalized amount precision differs between edge and role projections",
+      "Read windows are sequential, not a global atomic DB snapshot"
+    ],
+    "next_action": "Review Q05/Q09 with retained evidence only; consider deterministic cross-case role-reuse and synchronized-funding reports in a separately authorized task. Do not promote or acquire evidence automatically.",
+    "private_evidence_published": false,
+    "private_report_path": "/private/tmp/watchtower-supervised-operation-pilot/FINAL_REPORT.json",
+    "private_report_sha256": "f7053b29d06c9e2ab05329826f1414b6771d67b5c129455eb959c9cd8caa0f25",
+    "production_flags": {
+      "canonical_promotions": false,
+      "database_writes": false,
+      "gate_locks": false,
+      "provider_calls": 0,
+      "restarts": false,
+      "source_changes": false
+    },
+    "sealed_records": 392,
+    "status": "COMPLETE_LIMITED_AI_VALUE",
+    "supported_novel_ai_hypotheses": 0,
+    "tests": "Sealed cohort/packet hashes verified; indexed bounded read audit; mode=ro/query_only/authorizer and OS write denial; retained endpoint/signature/signer cross-checks; amount precision discrepancies preserved; no broad reruns.",
+    "unsupported_ai_hypotheses": 2
   },
   "watchtower_supervisor_deployable_authority_correction_20261006": {
     "engineering_revision": "6d1bbb2578258bd99e6a4c82e1c9ec0add5fedf8 on origin/codex/watchtower-supervisor-correction; remote verified",

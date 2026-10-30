@@ -30646,6 +30646,72 @@
       "2026-10-27T07:40:00Z"
     ]
   },
+  "flex_v2_overnight_outage_recovery_diagnosis_20261030": {
+    "Walkback": "Fully installed8b42d2f5 source/pins; STOPPED from failed acceptance.7rights consumed/review-held,0completed,71unused,1uncertainty exclusion unchanged,all79attempts remain3. Operational restart not qualified until admission handler corrected.",
+    "blocker": "Existing terminated-owner reconciliation requires process absence and valid _tick clock; anchor-only recovery requires empty inflight. Current listener PID23351 remains alive with1unresolved1credit getAccountInfo request reserved2026-10-30T01:05:34Z. Guard-order conflict proven in disposable fixture with unchanged ledger.",
+    "clock": {
+      "cap": 100000,
+      "current_divergence_seconds": 24699,
+      "first_sample": {
+        "mono": 960349,
+        "wall": 1793349241
+      },
+      "gate_state": "OPEN",
+      "inflight": 1,
+      "maximum_cooldown_seconds": 120,
+      "minimum_elapsed_since_anchor_seconds": 2504,
+      "monotonic_advance": 296,
+      "publication": "READY_CHECKSUM_VALID",
+      "reserved_estimate": 135412,
+      "second_sample": {
+        "mono": 960645,
+        "wall": 1793349537
+      },
+      "six_uncertain": 6,
+      "stable_since_first_sample": true,
+      "unchanged_anchors": true,
+      "wall_advance": 296
+    },
+    "conditional_sequence": "Persistent AC wake protection -> separately qualified/authorized writer quiescence+dead-owner uncertainty retirement(no refund; preserve original6and add7th if outcome remains unknown) -> exact two-anchor reconciliation -> independent readback -> listener/resolver natural acceptance. Walkback additionally requires its separate source correction/preflight/restart authority. Nothing executed.",
+    "engineering_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "installed_runtime_revision": "8b42d2f50e29a7e5fbef9d3f3e44d9c29149426b",
+    "next_action": "Authorize focused provider-free DEV qualification of conservative terminated-owner uncertainty reconciliation with forward clock discontinuity; preserve all accounting. Keep Walkback stopped until its separately demonstrated admission error handler is also corrected and qualified. Production and power-setting actions require separate authorization.",
+    "pair": {
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "no_database_mutation": true,
+      "phase": "ACTIVE",
+      "retirement_validated": true
+    },
+    "power": {
+      "AC_current_system_sleep_minutes": 1,
+      "configuration_change_history": "UNKNOWN: read-only evidence does not identify why the believed UI setting did not persist.",
+      "current_idle_prevention_is_transient": true,
+      "first_idle_sleep_utc": "2026-10-30T01:04:41Z",
+      "first_maintenance_sleep_utc": "2026-10-30T01:05:31Z",
+      "full_user_wake_utc": "2026-10-30T08:28:41Z",
+      "persistent_system_sleep_assertion": false,
+      "sleep_reason_counts": {
+        "Idle Sleep": 1,
+        "Maintenance Sleep": 19,
+        "Sleep Service Back to Sleep": 11
+      },
+      "supported_persistent_option": "Built-in AC system sleep timer disabled (sleep0), validated by readback; requires separate authorization. Process-lifetime caffeinate-i/-s is supported for a controlled awake period, not proof of persistent configuration."
+    },
+    "production_flags": {
+      "gate_locks_publication": false,
+      "provider_calls": false,
+      "queue_mutations_replay_reset": false,
+      "reservation_or_anchor_changes": false,
+      "signals_restarts": false,
+      "source_config_changes": false
+    },
+    "report": "/private/tmp/flex-overnight-outage-20261030/FINAL_REPORT.json",
+    "report_sha256": "fb32f60b636e68d8fec830be73199fa2c7af77f75cf9e5fa29a21838d9bac2e4",
+    "request_evidence": "/private/tmp/flex-overnight-outage-20261030/RESERVATION.private.json",
+    "terminal_dispatch_evidence": "Reservation exists; no terminal gate response committed. Wire dispatch/outcome cannot be proven from retained reservation alone. No success,refund orfailure inferred.",
+    "tests": "1provider-free combined-state refusal control passed; current installed file/recovery hashes,79indexed cohort identities,request-root owner proof,strict metadata ACTIVE pair/certificate,retained pmset transitions/current power configuration and296second stable-clock sample verified.",
+    "verdict": "HOLD_NO_QUALIFIED_COMBINED_RECOVERY_SEQUENCE"
+  },
   "flex_v2_pending_migration_capacity_qualification": {
     "blocker": null,
     "bounds": {

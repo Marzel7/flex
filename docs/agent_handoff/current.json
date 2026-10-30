@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No safe mint mapping established for original286 within inspected evidence; fresh Core/cache coverage unavailable. Existing origin owner is mint-only. Paid signature bootstrap would introduce new authority and is not qualified.",
+  "blocker": "2712retained nonterminal migration notifications; on-chain/first-ever observation/completion timestamps not proven.1583lack retained subject,1129lack bound migration ownership. One prior exit final disposition unresolved; no completion/loss assertion.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Approve only a narrow DEV implementation of typed pre-dispatch denial propagation if desired. Keep paid signature-only bootstrap on HOLD until safe retained/Core coverage or a separately qualified ownership contract establishes authority. No deployment or replay.",
+  "next_action": "Keep gates and records unchanged. Prioritize separately authorized typed ownership-denial correction; obtain canonical reconciliation only through an already-qualified safe Core evidence interface. Verify the one unexplained prior-population exit before attributing completion/loss. No backlog replay, capacity/budget increase or new acquisition.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T18:38:02.802818+00:00",
-    "working_tree": "Clean research worktree; aggregate qualification design/synthetic tests committed locally. No runtime source changes or engineering push. Private cases remain /private/tmp."
+    "updated_at_utc": "2026-10-30T18:59:31.337290+00:00",
+    "working_tree": "Engineering unchanged/clean. Read-only historical migration audit and private per-signature evidence under /private/tmp. Required handoff JSON only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "QUALIFICATION_COMPLETE_PAID_BOOTSTRAP_HOLD",
+  "verdict": "COMPLETE_PARTIAL_MIGRATION_ORIGIN_AUDIT_ACCUMULATING",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -67271,6 +67271,86 @@
     "result": "The 274-member historical census has no retained member list. Its digest does not match a leave-one-out replay of the current 275 rows; only 238 current rows have assigned_at at or before the census handoff timestamp, leaving 37 post-handoff automatic projection rows. Therefore the exact population diff and legitimacy of the current cohort cannot be proven from retained data.",
     "tests": "24 passed: tests/test_watchtower_confirmed_membership_projection.py and tests/test_x65_44_watchtower_registry_promotion.py",
     "verdict": "WATCHTOWER_MEMBERSHIP_COUNT_RECONCILIATION_BLOCKED"
+  },
+  "watchtower_migration_origin_historical_audit_20261030": {
+    "CREATE_reconciliation": {
+      "OPS_CREATE_ledger": 0,
+      "VALID_queue_CREATE_anchor": 1,
+      "ambiguous_outstanding": 0,
+      "attempted_marker": 1,
+      "fresh_Core_origin": "UNKNOWN",
+      "historical_exact_canonical_sig_matches_in100plus50": 0,
+      "known_subject_signatures": 1129,
+      "marker_not_completion": true,
+      "no_subject_in_inspected_evidence": 1583,
+      "subject_mints": 1117
+    },
+    "age_admission": {
+      "1to3days": 1429,
+      "3to7days": 457,
+      "UNDER24H": 826,
+      "first_observation_age_UNKNOWN": 2712,
+      "older_than7days": 0,
+      "onchain_age_UNKNOWN": 2712,
+      "unknown_admission": 0
+    },
+    "authority": "V2 physical IDs and certificate pair hash verified; Core not opened; existing OPS ro/query_only/authorizer/OS deny-write guard.",
+    "classification": "Research prerequisite labels1583DEFERRED_MISSING_MINT,1129DEFERRED_OWNERSHIP; exact historical generic budget-denial cause remains UNKNOWN.",
+    "engineering_revision": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
+    "evidence_scope": "Complete bounded deferred table plus resident journal;1118indexed known-mint OPS lookups;100sealedCore+50retainedhandoffs;512KiBcensus tail/1220records; known-mint attempted-marker reads. No whole30MBscan or Core/cache bypass.",
+    "historical1551": "AllremainWAITING;0known-subject overlap,1583unidentified signatures may overlap; do not claim disjoint populations.",
+    "newest_admission": "2026-10-30T18:49:50+00:00",
+    "next_action": "Keep gates and records unchanged. Prioritize separately authorized typed ownership-denial correction; obtain canonical reconciliation only through an already-qualified safe Core evidence interface. Verify the one unexplained prior-population exit before attributing completion/loss. No backlog replay, capacity/budget increase or new acquisition.",
+    "oldest_admission": "2026-10-26T05:17:26+00:00",
+    "onchain_first_observation_daily_completion": "UNKNOWN; no admission/due/update timestamp substitution.611current signatures have sampled census observations, not proven first-ever.",
+    "origin_tags": {
+      "PUMPPORTAL_MIGRATION": 968,
+      "PUMPSWAP_MIGRATION_ACCOUNT": 1744,
+      "interpretation": "Installed listener tags, not independent proof of earlier acquisition/import/replay. Replay preserves first tag."
+    },
+    "original286": "All286accounted, still no subject mapping; census tail adds none.",
+    "population": {
+      "ACTIVE_metadata_excluded": 69,
+      "OWNED": 2231,
+      "outstanding_nonterminal": 2712,
+      "prior2688": 2688,
+      "raw_resident_or_OWNED": 2713,
+      "resident": 482,
+      "resident_terminal_quarantine_excluded": 1
+    },
+    "private_evidence_published": false,
+    "private_report_path": "/private/tmp/watchtower-migration-origin-audit-20261030/FINAL_REPORT.json",
+    "private_report_sha256": "f99b18a0086dc507a22431c373c10b9f6a00df6bd2084b6fd2129b9ac0c02477",
+    "production_flags": {
+      "budget_capacity_changes": 0,
+      "database_writes": 0,
+      "gate_locks": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "replay": 0,
+      "restarts": 0
+    },
+    "retained_admission_daily": {
+      "2026-10-26": 1,
+      "2026-10-27": 647,
+      "2026-10-28": 589,
+      "2026-10-29": 892,
+      "2026-10-30": 583
+    },
+    "snapshot_time": "2026-10-30T18:51:45.887731+00:00",
+    "status": "COMPLETE_PARTIAL_MIGRATION_ORIGIN_AUDIT_ACCUMULATING",
+    "stock_comparison": {
+      "all26received_afterprior": true,
+      "exits_nonterminal": 2,
+      "net_stock_change": 24,
+      "new_identities": 26,
+      "prior_snapshot": "2026-10-30T18:29:16.568695+00:00",
+      "successful_completions_proven_from_exits": 0,
+      "unresolved_final_disposition": 1,
+      "verified_quarantine": 1
+    },
+    "tests": "All daily counts sum2712; signature sets reconcile2688+26-2=2712; journal stable during0.153s read; paired physical IDs match; protected79exact and1551WAITING. No broad tests repeated.",
+    "weekly": "2026-W44:2712current-outstanding retained admissions,2231currentlyOWNED; not total historical admissions/transfers."
   },
   "watchtower_migration_ownership_deferral_qualification_20261030": {
     "base_revision": "512042fa02343411a09a711df8fca2928217b774",

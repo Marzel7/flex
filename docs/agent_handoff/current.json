@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "HOLD on the remaining tool-registry/retry gate. Obtain observable supported empty-tool catalog and request/continuation bounds for the pinned subscription client, or separately approve a compatible client change; qualify authenticated execution with corrected OS boundary before the conditionally authorized one synthetic reasoning session. No private packets, renamed/custom API provider, QEMU or isolation weakening.",
+  "next_action": "Stop qualification. Request a decision on the explicitly relaxed subscription-cloud research option; no private experiment authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "4d83b8093c8d1c4f9e552b1b44333d2efb2a7a3d",
+    "git_head": "55c7f72a036af15125b751b99864083ad5a67202",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T15:19:22.664672+00:00",
-    "working_tree": "Clean Phase1G targeted diagnostic/reproducer/report commit. No dataset/controller/existing test or installed Flex changes."
+    "updated_at_utc": "2026-10-30T15:27:44.407776+00:00",
+    "working_tree": "Clean Phase1H research decision/report commit; production/evidence/controller unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T15:19:22.664672+00:00",
+  "updated_at_utc": "2026-10-30T15:27:44.407776+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1G_SEATBELT_STARTUP_RESOLVED; HOLD_CODEX_TOOL_REGISTRY_RETRY_GATE",
+  "verdict": "PHASE1H_UNSUPPORTED_STRICT_INSTALLED_SUBSCRIPTION_RUNNER",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -64132,6 +64132,90 @@
     "tests": "Targeted actual A/B startup tests prove literal-root dyld permission cause; final pinned synthetic boundary PASS: allowed read, write and4file-canary denials, unapproved exec denial, IPv4/IPv6 EPERM, unchanged input, CLI version0. No58/19unchanged-suite rerun. No model test.",
     "updated_at_utc": "2026-10-30T15:19:22.664672+00:00",
     "verdict": "HOLD_MODEL_TOOL_REGISTRY_AND_RETRY_PROOF; ORIGINAL_SIGABRT_RESOLVED"
+  },
+  "watchtower_agent_phase1h_20261030": {
+    "blocker": "Complete empty model-visible registry and exact retry/continuation bounds not demonstrable; authenticated sandbox session unqualified. unified_exec is backend selection, not proof of tool exposure.",
+    "engineering_revision": "55c7f72a036af15125b751b99864083ad5a67202",
+    "next_action": "Stop qualification. Request a decision on the explicitly relaxed subscription-cloud research option; no private experiment authorized.",
+    "prior_handoff": "ba081cbd",
+    "production_flags": {
+      "model_calls": 0,
+      "private_evidence_transmission": false,
+      "production_mutations": 0,
+      "provider_inference_calls": 0,
+      "worker_changes": false
+    },
+    "report": {
+      "AI_investigation_calls": 0,
+      "MODEL_VISIBLE_TOOLS": {
+        "other_tools": "Independent registrations exist; apply_patch at 1409-1411 depends on model metadata. Shell disable is not complete registry suppression.",
+        "registry": "No supported complete effective pre-inference registry/empty-tool attestation demonstrated by inspected installed help, protocol schemas or startup metadata. Feature flags alone insufficient.",
+        "source_limit": "Public release tag matches reported version; no binary-to-source build attestation.",
+        "unified_exec": "Backend selection, not proof of exposure. Version-matched spec_plan.rs:1235-1243 returns before registering shell tools when ShellTool is false; 1257-1259 selects ExecCommand/WriteStdin only afterward."
+      },
+      "NEXT_ACTION": "Stop qualification. Request a decision on the explicitly relaxed subscription-cloud research option; no private experiment authorized.",
+      "OS_ISOLATION": {
+        "limit": "Full authenticated model session and all credential side channels unproven; no access widened.",
+        "profile_sha256": "660664177c51c9f8dd2849ff07485b399d6359c83c9d338a333f2eeb4640d935",
+        "result": "Retained Phase1G synthetic boundary PASS, not rerun. Allowed input read, denied writes/protected synthetic canaries/exec/IPv4+IPv6 connects; CLI version startup passed."
+      },
+      "PHASE1H_STATUS": "UNSUPPORTED",
+      "PRODUCTION_MUTATIONS": 0,
+      "RECOMMENDED_EXECUTION_PATH": {
+        "if_relaxation_declined": "Stop subscription experiment on this installed runner. Do not continue undocumented flag testing or silently switch to separately billed API.",
+        "not_qualified": "Documented cloud environment isolation is a potential alternative, not equivalent verified enforcement; account availability/environment policy unverified. No environment/task created.",
+        "proposal": "Separately approve a human-supervised subscription-backed Codex cloud research task in a clean published packet-only environment, with no Flex repository/history, production connections, credentials or Phase B baseline; restrict network and freeze each response before independent review.",
+        "relaxations_requiring_approval": [
+          "Permit model-visible tools within disposable cloud workspace instead of an empty registry.",
+          "Accept platform-managed internal retries/continuation rather than a proven exact one-request bound.",
+          "Approve provider transmission/retention and environment-specific isolation before any private input."
+        ]
+      },
+      "REMAINING_RISKS": [
+        "Tool registry and retry boundary not attested.",
+        "Authenticated execution under corrected local boundary not qualified.",
+        "Cloud alternative needs separate policy/privacy approval; no claim of no-tools or zero retry."
+      ],
+      "RETRY_BOUNDARY": {
+        "observed": "unbounded_connection_retries=false; built-in openai zero request/stream retry overrides rejected as reserved provider configuration.",
+        "result": "No enforceable exact request/continuation ceiling demonstrated. No custom provider substitution or model call used."
+      },
+      "SUBSCRIPTION_EXECUTION": {
+        "auth": "Reused Phase1F cached ChatGPT subscription login-status classification; credentials not read. Fresh entitlement/session not verified.",
+        "combined_sandbox": "Not established; synthetic HOME has no auth. Outside-sandbox auth status does not qualify authenticated sandbox execution.",
+        "separate_API_calls": 0
+      },
+      "SYNTHETIC_REASONING_RESULT": "NOT_RUN; combined controls failed. Conditional authorization unused.",
+      "base_revision": "4d83b8093c8d1c4f9e552b1b44333d2efb2a7a3d",
+      "observed_at_utc": "2026-10-30T15:27:20.864002+00:00",
+      "preserved": {
+        "all_original_and_packet_hashes": "PASS",
+        "candidate_packets": 10,
+        "cohort_cases": 100,
+        "datasets_rebuilt": false,
+        "offline_controller_and_58_test_source": "HASHES_UNCHANGED_NOT_RERUN",
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "packet_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69",
+        "reference_protocol_schema": "UNCHANGED",
+        "retained_records": 392
+      },
+      "prior_handoff": "ba081cbd",
+      "private_evidence_transmission": false,
+      "qualification_reuse": "No unchanged suites or sandbox tests rerun. Bounded source/interface review only; no controller/data/schema changes.",
+      "scope": "Installed pinned client cannot demonstrate required strict controls; not a claim that every Codex mode is incapable.",
+      "separate_API_inference_calls": 0,
+      "sources": [
+        "https://github.com/openai/codex/blob/rust-v0.164.0-alpha.11.1/codex-rs/core/src/tools/spec_plan.rs#L1235",
+        "https://learn.chatgpt.com/docs/environments/modes",
+        "https://learn.chatgpt.com/docs/environments/cloud-environments",
+        "https://learn.chatgpt.com/docs/auth"
+      ]
+    },
+    "report_path": "research/watchtower_agent_feasibility/PHASE1H_REPORT.json",
+    "report_sha256": "9ce71f5533dfacfd3890167d4f102d4b32a7d2bb4d680568519c6730df33c863",
+    "status": "UNSUPPORTED",
+    "tests": "Reused qualified synthetic boundary and unchanged research/test hashes. No unchanged tests rerun; version-matched public source plus retained interfaces inspected.",
+    "verdict": "INSTALLED_SUBSCRIPTION_RUNNER_STRICT_CONTROLS_NOT_DEMONSTRATED"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

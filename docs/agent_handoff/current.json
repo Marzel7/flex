@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No approved installed isolated runtime; llama.cpp/QEMU/kernel/image exact hashes, enforcement controls and live-host resource admission remain unqualified. No inference executed.",
+  "blocker": "Cannot independently prove >=4 GiB available memory for proposed 2 GiB guest on 8 GiB live Mac. Disk passes; stop before any downloads, builds or launches.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review Phase 1B proposal for named local Qwen2.5-0.5B-Instruct Q4_K_M/llama.cpp/no-NIC QEMU experiment. Separately approve artifact acquisition/build and synthetic isolation qualification; require exact immutable hashes, isolation PASS and private-data/resource approval before any private inference. No production feature/deployment.",
+  "next_action": "Leave Flex unchanged. Reassess the same architecture only when independently proven >=4 GiB memory headroom exists, or explicitly approve a separate offline host. No architecture/model substitution, workload shutdown or private Phase A execution authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "2bd84bf7f78d630b006c226d906239cb00d49bce",
+    "git_head": "86fb8c5023b4195a63d09664489387261d618b7e",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T13:46:42.851550+00:00",
-    "working_tree": "Clean isolated Phase 1B research-only commit; no installed runtime changes."
+    "updated_at_utc": "2026-10-30T13:56:18.996624+00:00",
+    "working_tree": "Clean research-only Phase 1C report commit. Resource gate failed before artifact preparation or execution; installed Flex untouched."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T13:46:42.851550+00:00",
+  "updated_at_utc": "2026-10-30T13:56:18.996624+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1B_DESIGN_READY_FOR_REVIEW; HOLD_AGENT_EXECUTION",
+  "verdict": "PHASE1C_HOLD_RESOURCE_PREFLIGHT_FAILED; NO_RUNTIME_OR_INFERENCE_EXECUTION",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63446,6 +63446,123 @@
     "runtime_enforcement": "PROPOSAL_ONLY_NOT_QUALIFIED",
     "tests": "Eight actual preparation validation checks PASS (packet hashes/count/byte bounds/modes/original records/blinding/original seal/builder syntax); reference identity-overlap check PASS; original ten extractor controls reused, not rerun. Isolation controls NOT_RUN.",
     "updated_at_utc": "2026-10-30T13:46:42.851550+00:00"
+  },
+  "watchtower_agent_phase1c_20261030": {
+    "blocker": "Required >=4 GiB available-memory proof fails on 8 GiB live host; OS reports 34% system-free, swap 10386.44 MiB used; no safe 2 GiB VM admission.",
+    "engineering_revision": "86fb8c5023b4195a63d09664489387261d618b7e",
+    "next_action": "Leave Flex unchanged. Reassess the same architecture only when independently proven >=4 GiB memory headroom exists, or explicitly approve a separate offline host. No architecture/model substitution, workload shutdown or private Phase A execution authorized.",
+    "prior_handoff": "477080d00ad259d69781961939158178cf1db575",
+    "production_flags": {
+      "downloads_builds_VM_launches": 0,
+      "inference_calls": 0,
+      "live_gate_access": false,
+      "private_external_export": false,
+      "production_DB_access": false,
+      "production_mutations": false,
+      "provider_calls": 0,
+      "worker_signals_restarts": false
+    },
+    "report": {
+      "ARTIFACT_HASH_VERIFICATION": {
+        "VM_launches": 0,
+        "builds": 0,
+        "downloads": 0,
+        "model_or_runtime_hash_qualification": "NOT_RUN",
+        "new_VM_disk_files": 0,
+        "staged_runtime_bytes": 0,
+        "status": "NOT_STAGED_RESOURCE_GATE_FAILED"
+      },
+      "GUEST_ISOLATION": "NOT_RUN_RESOURCE_GATE_FAILED",
+      "HOST_ISOLATION": "NOT_RUN_RESOURCE_GATE_FAILED",
+      "INFERENCE_API_CREDITS": 0,
+      "NEXT_ACTION": "Leave Flex unchanged. Reassess the same architecture only when independently proven >=4 GiB memory headroom exists, or explicitly approve a separate offline host. No architecture/model substitution, workload shutdown or private Phase A execution authorized.",
+      "PEAK_MEMORY": {
+        "guest_peak": "NOT_APPLICABLE_NO_GUEST",
+        "host_compressor_snapshot_bytes": 3322593280,
+        "host_peak": "NOT_MEASURED; bounded snapshots only"
+      },
+      "PHASE1C_STATUS": "HOLD_RESOURCE_PREFLIGHT_FAILED; stopped before downloads/builds/VM/synthetic tests/inference",
+      "PRIVATE_EVIDENCE_EXPOSURE": {
+        "all_original_file_hashes_verified": true,
+        "behavioural_reference_protocol_instructions_match_base": true,
+        "external_transmission": false,
+        "hash_only_integrity_read": true,
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "package_regeneration": false,
+        "packet_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69",
+        "private_inference": false,
+        "ten_packet_hashes_verified": true
+      },
+      "PRODUCTION_MUTATIONS": 0,
+      "RESOURCE_PREFLIGHT": {
+        "VM_requested_memory_bytes": 2147483648,
+        "active_Flex_process_metadata": [
+          {
+            "CPU_percent_snapshot": 55.6,
+            "PID": 45328,
+            "PPID": 1131,
+            "RSS_KiB": 43776,
+            "role": "listener",
+            "state": "R"
+          },
+          {
+            "CPU_percent_snapshot": 0.0,
+            "PID": 45387,
+            "PPID": 1131,
+            "RSS_KiB": 8752,
+            "role": "resolver",
+            "state": "S"
+          },
+          {
+            "CPU_percent_snapshot": 88.0,
+            "PID": 61521,
+            "PPID": 1131,
+            "RSS_KiB": 159696,
+            "role": "Walkback",
+            "state": "R"
+          }
+        ],
+        "decision": "FAIL_MEMORY_ADMISSION",
+        "disk_available_bytes": 44546150400,
+        "disk_floor_pass": true,
+        "free_percent_is_not_certified_available_memory_bytes": true,
+        "free_plus_inactive_plus_speculative_bytes_upper_proxy": 1405222912,
+        "mandatory_disk_floor_bytes": 2067108864,
+        "memory_pressure_Q_reported_system_free_percent": 34,
+        "physical_memory_bytes": 8589934592,
+        "proxy_is_not_guaranteed_reclaimable_memory": true,
+        "reason": "Cannot prove required 4 GiB available on 8 GiB production host; 34% OS reported system-free and heavy current compressed/swap occupancy. No VM safety margin established. Historical swap counters do not establish current paging rate; no OOM/failure inferred.",
+        "required_proven_available_memory_bytes": 4294967296,
+        "single_file_limit_exclusive_bytes": 500000000,
+        "swap_used_MiB": 10386.44,
+        "vm_stat_page_size": 16384,
+        "vm_stat_pages": {
+          "compressor_occupied": 202795,
+          "free": 3703,
+          "inactive": 79022,
+          "speculative": 3043,
+          "wired": 116688
+        },
+        "workload_caveat": "Bounded process presence/CPU/RSS only, not independent RPC or processing-health verification. No production DB/gate/log query."
+      },
+      "SYNTHETIC_REASONING_RESULT": "NOT_RUN",
+      "SYNTHETIC_SAFETY_TESTS": "NOT_RUN_RESOURCE_GATE_FAILED",
+      "TOKEN_THROUGHPUT": {
+        "Codex_development_usage": "Separate; not measurable from this preparation",
+        "input_tokens": 0,
+        "local_inference_calls": 0,
+        "output_tokens": 0,
+        "runtime_duration_seconds": 0,
+        "tokens_per_second": "NOT_APPLICABLE_NO_INFERENCE"
+      },
+      "base_revision": "2bd84bf7f78d630b006c226d906239cb00d49bce",
+      "observed_at_utc": "2026-10-30T13:55:59.483983+00:00",
+      "prior_handoff": "477080d00ad259d69781961939158178cf1db575"
+    },
+    "report_sha256": "21a40e2cd2b4caba58335a67648281f0e8060bc0d60968cd05195800e9f98350",
+    "tests": "Original sealed package/ten packet hashes and reference/protocol/instruction equality PASS. Resource gate FAIL. All synthetic isolation/reasoning tests NOT_RUN, not failed.",
+    "updated_at_utc": "2026-10-30T13:56:18.996624+00:00",
+    "verdict": "HOLD_RESOURCE_PREFLIGHT_FAILED"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

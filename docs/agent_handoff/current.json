@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Cached ChatGPT auth verified, but effective model-visible empty-tool/no-retry registry not established and candidate OS boundary aborts before canary checks. Conditional model-test gate not met.",
+  "blocker": "No effective empty model-visible registry proven. unified_exec readback true despite disable; built-in openai provider zero HTTP/SSE retry overrides rejected; request/continuation bounds unknown. Do not infer tools from flags.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Private experiment is NOT ready for approval. First establish the effective empty-tool/no-retry subscription Codex invocation and functioning independently enforced filesystem boundary with successful synthetic allowed/denied probes. Existing conditional synthetic permission does not bypass these gates. Do not resume separately billed API/QEMU or use current research chat. Once combined gates and synthetic model qualification pass, separately approve <=10 private sessions and provider disclosure/retention.",
+  "next_action": "HOLD on the remaining tool-registry/retry gate. Obtain observable supported empty-tool catalog and request/continuation bounds for the pinned subscription client, or separately approve a compatible client change; qualify authenticated execution with corrected OS boundary before the conditionally authorized one synthetic reasoning session. No private packets, renamed/custom API provider, QEMU or isolation weakening.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "93f28974c189beea4d3184399609edcfce56efe2",
+    "git_head": "4d83b8093c8d1c4f9e552b1b44333d2efb2a7a3d",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T14:53:44.157849+00:00",
-    "working_tree": "Clean isolated Phase1F research commit: subscription metadata assessment and synthetic multi-operation contract only. Installed Flex/Phase1E controller unchanged."
+    "updated_at_utc": "2026-10-30T15:19:22.664672+00:00",
+    "working_tree": "Clean Phase1G targeted diagnostic/reproducer/report commit. No dataset/controller/existing test or installed Flex changes."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T14:53:44.157849+00:00",
+  "updated_at_utc": "2026-10-30T15:19:22.664672+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1F_HOLD_RUNNER_ISOLATION; MULTI_OPERATION_SCHEMA_OFFLINE_PASS",
+  "verdict": "PHASE1G_SEATBELT_STARTUP_RESOLVED; HOLD_CODEX_TOOL_REGISTRY_RETRY_GATE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63986,6 +63986,152 @@
     "tests": "19new offline multi-operation contract tests PASS(0.16s). Original58test/controller/reference hashes and all sealed evidence hashes verified unchanged; old suite not rerun. Synthetic OS/CLI version probes signal6 before checks: NO isolation PASS. Model tests NOT_RUN.",
     "updated_at_utc": "2026-10-30T14:53:44.157849+00:00",
     "verdict": "HOLD_SUBSCRIPTION_RUNNER_ISOLATION_NOT_QUALIFIED; MULTI_OPERATION_OFFLINE_CONTRACT_PASS"
+  },
+  "watchtower_agent_phase1g_20261030": {
+    "blocker": "No effective empty model-visible registry proven. unified_exec readback true despite disable; built-in openai provider zero HTTP/SSE retry overrides rejected; request/continuation bounds unknown. Do not infer tools from flags.",
+    "engineering_revision": "4d83b8093c8d1c4f9e552b1b44333d2efb2a7a3d",
+    "next_action": "HOLD on the remaining tool-registry/retry gate. Obtain observable supported empty-tool catalog and request/continuation bounds for the pinned subscription client, or separately approve a compatible client change; qualify authenticated execution with corrected OS boundary before the conditionally authorized one synthetic reasoning session. No private packets, renamed/custom API provider, QEMU or isolation weakening.",
+    "prior_handoff": "cd639cdffc0fd7944ef11d90fa2007bba93ebaf2",
+    "production_flags": {
+      "architecture_substitution": false,
+      "investigation_model_sessions": 0,
+      "local_model_QEMU": false,
+      "private_evidence_transmission": false,
+      "production_DB_worker_gate_access": false,
+      "production_mutations": false,
+      "separate_API_billing": false
+    },
+    "report": {
+      "MODEL_VISIBLE_TOOL_REGISTRY": {
+        "effective_feature_readback": {
+          "apps": "false",
+          "browser_use": "false",
+          "browser_use_external": "false",
+          "code_mode_host": "false",
+          "computer_use": "false",
+          "goals": "false",
+          "hooks": "false",
+          "image_generation": "false",
+          "multi_agent": "false",
+          "plugins": "false",
+          "shell_tool": "false",
+          "skill_search": "false",
+          "sleep_tool": "false",
+          "unbounded_connection_retries": "false",
+          "unified_exec": "true",
+          "view_image": "false",
+          "workspace_dependencies": "false"
+        },
+        "model_invoked_to_discover_tools": false,
+        "pinned_binary_sha256": "97026b7ea245a7a9f17d8522a2ba4a8cd2f1c01dac0f62483a4bfe427d76082e",
+        "registry_export": "No effective pre-inference registry exported; flags are insufficient",
+        "status": "NOT_OBSERVED_EMPTY_NOT_QUALIFIED",
+        "strict_config_metadata": "features subcommand rejects --strict-config; strict startup-config metadata under corrected boundary returns startup configuration unavailable",
+        "unified_exec_disable_readback": "true despite --disable; not itself proof an execution tool is exposed when shell_tool=false"
+      },
+      "NEXT_ACTION": "HOLD on the remaining tool-registry/retry gate. Obtain observable supported empty-tool catalog and request/continuation bounds for the pinned subscription client, or separately approve a compatible client change; qualify authenticated execution with corrected OS boundary before the conditionally authorized one synthetic reasoning session. No private packets, renamed/custom API provider, QEMU or isolation weakening.",
+      "PHASE1G_STATUS": "HOLD_MODEL_VISIBLE_TOOL_REGISTRY_AND_RETRY_PROOF; ORIGINAL_SIGABRT_RESOLVED",
+      "PRODUCTION_MUTATIONS": 0,
+      "RETRY_CONTROL": {
+        "effective_request_SSE_continuation_bounds": "NOT_PROVEN",
+        "no_retry_guarantee": false,
+        "renamed_or_custom_provider_used": false,
+        "unbounded_connection_retries_readback": false,
+        "zero_HTTP_SSE_retry_override": "REJECTED: openai built-in provider reserved; cannot override model_providers.openai"
+      },
+      "SANDBOX_ALLOWED_INPUT": {
+        "CLI_version_exit": 0,
+        "corrected_rendered_profile_sha256": "660664177c51c9f8dd2849ff07485b399d6359c83c9d338a333f2eeb4640d935",
+        "helper_exit": 0,
+        "pinned_Codex_version": "PASS",
+        "reproducer": "phase1g_seatbelt_probe.py",
+        "reproducer_sha256": "e8f25c8fa34c9e2bf78e8e36409b66fc782189d6b960cdc7ed1a0df2201056dd",
+        "scope": "Synthetic helper + CLI metadata startup only, not full authenticated inference",
+        "synthetic_packet_read": "PASS"
+      },
+      "SANDBOX_DENIED_ACCESS": {
+        "IPv4_connect": "PASS_EPERM",
+        "IPv6_connect": "PASS_EPERM",
+        "correction": "IPv6 socket creation alone was not a connectivity test; same policy passes actual connect denial. No policy relaxation for network.",
+        "input_write": "PASS",
+        "not_proven": "All credential side channels or full authenticated model process isolation; inherited metadata/sysctl grants not treated as such proof",
+        "original_input_bytes": "UNCHANGED",
+        "real_protected_paths_probed": false,
+        "synthetic_PhaseB_canary": "PASS",
+        "synthetic_credential_canary": "PASS",
+        "synthetic_private_evidence_canary": "PASS",
+        "synthetic_production_canary": "PASS",
+        "unapproved_executable": "PASS"
+      },
+      "SIGABRT_ROOT_CAUSE": {
+        "AB_result": "Original SIGABRT; adding only literal / read/test-existence makes pinned --version exit0. Perl then reports separate /dev/null denial, fixed with literal null-device access.",
+        "Apple_installed_policy": "/System/Library/Sandbox/Profiles/dyld-support.sb",
+        "Apple_policy_sha256": "06215a5d32689aefe395c29710e182eb54ba22162f50df8b4842290f8a19bf1c",
+        "classification": "VERIFIED missing literal root-directory read access for dyld/libignition openat bootstrap",
+        "crash_stack": "dyld CacheFinder -> ignite -> boot_boot -> ignition_halt -> abort_with_reason; pre-main, own probe PIDs only",
+        "no_recursive_root_read": true,
+        "original_profile_sha256": "c434e727bbb6dc1ca95ad1e3b40c028083b4da49e0350aecdf4c34827a6620d5",
+        "other_candidates": "Self process-info, notification, null/random alone, executable mapping/cache/guarded-vnode variants without root permission did not resolve abort",
+        "platform_limits": "Private Apple runtime policy may change by OS release; full authenticated startup not qualified",
+        "scope": "Original profile on macOS26.2 build25C56, pinned CLI version0.164.0-alpha.11.1"
+      },
+      "SUBSCRIPTION_AUTH": {
+        "API_key_environment_or_custom_backend_used": false,
+        "combined_authenticated_boundary": "NOT_ATTEMPTED_GATE_FAILED",
+        "previous_phase_cached_method": "CHATGPT_SUBSCRIPTION_VERIFIED_PHASE1F",
+        "raw_secrets_accessed_by_research": false
+      },
+      "SUBSCRIPTION_USAGE": {
+        "CLI_app_identity_match": "NOT_VERIFIED",
+        "development_usage": "Separate, shared18% cannot be attributed to experiment",
+        "experiment_tokens_credits": "UNKNOWN; no inference ran",
+        "future_real_sessions_cap": 10,
+        "investigation_model_sessions": 0,
+        "ordinary_usage_allowed": true,
+        "remaining_percent": 82,
+        "reset_or_purchase_used": false,
+        "source": "current purpose-built app shared account usage readback",
+        "used_percent": 18,
+        "window_minutes": 10080
+      },
+      "SYNTHETIC_MODEL_RESULT": "NOT_RUN; model-visible registry/retry gate not passed; conditional one-session authorization not consumed",
+      "base_revision": "93f28974c189beea4d3184399609edcfce56efe2",
+      "evidence": {
+        "diagnostic_root": "/private/tmp/watchtower-phase1g-probes",
+        "doc_sha256": "e624a7b9d6eee38bb209d4141dcc6ce442983293e2af5a7a2f598391f949fc20",
+        "final_reproducer_result": "/private/tmp/watchtower-phase1g-final-repro/RESULT.json",
+        "final_result_sha256": "09a9127e4abd521fbc1dc6f6a89c231eb2ed76147cae417f92b9befd82126643",
+        "intermediate_hashes": {
+          "BOUNDARY_RESULT.json": "343f30e079bcbf1925f81a6bbffa3d00bcb1539671ac8647470d1d6cf8a9b7b9",
+          "DYLD_MATRIX.json": "ae7fd1135ac53196e6c5283d5194623be76001c464dee4358216316328d68f0f",
+          "EFFECTIVE_CONTROL_PROBES.json": "c99e7024bae2aa7db58fb3acb500dc57065329412a91f13df497fc96b69a0e1b",
+          "MATRIX.json": "75b80637f1c49997230b29694185867b00dbc2ef36485b0aefff2cd612bcf286",
+          "NETWORK_RESULT.json": "da3acae268b577a099975b35f26896abcd0dc8d04361569e54249e170a7ee77c",
+          "ROOTFD_MATRIX.json": "230f99d02c1333370f5030118044e0e40cde6d5867df8a809a3dfcbaa499378d"
+        }
+      },
+      "local_model_QEMU": false,
+      "observed_at_utc": "2026-10-30T15:18:19.139616+00:00",
+      "preserved": {
+        "all_original_and_packet_hashes": "PASS",
+        "candidate_packets": 10,
+        "cohort_cases": 100,
+        "datasets_rebuilt": false,
+        "offline_controller_and_58_test_source": "HASHES_UNCHANGED_NOT_RERUN",
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "packet_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69",
+        "reference_protocol_schema": "UNCHANGED",
+        "retained_records": 392
+      },
+      "prior_handoff": "cd639cdffc0fd7944ef11d90fa2007bba93ebaf2",
+      "private_evidence_transmission": false,
+      "production_database_worker_gate_access": false,
+      "separate_API_inference_calls": 0
+    },
+    "report_sha256": "4f74d61730e87c13ec562d08d60bcebdec4715164cf42170f69ea24d52b2080c",
+    "tests": "Targeted actual A/B startup tests prove literal-root dyld permission cause; final pinned synthetic boundary PASS: allowed read, write and4file-canary denials, unapproved exec denial, IPv4/IPv6 EPERM, unchanged input, CLI version0. No58/19unchanged-suite rerun. No model test.",
+    "updated_at_utc": "2026-10-30T15:19:22.664672+00:00",
+    "verdict": "HOLD_MODEL_TOOL_REGISTRY_AND_RETRY_PROOF; ORIGINAL_SIGABRT_RESOLVED"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

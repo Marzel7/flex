@@ -2,14 +2,14 @@
   "FURTHER_LIVE_REPLAY_CYCLES_NOT_AUTHORIZED": true,
   "LIVE_DUAL_PATH_REPLAY_QUALIFICATION_COMPLETE": true,
   "active_observation": {
-    "blocker": "Intentionalretentionprecedesidentityqualification;paidbootstrapblockedwithoutmint/Coreorigin. Noexistingqualifiedidentitypropagationlossproven.",
+    "blocker": "Continuousverifiedcoverageboundaryandtokencreationtimesunavailable;1206unique_mints/1219signaturesageunknown.",
     "database_writes": 0,
-    "milestone": "Installed migration durable admission contract audit",
-    "next_action": "Stopafterassessment. Noengineering,provideracquisition,replay,cleanuporconfigurationchange. Retainrecords;do notinterpretcustodyaseligibleworkorproofmissingblockchaininformation.",
+    "milestone": "Historicalmigrationbirthcoverageeligibility",
+    "next_action": "Stop. Preserveall1219notificationrecords. Do not labelthemhistorical/outofscopeorincoveragebirthloss, and do notretirethem basedonage. Creation-timeevidence and verifiedcoverageboundary remainmissing.",
     "production_changes": false,
     "provider_calls": 0,
-    "status": "COMPLETE",
-    "tests": "Noengineering/tests.15retainedcases;guardedindexedCore/OPSread;9receiptmintmatches0mismatches;6sampleoriginlookupsabsent."
+    "status": "HOLD_EVIDENCE_LIMITED",
+    "tests": "Notests/engineering.1206indexedCore/OPSpointjoinsPASS.101400receiptfiles/56359142bytesreadwithin30sbound;onehandoffmarker,0birthreceiptsidentified. Noageinferencefromadmissiondates."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator\u2192bridge_funder\u2192target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -57768,7 +57768,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Stopafterassessment. Noengineering,provideracquisition,replay,cleanuporconfigurationchange. Retainrecords;do notinterpretcustodyaseligibleworkorproofmissingblockchaininformation.",
+  "next_action": "Stop. Preserveall1219notificationrecords. Do not labelthemhistorical/outofscopeorincoveragebirthloss, and do notretirethem basedonage. Creation-timeevidence and verifiedcoverageboundary remainmissing.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59957,8 +59957,8 @@
     "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T22:58:37.101708+00:00",
-    "working_tree": "Engineering/source unchanged. Bounded15recordreadonlyaudit, retainedcensusandinstalledsourceinspection;private/tmpartifactsandmandatoryaggregatehandoffonly."
+    "updated_at_utc": "2026-10-30T23:06:58.077873+00:00",
+    "working_tree": "Engineering/sourceunchanged. Fixed1206mintguardedreadonlyaudit;compactreceiptreadstoppedat30secondbound;private/tmpdataandmandatoryaggregatehandoffonly."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62939,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "OBSERVATION_COMPLETE_INTENTIONAL_RETENTION_WITH_BOOTSTRAP_PREREQUISITE_OBSTRUCTION",
+  "verdict": "HOLD_TOKEN_AGE_AND_CONTINUOUS_COVERAGE_BOUNDARY_UNPROVEN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -66581,6 +66581,98 @@
     "VERIFIED_DUPLICATE_OR_SUPERSEDED": 0,
     "VERIFIED_TERMINAL": 0,
     "VERIFIED_TERMINAL_QUARANTINE": 0
+  },
+  "watchtower_historical_migration_birth_coverage_eligibility_20261030": {
+    "AUDIT_STATUS": "HOLD_TOKEN_AGE_AND_CONTINUOUS_COVERAGE_BOUNDARY_UNPROVEN",
+    "COHORT": {
+      "distinct_mint_subjects": 1206,
+      "excess_signature_to_mint_multiplicity": 13,
+      "fixed_eligibility_snapshot": "2026-10-30T22:53:54Z",
+      "original_notification_signatures": 1219
+    },
+    "DATABASE_WRITES": 0,
+    "EXISTING_LOCAL_EVIDENCE": {
+      "Core_guard": "Existingwrite/networkdenialguardunchanged;mode=ro/query_only,indexedpointjoins. CorechecksPASS.",
+      "Core_indexed_mints_checked": 1206,
+      "Core_token_rows": 0,
+      "OPS_CREATE_ledger_rows": 0,
+      "Walkback_rows": 0,
+      "birth_persist_queue_rows": 0,
+      "compact_receipt_scan": {
+        "actual_matching_birth_receipts": 0,
+        "bytes": 56359142,
+        "complete": false,
+        "files": 101400,
+        "matching_migration_handoff_attempt_markers": 1,
+        "seconds": 30.0134701669449,
+        "stop": "30secondowner-safeinspectionbound"
+      },
+      "marker_semantics": "One BEFORE_OPS_SUBMIT/ATTEMPTEDmigrationmarker is not birthreceipt, tokencreationtime or canonicalcompletion.",
+      "metadata_cache_rows": 0,
+      "remaining_receipt_sources": "Compactstoreenumerationincomplete. Separate legacyrawbirthdirectorynotreachedbeforebound. No globalabsenceclaim or exhaustivephysicalreceiptcountmade.",
+      "resident_birth_journal_mint_matches": 0,
+      "resident_birth_journal_rows": 508,
+      "sealed100evidence_cohort_mint_matches": 0,
+      "unindexed_webhook_birth_queue": "Signatureindexedonly, no mintcolumn; mintpayloadscan notperformed. No birthsignatureavailableforqualifiedexactlookup."
+    },
+    "IN_COVERAGE_MISSING_BIRTHS": {
+      "notification_signatures": 0,
+      "qualification": "0proven; creationtime and continuouscoverageboundary notestablished. All1206currentlylackCoreorigin but thatalone cannotestablishincoveragebirthloss.",
+      "unique_mints": 0
+    },
+    "LIMITATIONS": [
+      "Noindependenttokencreationtransactiontimefor1206mintsestablished. Migration/admissiondatesnotusedasbirthdates.",
+      "Noqualifiedcontinuouscapturestart;deploymentmilestones and connectedtransportstates do notprovecapturedallbirths.",
+      "Receiptinspectionboundedandpartial;negativepointjoinsproveonlyabsencefromspecificindexedtables."
+    ],
+    "NEXT_ACTION": "Stop. Preserveall1219notificationrecords. Do not labelthemhistorical/outofscopeorincoveragebirthloss, and do notretirethem basedonage. Creation-timeevidence and verifiedcoverageboundary remainmissing.",
+    "PRODUCTION_MUTATIONS": 0,
+    "PROVEN_PRE_COVERAGE_TOKENS": {
+      "notification_signatures": 0,
+      "qualification": "0proven; not proof alltokenspostdatecoverage.",
+      "unique_mints": 0
+    },
+    "PROVIDER_CALLS": 0,
+    "QUALIFIED_MILESTONES": {
+      "birth_retry_activation_bound": "Installed/start observation26Oct10:51:25.538172Z; accepted natural observation10:51:41.808887..10:56:41.808887Z.",
+      "earlier_birth_receipt_persistence_and_identity_matching": "Exact initial production activation UNKNOWN. Retained19Oct17:52:32 audit proves enabled receipt persistence and three exact COMMITTED/Core controls by then; do not equate source38ddf8b commit time to activation.",
+      "later_recovery_corrections": "Already accepted composition retained; no demonstrated CREATE semantic boundary attributed to logger, custody, retirement or recovery-only changes. Exact independent CREATE activation effect UNKNOWN.",
+      "migration_delivery_fix_activation_bound": "Approved194cf66d installed25Oct17:17:18.273970Z; new listener confirmed RUNNING25Oct17:17:35.158174Z. Split uses confirmed-running boundary.",
+      "original_OPS_materialization_owner": "Current wb_create_control activated_at1792357618 is control-epoch authority, not proof every later source improvement was active then. Exact initial implementation activation UNKNOWN.",
+      "verified_boundaries": [
+        {
+          "active": 1792656487,
+          "name": "PumpPortal numeric birth parser",
+          "proof": "retained deployment Supervisor start epoch",
+          "revision": "65da0e227727da5fb19a75950cae8de1c05bc9ab"
+        },
+        {
+          "active": 1792948655.158174,
+          "name": "Migration-time source-qualified CREATE intent and delivery",
+          "proof": "STARTED.json running readback; install17:17:18, actual process start bounded17:17:18..17:17:35",
+          "revision": "194cf66da5cbb8bdf9cfcf48ecac99593b286bb3"
+        },
+        {
+          "active": 1793011885.538172,
+          "name": "Birth retry correction",
+          "proof": "installation.json start_epoch; natural acceptance1793011901..1793012201",
+          "revision": "ca1678b780696cd62ceb125ef3abe6561198bd12"
+        }
+      ]
+    },
+    "READBACK_TIME": "2026-10-30T23:04:51.903649+00:00",
+    "RETIREMENT_POLICY": {
+      "conclusion": "Evenprovenprecoveragetokenagewouldnotbyitselfauthorizeactivequeueretirement.",
+      "installed_contract": "migration_signature_journal.pending selects PENDING/RESOLVED by retrytime,notcreationage. Admissionpreservessignaturebeforeidentity/Corequalification. ACKreclamationrequiresindependentexactcanonicalhandoffreadback; protectedterminaltransferrequiresverifiedcustody. No birthcoveragecutoff/exclusion authorizes droppingnotifications.",
+      "permits_age_only_or_precoverage_retirement": false,
+      "seven_day_lifecycle": "Disposablecache/WSSretention doesnotgrantnotificationorprotectedcustodydeletionrights."
+    },
+    "SAFE_RETIREMENT_CANDIDATES": 0,
+    "UNKNOWN_TOKEN_AGE": {
+      "notification_signatures": 1219,
+      "unique_mints": 1206
+    },
+    "VERIFIED_BIRTH_COVERAGE_START": "UNKNOWN for continuous verified capture. Earliest retained accepted milestone proves enabled receipt persistence and3exact COMMITTED/Core controls by2026-10-19T17:52:32Z; that is not initial activation or uninterrupted coverage."
   },
   "watchtower_historical_offset_coverage_preflight_20261006": {
     "authoritative_cohort": "96 operation_monitor_facts rows for operation_id watchtower/watchtower_deep have canonical migration signature, timestamp, and slot in database/flex_complete_database.db token_analysis. 93 also have a canonical PumpSwap pool; three named mints lack a recorded pool but retain the other canonical boundary fields.",

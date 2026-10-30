@@ -1034,9 +1034,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Oneprotectednotification3SJVgweF1oy4SXfX\u2026hasreportedvsdecodedmintconflict;whichsubjectiscorrectnotindependentlyproved.Nocanonical/handoff/queuecommitforeithermint.17optionalauditrefusalsnonblocking,coveragecomplete.",
+  "blocker": "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven.",
   "blockers": [
-    "Oneprotectednotification3SJVgweF1oy4SXfX\u2026hasreportedvsdecodedmintconflict;whichsubjectiscorrectnotindependentlyproved.Nocanonical/handoff/queuecommitforeithermint.17optionalauditrefusalsnonblocking,coveragecomplete."
+    "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -21342,6 +21342,142 @@
     "status": "DIAGNOSIS_COMPLETE_WITH_INCONCLUSIVE_HISTORY",
     "tests": "Read-only diagnostic execution and pure-read installed predicates only; network blocked in diagnostic reader. No fix qualification or broad suites.",
     "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-attribution-resolver-diagnostic/flex"
+  },
+  "flex_v2_catchup_stability_audit_20261030": {
+    "Helius": {
+      "OPEN_READY_valid": true,
+      "clock_gap_seconds_latest": 1,
+      "highest_investigation_spend": 7936,
+      "inflight_latest": [],
+      "latest_reserved_estimate": 140732,
+      "limit": 100000,
+      "not_billed_credits": true,
+      "observer_reserved_delta": 5074,
+      "observer_reserved_estimate": 140565,
+      "seven_uncertain_exact": true
+    },
+    "actionable": {
+      "acquisition_eligibility": "NOT_OBSERVABLE_READ_ONLYwithoutowner/gateacquisition",
+      "due_under3": 75,
+      "pending": 77,
+      "running": 1,
+      "total": 78
+    },
+    "blocker": "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven.",
+    "continuity": {
+      "ACsleep0_now_verified": true,
+      "PIDs": [
+        45328,
+        45387,
+        61521
+      ],
+      "allRUNNINGunchanged": true,
+      "clockvalid": true,
+      "policychange": "Outsideaudittime/actorunknown;agentmade nopowerchange.",
+      "source_config_gate_recovery_unchanged": true
+    },
+    "deferrals": {
+      "busy_latest_updated_last5min": 10,
+      "cooldown": 4,
+      "event_counts": "UNKNOWN_latestlabelsarenoteventhistory",
+      "normal_pending_running_latest_gatebusy_label": 64,
+      "reason_caveat": "RetainedlatestlabelsincludePENDING/RUNNING;notproofallarecurrentlyblocked,noteventcounts.",
+      "reason_counts": {
+        "HELIUS_GATE_BUSY": 64,
+        "HELIUS_REQUEST_COOLDOWN": 4,
+        "NONE": 10
+      }
+    },
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "exact_exclusions": {
+      "all1551stillWAITING": true,
+      "all79entirerowsunchanged": true,
+      "freshWAITING": 0,
+      "historical1551identity_digest": "9b4f017d1c93bbd7a240dc4835f227a6ba05d70a1009e18855bbf44a19593e6f",
+      "matchesfrozenhistoricalinventory": true,
+      "reactivated": 0
+    },
+    "installed_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "journals": {
+      "birth_occupied_free": [
+        506,
+        6
+      ],
+      "birth_verified_reclaimable_ACK": 2,
+      "core_ops_WAL": [
+        0,
+        0
+      ],
+      "custody_records": {
+        "birth_terminal": 1332,
+        "migration_deferred": 1964,
+        "migration_terminal": 1924
+      },
+      "disk_free_bytes": 43807936512,
+      "exactreclamationeventcount": "UNKNOWN;occupancycycles/verifiedACK/custodygrowthdemonstrateexistingmechanism,notindefinitesustainability.",
+      "migration_occupied_free": [
+        500,
+        12
+      ],
+      "noadmissionrefusalsobserved": true,
+      "withinquotas": true
+    },
+    "latest50": {
+      "VALID_anchor_and_ACK_delivery_matches": 50,
+      "claimed": 40,
+      "max_minutes": 639.05,
+      "median_minutes": 30.858333333333334,
+      "oldtail": "18pre-restorationadmissions;donotapply10hrtailtocurrentfreshcohort.",
+      "p90_minutes": 609.6583333333333,
+      "percentile_limit": "Conditionalonclaimedjobs;unclaimedright-censored,notzero.",
+      "post_restoration32": {
+        "claimed": 22,
+        "max_minutes": 31.583333333333332,
+        "median_minutes": 27.025,
+        "oldest_unclaimed_minutes": 25.9222132007281,
+        "p90_minutes": 30.15333333333334,
+        "unclaimed": 10
+      },
+      "queue_coverage": 50,
+      "selection": "128boundedindexedcandidatespluscoveringindexoutsideMAXproveslatest50handoffmigrationtimestamps;canonicalsignature/timestampreadbackmatched.",
+      "unclaimed": 10
+    },
+    "next_action": "Leaveexistingruntimeunchanged. Do notdeclarecaughtuporpromiseearlierclearanceETA. Nextusefulread-onlycomparisoniscomparablebacklogstockandnewmigrationfirstclaimlatencyafterfurthernaturaldrain;noscheduler/retention/gateengineeringornewmonitorcreated.",
+    "production_flags": {
+      "V1_access": false,
+      "gate_locks_publication": 0,
+      "new_infrastructure": false,
+      "provider_calls": 0,
+      "queue_journal_mutations": false,
+      "retry_replay_reset": false,
+      "source_config_changes": false,
+      "worker_signals_restarts": false
+    },
+    "report": "/private/tmp/flex-catchup-stability-20261030T1250/FINAL_REPORT.json",
+    "report_sha256": "5b7059ee22e526722484eaf6635eefa7502db4516cd0a1cf4779c10cb3214c78",
+    "since_previous_comparable_snapshot": {
+      "completions": 6,
+      "current_actionable_stock": 78,
+      "flow_admissions_minus_completions": -2,
+      "minutes": 13.543872670332592,
+      "new_admissions": 4,
+      "observed_epoch": 1793364769.332792,
+      "previous_actionable_stock": 80,
+      "previous_snapshot_epoch": 1793363956.7004318,
+      "stock_change": -2
+    },
+    "since_restoration": {
+      "admissions": 32,
+      "completions": 69,
+      "net_admissions_minus_completions": -37,
+      "new_unclaimed": 10
+    },
+    "tests": {
+      "new_tests": 0,
+      "read_only_stock_cohort79_and1551PKverification": true
+    },
+    "updated_at_utc": "2026-10-30T12:57:51.781909+00:00",
+    "verdict": "NOT_CAUGHT_UP_RUNTIME_SAFE_NEAR_REAL_TIME_HOLD"
   },
   "flex_v2_clock_held_dev_qualification_20261029": {
     "blocker": null,
@@ -57649,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Leaveworkersrunning;4h20mprojectionassumescontinuednetdrainandremainingjobeligibility,notaguarantee. Protectedconflict/evidenceholdsremainseparate.",
+  "next_action": "Leaveexistingruntimeunchanged. Do notdeclarecaughtuporpromiseearlierclearanceETA. Nextusefulread-onlycomparisoniscomparablebacklogstockandnewmigrationfirstclaimlatencyafterfurthernaturaldrain;noscheduler/retention/gateengineeringornewmonitorcreated.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59838,8 +59974,8 @@
     "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T12:39:51.247409+00:00",
-    "working_tree": "Read-onlyclearanceestimate80actionablepending/runningexcluding79and1551waiting;63completions/28arrivalsin113.7min,net18.47perhour,ETA4.33hconditional.All79unchanged.Nochanges."
+    "updated_at_utc": "2026-10-30T12:57:51.781909+00:00",
+    "working_tree": "Read-onlycatchupaudit:notcaughtup78active(77pending/1running),80->78stockmatches4in/6outover13.54min. Post-restoration32cohort22claimedmed27min/p9030.2/max31.6/10unclaimed. All79unchanged/exact1551WAITING;50/50CREATEcoverage. Runtime/Heliushealthy,ACsleep0nowverified.Nochanges."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -61241,7 +61377,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "READ_ONLY_CONDITIONAL_BACKLOG_CLEARANCE_ESTIMATE",
+  "status": "NOT_CAUGHT_UP_RUNTIME_SAFE_NEAR_REAL_TIME_HOLD",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -62604,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T12:39:51.247409+00:00",
+  "updated_at_utc": "2026-10-30T12:57:51.781909+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62820,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "CONDITIONAL_4H20M_AT_CURRENT_NET_RATE",
+  "verdict": "HOLD_NEAR_REAL_TIME_AND_CATCHUP_CLAIM;GO_KEEP_EXISTING_RUNTIME_RUNNING. Currentcapacityoutpacesadmissionsinsampledwindowbut78jobsand~27minfreshfirstclaimmedianremain.",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",

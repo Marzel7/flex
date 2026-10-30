@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No new cross-operation relationship established. Candidate-feed completeness and retained evidence limit attribution; research/legacy engines must not be mistaken for current V2 feed.",
+  "blocker": "Birth quarantine496 constrains journal capacity; migration pending/deferred substantial. Core guard limits canonical birth/handoff reconciliation. No defensible whole-backlog ETA.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "If separately authorized, qualify one research-only candidate packet completeness projection using existing V2 evidence/indices, starting with Funding Account and service-boundary omissions. No new detector, schema, acquisition or canonical changes warranted by this assessment.",
+  "next_action": "Read-only qualify birth CORE_AUTHORITY_CONFLICT and exact migration budget-denial causes; reconcile Treasury overlap and last lifecycle execution. No repair/replay authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59974,8 +59974,8 @@
     "git_head": "512042fa02343411a09a711df8fca2928217b774",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T17:44:16.315519+00:00",
-    "working_tree": "Engineering clean; coverage assessment artifacts private under /private/tmp. Required handoff JSON only."
+    "updated_at_utc": "2026-10-30T17:56:30.353877+00:00",
+    "working_tree": "Engineering unchanged; read-only operational audit under /private/tmp. Required handoff JSON only."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "COMPLETE_DETERMINISTIC_DISCOVERY_COVERAGE_ASSESSMENT",
+  "verdict": "DEGRADED_PROCESSING_RECENT_WALKBACK_CATCHUP",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -68663,6 +68663,93 @@
     "runtime_deployment_required": true,
     "safety": "Provider calls=0; database/queue/injector writes=0; live Supervisor file writes=0; live reread/update=0; live service restarts=0. Live config SHA256 remained 674bd410544bacb9265d2428cd7d79968e01acd6fa8e1600274d2a19b4943467; listener/API/monitor PIDs remained 77852/45753/54058.",
     "status": "PASS_FINAL_SUPERVISOR_DEPLOYABLE_AUTHORITY_COMMITTED"
+  },
+  "watchtower_system_health_queue_drain_audit_20261030": {
+    "birth": "Final498/512occupied:496CORE_AUTHORITY_CONFLICT quarantines+2ACKED;14free. Earlier510/512.14resident identity departures/2new over84s; canonical revalidation not repeated.1/6/24h totals UNKNOWN.",
+    "engineering_revision": "512042fa02343411a09a711df8fca2928217b774",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "helius": {
+      "billed_credits": "UNKNOWN",
+      "clock_gap_seconds": 0,
+      "final_inflight": 0,
+      "highest_investigation": 7936,
+      "limit": 100000,
+      "natural_successful_response_delta": 72,
+      "observation_seconds": 84,
+      "reserved_credit_delta": 71,
+      "reserved_estimate": 152132,
+      "state": "OPEN_READY_CHECKSUM_VALID",
+      "uncertain": 7,
+      "uncertain_exact_between_snapshots": true
+    },
+    "lifecycle": "Exactly one15minute cron entry configured; last successful execution UNKNOWN.",
+    "migration": "Final489/512occupied,488PENDING/1RESOLVED. Earlier486. Recent retained labels mostly HELIUS_BUDGET_DEFERRED; exact denial cause not diagnosed. Deferred custody2251.",
+    "next_action": [
+      "P1 read-only: qualify496 birth CORE_AUTHORITY_CONFLICT quarantines and exact admission/refusal evidence; do not replay or delete.",
+      "P1 read-only: identify exact migration budget-deferral cause and eligibility; preserve accounting and custody.",
+      "P2: reconcile43 pending/confirmed Treasury overlaps and verify last lifecycle schedule execution using existing evidence.",
+      "Leave workers running; observe comparable actionable stock rather than infer a finite drain ETA."
+    ],
+    "observed_utc": "2026-10-30T17:52:36+00:00",
+    "private_evidence_published": false,
+    "private_report_path": "/private/tmp/watchtower-system-health-20261030/FINAL_REPORT.json",
+    "private_report_sha256": "20670a798b7420d9af937f89fcc21e636ccbed871443377e3a563290f089ba42",
+    "production_flags": {
+      "database_writes": 0,
+      "gate_locks": 0,
+      "production_mutations": 0,
+      "provider_calls": 0,
+      "replay_reset": 0,
+      "signals_restarts": 0
+    },
+    "status": "DEGRADED_PROCESSING_RECENT_WALKBACK_CATCHUP",
+    "storage": {
+      "floor_bytes": 2067108864,
+      "free_bytes": 40613478400,
+      "note": "Snapshot-only; transient WAL handles observed; no checkpoint. Host memory risk not causally attributed.",
+      "snapshot_wal_shm_bytes": 0,
+      "swap_used_MiB": 13082.19
+    },
+    "subproviders": "508retained registry rows; recurring-funder processing appears in tail; full classification queue/trend UNKNOWN.",
+    "tests": "Indexed bounded OPS reads with ro/query_only/authorizer and OS deny-write/network deny; finite journal/ledger/log reads, stable READY checksum, metadata-only ps/Supervisor/lsof. Prior Core guard refusal respected. SNAPSHOT_A birth timestamp-unit derivation invalid and superseded by normalized B. No historical depth reconstruction from status counts.",
+    "treasury": "115confirmed-table rows;569pending-review of576;43pending addresses also in confirmed table. No mutation.",
+    "v2_v1": "Pair physical IDs and certificate pair seal match; retired original paths absent and no V1 target handles among3workers. Full migration/backfill completion UNKNOWN.",
+    "walkback": {
+      "actionable": 70,
+      "comparable_actionable_stock": {
+        "from": 78,
+        "previous_utc": "2026-10-30T12:52:49.332792+00:00",
+        "to": 70
+      },
+      "complete": 2591,
+      "drain_eta": "UNKNOWN; review-held item, eligibility and full removal paths unproven",
+      "due_under3": 66,
+      "exact_boundary_net_stocks": "UNKNOWN",
+      "failed": 56,
+      "pending": 148,
+      "protected79_unchanged": true,
+      "retained_admissions_1h_6h_24h": [
+        15,
+        105,
+        260
+      ],
+      "retained_completions_1h_6h_24h": [
+        23,
+        120,
+        232
+      ],
+      "running": 1,
+      "total": 4347,
+      "waiting": 1551
+    },
+    "workers": {
+      "api": "STOPPED",
+      "listener": 45328,
+      "resolver": 75943,
+      "states": "RUNNING",
+      "supervisor": 1131,
+      "walkback": 61521
+    }
   },
   "watchtower_target_only_live_transition_20261008": {
     "acceptance_failure": "API acceptance did not pass. GET /healthz returned HTTP 503 while canonical DB access was ok and WAL was 3.1 MB, reporting stale worker heartbeats. The bounded local-only GET /api/pumpfun/live timed out after 10 seconds with no response body. Existing API stderr also recorded unable-to-open-database-file from price_api metadata-cache initialization and runtime identity diagnostics. The required API HTTP and Price/Live readback conditions therefore failed; no forward action was taken.",

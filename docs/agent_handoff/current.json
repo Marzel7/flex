@@ -1034,7 +1034,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No qualified real full-input tokenizer, enabled/qualified one-shot HTTP transport or OS egress/filesystem isolation; account/API compatibility untested. Paid/private inference remains unauthorized.",
+  "blocker": "Cached ChatGPT auth verified, but effective model-visible empty-tool/no-retry registry not established and candidate OS boundary aborts before canary checks. Conditional model-test gate not met.",
   "blockers": [
     "Notcaughtup:78actionablejobs;postrestorationfirstclaimmedian27min,p9030.2min,max31.6min,10unclaimed. Recentstock80->78soimproving,butnear-real-timenotproven."
   ],
@@ -57785,7 +57785,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Separate DEV authorization for pinned tokenizer and bounded no-retry HTTP transport/OS boundary qualification. Any paid synthetic compatibility request needs exact model/endpoint/count/spend approval; private PhaseA disclosure remains a later separate approval.",
+  "next_action": "Private experiment is NOT ready for approval. First establish the effective empty-tool/no-retry subscription Codex invocation and functioning independently enforced filesystem boundary with successful synthetic allowed/denied probes. Existing conditional synthetic permission does not bypass these gates. Do not resume separately billed API/QEMU or use current research chat. Once combined gates and synthetic model qualification pass, separately approve <=10 private sessions and provider disclosure/retention.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -59971,11 +59971,11 @@
   },
   "project": {
     "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "d316d363037d01aa8e82c42a4da4e7cbe7265507",
+    "git_head": "93f28974c189beea4d3184399609edcfce56efe2",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T14:36:52.628785+00:00",
-    "working_tree": "Clean unchanged Phase1E research revision; attached report reviewed against frozen source/test hashes. No new source or runtime changes."
+    "updated_at_utc": "2026-10-30T14:53:44.157849+00:00",
+    "working_tree": "Clean isolated Phase1F research commit: subscription metadata assessment and synthetic multi-operation contract only. Installed Flex/Phase1E controller unchanged."
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62740,7 +62740,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T14:36:52.628785+00:00",
+  "updated_at_utc": "2026-10-30T14:53:44.157849+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62956,7 +62956,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PHASE1E_OFFLINE_PASS_RETAINED_AFTER_ATTACHED_REPORT_REVIEW; LIVE_HOLD",
+  "verdict": "PHASE1F_HOLD_RUNNER_ISOLATION; MULTI_OPERATION_SCHEMA_OFFLINE_PASS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -63813,6 +63813,179 @@
     "tests": "58 provider-free synthetic tests PASS, final run0.30s. All original/derived evidence hashes and reference/protocol/schema equality PASS. No actual model or HTTP tests.",
     "updated_at_utc": "2026-10-30T14:27:20.882683+00:00",
     "verdict": "OFFLINE_CONTROLLER_PASS_LIVE_EXECUTION_HOLD"
+  },
+  "watchtower_agent_phase1f_20261030": {
+    "blocker": "Cached ChatGPT auth verified, but effective model-visible empty-tool/no-retry registry not established and candidate OS boundary aborts before canary checks. Conditional model-test gate not met.",
+    "engineering_revision": "93f28974c189beea4d3184399609edcfce56efe2",
+    "next_action": "Private experiment is NOT ready for approval. First establish the effective empty-tool/no-retry subscription Codex invocation and functioning independently enforced filesystem boundary with successful synthetic allowed/denied probes. Existing conditional synthetic permission does not bypass these gates. Do not resume separately billed API/QEMU or use current research chat. Once combined gates and synthetic model qualification pass, separately approve <=10 private sessions and provider disclosure/retention.",
+    "prior_handoff": "b78d23f24d68dcfd540a420d4864fc4a4fe96329",
+    "production_flags": {
+      "HTTP_transport_continued": false,
+      "investigation_model_sessions": 0,
+      "local_model_QEMU": false,
+      "private_evidence_transmission": false,
+      "production_DB_worker_gate_access": false,
+      "production_mutations": false,
+      "separately_billed_inference": false
+    },
+    "report": {
+      "CODEX_EXECUTION_MODE": {
+        "CLI_version": "0.164.0-alpha.11.1",
+        "binary_sha256": "97026b7ea245a7a9f17d8522a2ba4a8cd2f1c01dac0f62483a4bfe427d76082e",
+        "generated_schema_files": 320,
+        "generated_schema_total_bytes": 3676687,
+        "inherited_context_exclusion": "NOT_QUALIFIED; current research chat is not blinded and must not be reused",
+        "installed_extension": "openai.chatgpt 26.1021.22027",
+        "interfaces_observed": [
+          "fresh exec",
+          "--ephemeral",
+          "--ignore-user-config",
+          "--ignore-rules",
+          "--output-schema",
+          "--json",
+          "--no-daemon",
+          "model/effort overrides"
+        ],
+        "investigation_session_started": false,
+        "largest_generated_file_bytes": 736947,
+        "metadata_commands_only": [
+          "--version",
+          "--help",
+          "exec --help",
+          "login status",
+          "features list",
+          "debug --help",
+          "debug prompt-input --help",
+          "app-server --help",
+          "app-server generate-json-schema --help",
+          "app-server generate-json-schema"
+        ]
+      },
+      "FILESYSTEM_ISOLATION_STATUS": {
+        "cause": "UNKNOWN; both child commands returned signal6 before any check output; do not infer enforcement or general platform impossibility",
+        "combined_subscription_toolfree_OS_proof": false,
+        "probe_result": {
+          "pinned_codex_version": {
+            "exit": -6,
+            "stderr": "",
+            "stdout": ""
+          },
+          "profile_sha256": "c434e727bbb6dc1ca95ad1e3b40c028083b4da49e0350aecdf4c34827a6620d5",
+          "synthetic_boundary": {
+            "exit": -6,
+            "stderr": "",
+            "stdout": ""
+          },
+          "synthetic_input_unchanged": true
+        },
+        "probe_result_sha256": "ec8eba88db80294ff55440d6997a6bf376053b823d95245bd1e971762c446a22",
+        "probe_scope": "Synthetic canaries + pinned CLI --version only; no real production/credential/baseline read attempted",
+        "profile_path": "/private/tmp/watchtower-phase1f-os-probe/probe.sb",
+        "status": "CANDIDATE_PROFILE_FAILED_TO_QUALIFY"
+      },
+      "MULTI_OPERATION_SCHEMA_STATUS": {
+        "automatic_merge_promotion_canonical_change": false,
+        "competing_overlapping_hypotheses": true,
+        "entities": 35,
+        "facts": 31,
+        "full_five_role_route_and_missing_edges": true,
+        "independent_synthetic_operations": 3,
+        "last_test_seconds": 0.16,
+        "new_unconfirmed_candidate_groups": 1,
+        "reviewer_expectations_not_model_input": true,
+        "reviewer_only_expectations_sha256": "904e2290ecd8fb12fd46324153398a8480d9f354ec94b9bd93e40b3cd23f795f",
+        "schema": "MULTI_OPERATION_SCHEMA.json",
+        "schema_sha256": "02a1deb60a82a5089ad2d1e31c406ef5fd952322e547bc2dd01aca4500245d65",
+        "status": "OFFLINE_CONTRACT_PASS",
+        "synthetic_input_sha256": "6a9b9a4dd71a1979ca84eccc0cacd17f5da7087c1f2a591c3c9a2500818dd8d6",
+        "test_source_sha256": "b9faa04365b1c8eb9d173131845655760b4a84040a434a061fa92046a778f00f",
+        "tests_are_not_model_reasoning": true,
+        "tests_failed": 0,
+        "tests_passed": 19,
+        "unattributed_launches": 1,
+        "validator_sha256": "70cdb42c237ee1ed2f558c238994d43cc46c6c7d91bbddc5a4f531c7353e24b5",
+        "zero_operation_hypotheses_allowed": true
+      },
+      "NEXT_APPROVAL_REQUIRED": "Private experiment is NOT ready for approval. First establish the effective empty-tool/no-retry subscription Codex invocation and functioning independently enforced filesystem boundary with successful synthetic allowed/denied probes. Existing conditional synthetic permission does not bypass these gates. Do not resume separately billed API/QEMU or use current research chat. Once combined gates and synthetic model qualification pass, separately approve <=10 private sessions and provider disclosure/retention.",
+      "PHASE1F_STATUS": "HOLD_SUBSCRIPTION_RUNNER_ISOLATION_NOT_QUALIFIED; MULTI_OPERATION_CONTRACT_OFFLINE_PASS",
+      "PRIVATE_EVIDENCE_EXPOSURE": {
+        "all_file_hashes_match": true,
+        "cohort_cases": 100,
+        "hash_verification_only": true,
+        "original_manifest_sha256": "c4da6daad300382f5922ea3d8ebd1311b77916751637918639f07753ab0f34ac",
+        "packets": 10,
+        "private_investigator_load": false,
+        "private_model_transmission": false,
+        "provider_policy": "Subscription inference would transmit inputs to OpenAI; account/workspace retention/training settings UNKNOWN. Ephemeral does not mean no provider retention. API terms not assumed to govern subscription.",
+        "records": 392,
+        "regenerated": false,
+        "ten_packet_manifest_sha256": "cd34656a6b4ed2d1242665bb413a5d5b3168690c904c4743103cb40e833c2f69"
+      },
+      "PRODUCTION_MUTATIONS": 0,
+      "SEPARATE_API_BILLING": {
+        "API_key_fallback_used": false,
+        "HTTP_transport_work_continued": false,
+        "future_subscription_route": "Must be forced/rechecked in same qualified run; no future billing assertion from cached status alone",
+        "separately_billed_inference_calls": 0
+      },
+      "SUBSCRIPTION_AUTH_VERIFIED": {
+        "API_key_environment_variables_passed": false,
+        "account_freshness_entitlement": "NOT_VERIFIED_NO_MODEL_CALL",
+        "cached_method_verified": true,
+        "credential_files_keychain_secrets_accessed_by_research_code": false,
+        "login_status_exit": 0,
+        "method": "CHATGPT_SUBSCRIPTION",
+        "raw_auth_status_suppressed": true,
+        "status_utility_note": "Official utility internally consults cached authentication; only non-secret method/exit retained"
+      },
+      "SUBSCRIPTION_USAGE": {
+        "CLI_app_account_identity_match": "NOT_VERIFIED; no account identifiers retained",
+        "development_usage": "Separate, not measured",
+        "experiment_tokens_credits": "UNKNOWN_NOT_MEASURED; no inference ran",
+        "future_real_session_cap": 10,
+        "investigation_sessions": 0,
+        "ordinary_usage_allowed": true,
+        "private_session_authorization": false,
+        "rate_limit_reset_used": false,
+        "shared_primary_window_remaining_percent": 83,
+        "shared_primary_window_used_percent": 17,
+        "source": "purpose-built Codex app get_usage_limits read-only snapshot",
+        "window_duration_minutes": 10080
+      },
+      "SYNTHETIC_MODEL_RESULT": "NOT_RUN: subscription cached auth passed, tool/OS combined gates did not; no bypass",
+      "TOOL_ISOLATION_STATUS": {
+        "model_visible_registry_observed_empty": false,
+        "observed_true_features": [
+          "shell_tool",
+          "unified_exec",
+          "apps",
+          "browser_use",
+          "computer_use",
+          "multi_agent",
+          "hooks",
+          "plugins",
+          "skill_search",
+          "sleep_tool",
+          "view_image",
+          "unbounded_connection_retries"
+        ],
+        "public_protocol_findings": "Generated ThreadStart/TurnStart schemas have no direct replace-all model-tools array; ToolsV2 only web_search configuration. Not proof no other product capability exists.",
+        "reasoning_structured_output": "Interfaces observed, not run-qualified",
+        "retry_and_hard_token_bounds": "NOT_QUALIFIED; ten sessions cannot be equated to ten upstream inference calls",
+        "status": "NOT_QUALIFIED"
+      },
+      "base_revision": "d316d363037d01aa8e82c42a4da4e7cbe7265507",
+      "local_model_QEMU_installation": false,
+      "observed_at_utc": "2026-10-30T14:53:05.332099+00:00",
+      "operational_database_worker_gate_access": false,
+      "prior_handoff": "b78d23f24d68dcfd540a420d4864fc4a4fe96329",
+      "qualification_doc_sha256": "42440fd50873e9440f56bab86c8fa48262f8aa5b0ec6ad456d3c9e7c0e903160",
+      "unchanged_58_tests": "Controller/test hashes verified; not rerun"
+    },
+    "report_sha256": "4e1f54bdfa086a09c8f8e6fe303c2497d0d7612d638cd330b1b5b0d790a9a09c",
+    "tests": "19new offline multi-operation contract tests PASS(0.16s). Original58test/controller/reference hashes and all sealed evidence hashes verified unchanged; old suite not rerun. Synthetic OS/CLI version probes signal6 before checks: NO isolation PASS. Model tests NOT_RUN.",
+    "updated_at_utc": "2026-10-30T14:53:44.157849+00:00",
+    "verdict": "HOLD_SUBSCRIPTION_RUNNER_ISOLATION_NOT_QUALIFIED; MULTI_OPERATION_OFFLINE_CONTRACT_PASS"
   },
   "watchtower_alternate_opening_acquisition_audit_20261006": {
     "contract": "A future alternate escalation would require authoritative assignment and canonical boundary; exhausted forward attempts 1 and 2; no Entry/no LIVE; TARGET_SECOND_ABSENT; a materially distinct bounded acquisition that produces timestamped exact t or t+1 USD MC; and distinct provider/method/request/boundary provenance. No existing candidate meets all conditions, so max eligible alternate calls is 0. No later candle can become Entry.",

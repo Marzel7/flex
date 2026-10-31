@@ -59953,12 +59953,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/watchtower-agent-feasibility",
-    "git_head": "7a584a9de9db3a4eb3982489affd3a511bd6cfb9",
+    "branch": "codex/helius-read-validation-lock-scope",
+    "git_head": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-30T23:31:14.634351+00:00",
-    "working_tree": "Sourceunchanged. ReadonlyOSpower/process/logmetadata,passivegatesnapshotsandguardedOPS/journals. Norecoveryorconfigurationchange;private/tmpreportandmandatoryaggregatehandoffonly."
+    "updated_at_utc": "2026-10-31T09:49:08.959793+00:00",
+    "working_tree": "DedicatedDEVworktreeclean;qualified8filelocalcandidatecommit;engineeringnotpushed;productionunchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -62722,8 +62722,8 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-10-25T21:17:14.730906+00:00",
-  "updated_at_utc": "2026-10-30T16:25:52.539418+00:00",
+  "updated_at": "2026-10-31T09:49:08.959793+00:00",
+  "updated_at_utc": "2026-10-31T09:49:08.959793+00:00",
   "updated_by": "Codex",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -62939,7 +62939,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "DIAGNOSIS_COMPLETE_BATTERY_IDLE_SLEEP_CAUSED_CLOCK_GUARD_BLOCK",
+  "verdict": "DEV_PASS_HELIUS_READ_LOCK_SCOPE_LOCAL_CANDIDATE_COMMITTED_NO_DEPLOYMENT",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -70770,5 +70770,37 @@
     "source_authority": "Local X78 branch commits exist: WAL holder provenance 4f7821a09cb586ccfc30c3a4b2ecf82f767384ef, checkpoint-execution bound 2f5c8116af59867220e98e6cf9841d9e926df94b, and SQLite lifecycle serialization cb441a2899bb6f1de80dbdf08674d2dd2148acfc. Subsequent origin check remotely verified only codex/operations-sqlite-lifecycle-provenance at cb441a2899bb6f1de80dbdf08674d2dd2148acfc; the two WAL branches were not listed remotely, so they remain local qualified historical authority and must not be deployed without requalification/remote publication.",
     "status": "X78_ACCEPTED_DIAGNOSIS_COMPLETE_REMEDIATION_NOT_AUTHORIZED",
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
-  }
+  },
+  "helius_read_validation_lock_scope_qualification": {
+    "status": "DEV_PASS_LOCAL_COMMIT",
+    "engineering_base": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-gate-contention-minimal/flex",
+    "tests": {
+      "passed": 411,
+      "known_baseline_failures_deselected": 24,
+      "unchanged_scale_workload_deselected": 1
+    },
+    "delta": "Threegatecopies capturechecksumverifiedbytes underexclusive lock;purevalidationoutside;allwriterandbudgetlogicunchanged.Onlythreegate recoverypinsupdated.",
+    "synthetic_benefit": {
+      "median_exclusive_ms_before": 48.4318,
+      "median_exclusive_ms_after": 4.7725,
+      "controlled_overlap_completions_before": 0,
+      "controlled_overlap_completions_after": 8,
+      "caveat": "Providerfreecontrolledfixturesonly;no productionperformanceclaim"
+    },
+    "uncertain_requests_preserved_in_fixtures": 7,
+    "investigation_credit_limit": 100000,
+    "production_mutations": false,
+    "provider_calls": 0,
+    "live_gate_locks": 0,
+    "deployment_authorized": false,
+    "bundle_manifest_sha256": "61095782d9f6f6d991cb4747c963bdfd5132342c23994602b8809d8c029e9bee",
+    "blocker": null,
+    "next_action": "Separately authorize read-only deployment preflight for exactcandidate,allthree gate readers and candidate-aware recovery. No productionactivation authorized.",
+    "candidate_commit": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
+    "production_installed_source": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "engineering_source_pushed": false,
+    "source_hash_verification": "All8committedfilesmatchsealedmanifest61095782d9f6f6d991cb4747c963bdfd5132342c23994602b8809d8c029e9bee;worktreeclean;testJUnitdigestverified;unchangedtestsnorerun"
+  },
+  "handoff_publication_status": "AGGREGATE_HANDOFF_READY_FOR_REMOTE_VERIFICATION"
 }

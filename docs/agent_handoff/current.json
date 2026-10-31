@@ -59989,7 +59989,7 @@
     "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-31T17:00:11.238566+00:00",
+    "updated_at_utc": "2026-10-31T17:03:47.007536+00:00",
     "working_tree": "Uncommitted DEV-only four-file proof extension;production unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -62971,7 +62971,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "OFFLINE_CONFINEMENT_INTEGRATION_HOLD",
+  "verdict": "NO_APPROVED_NON_NESTED_TEST_ENTRYPOINT",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -71135,5 +71135,17 @@
     "blocker": "Outer research-only sandbox prevents nested reader sandbox_apply: Operation not permitted. Missing-sidecar, restart and concurrent-writer integration tests cannot pass. No relaxation performed.",
     "seal": "d694aa5496c9813538208265ac7000d6505b54f62bf05a203607f8a0c830456a",
     "next_action": "No live activation eligible. Resolve nested Seatbelt integration offline while retaining confinement, then rerun failed integration controls and final review."
+  },
+  "watchtower_diagnostic_sandbox_integration_check_20261031": {
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "status": "HOLD",
+    "verdict": "NO_APPROVED_NON_NESTED_TEST_ENTRYPOINT",
+    "tests": "No reruns; retained3 failures at sandbox_apply before reader/SQLite start. All current sealed artifacts verified unchanged.",
+    "production_mutations": false,
+    "provider_calls": 0,
+    "live_database_connections": 0,
+    "source_changes": 0,
+    "blocker": "Sealed test_entry always sandboxes pytest; three tests launch nested database guard; no non-nested suite mode or selected-test interface exists. Immediate nested application refusal proven; downstream correctness remains untested.",
+    "next_action": "Separately authorize diagnostic-only integration that preserves both confinement and database write denial; no live activation."
   }
 }

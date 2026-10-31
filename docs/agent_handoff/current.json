@@ -44616,6 +44616,7 @@
     "h4r2a_packet_digest": "0e620a20bc0810b6bdf3bfbe656f7ec49b424b392b47b1a62e53ead67ffd98d1"
   },
   "hand_off_transport_blocker": "HANDOFF_TRANSPORT_DEGRADED",
+  "handoff_publication_status": "AGGREGATE_HANDOFF_READY_FOR_REMOTE_VERIFICATION",
   "handoff_transport": {
     "branch": "agent-handoff",
     "protocol_version": 1,
@@ -45470,6 +45471,37 @@
     },
     "runtime_deployment_reason": "Emergency read-only operational audit; no source or runtime changes.",
     "updated_at_utc": "2026-10-20T21:30:02.282236+00:00"
+  },
+  "helius_read_validation_lock_scope_qualification": {
+    "blocker": null,
+    "bundle_manifest_sha256": "61095782d9f6f6d991cb4747c963bdfd5132342c23994602b8809d8c029e9bee",
+    "candidate_commit": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
+    "delta": "Threegatecopies capturechecksumverifiedbytes underexclusive lock;purevalidationoutside;allwriterandbudgetlogicunchanged.Onlythreegate recoverypinsupdated.",
+    "deployment_authorized": false,
+    "engineering_base": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "engineering_source_pushed": false,
+    "investigation_credit_limit": 100000,
+    "live_gate_locks": 0,
+    "next_action": "Separately authorize read-only deployment preflight for exactcandidate,allthree gate readers and candidate-aware recovery. No productionactivation authorized.",
+    "production_installed_source": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "production_mutations": false,
+    "provider_calls": 0,
+    "source_hash_verification": "All8committedfilesmatchsealedmanifest61095782d9f6f6d991cb4747c963bdfd5132342c23994602b8809d8c029e9bee;worktreeclean;testJUnitdigestverified;unchangedtestsnorerun",
+    "status": "DEV_PASS_LOCAL_COMMIT",
+    "synthetic_benefit": {
+      "caveat": "Providerfreecontrolledfixturesonly;no productionperformanceclaim",
+      "controlled_overlap_completions_after": 8,
+      "controlled_overlap_completions_before": 0,
+      "median_exclusive_ms_after": 4.7725,
+      "median_exclusive_ms_before": 48.4318
+    },
+    "tests": {
+      "known_baseline_failures_deselected": 24,
+      "passed": 411,
+      "unchanged_scale_workload_deselected": 1
+    },
+    "uncertain_requests_preserved_in_fixtures": 7,
+    "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-gate-contention-minimal/flex"
   },
   "helius_recovery_after_topup_20261020": {
     "CANONICAL_WRITES_BY_AGENT": 0,
@@ -65985,6 +66017,26 @@
     "status": "PASS_ONE_BRIDGE_AND_ONE_WORKER_ZERO_PROVIDER_SOAK_COMPLETED",
     "transition": "A byte-exact preinstall backup was created. The reviewed configuration was atomically installed; reread reported only operation_monitor_bridge and operation_monitor_worker changed; update targeted only those two. API PID 95506 and listener PID 73415 were never targeted and remained continuous."
   },
+  "watchtower_createv2_committed15_verification": {
+    "accounting": "15 one-shot getTransaction version1 requests,15 reserved research credits,15 responses;old research scopes unchanged;no retries or fallback",
+    "blocker": "One non-Pump launch ABI/creator unqualified;original14 delivery remains unverified",
+    "engineering_revision": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
+    "installed_listener_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "next_action": "Stop after authorized15. Preserve evidence;do not infer universal coverage or propose runtime changes.",
+    "production_flags": {
+      "budget_policy_changes": false,
+      "database_writes": false,
+      "production_ledger_writes": false,
+      "queue_changes": false,
+      "source_changes": false,
+      "worker_restarts": false
+    },
+    "result": "15 frozen successful birth controls;14 independently verified Pump.fun CREATE_V2 match COMMITTED receipts and acknowledgement-time canonical persistence;1 non-Pump transaction remains unqualified. No universal coverage claim and no explanation of original missing14 delivery.",
+    "status": "PASS",
+    "tests": "6 provider-free accounting controls passed;15 exact transaction signature checks;14 exact CREATE_V2 mint/creator matches plus Token2022 mint initialization",
+    "updated_at_utc": "2026-10-31T11:24:56.970064+00:00",
+    "verdict": "CREATE_V2_CAPTURE_DEMONSTRATED"
+  },
   "watchtower_creator_resolution_fault_triage_20261008": {
     "classification": "BLOCKING_TARGET_TRANSITION",
     "current_health": "PID 81359 remains present under original supervisord PID 73409 since 01:15:02 local. This proves it has not immediately exited again, but does not prove successful workload processing; its current stdout last changed shortly after restart and contains no bounded post-restart success proof.",
@@ -70770,37 +70822,5 @@
     "source_authority": "Local X78 branch commits exist: WAL holder provenance 4f7821a09cb586ccfc30c3a4b2ecf82f767384ef, checkpoint-execution bound 2f5c8116af59867220e98e6cf9841d9e926df94b, and SQLite lifecycle serialization cb441a2899bb6f1de80dbdf08674d2dd2148acfc. Subsequent origin check remotely verified only codex/operations-sqlite-lifecycle-provenance at cb441a2899bb6f1de80dbdf08674d2dd2148acfc; the two WAL branches were not listed remotely, so they remain local qualified historical authority and must not be deployed without requalification/remote publication.",
     "status": "X78_ACCEPTED_DIAGNOSIS_COMPLETE_REMEDIATION_NOT_AUTHORIZED",
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
-  },
-  "helius_read_validation_lock_scope_qualification": {
-    "status": "DEV_PASS_LOCAL_COMMIT",
-    "engineering_base": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
-    "worktree": "/Users/kevinkeaveney/.codex/worktrees/flex-v2-gate-contention-minimal/flex",
-    "tests": {
-      "passed": 411,
-      "known_baseline_failures_deselected": 24,
-      "unchanged_scale_workload_deselected": 1
-    },
-    "delta": "Threegatecopies capturechecksumverifiedbytes underexclusive lock;purevalidationoutside;allwriterandbudgetlogicunchanged.Onlythreegate recoverypinsupdated.",
-    "synthetic_benefit": {
-      "median_exclusive_ms_before": 48.4318,
-      "median_exclusive_ms_after": 4.7725,
-      "controlled_overlap_completions_before": 0,
-      "controlled_overlap_completions_after": 8,
-      "caveat": "Providerfreecontrolledfixturesonly;no productionperformanceclaim"
-    },
-    "uncertain_requests_preserved_in_fixtures": 7,
-    "investigation_credit_limit": 100000,
-    "production_mutations": false,
-    "provider_calls": 0,
-    "live_gate_locks": 0,
-    "deployment_authorized": false,
-    "bundle_manifest_sha256": "61095782d9f6f6d991cb4747c963bdfd5132342c23994602b8809d8c029e9bee",
-    "blocker": null,
-    "next_action": "Separately authorize read-only deployment preflight for exactcandidate,allthree gate readers and candidate-aware recovery. No productionactivation authorized.",
-    "candidate_commit": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
-    "production_installed_source": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
-    "engineering_source_pushed": false,
-    "source_hash_verification": "All8committedfilesmatchsealedmanifest61095782d9f6f6d991cb4747c963bdfd5132342c23994602b8809d8c029e9bee;worktreeclean;testJUnitdigestverified;unchangedtestsnorerun"
-  },
-  "handoff_publication_status": "AGGREGATE_HANDOFF_READY_FOR_REMOTE_VERIFICATION"
+  }
 }

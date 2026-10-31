@@ -59989,7 +59989,7 @@
     "git_head": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-31T14:26:42.249487+00:00",
+    "updated_at_utc": "2026-10-31T14:30:03.011455+00:00",
     "working_tree": "DedicatedDEVworktreeclean;qualified8filelocalcandidatecommit;engineeringnotpushed;productionunchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -62971,7 +62971,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "INDEPENDENT_BIRTH30_COMPLETE_VERSION1_NOT_DEMONSTRATED",
+  "verdict": "VERSION1_COHORT_CAPTURE_GAP_SUPPORTED_CAUSAL_STAGE_INCONCLUSIVE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -70646,6 +70646,28 @@
     "safety": "Read-only source, process, and SQLite inspection only. No provider calls, source/runtime/database/queue changes, manual reconciliation, listener action, consumer action, Byzantine action, or historical backfill. No raw provider data retained; 500 MB rule unchanged.",
     "status": "PASS_RUNTIME_FROZEN_OPENING_COHORT_TRACE_COMPLETE",
     "waiting_cohort": "28 Watchtower WAITING_FOR_ENTRY_REFERENCE facts. Current resolver requires a canonical migrated token with migration signature, timestamp, slot, pool, and lifecycle_stage=migrated; it then performs the existing one bounded two-second 1s strict opening request for migration timestamp plus one. Inventory: 25 have a complete retained canonical boundary and need the missing strict target-second MC evidence; 3 lack the retained pumpswap pool coordinate and cannot form the accepted boundary. Stored failure states are TARGET_SECOND_ABSENT=20, ENTRY_EVENT_NOT_OCCURRED=4, WAITING_FOR_ENTRY_REFERENCE=2, NO_PROVIDER_ITEMS=2. One ENTRY_EVENT_NOT_OCCURRED row has a complete current canonical boundary, demonstrating stale prior projection/evaluation evidence."
+  },
+  "watchtower_version1_cohort_reconciliation_20261031": {
+    "blocker": "Original provider frame/delivery and Flex pre-receipt admission evidence unavailable; no population-wide failure-rate claim",
+    "cohort": 53,
+    "current_Core_matches": 0,
+    "engineering_revision": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
+    "feed_AVAILABLE": 51,
+    "feed_DOWN": 1,
+    "feed_UNKNOWN": 1,
+    "next_action": "Stop; need exact-signature provider emission/payload and corresponding Flex routing/admission evidence to attribute cause",
+    "production_flags": {
+      "database_writes": 0,
+      "mutations": false,
+      "provider_calls": 0,
+      "restarts": 0
+    },
+    "receipt_matches": 0,
+    "report": "/private/tmp/watchtower-version1-cohort-reconciliation/REPORT.json",
+    "resident_birth_matches": 0,
+    "terminal_matches": 0,
+    "tests": "53 proof artifact hashes verified;guarded indexed OPS/Core reads;exact receipt identity joins",
+    "verdict": "CAPTURE_EVIDENCE_GAP_SUPPORTED_CAUSAL_STAGE_INCONCLUSIVE"
   },
   "watchtower_wal_holder_termination_preflight_20261008": {
     "engineering_revision": "Mandatory process-identity verification only; no termination, database, Supervisor, service, provider, listener, source, or configuration action.",

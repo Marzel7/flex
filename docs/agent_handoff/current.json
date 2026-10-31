@@ -59989,7 +59989,7 @@
     "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-31T17:49:56.968452+00:00",
+    "updated_at_utc": "2026-10-31T17:54:13.485279+00:00",
     "working_tree": "Uncommitted DEV-only four-file proof extension;production unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -62971,7 +62971,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "UNIFORM_TEST_SANDBOX_NOT_EQUIVALENT",
+  "verdict": "RETAINED_VERIFIED_SNAPSHOTS_ONLY_CURRENT_CATCHUP_UNKNOWN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -71159,5 +71159,47 @@
     "live_database_connections": 0,
     "blocker": "Existing harness writes fixture DB/WAL and checkpoints while reader must be denied those operations on identical paths. A uniform inherited sandbox cannot provide both roles permissions. Existing reader launcher combines read-only protections, but existing test orchestration nests it.",
     "next_action": "Qualify diagnostic-only non-nested role-separated fixture writer and read-only reader orchestration, preserving independent confinement; no live activation."
+  },
+  "watchtower_accurate_operational_reporting_20261031": {
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "status": "PARTIAL",
+    "verdict": "RETAINED_VERIFIED_SNAPSHOTS_ONLY_CURRENT_CATCHUP_UNKNOWN",
+    "tests": "Existing dashboard10 manifest files and full3317 reconciliation4 files all hash-match; no software tests or DB connections.",
+    "production_mutations": false,
+    "provider_calls": 0,
+    "database_writes": 0,
+    "source_changes": 0,
+    "dashboard_endpoint_UTC": "2026-10-31T15:58:25Z",
+    "births_committed_1_3_6_24h": [
+      567,
+      1727,
+      2705,
+      11311
+    ],
+    "verified_actual_migration_mint_lowerbounds_1_3_6_24h": [
+      "UNKNOWN",
+      "UNKNOWN",
+      2,
+      21
+    ],
+    "canonical_and_matched_walkback_windows": "UNKNOWN",
+    "custody_snapshot_UTC": "2026-10-31T12:45:45Z",
+    "custody": {
+      "total": 3317,
+      "resident": 483,
+      "owned": 2834,
+      "helius_first": 2096,
+      "pumpportal_first": 1221,
+      "verified_actual": 71,
+      "verified_noop": 59,
+      "unclassified": 3187,
+      "change_from_120012_total3288": 29
+    },
+    "historical_walkback_snapshot_UTC": "2026-10-31T10:02:40Z",
+    "historical_walkback_pending": 81,
+    "historical_walkback_running": 1,
+    "historical_pending_change": 4,
+    "blocker": "No new database access attempted; current matching-window canonical and Walkback measures not available in qualified retained reports. Do not combine timestamp populations or interpret inaccessible data as absent.",
+    "next_action": "Stop after operational report. No engineering or operational change proposed."
   }
 }

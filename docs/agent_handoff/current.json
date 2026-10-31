@@ -59989,7 +59989,7 @@
     "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-31T17:03:47.007536+00:00",
+    "updated_at_utc": "2026-10-31T17:49:56.968452+00:00",
     "working_tree": "Uncommitted DEV-only four-file proof extension;production unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -62971,7 +62971,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "NO_APPROVED_NON_NESTED_TEST_ENTRYPOINT",
+  "verdict": "UNIFORM_TEST_SANDBOX_NOT_EQUIVALENT",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -71147,5 +71147,17 @@
     "source_changes": 0,
     "blocker": "Sealed test_entry always sandboxes pytest; three tests launch nested database guard; no non-nested suite mode or selected-test interface exists. Immediate nested application refusal proven; downstream correctness remains untested.",
     "next_action": "Separately authorize diagnostic-only integration that preserves both confinement and database write denial; no live activation."
+  },
+  "watchtower_diagnostic_combined_sandbox_20261031": {
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "status": "HOLD",
+    "verdict": "UNIFORM_TEST_SANDBOX_NOT_EQUIVALENT",
+    "tests": "No reruns: equivalence prerequisite failed; all sealed artifacts unchanged.",
+    "production_mutations": false,
+    "source_changes": 0,
+    "provider_calls": 0,
+    "live_database_connections": 0,
+    "blocker": "Existing harness writes fixture DB/WAL and checkpoints while reader must be denied those operations on identical paths. A uniform inherited sandbox cannot provide both roles permissions. Existing reader launcher combines read-only protections, but existing test orchestration nests it.",
+    "next_action": "Qualify diagnostic-only non-nested role-separated fixture writer and read-only reader orchestration, preserving independent confinement; no live activation."
   }
 }

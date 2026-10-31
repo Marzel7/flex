@@ -59989,7 +59989,7 @@
     "git_head": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
-    "updated_at_utc": "2026-10-31T14:30:03.011455+00:00",
+    "updated_at_utc": "2026-10-31T14:48:59.455864+00:00",
     "working_tree": "DedicatedDEVworktreeclean;qualified8filelocalcandidatecommit;engineeringnotpushed;productionunchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
@@ -62971,7 +62971,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "VERSION1_COHORT_CAPTURE_GAP_SUPPORTED_CAUSAL_STAGE_INCONCLUSIVE",
+  "verdict": "MATCHED_WINDOW_BIRTH_COUNTS_VERIFIED_ONCHAIN_TOTAL_UNKNOWN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -70668,6 +70668,23 @@
     "terminal_matches": 0,
     "tests": "53 proof artifact hashes verified;guarded indexed OPS/Core reads;exact receipt identity joins",
     "verdict": "CAPTURE_EVIDENCE_GAP_SUPPORTED_CAUSAL_STAGE_INCONCLUSIVE"
+  },
+  "watchtower_version1_matched_window_birth_count_20261031": {
+    "all53_window_COMMITTED": 194769,
+    "all53_window_captured": 195132,
+    "blocker": "Total onchain births unknown;retained receipts begin Oct19, so Oct18 capture coverage is unestablished",
+    "engineering_revision": "b4dce9a938c8a40c7bbe5f6cf3d40c94b7315aff",
+    "next_action": "Stop after counts; do not interpret53 as all missed births or calculate capture failure rate",
+    "production_flags": {
+      "database_writes": 0,
+      "mutations": false,
+      "provider_calls": 0
+    },
+    "recent52_window_COMMITTED": 69987,
+    "recent52_window_captured": 70046,
+    "report": "/private/tmp/watchtower-version1-matched-window-birth-count/REPORT.json",
+    "tests": "209225 receipt files/116299805 bytes;0 read errors;0 invalid identities;distinct mint counts",
+    "verdict": "PASS_RETAINED_CAPTURE_COUNTS_ONCHAIN_TOTAL_UNKNOWN"
   },
   "watchtower_wal_holder_termination_preflight_20261008": {
     "engineering_revision": "Mandatory process-identity verification only; no termination, database, Supervisor, service, provider, listener, source, or configuration action.",

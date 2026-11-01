@@ -59985,12 +59985,12 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/flex-recovery-master",
-    "git_head": "9fc99555a9f646e43917c2d79c1ca69d9c20035f",
+    "branch": "codex/helius-temporary-recovery",
+    "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-31T20:22:10.876506+00:00",
-    "working_tree": "Uncommitted isolated dashboard-only implementation; prior capacity/no-op candidates and production untouched"
+    "working_tree": "Uncommitted sealed temporary capacity/read-scope candidate; production unchanged"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -73014,5 +73014,76 @@
     "read_scope": "One indexed operator-membership count; three other queries refused as NON_INDEXED, no guard relaxation",
     "dedup": "Row existence on mint plus returned class; preserve complete status and verified completion/outcome evidence",
     "accounting": "Helius and canonical records remain protected; no slot/byte recovery claimed"
+  },
+  "helius_temporary_recovery_20261101": {
+    "status": "OFFLINE_COMPONENT_QUALIFIED_WITH_BASELINE_LIMITATIONS_ACTIVATION_HOLD",
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "candidate_worktree": "/Users/kevinkeaveney/.codex/worktrees/helius-temporary-recovery/flex",
+    "candidate_branch": "codex/helius-temporary-recovery",
+    "candidate_committed": false,
+    "candidate_gate_sha256": "7b5e878b2eb6bc48f2895351cc6424eebe778ed018cb96b927491a80bcbf3e02",
+    "manifest": "/Users/kevinkeaveney/.codex/worktrees/helius-temporary-recovery/flex/qualification/helius_temporary/SEALED_MANIFEST.json",
+    "manifest_sha256": "3093d87b9fbc5fe44d32d7279cec37d2f2824a448db827604396b0bd99a8e7ea",
+    "qualification": "/Users/kevinkeaveney/.codex/worktrees/helius-temporary-recovery/flex/qualification/helius_temporary/QUALIFICATION.json",
+    "qualification_sha256": "c9e4ac1dfa38d6b89ba4ccdefbd68c6be658c985bfd7fe48776300d5ed4edfa0",
+    "tests": {
+      "focused_unique_pass": 61,
+      "accounting_unique_pass": 259,
+      "compatibility_pass": 121,
+      "compatibility_fail": 4,
+      "compatibility_skip": 7,
+      "baseline_failures_reproduced": 4,
+      "accounting_baseline_exclusions": 15,
+      "unique_total": 452,
+      "unique_pass": 441,
+      "new_candidate_failures_observed": 0,
+      "not_full_programme_pass": true
+    },
+    "performance": {
+      "trials": 20,
+      "installed32768_owner_lock_ms": 60.371,
+      "capacity36864_owner_lock_ms": 63.521,
+      "integrated36864_owner_lock_ms": 5.48,
+      "integrated36864_reserve_lock_ms": 263.109,
+      "integrated36864_finish_lock_ms": 279.105,
+      "writer_contention_remains": true,
+      "production_SLA": false
+    },
+    "synthetic_scheduler": {
+      "completed": 16,
+      "protected_unchanged": 79,
+      "scope": "actual claim/drain;transaction body synthetic"
+    },
+    "capacity_headroom": {
+      "additional_keys": 4096,
+      "new_limit": 36864,
+      "ledger_limit_bytes": 16777216,
+      "other_limits_unchanged": true,
+      "fresh_live_capacity_read": false
+    },
+    "fallback": {
+      "expanded_ledger_accounting_floor_fixture": "PASS",
+      "fallback_gate_sha256": "51612ce739e651ef1518dc5ef58b3273641203d3de784c200c419a0446e5f27a",
+      "operational_loading": "HOLD_SAME_CAPTURE_GAP",
+      "legacy_rollback": "FORBIDDEN_ABOVE_32768"
+    },
+    "R02": "HOLD_NOT_SUSTAINABLE",
+    "provider_calls": 0,
+    "database_writes": 0,
+    "production_mutations": 0,
+    "blocker": "Listener zero-gap activation/recovery unqualified; four baseline compatibility failures and operational thresholds await review",
+    "next_action": "Review sealed temporary component/compatibility limits; resolve listener continuity, operational thresholds and forward-loading authority before any separate activation approval. No deployment now.",
+    "largest_generated_file_bytes": 16777215
+  },
+  "operation_membership_breakdown_interrupted_20261101": {
+    "status": "PARTIAL_REPLACED_BY_EXPLICIT_TEMP_RECOVERY_TASK",
+    "evidence": "/private/tmp/flex-retention-operation-breakdown/CURRENT_COHORT.json",
+    "snapshot": "2026-11-01T13:52:40Z",
+    "age_mints_reconstructed": 1346,
+    "membership_mints": 1176,
+    "operation_count": 6,
+    "blocker": "Original historical exact mints not retained; current canonical classifications and remaining170 wider associations not fully reconciled",
+    "next_action": "Do not resume automatically; separate requested continuation needed",
+    "production_mutations": 0
   }
 }

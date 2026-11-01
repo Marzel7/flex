@@ -72853,5 +72853,22 @@
     "sealed_report_sha256": "8f1af66393078d5dd382f0b78377c74377554a675fb64f61ee546f7189d43722",
     "master_manifest_sha256": "8c475d97864b122a48ae8505d88eeffcf4fc54f652c11e17a3df4d9111c50122",
     "next_action": "Review the compact HOLD package. Further independent safe offline work is exhausted for the identified blockers; no production activation or listener correction authorised."
+  },
+  "R02_contract_decision_20261101": {
+    "UTC": "2026-11-01T12:07:10.210529+00:00",
+    "status": "HOLD_POLICY_DECISION_REQUIRED",
+    "engineering_revision": "9fc99555a9f646e43917c2d79c1ca69d9c20035f",
+    "decision_sha256": "de7ffb4b57e22e498012896938ec870abf0e38222b674f0a783239ec285f18cf",
+    "evidence_sha256": "d0a11fd0aa93f2a5d0b931bac750cfa85a5be10407a725f6ec7720e8e64595cb",
+    "source_sha256": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "tests_run": 0,
+    "tests_reused": 10,
+    "package": "/private/tmp/flex-r02-contract-decision/R02_CONTRACT_DECISION.md",
+    "verdict": "HOLD; no finite storage supports unbounded exact history",
+    "recommendation": "Bounded permanent-finality contract for policy review only; no implementation approved",
+    "blocker": "Unapproved history expiry/finality authority and workload envelope",
+    "next_action": "Decide indefinite exact history versus permanent bounded-scope finality; define retention/workload and storage proof, otherwise retain safe HOLD."
   }
 }

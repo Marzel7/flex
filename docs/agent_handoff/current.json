@@ -72988,5 +72988,31 @@
     "evidence_endpoint": "2026-11-01T13:26:26.397285+00:00",
     "helius_accounting": "No deletion/expiry; no active slot relief claimed",
     "filesystem": "OPS device/inode/size unchanged; no WAL/SHM or directory delta during bounded readonly session"
+  },
+  "seven_day_minimal_retention_boundary_20261101": {
+    "UTC": "2026-11-01T13:37:32.943045+00:00",
+    "status": "PARTIAL_SUPPORTED_QUEUE_RETENTION_DELETION_HOLD",
+    "engineering_revision": "9fc99555a9f646e43917c2d79c1ca69d9c20035f",
+    "package": "/private/tmp/flex-seven-day-retention-boundary/MINIMAL_RETENTION_BOUNDARY.md",
+    "package_sha256": "62bf8126208e73551e7a6aaab1bcd00e9c3c1a0fbfc881085b62a5195ab64705",
+    "evidence": {
+      "runtime/walkback/src/core/walkback_queue.py": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+      "runtime/walkback/src/ops/living_potential_operations.py": "922fe66b3fafe86b1f2eb606e70e63ff8efd795beda2de48f44f41cc19d4c95a",
+      "runtime/walkback/src/ops/operator_reader.py": "589a89b073f8e5174600320cdb9258d333af61d2e7aa7a476317cbe4eb87536a",
+      "/private/tmp/flex-seven-day-retention-boundary/MEMBERSHIP_POSITIVE_LINKS.json": "98f6a751b8500cee0e2ad89199b5db5b25ae9b0f0125446e10d8fcff15862a24"
+    },
+    "positive_old_complete_memberships": 1176,
+    "fully_eligible": "UNKNOWN",
+    "storage_benefit": "UNKNOWN",
+    "tests_run": 0,
+    "tests_reused": 12,
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "next_action": "Retain full queue rows; qualify all-operation/dependency absence and exact private details before any removal or byte-benefit claim.",
+    "verdict": "Retain exact queue rows; no independently removable details certified",
+    "blocker": "Full membership/dependency absence, private detail ownership and marker byte-growth bound unqualified",
+    "read_scope": "One indexed operator-membership count; three other queries refused as NON_INDEXED, no guard relaxation",
+    "dedup": "Row existence on mint plus returned class; preserve complete status and verified completion/outcome evidence",
+    "accounting": "Helius and canonical records remain protected; no slot/byte recovery claimed"
   }
 }

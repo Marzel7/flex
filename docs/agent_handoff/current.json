@@ -72870,5 +72870,26 @@
     "recommendation": "Bounded permanent-finality contract for policy review only; no implementation approved",
     "blocker": "Unapproved history expiry/finality authority and workload envelope",
     "next_action": "Decide indefinite exact history versus permanent bounded-scope finality; define retention/workload and storage proof, otherwise retain safe HOLD."
+  },
+  "R02_bounded_finality_design_20261101": {
+    "UTC": "2026-11-01T12:19:11.446648+00:00",
+    "R02_CONTRACT_STATUS": "HOLD_FINALITY_AUTHORITY_AND_POLICY_UNQUALIFIED",
+    "engineering_revision": "9fc99555a9f646e43917c2d79c1ca69d9c20035f",
+    "package": "/private/tmp/flex-r02-bounded-finality/R02_BOUNDED_FINALITY_DESIGN.md",
+    "package_sha256": "b4313f4f46c49214bb207d652a3589776c148e988fb3a0616b188df476ccc050",
+    "sources": {
+      "runtime/walkback/src/core/helius_denial_gate.py": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "runtime/walkback/src/core/helius_http_protection.py": "5363aabb0100dda5cb360996749b103fc528179a3d7cf3e9d0d13f4755b6db1e",
+      "runtime/walkback/src/core/second_hop_lite_worker.py": "bdf4f9f731d8d5a7a86638512a4e37599d8ac71fe552afb29f4be017e2e0836c",
+      "runtime/walkback/src/ops/investigation_lifecycle.py": "2cf3df19f98330c166d7720b6b70bf58b4ae0cb05b7a2cf2db1137b452ee6b8f",
+      "docs/dev/DEV-RECOVERY/R02_STORAGE_DECISION.json": "d0a11fd0aa93f2a5d0b931bac750cfa85a5be10407a725f6ec7720e8e64595cb"
+    },
+    "tests_run": 0,
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "next_action": "Qualify immutable scope epoch/antirollback and final accounting authority; decide permanent no-reopening and retention/envelope policy before implementation.",
+    "verdict": "HOLD; watermark construction conditional, installed immutable epoch and antirollback authority unqualified",
+    "blocker": "Mint-root re-registration resets removed accounting; permanent finality conflicts with refresh; exact final per-root history authority unqualified",
+    "tests": "No implementation or tests; focused source review and storage arithmetic only"
   }
 }

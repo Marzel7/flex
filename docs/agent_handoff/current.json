@@ -73085,5 +73085,46 @@
     "blocker": "Original historical exact mints not retained; current canonical classifications and remaining170 wider associations not fully reconciled",
     "next_action": "Do not resume automatically; separate requested continuation needed",
     "production_mutations": 0
+  },
+  "temporary_listener_continuity_20261101": {
+    "ACTIVATION_CONTINUITY_STATUS": "HOLD_NO_QUALIFIED_ZERO_GAP_METHOD",
+    "LISTENER_RESTART_REQUIRED": "YES_FOR_CURRENT_SUPPORTED_ACCOUNTING_LOAD;NO_QUALIFIED_HOT_RELOAD",
+    "CAPTURE_GAP_RISK": "UNBOUNDED_DELIVERY_COMPLETENESS;NO_DOWNTIME_SAFE_BOUND_PROVEN",
+    "EXISTING_REPLAY_COVERAGE": "RECEIVED_EVENT_JOURNALS_ONLY;EFFECTIVE_MIGRATION_RECONCILER_DISABLED",
+    "ACCOUNTING_COMPATIBILITY": "PASS_OFFLINE_FOR_THREE_UPGRADED_CONSUMERS;OLD_CONSUMERS_REFUSE_EXPANDED_LEDGER",
+    "FORWARD_FALLBACK": "ACCOUNTING_PASS;OPERATIONAL_LOADING_CONTINUITY_HOLD",
+    "ACTIVATION_FEASIBILITY": "HOLD",
+    "NEXT_APPROVAL_REQUIRED": "Independently qualify loss-free continuity/recovery capability before separate activation approval; no restart now.",
+    "tests_passed": 11,
+    "tests_failed": 0,
+    "source_seal_unchanged": true,
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "package": "/private/tmp/helius-temp-listener-continuity/LISTENER_CONTINUITY_QUALIFICATION.md",
+    "package_sha256": "dcb00fdebb1168a4ca05a2c2e8679d3a7cefce00b12cb9964d43dd5a8eac5ba3",
+    "effective_flags": {
+      "LISTENER_MIGRATION_RECONCILER_ENABLED": [
+        "0"
+      ],
+      "LISTENER_PUMPPORTAL_BIRTHS_ENABLED": [
+        "1"
+      ],
+      "PUMPPORTAL_CANONICAL_BIRTH_RETENTION_ENABLED": [
+        "0"
+      ]
+    },
+    "process_ids": {
+      "resolver": 9508,
+      "listener": 45328,
+      "walkback": 61521
+    },
+    "UTC": "2026-11-01T14:28:58.335764+00:00",
+    "results_path": "/private/tmp/helius-temp-listener-continuity/RESULTS.json",
+    "results_sha256": "9c56afe2dbdddb76fc1e52fddfdcae4d07f1c0d35578868e5826bd7951a33ee4",
+    "verdict": "HOLD;11offlinecontrols pass but no loss-free listener-loading route",
+    "blocker": "Oldgate rejects expanded ledger;no installed zero-gap handover or complete replay covering absent-subscription births/migrations",
+    "next_action": "Independently qualify loss-free continuity/recovery capability before separate activation approval; no restart now.",
+    "tests": "11passed/0failed;existing candidate36file seal unchanged;no activation"
   }
 }

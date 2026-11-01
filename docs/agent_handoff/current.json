@@ -72954,5 +72954,39 @@
     "tests": "No SQL execution or tests; exact schema proposal, transition proof obligations and acceptance plan only",
     "retention": "No exact-history expiry; finite quota refuses when full",
     "authority": "All existing accounting semantics preserved conditionally; no production contract activated"
+  },
+  "seven_day_walkback_retention_20261101": {
+    "UTC": "2026-11-01T13:28:48.901170+00:00",
+    "status": "RETENTION_POLICY_HOLD_DEDUP_AND_FULL_ELIGIBILITY",
+    "engineering_revision": "9fc99555a9f646e43917c2d79c1ca69d9c20035f",
+    "package": "/private/tmp/flex-seven-day-retention/SEVEN_DAY_RETENTION_QUALIFICATION.md",
+    "package_sha256": "bd690ef4f770fbf3fc8537276888202580fa151151780489a2fd519379008fae",
+    "evidence": {
+      "/private/tmp/flex-seven-day-retention/READ_EVIDENCE.json": "f95d17c52453499dd26ec45dce7371e7c65b12dc4d9fbf6017e21cbab6a17047",
+      "/private/tmp/flex-seven-day-retention/FIXTURE_RESULTS.json": "8345c4f0f82507d9c0d118ab408347256b9c023d0aa12491e90ffd177cf506dc",
+      "/private/tmp/flex-seven-day-retention/policy_fixture.py": "988ca0d44225e483aa350e4a36098d88ece56322513c7775773566aaeb81fc07",
+      "runtime/walkback/src/core/walkback_queue.py": "2741576189a84ae94d3b1858448e5899ba28be27da5324f122f6d42514fecbe9",
+      "runtime/listener/src/ops/migration_walkback_handoff_health.py": "a2b16743d23b93c82831bfa98cc6abe72f4f58a09589e5c2eea8a0b8e5f5b6f9",
+      "runtime/walkback/src/ops/attribution_outcome.py": "39e45fafe580ec54f49928b8034f74a7222dc3502ccd94557d8d938b9c5fa4d7"
+    },
+    "counts": {
+      "complete_stored": 2795,
+      "stored_older_than_seven_days": 1346,
+      "complete_missing_timestamp": 1,
+      "unassigned": "UNKNOWN",
+      "fully_eligible": "UNKNOWN",
+      "qualified_removals": 0
+    },
+    "tests_passed": 12,
+    "tests_scope": "pure policy model; not installed deletion lifecycle",
+    "provider_calls": 0,
+    "production_data_writes": 0,
+    "production_mutations": 0,
+    "next_action": "Retain records; qualify all-route dedup and authoritative operation/dependency absence before deletion or storage-benefit claims.",
+    "verdict": "7day age policy approved; deletion qualification HOLD",
+    "blocker": "Queue row is installed enqueue idempotency guard; exact operation/dependency absence and independent completion proof not qualified",
+    "evidence_endpoint": "2026-11-01T13:26:26.397285+00:00",
+    "helius_accounting": "No deletion/expiry; no active slot relief claimed",
+    "filesystem": "OPS device/inode/size unchanged; no WAL/SHM or directory delta during bounded readonly session"
   }
 }

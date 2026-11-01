@@ -59985,8 +59985,8 @@
     "ws_cascade_service": "ws_cascade"
   },
   "project": {
-    "branch": "codex/watchtower-recovery-dashboard",
-    "git_head": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "branch": "codex/flex-recovery-master",
+    "git_head": "f4825402c88afa245193a6a1b0cf0a1539b5f154",
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-31T20:22:10.876506+00:00",
@@ -72785,5 +72785,25 @@
     "live_telemetry": "HOLD",
     "next_action": "Complete R02 storage model and independent offline qualification; keep established requirement IDs and no production activation",
     "UTC": "2026-11-01T11:26:26.414290+00:00"
+  },
+  "flex_recovery_master_M01_20261101": {
+    "status": "R02_HOLD_STORAGE_CONTRACT",
+    "engineering_revision": "f4825402c88afa245193a6a1b0cf0a1539b5f154",
+    "tests_passed": 10,
+    "tests_failed": 0,
+    "evidence": "/Users/kevinkeaveney/.codex/worktrees/flex-recovery-master/flex/docs/dev/DEV-RECOVERY/R02_STORAGE_DECISION.json",
+    "evidence_sha256": "d0a11fd0aa93f2a5d0b931bac750cfa85a5be10407a725f6ec7720e8e64595cb",
+    "model_lower_bound_bytes": 17625000,
+    "ledger_limit_bytes": 16777216,
+    "blocker": "No approved indefinite exact-history authority beyond fixed16MiB. No safe lifecycle implementation qualified; finite compression/capacity expansion is not sustainable acceptance.",
+    "dashboard_publication": {
+      "dashboard": "/Users/kevinkeaveney/Downloads/watchtower_recovery_dashboard.html",
+      "dashboard_sha256": "ce366c46a3607ca5f6f480db87f1cffe832b9317c701165800e7735ec2d870db",
+      "updated_utc": "2026-11-01T11:28:46.973595+00:00",
+      "checkpoint_sha256": "4a19e420ad55a90e1c03d62057be5911a74f9b8706021474fac98610d3558766",
+      "delivery": "self-contained file URL;60s local reload;connect-src none;DEV only"
+    },
+    "production_mutations": 0,
+    "next_action": "Continue independent source/evidence regression and gate compatibility; R02 scope expansion remains separately gated."
   }
 }

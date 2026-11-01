@@ -72932,5 +72932,27 @@
     "blocker": "OPS accounting authority/schema, complete historical lookup/coverage and finite storage/root horizon unqualified",
     "tests": "Design/source review only; no implementation or test execution",
     "accounting": "No finality/reopening changes; seven uncertainty barriers preserved; root budgets never reset"
+  },
+  "R02_OPS_contract_qualification_20261101": {
+    "UTC": "2026-11-01T13:14:00.228010+00:00",
+    "status": "PARTIAL_DESIGN_R02_HOLD_FINITE_ENVELOPE_AND_AUTHORITY_GAPS",
+    "engineering_revision": "9fc99555a9f646e43917c2d79c1ca69d9c20035f",
+    "package": "/private/tmp/flex-r02-ops-contract/R02_OPS_HISTORY_CONTRACT.md",
+    "package_sha256": "aa161f2f594c3c9f62348bddf18010878e3a0ca708a33b82e1b082a145b9d11e",
+    "source_evidence": {
+      "runtime/walkback/src/core/helius_denial_gate.py": "8369cc64c2b0fa1797ac1dd94918782aa218ecd1caca9c59c9429426b45b3946",
+      "docs/dev/DEV-RECOVERY/R01_CURRENT_AUTHORITY.json": "a529ee26b4dd1f4dfffd16f1c92f2d5c1c52d497da54504d8abf989ecfb4abf7",
+      "docs/dev/lightweight_dev004_first_v2/production_profile_bootstrap/accepted_fixture_schema.json": "de0544b58b056f8c5e22b0b801e94218dcee1c9f672d8228d100d034145fb291"
+    },
+    "qualification_evidence_sha256": "bea5ac30bc356d789948be8f16a25081547e0d2d31b777702d0639c085e4284d",
+    "tests_run": 0,
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "next_action": "Review proposed schema/paired authority and gather separately authorised finite-envelope evidence; no implementation yet.",
+    "verdict": "PARTIAL design; R02 HOLD",
+    "blocker": "Actual OPS storage/arrival envelope, durable complete-history/rollback authority and forward compatibility unqualified",
+    "tests": "No SQL execution or tests; exact schema proposal, transition proof obligations and acceptance plan only",
+    "retention": "No exact-history expiry; finite quota refuses when full",
+    "authority": "All existing accounting semantics preserved conditionally; no production contract activated"
   }
 }

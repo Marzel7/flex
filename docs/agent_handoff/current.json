@@ -73126,5 +73126,48 @@
     "blocker": "Oldgate rejects expanded ledger;no installed zero-gap handover or complete replay covering absent-subscription births/migrations",
     "next_action": "Independently qualify loss-free continuity/recovery capability before separate activation approval; no restart now.",
     "tests": "11passed/0failed;existing candidate36file seal unchanged;no activation"
+  },
+  "controlled_temporary_restart_plan_20261101": {
+    "ACTIVATION_PLAN_STATUS": "PREPARED_CONDITIONAL_EXECUTION_NOT_AUTHORISED_CURRENT_PREFLIGHT_HOLD",
+    "EXPECTED_CAPTURE_GAP": "ACCEPTED_MONITORED_INTERVAL;DURATION_AND_MISSED_EVENT_COUNT_UNKNOWN_UNTIL_EXECUTION",
+    "ACCOUNTING_COMPATIBILITY": "SEALED_THREE_CONSUMER_CANDIDATE;POST_STOP_BYTE_EQUALITY_AND_ZERO_INFLIGHT_REQUIRED",
+    "FORWARD_FALLBACK": "SEALED_36864_CAPACITY_ONLY_ALL_THREE;NEVER_RESTORE_OLD_LEDGER_OR_32768_VALIDATOR",
+    "STOP_CONDITIONS": [
+      "source/config/pair mismatch",
+      "nonzero inflight or uncertain mismatch",
+      "clock/publication/accounting failure",
+      "subscription or worker failure",
+      "unexplained state/filesystem mutation",
+      "partial installation",
+      "temporary threshold reached"
+    ],
+    "NEXT_APPROVAL_REQUIRED": "Separate one-time activation approval with accepted measured gap,exact file/recovery scope,Supervisor stop/start+containment/fallback and proposed acceptance thresholds;fresh zero-inflight preflight mandatory.",
+    "current_preflight": {
+      "UTC": "2026-11-01T14:35:54.858112+00:00",
+      "OPEN_READY": true,
+      "clock_discrepancy_seconds": 0,
+      "seven_uncertain_match": true,
+      "inflight": 1,
+      "keys": 32768,
+      "ledger_bytes": 8737428,
+      "execution_ready": false
+    },
+    "tests": "13newofflineguardsPASS;exactcopycommand tested only against fixture paths;original36filecandidate seal unchanged",
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "candidate_manifest_sha256": "3093d87b9fbc5fe44d32d7279cec37d2f2824a448db827604396b0bd99a8e7ea",
+    "production_mutations": 0,
+    "provider_calls": 0,
+    "worker_actions": 0,
+    "live_gate_locks": 0,
+    "package": "/private/tmp/helius-controlled-restart-plan/CONTROLLED_RESTART_RUNBOOK.md",
+    "package_sha256": "c21e7142575361af6fc633b34fce7223be5131878d04efdd12d49ad403f65d05",
+    "UTC": "2026-11-01T14:43:06.224339+00:00",
+    "verdict": "PLAN_PREPARED;EXECUTION_NOT_AUTHORISED;LATEST_PREFLIGHT_INFLIGHT_HOLD",
+    "blocker": "Fresh zero-inflight/stopped accounting checkpoint required;execution approval and baseline exceptions/observation thresholds not yet accepted",
+    "results_sha256": "eaa071aa2c04f85ee59159090f02ead78f414cd076ed39ca294e25fef2efceb8",
+    "manifest": "/private/tmp/helius-controlled-restart-plan/MANIFEST.json",
+    "manifest_sha256": "3159b60251b18aa018c3e898e36cb876adaeef531aa10b22b03637165f592305",
+    "policy_exception": "User accepts measured short capture interruption for temporary activation only;no zero-gap guarantee or R04 sign-off",
+    "next_action": "Separate one-time activation approval with accepted measured gap,exact file/recovery scope,Supervisor stop/start+containment/fallback and proposed acceptance thresholds;fresh zero-inflight preflight mandatory."
   }
 }

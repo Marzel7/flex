@@ -59990,7 +59990,9 @@
     "name": "flex",
     "updated_at": "2026-10-21T20:30:25.941869+00:00",
     "updated_at_utc": "2026-10-31T20:22:10.876506+00:00",
-    "working_tree": "Uncommitted sealed temporary capacity/read-scope candidate; production unchanged"
+    "working_tree": "Sealed uncommitted temporary candidate installed as authorised three-gate overlay; no new engineering commit or Golden promotion",
+    "installed_gate_sha256": "7b5e878b2eb6bc48f2895351cc6424eebe778ed018cb96b927491a80bcbf3e02",
+    "installed_source_receipt": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/temporary-helius-recovery/20261101T150304Z/ACTIVE_SOURCE_RECEIPT.json"
   },
   "project_git_head": "62e204747fa12dea10322ca0361252f588396117",
   "pumpfun_archived_prebuy_state": {
@@ -73169,5 +73171,118 @@
     "manifest_sha256": "3159b60251b18aa018c3e898e36cb876adaeef531aa10b22b03637165f592305",
     "policy_exception": "User accepts measured short capture interruption for temporary activation only;no zero-gap guarantee or R04 sign-off",
     "next_action": "Separate one-time activation approval with accepted measured gap,exact file/recovery scope,Supervisor stop/start+containment/fallback and proposed acceptance thresholds;fresh zero-inflight preflight mandatory."
+  },
+  "authorised_temporary_activation_20261101": {
+    "status": "TEMP_RECOVERY_OPERATIONAL_PASS",
+    "report_publication": "PARTIAL_DASHBOARD_GUARD_HOLD",
+    "engineering_revision": "a2c8f232eaa9b0c409bc93b6a4906f7ac5fcb88f",
+    "installed_gate_sha256": "7b5e878b2eb6bc48f2895351cc6424eebe778ed018cb96b927491a80bcbf3e02",
+    "candidate_manifest_sha256": "3093d87b9fbc5fe44d32d7279cec37d2f2824a448db827604396b0bd99a8e7ea",
+    "activation_attempts": 1,
+    "acceptance_window": {
+      "start_utc": "2026-11-01T15:03:41.916540+00:00",
+      "end_utc": "2026-11-01T15:18:42.297019+00:00",
+      "elapsed_seconds": 900.01,
+      "sampling_scope": "Poststartaccountingcheck plus bounded minute samples;earlyflow evidenced by durable completion/receipt timestamps;not continuous per-event sampling"
+    },
+    "worker_pids": {
+      "watchtower_listener": 39590,
+      "creator_resolution_worker": 39608,
+      "walkback_worker": 39617
+    },
+    "ledger_integrity": {
+      "status": "VALID_OPEN_READY;nooriginalkeyloss,ownerrebinding,counterdecrease_or_policychange_detected",
+      "original_keys_preserved": 32768,
+      "installation_accounting_journals_byte_equal": true,
+      "bytes_at_endpoint": 8783185
+    },
+    "clock": {
+      "eligible": true,
+      "endpoint_discrepancy_seconds": 0,
+      "maximum_sampled_discrepancy_seconds": 1,
+      "tolerance_seconds": 5
+    },
+    "uncertain": {
+      "count": 7,
+      "exact_original_match": true,
+      "no_review_barrier_changes": true
+    },
+    "capacity": {
+      "limit": 36864,
+      "initial_quiesced_count": 32768,
+      "endpoint_count": 32923,
+      "new_distinct_keys": 155,
+      "headroom": 3941,
+      "ledger_limit_bytes": 16777216,
+      "per_root_credit_limit": 100000
+    },
+    "natural_full_walkback_completions": 2,
+    "completion_outcome": "LINEAGE_GAP;no attribution-success claim",
+    "pending_stock": {
+      "baseline_utc": "2026-11-01T14:59:57.289436+00:00",
+      "baseline_pending": 99,
+      "baseline_running": 1,
+      "endpoint_utc": "2026-11-01T15:18:41.924201+00:00",
+      "endpoint_pending": 112,
+      "endpoint_running": 0,
+      "pending_delta": 13,
+      "outstanding_delta": 12,
+      "first_sample_within_acceptance": {
+        "UTC": "2026-11-01T15:11:07.012537+00:00",
+        "pending": 106
+      },
+      "interpretation": "Queuegrew;catchupnotdemonstrated. Prestopstockcomparisonspans14:59:57to15:18:41,notanexact15minflowbalance."
+    },
+    "birth_capture": "Continued receipt/commit evidence;3exactCore readbacks match",
+    "migration_capture": "17retainednewnotifications lowerbound;notverifiednewmigrationcount",
+    "capture_gap": {
+      "stop_request_utc": "2026-11-01T15:03:19.467742+00:00",
+      "stop_confirmed_utc": "2026-11-01T15:03:19.661910+00:00",
+      "verified_birth_receipt_utc": "2026-11-01T15:03:43.355847+00:00",
+      "observed_birth_resumption_seconds": 23.888105,
+      "observed_migration_admission_seconds": 99.532258,
+      "exact_socket_times": "UNKNOWN_NOT_TIMESTAMPED",
+      "missed_events": "UNKNOWN",
+      "not_loss_free": true
+    },
+    "gate_contention": {
+      "read_endpoint_utc": "2026-11-01T15:19:59.363169+00:00",
+      "startup_markers_in_segment": 1,
+      "post_restart_HELIUS_GATE_BUSY_log_mentions": 30,
+      "post_restart_IDENTITY_CAPACITY_log_mentions": 0,
+      "post_restart_CLOCK_AMBIGUOUS_log_mentions": 0,
+      "log_truncated": false,
+      "live_lock_duration": "UNKNOWN_NO_QUALIFIED_LIVE_TIMING_TELEMETRY",
+      "note": "Log mentions are not unique refused requests. Segment starts new worker startup;endpoint is slightly after15minute stock endpoint."
+    },
+    "fallback": "AVAILABLE_VERIFIED_CAPACITY_COMPATIBLE_NOT_USED;oldledger/32768validator_not_restored",
+    "dashboard": {
+      "status": "HOLD_EXISTING_PUBLISHER_DEV_ONLY",
+      "reason": "Existing publisher requires production_mutations==0;truthful checkpoint refused DEV_CHECKPOINT_REQUIRED;not bypassed",
+      "unchanged": true
+    },
+    "production_mutations": {
+      "runtime_gate_files_replaced": 3,
+      "worker_stops": 3,
+      "worker_starts": 3,
+      "private_authority_evidence_files_created": 9,
+      "matching_recovery_reference_published": true,
+      "diagnostic_accounting_writes": 0,
+      "diagnostic_database_or_schema_writes": 0,
+      "diagnostic_provider_calls": 0,
+      "manual_queue_claims_replay_cleanup": 0,
+      "Golden_changes": 0,
+      "normal_worker_processing_writes": "occurred_as_authorised_after_restart"
+    },
+    "R02": "HOLD_NOT_SIGNED_OFF",
+    "requirement_signoffs": 0,
+    "provider_calls_by_diagnostic": 0,
+    "report": "/private/tmp/helius-authorised-activation/FINAL_REPORT.md",
+    "results": "/private/tmp/helius-authorised-activation/RESULTS.json",
+    "results_sha256": "34f6c998825010cb335e6652a5922f869fb5749f7c66fa44240538874f54ba31",
+    "evidence_manifest_sha256": "803628d42ee810cf45b3ac369f94024cbd09f5f613d218d4381aa7c4a04c5bb9",
+    "private_accounting_payloads_published": false,
+    "blocker": "Permanent sustainability/catch-up unresolved;dashboard production-publication contract unavailable",
+    "next_action": "Temporarycandidateleftactive. Reviewgrowingpendingstock,remainingwritercontentionandfiniteheadroom;permanentR02remainsHOLD. Dashboardpublicationrequiresaseparatelyqualifiedproduction-awarepath;existingDEV-onlypublisherwasnotchangedorbypassed. Noadditionalactivationattempt."
   }
 }

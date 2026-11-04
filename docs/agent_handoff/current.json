@@ -1231,8 +1231,10 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No rollout blocker. A protected fresh checkpoint uncertainty remains separately recorded; finite throughput observation does not establish backlog clearance or overall system health.",
-  "blockers": [],
+  "blocker": "Throughput continues with remaining holds: recent paid-RPC admission contention;3new jobs stopped on inherited shared checkpoint/paid-result ambiguity;39historical attempt-ceiling jobs;17uncertain requests;2128creator/CREATE-waiting jobs. Overall health remains Degraded, with incomplete intake coverage telemetry.",
+  "blockers": [
+    "Throughput continues with remaining holds: recent paid-RPC admission contention;3new jobs stopped on inherited shared checkpoint/paid-result ambiguity;39historical attempt-ceiling jobs;17uncertain requests;2128creator/CREATE-waiting jobs. Overall health remains Degraded, with incomplete intake coverage telemetry."
+  ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2701,17 +2703,17 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "f9 Listener migration-admission capacity production rollout",
-    "status": "PASS_F9_LISTENER_DEPLOYMENT_ADMISSIONS_COMPLETIONS_RESUMED",
+    "milestone": "Read-only progress and remaining-blocker check after f9 deployment",
+    "status": "PASS_READ_ONLY_PROGRESS_OBSERVATION_WITH_REMAINING_BLOCKERS",
     "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
-    "authorization": "Human explicitly approved compatibility qualification and deployment of f9f7856a with OPS migration, one Listener restart, preservation of custody/accounting/attempts/uncertain/funding evidence, and admission/completion verification.",
-    "evidence_ref": "/private/tmp/flex-f9-rollout/INSTALL.json",
-    "admissions": 13,
-    "full_completions": 3,
-    "blocker": "No rollout blocker. A protected fresh checkpoint uncertainty remains separately recorded; finite throughput observation does not establish backlog clearance or overall system health.",
-    "next_action": "Continue ordinary observation of admissions/completions and finite retention headroom. Separately review any saved checkpoint uncertainty; do not replay protected/exhausted work, reset attempts, clear unknowns, raise caps or restart another service without a new authorized milestone."
+    "observed_utc": "2026-11-04T21:25:34.662934+00:00",
+    "admissions": 26,
+    "full_completions": 7,
+    "blocker": "Throughput continues with remaining holds: recent paid-RPC admission contention;3new jobs stopped on inherited shared checkpoint/paid-result ambiguity;39historical attempt-ceiling jobs;17uncertain requests;2128creator/CREATE-waiting jobs. Overall health remains Degraded, with incomplete intake coverage telemetry.",
+    "next_action": "Continue ordinary processing and five-minute passive dashboard refresh. Separately review the saved cross-job INTENT and later Listener-paid observation without matching Walkback reply before proposing evidence-qualified recovery or DEV remediation. Do not reset attempts, clear holds, replay work, change accounting/caps, patch production or restart a service under this read-only status request.",
+    "evidence_ref": "/private/tmp/flex-f9-progress-20261104T212431Z/BLOCKERS.json"
   },
-  "current_next_blocker": "No rollout blocker. A protected fresh checkpoint uncertainty remains separately recorded; finite throughput observation does not establish backlog clearance or overall system health.",
+  "current_next_blocker": "Throughput continues with remaining holds: recent paid-RPC admission contention;3new jobs stopped on inherited shared checkpoint/paid-result ambiguity;39historical attempt-ceiling jobs;17uncertain requests;2128creator/CREATE-waiting jobs. Overall health remains Degraded, with incomplete intake coverage telemetry.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44973,11 +44975,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-04T21:15:43.944712+00:00",
+    "published_at_utc": "2026-11-04T21:28:01.135477+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-04T21:15:43.944746+00:00",
-    "last_local_checkpoint_utc": "2026-11-04T21:15:14.448988+00:00",
-    "verification_receipt": "/private/tmp/flex-f9-rollout/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-04T21:28:01.135559+00:00",
+    "last_local_checkpoint_utc": "2026-11-04T21:27:35.410383+00:00",
+    "verification_receipt": "/private/tmp/flex-f9-progress-20261104T212431Z/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -48796,8 +48798,8 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-11-04T21:15:14.448988+00:00",
-  "latest_at_utc": "2026-11-04T21:15:14.448988+00:00",
+  "last_updated": "2026-11-04T21:27:35.410383+00:00",
+  "latest_at_utc": "2026-11-04T21:27:35.410383+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -58216,7 +58218,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Continue ordinary observation of admissions/completions and finite retention headroom. Separately review any saved checkpoint uncertainty; do not replay protected/exhausted work, reset attempts, clear unknowns, raise caps or restart another service without a new authorized milestone.",
+  "next_action": "Continue ordinary processing and five-minute passive dashboard refresh. Separately review the saved cross-job INTENT and later Listener-paid observation without matching Walkback reply before proposing evidence-qualified recovery or DEV remediation. Do not reset attempts, clear holds, replay work, change accounting/caps, patch production or restart a service under this read-only status request.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60450,8 +60452,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
     "name": "flex",
-    "updated_at_utc": "2026-11-04T21:15:14.448988+00:00",
-    "working_tree": "Engineering f9f7856a committed. Scoped Listener runtime deployed with explicit OPS migration and one Listener restart; Walkback remains scoped3dcf3bd9. Routine handoff only dirty plus preexisting guard."
+    "updated_at_utc": "2026-11-04T21:27:35.410383+00:00",
+    "working_tree": "Engineering f9f7856a remains committed. This turn only read current progress/blockers and refreshed the existing approved dashboard; no new production deployment or service action. Routine handoff only dirty plus preexisting guard."
   },
   "project_git_head": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
   "pumpfun_archived_prebuy_state": {
@@ -61913,7 +61915,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_F9_LISTENER_DEPLOYMENT_ADMISSIONS_COMPLETIONS_RESUMED",
+  "status": "PASS_READ_ONLY_PROGRESS_OBSERVATION_WITH_REMAINING_BLOCKERS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63316,9 +63318,9 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-11-04T21:15:14.448988+00:00",
-  "updated_at_utc": "2026-11-04T21:15:14.448988+00:00",
-  "updated_by": "Codex f9 Listener rollout",
+  "updated_at": "2026-11-04T21:27:35.410383+00:00",
+  "updated_at_utc": "2026-11-04T21:27:35.410383+00:00",
+  "updated_by": "Codex read-only post-f9 progress check",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
     "cron_runner_sha256": "d93eb8e9d438075abb62a422c083c87d5a7b9121390bdf776d08189bf4e49ec1",
@@ -63533,7 +63535,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_F9_LISTENER_DEPLOYMENT_ADMISSIONS_COMPLETIONS_RESUMED",
+  "verdict": "PASS_READ_ONLY_PROGRESS_OBSERVATION_WITH_REMAINING_BLOCKERS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73323,370 +73325,330 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_F9_LISTENER_DEPLOYMENT_ADMISSIONS_COMPLETIONS_RESUMED",
+    "status": "PASS_READ_ONLY_PROGRESS_OBSERVATION_WITH_REMAINING_BLOCKERS",
     "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
-    "authorization": "Human explicitly approved compatibility qualification and deployment of f9f7856a with OPS migration, one Listener restart, preservation of custody/accounting/attempts/uncertain/funding evidence, and admission/completion verification.",
-    "started_at_utc": "2026-11-04T21:07:43.553467+00:00",
-    "deployed_at_utc": "2026-11-04T21:08:14.313643+00:00",
-    "observed_at_utc": "2026-11-04T21:15:13.487808+00:00",
-    "qualification": {
-      "staged_focused_tests_passed": 53,
-      "disposable_fresh_process_restart_passed": true,
-      "current_paired_copy_migration_archive_reopen": "PASS",
-      "all_retained_ACK_receipts_independently_proven": 1748,
-      "bounded_initial_archive_proof_yield": 20,
-      "old_deferred_reader_fenced_after_explicit_migration": true,
-      "other_hot_journal_readers_compatible": true
-    },
-    "deployment": {
-      "Listener_files": 2,
-      "migration": {
-        "existing_tables_exact_except_contract": 92,
-        "original_quota_exact": [
-          1,
-          8191,
-          21960950
-        ],
-        "tracked_existing_write_lane": true,
-        "transaction_seconds": 10.223,
-        "contract": "d62aca25305133d954f133c157c28cc3b561b6659c8d7dedf7e83a49c5c70b57",
-        "preservation": {
-          "verdict": "PASS_STOPPED_CUSTODY_PRESERVATION",
-          "original_records_exact": 8191,
-          "original_owned_exact": 5756,
-          "original_active_exact": 2435,
-          "original_journal_records_exact": 512,
-          "original_terminal_and_birth_tables_exact": true,
-          "archived_originals": 0
-        }
+    "observed_utc": "2026-11-04T21:25:34.662934+00:00",
+    "authorization": "Human requested latest progress, whether admissions/completions are still increasing, and remaining blockers. Read-only diagnosis plus existing approved fixed dashboard refresh only.",
+    "comparison": {
+      "baseline_utc": "2026-11-04T21:15:13.487808+00:00",
+      "baseline_postrestart_admissions": 13,
+      "baseline_postrestart_FULL_completions": 3,
+      "current_postrestart_admissions": 26,
+      "current_postrestart_FULL_completions": 7,
+      "admission_increase": 13,
+      "FULL_completion_increase": 4,
+      "latest_FULL_completion_utc": "2026-11-04T21:25:04+00:00",
+      "current_new_cohort_dispositions": {
+        "complete": 7,
+        "failed": 3,
+        "pending": 11,
+        "running": 1,
+        "waiting": 4
       },
-      "stop_requests": {
-        "watchtower_listener": 1
-      },
-      "start_requests": {
-        "watchtower_listener": 1
-      },
-      "old_pids": {
-        "watchtower_listener": 20257,
-        "walkback_worker": 68374,
-        "creator_resolution_worker": 61347
-      },
-      "new_pids": {
-        "watchtower_listener": 82361,
-        "walkback_worker": 68374,
-        "creator_resolution_worker": 61347
-      },
-      "initial_archive_rows": 20,
-      "hot_after_archive": 8171,
-      "history_after_archive": 20,
-      "source_config_pins": {
-        "verdict": "PASS_RUNTIME_SOURCE_CONFIG_PID_PINS",
-        "deployed_files": 2,
-        "protected_files_exact": 42,
-        "qualification_dependencies_exact": 5,
-        "pair_and_supervisor_config_exact": true,
-        "service_pids": {
-          "watchtower_listener": 82361,
-          "walkback_worker": 68374,
-          "creator_resolution_worker": 61347
-        },
-        "Listener_stop_requests": 1,
-        "Listener_start_requests": 1,
-        "Walkback_and_Creator_parent_PIDs_unchanged": true
+      "completion_outcomes": {
+        "observed_utc": "2026-11-04T21:25:24.219870Z",
+        "rows": [
+          {
+            "outcome": "LINEAGE_GAP",
+            "last_1h": 3
+          },
+          {
+            "outcome": "NO_ATTRIBUTION_FOUND",
+            "last_1h": 4
+          }
+        ]
       }
     },
-    "preservation": {
-      "operator_cutover": {
-        "verdict": "PASS_STOPPED_CUSTODY_PRESERVATION",
-        "original_records_exact": 8191,
-        "original_owned_exact": 5756,
-        "original_active_exact": 2435,
-        "original_journal_records_exact": 512,
-        "original_terminal_and_birth_tables_exact": true,
-        "archived_originals": 20
+    "earlier_current_paired_observation": {
+      "observed_utc": "2026-11-04T21:24:31.237007+00:00",
+      "admissions": 25,
+      "FULL_completions": 6,
+      "all6_current_canonical_handoff_verifications_match": true
+    },
+    "pending_latest_reasons": [
+      {
+        "reason": "NO_RECORDED_ERROR",
+        "readiness": "due",
+        "n": 4,
+        "maximum_retry_remaining_seconds": -1793827534.6629279
       },
-      "accounting": {
-        "verdict": "PASS_SAVED_ACCOUNTING_PRESERVATION",
-        "original_uncertain_exact": 15,
-        "original_owners_exact": 10522,
-        "original_lifetime_scopes_monotonic": 5094,
-        "request_attempts_credits_preserved": 30465,
-        "qualified_expired_settled_omissions": 500,
-        "qualified_expired_recreated_keys": 0,
-        "cutover_requests": [
-          {
-            "selector": "rpc:getMultipleAccounts",
-            "attempts": 1,
-            "credits": 1,
-            "preserved_as": "RETAINED_CHARGED_UNCERTAIN"
-          },
-          {
-            "selector": "rpc:getAccountInfo",
-            "attempts": 425,
-            "credits": 425,
-            "preserved_as": "RETAINED_CHARGED_UNCERTAIN"
-          }
-        ]
+      {
+        "reason": "HELIUS_GATE_BUSY",
+        "readiness": "due",
+        "n": 5,
+        "maximum_retry_remaining_seconds": -69.66292786598206
       },
-      "checkpoint": {
-        "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
-        "committed_exact": 3447,
-        "legacy_intent_exact": 1276,
-        "unsent_exact": 107,
-        "unsent_progressed": 0,
-        "failed_queue_exact": 1410,
-        "stopped": false,
-        "archived_originals": 128,
-        "new_checkpoint_rows": 26,
-        "new_reservations": 1
+      {
+        "reason": "HELIUS_INFLIGHT_LIMIT",
+        "readiness": "due",
+        "n": 1,
+        "maximum_retry_remaining_seconds": -404.66292786598206
       },
-      "funding": {
-        "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
-        "tables": {
-          "wt_walkback_transaction_roles": {
-            "original_exact": 9115,
-            "new_rows": 4
-          },
-          "wt_walkback_atomic_flows": {
-            "original_exact": 1357,
-            "new_rows": 2
-          },
-          "wt_walkback_edge_candidates": {
-            "original_exact": 12204,
-            "new_rows": 4
-          }
-        }
-      },
-      "original_uncertain_exact": 15,
-      "interrupted_Listener_requests_preserved_charged_uncertain": 2,
-      "no_unknown_replay_or_attempt_reset": true,
-      "postruntime_custody": {
-        "verdict": "PASS_CURRENT_CUSTODY_PROGRESS_PRESERVATION",
-        "counts": {
-          "deferred_original12_exact": 8150,
-          "ordinary_attempt_state_or_custody_advanced": 41,
-          "original_journal_payload_exact_somewhere": 512,
-          "original_terminal_immutable_exact": 3455
-        },
-        "unverified": [],
-        "limits": [
-          "Current history SHA/quotas and Terminal/Birth schema/evidence require the independent custody snapshot checks.",
-          "No paid dispatch is inferred from attempts alone; saved Gate accounting must be verified separately.",
-          "If enriched from an earlier copy, original due/revision values are not reconstructed; exact original12 comparisons use the saved STOPPED SHA.",
-          "Original hot-journal origin fields absent from the hash-only STOPPED record rely on pinned Journal transition code; an unmatched new ACK needs fresh proof."
-        ],
-        "current_original_history_envelopes_exact": true,
-        "current_hot_records": 8192,
-        "current_history_records": 20,
-        "current_hot_bytes": 21963470,
-        "current_history_bytes": 66526,
-        "quotas_and_all_history_envelopes_validated": true,
-        "fresh_completion_proofs": 9,
-        "baseline_scheduling_metadata_enrichment": 820
+      {
+        "reason": "WALKBACK_JOB_TIME_LIMIT_RPC_USAGE_UNCERTAIN",
+        "readiness": "delayed",
+        "n": 1,
+        "maximum_retry_remaining_seconds": 44.337072134017944
       }
-    },
-    "progress": {
-      "seconds_since_Listener_restart": 430.725,
-      "admissions": {
-        "admitted": 13,
-        "current_dispositions": [
-          {
-            "status": "complete",
-            "walkback_class": "FULL_WALKBACK",
-            "intelligence_outcome": "LINEAGE_GAP",
-            "n": 3
-          },
-          {
-            "status": "failed",
-            "walkback_class": "FULL_WALKBACK",
-            "intelligence_outcome": null,
-            "n": 1
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "intelligence_outcome": null,
-            "n": 5
-          },
-          {
-            "status": "running",
-            "walkback_class": "FULL_WALKBACK",
-            "intelligence_outcome": null,
-            "n": 1
-          },
-          {
-            "status": "waiting",
-            "walkback_class": "FULL_WALKBACK",
-            "intelligence_outcome": null,
-            "n": 3
-          }
-        ]
-      },
-      "completions": {
-        "all_complete": 3,
-        "full_investigations": 3,
-        "full_admitted_since_restart": 3,
-        "full_prior_backlog": 0,
-        "full_enqueue_time_unverified": 0,
-        "all_finished_dispositions_including_failures": [
-          {
-            "status": "complete",
-            "walkback_class": "FULL_WALKBACK",
-            "intelligence_outcome": "LINEAGE_GAP",
-            "origin": "admitted_since_restart",
-            "n": 3,
-            "first_completed_epoch": 1793826653,
-            "latest_completed_epoch": 1793826876
-          }
-        ]
-      },
-      "current_canonical_completion_linkage": {
-        "sample_limit": 512,
-        "sampled": 3,
-        "total_full_completions": 3,
-        "complete_coverage": true,
-        "by_queue_admission_origin": {
-          "admitted_since_restart": {
-            "sampled_full_completions": 3,
-            "canonical_signature_present": 3,
-            "same_signature_complete_handoff": 3,
-            "same_signature_verification": 3,
-            "verification_record_created_since_restart": 3
-          },
-          "prior_backlog": {},
-          "enqueue_time_unverified": {}
-        },
-        "semantics": "Same-mint queue completion is joined to the current canonical migration signature and same-signature handoff/verification. The queue has no retained migration-signature field, so this is current canonical linkage, not an independent assertion of queue enqueue-time signature provenance."
-      },
-      "migration_capture": {
-        "verification_rows_created_since_restart": 13,
-        "first_recorded_epoch": 1793826509,
-        "latest_recorded_epoch": 1793826889
-      },
-      "gate": "OPEN",
-      "gate_failures": 0,
-      "current_uncertain_records": 17,
-      "checkpoint_new_rows": 26
-    },
-    "production_flags": {
-      "observed_at_utc": "2026-11-04T21:15:14.448988+00:00",
-      "DEV_only": false,
-      "deployed_this_turn": true,
-      "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
-      "scoped_runtime_role": "Listener",
-      "production_source_files_written": 2,
-      "production_OPS_deferred_contract_migrated": true,
-      "production_custody_archive_initial_rows": 20,
-      "operator_accounting_writes": 0,
-      "provider_probes": 0,
-      "worker_service_actions": {
-        "Listener_stop": 1,
-        "Listener_start": 1,
-        "Walkback": 0,
-        "Creator": 0
-      },
-      "queue_replay_or_attempt_reset": false,
-      "uncertain_records_cleared": false,
-      "capacity_caps_raised": false,
-      "last_known_runtime_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
-      "last_known_Walkback_scoped_revision": "3dcf3bd9f9d174522f35f75090fd2d437261bc5d",
-      "last_known_Walkback_restart_utc": "2026-11-04T20:01:04.188837+00:00",
-      "Listener_restart_utc": "2026-11-04T21:08:02.759667+00:00",
-      "pids": {
-        "watchtower_listener": 82361,
-        "walkback_worker": 68374,
-        "creator_resolution_worker": 61347
-      },
-      "gate_and_HTTP_and_pair_and_writer_implementations_unchanged": true
-    },
-    "evidence_directory": "/private/tmp/flex-f9-rollout",
-    "blocker": "No rollout blocker. A protected fresh checkpoint uncertainty remains separately recorded; finite throughput observation does not establish backlog clearance or overall system health.",
-    "next_action": "Continue ordinary observation of admissions/completions and finite retention headroom. Separately review any saved checkpoint uncertainty; do not replay protected/exhausted work, reset attempts, clear unknowns, raise caps or restart another service without a new authorized milestone.",
-    "limits": [
-      "Bounded observation proves measured admissions/completions only, not backlog catchup or funding attribution.",
-      "8192 hot,8192 history and64MB shared allocation remain finite. No TTL deletion or unknown retirement.",
-      "Historical source-pinned deployment fallback is unchanged and is not a qualified rollback after the new OPS contract.",
-      "Fresh checkpoint uncertainty is preserved for separate evidence-qualified review; no failed-job replay was performed."
     ],
-    "protected_fresh_failure": {
-      "status": "PASS_EXACT_READ_ONLY_FAILURE_BRANCH_IDENTIFIED",
-      "observed_epoch": 1793826750.866631,
-      "queue_status": "failed",
-      "attempts": 1,
-      "rpc_used": 2,
-      "reason": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
-      "fresh_paid_requests": {
-        "getSignaturesForAddress": "COMMITTED",
-        "getTransaction": "COMMITTED",
-        "payload_checksums_verified": true
-      },
-      "blocked_next_method": "getAccountInfo",
-      "shared_prior_intent": {
-        "created_at": 1793759114,
-        "created_utc": "2026-11-04T02:25:14+00:00",
-        "same_job": false,
-        "observed_at": null,
-        "present_before_cutover": true,
-        "original_metadata_exact": true
-      },
-      "saved_exact_gate_receipt": {
-        "status": "HTTP_COMPLETED",
-        "at": 1793759117,
-        "at_utc": "2026-11-04T02:25:17+00:00",
-        "attempts": 17,
-        "credits": 17,
-        "role": "walkback",
-        "selector": "rpc:getAccountInfo"
-      },
-      "exact_source_branch": "walkback_checkpoints.Journal.call shared INTENT invokes _account_recovery; _account_recovery rejects when prior intent job != current job (line170).",
-      "causal_verdict": "Inherited request-level missing durable outcome; no fresh third network dispatch, provider outage or writer exception established.",
-      "bounded_selects": 4,
-      "production_writes": 0,
-      "provider_calls": 0
+    "historical_attempt_ceiling_stock": {
+      "n": 39,
+      "earliest_admission": 1793054234,
+      "latest_admission": 1793307415
     },
-    "dashboard_refresh": {
-      "status": "PASS",
-      "observed_utc": "2026-11-04T21:12:33.685324Z",
-      "sha256": "e0f9ad2bfdd54630d69f0dee4d2c472cf2cfaa00ab3d4b2bcabc3b0c667c84aa",
-      "collector": "fixed passive refresh.py",
-      "production_data_writes": 0,
-      "provider_probes": 0
-    },
-    "later_finite_capacity_observation": {
-      "observed_utc": "2026-11-04T21:14:41.370326+00:00",
-      "hot": {
-        "used_records": 8192,
-        "used_bytes": 21963946
+    "gate_and_waiting": {
+      "snapshot_utc": "2026-11-04T21:25:24.219870Z",
+      "metrics": {
+        "walkback_admitted_1h": 26,
+        "walkback_completed_1h": 7,
+        "walkback_pending": 11,
+        "walkback_running": 1,
+        "walkback_attempt_limited": 39,
+        "walkback_waiting": 2128,
+        "helius_free_slots": 7054
       },
-      "history": {
-        "used_records": 20,
-        "used_bytes": 66526
+      "recent_admission_refusals": {
+        "window_seconds": 300,
+        "window_start_epoch": 1793827224.2198699,
+        "window_end_epoch": 1793827524.2198699,
+        "available": true,
+        "fresh": true,
+        "latest_event_epoch": 1793827522,
+        "counts_by_reason": {
+          "HELIUS_REQUEST_COOLDOWN": 12,
+          "HELIUS_GATE_BUSY": 13,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+          "OTHER_ADMISSION_REFUSAL": 5,
+          "HELIUS_INFLIGHT_LIMIT": 1
+        },
+        "role_counts": {
+          "listener": 32
+        },
+        "contention_count": 13,
+        "inflight_count": 1,
+        "cooldown_count": 12,
+        "complete": false,
+        "source": "Helius failure diagnostic metadata; bounded last32 events",
+        "events_sampled": 32,
+        "events_in_window": 32,
+        "future_events_excluded": 0,
+        "semantics": "Explicit event timestamps only; partial last32-event ring. Counts are lower bounds, not continuous lock measurements or proof a refusal remains active. Zero, old or unavailable evidence never proves Healthy."
       },
-      "initial_history": 20,
-      "automatic_archive_beyond_seed": false,
-      "fresh_admission_statuses": [
+      "retry_reasons": {
+        "observed_utc": "2026-11-04T21:25:24.219870Z",
+        "rows": [
+          {
+            "reason": "HELIUS_GATE_BUSY",
+            "readiness": "due",
+            "total": 5,
+            "last_1h": 5,
+            "last_24h": 5
+          },
+          {
+            "reason": "NO_RECORDED_ERROR",
+            "readiness": "due",
+            "total": 4,
+            "last_1h": 4,
+            "last_24h": 4
+          },
+          {
+            "reason": "HELIUS_INFLIGHT_LIMIT",
+            "readiness": "due",
+            "total": 1,
+            "last_1h": 1,
+            "last_24h": 1
+          },
+          {
+            "reason": "WALKBACK_JOB_TIME_LIMIT_RPC_USAGE_UNCERTAIN",
+            "readiness": "delayed",
+            "total": 1,
+            "last_1h": 1,
+            "last_24h": 1
+          }
+        ],
+        "semantics": "Current pending jobs below the standard attempt limit, grouped by latest recorded error. Hours use updated_at of currently pending rows, not historical failures or unique attempts. Due means retry time elapsed, not guaranteed admission. Special clock-recovery holds remain separate."
+      },
+      "waiting_recovery": {
+        "measurement": "COMPLETE",
+        "waiting_total": 2128,
+        "examined": 2128,
+        "rows": [
+          {
+            "state": "queued",
+            "label": "Queued",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          },
+          {
+            "state": "retrying",
+            "label": "Retrying",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          },
+          {
+            "state": "running",
+            "label": "Running",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          },
+          {
+            "state": "exhausted",
+            "label": "Exhausted",
+            "all_waiting": 818,
+            "new_last_hour": 2
+          },
+          {
+            "state": "review",
+            "label": "Needs review",
+            "all_waiting": 117,
+            "new_last_hour": 2
+          },
+          {
+            "state": "no_record",
+            "label": "No recovery record",
+            "all_waiting": 1193,
+            "new_last_hour": 0
+          },
+          {
+            "state": "unknown",
+            "label": "Unknown recovery state",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          }
+        ],
+        "semantics": "Current waiting Walkback jobs matched to existing creator-resolution records. Retrying means scheduled for another attempt, not guaranteed progress. Exhausted means recorded search/attempt limit; needs review includes terminal or explicit review holds. No recovery record is separate. New-job column uses Walkback admission in the last hour, not birth time. Read-only cross-store observation; maximum4096 jobs."
+      },
+      "health_status": "Degraded",
+      "health_checks": [
         {
-          "status": "complete",
-          "n": 3
+          "id": "ledger",
+          "label": "Accounting integrity",
+          "status": "PASS",
+          "detail": "Ledger JSON, generation, budget state, checksum and clock validated in this snapshot.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
         },
         {
-          "status": "failed",
-          "n": 1
+          "id": "gate",
+          "label": "Paid RPC admission",
+          "status": "PASS",
+          "detail": "Gate state: OPEN. Per-investigation holds remain separate.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
         },
         {
-          "status": "pending",
-          "n": 5
+          "id": "capacity",
+          "label": "Helius identity headroom",
+          "status": "PASS",
+          "detail": "7054 free slots; below 2048 requires review.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
         },
         {
-          "status": "running",
-          "n": 1
+          "id": "locks",
+          "label": "Accounting admission — last five minutes",
+          "status": "FAIL",
+          "detail": "13 timestamped lock or admission-timeout refusals in the bounded writer diagnostic. This is recent contention, not a claim that a lock is held now. Coverage is partial.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
         },
         {
-          "status": "waiting",
-          "n": 3
+          "id": "birth_coverage",
+          "label": "Receive-to-persistence coverage",
+          "status": "UNKNOWN",
+          "detail": "Complete recent PumpPortal receive-to-Core coverage is not measured. A successful sample does not prove every birth was captured.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "listener",
+          "label": "Listener intake heartbeat",
+          "status": "UNKNOWN",
+          "detail": "No authoritative Listener heartbeat is retained. A Listener sampler published 0 seconds ago; its independent thread does not verify intake or event-loop health.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "creator_worker",
+          "label": "Creator-resolution heartbeat",
+          "status": "PASS",
+          "detail": "Core creator-resolution heartbeat 9 seconds ago; no current error in outcome metadata. Cumulative failure totals are historical.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "walkback_worker",
+          "label": "Walkback heartbeat",
+          "status": "UNKNOWN",
+          "detail": "Last heartbeat 200 seconds ago; current liveness is unverified.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        }
+      ],
+      "health_warnings": [
+        {
+          "id": "retained_locks",
+          "label": "Retained lock warnings",
+          "status": "WARNING",
+          "detail": "0 creator-recovery and 5 Walkback jobs updated in the last hour retain a lock refusal. The refusal itself is not timestamped; these counts do not establish a current fault.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "creator_recovery",
+          "label": "Retained creator admission warnings",
+          "status": "INFO",
+          "detail": "0 jobs updated in the last hour retain a generic acquisition deferral. Refusal time and specific cause are unverified.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "tracked_births",
+          "label": "Three tracked birth gaps",
+          "status": "INFO",
+          "detail": "All 3 tracked tokens have creator and CREATE fields. This targeted recovery does not establish complete birth capture.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "progress",
+          "label": "Investigation progress — last hour",
+          "status": "INFO",
+          "detail": "7 full investigations completed. This rolling total does not certify every job or current liveness.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "uncertain",
+          "label": "Uncertain request review holds",
+          "status": "REVIEW",
+          "detail": "17 uncertain requests remain held for review; spending, attempts and evidence are preserved. These are unresolved per-request holds, not proof of a current system outage.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
         }
       ]
-    }
+    },
+    "checkpoint_failure_cause": "First2new protected failures share one unchanged old cross-job getAccountInfo INTENT02:25:14UTC. Third finds a newer Listener-paid HTTP_COMPLETED observation without matching durable Walkback reply and cannot reuse stale older replies. Their own fresh replies are COMMITTED; no fresh provider failure or writer exception established.",
+    "current_running_job": {
+      "claim_age_seconds": 16.663,
+      "lease_remaining_seconds": 283.337,
+      "committed_signature_pages": 2,
+      "new_INTENT_and_2MiB_reservation_present": true,
+      "interpretation": "Ordinary active checkpoint progress at observation, not a demonstrated stall."
+    },
+    "tests": "No test suite run for this read-only observation. Bounded authoritative paired SELECTs and fixed collector completed; no provider probes or runtime changes.",
+    "production_flags": {
+      "observed_at_utc": "2026-11-04T21:27:35.410383+00:00",
+      "deployed_this_turn": false,
+      "read_only_progress_check": true,
+      "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
+      "production_source_files_written": 0,
+      "production_database_or_accounting_writes": 0,
+      "provider_probes": 0,
+      "worker_service_actions": 0,
+      "queue_replay_or_attempt_reset": false,
+      "uncertain_records_cleared": false,
+      "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
+      "last_known_Walkback_scoped_revision": "3dcf3bd9f9d174522f35f75090fd2d437261bc5d",
+      "last_known_Listener_restart_utc": "2026-11-04T21:08:02.759667+00:00",
+      "existing_dashboard_refreshed_utc": "2026-11-04T21:25:24.219870Z"
+    },
+    "evidence_directory": "/private/tmp/flex-f9-progress-20261104T212431Z",
+    "blocker": "Throughput continues with remaining holds: recent paid-RPC admission contention;3new jobs stopped on inherited shared checkpoint/paid-result ambiguity;39historical attempt-ceiling jobs;17uncertain requests;2128creator/CREATE-waiting jobs. Overall health remains Degraded, with incomplete intake coverage telemetry.",
+    "next_action": "Continue ordinary processing and five-minute passive dashboard refresh. Separately review the saved cross-job INTENT and later Listener-paid observation without matching Walkback reply before proposing evidence-qualified recovery or DEV remediation. Do not reset attempts, clear holds, replay work, change accounting/caps, patch production or restart a service under this read-only status request.",
+    "limits": [
+      "Counts are observed queue flows/statuses, not complete external receive coverage or guaranteed future throughput.",
+      "7completions are3LINEAGE_GAP and4NO_ATTRIBUTION_FOUND; no new confirmed funding attribution.",
+      "Recent refusal counts are partial last32-event lower bounds, not proof a lock is held continuously.",
+      "Walkback heartbeat was200seconds old in the21:25:24dashboard snapshot; current single job nonetheless has independently observed fresh checkpoint progress."
+    ]
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74834,35 +74796,20 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "observed_at_utc": "2026-11-04T21:15:14.448988+00:00",
-    "DEV_only": false,
-    "deployed_this_turn": true,
+    "observed_at_utc": "2026-11-04T21:27:35.410383+00:00",
+    "deployed_this_turn": false,
+    "read_only_progress_check": true,
     "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
-    "scoped_runtime_role": "Listener",
-    "production_source_files_written": 2,
-    "production_OPS_deferred_contract_migrated": true,
-    "production_custody_archive_initial_rows": 20,
-    "operator_accounting_writes": 0,
+    "production_source_files_written": 0,
+    "production_database_or_accounting_writes": 0,
     "provider_probes": 0,
-    "worker_service_actions": {
-      "Listener_stop": 1,
-      "Listener_start": 1,
-      "Walkback": 0,
-      "Creator": 0
-    },
+    "worker_service_actions": 0,
     "queue_replay_or_attempt_reset": false,
     "uncertain_records_cleared": false,
-    "capacity_caps_raised": false,
-    "last_known_runtime_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
+    "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
     "last_known_Walkback_scoped_revision": "3dcf3bd9f9d174522f35f75090fd2d437261bc5d",
-    "last_known_Walkback_restart_utc": "2026-11-04T20:01:04.188837+00:00",
-    "Listener_restart_utc": "2026-11-04T21:08:02.759667+00:00",
-    "pids": {
-      "watchtower_listener": 82361,
-      "walkback_worker": 68374,
-      "creator_resolution_worker": 61347
-    },
-    "gate_and_HTTP_and_pair_and_writer_implementations_unchanged": true
+    "last_known_Listener_restart_utc": "2026-11-04T21:08:02.759667+00:00",
+    "existing_dashboard_refreshed_utc": "2026-11-04T21:25:24.219870Z"
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -81841,5 +81788,331 @@
         }
       ]
     }
+  },
+  "post_f9_progress_readonly_20261104": {
+    "status": "PASS_READ_ONLY_PROGRESS_OBSERVATION_WITH_REMAINING_BLOCKERS",
+    "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
+    "observed_utc": "2026-11-04T21:25:34.662934+00:00",
+    "authorization": "Human requested latest progress, whether admissions/completions are still increasing, and remaining blockers. Read-only diagnosis plus existing approved fixed dashboard refresh only.",
+    "comparison": {
+      "baseline_utc": "2026-11-04T21:15:13.487808+00:00",
+      "baseline_postrestart_admissions": 13,
+      "baseline_postrestart_FULL_completions": 3,
+      "current_postrestart_admissions": 26,
+      "current_postrestart_FULL_completions": 7,
+      "admission_increase": 13,
+      "FULL_completion_increase": 4,
+      "latest_FULL_completion_utc": "2026-11-04T21:25:04+00:00",
+      "current_new_cohort_dispositions": {
+        "complete": 7,
+        "failed": 3,
+        "pending": 11,
+        "running": 1,
+        "waiting": 4
+      },
+      "completion_outcomes": {
+        "observed_utc": "2026-11-04T21:25:24.219870Z",
+        "rows": [
+          {
+            "outcome": "LINEAGE_GAP",
+            "last_1h": 3
+          },
+          {
+            "outcome": "NO_ATTRIBUTION_FOUND",
+            "last_1h": 4
+          }
+        ]
+      }
+    },
+    "earlier_current_paired_observation": {
+      "observed_utc": "2026-11-04T21:24:31.237007+00:00",
+      "admissions": 25,
+      "FULL_completions": 6,
+      "all6_current_canonical_handoff_verifications_match": true
+    },
+    "pending_latest_reasons": [
+      {
+        "reason": "NO_RECORDED_ERROR",
+        "readiness": "due",
+        "n": 4,
+        "maximum_retry_remaining_seconds": -1793827534.6629279
+      },
+      {
+        "reason": "HELIUS_GATE_BUSY",
+        "readiness": "due",
+        "n": 5,
+        "maximum_retry_remaining_seconds": -69.66292786598206
+      },
+      {
+        "reason": "HELIUS_INFLIGHT_LIMIT",
+        "readiness": "due",
+        "n": 1,
+        "maximum_retry_remaining_seconds": -404.66292786598206
+      },
+      {
+        "reason": "WALKBACK_JOB_TIME_LIMIT_RPC_USAGE_UNCERTAIN",
+        "readiness": "delayed",
+        "n": 1,
+        "maximum_retry_remaining_seconds": 44.337072134017944
+      }
+    ],
+    "historical_attempt_ceiling_stock": {
+      "n": 39,
+      "earliest_admission": 1793054234,
+      "latest_admission": 1793307415
+    },
+    "gate_and_waiting": {
+      "snapshot_utc": "2026-11-04T21:25:24.219870Z",
+      "metrics": {
+        "walkback_admitted_1h": 26,
+        "walkback_completed_1h": 7,
+        "walkback_pending": 11,
+        "walkback_running": 1,
+        "walkback_attempt_limited": 39,
+        "walkback_waiting": 2128,
+        "helius_free_slots": 7054
+      },
+      "recent_admission_refusals": {
+        "window_seconds": 300,
+        "window_start_epoch": 1793827224.2198699,
+        "window_end_epoch": 1793827524.2198699,
+        "available": true,
+        "fresh": true,
+        "latest_event_epoch": 1793827522,
+        "counts_by_reason": {
+          "HELIUS_REQUEST_COOLDOWN": 12,
+          "HELIUS_GATE_BUSY": 13,
+          "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW": 1,
+          "OTHER_ADMISSION_REFUSAL": 5,
+          "HELIUS_INFLIGHT_LIMIT": 1
+        },
+        "role_counts": {
+          "listener": 32
+        },
+        "contention_count": 13,
+        "inflight_count": 1,
+        "cooldown_count": 12,
+        "complete": false,
+        "source": "Helius failure diagnostic metadata; bounded last32 events",
+        "events_sampled": 32,
+        "events_in_window": 32,
+        "future_events_excluded": 0,
+        "semantics": "Explicit event timestamps only; partial last32-event ring. Counts are lower bounds, not continuous lock measurements or proof a refusal remains active. Zero, old or unavailable evidence never proves Healthy."
+      },
+      "retry_reasons": {
+        "observed_utc": "2026-11-04T21:25:24.219870Z",
+        "rows": [
+          {
+            "reason": "HELIUS_GATE_BUSY",
+            "readiness": "due",
+            "total": 5,
+            "last_1h": 5,
+            "last_24h": 5
+          },
+          {
+            "reason": "NO_RECORDED_ERROR",
+            "readiness": "due",
+            "total": 4,
+            "last_1h": 4,
+            "last_24h": 4
+          },
+          {
+            "reason": "HELIUS_INFLIGHT_LIMIT",
+            "readiness": "due",
+            "total": 1,
+            "last_1h": 1,
+            "last_24h": 1
+          },
+          {
+            "reason": "WALKBACK_JOB_TIME_LIMIT_RPC_USAGE_UNCERTAIN",
+            "readiness": "delayed",
+            "total": 1,
+            "last_1h": 1,
+            "last_24h": 1
+          }
+        ],
+        "semantics": "Current pending jobs below the standard attempt limit, grouped by latest recorded error. Hours use updated_at of currently pending rows, not historical failures or unique attempts. Due means retry time elapsed, not guaranteed admission. Special clock-recovery holds remain separate."
+      },
+      "waiting_recovery": {
+        "measurement": "COMPLETE",
+        "waiting_total": 2128,
+        "examined": 2128,
+        "rows": [
+          {
+            "state": "queued",
+            "label": "Queued",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          },
+          {
+            "state": "retrying",
+            "label": "Retrying",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          },
+          {
+            "state": "running",
+            "label": "Running",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          },
+          {
+            "state": "exhausted",
+            "label": "Exhausted",
+            "all_waiting": 818,
+            "new_last_hour": 2
+          },
+          {
+            "state": "review",
+            "label": "Needs review",
+            "all_waiting": 117,
+            "new_last_hour": 2
+          },
+          {
+            "state": "no_record",
+            "label": "No recovery record",
+            "all_waiting": 1193,
+            "new_last_hour": 0
+          },
+          {
+            "state": "unknown",
+            "label": "Unknown recovery state",
+            "all_waiting": 0,
+            "new_last_hour": 0
+          }
+        ],
+        "semantics": "Current waiting Walkback jobs matched to existing creator-resolution records. Retrying means scheduled for another attempt, not guaranteed progress. Exhausted means recorded search/attempt limit; needs review includes terminal or explicit review holds. No recovery record is separate. New-job column uses Walkback admission in the last hour, not birth time. Read-only cross-store observation; maximum4096 jobs."
+      },
+      "health_status": "Degraded",
+      "health_checks": [
+        {
+          "id": "ledger",
+          "label": "Accounting integrity",
+          "status": "PASS",
+          "detail": "Ledger JSON, generation, budget state, checksum and clock validated in this snapshot.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "gate",
+          "label": "Paid RPC admission",
+          "status": "PASS",
+          "detail": "Gate state: OPEN. Per-investigation holds remain separate.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "capacity",
+          "label": "Helius identity headroom",
+          "status": "PASS",
+          "detail": "7054 free slots; below 2048 requires review.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "locks",
+          "label": "Accounting admission — last five minutes",
+          "status": "FAIL",
+          "detail": "13 timestamped lock or admission-timeout refusals in the bounded writer diagnostic. This is recent contention, not a claim that a lock is held now. Coverage is partial.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "birth_coverage",
+          "label": "Receive-to-persistence coverage",
+          "status": "UNKNOWN",
+          "detail": "Complete recent PumpPortal receive-to-Core coverage is not measured. A successful sample does not prove every birth was captured.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "listener",
+          "label": "Listener intake heartbeat",
+          "status": "UNKNOWN",
+          "detail": "No authoritative Listener heartbeat is retained. A Listener sampler published 0 seconds ago; its independent thread does not verify intake or event-loop health.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "creator_worker",
+          "label": "Creator-resolution heartbeat",
+          "status": "PASS",
+          "detail": "Core creator-resolution heartbeat 9 seconds ago; no current error in outcome metadata. Cumulative failure totals are historical.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "walkback_worker",
+          "label": "Walkback heartbeat",
+          "status": "UNKNOWN",
+          "detail": "Last heartbeat 200 seconds ago; current liveness is unverified.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        }
+      ],
+      "health_warnings": [
+        {
+          "id": "retained_locks",
+          "label": "Retained lock warnings",
+          "status": "WARNING",
+          "detail": "0 creator-recovery and 5 Walkback jobs updated in the last hour retain a lock refusal. The refusal itself is not timestamped; these counts do not establish a current fault.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "creator_recovery",
+          "label": "Retained creator admission warnings",
+          "status": "INFO",
+          "detail": "0 jobs updated in the last hour retain a generic acquisition deferral. Refusal time and specific cause are unverified.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "tracked_births",
+          "label": "Three tracked birth gaps",
+          "status": "INFO",
+          "detail": "All 3 tracked tokens have creator and CREATE fields. This targeted recovery does not establish complete birth capture.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "progress",
+          "label": "Investigation progress — last hour",
+          "status": "INFO",
+          "detail": "7 full investigations completed. This rolling total does not certify every job or current liveness.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        },
+        {
+          "id": "uncertain",
+          "label": "Uncertain request review holds",
+          "status": "REVIEW",
+          "detail": "17 uncertain requests remain held for review; spending, attempts and evidence are preserved. These are unresolved per-request holds, not proof of a current system outage.",
+          "observed_utc": "2026-11-04T21:25:24.219870Z"
+        }
+      ]
+    },
+    "checkpoint_failure_cause": "First2new protected failures share one unchanged old cross-job getAccountInfo INTENT02:25:14UTC. Third finds a newer Listener-paid HTTP_COMPLETED observation without matching durable Walkback reply and cannot reuse stale older replies. Their own fresh replies are COMMITTED; no fresh provider failure or writer exception established.",
+    "current_running_job": {
+      "claim_age_seconds": 16.663,
+      "lease_remaining_seconds": 283.337,
+      "committed_signature_pages": 2,
+      "new_INTENT_and_2MiB_reservation_present": true,
+      "interpretation": "Ordinary active checkpoint progress at observation, not a demonstrated stall."
+    },
+    "tests": "No test suite run for this read-only observation. Bounded authoritative paired SELECTs and fixed collector completed; no provider probes or runtime changes.",
+    "production_flags": {
+      "observed_at_utc": "2026-11-04T21:27:35.410383+00:00",
+      "deployed_this_turn": false,
+      "read_only_progress_check": true,
+      "engineering_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
+      "production_source_files_written": 0,
+      "production_database_or_accounting_writes": 0,
+      "provider_probes": 0,
+      "worker_service_actions": 0,
+      "queue_replay_or_attempt_reset": false,
+      "uncertain_records_cleared": false,
+      "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c",
+      "last_known_Walkback_scoped_revision": "3dcf3bd9f9d174522f35f75090fd2d437261bc5d",
+      "last_known_Listener_restart_utc": "2026-11-04T21:08:02.759667+00:00",
+      "existing_dashboard_refreshed_utc": "2026-11-04T21:25:24.219870Z"
+    },
+    "evidence_directory": "/private/tmp/flex-f9-progress-20261104T212431Z",
+    "blocker": "Throughput continues with remaining holds: recent paid-RPC admission contention;3new jobs stopped on inherited shared checkpoint/paid-result ambiguity;39historical attempt-ceiling jobs;17uncertain requests;2128creator/CREATE-waiting jobs. Overall health remains Degraded, with incomplete intake coverage telemetry.",
+    "next_action": "Continue ordinary processing and five-minute passive dashboard refresh. Separately review the saved cross-job INTENT and later Listener-paid observation without matching Walkback reply before proposing evidence-qualified recovery or DEV remediation. Do not reset attempts, clear holds, replay work, change accounting/caps, patch production or restart a service under this read-only status request.",
+    "limits": [
+      "Counts are observed queue flows/statuses, not complete external receive coverage or guaranteed future throughput.",
+      "7completions are3LINEAGE_GAP and4NO_ATTRIBUTION_FOUND; no new confirmed funding attribution.",
+      "Recent refusal counts are partial last32-event lower bounds, not proof a lock is held continuously.",
+      "Walkback heartbeat was200seconds old in the21:25:24dashboard snapshot; current single job nonetheless has independently observed fresh checkpoint progress."
+    ]
   }
 }

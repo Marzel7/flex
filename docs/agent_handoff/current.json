@@ -1231,9 +1231,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Frozen4new-job cohort remains0complete:3never claimed/0WalkbackRPC because verified creator/CREATE missing;2creator searches skipped after1000signatures/1page(BUDGET_EXCEEDED),1creator recovery awaiting retry afterINFLIGHT_LIMIT. The1started job has4checksum-verified COMMITTED replies then refuses a different-job account INTENT from01:07:49UTC, exactly preserved from befored78. No audit mutation or replay.",
+  "blocker": "Same fourth job is still waiting for verified creator/CREATE, never started, zero Walkback attempts/RPC. Creator resolver processed another deferral after prior due time; latest update 23:00:24 UTC is HELIUS_INFLIGHT_LIMIT | BudgetDeferred, next due 23:05:24 UTC. No recovery success or completion.",
   "blockers": [
-    "Frozen4new-job cohort remains0complete:3never claimed/0WalkbackRPC because verified creator/CREATE missing;2creator searches skipped after1000signatures/1page(BUDGET_EXCEEDED),1creator recovery awaiting retry afterINFLIGHT_LIMIT. The1started job has4checksum-verified COMMITTED replies then refuses a different-job account INTENT from01:07:49UTC, exactly preserved from befored78. No audit mutation or replay."
+    "Same fourth job is still waiting for verified creator/CREATE, never started, zero Walkback attempts/RPC. Creator resolver processed another deferral after prior due time; latest update 23:00:24 UTC is HELIUS_INFLIGHT_LIMIT | BudgetDeferred, next due 23:05:24 UTC. No recovery success or completion."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2703,14 +2703,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Audit-only diagnosis of four new Walkbacks",
-    "status": "PASS_AUDIT_FOUR_NEW_WALKBACK_CAUSES_IDENTIFIED",
+    "milestone": "Audit creator retry due 22:52 UTC",
+    "status": "PASS_AUDIT_CREATOR_RETRY_STILL_DEFERRED",
     "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "evidence_ref": "/private/tmp/flex-four-audit-20261104T224903Z/AUDIT_REPORT.json",
-    "blocker": "Frozen4new-job cohort remains0complete:3never claimed/0WalkbackRPC because verified creator/CREATE missing;2creator searches skipped after1000signatures/1page(BUDGET_EXCEEDED),1creator recovery awaiting retry afterINFLIGHT_LIMIT. The1started job has4checksum-verified COMMITTED replies then refuses a different-job account INTENT from01:07:49UTC, exactly preserved from befored78. No audit mutation or replay.",
-    "next_action": "Review AUDIT_REPORT.json. Audit-only scope is complete. Any DEV change must be separately requested: strict CREATE/creator discovery for the exhausted searches or evidence-qualified cross-job account recovery. Leave current jobs/attempts/unknown records/funding and accounting untouched; no provider probes, queue replay, reset, restart, source patch or permit creation authorized."
+    "blocker": "Same fourth job is still waiting for verified creator/CREATE, never started, zero Walkback attempts/RPC. Creator resolver processed another deferral after prior due time; latest update 23:00:24 UTC is HELIUS_INFLIGHT_LIMIT | BudgetDeferred, next due 23:05:24 UTC. No recovery success or completion.",
+    "next_action": "Audit complete. Leave the normal creator retry eligible at 23:05:24 UTC. No source change, manual retry, reset, provider probe, accounting/database mutation or service action authorized by this audit."
   },
-  "current_next_blocker": "Frozen4new-job cohort remains0complete:3never claimed/0WalkbackRPC because verified creator/CREATE missing;2creator searches skipped after1000signatures/1page(BUDGET_EXCEEDED),1creator recovery awaiting retry afterINFLIGHT_LIMIT. The1started job has4checksum-verified COMMITTED replies then refuses a different-job account INTENT from01:07:49UTC, exactly preserved from befored78. No audit mutation or replay.",
+  "current_next_blocker": "Same fourth job is still waiting for verified creator/CREATE, never started, zero Walkback attempts/RPC. Creator resolver processed another deferral after prior due time; latest update 23:00:24 UTC is HELIUS_INFLIGHT_LIMIT | BudgetDeferred, next due 23:05:24 UTC. No recovery success or completion.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44972,11 +44971,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-04T22:52:52.595075+00:00",
+    "published_at_utc": "2026-11-04T23:02:25.388080+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-04T22:52:52.595103+00:00",
-    "last_local_checkpoint_utc": "2026-11-04T22:52:43.216483+00:00",
-    "verification_receipt": "/private/tmp/flex-four-audit-20261104T224903Z/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-04T23:02:25.388123+00:00",
+    "last_local_checkpoint_utc": "2026-11-04T23:02:11.351672+00:00",
+    "verification_receipt": "/private/tmp/flex-creator-retry-audit-20261104T2301Z/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -48795,8 +48794,8 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-11-04T22:52:43.216483+00:00",
-  "latest_at_utc": "2026-11-04T22:52:43.216483+00:00",
+  "last_updated": "2026-11-04T23:02:11.351672+00:00",
+  "latest_at_utc": "2026-11-04T23:02:11.351672+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -58215,7 +58214,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review AUDIT_REPORT.json. Audit-only scope is complete. Any DEV change must be separately requested: strict CREATE/creator discovery for the exhausted searches or evidence-qualified cross-job account recovery. Leave current jobs/attempts/unknown records/funding and accounting untouched; no provider probes, queue replay, reset, restart, source patch or permit creation authorized.",
+  "next_action": "Audit complete. Leave the normal creator retry eligible at 23:05:24 UTC. No source change, manual retry, reset, provider probe, accounting/database mutation or service action authorized by this audit.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60449,8 +60448,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "d78dc02ea9d0a9462765d306ac91c18646f077be",
     "name": "flex",
-    "updated_at_utc": "2026-11-04T22:52:43.216483+00:00",
-    "working_tree": "Engineering d78dc02e remains committed and deployed earlier. This turn audited four jobs read-only, with private evidence and a sanitized report. No production source/data/accounting/service/provider changes; routine handoff only dirty plus preexisting guard."
+    "updated_at_utc": "2026-11-04T23:02:11.351672+00:00",
+    "working_tree": "Engineering source remains d78dc02e. This turn: bounded read-only follow-up of one existing job, private evidence, mandatory handoff only; no production changes."
   },
   "project_git_head": "d78dc02ea9d0a9462765d306ac91c18646f077be",
   "pumpfun_archived_prebuy_state": {
@@ -61912,7 +61911,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_AUDIT_FOUR_NEW_WALKBACK_CAUSES_IDENTIFIED",
+  "status": "PASS_AUDIT_CREATOR_RETRY_STILL_DEFERRED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63315,9 +63314,9 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-11-04T22:52:43.216483+00:00",
-  "updated_at_utc": "2026-11-04T22:52:43.216483+00:00",
-  "updated_by": "Codex four-job read-only audit",
+  "updated_at": "2026-11-04T23:02:11.351672+00:00",
+  "updated_at_utc": "2026-11-04T23:02:11.351672+00:00",
+  "updated_by": "Codex creator retry read-only audit",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
     "cron_runner_sha256": "d93eb8e9d438075abb62a422c083c87d5a7b9121390bdf776d08189bf4e49ec1",
@@ -63532,7 +63531,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_AUDIT_FOUR_NEW_WALKBACK_CAUSES_IDENTIFIED",
+  "verdict": "PASS_AUDIT_CREATOR_RETRY_STILL_DEFERRED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73322,165 +73321,87 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_AUDIT_FOUR_NEW_WALKBACK_CAUSES_IDENTIFIED",
+    "status": "PASS_AUDIT_CREATOR_RETRY_STILL_DEFERRED",
     "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "observed_utc": "2026-11-04T22:51:46.387196+00:00",
-    "authorization": "Human explicitly requested audit only of why the four new Walkbacks had not completed.",
-    "scope": "The4jobs admitted after d78 restart and before22:47:33UTC; no cohort substitution.",
-    "findings": [
-      {
-        "job": 1,
-        "admitted_utc": "2026-11-04T22:24:56+00:00",
-        "queue": {
-          "status": "waiting",
-          "attempts": 0,
-          "rpc_used": 0,
-          "path_state": "WAITING_FOR_CREATE_ANCHOR",
-          "last_error": null,
-          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
-          "enqueued_at": 1793831096
-        },
-        "verified_creator_present": false,
-        "verified_CREATE_anchor_present": false,
-        "creator_recovery": {
-          "status": "skipped",
-          "attempts": 1,
-          "next_attempt_at": 1793831088,
-          "skip_reason": "BUDGET_EXCEEDED",
-          "sigs_examined": 1000,
-          "pages_examined": 1,
-          "updated_at": 1793831131,
-          "diagnostic": {
-            "code": "CREATOR_AUTHORITY",
-            "status": "inferred_create",
-            "strict": false,
-            "reason": "SEARCH_BUDGET_EXCEEDED",
-            "candidate_creator_present": true,
-            "candidate_source_tx_present": true,
-            "bonding_curve_extraction_failed": true
-          }
-        }
+    "observed_utc": "2026-11-04T23:01:47.687313+00:00",
+    "authorization": "Human requested audit only of the same creator recovery due at 22:52 and whether its Walkback completed.",
+    "findings": {
+      "status": "PASS_READ_ONLY_CREATOR_RETRY_AUDIT",
+      "observed_utc": "2026-11-04T23:01:47.687313+00:00",
+      "subject": "Same fourth job admitted 2026-11-04T22:40:32Z; creator retry previously due 22:52:28Z",
+      "subject_sha256": "023459acd392312ad2bb0bbe16ae8e30d38a41de4c249edcb1c226daba78ee6f",
+      "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "creator_resolution": {
+        "status": "retry",
+        "attempts": 0,
+        "next_attempt_at": 1793833524,
+        "updated_at": 1793833224,
+        "resolved_at": null,
+        "last_error": "HELIUS_INFLIGHT_LIMIT | BudgetDeferred",
+        "sigs_examined": null,
+        "pages_examined": null,
+        "skip_reason": null,
+        "resolved_creator_present": false,
+        "create_tx_signature_present": false,
+        "next_attempt_at_utc": "2026-11-04T23:05:24+00:00",
+        "updated_at_utc": "2026-11-04T23:00:24+00:00",
+        "resolved_at_utc": null
       },
-      {
-        "job": 2,
-        "admitted_utc": "2026-11-04T22:28:15+00:00",
-        "queue": {
-          "status": "waiting",
-          "attempts": 0,
-          "rpc_used": 0,
-          "path_state": "WAITING_FOR_CREATE_ANCHOR",
-          "last_error": null,
-          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
-          "enqueued_at": 1793831295
-        },
-        "verified_creator_present": false,
-        "verified_CREATE_anchor_present": false,
-        "creator_recovery": {
-          "status": "skipped",
-          "attempts": 1,
-          "next_attempt_at": 1793832143,
-          "skip_reason": "BUDGET_EXCEEDED",
-          "sigs_examined": 1000,
-          "pages_examined": 1,
-          "updated_at": 1793832212,
-          "diagnostic": {
-            "code": "CREATOR_AUTHORITY",
-            "status": "no_create_found",
-            "strict": false,
-            "reason": "SEARCH_BUDGET_EXCEEDED",
-            "candidate_creator_present": false,
-            "candidate_source_tx_present": false,
-            "bonding_curve_extraction_failed": true
-          }
-        }
+      "walkback": {
+        "status": "waiting",
+        "attempts": 0,
+        "rpc_used": 0,
+        "path_state": "WAITING_FOR_CREATE_ANCHOR",
+        "enqueued_at": 1793832032,
+        "started_at": null,
+        "completed_at": null,
+        "updated_at": 1793832032,
+        "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+        "creator_present": false,
+        "create_anchor_signature_present": false,
+        "enqueued_at_utc": "2026-11-04T22:40:32+00:00",
+        "started_at_utc": null,
+        "completed_at_utc": null,
+        "updated_at_utc": "2026-11-04T22:40:32+00:00"
       },
-      {
-        "job": 3,
-        "admitted_utc": "2026-11-04T22:36:04+00:00",
-        "queue": {
-          "status": "failed",
-          "attempts": 1,
-          "rpc_used": 4,
-          "path_state": "CLAIMED",
-          "last_error": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
-          "create_anchor_audit_state": "VALID",
-          "enqueued_at": 1793831764
-        },
-        "verified_creator_present": true,
-        "verified_CREATE_anchor_present": true
-      },
-      {
-        "job": 4,
-        "admitted_utc": "2026-11-04T22:40:32+00:00",
-        "queue": {
-          "status": "waiting",
-          "attempts": 0,
-          "rpc_used": 0,
-          "path_state": "WAITING_FOR_CREATE_ANCHOR",
-          "last_error": null,
-          "create_anchor_audit_state": "MISSING_OR_MALFORMED",
-          "enqueued_at": 1793832032
-        },
-        "verified_creator_present": false,
-        "verified_CREATE_anchor_present": false,
-        "creator_recovery": {
-          "status": "retry",
-          "attempts": 0,
-          "next_attempt_at": 1793832748,
-          "skip_reason": null,
-          "sigs_examined": null,
-          "pages_examined": null,
-          "updated_at": 1793832448,
-          "diagnostic": {
-            "code": "HELIUS_INFLIGHT_LIMIT | BudgetDeferred"
-          }
+      "core_creator_create_flags": [
+        {
+          "earliest_tx_creator": false,
+          "pf_ws_creator": false,
+          "create_tx_signature": false
         }
-      }
-    ],
-    "failed_job_cause": {
-      "job": 3,
-      "own_paid_replies_committed_checksum_verified": 4,
-      "own_methods": [
-        "getSignaturesForAddress",
-        "getTransaction",
-        "getAccountInfo",
-        "getTransaction"
       ],
-      "own_INTENT_or_reservation": false,
-      "blocked_next_method": "getAccountInfo",
-      "shared_INTENT_same_job": false,
-      "shared_INTENT_created_utc": "2026-11-04T01:07:49+00:00",
-      "shared_INTENT_original_metadata_exact_to_pre_d78": true,
-      "saved_shared_payment_receipt_exact_to_pre_d78": true,
-      "shared_payment_status": "HTTP_COMPLETED",
-      "shared_payment_attempts": 9,
-      "shared_payment_credits": 9,
-      "shared_payment_at_utc": "2026-11-04T02:36:44+00:00",
-      "exact_guard": "walkback_checkpoints.Journal._account_recovery: single shared INTENT must belong to the current job and carry explicit matching recovery authority; current job differs, so CHECKPOINT_OUTCOME_UNCERTAIN before new acquisition.",
-      "interpretation": "Inherited unresolved shared paid-outcome evidence; no loss of the4fresh saved replies established."
+      "funding_queue_rows": 0,
+      "evidence": "Resolver row updated after prior due time, again records HELIUS_INFLIGHT_LIMIT | BudgetDeferred; source exception handler writes retry without incrementing attempts. This establishes a subsequent processed deferral, not an exact execution at 22:52 or a successful creator search. No event history queried.",
+      "limits": [
+        "Paired-authority checked separate Core/OPS snapshots are not an atomic cross-store transaction.",
+        "No provider call or independent CREATE replay performed."
+      ],
+      "production_flags": {
+        "provider_calls": 0,
+        "database_or_accounting_writes": 0,
+        "worker_service_actions": 0,
+        "source_changes": 0,
+        "queue_replay_or_attempt_reset": false
+      }
     },
-    "evidence_ref": "/private/tmp/flex-four-audit-20261104T224903Z/AUDIT_REPORT.json",
-    "tests": "Read-only source and paired-store/request-metadata audit; no suite, provider probes, replay or intervention. Four own saved replies checksum-verified; old shared INTENT metadata and payment receipt proven exact against stopped pre-d78 baseline.",
+    "tests": "Bounded paired-authority read-only Core/OPS queries and installed resolver exception-handler source inspection; no test suite or provider calls.",
+    "evidence_ref": "/private/tmp/flex-creator-retry-audit-20261104T2301Z/AUDIT_REPORT.json",
     "production_flags": {
-      "observed_at_utc": "2026-11-04T22:52:43.216483+00:00",
+      "provider_calls": 0,
+      "database_or_accounting_writes": 0,
+      "worker_service_actions": 0,
+      "source_changes": 0,
+      "queue_replay_or_attempt_reset": false,
       "audit_only": true,
       "deployed_this_turn": false,
-      "production_source_files_written": 0,
-      "production_database_or_accounting_writes": 0,
-      "provider_probes": 0,
-      "worker_service_actions": 0,
-      "queue_replay_or_attempt_reset": false,
       "last_known_Walkback_scoped_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
       "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c"
     },
-    "limits": [
-      "Separate Core/OPS read snapshots are paired-authority checked; they are not an atomic cross-store transaction.",
-      "Creator search diagnoses are retained resolver metadata, not fresh independent replay of transactions.",
-      "The original failed-request branch is reconstructed from exact saved replies/source and current request metadata; no provider call was made.",
-      "No recovery permits, retries, resets, holds or data were changed."
-    ],
-    "blocker": "Frozen4new-job cohort remains0complete:3never claimed/0WalkbackRPC because verified creator/CREATE missing;2creator searches skipped after1000signatures/1page(BUDGET_EXCEEDED),1creator recovery awaiting retry afterINFLIGHT_LIMIT. The1started job has4checksum-verified COMMITTED replies then refuses a different-job account INTENT from01:07:49UTC, exactly preserved from befored78. No audit mutation or replay.",
-    "next_action": "Review AUDIT_REPORT.json. Audit-only scope is complete. Any DEV change must be separately requested: strict CREATE/creator discovery for the exhausted searches or evidence-qualified cross-job account recovery. Leave current jobs/attempts/unknown records/funding and accounting untouched; no provider probes, queue replay, reset, restart, source patch or permit creation authorized."
+    "blocker": "Same fourth job is still waiting for verified creator/CREATE, never started, zero Walkback attempts/RPC. Creator resolver processed another deferral after prior due time; latest update 23:00:24 UTC is HELIUS_INFLIGHT_LIMIT | BudgetDeferred, next due 23:05:24 UTC. No recovery success or completion.",
+    "next_action": "Audit complete. Leave the normal creator retry eligible at 23:05:24 UTC. No source change, manual retry, reset, provider probe, accounting/database mutation or service action authorized by this audit.",
+    "context_discrepancy": "Existing legacy active_observation describes an earlier battery-clock audit. It is historical context, not a current clock diagnosis for this job; current targeted row records INFLIGHT_LIMIT."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74628,14 +74549,13 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "observed_at_utc": "2026-11-04T22:52:43.216483+00:00",
+    "provider_calls": 0,
+    "database_or_accounting_writes": 0,
+    "worker_service_actions": 0,
+    "source_changes": 0,
+    "queue_replay_or_attempt_reset": false,
     "audit_only": true,
     "deployed_this_turn": false,
-    "production_source_files_written": 0,
-    "production_database_or_accounting_writes": 0,
-    "provider_probes": 0,
-    "worker_service_actions": 0,
-    "queue_replay_or_attempt_reset": false,
     "last_known_Walkback_scoped_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
     "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c"
   },
@@ -83914,5 +83834,88 @@
     ],
     "blocker": "Frozen4new-job cohort remains0complete:3never claimed/0WalkbackRPC because verified creator/CREATE missing;2creator searches skipped after1000signatures/1page(BUDGET_EXCEEDED),1creator recovery awaiting retry afterINFLIGHT_LIMIT. The1started job has4checksum-verified COMMITTED replies then refuses a different-job account INTENT from01:07:49UTC, exactly preserved from befored78. No audit mutation or replay.",
     "next_action": "Review AUDIT_REPORT.json. Audit-only scope is complete. Any DEV change must be separately requested: strict CREATE/creator discovery for the exhausted searches or evidence-qualified cross-job account recovery. Leave current jobs/attempts/unknown records/funding and accounting untouched; no provider probes, queue replay, reset, restart, source patch or permit creation authorized."
+  },
+  "creator_retry_2252_readonly_audit_20261104": {
+    "status": "PASS_AUDIT_CREATOR_RETRY_STILL_DEFERRED",
+    "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
+    "observed_utc": "2026-11-04T23:01:47.687313+00:00",
+    "authorization": "Human requested audit only of the same creator recovery due at 22:52 and whether its Walkback completed.",
+    "findings": {
+      "status": "PASS_READ_ONLY_CREATOR_RETRY_AUDIT",
+      "observed_utc": "2026-11-04T23:01:47.687313+00:00",
+      "subject": "Same fourth job admitted 2026-11-04T22:40:32Z; creator retry previously due 22:52:28Z",
+      "subject_sha256": "023459acd392312ad2bb0bbe16ae8e30d38a41de4c249edcb1c226daba78ee6f",
+      "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+      "generation": "DEV004-V2-20261024-dfb76562",
+      "creator_resolution": {
+        "status": "retry",
+        "attempts": 0,
+        "next_attempt_at": 1793833524,
+        "updated_at": 1793833224,
+        "resolved_at": null,
+        "last_error": "HELIUS_INFLIGHT_LIMIT | BudgetDeferred",
+        "sigs_examined": null,
+        "pages_examined": null,
+        "skip_reason": null,
+        "resolved_creator_present": false,
+        "create_tx_signature_present": false,
+        "next_attempt_at_utc": "2026-11-04T23:05:24+00:00",
+        "updated_at_utc": "2026-11-04T23:00:24+00:00",
+        "resolved_at_utc": null
+      },
+      "walkback": {
+        "status": "waiting",
+        "attempts": 0,
+        "rpc_used": 0,
+        "path_state": "WAITING_FOR_CREATE_ANCHOR",
+        "enqueued_at": 1793832032,
+        "started_at": null,
+        "completed_at": null,
+        "updated_at": 1793832032,
+        "create_anchor_audit_state": "MISSING_OR_MALFORMED",
+        "creator_present": false,
+        "create_anchor_signature_present": false,
+        "enqueued_at_utc": "2026-11-04T22:40:32+00:00",
+        "started_at_utc": null,
+        "completed_at_utc": null,
+        "updated_at_utc": "2026-11-04T22:40:32+00:00"
+      },
+      "core_creator_create_flags": [
+        {
+          "earliest_tx_creator": false,
+          "pf_ws_creator": false,
+          "create_tx_signature": false
+        }
+      ],
+      "funding_queue_rows": 0,
+      "evidence": "Resolver row updated after prior due time, again records HELIUS_INFLIGHT_LIMIT | BudgetDeferred; source exception handler writes retry without incrementing attempts. This establishes a subsequent processed deferral, not an exact execution at 22:52 or a successful creator search. No event history queried.",
+      "limits": [
+        "Paired-authority checked separate Core/OPS snapshots are not an atomic cross-store transaction.",
+        "No provider call or independent CREATE replay performed."
+      ],
+      "production_flags": {
+        "provider_calls": 0,
+        "database_or_accounting_writes": 0,
+        "worker_service_actions": 0,
+        "source_changes": 0,
+        "queue_replay_or_attempt_reset": false
+      }
+    },
+    "tests": "Bounded paired-authority read-only Core/OPS queries and installed resolver exception-handler source inspection; no test suite or provider calls.",
+    "evidence_ref": "/private/tmp/flex-creator-retry-audit-20261104T2301Z/AUDIT_REPORT.json",
+    "production_flags": {
+      "provider_calls": 0,
+      "database_or_accounting_writes": 0,
+      "worker_service_actions": 0,
+      "source_changes": 0,
+      "queue_replay_or_attempt_reset": false,
+      "audit_only": true,
+      "deployed_this_turn": false,
+      "last_known_Walkback_scoped_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
+      "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c"
+    },
+    "blocker": "Same fourth job is still waiting for verified creator/CREATE, never started, zero Walkback attempts/RPC. Creator resolver processed another deferral after prior due time; latest update 23:00:24 UTC is HELIUS_INFLIGHT_LIMIT | BudgetDeferred, next due 23:05:24 UTC. No recovery success or completion.",
+    "next_action": "Audit complete. Leave the normal creator retry eligible at 23:05:24 UTC. No source change, manual retry, reset, provider probe, accounting/database mutation or service action authorized by this audit.",
+    "context_discrepancy": "Existing legacy active_observation describes an earlier battery-clock audit. It is historical context, not a current clock diagnosis for this job; current targeted row records INFLIGHT_LIMIT."
   }
 }

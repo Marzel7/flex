@@ -1231,9 +1231,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Local accounting bottleneck mechanisms:11.3MBfullledger validation/publication,2threadFIFOexecutor with8ordinary submissions shares completions,8secondcancel-drain can extend latency. Offline comparison ordinarylimit1allows completion through. GateOPEN/failures0 but old23:01:41Listenerhold stilloccupies1/3slots. At23:44:41UTC last1h12admissions/1completion; newcohort8pending/1running/2checkpointreview/1complete. LifetimeFULL3448,lastfinish22:55:37. No production mutation.",
+  "blocker": "Ledger metadata protects budgets/duplicates/unknowns, but wholehistoryO(N)processing perRPC is avoidable. Current11.3MBmostlycompletedrequestmetadata; only1active. Newretentionfinding: onlyWalkbackinstalledexpiry, cursorprocesslocalinshortlivedchildren; livefirst1024noeligible,16,088eligiblebeyond; offlinerestartstarvationreproduced. Anycleanup must preserve requiredattempt evidence, not onlyaggregates. No directdeletion/refactor authorized.",
   "blockers": [
-    "Local accounting bottleneck mechanisms:11.3MBfullledger validation/publication,2threadFIFOexecutor with8ordinary submissions shares completions,8secondcancel-drain can extend latency. Offline comparison ordinarylimit1allows completion through. GateOPEN/failures0 but old23:01:41Listenerhold stilloccupies1/3slots. At23:44:41UTC last1h12admissions/1completion; newcohort8pending/1running/2checkpointreview/1complete. LifetimeFULL3448,lastfinish22:55:37. No production mutation."
+    "Ledger metadata protects budgets/duplicates/unknowns, but wholehistoryO(N)processing perRPC is avoidable. Current11.3MBmostlycompletedrequestmetadata; only1active. Newretentionfinding: onlyWalkbackinstalledexpiry, cursorprocesslocalinshortlivedchildren; livefirst1024noeligible,16,088eligiblebeyond; offlinerestartstarvationreproduced. Anycleanup must preserve requiredattempt evidence, not onlyaggregates. No directdeletion/refactor authorized."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2703,13 +2703,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Audit local admission latency and Walkback progress",
-    "status": "PASS_AUDIT_LOCAL_ACCOUNTING_BOTTLENECK_AND_PROGRESS_DEFICIT",
+    "milestone": "Review paid RPC ledger purpose and scaling",
+    "status": "PASS_REVIEW_LEDGER_SCALING_AND_RETENTION_CURSOR_DEFECT",
     "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "blocker": "Local accounting bottleneck mechanisms:11.3MBfullledger validation/publication,2threadFIFOexecutor with8ordinary submissions shares completions,8secondcancel-drain can extend latency. Offline comparison ordinarylimit1allows completion through. GateOPEN/failures0 but old23:01:41Listenerhold stilloccupies1/3slots. At23:44:41UTC last1h12admissions/1completion; newcohort8pending/1running/2checkpointreview/1complete. LifetimeFULL3448,lastfinish22:55:37. No production mutation.",
-    "next_action": "Audit complete. If separately authorized, qualify the smallest isolated ListenerDEV ordinary accounting submission bound(8to1) on existing2threads, preservingpaidcap3 and allaccountingchecks; measure throughput/custody and completion latency under contention. Do not bundle with outage/network/concurrency tuning. Historicaluncertain-ticket recovery and checkpointreview remain separate. No production activation/stop/replay/retirement authorized."
+    "blocker": "Ledger metadata protects budgets/duplicates/unknowns, but wholehistoryO(N)processing perRPC is avoidable. Current11.3MBmostlycompletedrequestmetadata; only1active. Newretentionfinding: onlyWalkbackinstalledexpiry, cursorprocesslocalinshortlivedchildren; livefirst1024noeligible,16,088eligiblebeyond; offlinerestartstarvationreproduced. Anycleanup must preserve requiredattempt evidence, not onlyaggregates. No directdeletion/refactor authorized.",
+    "next_action": "Architecture audit complete. If separately authorized, qualify one small bounded read-path optimization or retention-cursor/scheduler correction with preservation proof, not a wholesale rewrite. Keep allpaid/attempt/unknown/funding evidence. Indexed transactional ledger is a later separate proposal if incremental fixes are insufficient; no production cleanup, source deployment, restart, RPC probe or budget reset authorized."
   },
-  "current_next_blocker": "Local accounting bottleneck mechanisms:11.3MBfullledger validation/publication,2threadFIFOexecutor with8ordinary submissions shares completions,8secondcancel-drain can extend latency. Offline comparison ordinarylimit1allows completion through. GateOPEN/failures0 but old23:01:41Listenerhold stilloccupies1/3slots. At23:44:41UTC last1h12admissions/1completion; newcohort8pending/1running/2checkpointreview/1complete. LifetimeFULL3448,lastfinish22:55:37. No production mutation.",
+  "current_next_blocker": "Ledger metadata protects budgets/duplicates/unknowns, but wholehistoryO(N)processing perRPC is avoidable. Current11.3MBmostlycompletedrequestmetadata; only1active. Newretentionfinding: onlyWalkbackinstalledexpiry, cursorprocesslocalinshortlivedchildren; livefirst1024noeligible,16,088eligiblebeyond; offlinerestartstarvationreproduced. Anycleanup must preserve requiredattempt evidence, not onlyaggregates. No directdeletion/refactor authorized.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44971,11 +44971,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-04T23:45:51.630867+00:00",
+    "published_at_utc": "2026-11-04T23:52:15.404856+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-04T23:45:51.630913+00:00",
-    "last_local_checkpoint_utc": "2026-11-04T23:45:33.311805+00:00",
-    "verification_receipt": "/private/tmp/flex-local-admission-progress-audit-20261104/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-04T23:52:15.404909+00:00",
+    "last_local_checkpoint_utc": "2026-11-04T23:51:53.968094+00:00",
+    "verification_receipt": "/private/tmp/flex-ledger-purpose-review-20261104/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -48794,8 +48794,8 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-11-04T23:45:33.311805+00:00",
-  "latest_at_utc": "2026-11-04T23:45:33.311805+00:00",
+  "last_updated": "2026-11-04T23:51:53.968094+00:00",
+  "latest_at_utc": "2026-11-04T23:51:53.968094+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -58214,7 +58214,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Audit complete. If separately authorized, qualify the smallest isolated ListenerDEV ordinary accounting submission bound(8to1) on existing2threads, preservingpaidcap3 and allaccountingchecks; measure throughput/custody and completion latency under contention. Do not bundle with outage/network/concurrency tuning. Historicaluncertain-ticket recovery and checkpointreview remain separate. No production activation/stop/replay/retirement authorized.",
+  "next_action": "Architecture audit complete. If separately authorized, qualify one small bounded read-path optimization or retention-cursor/scheduler correction with preservation proof, not a wholesale rewrite. Keep allpaid/attempt/unknown/funding evidence. Indexed transactional ledger is a later separate proposal if incremental fixes are insufficient; no production cleanup, source deployment, restart, RPC probe or budget reset authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60448,8 +60448,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "d78dc02ea9d0a9462765d306ac91c18646f077be",
     "name": "flex",
-    "updated_at_utc": "2026-11-04T23:45:33.311805+00:00",
-    "working_tree": "Engineering remains d78dc02e. Audit-only local accounting bottleneck and matched-progress analysis; offline scheduler characterization. No production/source/accounting/service changes; mandatory routine handoff only."
+    "updated_at_utc": "2026-11-04T23:51:53.968094+00:00",
+    "working_tree": "Engineering remains d78dc02e. Read-only ledger-purpose/scaling review and synthetic retention cursor characterization; no production/source/accounting/service changes. Mandatory routine handoff only."
   },
   "project_git_head": "d78dc02ea9d0a9462765d306ac91c18646f077be",
   "pumpfun_archived_prebuy_state": {
@@ -61911,7 +61911,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_AUDIT_LOCAL_ACCOUNTING_BOTTLENECK_AND_PROGRESS_DEFICIT",
+  "status": "PASS_REVIEW_LEDGER_SCALING_AND_RETENTION_CURSOR_DEFECT",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63314,9 +63314,9 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-11-04T23:45:33.311805+00:00",
-  "updated_at_utc": "2026-11-04T23:45:33.311805+00:00",
-  "updated_by": "Codex local accounting and progress audit",
+  "updated_at": "2026-11-04T23:51:53.968094+00:00",
+  "updated_at_utc": "2026-11-04T23:51:53.968094+00:00",
+  "updated_by": "Codex ledger purpose and retention review",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
     "cron_runner_sha256": "d93eb8e9d438075abb62a422c083c87d5a7b9121390bdf776d08189bf4e49ec1",
@@ -63531,7 +63531,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_AUDIT_LOCAL_ACCOUNTING_BOTTLENECK_AND_PROGRESS_DEFICIT",
+  "verdict": "PASS_REVIEW_LEDGER_SCALING_AND_RETENTION_CURSOR_DEFECT",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73321,638 +73321,119 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_AUDIT_LOCAL_ACCOUNTING_BOTTLENECK_AND_PROGRESS_DEFICIT",
+    "status": "PASS_REVIEW_LEDGER_SCALING_AND_RETENTION_CURSOR_DEFECT",
+    "observed_utc": "2026-11-04T23:51:53.968094+00:00",
     "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "observed_utc": "2026-11-04T23:45:33.311805+00:00",
-    "authorization": "Human requested audit only of slow local accounting/admission, smallest safe fix, and Walkback admissions/completions progress.",
-    "findings": {
-      "status": "PASS_AUDIT_LOCAL_ACCOUNTING_BOTTLENECK_AND_PROGRESS_DEFICIT",
-      "observed_utc": "2026-11-04T23:45:33.311805+00:00",
-      "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-      "authorization": "Human requested audit only of slow local accounting/admission, smallest safe fix, and Walkback admissions/completions progress.",
-      "progress": {
-        "observed_utc": "2026-11-04T23:44:41.134137+00:00",
-        "windows": [
-          {
-            "hours": 1,
-            "admitted": 12,
-            "completed": 1,
-            "completed_minus_new": -11
-          },
-          {
-            "hours": 6,
-            "admitted": 57,
-            "completed": 25,
-            "completed_minus_new": -32
-          },
-          {
-            "hours": 24,
-            "admitted": 1341,
-            "completed": 59,
-            "completed_minus_new": -1282
-          }
-        ],
-        "current_states": [
-          {
-            "status": "complete",
-            "walkback_class": "FULL_WALKBACK",
-            "n": 3448
-          },
-          {
-            "status": "failed",
-            "walkback_class": "FULL_WALKBACK",
-            "n": 1398
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "n": 50
-          },
-          {
-            "status": "running",
-            "walkback_class": "FULL_WALKBACK",
-            "n": 1
-          },
-          {
-            "status": "waiting",
-            "walkback_class": "FULL_WALKBACK",
-            "n": 2135
-          },
-          {
-            "status": "complete",
-            "walkback_class": "LINK_ONLY",
-            "n": 1
-          },
-          {
-            "status": "complete",
-            "walkback_class": "PARTIAL_TREASURY",
-            "n": 224
-          },
-          {
-            "status": "failed",
-            "walkback_class": "PARTIAL_TREASURY",
-            "n": 21
-          }
-        ],
-        "last_hour_completed_outcomes": [
-          {
-            "outcome": "NO_ATTRIBUTION_FOUND",
-            "job_class": "FULL_WALKBACK",
-            "n": 1,
-            "latest": 1793832937
-          }
-        ],
-        "last_hour_admitted_cohort": [
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 133,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793832656,
-            "started_at": 1793832668,
-            "completed_at": null,
-            "next_retry_at": 1793835824,
-            "creator_recovery": null,
-            "mint_alias": "9555121c54cb"
-          },
-          {
-            "status": "complete",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 1,
-            "rpc_used": 6,
-            "path_state": "CLAIMED",
-            "last_error": null,
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793832826,
-            "started_at": 1793832900,
-            "completed_at": 1793832937,
-            "next_retry_at": null,
-            "creator_recovery": {
-              "status": "complete",
-              "attempts": 1,
-              "next_attempt_at": 1793832825,
-              "last_error": null,
-              "skip_reason": null
-            },
-            "mint_alias": "f30a389033fe"
-          },
-          {
-            "status": "failed",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 1,
-            "rpc_used": 2,
-            "path_state": "CLAIMED",
-            "last_error": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793832879,
-            "started_at": 1793832887,
-            "completed_at": null,
-            "next_retry_at": 1793833198,
-            "creator_recovery": null,
-            "mint_alias": "61cf09537c47"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 124,
-            "path_state": "UPSTREAM_EXPANDING",
-            "last_error": "HELIUS_GATE_BUSY",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793833401,
-            "started_at": 1793833549,
-            "completed_at": null,
-            "next_retry_at": 1793835863,
-            "creator_recovery": null,
-            "mint_alias": "9342e2b53340"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 4,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793833972,
-            "started_at": 1793835698,
-            "completed_at": null,
-            "next_retry_at": 1793835729,
-            "creator_recovery": {
-              "status": "complete",
-              "attempts": 1,
-              "next_attempt_at": 1793835436,
-              "last_error": null,
-              "skip_reason": null
-            },
-            "mint_alias": "a425ea802c8b"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 2,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_GATE_BUSY",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793834150,
-            "started_at": 1793835244,
-            "completed_at": null,
-            "next_retry_at": 1793835267,
-            "creator_recovery": {
-              "status": "complete",
-              "attempts": 1,
-              "next_attempt_at": 1793835137,
-              "last_error": null,
-              "skip_reason": null
-            },
-            "mint_alias": "1649116cd50f"
-          },
-          {
-            "status": "running",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 1,
-            "rpc_used": 21,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793834533,
-            "started_at": 1793834648,
-            "completed_at": null,
-            "next_retry_at": 1793835638,
-            "creator_recovery": null,
-            "mint_alias": "0e8484eed792"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 3,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793834714,
-            "started_at": 1793834814,
-            "completed_at": null,
-            "next_retry_at": 1793834843,
-            "creator_recovery": null,
-            "mint_alias": "6319fdb6c00f"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 1,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793834820,
-            "started_at": 1793835013,
-            "completed_at": null,
-            "next_retry_at": 1793835031,
-            "creator_recovery": null,
-            "mint_alias": "4fd87e75f3eb"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 2,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793835018,
-            "started_at": 1793835229,
-            "completed_at": null,
-            "next_retry_at": 1793835248,
-            "creator_recovery": {
-              "status": "complete",
-              "attempts": 1,
-              "next_attempt_at": 1793835013,
-              "last_error": null,
-              "skip_reason": null
-            },
-            "mint_alias": "f969d0326574"
-          },
-          {
-            "status": "failed",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 1,
-            "rpc_used": 2,
-            "path_state": "CLAIMED",
-            "last_error": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793835295,
-            "started_at": 1793835426,
-            "completed_at": null,
-            "next_retry_at": 1793835748,
-            "creator_recovery": {
-              "status": "complete",
-              "attempts": 1,
-              "next_attempt_at": 1793835285,
-              "last_error": null,
-              "skip_reason": null
-            },
-            "mint_alias": "f533e7c4a2d4"
-          },
-          {
-            "status": "pending",
-            "walkback_class": "FULL_WALKBACK",
-            "attempts": 0,
-            "rpc_used": 2,
-            "path_state": "CLAIMED",
-            "last_error": "HELIUS_INFLIGHT_LIMIT",
-            "last_infrastructure_error": null,
-            "enqueued_at": 1793835554,
-            "started_at": 1793835680,
-            "completed_at": null,
-            "next_retry_at": 1793835702,
-            "creator_recovery": null,
-            "mint_alias": "15dec88b13ee"
-          }
-        ],
-        "last_hour_admitted_current_states": {
-          "pending": 8,
-          "complete": 1,
-          "failed": 2,
-          "running": 1
+    "authorization": "Human asks whether design is over-complex, purpose of11.3MBledger, and whether it can be removed/refactored. Read-only architectural review and offline characterization; no implementation/cleanup/rollout.",
+    "ledger_purpose": [
+      "Durable per-token/investigation paid credit and attempt/request totals; restart and new child aliases must not reset allowance.",
+      "Shared request identity/state: concurrent duplicate prevention, cooldown, deterministic failures and OWNER_EXIT_UNCERTAIN paid-blocked requests.",
+      "Shared rate/concurrency/circuit policy and ownership/root binding across Listener, Creator and Walkback.",
+      "Checksum/version/generation/clock-verified recovery authority; ledger is paid-RPC metadata, not raw transaction replies or funding-attribution database."
+    ],
+    "components": {
+      "observed_utc": "2026-11-04T23:48:34.845900+00:00",
+      "raw_ledger_bytes": 11320759,
+      "components": {
+        "keys": {
+          "count": 30345,
+          "json_bytes": 6609720
         },
-        "eligible_pending": [
-          {
-            "reason": "HELIUS_GATE_BUSY",
-            "readiness": "due",
-            "n": 3
-          },
-          {
-            "reason": "HELIUS_INFLIGHT_LIMIT",
-            "readiness": "due",
-            "n": 8
-          }
-        ],
-        "attempt_limited_pending": 39,
-        "failed_updated_last_hour": [
-          {
-            "reason": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
-            "n": 2
-          }
-        ],
-        "waiting_creator_recovery": {
-          "measurement": "COMPLETE",
-          "waiting_total": 2135,
-          "examined": 2135,
-          "rows": [
-            {
-              "state": "queued",
-              "label": "Queued",
-              "all_waiting": 0,
-              "new_last_hour": 0
-            },
-            {
-              "state": "retrying",
-              "label": "Retrying",
-              "all_waiting": 0,
-              "new_last_hour": 0
-            },
-            {
-              "state": "running",
-              "label": "Running",
-              "all_waiting": 0,
-              "new_last_hour": 0
-            },
-            {
-              "state": "exhausted",
-              "label": "Exhausted",
-              "all_waiting": 827,
-              "new_last_hour": 0
-            },
-            {
-              "state": "review",
-              "label": "Needs review",
-              "all_waiting": 115,
-              "new_last_hour": 0
-            },
-            {
-              "state": "no_record",
-              "label": "No recovery record",
-              "all_waiting": 1193,
-              "new_last_hour": 0
-            },
-            {
-              "state": "unknown",
-              "label": "Unknown recovery state",
-              "all_waiting": 0,
-              "new_last_hour": 0
-            }
-          ],
-          "semantics": "Current waiting Walkback jobs matched to existing creator-resolution records. Retrying means scheduled for another attempt, not guaranteed progress. Exhausted means recorded search/attempt limit; needs review includes terminal or explicit review holds. No recovery record is separate. New-job column uses Walkback admission in the last hour, not birth time. Read-only cross-store observation; maximum4096 jobs."
+        "owners": {
+          "count": 10606,
+          "json_bytes": 3192406
         },
-        "all_FULL_completed": {
-          "n": 3448,
-          "latest": 1793832937
+        "scopes": {
+          "count": 5134,
+          "json_bytes": 1513479
         },
-        "provider_calls": 0,
-        "production_writes": 0,
-        "limits": "Separate Core/OPS authority-checked read snapshots, not atomic cross-store. Matched flow windows do not imply same cohort; failed/held entries excluded from completions."
+        "inflight": {
+          "count": 1,
+          "json_bytes": 239
+        }
       },
-      "passive_profile": {
-        "observed_utc": "2026-11-04T23:42:57.910377+00:00",
-        "ledger_bytes": 11314560,
-        "keys": 30314,
-        "owners": 10606,
-        "scopes": 5134,
-        "passive_verified_capture_ms": 271.99,
-        "single_full_decode_validation_profiled_ms": 385.06,
-        "profile_top": [
-          {
-            "file": "helius_denial_gate.py",
-            "line": 70,
-            "function": "_decode",
-            "calls": 1,
-            "self_ms": 0.42,
-            "cumulative_ms": 385.04
-          },
-          {
-            "file": "__init__.py",
-            "line": 299,
-            "function": "loads",
-            "calls": 1,
-            "self_ms": 0.03,
-            "cumulative_ms": 260.5
-          },
-          {
-            "file": "decoder.py",
-            "line": 332,
-            "function": "decode",
-            "calls": 1,
-            "self_ms": 0.02,
-            "cumulative_ms": 257.56
-          },
-          {
-            "file": "decoder.py",
-            "line": 343,
-            "function": "raw_decode",
-            "calls": 1,
-            "self_ms": 132.77,
-            "cumulative_ms": 257.53
-          },
-          {
-            "file": "helius_denial_gate.py",
-            "line": 71,
-            "function": "unique",
-            "calls": 51243,
-            "self_ms": 124.76,
-            "cumulative_ms": 124.76
-          },
-          {
-            "file": "helius_denial_gate.py",
-            "line": 563,
-            "function": "_budget",
-            "calls": 1,
-            "self_ms": 0.02,
-            "cumulative_ms": 124.1
-          },
-          {
-            "file": "helius_denial_gate.py",
-            "line": 727,
-            "function": "_budget2",
-            "calls": 1,
-            "self_ms": 80.1,
-            "cumulative_ms": 124.08
-          },
-          {
-            "file": "~",
-            "line": 0,
-            "function": "<built-in method builtins.any>",
-            "calls": 10296,
-            "self_ms": 10.24,
-            "cumulative_ms": 26.35
-          },
-          {
-            "file": "helius_denial_gate.py",
-            "line": 737,
-            "function": "<genexpr>",
-            "calls": 30804,
-            "self_ms": 10.54,
-            "cumulative_ms": 10.54
-          },
-          {
-            "file": "~",
-            "line": 0,
-            "function": "<method 'get' of 'dict' objects>",
-            "calls": 121434,
-            "self_ms": 10.46,
-            "cumulative_ms": 10.46
-          },
-          {
-            "file": "helius_denial_gate.py",
-            "line": 739,
-            "function": "<genexpr>",
-            "calls": 20536,
-            "self_ms": 5.3,
-            "cumulative_ms": 5.3
-          },
-          {
-            "file": "~",
-            "line": 0,
-            "function": "<built-in method builtins.len>",
-            "calls": 56740,
-            "self_ms": 4.33,
-            "cumulative_ms": 4.33
-          },
-          {
-            "file": "~",
-            "line": 0,
-            "function": "<method 'decode' of 'bytes' objects>",
-            "calls": 1,
-            "self_ms": 2.89,
-            "cumulative_ms": 2.89
-          },
-          {
-            "file": "~",
-            "line": 0,
-            "function": "<built-in method builtins.sum>",
-            "calls": 5135,
-            "self_ms": 1.31,
-            "cumulative_ms": 1.31
-          }
-        ],
-        "gate_state": "OPEN",
-        "failures": 0,
-        "inflight_cap": 3,
-        "inflight": [
-          {
-            "role": "listener",
-            "selector": "rpc:getMultipleAccounts",
-            "pid": 82361,
-            "age_seconds": 2476.9,
-            "at_utc": "2026-11-04T23:01:41+00:00",
-            "ticket_alias": "aca9698a80f2"
-          },
-          {
-            "role": "listener",
-            "selector": "rpc:getAccountInfo",
-            "pid": 82361,
-            "age_seconds": 3.9,
-            "at_utc": "2026-11-04T23:42:54+00:00",
-            "ticket_alias": "f21e576a1b04"
-          },
-          {
-            "role": "listener",
-            "selector": "rpc:getAccountInfo",
-            "pid": 82361,
-            "age_seconds": 4.9,
-            "at_utc": "2026-11-04T23:42:53+00:00",
-            "ticket_alias": "9e279be75ba5"
-          }
-        ],
-        "limits": "One passive capture and one read-only in-memory decode. Profiling overhead present; not a live end-to-end admission latency or full-lock-hold measurement. No raw ledger copied to disk.",
-        "provider_calls": 0,
-        "production_writes": 0
+      "request_status_counts": {
+        "HTTP_COMPLETED": 30043,
+        "RETRYABLE": 284,
+        "OWNER_EXIT_UNCERTAIN": 17,
+        "INFLIGHT": 1
       },
-      "executor_characterization": {
-        "status": "PASS_OFFLINE_EXECUTOR_HEAD_OF_LINE_CHARACTERIZATION",
-        "installed_functions": [
-          "_submit_accounting",
-          "_await_accounting",
-          "_accounting_call",
-          "_complete_accounting"
-        ],
-        "existing_executor_threads": 2,
-        "cases": [
-          {
-            "ordinary_submission_limit": 8,
-            "completion_started_before_blocked_admission_released": false,
-            "completion_elapsed_ms": 157.8,
-            "ordinary_jobs": 8,
-            "paid_requests": 0,
-            "durable_writes": 0
-          },
-          {
-            "ordinary_submission_limit": 1,
-            "completion_started_before_blocked_admission_released": true,
-            "completion_elapsed_ms": 26.08,
-            "ordinary_jobs": 8,
-            "paid_requests": 0,
-            "durable_writes": 0
-          }
-        ],
-        "interpretation": "Current completion bypasses the8permit semaphore but queues on same2thread executor. Counterfactual1permit lets completion start while ordinary work is blocked. This is not a production patch or live queue depth measurement.",
-        "limits": "Fake work reproduces scheduling only; file-lock wait, full ledger cost, persistent ambiguous ticket and multi-loop/runtime throughput effects require DEV qualification.",
-        "provider_calls": 0,
-        "production_writes": 0
-      },
-      "diagnostic_summary": {
-        "observed_utc": "2026-11-04T23:43:43.498055+00:00",
-        "retained_events": 31,
-        "phase_counts": {
-          "ADMISSION_TIMEOUT": 4,
-          "ADMISSION_REFUSED": 20,
-          "UNCLASSIFIED_TRANSPORT": 3,
-          "ADMISSION_QUEUE": 3,
-          "PRE_SEND": 1
-        },
-        "admission_ms_range": [
-          1662,
-          16120
-        ]
-      },
-      "source_mechanisms": [
-        "Listener has2accounting executor threads and up to8ordinary outstanding _accounting_call submissions per event loop; the underlying executor FIFO queue has no separate completion priority. _complete_accounting bypasses semaphore but uses same executor.",
-        "A burst of ordinary admission/read/ownership work can queue terminal completion behind it; completion is what releases normally finished paid RPC slots. Offline source-derived fake-work test reproduces this ordering.",
-        "Ledger is11,314,560bytes with30,314requestkeys/10,606owners/5,134scopes. One checksum-verified passive capture took271.99ms; one profiled full decode validation385.06ms. Multiple _read_snapshot/has_budget/owner/budget paths repeat this work.",
-        "Accepted mutations serialize, validate, write and fsync the complete shared ledger and verify publication under the shared writer lock. Current optional per-phase publication diagnostics also fsync; their marginal runtime cost was not measured.",
-        "An8second admission wait does not mean abandoned accounting can be discarded. _await_accounting shields admitted work and drains it after cancellation; therefore reported wait can exceed8seconds, preserving a possible newly charged reservation and settling known-unsent work.",
-        "At23:42:57gateOPEN/failures0, not in sharedOUTAGE. Its3slots were allListener: one unresolved cancellation ticket since23:01:41(age2477seconds), plus2freshaccountreads. That oldticket remains a separate occupancy loss requiring qualified recovery."
-      ],
-      "smallest_candidate": "Qualify one isolated Listener DEV scheduling change: reduce ordinary _accounting_call outstanding submissions from8to1 on the existing2thread executor so admitted completion work can use the other thread. This changes local accounting scheduling, not paid RPC concurrency(cap3), spending policy, ledger verification or queue attempts. The fake-work comparison proves the scheduling property, not production throughput safety.",
-      "candidate_required_qualification": [
-        "Completion latency under saturated ordinary admission should improve while original context/cancellation ownership and accounting exactness remain intact.",
-        "Verify ordinary throughput, birth/migration custody/intake and claim scheduling do not regress excessively; per-loop bound must not be bypassed by multipleloops.",
-        "Exercise finish/publication/lock contention, repeated cancellation, restart and timeout paths; no false success, refunds, extra paid allowances or unknown replay.",
-        "Keep sharedcap3,Listenerreservation, networkdeadlines/outagepolicy and accounting/funding evidence unchanged.",
-        "Do not bypass checksum/fullvalidation or prune ledger history to obtain speed. No production patch or restart in this audit."
-      ],
-      "other_blockers": [
-        "Latest12newjobcohort:8pending,1running,2checkpoint-review failures,1complete. Pending causes remain localINFLIGHT_LIMIT/GATE_BUSY. These are distinct from creator-anchor waits.",
-        "Acrossolderbacklog:2,135waiting creator/CREATE recovery, now827exhausted/115review/1,193no_record;39pending at attemptcap. These will not all be solved by an executor scheduling change.",
-        "Completed results do not establish successful funding attribution. Latest1hourcompletion is NO_ATTRIBUTION_FOUND; zero direct dispositions completed in this latesthour."
-      ],
-      "limits": [
-        "Read-only snapshots and pure/offline characterization; no live executor introspection, process stack attachment, provider requests or full end-to-end latency apportionment.",
-        "The measured ledger-read profile includes profiler overhead for the decode measurement, and one sample is not a latency distribution.",
-        "A smaller accounting submission bound is a candidate, not production-qualified; it does not repair the historical ambiguous reservation or checkpoint holds.",
-        "Moving windows can decrease completed count as older finishes age out. Initial23:42:24window12/2 became23:44:41window12/1 with same lifetimeFULLcompleted3448 and latestfinish22:55:37. The user12/3window had an earlier endpoint."
-      ],
-      "source_sha256": {
-        "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_http_protection.py": "e3e251c584a15c616a03a564fe5b7220aa23ba56d555b92532e7a3bfecd8dab9",
-        "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py": "a14ea41e62ab15f2a1628bea42d4326acb1baaf0fbcf543ebb967532f8738767"
-      },
-      "production_flags": {
-        "audit_only": true,
-        "provider_calls": 0,
-        "production_source_changes": 0,
-        "database_or_accounting_writes": 0,
-        "worker_service_actions": 0,
-        "queue_replay_or_attempt_reset": false,
-        "uncertain_records_or_funding_evidence_changed": 0
-      }
+      "contains_rpc_payloads": false,
+      "semantics": "Metadata/accounting only: request hashes, attempts, credits, origin binding and unresolved outcomes; RPC reply payloads live elsewhere."
     },
-    "evidence_ref": "/private/tmp/flex-local-admission-progress-audit-20261104/AUDIT_REPORT.json",
-    "tests": "Read-only pairedCore/OPS progress snapshots; one passive gate capture/profile; AST-extracted installed accounting functions with fake-work8vs1submission characterization. No sockets/livewrites/sourcepatch/providerprobe.",
+    "age_summary": {
+      "completed_count": 30042,
+      "completed_at_least_1hour_old": 29644,
+      "completed_at_least_1day_old": 16084,
+      "completed_at_least_7days_old": 0,
+      "max_completed_age_hours": 51.92
+    },
+    "retention_prefix": {
+      "keys": 30347,
+      "old_completed_eligible_1day_total": 16088,
+      "eligible_in_first_1024": 0,
+      "eligible_outside_first_1024": 16088,
+      "scope": "Eligibility observation only; no retention call or ledger mutation."
+    },
+    "retention_reproduction": {
+      "status": "PASS_RETENTION_CURSOR_RESTART_STARVATION_REPRODUCED",
+      "source_functions": [
+        "_completed_eligible",
+        "_validate_completed_target",
+        "_expire_completed"
+      ],
+      "fixture": "2048completedmetadata rows; first1024fresh,remaining1024eligible underexisting1daypolicy",
+      "new_short_lived_process_each_scan_removed": [
+        0,
+        0,
+        0
+      ],
+      "same_long_lived_process_removed": [
+        0,
+        128,
+        128
+      ],
+      "lifetime_scopes_and_owners_preserved": true,
+      "provider_calls": 0,
+      "production_writes": 0,
+      "limits": "Synthetic offline characterization. Source and live eligible-prefix observation demonstrate a starvation mechanism, not a full live execution history or authorization to delete records."
+    },
+    "scaling_assessment": "11.3MB itself is modest. The avoidable cost is whole-history parse/validation and full-file publication for tiny current-state changes, plus repeated reads and one shared serialized writer. Durable accounting is useful; the O(history)-per-request representation is the scaling defect.",
+    "retention_source_findings": {
+      "installed_listener": "No _expire_completed implementation or reservation call; recognizes live expire_completed publication marker only.",
+      "installed_creator_resolution": "Same absence of active completed-identity expiry implementation as Listener.",
+      "installed_walkback": "Calls _expire_completed inside locked reserve_http. Configured FLEX_HELIUS_COMPLETED_RETENTION=one-day-v1. Scan1024,remove<=128,interval60seconds,progress process-local.",
+      "worker_lifetime": "walkback_job_limits.run_row creates fresh bounded child for each row using subprocess; the in-memory cleanup cursor restarts with the child.",
+      "observed_prefix": "No eligible completed record in first1024 sortedkeys;16,088eligible beyond it. Fresh-process synthetic scans removed0/0/0; persistentprocess0/128/128.",
+      "causality_limit": "This proves a source-level restart-starvation mechanism plus matching live prefix condition, not a complete log of all live cleanup invocations. A long enough child can advance beyond the prefix.",
+      "documentation_discrepancy": "DEV helius_admission_contention_20261103.md describes cleanup in reservation path across role contracts. Installed Listener/Creator overlays do not include that cleanup; Walkback does. Treat DEV note as context, not installed authority."
+    },
+    "removal_assessment": "Do not delete/bypass the authoritative ledger. That would discard/reset budget identity, replay restrictions and unknown outcomes. Removing repeated processing from admission is feasible while retaining durable evidence.",
+    "small_change_options": [
+      "First qualify a bounded read-path optimization: avoid re-decoding the same immutable checksum/generation/clock-verified snapshot multiple times within one operation. Spending reservation must still validate current locked authoritative state; no cross-request cached OPEN allowance.",
+      "Separately qualify cleanup scheduling/cursor lifetime so the existing bounded scan actually advances. Before any historical key eviction, verify that required per-request attempt evidence remains recoverable; current cleanup target validator proves scopes/owners/counters unchanged but detailed removed key rows are not retained by that function. Do not bypass preservation requirements.",
+      "If these are insufficient, design an indexed durable representation in existing storage: keyed request rows and per-root totals, transactional reservation/completion; keep historical records available without loading all of them perRPC. This is a larger cross-role migration and should not be bundled into a small patch."
+    ],
+    "required_preservation": [
+      "Original paid credit/attempt evidence and root ownership",
+      "Uncertain/inflight/review-blocked request identity and no replay",
+      "Funding evidence/custody and queue attempts",
+      "Concurrent atomic spend/rate/concurrency rules",
+      "Restart/power-loss/publication/clock/generation safety"
+    ],
+    "tests": "Installed retention eligibility/target-validation/expiry AST functions on synthetic metadata with in-memory save; passive checksum-verified component/age/prefix captures. No raw ledger persisted, provider calls, live expiry, source patch or service actions.",
     "production_flags": {
       "audit_only": true,
       "provider_calls": 0,
       "production_source_changes": 0,
       "database_or_accounting_writes": 0,
       "worker_service_actions": 0,
-      "queue_replay_or_attempt_reset": false,
-      "uncertain_records_or_funding_evidence_changed": 0
+      "retention_records_removed": 0,
+      "queue_or_uncertain_records_changed": 0
     },
-    "blocker": "Local accounting bottleneck mechanisms:11.3MBfullledger validation/publication,2threadFIFOexecutor with8ordinary submissions shares completions,8secondcancel-drain can extend latency. Offline comparison ordinarylimit1allows completion through. GateOPEN/failures0 but old23:01:41Listenerhold stilloccupies1/3slots. At23:44:41UTC last1h12admissions/1completion; newcohort8pending/1running/2checkpointreview/1complete. LifetimeFULL3448,lastfinish22:55:37. No production mutation.",
-    "next_action": "Audit complete. If separately authorized, qualify the smallest isolated ListenerDEV ordinary accounting submission bound(8to1) on existing2threads, preservingpaidcap3 and allaccountingchecks; measure throughput/custody and completion latency under contention. Do not bundle with outage/network/concurrency tuning. Historicaluncertain-ticket recovery and checkpointreview remain separate. No production activation/stop/replay/retirement authorized."
+    "evidence_ref": "/private/tmp/flex-ledger-purpose-review-20261104/AUDIT_REPORT.json",
+    "blocker": "Ledger metadata protects budgets/duplicates/unknowns, but wholehistoryO(N)processing perRPC is avoidable. Current11.3MBmostlycompletedrequestmetadata; only1active. Newretentionfinding: onlyWalkbackinstalledexpiry, cursorprocesslocalinshortlivedchildren; livefirst1024noeligible,16,088eligiblebeyond; offlinerestartstarvationreproduced. Anycleanup must preserve requiredattempt evidence, not onlyaggregates. No directdeletion/refactor authorized.",
+    "next_action": "Architecture audit complete. If separately authorized, qualify one small bounded read-path optimization or retention-cursor/scheduler correction with preservation proof, not a wholesale rewrite. Keep allpaid/attempt/unknown/funding evidence. Indexed transactional ledger is a later separate proposal if incremental fixes are insufficient; no production cleanup, source deployment, restart, RPC probe or budget reset authorized."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -75105,8 +74586,8 @@
     "production_source_changes": 0,
     "database_or_accounting_writes": 0,
     "worker_service_actions": 0,
-    "queue_replay_or_attempt_reset": false,
-    "uncertain_records_or_funding_evidence_changed": 0
+    "retention_records_removed": 0,
+    "queue_or_uncertain_records_changed": 0
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -86124,5 +85605,120 @@
     },
     "blocker": "Local accounting bottleneck mechanisms:11.3MBfullledger validation/publication,2threadFIFOexecutor with8ordinary submissions shares completions,8secondcancel-drain can extend latency. Offline comparison ordinarylimit1allows completion through. GateOPEN/failures0 but old23:01:41Listenerhold stilloccupies1/3slots. At23:44:41UTC last1h12admissions/1completion; newcohort8pending/1running/2checkpointreview/1complete. LifetimeFULL3448,lastfinish22:55:37. No production mutation.",
     "next_action": "Audit complete. If separately authorized, qualify the smallest isolated ListenerDEV ordinary accounting submission bound(8to1) on existing2threads, preservingpaidcap3 and allaccountingchecks; measure throughput/custody and completion latency under contention. Do not bundle with outage/network/concurrency tuning. Historicaluncertain-ticket recovery and checkpointreview remain separate. No production activation/stop/replay/retirement authorized."
+  },
+  "helius_ledger_purpose_scaling_retention_review_20261104": {
+    "status": "PASS_REVIEW_LEDGER_SCALING_AND_RETENTION_CURSOR_DEFECT",
+    "observed_utc": "2026-11-04T23:51:53.968094+00:00",
+    "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
+    "authorization": "Human asks whether design is over-complex, purpose of11.3MBledger, and whether it can be removed/refactored. Read-only architectural review and offline characterization; no implementation/cleanup/rollout.",
+    "ledger_purpose": [
+      "Durable per-token/investigation paid credit and attempt/request totals; restart and new child aliases must not reset allowance.",
+      "Shared request identity/state: concurrent duplicate prevention, cooldown, deterministic failures and OWNER_EXIT_UNCERTAIN paid-blocked requests.",
+      "Shared rate/concurrency/circuit policy and ownership/root binding across Listener, Creator and Walkback.",
+      "Checksum/version/generation/clock-verified recovery authority; ledger is paid-RPC metadata, not raw transaction replies or funding-attribution database."
+    ],
+    "components": {
+      "observed_utc": "2026-11-04T23:48:34.845900+00:00",
+      "raw_ledger_bytes": 11320759,
+      "components": {
+        "keys": {
+          "count": 30345,
+          "json_bytes": 6609720
+        },
+        "owners": {
+          "count": 10606,
+          "json_bytes": 3192406
+        },
+        "scopes": {
+          "count": 5134,
+          "json_bytes": 1513479
+        },
+        "inflight": {
+          "count": 1,
+          "json_bytes": 239
+        }
+      },
+      "request_status_counts": {
+        "HTTP_COMPLETED": 30043,
+        "RETRYABLE": 284,
+        "OWNER_EXIT_UNCERTAIN": 17,
+        "INFLIGHT": 1
+      },
+      "contains_rpc_payloads": false,
+      "semantics": "Metadata/accounting only: request hashes, attempts, credits, origin binding and unresolved outcomes; RPC reply payloads live elsewhere."
+    },
+    "age_summary": {
+      "completed_count": 30042,
+      "completed_at_least_1hour_old": 29644,
+      "completed_at_least_1day_old": 16084,
+      "completed_at_least_7days_old": 0,
+      "max_completed_age_hours": 51.92
+    },
+    "retention_prefix": {
+      "keys": 30347,
+      "old_completed_eligible_1day_total": 16088,
+      "eligible_in_first_1024": 0,
+      "eligible_outside_first_1024": 16088,
+      "scope": "Eligibility observation only; no retention call or ledger mutation."
+    },
+    "retention_reproduction": {
+      "status": "PASS_RETENTION_CURSOR_RESTART_STARVATION_REPRODUCED",
+      "source_functions": [
+        "_completed_eligible",
+        "_validate_completed_target",
+        "_expire_completed"
+      ],
+      "fixture": "2048completedmetadata rows; first1024fresh,remaining1024eligible underexisting1daypolicy",
+      "new_short_lived_process_each_scan_removed": [
+        0,
+        0,
+        0
+      ],
+      "same_long_lived_process_removed": [
+        0,
+        128,
+        128
+      ],
+      "lifetime_scopes_and_owners_preserved": true,
+      "provider_calls": 0,
+      "production_writes": 0,
+      "limits": "Synthetic offline characterization. Source and live eligible-prefix observation demonstrate a starvation mechanism, not a full live execution history or authorization to delete records."
+    },
+    "scaling_assessment": "11.3MB itself is modest. The avoidable cost is whole-history parse/validation and full-file publication for tiny current-state changes, plus repeated reads and one shared serialized writer. Durable accounting is useful; the O(history)-per-request representation is the scaling defect.",
+    "retention_source_findings": {
+      "installed_listener": "No _expire_completed implementation or reservation call; recognizes live expire_completed publication marker only.",
+      "installed_creator_resolution": "Same absence of active completed-identity expiry implementation as Listener.",
+      "installed_walkback": "Calls _expire_completed inside locked reserve_http. Configured FLEX_HELIUS_COMPLETED_RETENTION=one-day-v1. Scan1024,remove<=128,interval60seconds,progress process-local.",
+      "worker_lifetime": "walkback_job_limits.run_row creates fresh bounded child for each row using subprocess; the in-memory cleanup cursor restarts with the child.",
+      "observed_prefix": "No eligible completed record in first1024 sortedkeys;16,088eligible beyond it. Fresh-process synthetic scans removed0/0/0; persistentprocess0/128/128.",
+      "causality_limit": "This proves a source-level restart-starvation mechanism plus matching live prefix condition, not a complete log of all live cleanup invocations. A long enough child can advance beyond the prefix.",
+      "documentation_discrepancy": "DEV helius_admission_contention_20261103.md describes cleanup in reservation path across role contracts. Installed Listener/Creator overlays do not include that cleanup; Walkback does. Treat DEV note as context, not installed authority."
+    },
+    "removal_assessment": "Do not delete/bypass the authoritative ledger. That would discard/reset budget identity, replay restrictions and unknown outcomes. Removing repeated processing from admission is feasible while retaining durable evidence.",
+    "small_change_options": [
+      "First qualify a bounded read-path optimization: avoid re-decoding the same immutable checksum/generation/clock-verified snapshot multiple times within one operation. Spending reservation must still validate current locked authoritative state; no cross-request cached OPEN allowance.",
+      "Separately qualify cleanup scheduling/cursor lifetime so the existing bounded scan actually advances. Before any historical key eviction, verify that required per-request attempt evidence remains recoverable; current cleanup target validator proves scopes/owners/counters unchanged but detailed removed key rows are not retained by that function. Do not bypass preservation requirements.",
+      "If these are insufficient, design an indexed durable representation in existing storage: keyed request rows and per-root totals, transactional reservation/completion; keep historical records available without loading all of them perRPC. This is a larger cross-role migration and should not be bundled into a small patch."
+    ],
+    "required_preservation": [
+      "Original paid credit/attempt evidence and root ownership",
+      "Uncertain/inflight/review-blocked request identity and no replay",
+      "Funding evidence/custody and queue attempts",
+      "Concurrent atomic spend/rate/concurrency rules",
+      "Restart/power-loss/publication/clock/generation safety"
+    ],
+    "tests": "Installed retention eligibility/target-validation/expiry AST functions on synthetic metadata with in-memory save; passive checksum-verified component/age/prefix captures. No raw ledger persisted, provider calls, live expiry, source patch or service actions.",
+    "production_flags": {
+      "audit_only": true,
+      "provider_calls": 0,
+      "production_source_changes": 0,
+      "database_or_accounting_writes": 0,
+      "worker_service_actions": 0,
+      "retention_records_removed": 0,
+      "queue_or_uncertain_records_changed": 0
+    },
+    "evidence_ref": "/private/tmp/flex-ledger-purpose-review-20261104/AUDIT_REPORT.json",
+    "blocker": "Ledger metadata protects budgets/duplicates/unknowns, but wholehistoryO(N)processing perRPC is avoidable. Current11.3MBmostlycompletedrequestmetadata; only1active. Newretentionfinding: onlyWalkbackinstalledexpiry, cursorprocesslocalinshortlivedchildren; livefirst1024noeligible,16,088eligiblebeyond; offlinerestartstarvationreproduced. Anycleanup must preserve requiredattempt evidence, not onlyaggregates. No directdeletion/refactor authorized.",
+    "next_action": "Architecture audit complete. If separately authorized, qualify one small bounded read-path optimization or retention-cursor/scheduler correction with preservation proof, not a wholesale rewrite. Keep allpaid/attempt/unknown/funding evidence. Indexed transactional ledger is a later separate proposal if incremental fixes are insufficient; no production cleanup, source deployment, restart, RPC probe or budget reset authorized."
   }
 }

@@ -1231,9 +1231,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Listener can use all3shared slots for concurrent account/pool checks; this is a ceiling, not a permanent need. At23:11:29UTC,2fresh getAccountInfo tickets age2/4seconds plus getMultipleAccounts ticket age588seconds since23:01:41. All PID82361. No matching event in bounded32-event failure ring; old ticket lifecycle cause unproven. No cleanup or replay performed.",
+  "blocker": "Exact getMultipleAccounts ticket from23:01:41 matched retained LOCAL_CANCEL_AFTER_WIRE diagnostic23:01:46 byPID82361. It is held by design, no timeout expiry, owner stillalive. Offline actual-aiohttp-timer reproduction proves normal deadline can be misclassified as uncertain because outer post-dispatch TimeoutError is logged without settlement. Exact historical timer vs caller cancellation remains unproved; no old record reclassified.",
   "blockers": [
-    "Listener can use all3shared slots for concurrent account/pool checks; this is a ceiling, not a permanent need. At23:11:29UTC,2fresh getAccountInfo tickets age2/4seconds plus getMultipleAccounts ticket age588seconds since23:01:41. All PID82361. No matching event in bounded32-event failure ring; old ticket lifecycle cause unproven. No cleanup or replay performed."
+    "Exact getMultipleAccounts ticket from23:01:41 matched retained LOCAL_CANCEL_AFTER_WIRE diagnostic23:01:46 byPID82361. It is held by design, no timeout expiry, owner stillalive. Offline actual-aiohttp-timer reproduction proves normal deadline can be misclassified as uncertain because outer post-dispatch TimeoutError is logged without settlement. Exact historical timer vs caller cancellation remains unproved; no old record reclassified."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2703,13 +2703,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Explain Listener RPC slot usage",
-    "status": "PASS_READ_ONLY_LISTENER_SLOT_WORK_AUDIT",
+    "milestone": "Audit long-held Listener getMultipleAccounts reservation",
+    "status": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
     "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "blocker": "Listener can use all3shared slots for concurrent account/pool checks; this is a ceiling, not a permanent need. At23:11:29UTC,2fresh getAccountInfo tickets age2/4seconds plus getMultipleAccounts ticket age588seconds since23:01:41. All PID82361. No matching event in bounded32-event failure ring; old ticket lifecycle cause unproven. No cleanup or replay performed.",
-    "next_action": "Explanation/audit complete. If further diagnosis requested, trace the long-lived Listener getMultipleAccounts reservation completion/cancellation/settlement path using retained evidence; do not clear uncertain paid obligations or raise concurrency based on age. Previously recommended creator contention scheduling remains a separate unimplemented DEV change."
+    "blocker": "Exact getMultipleAccounts ticket from23:01:41 matched retained LOCAL_CANCEL_AFTER_WIRE diagnostic23:01:46 byPID82361. It is held by design, no timeout expiry, owner stillalive. Offline actual-aiohttp-timer reproduction proves normal deadline can be misclassified as uncertain because outer post-dispatch TimeoutError is logged without settlement. Exact historical timer vs caller cancellation remains unproved; no old record reclassified.",
+    "next_action": "Audit complete. If separately authorized, implement/qualify DEV outer-boundary timeout settlement preserving true cancellations and exact accounting. Existing old hold recovery requires separate explicit production authorization: controlled Listener stop/ownerabsence, fresh hash/exact-ticket evidence-qualified owner-exit retirement with no refund/replay, restart. Do not clear byage, raisecap or replay."
   },
-  "current_next_blocker": "Listener can use all3shared slots for concurrent account/pool checks; this is a ceiling, not a permanent need. At23:11:29UTC,2fresh getAccountInfo tickets age2/4seconds plus getMultipleAccounts ticket age588seconds since23:01:41. All PID82361. No matching event in bounded32-event failure ring; old ticket lifecycle cause unproven. No cleanup or replay performed.",
+  "current_next_blocker": "Exact getMultipleAccounts ticket from23:01:41 matched retained LOCAL_CANCEL_AFTER_WIRE diagnostic23:01:46 byPID82361. It is held by design, no timeout expiry, owner stillalive. Offline actual-aiohttp-timer reproduction proves normal deadline can be misclassified as uncertain because outer post-dispatch TimeoutError is logged without settlement. Exact historical timer vs caller cancellation remains unproved; no old record reclassified.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44971,11 +44971,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-04T23:12:08.274306+00:00",
+    "published_at_utc": "2026-11-04T23:21:00.721078+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-04T23:12:08.274345+00:00",
-    "last_local_checkpoint_utc": "2026-11-04T23:11:53.330665+00:00",
-    "verification_receipt": "/private/tmp/flex-listener-slot-audit-20261104/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-04T23:21:00.721101+00:00",
+    "last_local_checkpoint_utc": "2026-11-04T23:20:47.486257+00:00",
+    "verification_receipt": "/private/tmp/flex-listener-unsettled-audit-20261104/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -48794,8 +48794,8 @@
     "tests": "36 passed: tests/test_snapshot_storage_safety.py tests/test_x65_57_intelligence_snapshots.py tests/test_x67_28_snapshot_scheduler.py; git diff --check passed",
     "verdict": "P0_P1_FAILURE_SAFETY_IMPLEMENTED_SCHEDULER_STOPPED"
   },
-  "last_updated": "2026-11-04T23:11:53.330665+00:00",
-  "latest_at_utc": "2026-11-04T23:11:53.330665+00:00",
+  "last_updated": "2026-11-04T23:20:47.486257+00:00",
+  "latest_at_utc": "2026-11-04T23:20:47.486257+00:00",
   "latest_audit_artifacts": {
     "b2n_cohort_eligibility_human_review_packet": "docs/audits/b2n_cohort_eligibility_human_review_packet.json",
     "b2n_cohort_eligibility_provenance_binding_preflight": "docs/audits/b2n_cohort_eligibility_provenance_binding_preflight.json",
@@ -58214,7 +58214,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Explanation/audit complete. If further diagnosis requested, trace the long-lived Listener getMultipleAccounts reservation completion/cancellation/settlement path using retained evidence; do not clear uncertain paid obligations or raise concurrency based on age. Previously recommended creator contention scheduling remains a separate unimplemented DEV change.",
+  "next_action": "Audit complete. If separately authorized, implement/qualify DEV outer-boundary timeout settlement preserving true cancellations and exact accounting. Existing old hold recovery requires separate explicit production authorization: controlled Listener stop/ownerabsence, fresh hash/exact-ticket evidence-qualified owner-exit retirement with no refund/replay, restart. Do not clear byage, raisecap or replay.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60448,8 +60448,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "d78dc02ea9d0a9462765d306ac91c18646f077be",
     "name": "flex",
-    "updated_at_utc": "2026-11-04T23:11:53.330665+00:00",
-    "working_tree": "Engineering remains d78dc02e. Read-only Listener slot explanation/audit; no production source/data/accounting/service actions. Mandatory routine handoff only."
+    "updated_at_utc": "2026-11-04T23:20:47.486257+00:00",
+    "working_tree": "Engineering d78dc02e unchanged. Audit-only exact reservation diagnostic and offline characterization; no production source/data/accounting/service actions. Mandatory routine handoff only."
   },
   "project_git_head": "d78dc02ea9d0a9462765d306ac91c18646f077be",
   "pumpfun_archived_prebuy_state": {
@@ -61911,7 +61911,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_READ_ONLY_LISTENER_SLOT_WORK_AUDIT",
+  "status": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63314,9 +63314,9 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-11-04T23:11:53.330665+00:00",
-  "updated_at_utc": "2026-11-04T23:11:53.330665+00:00",
-  "updated_by": "Codex Listener slot read-only audit",
+  "updated_at": "2026-11-04T23:20:47.486257+00:00",
+  "updated_at_utc": "2026-11-04T23:20:47.486257+00:00",
+  "updated_by": "Codex Listener unsettled reservation audit",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
     "cron_runner_sha256": "d93eb8e9d438075abb62a422c083c87d5a7b9121390bdf776d08189bf4e49ec1",
@@ -63531,7 +63531,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_READ_ONLY_LISTENER_SLOT_WORK_AUDIT",
+  "verdict": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73321,111 +73321,170 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_READ_ONLY_LISTENER_SLOT_WORK_AUDIT",
+    "status": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
     "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "observed_utc": "2026-11-04T23:11:29.462375+00:00",
-    "authorization": "User asked why Listener uses three slots and what work it does; read-only source and passive gate audit only.",
+    "observed_utc": "2026-11-04T23:20:47.486257+00:00",
+    "authorization": "Human explicitly requested audit only of Listener reservation unresolved since23:01:41 and safest fix.",
     "findings": {
-      "status": "PASS_READ_ONLY_LISTENER_SLOT_WORK_AUDIT",
-      "observed_utc": "2026-11-04T23:11:29.462375+00:00",
-      "shared_gate_state": "OPEN",
-      "shared_total_cap": 3,
-      "listener_reserved_slots": 1,
-      "listener_exclusive_allocation": false,
-      "current_inflight": [
-        {
-          "ticket_alias": "aca9698a80f2",
-          "role": "listener",
-          "selector": "rpc:getMultipleAccounts",
-          "status": "INFLIGHT",
-          "reserved_at_utc": "2026-11-04T23:01:41+00:00",
-          "age_seconds": 588,
-          "pid": 82361,
-          "pid_exists": true,
-          "retained_matching_failure_diagnostics": []
-        },
-        {
-          "ticket_alias": "c8dd83c14ad8",
-          "role": "listener",
-          "selector": "rpc:getAccountInfo",
-          "status": "INFLIGHT",
-          "reserved_at_utc": "2026-11-04T23:11:27+00:00",
-          "age_seconds": 2,
-          "pid": 82361,
-          "pid_exists": true,
-          "retained_matching_failure_diagnostics": []
-        },
-        {
-          "ticket_alias": "0fb97220b99b",
-          "role": "listener",
-          "selector": "rpc:getAccountInfo",
-          "status": "INFLIGHT",
-          "reserved_at_utc": "2026-11-04T23:11:25+00:00",
-          "age_seconds": 4,
-          "pid": 82361,
-          "pid_exists": true,
-          "retained_matching_failure_diagnostics": []
-        }
+      "status": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
+      "observed_utc": "2026-11-04T23:20:47.486257+00:00",
+      "live_capture_utc": "2026-11-04T23:17:48.402235+00:00",
+      "target": {
+        "ticket_alias": "aca9698a80f2",
+        "selector": "rpc:getMultipleAccounts",
+        "reserved_utc": "2026-11-04T23:01:41+00:00",
+        "post_wire_cancellation_utc": "2026-11-04T23:01:46+00:00",
+        "elapsed_before_cancel_seconds": 5,
+        "captured_age_seconds": 967,
+        "status": "INFLIGHT",
+        "owner_pid": 82361,
+        "owner_alive_observed": true,
+        "owner_start_utc": "2026-11-04T21:08:03+00:00",
+        "request_lifetime_attempts": 3,
+        "request_lifetime_credits": 3,
+        "gate_state": "OPEN"
+      },
+      "live_proof": {
+        "source": "Existing bounded .read-diagnostic.json",
+        "exact_ticket_match": true,
+        "reason": "LOCAL_CANCEL_AFTER_WIRE_[exact target ticket]",
+        "writer_pid": 82361,
+        "at": 1793833306,
+        "failure_ring_matching_events": 0,
+        "failure_ring_retention": 32,
+        "source_unchanged_from_previous_audit": true
+      },
+      "mechanism": [
+        "A cancellation after dispatch reaches _hold_cancelled. It writes the matching diagnostic, preserves the original charged INFLIGHT and grants no outcome/refund/replay.",
+        "Gate has no age-based expiry for ambiguous reservations. The originating PID remains alive; process-exit recovery is intentionally ineligible.",
+        "Installed aiohttp3.9.3 TimerContext turns its own inner CancelledError into TimeoutError at the outer request boundary.",
+        "Installed response-start/send hooks catch inner CancelledError first and hold. The outer ClientSession._request wrapper, after dispatch, only records an exception diagnostic; it does not settle the now-known network TimeoutError.",
+        "Therefore a normal network timeout can leak a concurrency slot into the ambiguity hold. Direct local caller cancellation must remain distinguishable and protected."
       ],
-      "prior_observation": {
-        "from_utc": "2026-11-04T23:04:08.714035+00:00",
-        "through_utc": "2026-11-04T23:04:30.599541+00:00",
-        "full_cap_listener_method_multisets": [
-          [
-            "rpc:getMultipleAccounts",
-            "rpc:getAccountInfo",
-            "rpc:getAccountInfo"
-          ]
+      "offline_reproduction": {
+        "status": "PASS_CURRENT_BEHAVIOR_REPRODUCED",
+        "source_sha256": "e3e251c584a15c616a03a564fe5b7220aa23ba56d555b92532e7a3bfecd8dab9",
+        "uses_actual_aiohttp_TimerContext": true,
+        "installed_callbacks_AST_extracted": [
+          "request",
+          "async_send",
+          "start"
         ],
-        "range": [
-          1,
-          3
+        "cases": [
+          {
+            "case": "timer_timeout",
+            "raised": "TimeoutError",
+            "ledger": {
+              "inflight": true,
+              "credits": 3,
+              "attempts": 3,
+              "admissions": 1
+            },
+            "events": [
+              {
+                "event": "hold_cancelled"
+              },
+              {
+                "event": "diagnostic",
+                "phase": "NETWORK_REQUEST",
+                "exception_type": "TimeoutError",
+                "admission_ms": 0,
+                "network_ms": 5,
+                "wire_entered": true
+              }
+            ]
+          },
+          {
+            "case": "caller_cancel",
+            "raised": "CancelledError",
+            "ledger": {
+              "inflight": true,
+              "credits": 3,
+              "attempts": 3,
+              "admissions": 1
+            },
+            "events": [
+              {
+                "event": "hold_cancelled"
+              },
+              {
+                "event": "diagnostic",
+                "phase": "NETWORK_REQUEST",
+                "exception_type": "CancelledError",
+                "admission_ms": 0,
+                "network_ms": 5,
+                "wire_entered": true
+              }
+            ]
+          },
+          {
+            "case": "success",
+            "raised": null,
+            "ledger": {
+              "inflight": false,
+              "credits": 3,
+              "attempts": 3,
+              "admissions": 1
+            },
+            "events": [
+              {
+                "event": "finish",
+                "status": 200,
+                "transport_failure": false
+              }
+            ]
+          }
+        ],
+        "provider_calls": 0,
+        "sockets": 0,
+        "production_writes": 0,
+        "limits": "Characterization of a reproducible installed-code failure path; exact historical caller vs timer cancellation cannot be proved from the single retained live diagnostic."
+      },
+      "historical_causality_limit": "The exact live ticket is proven to have been cancelled after dispatch5seconds later. The retained record cannot distinguish timer expiry from caller cancellation; the32-event failure ring no longer contains its outer exception. The normal-timeout leak is independently reproduced with installed AST callbacks and actual aiohttp TimerContext, not claimed as uniquely proven historical cause.",
+      "log_and_metrics_limits": [
+        "Listener logs inspected as bounded redacted tails; no timestamped exact-target trace found.",
+        "Narrow paired-Core rpc_metrics query for listener/getMultipleAccounts23:01:38..23:01:56 found no row.",
+        "Read-only process metadata confirms owner PID82361 started21:08:03; no process attach, signals, service commands or provider probes."
+      ],
+      "safest_fix": {
+        "prevent_recurrence_DEV_only_proposal": "At the outer HTTP request boundary, after aiohttp has classified its network deadline, settle only recognized network/transport timeouts for the exact admitted ticket through existing transport-failure accounting. Await durable settlement outside the network timer and make duplicate close/error completion idempotent. Preserve credits and attempts. True external cancellation and unclassified post-wire failures remain uncertain, without replay.",
+        "existing_reservation_recovery_proposal": "Do not retroactively label this record a network timeout, expire it, refund it or clear it by age. Existing Gate.reconcile_terminated_http can remove a dead-owner ticket from active concurrency while retaining original attempts/credits and OWNER_EXIT_UNCERTAIN/replay-blocked state. It requires an explicitly authorized controlled Listener stop, proof the exact old owner PID is absent, a fresh verified ledger hash and exact ticket/PID authority, then restart. No such action executed or authorized in this audit.",
+        "qualification_required": [
+          "Real aiohttp timer timeout before headers: one durable transport-failure settlement, no slot leak, original charges/attempts preserved.",
+          "External caller cancellation after dispatch: original uncertainty preserved, no replay/refund or false successful completion.",
+          "Successful response, duplicate release/close, completion-lock contention and repeated cancellation: exactly-once terminal accounting; do not lose completion exceptions.",
+          "Restart/dead-owner retirement preserves charged unknown request and all accounting/funding/queue evidence; live-owner retirement still refuses.",
+          "Same cap3 and Listener reserved slot; no broad retry of payment, ownership, unknown-outcome or publication errors."
         ]
       },
-      "source_work_mapping": {
-        "getTransaction": "Fetch birth/CREATE and migration transactions to identify creator or discover migration pool accounts.",
-        "getMultipleAccounts": "Batch candidate pool/account validation: indexed existence, AMM/token owner, candidate filtering. One batch is one paid request slot even with several addresses.",
-        "getAccountInfo": "Read an individual candidate/pool for indexing and owner validation/registration; also pool discovery/retry and background pool balance fallback paths.",
-        "additional_work": "Async birth/migration/reconciliation handlers and background enrichment can overlap, all under Listener process role; the discovery and background semaphores are separate local scheduling limits, while the shared gate enforces global cap3."
-      },
-      "interpretation": [
-        "Three is a shared ceiling, not three permanently required Listener slots. One is protected from non-Listener occupancy, and Listener may use unused capacity up to all3.",
-        "The earlier full-cap snapshots establish methods and role, not exact token/function mapping; getAccountInfo and getMultipleAccounts have multiple Listener call sites.",
-        "Current long-held INFLIGHT is an unsettled accounting reservation, not proof of continuous useful network work. No permission to clear or replay follows from its age.",
-        "The slot can remain protected after cancellation once transport starts; helper leaves original charged INFLIGHT exact instead of inventing an outcome. Unless a retained ticket-matching diagnostic establishes it, that is a possible mechanism, not proven cause here."
-      ],
       "source_sha256": {
         "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "cb20ccc427287ac30b1c9f057621ad1cb2d2b544d4114d886f692062ad786ca1",
         "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_http_protection.py": "e3e251c584a15c616a03a564fe5b7220aa23ba56d555b92532e7a3bfecd8dab9",
         "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py": "a14ea41e62ab15f2a1628bea42d4326acb1baaf0fbcf543ebb967532f8738767"
       },
-      "diagnostic_read": {
-        "bounded_bytes": 7565,
-        "retained_events": 32,
-        "does_not_reconstruct_old_history": true
-      },
       "production_flags": {
+        "audit_only": true,
         "provider_calls": 0,
-        "database_or_accounting_writes": 0,
-        "source_changes": 0,
+        "production_database_or_accounting_writes": 0,
+        "production_source_changes": 0,
         "worker_service_actions": 0,
-        "queue_replay_or_attempt_reset": false
+        "queue_replay_or_attempt_reset": false,
+        "recovery_permits_or_retirements_created": 0
       }
     },
-    "tests": "No suite/live test. Inspected installed Listener call sites/HTTP lifecycle; checksum-verified passive ledger capture; bounded<=64KiB retained diagnostic read.",
+    "evidence_ref": "/private/tmp/flex-listener-unsettled-audit-20261104/AUDIT_REPORT.json",
+    "tests": "Offline3-case characterization using installed AST-extracted request/send/start callbacks, actual aiohttp3.9.3 TimerContext and fake ledger/transports. Timeout leak reproduced, external cancel held, success completed; zero sockets/provider/live writes.",
     "production_flags": {
+      "audit_only": true,
       "provider_calls": 0,
-      "database_or_accounting_writes": 0,
-      "source_changes": 0,
+      "production_database_or_accounting_writes": 0,
+      "production_source_changes": 0,
       "worker_service_actions": 0,
       "queue_replay_or_attempt_reset": false,
-      "audit_only": true,
-      "deployed_this_turn": false,
-      "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be"
+      "recovery_permits_or_retirements_created": 0
     },
-    "evidence_ref": "/private/tmp/flex-listener-slot-audit-20261104/AUDIT_REPORT.json",
-    "blocker": "Listener can use all3shared slots for concurrent account/pool checks; this is a ceiling, not a permanent need. At23:11:29UTC,2fresh getAccountInfo tickets age2/4seconds plus getMultipleAccounts ticket age588seconds since23:01:41. All PID82361. No matching event in bounded32-event failure ring; old ticket lifecycle cause unproven. No cleanup or replay performed.",
-    "next_action": "Explanation/audit complete. If further diagnosis requested, trace the long-lived Listener getMultipleAccounts reservation completion/cancellation/settlement path using retained evidence; do not clear uncertain paid obligations or raise concurrency based on age. Previously recommended creator contention scheduling remains a separate unimplemented DEV change."
+    "blocker": "Exact getMultipleAccounts ticket from23:01:41 matched retained LOCAL_CANCEL_AFTER_WIRE diagnostic23:01:46 byPID82361. It is held by design, no timeout expiry, owner stillalive. Offline actual-aiohttp-timer reproduction proves normal deadline can be misclassified as uncertain because outer post-dispatch TimeoutError is logged without settlement. Exact historical timer vs caller cancellation remains unproved; no old record reclassified.",
+    "next_action": "Audit complete. If separately authorized, implement/qualify DEV outer-boundary timeout settlement preserving true cancellations and exact accounting. Existing old hold recovery requires separate explicit production authorization: controlled Listener stop/ownerabsence, fresh hash/exact-ticket evidence-qualified owner-exit retirement with no refund/replay, restart. Do not clear byage, raisecap or replay."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74573,14 +74632,13 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
+    "audit_only": true,
     "provider_calls": 0,
-    "database_or_accounting_writes": 0,
-    "source_changes": 0,
+    "production_database_or_accounting_writes": 0,
+    "production_source_changes": 0,
     "worker_service_actions": 0,
     "queue_replay_or_attempt_reset": false,
-    "audit_only": true,
-    "deployed_this_turn": false,
-    "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be"
+    "recovery_permits_or_retirements_created": 0
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -84202,5 +84260,171 @@
     "evidence_ref": "/private/tmp/flex-listener-slot-audit-20261104/AUDIT_REPORT.json",
     "blocker": "Listener can use all3shared slots for concurrent account/pool checks; this is a ceiling, not a permanent need. At23:11:29UTC,2fresh getAccountInfo tickets age2/4seconds plus getMultipleAccounts ticket age588seconds since23:01:41. All PID82361. No matching event in bounded32-event failure ring; old ticket lifecycle cause unproven. No cleanup or replay performed.",
     "next_action": "Explanation/audit complete. If further diagnosis requested, trace the long-lived Listener getMultipleAccounts reservation completion/cancellation/settlement path using retained evidence; do not clear uncertain paid obligations or raise concurrency based on age. Previously recommended creator contention scheduling remains a separate unimplemented DEV change."
+  },
+  "listener_unsettled_reservation_readonly_audit_20261104": {
+    "status": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
+    "engineering_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
+    "observed_utc": "2026-11-04T23:20:47.486257+00:00",
+    "authorization": "Human explicitly requested audit only of Listener reservation unresolved since23:01:41 and safest fix.",
+    "findings": {
+      "status": "PASS_AUDIT_POST_WIRE_CANCELLATION_HOLD_AND_TIMEOUT_CLASSIFICATION_GAP",
+      "observed_utc": "2026-11-04T23:20:47.486257+00:00",
+      "live_capture_utc": "2026-11-04T23:17:48.402235+00:00",
+      "target": {
+        "ticket_alias": "aca9698a80f2",
+        "selector": "rpc:getMultipleAccounts",
+        "reserved_utc": "2026-11-04T23:01:41+00:00",
+        "post_wire_cancellation_utc": "2026-11-04T23:01:46+00:00",
+        "elapsed_before_cancel_seconds": 5,
+        "captured_age_seconds": 967,
+        "status": "INFLIGHT",
+        "owner_pid": 82361,
+        "owner_alive_observed": true,
+        "owner_start_utc": "2026-11-04T21:08:03+00:00",
+        "request_lifetime_attempts": 3,
+        "request_lifetime_credits": 3,
+        "gate_state": "OPEN"
+      },
+      "live_proof": {
+        "source": "Existing bounded .read-diagnostic.json",
+        "exact_ticket_match": true,
+        "reason": "LOCAL_CANCEL_AFTER_WIRE_[exact target ticket]",
+        "writer_pid": 82361,
+        "at": 1793833306,
+        "failure_ring_matching_events": 0,
+        "failure_ring_retention": 32,
+        "source_unchanged_from_previous_audit": true
+      },
+      "mechanism": [
+        "A cancellation after dispatch reaches _hold_cancelled. It writes the matching diagnostic, preserves the original charged INFLIGHT and grants no outcome/refund/replay.",
+        "Gate has no age-based expiry for ambiguous reservations. The originating PID remains alive; process-exit recovery is intentionally ineligible.",
+        "Installed aiohttp3.9.3 TimerContext turns its own inner CancelledError into TimeoutError at the outer request boundary.",
+        "Installed response-start/send hooks catch inner CancelledError first and hold. The outer ClientSession._request wrapper, after dispatch, only records an exception diagnostic; it does not settle the now-known network TimeoutError.",
+        "Therefore a normal network timeout can leak a concurrency slot into the ambiguity hold. Direct local caller cancellation must remain distinguishable and protected."
+      ],
+      "offline_reproduction": {
+        "status": "PASS_CURRENT_BEHAVIOR_REPRODUCED",
+        "source_sha256": "e3e251c584a15c616a03a564fe5b7220aa23ba56d555b92532e7a3bfecd8dab9",
+        "uses_actual_aiohttp_TimerContext": true,
+        "installed_callbacks_AST_extracted": [
+          "request",
+          "async_send",
+          "start"
+        ],
+        "cases": [
+          {
+            "case": "timer_timeout",
+            "raised": "TimeoutError",
+            "ledger": {
+              "inflight": true,
+              "credits": 3,
+              "attempts": 3,
+              "admissions": 1
+            },
+            "events": [
+              {
+                "event": "hold_cancelled"
+              },
+              {
+                "event": "diagnostic",
+                "phase": "NETWORK_REQUEST",
+                "exception_type": "TimeoutError",
+                "admission_ms": 0,
+                "network_ms": 5,
+                "wire_entered": true
+              }
+            ]
+          },
+          {
+            "case": "caller_cancel",
+            "raised": "CancelledError",
+            "ledger": {
+              "inflight": true,
+              "credits": 3,
+              "attempts": 3,
+              "admissions": 1
+            },
+            "events": [
+              {
+                "event": "hold_cancelled"
+              },
+              {
+                "event": "diagnostic",
+                "phase": "NETWORK_REQUEST",
+                "exception_type": "CancelledError",
+                "admission_ms": 0,
+                "network_ms": 5,
+                "wire_entered": true
+              }
+            ]
+          },
+          {
+            "case": "success",
+            "raised": null,
+            "ledger": {
+              "inflight": false,
+              "credits": 3,
+              "attempts": 3,
+              "admissions": 1
+            },
+            "events": [
+              {
+                "event": "finish",
+                "status": 200,
+                "transport_failure": false
+              }
+            ]
+          }
+        ],
+        "provider_calls": 0,
+        "sockets": 0,
+        "production_writes": 0,
+        "limits": "Characterization of a reproducible installed-code failure path; exact historical caller vs timer cancellation cannot be proved from the single retained live diagnostic."
+      },
+      "historical_causality_limit": "The exact live ticket is proven to have been cancelled after dispatch5seconds later. The retained record cannot distinguish timer expiry from caller cancellation; the32-event failure ring no longer contains its outer exception. The normal-timeout leak is independently reproduced with installed AST callbacks and actual aiohttp TimerContext, not claimed as uniquely proven historical cause.",
+      "log_and_metrics_limits": [
+        "Listener logs inspected as bounded redacted tails; no timestamped exact-target trace found.",
+        "Narrow paired-Core rpc_metrics query for listener/getMultipleAccounts23:01:38..23:01:56 found no row.",
+        "Read-only process metadata confirms owner PID82361 started21:08:03; no process attach, signals, service commands or provider probes."
+      ],
+      "safest_fix": {
+        "prevent_recurrence_DEV_only_proposal": "At the outer HTTP request boundary, after aiohttp has classified its network deadline, settle only recognized network/transport timeouts for the exact admitted ticket through existing transport-failure accounting. Await durable settlement outside the network timer and make duplicate close/error completion idempotent. Preserve credits and attempts. True external cancellation and unclassified post-wire failures remain uncertain, without replay.",
+        "existing_reservation_recovery_proposal": "Do not retroactively label this record a network timeout, expire it, refund it or clear it by age. Existing Gate.reconcile_terminated_http can remove a dead-owner ticket from active concurrency while retaining original attempts/credits and OWNER_EXIT_UNCERTAIN/replay-blocked state. It requires an explicitly authorized controlled Listener stop, proof the exact old owner PID is absent, a fresh verified ledger hash and exact ticket/PID authority, then restart. No such action executed or authorized in this audit.",
+        "qualification_required": [
+          "Real aiohttp timer timeout before headers: one durable transport-failure settlement, no slot leak, original charges/attempts preserved.",
+          "External caller cancellation after dispatch: original uncertainty preserved, no replay/refund or false successful completion.",
+          "Successful response, duplicate release/close, completion-lock contention and repeated cancellation: exactly-once terminal accounting; do not lose completion exceptions.",
+          "Restart/dead-owner retirement preserves charged unknown request and all accounting/funding/queue evidence; live-owner retirement still refuses.",
+          "Same cap3 and Listener reserved slot; no broad retry of payment, ownership, unknown-outcome or publication errors."
+        ]
+      },
+      "source_sha256": {
+        "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py": "cb20ccc427287ac30b1c9f057621ad1cb2d2b544d4114d886f692062ad786ca1",
+        "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_http_protection.py": "e3e251c584a15c616a03a564fe5b7220aa23ba56d555b92532e7a3bfecd8dab9",
+        "/Users/kevinkeaveney/Production/flex-listener/src/core/helius_denial_gate.py": "a14ea41e62ab15f2a1628bea42d4326acb1baaf0fbcf543ebb967532f8738767"
+      },
+      "production_flags": {
+        "audit_only": true,
+        "provider_calls": 0,
+        "production_database_or_accounting_writes": 0,
+        "production_source_changes": 0,
+        "worker_service_actions": 0,
+        "queue_replay_or_attempt_reset": false,
+        "recovery_permits_or_retirements_created": 0
+      }
+    },
+    "evidence_ref": "/private/tmp/flex-listener-unsettled-audit-20261104/AUDIT_REPORT.json",
+    "tests": "Offline3-case characterization using installed AST-extracted request/send/start callbacks, actual aiohttp3.9.3 TimerContext and fake ledger/transports. Timeout leak reproduced, external cancel held, success completed; zero sockets/provider/live writes.",
+    "production_flags": {
+      "audit_only": true,
+      "provider_calls": 0,
+      "production_database_or_accounting_writes": 0,
+      "production_source_changes": 0,
+      "worker_service_actions": 0,
+      "queue_replay_or_attempt_reset": false,
+      "recovery_permits_or_retirements_created": 0
+    },
+    "blocker": "Exact getMultipleAccounts ticket from23:01:41 matched retained LOCAL_CANCEL_AFTER_WIRE diagnostic23:01:46 byPID82361. It is held by design, no timeout expiry, owner stillalive. Offline actual-aiohttp-timer reproduction proves normal deadline can be misclassified as uncertain because outer post-dispatch TimeoutError is logged without settlement. Exact historical timer vs caller cancellation remains unproved; no old record reclassified.",
+    "next_action": "Audit complete. If separately authorized, implement/qualify DEV outer-boundary timeout settlement preserving true cancellations and exact accounting. Existing old hold recovery requires separate explicit production authorization: controlled Listener stop/ownerabsence, fresh hash/exact-ticket evidence-qualified owner-exit retirement with no refund/replay, restart. Do not clear byage, raisecap or replay."
   }
 }

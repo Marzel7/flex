@@ -103,12 +103,11 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_DASHBOARD_CLARITY_PUBLISHED_VERIFIED",
-    "observed_utc": "2026-11-05T16:28:49.104693Z",
-    "dashboard_snapshot_only": true,
-    "evidence_ref": "/private/tmp/flex-dashboard-clarity-20261105/QUALIFICATION.json",
-    "blocker": "Dashboard clarity complete and published. Existing worker/evidence holds remain unchanged. Overall health remains Unknown where required telemetry is unproven. Prior handoff transport rejected commit_refs_rules; this local checkpoint does not claim remote visibility.",
-    "next_action": "Use the existing five-minute dashboard refresh. No further implementation or production activation is authorized by this clarity milestone; any diagnostics, birth coverage audit or worker rollout is a separate scope."
+    "status": "PASS_UNKNOWN_MIGRATION_COHORT_IDENTIFIED",
+    "observed_utc": "2026-11-05T16:41:42.464800Z",
+    "evidence_ref": "/private/tmp/flex-unknown-migration-addresses-20261105/RESULT.private.json",
+    "blocker": null,
+    "next_action": "Return the verified addresses and current states. Unknown means insufficient matching birth proof before migration, not proof of failed persistence. No repairs, replay or further birth-path investigation authorized by this address request."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1229,7 +1228,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Dashboard clarity complete and published. Existing worker/evidence holds remain unchanged. Overall health remains Unknown where required telemetry is unproven. Prior handoff transport rejected commit_refs_rules; this local checkpoint does not claim remote visibility.",
+  "blocker": null,
   "blockers": [
     "Assessment complete. Current production hasimproved processing; no evidence supports broadbehaviourchanges based onthisrecommendation. Remaining needsareUIclarity,unexplainedhandoffdelay/Listenerexit,andpremigrationbirthcoverage. DEV40f342dc/3c6ef5d1qualifiedbutundeployed;nozero-regressionclaim. Userquestion doesnotauthorizeimplementation. Remote handoffpushpreviouslyrejectedfatalcommit_refs_rules;no newevidenceor explicittransportretryauthorization,so preserve localcheckpointanddo not retry."
   ],
@@ -2701,13 +2700,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Dashboard clarity",
-    "status": "PASS_DASHBOARD_CLARITY_PUBLISHED_VERIFIED",
+    "milestone": "Identify unknown-at-migration token addresses",
+    "status": "PASS_UNKNOWN_MIGRATION_COHORT_IDENTIFIED",
     "engineering_revision": "ddb70b897c0e2bc4256481b44224fa0abce8d031",
-    "blocker": "Dashboard clarity complete and published. Existing worker/evidence holds remain unchanged. Overall health remains Unknown where required telemetry is unproven. Prior handoff transport rejected commit_refs_rules; this local checkpoint does not claim remote visibility.",
-    "next_action": "Use the existing five-minute dashboard refresh. No further implementation or production activation is authorized by this clarity milestone; any diagnostics, birth coverage audit or worker rollout is a separate scope."
+    "blocker": null,
+    "next_action": "Return the verified addresses and current states. Unknown means insufficient matching birth proof before migration, not proof of failed persistence. No repairs, replay or further birth-path investigation authorized by this address request."
   },
-  "current_next_blocker": "Dashboard clarity complete and published. Existing worker/evidence holds remain unchanged. Overall health remains Unknown where required telemetry is unproven. Prior handoff transport rejected commit_refs_rules; this local checkpoint does not claim remote visibility.",
+  "current_next_blocker": null,
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44968,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T16:30:48.008484+00:00",
+    "published_at_utc": "2026-11-05T16:46:07.695639+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-05T16:30:30.808814+00:00",
-    "verification_receipt": "/private/tmp/flex-dashboard-clarity-20261105/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-05T16:45:50.000692+00:00",
+    "verification_receipt": "/private/tmp/flex-unknown-migration-addresses-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58212,7 +58211,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Use the existing five-minute dashboard refresh. No further implementation or production activation is authorized by this clarity milestone; any diagnostics, birth coverage audit or worker rollout is a separate scope.",
+  "next_action": "Return the verified addresses and current states. Unknown means insufficient matching birth proof before migration, not proof of failed persistence. No repairs, replay or further birth-path investigation authorized by this address request.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60446,8 +60445,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "ddb70b897c0e2bc4256481b44224fa0abce8d031",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T16:30:30.808814+00:00",
-    "working_tree": "Dashboard clarity engineering commits only; local handoff modified separately. Existing guard file untouched. Worker fixes 40f342dc/3c6ef5d1 remain undeployed."
+    "updated_at_utc": "2026-11-05T16:45:50.000692+00:00",
+    "working_tree": "Engineering revision unchanged; read-only cohort identification with local audit evidence and handoff update only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61909,7 +61908,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DASHBOARD_CLARITY_PUBLISHED_VERIFIED",
+  "status": "PASS_UNKNOWN_MIGRATION_COHORT_IDENTIFIED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63313,7 +63312,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-11-05T16:09:37.526218+00:00",
-  "updated_at_utc": "2026-11-05T16:30:30.808814+00:00",
+  "updated_at_utc": "2026-11-05T16:45:50.000692+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63529,7 +63528,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DASHBOARD_CLARITY_PUBLISHED_VERIFIED",
+  "verdict": "PASS_UNKNOWN_MIGRATION_COHORT_IDENTIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73319,12 +73318,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_DASHBOARD_CLARITY_PUBLISHED_VERIFIED",
+    "status": "PASS_UNKNOWN_MIGRATION_COHORT_IDENTIFIED",
     "engineering_revision": "ddb70b897c0e2bc4256481b44224fa0abce8d031",
-    "handoff_record": "dashboard_clarity_20261105",
-    "evidence_ref": "/private/tmp/flex-dashboard-clarity-20261105/QUALIFICATION.json",
-    "blocker": "Dashboard clarity complete and published. Existing worker/evidence holds remain unchanged. Overall health remains Unknown where required telemetry is unproven. Prior handoff transport rejected commit_refs_rules; this local checkpoint does not claim remote visibility.",
-    "next_action": "Use the existing five-minute dashboard refresh. No further implementation or production activation is authorized by this clarity milestone; any diagnostics, birth coverage audit or worker rollout is a separate scope."
+    "handoff_record": "unknown_migration_cohort_addresses_20261105",
+    "evidence_ref": "/private/tmp/flex-unknown-migration-addresses-20261105/RESULT.private.json",
+    "blocker": null,
+    "next_action": "Return the verified addresses and current states. Unknown means insufficient matching birth proof before migration, not proof of failed persistence. No repairs, replay or further birth-path investigation authorized by this address request."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74472,14 +74471,13 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "dashboard_published": true,
-    "worker_source_changes": 0,
-    "service_actions": 0,
-    "database_or_accounting_writes": 0,
-    "provider_probes": 0,
-    "attempt_inflight_uncertainty_funding_changes": 0,
+    "source_changes": 0,
+    "database_writes": 0,
+    "accounting_writes": 0,
+    "provider_calls": 0,
+    "worker_actions": 0,
+    "dashboard_changes": 0,
     "queue_replay": false,
-    "DEV_worker_fixes_deployed": false,
     "engineering_revision": "ddb70b897c0e2bc4256481b44224fa0abce8d031"
   },
   "post8605_deployment_progress_readonly": {
@@ -88356,5 +88354,37 @@
     },
     "blocker": "Dashboard clarity complete and published. Existing worker/evidence holds remain unchanged. Overall health remains Unknown where required telemetry is unproven. Prior handoff transport rejected commit_refs_rules; this local checkpoint does not claim remote visibility.",
     "next_action": "Use the existing five-minute dashboard refresh. No further implementation or production activation is authorized by this clarity milestone; any diagnostics, birth coverage audit or worker rollout is a separate scope."
+  },
+  "unknown_migration_cohort_addresses_20261105": {
+    "status": "PASS_UNKNOWN_MIGRATION_COHORT_IDENTIFIED",
+    "engineering_revision": "ddb70b897c0e2bc4256481b44224fa0abce8d031",
+    "updated_at_utc": "2026-11-05T16:45:50.000692+00:00",
+    "scope": "Read-only identification of the exact 11 unknown-at-migration tokens in the user-quoted 6/17 cohort. Private addresses remain only in local evidence, not the handoff.",
+    "snapshot_utc": "2026-11-05T16:41:42.464800Z",
+    "window_start_utc": "2026-11-05T15:41:42.464800Z",
+    "checks": {
+      "admissions": 17,
+      "birth_proven": 6,
+      "unknown": 11,
+      "exact_dashboard_counts_reproduced": true,
+      "current_unknown_statuses": {
+        "complete": 7,
+        "waiting": 4
+      },
+      "migration_observation_proven_for_all_unknown": true
+    },
+    "evidence_ref": "/private/tmp/flex-unknown-migration-addresses-20261105/RESULT.private.json",
+    "addresses_ref": "/private/tmp/flex-unknown-migration-addresses-20261105/TOKEN_ADDRESSES.txt",
+    "production_flags": {
+      "source_changes": 0,
+      "database_writes": 0,
+      "accounting_writes": 0,
+      "provider_calls": 0,
+      "worker_actions": 0,
+      "dashboard_changes": 0,
+      "queue_replay": false
+    },
+    "blocker": null,
+    "next_action": "Return the verified addresses and current states. Unknown means insufficient matching birth proof before migration, not proof of failed persistence. No repairs, replay or further birth-path investigation authorized by this address request."
   }
 }

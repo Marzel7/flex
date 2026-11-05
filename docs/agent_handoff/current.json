@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Migration-time creator and CREATE dashboard metric",
-    "status": "PASS_IMPLEMENTED_PUBLISHED_MIGRATION_TIME_METRIC",
+    "milestone": "Migration-time unknown cohort audit",
+    "status": "PASS_READONLY_UNKNOWN_COHORT_CLASSIFIED",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
-    "next_action": "Continue the existing five-minute dashboard refresh with the installed migration observation metric. Preserve unknown historical cases unless qualifying retained pre-migration evidence becomes available. No worker deployment, restart, replay, accounting edits or historical backfill authorized by this dashboard task."
+    "blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
+    "next_action": "Explain seven recovered-current-data cases versus three still-missing-data cases. Retain migration-time UNKNOWN for all ten. If further audit requested, trace Listener birth receive-to-receipt retention for these exact ten cases; no code/dashboard edits, service changes, replay, provider probes or database writes under this audit."
   },
-  "current_next_blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
+  "current_next_blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:22:52.016581+00:00",
+    "published_at_utc": "2026-11-05T11:26:57.735504+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:22:52.016600+00:00",
+    "updated_at_utc": "2026-11-05T11:26:57.735524+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-dashboard-migration-time-20261105/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-migration-unknown-audit-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60446,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:22:42.335046+00:00",
-    "working_tree": "Dashboard metric engineering commit f71b59ea; installed dashboard package and HTML updated. Worker runtime remains 010ead93; no service or database changes. Routine handoff dirty and pre-existing guard remain."
+    "updated_at_utc": "2026-11-05T11:26:48.190912+00:00",
+    "working_tree": "f71b59ea engineering/dashboard unchanged; worker runtime 010ead93 unchanged. Read-only unknown cohort audit and required handoff only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_IMPLEMENTED_PUBLISHED_MIGRATION_TIME_METRIC",
+    "status": "PASS_READONLY_UNKNOWN_COHORT_CLASSIFIED",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "handoff_record": "migration_time_dashboard_metric_20261105",
-    "evidence_ref": "/private/tmp/flex-dashboard-migration-time-20261105/VERIFICATION.json",
-    "blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
-    "next_action": "Continue the existing five-minute dashboard refresh with the installed migration observation metric. Preserve unknown historical cases unless qualifying retained pre-migration evidence becomes available. No worker deployment, restart, replay, accounting edits or historical backfill authorized by this dashboard task."
+    "handoff_record": "migration_unknowns_audit_20261105",
+    "evidence_ref": "/private/tmp/flex-migration-unknown-audit-20261105/AUDIT.json",
+    "blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
+    "next_action": "Explain seven recovered-current-data cases versus three still-missing-data cases. Retain migration-time UNKNOWN for all ten. If further audit requested, trace Listener birth receive-to-receipt retention for these exact ten cases; no code/dashboard edits, service changes, replay, provider probes or database writes under this audit."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -87006,5 +87006,53 @@
     ],
     "blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
     "next_action": "Continue the existing five-minute dashboard refresh with the installed migration observation metric. Preserve unknown historical cases unless qualifying retained pre-migration evidence becomes available. No worker deployment, restart, replay, accounting edits or historical backfill authorized by this dashboard task."
+  },
+  "migration_unknowns_audit_20261105": {
+    "status": "PASS_READONLY_UNKNOWN_COHORT_CLASSIFIED",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "reference_snapshot_utc": "2026-11-05T11:21:54.544057Z",
+    "audit_observed_utc": "2026-11-05T11:25:07.545879+00:00",
+    "receipt_search_utc": "2026-11-05T11:26:09.211328+00:00",
+    "summary": {
+      "total": 12,
+      "known": 2,
+      "unknown": 10,
+      "unknown_with_current_pair": 7,
+      "unknown_without_current_pair": 3,
+      "unknown_without_exact_receipt": 10,
+      "unknown_with_exact_receipt": 0,
+      "unknowns_with_any_identity_birth_receipt": 0,
+      "unknowns_without_any_identity_birth_receipt": 10,
+      "receipt_search_completed": true,
+      "matching_receipt_files_examined": 10
+    },
+    "creator_recovery_after_migration_seconds": {
+      "min": 20.13280415534973,
+      "max": 65.0,
+      "cases": 7
+    },
+    "unknowns_with_current_data_statuses": {
+      "complete": 6,
+      "failed": 1
+    },
+    "unknowns_missing_current_data": {
+      "cases": 3,
+      "walkback_status": "waiting",
+      "creator_recovery_status": "skipped",
+      "reason": "CREATE_EVENT_CREATOR_ROLE_REVIEW"
+    },
+    "conclusion": "Both historical provenance gap and current data gap. Seven have later RPC-resolved data; three still lack usable anchors. No retained birth receipt establishes any of those ten pairs were known at migration. Migration timestamp absence is not the cause. Why birth receipts are missing remains unproven.",
+    "tests": "Read-only paired Core/OPS inspection of fixed cohort; exact receipt lookup plus literal per-mint search across active/retired receipt store, including alternative identities. No engineering change or test suite required.",
+    "production_flags": {
+      "audit_only": true,
+      "source_changes": 0,
+      "dashboard_changes": 0,
+      "service_actions": 0,
+      "operator_database_writes": 0,
+      "provider_probes": 0
+    },
+    "evidence_ref": "/private/tmp/flex-migration-unknown-audit-20261105/AUDIT.json",
+    "blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
+    "next_action": "Explain seven recovered-current-data cases versus three still-missing-data cases. Retain migration-time UNKNOWN for all ten. If further audit requested, trace Listener birth receive-to-receipt retention for these exact ten cases; no code/dashboard edits, service changes, replay, provider probes or database writes under this audit."
   }
 }

@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Admission card evidence semantics audit",
-    "status": "PASS_READONLY_CARD_SEMANTICS_AUDIT",
-    "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
-    "next_action": "Explain the historical-proof/current-availability distinction. If metric work is requested, make a scoped DEV metric/label correction using authoritative migration-observation timestamps and retained birth evidence; retain unknown where historical timing is unproven. No source, dashboard, service, queue or accounting changes under this audit."
+    "milestone": "Migration-time creator and CREATE dashboard metric",
+    "status": "PASS_IMPLEMENTED_PUBLISHED_MIGRATION_TIME_METRIC",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
+    "next_action": "Continue the existing five-minute dashboard refresh with the installed migration observation metric. Preserve unknown historical cases unless qualifying retained pre-migration evidence becomes available. No worker deployment, restart, replay, accounting edits or historical backfill authorized by this dashboard task."
   },
-  "current_next_blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
+  "current_next_blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:13:45.263791+00:00",
+    "published_at_utc": "2026-11-05T11:22:52.016581+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:13:45.263810+00:00",
+    "updated_at_utc": "2026-11-05T11:22:52.016600+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-admission-card-audit-20261105b/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-dashboard-migration-time-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60444,10 +60444,10 @@
   },
   "project": {
     "branch": "codex/r02-bounded-retention",
-    "git_head": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
+    "git_head": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:13:06.861455+00:00",
-    "working_tree": "Engineering and installed 010 composition unchanged. Read-only admission card audit; handoff update only."
+    "updated_at_utc": "2026-11-05T11:22:42.335046+00:00",
+    "working_tree": "Dashboard metric engineering commit f71b59ea; installed dashboard package and HTML updated. Worker runtime remains 010ead93; no service or database changes. Routine handoff dirty and pre-existing guard remain."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_READONLY_CARD_SEMANTICS_AUDIT",
-    "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "handoff_record": "admission_card_audit_20261105",
-    "evidence_ref": "/private/tmp/flex-admission-card-audit-20261105b/COHORT.json",
-    "blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
-    "next_action": "Explain the historical-proof/current-availability distinction. If metric work is requested, make a scoped DEV metric/label correction using authoritative migration-observation timestamps and retained birth evidence; retain unknown where historical timing is unproven. No source, dashboard, service, queue or accounting changes under this audit."
+    "status": "PASS_IMPLEMENTED_PUBLISHED_MIGRATION_TIME_METRIC",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "handoff_record": "migration_time_dashboard_metric_20261105",
+    "evidence_ref": "/private/tmp/flex-dashboard-migration-time-20261105/VERIFICATION.json",
+    "blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
+    "next_action": "Continue the existing five-minute dashboard refresh with the installed migration observation metric. Preserve unknown historical cases unless qualifying retained pre-migration evidence becomes available. No worker deployment, restart, replay, accounting edits or historical backfill authorized by this dashboard task."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -86955,5 +86955,56 @@
     "blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
     "next_action": "Explain the historical-proof/current-availability distinction. If metric work is requested, make a scoped DEV metric/label correction using authoritative migration-observation timestamps and retained birth evidence; retain unknown where historical timing is unproven. No source, dashboard, service, queue or accounting changes under this audit.",
     "evidence_ref": "/private/tmp/flex-admission-card-audit-20261105b/COHORT.json"
+  },
+  "migration_time_dashboard_metric_20261105": {
+    "status": "PASS_IMPLEMENTED_PUBLISHED_MIGRATION_TIME_METRIC",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "worker_runtime_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
+    "observed_utc": "2026-11-05T11:21:54.544057Z",
+    "acceptance": "Creator plus CREATE signature known at migration observation, not queue admission or later recovery; genuinely unproven cases unknown.",
+    "implementation": "Exact Core-bound migration signature matched to first retained PumpPortal migration receive census; earlier original Listener journal notification seconds tighten cutoff. Exact valid committed birth receipt and Core acceptance must precede cutoff. Processing timestamps, current fields alone, queue admission and BEFORE_OPS_SUBMIT markers never prove migration-time availability. Missing, conflicted, partial or bounded-out evidence remains unknown.",
+    "bounds": {
+      "jobs": 128,
+      "birth_receipt_bytes": 4096,
+      "census_bytes": 67108864,
+      "census_rows": 150000,
+      "migration_timing_seconds": 0.8,
+      "birth_check_seconds": 0.5,
+      "journal_bytes": 2000000,
+      "journal_rows": 512
+    },
+    "metric": {
+      "denominator": 12,
+      "creator_known": 2,
+      "create_available": 2,
+      "creator_unknown": 10,
+      "create_unknown": 10,
+      "measurement": "EVIDENCE_CHECKED",
+      "basis": "MIGRATION_OBSERVATION_V1",
+      "observation_quality": "EVIDENCE_CHECKED",
+      "migration_time_unknown": 0,
+      "proof": "Exact committed birth creator and CREATE signature accepted before the first retained migration observation. Earlier journal notification seconds tighten the cutoff. Missing or late evidence stays unknown; current fields and later recovery are never backdated."
+    },
+    "tests": {
+      "targeted_python_unique_checks": 51,
+      "results": "PASS: 49 targeted timing/evidence/hour-card/refresh/publication-concurrency checks; then 32 timing/evidence checks including two additional conflict/legacy cases. Node renderer cases pass; actual page scripts compile and CSP hashes match; idempotent rendering and all nonoperational config/deployment/progress timestamps unchanged.",
+      "live_readonly_collector": "PASS staged and installed within existing refresh bounds",
+      "actual_dashboard_publication": "PASS atomic refresh and exact snapshot/HTML readback"
+    },
+    "production_flags": {
+      "dashboard_package_changed": true,
+      "dashboard_html_published": true,
+      "worker_source_changes": 0,
+      "service_actions": 0,
+      "operator_accounting_or_database_writes": 0,
+      "provider_probes": 0,
+      "queue_replay": false
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-dashboard-migration-time-20261105/INSTALL.json",
+      "/private/tmp/flex-dashboard-migration-time-20261105/VERIFICATION.json"
+    ],
+    "blocker": "No implementation/publication blocker. At 11:21:54 UTC the last-hour admission cohort has 12 jobs: retained evidence proves creator and CREATE signature accepted before migration observation for 2 (16.7%); 10 remain unknown. All 12 have migration receive timing, so unknown concerns pre-migration birth availability. Missing receipts and later recovery are not backdated. This dashboard-only change does not qualify overall worker health or complete backlog progress.",
+    "next_action": "Continue the existing five-minute dashboard refresh with the installed migration observation metric. Preserve unknown historical cases unless qualifying retained pre-migration evidence becomes available. No worker deployment, restart, replay, accounting edits or historical backfill authorized by this dashboard task."
   }
 }

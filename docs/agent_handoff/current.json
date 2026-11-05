@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "PumpPortal birth storage path audit",
-    "status": "PASS_BIRTH_STORAGE_PATH_CONFIRMED_PARTIAL_HISTORICAL_COVERAGE",
+    "milestone": "Ten-token PumpPortal birth failure-stage audit",
+    "status": "PARTIAL_BIRTH_RECEIVE_BOUNDARY_NOT_RECORDED",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
-    "next_action": "Explain that saving birth data is implemented, but current pf_ws_creator is not birth-only proof because RPC fills it too. Keep these ten migration-time cases unknown. If tracing continues, inspect retained Listener birth receive/route/persist diagnostics for the exact cohort using bounded reads; do not repeat the unchanged broad legacy archive scan. No code, dashboard, service, provider, replay or database changes under this audit."
+    "blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
+    "next_action": "Preserve UNKNOWN. Retrospective causal attribution is limited by absent receive-to-persist trace for the relevant births. If further production diagnostics are explicitly approved, use one short metadata-only trace on the existing websocket (receive, parsed type/pool, route, receipt outcome, Core acknowledgement), with first/last coverage and drops recorded; do not add RPC, replay, restart or enable it under audit-only authorization."
   },
-  "current_next_blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
+  "current_next_blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:33:11.196821+00:00",
+    "published_at_utc": "2026-11-05T11:43:50.084701+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:33:11.196842+00:00",
+    "updated_at_utc": "2026-11-05T11:43:50.084768+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-pumpportal-birth-storage-audit-20261105/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-ten-birth-trace-audit-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60446,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:33:00.481959+00:00",
-    "working_tree": "f71b59ea and dashboard unchanged; 010ead93 workers unchanged. Read-only PumpPortal birth storage audit and required handoff only."
+    "updated_at_utc": "2026-11-05T11:43:34.557468+00:00",
+    "working_tree": "f71b59ea/dashboard and installed 010 worker code unchanged. Audit-only ten-token receive/routing/persistence trace; required handoff update only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_BIRTH_STORAGE_PATH_CONFIRMED_PARTIAL_HISTORICAL_COVERAGE",
+    "status": "PARTIAL_BIRTH_RECEIVE_BOUNDARY_NOT_RECORDED",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "handoff_record": "pumpportal_birth_storage_path_audit_20261105",
-    "evidence_ref": "/private/tmp/flex-pumpportal-birth-storage-audit-20261105/AUDIT.json",
-    "blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
-    "next_action": "Explain that saving birth data is implemented, but current pf_ws_creator is not birth-only proof because RPC fills it too. Keep these ten migration-time cases unknown. If tracing continues, inspect retained Listener birth receive/route/persist diagnostics for the exact cohort using bounded reads; do not repeat the unchanged broad legacy archive scan. No code, dashboard, service, provider, replay or database changes under this audit."
+    "handoff_record": "ten_token_birth_failure_stage_audit_20261105",
+    "evidence_ref": "/private/tmp/flex-ten-birth-trace-audit-20261105/AUDIT.json",
+    "blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
+    "next_action": "Preserve UNKNOWN. Retrospective causal attribution is limited by absent receive-to-persist trace for the relevant births. If further production diagnostics are explicitly approved, use one short metadata-only trace on the existing websocket (receive, parsed type/pool, route, receipt outcome, Core acknowledgement), with first/last coverage and drops recorded; do not add RPC, replay, restart or enable it under audit-only authorization."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -87091,5 +87091,46 @@
     ],
     "blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
     "next_action": "Explain that saving birth data is implemented, but current pf_ws_creator is not birth-only proof because RPC fills it too. Keep these ten migration-time cases unknown. If tracing continues, inspect retained Listener birth receive/route/persist diagnostics for the exact cohort using bounded reads; do not repeat the unchanged broad legacy archive scan. No code, dashboard, service, provider, replay or database changes under this audit."
+  },
+  "ten_token_birth_failure_stage_audit_20261105": {
+    "status": "PARTIAL_BIRTH_RECEIVE_BOUNDARY_NOT_RECORDED",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "reference_snapshot_utc": "2026-11-05T11:21:54.544057Z",
+    "observed_utc": "2026-11-05T11:43:04.562876+00:00",
+    "summary": {
+      "subjects": 10,
+      "migrations_received": 10,
+      "confirmed_birth_receives": 0,
+      "confirmed_birth_rejections": 0,
+      "confirmed_birth_Core_persistence_failures": 0,
+      "unresolved_missed_versus_pre_record_loss": 10,
+      "birth_retry_matches": 0,
+      "earlier_migration_seen_on_October_9": 1,
+      "birth_persistence_confirmations_in_cohort_stdout_slice": 188
+    },
+    "coverage": {
+      "rotated_log_files_scanned": 6,
+      "log_bytes_scanned": 99620550,
+      "boundary_trace_expired_utc": "2026-11-03T11:26:57+00:00",
+      "boundary_trace_covers_November_5_cohort": false,
+      "old_raw_birth_retention_enabled_in_installed_configuration": false,
+      "compact_birth_receipts_enabled": true,
+      "global_receipt_errors": "Historical disk-headroom/capacity errors retained without subject IDs/timestamps sufficient to attribute these ten. Not a confirmed cause. Receipt failure alone does not abort the normal Core birth writer.",
+      "cached_birth_dates": "No saved exact CREATE reply found in checked Core cache or current job checkpoints. No RPC made to obtain dates.",
+      "legacy_archive": "Earlier 60-second broad scan incomplete; not repeated."
+    },
+    "conclusion": "No durable birth record was recovered for the ten; the missing stage cannot be located precisely from retained data. Provider non-delivery, Listener non-receipt, pre-record parse/routing rejection and persistence loss remain unproven alternatives. Do not label any token a confirmed rejection or failed birth write. One job concerns a token already migration-observed on October9; admissions are not new-birth events.",
+    "tests": "Read-only fixed-cohort log classification across six bounded rotated files; retained boundary trace coverage check; installed config allowlist inspection; active evidence/queue queries and CREATE ledger checks; passive census history; exact saved CREATE reply lookup with no provider calls. No code change or test suite.",
+    "production_flags": {
+      "audit_only": true,
+      "worker_or_dashboard_changes": 0,
+      "service_actions": 0,
+      "operator_database_writes": 0,
+      "provider_calls": 0,
+      "queue_replay": false
+    },
+    "evidence_ref": "/private/tmp/flex-ten-birth-trace-audit-20261105/AUDIT.json",
+    "blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
+    "next_action": "Preserve UNKNOWN. Retrospective causal attribution is limited by absent receive-to-persist trace for the relevant births. If further production diagnostics are explicitly approved, use one short metadata-only trace on the existing websocket (receive, parsed type/pool, route, receipt outcome, Core acknowledgement), with first/last coverage and drops recorded; do not add RPC, replay, restart or enable it under audit-only authorization."
   }
 }

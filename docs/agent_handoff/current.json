@@ -103,12 +103,10 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_010_DEPLOYED_THREE_ROLES_ADMISSIONS_AND_COMPLETIONS_RESUMED",
-    "production_changes": true,
-    "provider_probes": 0,
-    "operator_database_writes": 0,
-    "blocker": "No blocker to the approved deployment and initial live verification. At 10:49:29 UTC: two post-restart admissions, one new full Walkback completed; one older waiting job also completed. Full completions 3456 to 3458. One new job still awaits a valid CREATE anchor; 39 older pending clock-review jobs and 20 uncertain requests remain held. Original 19 unknowns exact; interrupted old inflight became charged/replay-blocked OWNER_EXIT_UNCERTAIN under unchanged existing policy. Underlying page-zero cause remains unproven; sustained-throughput/programme-wide completion is not claimed.",
-    "next_action": "Continue ordinary Listener/Creator/Walkback workers and existing passive dashboard refresh. Monitor new ready admissions and saved completions, using write-boundary diagnostics and retained first/latest rejected-stage evidence if corruption recurs. Existing uncertain/clock-review holds require separately qualified authority; do not replay, reset attempts, release requests, add restarts or manually quarantine another stage."
+    "status": "PASS_010_PROGRESS_AUDIT_NEW_COMPLETIONS_NO_STAGE_RECURRENCE_OBSERVED",
+    "audit_only": true,
+    "blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
+    "next_action": "Continue existing passive dashboard and ordinary workers. Audit the single new CREATE_EVENT_CREATOR_ROLE_REVIEW case separately if requested; do not invent an anchor or bypass strict creator validation. Preserve all uncertain/clock-review holds and spending/attempt evidence. No restart, live quarantine, replay or accounting changes under this audit."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1229,11 +1227,11 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No blocker to the approved deployment and initial live verification. At 10:49:29 UTC: two post-restart admissions, one new full Walkback completed; one older waiting job also completed. Full completions 3456 to 3458. One new job still awaits a valid CREATE anchor; 39 older pending clock-review jobs and 20 uncertain requests remain held. Original 19 unknowns exact; interrupted old inflight became charged/replay-blocked OWNER_EXIT_UNCERTAIN under unchanged existing policy. Underlying page-zero cause remains unproven; sustained-throughput/programme-wide completion is not claimed.",
+  "blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
   "blockers": [
-    "One new admission awaits valid CREATE anchor.",
-    "39 older clock-review jobs and 20 uncertain requests remain held; no operator release.",
-    "Page-zero corruption root cause unproven; initial recovery/progress verified only."
+    "One new Walkback awaits CREATE_EVENT_CREATOR_ROLE_REVIEW.",
+    "Existing pending deferrals and20uncertain request holds remain; no operator changes.",
+    "Underlying historical corruption cause remains unproven; no new recurrence observed in this audit."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2703,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "010 three-role deployment and initial live completion verification",
-    "status": "PASS_010_DEPLOYED_THREE_ROLES_ADMISSIONS_AND_COMPLETIONS_RESUMED",
+    "milestone": "010 deployed progress and stage-recurrence audit",
+    "status": "PASS_010_PROGRESS_AUDIT_NEW_COMPLETIONS_NO_STAGE_RECURRENCE_OBSERVED",
     "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "blocker": "No blocker to the approved deployment and initial live verification. At 10:49:29 UTC: two post-restart admissions, one new full Walkback completed; one older waiting job also completed. Full completions 3456 to 3458. One new job still awaits a valid CREATE anchor; 39 older pending clock-review jobs and 20 uncertain requests remain held. Original 19 unknowns exact; interrupted old inflight became charged/replay-blocked OWNER_EXIT_UNCERTAIN under unchanged existing policy. Underlying page-zero cause remains unproven; sustained-throughput/programme-wide completion is not claimed.",
-    "next_action": "Continue ordinary Listener/Creator/Walkback workers and existing passive dashboard refresh. Monitor new ready admissions and saved completions, using write-boundary diagnostics and retained first/latest rejected-stage evidence if corruption recurs. Existing uncertain/clock-review holds require separately qualified authority; do not replay, reset attempts, release requests, add restarts or manually quarantine another stage."
+    "blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
+    "next_action": "Continue existing passive dashboard and ordinary workers. Audit the single new CREATE_EVENT_CREATOR_ROLE_REVIEW case separately if requested; do not invent an anchor or bypass strict creator validation. Preserve all uncertain/clock-review holds and spending/attempt evidence. No restart, live quarantine, replay or accounting changes under this audit."
   },
-  "current_next_blocker": "No blocker to the approved deployment and initial live verification. At 10:49:29 UTC: two post-restart admissions, one new full Walkback completed; one older waiting job also completed. Full completions 3456 to 3458. One new job still awaits a valid CREATE anchor; 39 older pending clock-review jobs and 20 uncertain requests remain held. Original 19 unknowns exact; interrupted old inflight became charged/replay-blocked OWNER_EXIT_UNCERTAIN under unchanged existing policy. Underlying page-zero cause remains unproven; sustained-throughput/programme-wide completion is not claimed.",
+  "current_next_blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44971,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T10:51:53.084387+00:00",
+    "published_at_utc": "2026-11-05T10:58:29.749789+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T10:51:53.084404+00:00",
-    "last_local_checkpoint_utc": "2026-11-05T10:51:45.906049+00:00",
-    "verification_receipt": "/private/tmp/flex-010-rollout/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-05T10:58:29.749809+00:00",
+    "last_local_checkpoint_utc": "2026-11-05T10:58:21.255475+00:00",
+    "verification_receipt": "/private/tmp/flex-010-progress-audit-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58214,7 +58212,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Continue ordinary Listener/Creator/Walkback workers and existing passive dashboard refresh. Monitor new ready admissions and saved completions, using write-boundary diagnostics and retained first/latest rejected-stage evidence if corruption recurs. Existing uncertain/clock-review holds require separately qualified authority; do not replay, reset attempts, release requests, add restarts or manually quarantine another stage.",
+  "next_action": "Continue existing passive dashboard and ordinary workers. Audit the single new CREATE_EVENT_CREATOR_ROLE_REVIEW case separately if requested; do not invent an anchor or bypass strict creator validation. Preserve all uncertain/clock-review holds and spending/attempt evidence. No restart, live quarantine, replay or accounting changes under this audit.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60448,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T10:51:45.906049+00:00",
-    "working_tree": "Engineering 010ead93 committed. Approved three-role six-file installed composition deployed, one restart each. Source manifest pins exact runtime; routine handoff only dirty plus pre-existing guard."
+    "updated_at_utc": "2026-11-05T10:58:21.255475+00:00",
+    "working_tree": "Engineering and installed 010 composition unchanged. Audit-only local evidence/handoff update; routine handoff dirty plus pre-existing guard."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61911,7 +61909,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_010_DEPLOYED_THREE_ROLES_ADMISSIONS_AND_COMPLETIONS_RESUMED",
+  "status": "PASS_010_PROGRESS_AUDIT_NEW_COMPLETIONS_NO_STAGE_RECURRENCE_OBSERVED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63315,7 +63313,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-11-05T00:14:39.105292+00:00",
-  "updated_at_utc": "2026-11-05T10:51:45.906049+00:00",
+  "updated_at_utc": "2026-11-05T10:58:21.255475+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63531,7 +63529,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_010_DEPLOYED_THREE_ROLES_ADMISSIONS_AND_COMPLETIONS_RESUMED",
+  "verdict": "PASS_010_PROGRESS_AUDIT_NEW_COMPLETIONS_NO_STAGE_RECURRENCE_OBSERVED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73321,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_010_DEPLOYED_THREE_ROLES_ADMISSIONS_AND_COMPLETIONS_RESUMED",
+    "status": "PASS_010_PROGRESS_AUDIT_NEW_COMPLETIONS_NO_STAGE_RECURRENCE_OBSERVED",
     "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "handoff_record": "010_production_rollout_20261105",
-    "evidence_ref": "/private/tmp/flex-010-rollout/MILESTONE.json",
-    "blocker": "No blocker to the approved deployment and initial live verification. At 10:49:29 UTC: two post-restart admissions, one new full Walkback completed; one older waiting job also completed. Full completions 3456 to 3458. One new job still awaits a valid CREATE anchor; 39 older pending clock-review jobs and 20 uncertain requests remain held. Original 19 unknowns exact; interrupted old inflight became charged/replay-blocked OWNER_EXIT_UNCERTAIN under unchanged existing policy. Underlying page-zero cause remains unproven; sustained-throughput/programme-wide completion is not claimed.",
-    "next_action": "Continue ordinary Listener/Creator/Walkback workers and existing passive dashboard refresh. Monitor new ready admissions and saved completions, using write-boundary diagnostics and retained first/latest rejected-stage evidence if corruption recurs. Existing uncertain/clock-review holds require separately qualified authority; do not replay, reset attempts, release requests, add restarts or manually quarantine another stage."
+    "handoff_record": "010_progress_audit_20261105",
+    "evidence_ref": "/private/tmp/flex-010-progress-audit-20261105/AUDIT.json",
+    "blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
+    "next_action": "Continue existing passive dashboard and ordinary workers. Audit the single new CREATE_EVENT_CREATOR_ROLE_REVIEW case separately if requested; do not invent an anchor or bypass strict creator validation. Preserve all uncertain/clock-review holds and spending/attempt evidence. No restart, live quarantine, replay or accounting changes under this audit."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74474,29 +74472,14 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "DEV_only": false,
+    "audit_only": true,
     "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "deployed": true,
-    "scope": "Six installed files: three composed Gates and three stage-recovery helpers. Only approved methods/loader added; intentional installed role differences, scheduler and unrelated source retained.",
-    "production_source_files_changed": 6,
-    "stop_requests": {
-      "creator_resolution_worker": 1,
-      "walkback_worker": 1,
-      "watchtower_listener": 1
-    },
-    "start_requests": {
-      "watchtower_listener": 1,
-      "creator_resolution_worker": 1,
-      "walkback_worker": 1
-    },
-    "configuration_changes": 0,
-    "operator_accounting_edits": 0,
-    "operator_database_writes": 0,
-    "manual_quarantine": false,
-    "automatic_recovery_attempts": 1,
+    "production_source_changes": 0,
+    "service_actions": 0,
+    "operator_accounting_or_database_writes": 0,
+    "quarantine": false,
     "queue_replay": false,
-    "provider_probes": 0,
-    "live_new_admission_and_completion_verified": true
+    "provider_probes": 0
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -86818,7 +86801,150 @@
       "/private/tmp/flex-010-rollout/COMPLETED_RESULTS.json",
       "/private/tmp/flex-010-rollout/STARTUP_DISPOSITIONS.json"
     ],
-    "blocker": "No blocker to the approved deployment and initial live verification. At 10:49:29 UTC: two post-restart admissions, one new full Walkback completed; one older waiting job also completed. Full completions 3456 to 3458. One new job still awaits a valid CREATE anchor; 39 older pending clock-review jobs and 20 uncertain requests remain held. Original 19 unknowns exact; interrupted old inflight became charged/replay-blocked OWNER_EXIT_UNCERTAIN under unchanged existing policy. Underlying page-zero cause remains unproven; sustained-throughput/programme-wide completion is not claimed.",
-    "next_action": "Continue ordinary Listener/Creator/Walkback workers and existing passive dashboard refresh. Monitor new ready admissions and saved completions, using write-boundary diagnostics and retained first/latest rejected-stage evidence if corruption recurs. Existing uncertain/clock-review holds require separately qualified authority; do not replay, reset attempts, release requests, add restarts or manually quarantine another stage."
+    "blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
+    "next_action": "Continue existing passive dashboard and ordinary workers. Audit the single new CREATE_EVENT_CREATOR_ROLE_REVIEW case separately if requested; do not invent an anchor or bypass strict creator validation. Preserve all uncertain/clock-review holds and spending/attempt evidence. No restart, live quarantine, replay or accounting changes under this audit.",
+    "latest_progress_audit_ref": "010_progress_audit_20261105"
+  },
+  "010_progress_audit_20261105": {
+    "status": "PASS_010_PROGRESS_AUDIT_NEW_COMPLETIONS_NO_STAGE_RECURRENCE_OBSERVED",
+    "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
+    "observed_utc": "2026-11-05T10:57:13.634384+00:00",
+    "last_reported_full_completions": 3458,
+    "full_completions_total": 3459,
+    "increase_since_last_report": 1,
+    "full_completions_since_deployment": 3,
+    "new_jobs": {
+      "total": 3,
+      "started": 2,
+      "completed": 2,
+      "statuses": {
+        "waiting": 1,
+        "complete": 2
+      }
+    },
+    "new_completion_outcomes": {
+      "LINEAGE_GAP": 1,
+      "NO_ATTRIBUTION_FOUND": 1
+    },
+    "new_waiting_detail": [
+      {
+        "anchor_state": "MISSING_OR_MALFORMED",
+        "creator_recovery": [
+          {
+            "status": "skipped",
+            "attempts": 1,
+            "error": "CREATE_EVENT_CREATOR_ROLE_REVIEW",
+            "skip_reason": "CREATE_EVENT_CREATOR_ROLE_REVIEW",
+            "updated_at": 1793875463
+          }
+        ]
+      }
+    ],
+    "older_pending_latest_error_counts": [
+      {
+        "error": "HELIUS_BUDGET_CLOCK_AMBIGUOUS",
+        "n": 1
+      },
+      {
+        "error": "HELIUS_GATE_BUSY",
+        "n": 6
+      },
+      {
+        "error": "HELIUS_REQUEST_COOLDOWN",
+        "n": 22
+      },
+      {
+        "error": "HELIUS_REQUEST_RATE_LIMIT",
+        "n": 7
+      },
+      {
+        "error": "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW",
+        "n": 3
+      }
+    ],
+    "stage": {
+      "observed_utc": "2026-11-05T10:57:13.581748+00:00",
+      "recovery_attempts": 1,
+      "recovery_at": 1793875392,
+      "stage_present": false,
+      "latest_rejected_present": false,
+      "publication_phase": "ready_verified",
+      "publication_error": null,
+      "checks_match": true
+    },
+    "gate": "OPEN",
+    "counted_failures": 0,
+    "inflight_roles": {},
+    "uncertain_total": 20,
+    "preservation": {
+      "accounting": {
+        "verdict": "PASS_SAVED_ACCOUNTING_PRESERVATION",
+        "original_uncertain_exact": 19,
+        "original_owners_exact": 10693,
+        "original_lifetime_scopes_monotonic": 5178,
+        "request_attempts_credits_preserved": 26555,
+        "qualified_expired_settled_omissions": 0,
+        "qualified_expired_recreated_keys": 0,
+        "cutover_requests": [
+          {
+            "selector": "rpc:getAccountInfo",
+            "attempts": 3,
+            "credits": 3,
+            "preserved_as": "RETAINED_CHARGED_UNCERTAIN"
+          }
+        ],
+        "original_active_receipts_now_archived": 512,
+        "original_archive_receipts_preserved": 4517,
+        "archive_receipts_now": 5029
+      },
+      "checkpoints": {
+        "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
+        "committed_exact": 4727,
+        "legacy_intent_exact": 1276,
+        "unsent_exact": 178,
+        "unsent_progressed": 0,
+        "failed_queue_exact": 1423,
+        "stopped": false,
+        "archived_originals": 384,
+        "new_checkpoint_rows": 42,
+        "new_reservations": 0
+      },
+      "funding": {
+        "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+        "tables": {
+          "wt_walkback_transaction_roles": {
+            "original_exact": 9216,
+            "new_rows": 5
+          },
+          "wt_walkback_atomic_flows": {
+            "original_exact": 1362,
+            "new_rows": 0
+          },
+          "wt_walkback_edge_candidates": {
+            "original_exact": 12305,
+            "new_rows": 5
+          }
+        }
+      },
+      "original_queue_attempts_RPC_nondecreasing": 7320
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-010-progress-audit-20261105/LATEST_PROGRESS.json",
+      "/private/tmp/flex-010-progress-audit-20261105/STAGE_OBSERVATION.json",
+      "/private/tmp/flex-010-progress-audit-20261105/LATEST_STAGE_CHECK.json",
+      "/private/tmp/flex-010-rollout/AUDIT_PROGRESS_02.verification.json"
+    ],
+    "production_flags": {
+      "audit_only": true,
+      "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
+      "production_source_changes": 0,
+      "service_actions": 0,
+      "operator_accounting_or_database_writes": 0,
+      "quarantine": false,
+      "queue_replay": false,
+      "provider_probes": 0
+    },
+    "blocker": "At 10:57:13 UTC full completions 3459, up one beyond last reported 3458 and three since rollout baseline3456. Three new admissions since rollout: two completed (LINEAGE_GAP/27 RPCs and NO_ATTRIBUTION_FOUND/7 RPCs), one waiting with creator recovery skipped CREATE_EVENT_CREATOR_ROLE_REVIEW and missing/malformed anchor. No new stage corruption observed: recovery attempt count remains one for the pre-deployment bad stage, no active stage/latest rejected file, latest publication READY verified with matching source checks. Gate OPEN, counted failures0, inflight0, uncertain20. Older pending rows retain cooldown/rate/busy/uncertain/clock error reasons; these are latest recorded reasons, not continuous lock measurements.",
+    "next_action": "Continue existing passive dashboard and ordinary workers. Audit the single new CREATE_EVENT_CREATOR_ROLE_REVIEW case separately if requested; do not invent an anchor or bypass strict creator validation. Preserve all uncertain/clock-review holds and spending/attempt evidence. No restart, live quarantine, replay or accounting changes under this audit."
   }
 }

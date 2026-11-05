@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Ten-token PumpPortal birth failure-stage audit",
-    "status": "PARTIAL_BIRTH_RECEIVE_BOUNDARY_NOT_RECORDED",
+    "milestone": "Birth-save/reuse reliability and smallest RPC avoidance fix audit",
+    "status": "PASS_AUDIT_STALE_RECOVERY_REUSE_GAP_CONFIRMED",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
-    "next_action": "Preserve UNKNOWN. Retrospective causal attribution is limited by absent receive-to-persist trace for the relevant births. If further production diagnostics are explicitly approved, use one short metadata-only trace on the existing websocket (receive, parsed type/pool, route, receipt outcome, Core acknowledgement), with first/last coverage and drops recorded; do not add RPC, replay, restart or enable it under audit-only authorization."
+    "blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
+    "next_action": "No changes authorized yet. If user authorizes DEV work, add one saved-birth fast path immediately before creator recovery dispatch, preferring existing qualified PUMPPORTAL Core delivery and exact canonical identity. Reuse existing handoff, preserve prior attempts/charges/errors/inflight/unknown evidence, keep conflicting/unconfirmed work held and missing-data recovery fallback. Qualify birth-before-queue, birth-after-enqueue-before-claim, restart, conflict/missing proof, concurrent birth/worker and rollback. Address only fixture composition needed for installed-source qualification; no production activation without explicit approval."
   },
-  "current_next_blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
+  "current_next_blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:43:50.084701+00:00",
+    "published_at_utc": "2026-11-05T11:57:51.692444+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:43:50.084768+00:00",
+    "updated_at_utc": "2026-11-05T11:57:51.692461+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-ten-birth-trace-audit-20261105/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-birth-reuse-reliability-audit-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60446,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:43:34.557468+00:00",
-    "working_tree": "f71b59ea/dashboard and installed 010 worker code unchanged. Audit-only ten-token receive/routing/persistence trace; required handoff update only."
+    "updated_at_utc": "2026-11-05T11:57:38.996090+00:00",
+    "working_tree": "f71b59ea engineering/dashboard and installed010 worker source unchanged. Read-only birth-save/reuse audit and disposable provider-free reproducer; handoff update only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PARTIAL_BIRTH_RECEIVE_BOUNDARY_NOT_RECORDED",
+    "status": "PASS_AUDIT_STALE_RECOVERY_REUSE_GAP_CONFIRMED",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "handoff_record": "ten_token_birth_failure_stage_audit_20261105",
-    "evidence_ref": "/private/tmp/flex-ten-birth-trace-audit-20261105/AUDIT.json",
-    "blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
-    "next_action": "Preserve UNKNOWN. Retrospective causal attribution is limited by absent receive-to-persist trace for the relevant births. If further production diagnostics are explicitly approved, use one short metadata-only trace on the existing websocket (receive, parsed type/pool, route, receipt outcome, Core acknowledgement), with first/last coverage and drops recorded; do not add RPC, replay, restart or enable it under audit-only authorization."
+    "handoff_record": "birth_save_reuse_reliability_audit_20261105",
+    "evidence_ref": "/private/tmp/flex-birth-reuse-reliability-audit-20261105/AUDIT.json",
+    "blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
+    "next_action": "No changes authorized yet. If user authorizes DEV work, add one saved-birth fast path immediately before creator recovery dispatch, preferring existing qualified PUMPPORTAL Core delivery and exact canonical identity. Reuse existing handoff, preserve prior attempts/charges/errors/inflight/unknown evidence, keep conflicting/unconfirmed work held and missing-data recovery fallback. Qualify birth-before-queue, birth-after-enqueue-before-claim, restart, conflict/missing proof, concurrent birth/worker and rollback. Address only fixture composition needed for installed-source qualification; no production activation without explicit approval."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -87132,5 +87132,75 @@
     "evidence_ref": "/private/tmp/flex-ten-birth-trace-audit-20261105/AUDIT.json",
     "blocker": "No per-token birth failure stage can be proven for the fixed ten. Six rotated Listener logs (~99.6MB) confirm all ten migrations but no attributable birth receive/reject/Core-write failure. Active/retired compact receipts, active/terminal birth journal, birth persist and webhook retry queues, and CREATE ledger have no matching birth record. Detailed receive trace expired November3 11:26:57 UTC; old raw retention is disabled in installed config. Historical receipt capacity/disk-headroom failures cannot be attributed to these ten. 188 birth seed confirmations in the cohort stdout interval show birth persistence continued for other tokens. One subject was already migration-observed October9; queue admissions are not token births. Missing receive coverage prevents distinguishing missed events from pre-record rejection/persistence loss retrospectively.",
     "next_action": "Preserve UNKNOWN. Retrospective causal attribution is limited by absent receive-to-persist trace for the relevant births. If further production diagnostics are explicitly approved, use one short metadata-only trace on the existing websocket (receive, parsed type/pool, route, receipt outcome, Core acknowledgement), with first/last coverage and drops recorded; do not add RPC, replay, restart or enable it under audit-only authorization."
+  },
+  "birth_save_reuse_reliability_audit_20261105": {
+    "status": "PASS_AUDIT_STALE_RECOVERY_REUSE_GAP_CONFIRMED",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "observed_utc": "2026-11-05T11:56:58.237698+00:00",
+    "findings": {
+      "birth_persistence": "Received PumpPortal birth is journaled, then Core creator+CREATE and source-qualified handoff are committed together; Core readback precedes COMMITTED birth receipt/ACK. Conflicts and unconfirmed receipt writes stay held/retry. No provider needed on the qualified birth path.",
+      "migration_reuse": "Migration exact receipt/canonical identity lookup stages PumpPortal delivery instead of enqueuing recovery. Current live PUMPPORTAL ACK stock2456 confirms successful reuse, not a capture success rate.",
+      "confirmed_gap": "Existing nonterminal recovery jobs are claimed without rereading qualified saved birth before _resolve_creator_rpc. Existing creator check occurs after RPC. Installed function reproduced offline reaching RPC entry even with exact pair and acknowledged PP delivery available before claim.",
+      "current_exposure": "No active recovery job with a current pair observed in this audit. Six historical PP-delivery/recovery overlaps are insufficient to quantify unnecessary RPC; most birth receipts became accepted after prior recovery completion.",
+      "preservation": "Existing source qualification and conflict guards are required; pf_ws_creator alone is not proof of birth origin. Active journal is dominated by historical quarantines and is not a success-rate denominator."
+    },
+    "smallest_safe_fix": {
+      "scope": "One provider-free fast path immediately before first creator recovery request for nonterminal queued work.",
+      "qualify": "Read an exact committed birth receipt or an existing qualified PumpPortal delivery and verify matching canonical creator+CREATE under the current paired generation/activation. Conflicts, ownership holds, invalid or unconfirmed evidence remain protected.",
+      "reuse": "Use existing birth CREATE delivery/funding handoff transaction and settle the stale recovery item as satisfied by saved birth without paid acquisition. Preserve prior attempts/errors/charges and inflight/uncertainty evidence; do not alter source authority or invent a paid completion.",
+      "outside_scope": "No birth-writer redesign, ledger change, concurrency/budget increase, bulk backfill, historical terminal reactivation or disabling of recovery fallback.",
+      "qualification_needed": "Birth before queue; birth after enqueue before claim; restart with queued recovery plus saved birth; missing/unconfirmed/conflicting proof; concurrent birth/worker and transactional rollback. Recheck immediately before dispatch without holding the database write lane over network work. A birth arriving after dispatch cannot undo an already-paid request."
+    },
+    "current_delivery_counts": [
+      {
+        "source": "PUMPPORTAL",
+        "state": "ACK",
+        "total": 2456
+      },
+      {
+        "source": "PUMPPORTAL",
+        "state": "BLOCKED",
+        "total": 34
+      },
+      {
+        "source": "STRICT_RPC",
+        "state": "ACK",
+        "total": 2243
+      },
+      {
+        "source": "STRICT_RPC",
+        "state": "PENDING",
+        "total": 1
+      }
+    ],
+    "tests": {
+      "installed_function_offline_reproduction": "PASS with fake provider boundary and disposable SQLite only; 0 network/accounting calls.",
+      "existing_targeted_tests": {
+        "passed": 32,
+        "failed": 6,
+        "cause": "Two extracted runtime ACK-method tests omit _pp_trace and load older DEV helper without receipt_failure_reason; four frame tests cannot import runtime birth_pool_route from old DEV helper tree. Existing installed/DEV/fixture composition mismatch. No source/test modifications made."
+      },
+      "new_fix_implemented": false
+    },
+    "current_active_recovery_pair_overlap_count": 0,
+    "journal_observation_limitation": "Current journal retains508 quarantined CORE_AUTHORITY_CONFLICT rows plus3 dispatch-reserved and1 ACK at first sample; ACK history is pruned, so do not infer a birth failure/success percentage from these stocks. Preserve all holds.",
+    "production_flags": {
+      "audit_only": true,
+      "engineering_source_changes": 0,
+      "test_source_changes": 0,
+      "dashboard_changes": 0,
+      "service_actions": 0,
+      "operator_database_writes": 0,
+      "provider_calls": 0,
+      "fix_implemented": false
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-birth-reuse-reliability-audit-20261105/AUDIT.json",
+      "/private/tmp/flex-birth-reuse-reliability-audit-20261105/STALE_RECOVERY_REPRO.json",
+      "/private/tmp/flex-birth-reuse-reliability-audit-20261105/REAL_OVERLAP_TIMING.json",
+      "/private/tmp/flex-birth-reuse-reliability-audit-20261105/SOURCE_COMPARISON.json"
+    ],
+    "blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
+    "next_action": "No changes authorized yet. If user authorizes DEV work, add one saved-birth fast path immediately before creator recovery dispatch, preferring existing qualified PUMPPORTAL Core delivery and exact canonical identity. Reuse existing handoff, preserve prior attempts/charges/errors/inflight/unknown evidence, keep conflicting/unconfirmed work held and missing-data recovery fallback. Qualify birth-before-queue, birth-after-enqueue-before-claim, restart, conflict/missing proof, concurrent birth/worker and rollback. Address only fixture composition needed for installed-source qualification; no production activation without explicit approval."
   }
 }

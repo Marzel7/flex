@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Migration-time unknown cohort audit",
-    "status": "PASS_READONLY_UNKNOWN_COHORT_CLASSIFIED",
+    "milestone": "PumpPortal birth storage path audit",
+    "status": "PASS_BIRTH_STORAGE_PATH_CONFIRMED_PARTIAL_HISTORICAL_COVERAGE",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
-    "next_action": "Explain seven recovered-current-data cases versus three still-missing-data cases. Retain migration-time UNKNOWN for all ten. If further audit requested, trace Listener birth receive-to-receipt retention for these exact ten cases; no code/dashboard edits, service changes, replay, provider probes or database writes under this audit."
+    "blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
+    "next_action": "Explain that saving birth data is implemented, but current pf_ws_creator is not birth-only proof because RPC fills it too. Keep these ten migration-time cases unknown. If tracing continues, inspect retained Listener birth receive/route/persist diagnostics for the exact cohort using bounded reads; do not repeat the unchanged broad legacy archive scan. No code, dashboard, service, provider, replay or database changes under this audit."
   },
-  "current_next_blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
+  "current_next_blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:26:57.735504+00:00",
+    "published_at_utc": "2026-11-05T11:33:11.196821+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:26:57.735524+00:00",
+    "updated_at_utc": "2026-11-05T11:33:11.196842+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-migration-unknown-audit-20261105/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-pumpportal-birth-storage-audit-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60446,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:26:48.190912+00:00",
-    "working_tree": "f71b59ea engineering/dashboard unchanged; worker runtime 010ead93 unchanged. Read-only unknown cohort audit and required handoff only."
+    "updated_at_utc": "2026-11-05T11:33:00.481959+00:00",
+    "working_tree": "f71b59ea and dashboard unchanged; 010ead93 workers unchanged. Read-only PumpPortal birth storage audit and required handoff only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_READONLY_UNKNOWN_COHORT_CLASSIFIED",
+    "status": "PASS_BIRTH_STORAGE_PATH_CONFIRMED_PARTIAL_HISTORICAL_COVERAGE",
     "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "handoff_record": "migration_unknowns_audit_20261105",
-    "evidence_ref": "/private/tmp/flex-migration-unknown-audit-20261105/AUDIT.json",
-    "blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
-    "next_action": "Explain seven recovered-current-data cases versus three still-missing-data cases. Retain migration-time UNKNOWN for all ten. If further audit requested, trace Listener birth receive-to-receipt retention for these exact ten cases; no code/dashboard edits, service changes, replay, provider probes or database writes under this audit."
+    "handoff_record": "pumpportal_birth_storage_path_audit_20261105",
+    "evidence_ref": "/private/tmp/flex-pumpportal-birth-storage-audit-20261105/AUDIT.json",
+    "blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
+    "next_action": "Explain that saving birth data is implemented, but current pf_ws_creator is not birth-only proof because RPC fills it too. Keep these ten migration-time cases unknown. If tracing continues, inspect retained Listener birth receive/route/persist diagnostics for the exact cohort using bounded reads; do not repeat the unchanged broad legacy archive scan. No code, dashboard, service, provider, replay or database changes under this audit."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -87054,5 +87054,42 @@
     "evidence_ref": "/private/tmp/flex-migration-unknown-audit-20261105/AUDIT.json",
     "blocker": "Same fixed 11:21:54 UTC 12-job cohort: 2 known at migration, 10 unknown. Seven unknowns have creator+VALID CREATE now, with completed creator recovery 20.13–65 seconds after migration; six Walkbacks complete and one failed. Three still lack both fields, are waiting, and creator recovery is skipped for CREATE_EVENT_CREATOR_ROLE_REVIEW. All ten have retained migration timestamps but no birth receipt under any identity in active/retired compact receipt storage. Missing birth receipt root cause (missed birth versus non-retention) is not established; missing receipt does not prove data absent at migration.",
     "next_action": "Explain seven recovered-current-data cases versus three still-missing-data cases. Retain migration-time UNKNOWN for all ten. If further audit requested, trace Listener birth receive-to-receipt retention for these exact ten cases; no code/dashboard edits, service changes, replay, provider probes or database writes under this audit."
+  },
+  "pumpportal_birth_storage_path_audit_20261105": {
+    "status": "PASS_BIRTH_STORAGE_PATH_CONFIRMED_PARTIAL_HISTORICAL_COVERAGE",
+    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "observed_utc": "2026-11-05T11:32:26.781536+00:00",
+    "reference_snapshot_utc": "2026-11-05T11:21:54.544057Z",
+    "confirmed": {
+      "birth_writer_saves_creator_and_CREATE": true,
+      "RPC_recovery_fills_same_pf_ws_creator_field": true,
+      "proven_cases_with_birth_markers": 2,
+      "unknown_cases_without_birth_markers": 10,
+      "unknown_Core_rows_created_in_migration_second": 10,
+      "active_birth_journal_matches": 0,
+      "terminal_birth_journal_matches": 0
+    },
+    "inference": "Unknown jobs appear to have entered Core at migration without normal birth persistence; current populated fields cannot establish earlier PumpPortal receipt. This is evidence of a birth ingestion/persistence gap, not proof whether events were missed, rejected, or failed persistence.",
+    "coverage_limitation": "One 60-second passive search of old raw birth archive reached its bound; no complete absence claim about this archive. Directory last entry-change observed 2026-10-18, not enough to prove content coverage.",
+    "tests": "Read-only installed birth/RPC writer source inspection; paired fixed-cohort Core markers compared against two positive birth controls; active/terminal birth journal queries. No code change or test suite.",
+    "source_refs": [
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py:6223",
+      "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py:11619",
+      "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py:888"
+    ],
+    "production_flags": {
+      "audit_only": true,
+      "source_changes": 0,
+      "dashboard_changes": 0,
+      "service_actions": 0,
+      "operator_database_writes": 0,
+      "provider_probes": 0
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-pumpportal-birth-storage-audit-20261105/AUDIT.json",
+      "/private/tmp/flex-pumpportal-birth-storage-audit-20261105/JOURNAL_SEARCH.json"
+    ],
+    "blocker": "PumpPortal installed birth handler does save creator and CREATE into Core. Those same fields, including pf_ws_creator, can also be populated by later RPC recovery. In fixed 12-job cohort, 2 proven cases have pre-migration birth markers and migration_signal_source=birth; all 10 unknown cases have no pre-migration signal marker, migration_signal_source NULL, and Core created_at within 0.05–0.95 seconds after migrated_at. This is consistent with migration-created Core rows rather than normal persisted birth records. No matching active/retired compact receipt or active/terminal birth-journal record for the 10. Root cause of absent birth persistence is unproven. Old raw archive search reached its 60-second bound; no exhaustive historical-archive absence claim.",
+    "next_action": "Explain that saving birth data is implemented, but current pf_ws_creator is not birth-only proof because RPC fills it too. Keep these ten migration-time cases unknown. If tracing continues, inspect retained Listener birth receive/route/persist diagnostics for the exact cohort using bounded reads; do not repeat the unchanged broad legacy archive scan. No code, dashboard, service, provider, replay or database changes under this audit."
   }
 }

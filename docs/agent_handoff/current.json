@@ -1231,7 +1231,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No DEV blocker. Newest-ready scheduler iscommittedandqualified only; productionremainsinstalled85329351scopedoverlays. Productioncompatibility/deploymentforc5183ec4notperformed. Dashboardmigration-timebirthpairmetricandbetweenjobanchorhandoffremainseparatependingwork.",
+  "blocker": "C518schedulerdeployed/restartedonce; freshstarts/completionsunverified. Existingpublicationstagecreated01:11:03 beforedeploymentisinvalidJSON/digestmismatch. Listenerreserve_httpverificationfailed; lateradmissionsrefuseHELIUS_PUBLICATION_STAGE_UNCERTAIN. VerifiedcommittedREADYledgerremainsOPENbutglobalnewpaidpublicationblocked.19uncertain/1inflightremainprotected. One-shotquarantinequalifiedondisposablecopy; separatehumanapprovalpending.",
   "blockers": [
     "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched."
   ],
@@ -2703,13 +2703,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "DEVnewest-readyWalkbacksbeforeretries",
-    "status": "PASS_DEV_NEWEST_READY_FIRST_NOT_DEPLOYED",
+    "milestone": "C518Walkbackrollout and publicationstage blockage",
+    "status": "PARTIAL_C518_DEPLOYED_RPC_PUBLICATION_BLOCKER_RECOVERY_APPROVAL_PENDING",
     "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
-    "blocker": "No DEV blocker. Newest-ready scheduler iscommittedandqualified only; productionremainsinstalled85329351scopedoverlays. Productioncompatibility/deploymentforc5183ec4notperformed. Dashboardmigration-timebirthpairmetricandbetweenjobanchorhandoffremainseparatependingwork.",
-    "next_action": "DEVmilestonecomplete atc5183ec4. Ifproductionrolloutisexplicitlyauthorized, qualifyonlydrain_batchcompositionagainstinstalledWalkback, preserveotherinstalledworkerfeatures and853archive-awareaccounting, thenonecontrolledWalkbackrestartandpassivenew-cohortverification. No queue/attempt/unknownreset orproviderprobe. Do notbundlemetric/handoffcadence changes."
+    "blocker": "C518schedulerdeployed/restartedonce; freshstarts/completionsunverified. Existingpublicationstagecreated01:11:03 beforedeploymentisinvalidJSON/digestmismatch. Listenerreserve_httpverificationfailed; lateradmissionsrefuseHELIUS_PUBLICATION_STAGE_UNCERTAIN. VerifiedcommittedREADYledgerremainsOPENbutglobalnewpaidpublicationblocked.19uncertain/1inflightremainprotected. One-shotquarantinequalifiedondisposablecopy; separatehumanapprovalpending.",
+    "next_action": "Awaitexplicitanswer to pinned-stage quarantine approval. Ifapproved, executeonlyqualifiedone-shotquarantineunderexistinggateflockwith exactsourcehashes andREADYauthority; preservebadstage, ledger/marker/archive andunknowns; no restart/replay/refund/providerprobe. ThenobserveordinaryRPCactivity/newreadyWalkbackstarts/completions. Ifpinschanged,refuseandreassess. Do notdisableverificationorloopclearstages."
   },
-  "current_next_blocker": "No DEV blocker. Newest-ready scheduler iscommittedandqualified only; productionremainsinstalled85329351scopedoverlays. Productioncompatibility/deploymentforc5183ec4notperformed. Dashboardmigration-timebirthpairmetricandbetweenjobanchorhandoffremainseparatependingwork.",
+  "current_next_blocker": "C518schedulerdeployed/restartedonce; freshstarts/completionsunverified. Existingpublicationstagecreated01:11:03 beforedeploymentisinvalidJSON/digestmismatch. Listenerreserve_httpverificationfailed; lateradmissionsrefuseHELIUS_PUBLICATION_STAGE_UNCERTAIN. VerifiedcommittedREADYledgerremainsOPENbutglobalnewpaidpublicationblocked.19uncertain/1inflightremainprotected. One-shotquarantinequalifiedondisposablecopy; separatehumanapprovalpending.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44971,11 +44971,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T01:13:25.984186+00:00",
+    "published_at_utc": "2026-11-05T01:35:20.657374+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T01:13:25.984222+00:00",
-    "last_local_checkpoint_utc": "2026-11-05T01:13:20.292428+00:00",
-    "verification_receipt": "/private/tmp/flex-newest-ready-dev-20261105/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-05T01:35:20.657395+00:00",
+    "last_local_checkpoint_utc": "2026-11-05T01:34:58.049212+00:00",
+    "verification_receipt": "/private/tmp/flex-c518-rollout/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58214,7 +58214,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "DEVmilestonecomplete atc5183ec4. Ifproductionrolloutisexplicitlyauthorized, qualifyonlydrain_batchcompositionagainstinstalledWalkback, preserveotherinstalledworkerfeatures and853archive-awareaccounting, thenonecontrolledWalkbackrestartandpassivenew-cohortverification. No queue/attempt/unknownreset orproviderprobe. Do notbundlemetric/handoffcadence changes.",
+  "next_action": "Awaitexplicitanswer to pinned-stage quarantine approval. Ifapproved, executeonlyqualifiedone-shotquarantineunderexistinggateflockwith exactsourcehashes andREADYauthority; preservebadstage, ledger/marker/archive andunknowns; no restart/replay/refund/providerprobe. ThenobserveordinaryRPCactivity/newreadyWalkbackstarts/completions. Ifpinschanged,refuseandreassess. Do notdisableverificationorloopclearstages.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60448,8 +60448,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T01:13:20.292428+00:00",
-    "working_tree": "c5183ec4 committed oncodex/r02-bounded-retention inisolatedDEVcheckout. Onlyroutinehandoffdirtypluspreexistingguard. Productionunchangedon853scopedoverlays."
+    "updated_at_utc": "2026-11-05T01:34:58.049212+00:00",
+    "working_tree": "c5183ec4committed; scopeddrain_batchnowdeployedoverinstalledWalkback. ProductionGate/archiveunchanged. Routinehandoffonlydirtypluspreexistingguard."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61911,7 +61911,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_NEWEST_READY_FIRST_NOT_DEPLOYED",
+  "status": "PARTIAL_C518_DEPLOYED_RPC_PUBLICATION_BLOCKER_RECOVERY_APPROVAL_PENDING",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63315,7 +63315,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-11-05T00:14:39.105292+00:00",
-  "updated_at_utc": "2026-11-05T01:13:20.292428+00:00",
+  "updated_at_utc": "2026-11-05T01:34:58.049212+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63531,7 +63531,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DEV_NEWEST_READY_FIRST_NOT_DEPLOYED",
+  "verdict": "PARTIAL_C518_DEPLOYED_RPC_PUBLICATION_BLOCKER_RECOVERY_APPROVAL_PENDING",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73321,12 +73321,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_DEV_NEWEST_READY_FIRST_NOT_DEPLOYED",
+    "status": "PARTIAL_C518_DEPLOYED_RPC_PUBLICATION_BLOCKER_RECOVERY_APPROVAL_PENDING",
     "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
-    "handoff_record": "newest_ready_walkback_dev_20261105",
-    "evidence_ref": "docs/dev/newest_ready_walkback_20261105_qualification.json",
-    "blocker": "No DEV blocker. Newest-ready scheduler iscommittedandqualified only; productionremainsinstalled85329351scopedoverlays. Productioncompatibility/deploymentforc5183ec4notperformed. Dashboardmigration-timebirthpairmetricandbetweenjobanchorhandoffremainseparatependingwork.",
-    "next_action": "DEVmilestonecomplete atc5183ec4. Ifproductionrolloutisexplicitlyauthorized, qualifyonlydrain_batchcompositionagainstinstalledWalkback, preserveotherinstalledworkerfeatures and853archive-awareaccounting, thenonecontrolledWalkbackrestartandpassivenew-cohortverification. No queue/attempt/unknownreset orproviderprobe. Do notbundlemetric/handoffcadence changes."
+    "handoff_record": "c518_production_rollout_20261105",
+    "evidence_ref": "/private/tmp/flex-c518-rollout/MILESTONE.json",
+    "blocker": "C518schedulerdeployed/restartedonce; freshstarts/completionsunverified. Existingpublicationstagecreated01:11:03 beforedeploymentisinvalidJSON/digestmismatch. Listenerreserve_httpverificationfailed; lateradmissionsrefuseHELIUS_PUBLICATION_STAGE_UNCERTAIN. VerifiedcommittedREADYledgerremainsOPENbutglobalnewpaidpublicationblocked.19uncertain/1inflightremainprotected. One-shotquarantinequalifiedondisposablecopy; separatehumanapprovalpending.",
+    "next_action": "Awaitexplicitanswer to pinned-stage quarantine approval. Ifapproved, executeonlyqualifiedone-shotquarantineunderexistinggateflockwith exactsourcehashes andREADYauthority; preservebadstage, ledger/marker/archive andunknowns; no restart/replay/refund/providerprobe. ThenobserveordinaryRPCactivity/newreadyWalkbackstarts/completions. Ifpinschanged,refuseandreassess. Do notdisableverificationorloopclearstages."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74474,17 +74474,25 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "DEV_only": true,
-    "deployed_this_turn": false,
+    "DEV_only": false,
+    "deployed_this_turn": true,
     "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
-    "active_production_scoped_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-    "production_source_changes": 0,
-    "production_database_or_accounting_writes": 0,
-    "worker_service_actions": 0,
-    "provider_calls": 0,
-    "queue_replay_or_attempt_reset": false,
-    "dashboard_changes": 0,
-    "production_source_configuration_hashes_unchanged": true
+    "installed_Walkback_scope": "drain_batch only, composed over prior installed worker; 853 archive-aware Gate unchanged",
+    "production_source_files_changed": 1,
+    "stop_requests": {
+      "walkback_worker": 1
+    },
+    "start_requests": {
+      "walkback_worker": 1
+    },
+    "Listener_Creator_PIDs_unchanged": true,
+    "configuration_changes": 0,
+    "operator_accounting_edits": 0,
+    "database_writes": 0,
+    "queue_replay": false,
+    "provider_probes": 0,
+    "stage_quarantine_executed": false,
+    "live_new_ready_completion_verified": false
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -86112,5 +86120,182 @@
     ],
     "blocker": "No DEV blocker. Newest-ready scheduler iscommittedandqualified only; productionremainsinstalled85329351scopedoverlays. Productioncompatibility/deploymentforc5183ec4notperformed. Dashboardmigration-timebirthpairmetricandbetweenjobanchorhandoffremainseparatependingwork.",
     "next_action": "DEVmilestonecomplete atc5183ec4. Ifproductionrolloutisexplicitlyauthorized, qualifyonlydrain_batchcompositionagainstinstalledWalkback, preserveotherinstalledworkerfeatures and853archive-awareaccounting, thenonecontrolledWalkbackrestartandpassivenew-cohortverification. No queue/attempt/unknownreset orproviderprobe. Do notbundlemetric/handoffcadence changes."
+  },
+  "c518_production_rollout_20261105": {
+    "status": "PARTIAL_C518_DEPLOYED_RPC_PUBLICATION_BLOCKER_RECOVERY_APPROVAL_PENDING",
+    "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
+    "observed_utc": "2026-11-05T01:34:58.049212+00:00",
+    "authorization": "Human explicitly approvesqualify/deployc5183ec4,restartWalkbackonce,preserveaccounting/attempts/uncertain/funding,verifynewreadywork. UserlaterreportsnoHeliusactivitysince01:11; read-onlycorrelationconfirmsnewblocker. Noquarantineauthorityyet.",
+    "compatibility": {
+      "status": "PASS_INSTALLED_ONE_FUNCTION_COMPOSITION",
+      "revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
+      "observed_utc": "2026-11-05T01:23:09.282992+00:00",
+      "tests_passed": 132,
+      "tests_failed": 0,
+      "runtime_changes": [
+        "drain_batch only"
+      ],
+      "whole_other_installed_module_AST_exact": true,
+      "staged_result": "/private/tmp/flex-c518-rollout/STAGED_TESTS_QUALIFIED.xml",
+      "staged_result_sha256": "6f1d86a138ad5520d0ec157ec1eca58e8355b29253f43b5a64d9a451dcff0175",
+      "fixture_scope_notes": [
+        "DEV-tree module freeze replaced by exact installed-module freeze.",
+        "Disposable child fixture omits optional DEV-only lineage helper absent from installed HTTP dependency closure; includes exact installed archive helper.",
+        "Disposable parent child test uses exact installed Walkback Gate instead of generic fixture Listener Gate; production role differences retained."
+      ],
+      "deployment_scope": "Only installed Walkback worker function; one Walkback stop/start; no configuration, gate, checkpoint, schema, metric or handoff delivery changes."
+    },
+    "deployment": {
+      "old_pids": {
+        "walkback_worker": 28363,
+        "watchtower_listener": 28313,
+        "creator_resolution_worker": 28342
+      },
+      "new_pids": {
+        "walkback_worker": 40591,
+        "watchtower_listener": 28313,
+        "creator_resolution_worker": 28342
+      },
+      "restart_utc": "2026-11-05T01:23:24.635982+00:00",
+      "completion_baseline": 3455,
+      "ready_at_cutover": 0,
+      "source_manifest_ref": "/private/tmp/flex-c518-rollout/MANIFEST.json"
+    },
+    "preservation": {
+      "stopped": {
+        "checkpoint": {
+          "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
+          "committed_exact": 4721,
+          "legacy_intent_exact": 1276,
+          "unsent_exact": 171,
+          "unsent_progressed": 0,
+          "failed_queue_exact": 1421,
+          "stopped": true,
+          "archived_originals": 384,
+          "new_checkpoint_rows": 0,
+          "new_reservations": 0
+        },
+        "funding": {
+          "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+          "tables": {
+            "wt_walkback_transaction_roles": {
+              "original_exact": 9216,
+              "new_rows": 0
+            },
+            "wt_walkback_atomic_flows": {
+              "original_exact": 1362,
+              "new_rows": 0
+            },
+            "wt_walkback_edge_candidates": {
+              "original_exact": 12305,
+              "new_rows": 0
+            }
+          }
+        },
+        "original_queue_attempts_rpc_used_exact": 7317,
+        "accounting": {
+          "verdict": "PASS_SAVED_ACCOUNTING_PRESERVATION",
+          "original_uncertain_exact": 19,
+          "original_owners_exact": 10687,
+          "original_lifetime_scopes_monotonic": 5175,
+          "request_attempts_credits_preserved": 26656,
+          "qualified_expired_settled_omissions": 0,
+          "qualified_expired_recreated_keys": 0,
+          "cutover_requests": [],
+          "original_active_receipts_now_archived": 0,
+          "original_archive_receipts_preserved": 4389,
+          "archive_receipts_now": 4389
+        }
+      },
+      "post_restart_accounting": {
+        "verdict": "PASS_SAVED_ACCOUNTING_PRESERVATION",
+        "original_uncertain_exact": 19,
+        "original_owners_exact": 10687,
+        "original_lifetime_scopes_monotonic": 5175,
+        "request_attempts_credits_preserved": 26656,
+        "qualified_expired_settled_omissions": 0,
+        "qualified_expired_recreated_keys": 0,
+        "cutover_requests": [],
+        "original_active_receipts_now_archived": 0,
+        "original_archive_receipts_preserved": 4389,
+        "archive_receipts_now": 4389
+      },
+      "post_restart_funding": {
+        "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+        "tables": {
+          "wt_walkback_transaction_roles": {
+            "original_exact": 9216,
+            "new_rows": 0
+          },
+          "wt_walkback_atomic_flows": {
+            "original_exact": 1362,
+            "new_rows": 0
+          },
+          "wt_walkback_edge_candidates": {
+            "original_exact": 12305,
+            "new_rows": 0
+          }
+        }
+      },
+      "post_restart_checkpoints": {
+        "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
+        "committed_exact": 4721,
+        "legacy_intent_exact": 1276,
+        "unsent_exact": 171,
+        "unsent_progressed": 0,
+        "failed_queue_exact": 1421,
+        "stopped": false,
+        "archived_originals": 384,
+        "new_checkpoint_rows": 0,
+        "new_reservations": 0
+      }
+    },
+    "live_observation": "Zero newadmissions in240sboundedwatch afterrestart; lastcanonicalmigration01:08:30,lastbudgettick/reservation01:10:57. WorkerRUNNINGandoldbacklogprocessedwithdeferrals; nofreshcompletionclaim.",
+    "publication_blocker": {
+      "stage_modified_utc": "2026-11-05T01:11:03.905093+00:00",
+      "stage_sha256": "f23907d4a5c24f5b35ca5ad8ea178685cb7be8b255071b402a9ba9f92880158b",
+      "stage_bytes": 10555248,
+      "json_valid": false,
+      "failure": "HELIUS_PUBLICATION_VERIFY_DIGEST",
+      "operation": "reserve_http",
+      "writer_role": "flex-listener",
+      "target_expected_sha256": "4cf544271f035d6c0d4ac097834376a1df0a844af6805fd3532353ea18debd00",
+      "stage_barrier": "HELIUS_PUBLICATION_STAGE_UNCERTAIN",
+      "known_cause_limit": "Stagedbytesdidnotmatchvalidatedpreparedbuffer. Precisebytecorruptioncauseunproven; do notattributeit toHeliusornew scheduler."
+    },
+    "recovery_qualification_ref": "/private/tmp/flex-c518-rollout/STAGE_RECOVERY_QUALIFICATION.json",
+    "recovery_plan_ref": "/private/tmp/flex-c518-rollout/quarantine_stage.py",
+    "production_flags": {
+      "DEV_only": false,
+      "deployed_this_turn": true,
+      "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
+      "installed_Walkback_scope": "drain_batch only, composed over prior installed worker; 853 archive-aware Gate unchanged",
+      "production_source_files_changed": 1,
+      "stop_requests": {
+        "walkback_worker": 1
+      },
+      "start_requests": {
+        "walkback_worker": 1
+      },
+      "Listener_Creator_PIDs_unchanged": true,
+      "configuration_changes": 0,
+      "operator_accounting_edits": 0,
+      "database_writes": 0,
+      "queue_replay": false,
+      "provider_probes": 0,
+      "stage_quarantine_executed": false,
+      "live_new_ready_completion_verified": false
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-c518-rollout/INSTALL.json",
+      "/private/tmp/flex-c518-rollout/QUALIFICATION.json",
+      "/private/tmp/flex-c518-rollout/POST_01.verification.json",
+      "/private/tmp/flex-c518-rollout/NEW_COHORT_WATCH.json",
+      "/private/tmp/flex-c518-rollout/HELIUS_PAUSE_READ.json",
+      "/private/tmp/flex-c518-rollout/STAGE_AUDIT.json",
+      "/private/tmp/flex-c518-rollout/PUBLICATION_FAILURE_READ.json"
+    ],
+    "blocker": "C518schedulerdeployed/restartedonce; freshstarts/completionsunverified. Existingpublicationstagecreated01:11:03 beforedeploymentisinvalidJSON/digestmismatch. Listenerreserve_httpverificationfailed; lateradmissionsrefuseHELIUS_PUBLICATION_STAGE_UNCERTAIN. VerifiedcommittedREADYledgerremainsOPENbutglobalnewpaidpublicationblocked.19uncertain/1inflightremainprotected. One-shotquarantinequalifiedondisposablecopy; separatehumanapprovalpending.",
+    "next_action": "Awaitexplicitanswer to pinned-stage quarantine approval. Ifapproved, executeonlyqualifiedone-shotquarantineunderexistinggateflockwith exactsourcehashes andREADYauthority; preservebadstage, ledger/marker/archive andunknowns; no restart/replay/refund/providerprobe. ThenobserveordinaryRPCactivity/newreadyWalkbackstarts/completions. Ifpinschanged,refuseandreassess. Do notdisableverificationorloopclearstages."
   }
 }

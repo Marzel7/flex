@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "DEV saved-birth reuse before creator recovery RPC",
-    "status": "PASS_DEV_SAVED_BIRTH_REUSE_QUALIFIED_NOT_DEPLOYED",
+    "milestone": "Creator b580 saved-birth reuse production rollout",
+    "status": "PASS_CREATOR_B580_DEPLOYED_BIRTH_REUSE_AND_WALKBACK_PROGRESS_VERIFIED",
     "engineering_revision": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
-    "blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
-    "next_action": "Await explicit production deployment authorization. If approved, qualify current installed Creator composition and apply only the saved-birth helper/call delta, preserving installed HTTP protection, refusal handling, indexed recovery and all unrelated source. Do not copy the older DEV root module wholesale. No Listener/Walkback restart, accounting mutation, queue replay or provider probes authorized by this DEV task."
+    "blocker": "No deployment blocker. Creator-only one-file deployment passed137 installed-composition checks and one restart (16551->35447); Listener16536/Walkback16565 unchanged. At12:53:45 UTC full Walkback completions3474->3475; four new admissions. One natural PP-source migration used saved birth data with no Creator recovery job/attempts, though its Walkback stopped after42RPCs at CHECKPOINT_OUTCOME_UNCERTAIN. A different new job completed; another had publication ambiguity after101 recordedRPCs. Specific new stale-queued-birth shortcut has no observed natural hit yet: it is verified by installed-composition race/restart tests and read-only deployed qualifier against16 real records. Original20 uncertain records are exact; a new Walkback child getTransaction became charged OWNER_EXIT_UNCERTAIN (1attempt/1credit), now21total, retained. No replay/release. GateOPEN/failures0; Creatorok and WalkbackHEALTHY at final point. Not a whole-backlog or sustained-throughput acceptance.",
+    "next_action": "Continue normal workers and existing passive dashboard. Leave checkpoint/publication ambiguity and historical attempt/clock holds intact. If asked, audit the new Walkback checkpoint/publication uncertainty using retained evidence only; no automatic replay, attempt reset, accounting release or further restart authorized by this completed Creator deployment. A later read-only check can observe a natural stale-queued-birth shortcut hit; do not create a synthetic production opportunity."
   },
-  "current_next_blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
+  "current_next_blocker": "No deployment blocker. Creator-only one-file deployment passed137 installed-composition checks and one restart (16551->35447); Listener16536/Walkback16565 unchanged. At12:53:45 UTC full Walkback completions3474->3475; four new admissions. One natural PP-source migration used saved birth data with no Creator recovery job/attempts, though its Walkback stopped after42RPCs at CHECKPOINT_OUTCOME_UNCERTAIN. A different new job completed; another had publication ambiguity after101 recordedRPCs. Specific new stale-queued-birth shortcut has no observed natural hit yet: it is verified by installed-composition race/restart tests and read-only deployed qualifier against16 real records. Original20 uncertain records are exact; a new Walkback child getTransaction became charged OWNER_EXIT_UNCERTAIN (1attempt/1credit), now21total, retained. No replay/release. GateOPEN/failures0; Creatorok and WalkbackHEALTHY at final point. Not a whole-backlog or sustained-throughput acceptance.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T12:17:04.283944+00:00",
+    "published_at_utc": "2026-11-05T12:56:12.607700+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T12:17:04.283963+00:00",
+    "updated_at_utc": "2026-11-05T12:56:12.607725+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-saved-birth-reuse-dev-20261105/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-b580-creator-rollout/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60446,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T12:16:50.285104+00:00",
-    "working_tree": "DEV saved-birth reuse committed b580c8aa. Production workers010ead93 and dashboardf71b59ea unchanged; routine handoff dirty and pre-existing guard remain."
+    "updated_at_utc": "2026-11-05T12:55:44.385324+00:00",
+    "working_tree": "Engineering b580c8aa unchanged; qualified saved-birth delta deployed only to Creator with one restart. Other workers retain010ead93 composition; dashboardf71b59ea unchanged apart from passive snapshots. Required handoff update only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_DEV_SAVED_BIRTH_REUSE_QUALIFIED_NOT_DEPLOYED",
+    "status": "PASS_CREATOR_B580_DEPLOYED_BIRTH_REUSE_AND_WALKBACK_PROGRESS_VERIFIED",
     "engineering_revision": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
-    "handoff_record": "saved_birth_reuse_DEV_20261105",
-    "evidence_ref": "/private/tmp/flex-saved-birth-reuse-dev-20261105/QUALIFICATION.json",
-    "blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
-    "next_action": "Await explicit production deployment authorization. If approved, qualify current installed Creator composition and apply only the saved-birth helper/call delta, preserving installed HTTP protection, refusal handling, indexed recovery and all unrelated source. Do not copy the older DEV root module wholesale. No Listener/Walkback restart, accounting mutation, queue replay or provider probes authorized by this DEV task."
+    "handoff_record": "b580_creator_production_rollout_20261105",
+    "evidence_ref": "/private/tmp/flex-b580-creator-rollout/MILESTONE.json",
+    "blocker": "No deployment blocker. Creator-only one-file deployment passed137 installed-composition checks and one restart (16551->35447); Listener16536/Walkback16565 unchanged. At12:53:45 UTC full Walkback completions3474->3475; four new admissions. One natural PP-source migration used saved birth data with no Creator recovery job/attempts, though its Walkback stopped after42RPCs at CHECKPOINT_OUTCOME_UNCERTAIN. A different new job completed; another had publication ambiguity after101 recordedRPCs. Specific new stale-queued-birth shortcut has no observed natural hit yet: it is verified by installed-composition race/restart tests and read-only deployed qualifier against16 real records. Original20 uncertain records are exact; a new Walkback child getTransaction became charged OWNER_EXIT_UNCERTAIN (1attempt/1credit), now21total, retained. No replay/release. GateOPEN/failures0; Creatorok and WalkbackHEALTHY at final point. Not a whole-backlog or sustained-throughput acceptance.",
+    "next_action": "Continue normal workers and existing passive dashboard. Leave checkpoint/publication ambiguity and historical attempt/clock holds intact. If asked, audit the new Walkback checkpoint/publication uncertainty using retained evidence only; no automatic replay, attempt reset, accounting release or further restart authorized by this completed Creator deployment. A later read-only check can observe a natural stale-queued-birth shortcut hit; do not create a synthetic production opportunity."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -87251,6 +87251,141 @@
     "evidence_refs": [
       "/private/tmp/flex-saved-birth-reuse-dev-20261105/QUALIFICATION.json",
       "/private/tmp/flex-saved-birth-reuse-dev-20261105/SOURCE_QUALIFICATION.json"
-    ]
+    ],
+    "production_rollout_record": "b580_creator_production_rollout_20261105"
+  },
+  "b580_creator_production_rollout_20261105": {
+    "status": "PASS_CREATOR_B580_DEPLOYED_BIRTH_REUSE_AND_WALKBACK_PROGRESS_VERIFIED",
+    "engineering_revision": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
+    "observed_utc": "2026-11-05T12:53:45.838500+00:00",
+    "authorization": "Human explicitly approved b580c8aa compatibility/deployment to Creator, one restart, preservation and birth-reuse/Walkback verification.",
+    "compatibility": {
+      "tests_passed": 137,
+      "installed_predecessor_exact": true,
+      "composition": "Only two saved-birth helpers plus pre-RPC call block; all other installed Creator AST exact. Exact installed handoff helper used in qualification; no DEV-only publication lineage helper deployed.",
+      "unrelated_sources_pinned_exact": 2105,
+      "qualification_ref": "/private/tmp/flex-b580-creator-rollout/QUALIFICATION.json"
+    },
+    "deployment": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py",
+      "before_sha256": "de1dbadbd9079f71d0038aba5cefa258998fe4f30389c3d65dd0299ac49cb8f1",
+      "after_sha256": "b4c6cf056bcf662ec96f99fe008034c2985a55103451291b5c1f8f1f48b3be7a",
+      "restart_utc": "2026-11-05T12:33:02.009232+00:00",
+      "old_pids": {
+        "creator_resolution_worker": 16551,
+        "watchtower_listener": 16536,
+        "walkback_worker": 16565
+      },
+      "new_pids": {
+        "creator_resolution_worker": 35447,
+        "watchtower_listener": 16536,
+        "walkback_worker": 16565
+      },
+      "stop_requests": 1,
+      "start_requests": 1,
+      "source_files_changed": 1,
+      "configuration_and_pair_unchanged": true
+    },
+    "preservation": {
+      "accounting": {
+        "verdict": "PASS_SAVED_ACCOUNTING_PRESERVATION",
+        "original_uncertain_exact": 20,
+        "original_owners_exact": 10747,
+        "original_lifetime_scopes_monotonic": 5204,
+        "request_attempts_credits_preserved": 23442,
+        "qualified_expired_settled_omissions": 0,
+        "qualified_expired_recreated_keys": 0,
+        "cutover_requests": [],
+        "original_active_receipts_now_archived": 1024,
+        "original_archive_receipts_preserved": 8229,
+        "archive_receipts_now": 9253
+      },
+      "checkpoint": {
+        "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
+        "committed_exact": 5106,
+        "legacy_intent_exact": 1277,
+        "unsent_exact": 178,
+        "unsent_progressed": 0,
+        "failed_queue_exact": 1466,
+        "stopped": false,
+        "archived_originals": 896,
+        "new_checkpoint_rows": 160,
+        "new_reservations": 2
+      },
+      "funding": {
+        "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+        "tables": {
+          "wt_walkback_transaction_roles": {
+            "original_exact": 9272,
+            "new_rows": 33
+          },
+          "wt_walkback_atomic_flows": {
+            "original_exact": 1367,
+            "new_rows": 24
+          },
+          "wt_walkback_edge_candidates": {
+            "original_exact": 12359,
+            "new_rows": 33
+          }
+        }
+      },
+      "creator_original_attempts_nondecreasing": 2477,
+      "walkback_original_attempts_RPC_nondecreasing": 7346,
+      "cutover_inflight": 0,
+      "original_uncertain_preserved_exact": 20,
+      "uncertain_current_total": 21,
+      "new_walkback_uncertain": [
+        {
+          "selector": "rpc:getTransaction",
+          "attempts": 1,
+          "credits": 1,
+          "at": 1793882980,
+          "pid": 37697,
+          "role": "walkback",
+          "worker": null,
+          "owner_exit_reason": "PROCESS_GONE_OUTCOME_UNKNOWN",
+          "owner_exit_pid": 37697
+        }
+      ]
+    },
+    "live_verification": {
+      "full_completions_before": 3474,
+      "full_completions_now": 3475,
+      "increase": 1,
+      "new_admissions_since_restart": 4,
+      "natural_saved_birth_without_creator_recovery_cases": 1,
+      "natural_stale_recovery_shortcut_hits": 0,
+      "live_readonly_birth_qualifier_records": 16,
+      "stale_race_proof": "Installed-composition provider-free tests pass; no natural stale-queued-birth shortcut hit observed.",
+      "Gate": "OPEN",
+      "counted_transport_failures": 0,
+      "Creator_heartbeat": "ok",
+      "Walkback_heartbeat": "HEALTHY",
+      "protected_work": "One new saved-birth Walkback held at checkpoint uncertainty; separate publication-ambiguity retry retained. Historical39 attempt-limited clock/review holds untouched."
+    },
+    "production_flags": {
+      "deployed": true,
+      "scope": "Creator only",
+      "source_files_changed": 1,
+      "Creator_stop_requests": 1,
+      "Creator_start_requests": 1,
+      "Listener_or_Walkback_service_actions": 0,
+      "operator_database_or_accounting_writes": 0,
+      "provider_probes": 0,
+      "queue_replay": false,
+      "configuration_changes": 0,
+      "schema_changes": 0,
+      "dashboard_passive_refresh_only": true
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-b580-creator-rollout/INSTALL.json",
+      "/private/tmp/flex-b580-creator-rollout/QUALIFICATION.json",
+      "/private/tmp/flex-b580-creator-rollout/REAL_BIRTH_QUALIFIER.json",
+      "/private/tmp/flex-b580-creator-rollout/VERIFIED_PROGRESS.verification.json",
+      "/private/tmp/flex-b580-creator-rollout/NEW_WALKBACK_DISPOSITIONS.json",
+      "/private/tmp/flex-b580-creator-rollout/NEW_UNCERTAIN_RECORDS.json"
+    ],
+    "blocker": "No deployment blocker. Creator-only one-file deployment passed137 installed-composition checks and one restart (16551->35447); Listener16536/Walkback16565 unchanged. At12:53:45 UTC full Walkback completions3474->3475; four new admissions. One natural PP-source migration used saved birth data with no Creator recovery job/attempts, though its Walkback stopped after42RPCs at CHECKPOINT_OUTCOME_UNCERTAIN. A different new job completed; another had publication ambiguity after101 recordedRPCs. Specific new stale-queued-birth shortcut has no observed natural hit yet: it is verified by installed-composition race/restart tests and read-only deployed qualifier against16 real records. Original20 uncertain records are exact; a new Walkback child getTransaction became charged OWNER_EXIT_UNCERTAIN (1attempt/1credit), now21total, retained. No replay/release. GateOPEN/failures0; Creatorok and WalkbackHEALTHY at final point. Not a whole-backlog or sustained-throughput acceptance.",
+    "next_action": "Continue normal workers and existing passive dashboard. Leave checkpoint/publication ambiguity and historical attempt/clock holds intact. If asked, audit the new Walkback checkpoint/publication uncertainty using retained evidence only; no automatic replay, attempt reset, accounting release or further restart authorized by this completed Creator deployment. A later read-only check can observe a natural stale-queued-birth shortcut hit; do not create a synthetic production opportunity."
   }
 }

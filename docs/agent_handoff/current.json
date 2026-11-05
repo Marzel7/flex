@@ -1231,7 +1231,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Workflow backlog remains:38 CLOCK_RECOVERY_REVIEW_REQUIRED and1 other attempt-capped pending job retaining a clock ambiguity error;2144 creator/CREATE-waiting jobs (828 exhausted,120 review,1193 no recovery record,3 queued/retrying/running).19 uncertain RPC identities remain replay-blocked. Gate OPEN/failures0; retained contention errors are not proof of current outage.",
+  "blocker": "New post-restart cohort:9 pending with VALID CREATE anchors,0 recorded attempts/RPCs and no retained error, oldest9.9minutes.4 waiting on missing/malformed anchors:one creator-recovery retry retains cooldown;three creator-resolution rows saycomplete but Walkback still has no valid anchor. Do not equate generic complete-recovery classification with explicitreview or successful anchorhandoff. No new cohort clock-review holds.",
   "blockers": [
     "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched."
   ],
@@ -2703,13 +2703,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Read-only progress audit since85329351",
-    "status": "PASS_READ_ONLY_PROGRESS_853_BOOKKEEPING_SHRINKING",
+    "milestone": "New Walkback cohort progress since853",
+    "status": "PASS_READ_ONLY_NEW_WALKBACK_COHORT_PARTIAL_PROGRESS",
     "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-    "blocker": "Workflow backlog remains:38 CLOCK_RECOVERY_REVIEW_REQUIRED and1 other attempt-capped pending job retaining a clock ambiguity error;2144 creator/CREATE-waiting jobs (828 exhausted,120 review,1193 no recovery record,3 queued/retrying/running).19 uncertain RPC identities remain replay-blocked. Gate OPEN/failures0; retained contention errors are not proof of current outage.",
-    "next_action": "Audit complete. Continue existing passive dashboard refresh; no production repair, replay, policy change or restart authorized by this audit. Separate review is needed for clock-held/uncertain jobs and exhausted/missing creator recovery; no action taken."
+    "blocker": "New post-restart cohort:9 pending with VALID CREATE anchors,0 recorded attempts/RPCs and no retained error, oldest9.9minutes.4 waiting on missing/malformed anchors:one creator-recovery retry retains cooldown;three creator-resolution rows saycomplete but Walkback still has no valid anchor. Do not equate generic complete-recovery classification with explicitreview or successful anchorhandoff. No new cohort clock-review holds.",
+    "next_action": "Read-only cohort audit complete. Report17admissions/4complete/9pending/4waiting; distinguish completed NO_ATTRIBUTION_FOUND from findingfunding. No queue replay, recovery, restart or engineering change authorized. If further audit requested, inspect new valid-anchor pending selection/admission and completed-creator-to-anchor handoff; do not infer cause from zero attempts alone."
   },
-  "current_next_blocker": "Workflow backlog remains:38 CLOCK_RECOVERY_REVIEW_REQUIRED and1 other attempt-capped pending job retaining a clock ambiguity error;2144 creator/CREATE-waiting jobs (828 exhausted,120 review,1193 no recovery record,3 queued/retrying/running).19 uncertain RPC identities remain replay-blocked. Gate OPEN/failures0; retained contention errors are not proof of current outage.",
+  "current_next_blocker": "New post-restart cohort:9 pending with VALID CREATE anchors,0 recorded attempts/RPCs and no retained error, oldest9.9minutes.4 waiting on missing/malformed anchors:one creator-recovery retry retains cooldown;three creator-resolution rows saycomplete but Walkback still has no valid anchor. Do not equate generic complete-recovery classification with explicitreview or successful anchorhandoff. No new cohort clock-review holds.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44971,11 +44971,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T00:36:16.100063+00:00",
+    "published_at_utc": "2026-11-05T00:39:35.764589+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T00:36:16.100084+00:00",
-    "last_local_checkpoint_utc": "2026-11-05T00:36:08.140883+00:00",
-    "verification_receipt": "/private/tmp/flex-853-progress-audit-20261105/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-05T00:39:35.764618+00:00",
+    "last_local_checkpoint_utc": "2026-11-05T00:39:29.433775+00:00",
+    "verification_receipt": "/private/tmp/flex-853-new-cohort-audit-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58214,7 +58214,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Audit complete. Continue existing passive dashboard refresh; no production repair, replay, policy change or restart authorized by this audit. Separate review is needed for clock-held/uncertain jobs and exhausted/missing creator recovery; no action taken.",
+  "next_action": "Read-only cohort audit complete. Report17admissions/4complete/9pending/4waiting; distinguish completed NO_ATTRIBUTION_FOUND from findingfunding. No queue replay, recovery, restart or engineering change authorized. If further audit requested, inspect new valid-anchor pending selection/admission and completed-creator-to-anchor handoff; do not infer cause from zero attempts alone.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60448,8 +60448,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T00:36:08.140883+00:00",
-    "working_tree": "85329351 remains deployed as six scoped role overlays. Current turn read-only runtime audit; routine handoff only updated locally."
+    "updated_at_utc": "2026-11-05T00:39:29.433775+00:00",
+    "working_tree": "85329351 remains deployed as scoped role overlays; this turn is a read-only new-cohort audit."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61911,7 +61911,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_READ_ONLY_PROGRESS_853_BOOKKEEPING_SHRINKING",
+  "status": "PASS_READ_ONLY_NEW_WALKBACK_COHORT_PARTIAL_PROGRESS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63315,7 +63315,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-11-05T00:14:39.105292+00:00",
-  "updated_at_utc": "2026-11-05T00:36:08.140883+00:00",
+  "updated_at_utc": "2026-11-05T00:39:29.433775+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63531,7 +63531,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_READ_ONLY_PROGRESS_853_BOOKKEEPING_SHRINKING",
+  "verdict": "PASS_READ_ONLY_NEW_WALKBACK_COHORT_PARTIAL_PROGRESS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73321,12 +73321,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_READ_ONLY_PROGRESS_853_BOOKKEEPING_SHRINKING",
+    "status": "PASS_READ_ONLY_NEW_WALKBACK_COHORT_PARTIAL_PROGRESS",
     "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-    "evidence_ref": "/private/tmp/flex-853-rollout/AUDIT_PROGRESS_853_01.json",
-    "handoff_record": "progress_since_853_audit_20261105",
-    "blocker": "Workflow backlog remains:38 CLOCK_RECOVERY_REVIEW_REQUIRED and1 other attempt-capped pending job retaining a clock ambiguity error;2144 creator/CREATE-waiting jobs (828 exhausted,120 review,1193 no recovery record,3 queued/retrying/running).19 uncertain RPC identities remain replay-blocked. Gate OPEN/failures0; retained contention errors are not proof of current outage.",
-    "next_action": "Audit complete. Continue existing passive dashboard refresh; no production repair, replay, policy change or restart authorized by this audit. Separate review is needed for clock-held/uncertain jobs and exhausted/missing creator recovery; no action taken."
+    "evidence_ref": "/private/tmp/flex-853-rollout/NEW_COHORT_AUDIT_01.json",
+    "handoff_record": "new_walkbacks_since_853_audit_20261105",
+    "blocker": "New post-restart cohort:9 pending with VALID CREATE anchors,0 recorded attempts/RPCs and no retained error, oldest9.9minutes.4 waiting on missing/malformed anchors:one creator-recovery retry retains cooldown;three creator-resolution rows saycomplete but Walkback still has no valid anchor. Do not equate generic complete-recovery classification with explicitreview or successful anchorhandoff. No new cohort clock-review holds.",
+    "next_action": "Read-only cohort audit complete. Report17admissions/4complete/9pending/4waiting; distinguish completed NO_ATTRIBUTION_FOUND from findingfunding. No queue replay, recovery, restart or engineering change authorized. If further audit requested, inspect new valid-anchor pending selection/admission and completed-creator-to-anchor handoff; do not infer cause from zero attempts alone."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74474,14 +74474,13 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
+    "production_changes": 0,
     "provider_calls": 0,
-    "production_source_changes": 0,
-    "database_or_accounting_writes": 0,
     "service_actions": 0,
-    "queue_replay": false,
     "audit_only": true,
     "deployed_this_turn": false,
-    "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94"
+    "database_or_accounting_writes": 0,
+    "queue_replay": false
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -85889,5 +85888,45 @@
     "limits": "Short post-deployment interval. Archive moves evidence out of active JSON, does not erase it or reset spending; aggregate scope/owner metadata remains. Recent retained errors alone do not prove a currently active outage.",
     "blocker": "Workflow backlog remains:38 CLOCK_RECOVERY_REVIEW_REQUIRED and1 other attempt-capped pending job retaining a clock ambiguity error;2144 creator/CREATE-waiting jobs (828 exhausted,120 review,1193 no recovery record,3 queued/retrying/running).19 uncertain RPC identities remain replay-blocked. Gate OPEN/failures0; retained contention errors are not proof of current outage.",
     "next_action": "Audit complete. Continue existing passive dashboard refresh; no production repair, replay, policy change or restart authorized by this audit. Separate review is needed for clock-held/uncertain jobs and exhausted/missing creator recovery; no action taken."
+  },
+  "new_walkbacks_since_853_audit_20261105": {
+    "status": "PASS_READ_ONLY_NEW_WALKBACK_COHORT_PARTIAL_PROGRESS",
+    "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
+    "observed_utc": "2026-11-05T00:38:49.744319+00:00",
+    "cohort_start_utc": "2026-11-05T00:28:44.075294+00:00",
+    "cohort": "Walkback queue enqueued_at>=853 restart boundary00:28:44UTC; excludes olderbacklog.",
+    "admitted": 17,
+    "statuses": {
+      "pending": 9,
+      "complete": 4,
+      "waiting": 4
+    },
+    "completion_outcomes": {
+      "FULL_WALKBACK:NO_ATTRIBUTION_FOUND": 4
+    },
+    "completion_latency_seconds": [
+      121,
+      42,
+      240,
+      144
+    ],
+    "pending_valid_anchor_no_recorded_attempts": 9,
+    "waiting_missing_anchor": 4,
+    "creator_retry_with_cooldown": 1,
+    "creator_record_complete_but_anchor_missing": 3,
+    "new_clock_review_holds": 0,
+    "tests": "No new tests; bounded paired SELECT-only cohort and creator-resolution lookup; compared prior saved audit statuses. Two cohort jobs advanced from prior snapshot to complete.",
+    "production_flags": {
+      "production_changes": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "audit_only": true,
+      "deployed_this_turn": false,
+      "database_or_accounting_writes": 0,
+      "queue_replay": false
+    },
+    "evidence_ref": "/private/tmp/flex-853-rollout/NEW_COHORT_AUDIT_01.json",
+    "blocker": "New post-restart cohort:9 pending with VALID CREATE anchors,0 recorded attempts/RPCs and no retained error, oldest9.9minutes.4 waiting on missing/malformed anchors:one creator-recovery retry retains cooldown;three creator-resolution rows saycomplete but Walkback still has no valid anchor. Do not equate generic complete-recovery classification with explicitreview or successful anchorhandoff. No new cohort clock-review holds.",
+    "next_action": "Read-only cohort audit complete. Report17admissions/4complete/9pending/4waiting; distinguish completed NO_ATTRIBUTION_FOUND from findingfunding. No queue replay, recovery, restart or engineering change authorized. If further audit requested, inspect new valid-anchor pending selection/admission and completed-creator-to-anchor handoff; do not infer cause from zero attempts alone."
   }
 }

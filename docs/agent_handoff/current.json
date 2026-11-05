@@ -1231,7 +1231,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched.",
+  "blocker": "No deployment blocker. Remaining workflow holds are independent:38 pending CLOCK_RECOVERY_REVIEW_REQUIRED plus creator/anchor-recovery and existing uncertainty; no replay or policy change authorized. This short observation does not establish sustained throughput.",
   "blockers": [
     "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched."
   ],
@@ -2703,13 +2703,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Completed RPC receipts outside active bookkeeping — DEV",
-    "status": "PASS_DEV_COMPLETED_RPC_ARCHIVAL_NOT_DEPLOYED",
+    "milestone": "Completed RPC archival production rollout",
+    "status": "PASS_DEPLOYED_853_RUNTIME_ARCHIVAL_AND_COMPLETION_VERIFIED",
     "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-    "blocker": "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched.",
-    "next_action": "Authorized DEV milestone complete at85329351. Review committed DEV notes/qualification. Do not deploy, editliveledger, createproductionarchive, replay, retireunknowns orrestart services without separate explicit authorization. If rollout requested, qualify installedroleoverlay compatibility, archivepermissions/backup andgeneration/mixedversion handling before activation."
+    "blocker": "No deployment blocker. Remaining workflow holds are independent:38 pending CLOCK_RECOVERY_REVIEW_REQUIRED plus creator/anchor-recovery and existing uncertainty; no replay or policy change authorized. This short observation does not establish sustained throughput.",
+    "next_action": "Approved 85329351 rollout complete. Continue existing passive dashboard refresh. Any further engineering, clock-review recovery, unknown-outcome resolution or throughput-policy change requires its own scoped authorization. Future accounting backup/generation move must include completed.sqlite and retain archive-aware writers; never roll back to old writers after archival."
   },
-  "current_next_blocker": "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched.",
+  "current_next_blocker": "No deployment blocker. Remaining workflow holds are independent:38 pending CLOCK_RECOVERY_REVIEW_REQUIRED plus creator/anchor-recovery and existing uncertainty; no replay or policy change authorized. This short observation does not establish sustained throughput.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44971,11 +44971,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T00:14:55.553600+00:00",
+    "published_at_utc": "2026-11-05T00:32:09.488953+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T00:14:55.553624+00:00",
-    "last_local_checkpoint_utc": "2026-11-05T00:14:39.105292+00:00",
-    "verification_receipt": "/private/tmp/flex-completed-dev-qualification/HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-05T00:32:09.488985+00:00",
+    "last_local_checkpoint_utc": "2026-11-05T00:31:53.283693+00:00",
+    "verification_receipt": "/private/tmp/flex-853-rollout/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58214,7 +58214,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Authorized DEV milestone complete at85329351. Review committed DEV notes/qualification. Do not deploy, editliveledger, createproductionarchive, replay, retireunknowns orrestart services without separate explicit authorization. If rollout requested, qualify installedroleoverlay compatibility, archivepermissions/backup andgeneration/mixedversion handling before activation.",
+  "next_action": "Approved 85329351 rollout complete. Continue existing passive dashboard refresh. Any further engineering, clock-review recovery, unknown-outcome resolution or throughput-policy change requires its own scoped authorization. Future accounting backup/generation move must include completed.sqlite and retain archive-aware writers; never roll back to old writers after archival.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60448,8 +60448,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T00:14:39.105292+00:00",
-    "working_tree": "Engineering completed archival committed at85329351. Only routinehandoffJSON dirty plus preexistingwrite-lockowner.guard; neither included in engineeringcommit. Production remains previousscopedrevisions."
+    "updated_at_utc": "2026-11-05T00:31:53.283693+00:00",
+    "working_tree": "85329351 committed in isolated DEV checkout. Six scoped installed archival payloads active across three roles; current installed base differences preserved. Routine handoff only remains uncommitted on engineering branch."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61911,7 +61911,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_COMPLETED_RPC_ARCHIVAL_NOT_DEPLOYED",
+  "status": "PASS_DEPLOYED_853_RUNTIME_ARCHIVAL_AND_COMPLETION_VERIFIED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63315,7 +63315,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-11-05T00:14:39.105292+00:00",
-  "updated_at_utc": "2026-11-05T00:14:39.105292+00:00",
+  "updated_at_utc": "2026-11-05T00:31:53.283693+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63531,7 +63531,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DEV_COMPLETED_RPC_ARCHIVAL_NOT_DEPLOYED",
+  "verdict": "PASS_DEPLOYED_853_RUNTIME_ARCHIVAL_AND_COMPLETION_VERIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73321,55 +73321,13 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_DEV_COMPLETED_RPC_ARCHIVAL_NOT_DEPLOYED",
+    "status": "PASS_DEPLOYED_853_RUNTIME_ARCHIVAL_AND_COMPLETION_VERIFIED",
     "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-    "base_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "observed_utc": "2026-11-05T00:14:39.105292+00:00",
-    "authorization": "Human explicitly approved smallest DEV change removing completed requests from active bookkeeping; preserve results/spending/attempts/uncertain/funding; test concurrency/restart; no production changes.",
-    "implementation": [
-      "Existing bounded completed expiry now commits exact terminal receipts into an indexed siblingSQLitefile before removing activeJSONkeys. No providerpayloads or domainresults moved.",
-      "Ledger pins archiveidentity/generation anddurablecleanupcursor/interval. Freshchildscans advance beyondfreshprefix.",
-      "Subsequentacquisition recovers archivedattempts/credits; counters cannotreset. Missing/mismatched/corrupt/fullarchive refusesnewspend.",
-      "Existingretentionwindows, spend/rate/concurrency/payment/recoverykernels preserved; no newservice or networkchannel."
-    ],
-    "tests": {
-      "applicable_passed": 163,
-      "archive_specific_cases": 14,
-      "concurrency": "Three separate workers cleanup one bounded batch and acquire one archived request exactly once.",
-      "restart": "Fresh processes advancecursor; process death afterarchivecommit andbeforegatepublication plus4publicationfaultboundaries preserve/recover receipts.",
-      "preservation": "Results/funding fixturestores byteexact; totals/attempts retained; unknown/inflight/recent/unrecognizedmetadata protected.",
-      "known_historical": "Three PENDING_V1-only assertions fail on unchangedparent aswell. Oldpublication-onlysourcefreeze superseded by currentkernelpreservationcontract. Two unrelated highvolume simulations not rerun.",
-      "qualification_ref": "docs/dev/completed_rpc_archive_20261105_qualification.json"
-    },
-    "evidence_refs": [
-      "docs/dev/completed_rpc_archive_20261105.md",
-      "docs/dev/completed_rpc_archive_20261105_qualification.json",
-      "/private/tmp/flex-completed-dev-qualification/COMBINED_FINAL.xml",
-      "/private/tmp/flex-completed-dev-qualification/BASELINE_KNOWN.xml",
-      "/private/tmp/flex-completed-dev-qualification/PRODUCTION_PRESERVATION.json"
-    ],
-    "production_flags": {
-      "DEV_only": true,
-      "deployed_this_turn": false,
-      "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-      "production_source_changes": 0,
-      "production_database_or_accounting_writes": 0,
-      "provider_calls": 0,
-      "worker_service_actions": 0,
-      "production_archive_created": false,
-      "queue_replay_or_attempt_reset": false,
-      "production_uncertain_or_funding_records_changed": 0,
-      "last_known_Walkback_scoped_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-      "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c"
-    },
-    "limits": [
-      "DEVqualificationonly; no live throughput/production deployment claim.",
-      "Retainedarchive remains boundedbelow500000000bytes andrefusescleanup atcapacity; history is notsilentlydeleted.",
-      "Old/mixedwriters andgenerationmoves needseparate compatibilityqualification; archive mustbe backedup withledger.",
-      "Lifecycle timeoutbug, productionoldreservation andcheckpointreview areseparate andnotchanged."
-    ],
-    "blocker": "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched.",
-    "next_action": "Authorized DEV milestone complete at85329351. Review committed DEV notes/qualification. Do not deploy, editliveledger, createproductionarchive, replay, retireunknowns orrestart services without separate explicit authorization. If rollout requested, qualify installedroleoverlay compatibility, archivepermissions/backup andgeneration/mixedversion handling before activation."
+    "authorization": "Human explicitly selected Approve three-role production deployment after clarification naming Listener, Creator and Walkback and one coordinated restart each, acknowledging unresolved Listener requests remain charged/replay-blocked.",
+    "evidence_ref": "/private/tmp/flex-853-rollout/POST_03.verification.json",
+    "handoff_record": "completed_rpc_archive_rollout_20261105",
+    "blocker": "No deployment blocker. Remaining workflow holds are independent:38 pending CLOCK_RECOVERY_REVIEW_REQUIRED plus creator/anchor-recovery and existing uncertainty; no replay or policy change authorized. This short observation does not establish sustained throughput.",
+    "next_action": "Approved 85329351 rollout complete. Continue existing passive dashboard refresh. Any further engineering, clock-review recovery, unknown-outcome resolution or throughput-policy change requires its own scoped authorization. Future accounting backup/generation move must include completed.sqlite and retain archive-aware writers; never roll back to old writers after archival."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74517,18 +74475,35 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "DEV_only": true,
-    "deployed_this_turn": false,
+    "DEV_only": false,
+    "deployed_this_turn": true,
     "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
-    "production_source_changes": 0,
-    "production_database_or_accounting_writes": 0,
-    "provider_calls": 0,
-    "worker_service_actions": 0,
-    "production_archive_created": false,
+    "deployment_type": "Six scoped Gate/archive payloads composed over existing role installations; unrelated installed code retained.",
+    "production_source_files_changed": 6,
+    "roles_restarted_once": [
+      "listener",
+      "creator_resolution",
+      "walkback"
+    ],
+    "stop_requests": {
+      "creator_resolution_worker": 1,
+      "walkback_worker": 1,
+      "watchtower_listener": 1
+    },
+    "start_requests": {
+      "watchtower_listener": 1,
+      "creator_resolution_worker": 1,
+      "walkback_worker": 1
+    },
+    "policy_or_supervisor_configuration_changes": 0,
+    "OPS_schema_migrations": 0,
+    "operator_database_or_accounting_edits": 0,
+    "provider_probes": 0,
     "queue_replay_or_attempt_reset": false,
-    "production_uncertain_or_funding_records_changed": 0,
-    "last_known_Walkback_scoped_revision": "d78dc02ea9d0a9462765d306ac91c18646f077be",
-    "last_known_Listener_scoped_revision": "f9f7856a88e929cdd8dc2ce52f0d7ee1f38b2b7c"
+    "runtime_archive_created": true,
+    "runtime_uncertain_retirements": 2,
+    "original_uncertain_exact": 17,
+    "funding_evidence_preserved": true
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -85737,5 +85712,166 @@
     ],
     "blocker": "No DEV implementation blocker. Production intentionally unchanged/unqualified. Anyfuture activation requires coordinated compatible3rolewriters andarchivebackup/recovery; oldwriters lack archivedattemptlookup. Existing production unresolvedreservation/checkpointreview remains untouched.",
     "next_action": "Authorized DEV milestone complete at85329351. Review committed DEV notes/qualification. Do not deploy, editliveledger, createproductionarchive, replay, retireunknowns orrestart services without separate explicit authorization. If rollout requested, qualify installedroleoverlay compatibility, archivepermissions/backup andgeneration/mixedversion handling before activation."
+  },
+  "completed_rpc_archive_rollout_20261105": {
+    "status": "PASS_DEPLOYED_853_RUNTIME_ARCHIVAL_AND_COMPLETION_VERIFIED",
+    "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
+    "observed_utc": "2026-11-05T00:31:12.154451+00:00",
+    "authorization": "Human explicitly selected Approve three-role production deployment after clarification naming Listener, Creator and Walkback and one coordinated restart each, acknowledging unresolved Listener requests remain charged/replay-blocked.",
+    "qualification": {
+      "DEV_passed": 163,
+      "staged_installed_passed": 168,
+      "source_delta": "Only qualified archival/publication/archive-prior lookup functions; all other installed module AST exact.",
+      "concurrency_restart": "Three separate role processes; exact terminal receipts and cumulative attempts; crash/restart/publication/integrity tests.",
+      "known_test_exclusions_ref": "/private/tmp/flex-853-rollout/QUALIFICATION.json"
+    },
+    "runtime": {
+      "baseline_full_completions": 3449,
+      "full_completions": 3450,
+      "new_completions": 1,
+      "admissions_since_restart": 5,
+      "archive_rows": 37,
+      "archive_bytes": 28672,
+      "gate": "OPEN",
+      "gate_failures": 0,
+      "uncertain_cutover_requests": [
+        {
+          "selector": "rpc:getMultipleAccounts",
+          "attempts": 3,
+          "credits": 3,
+          "status": "OWNER_EXIT_UNCERTAIN"
+        },
+        {
+          "selector": "rpc:getMultipleAccounts",
+          "attempts": 2,
+          "credits": 2,
+          "status": "OWNER_EXIT_UNCERTAIN"
+        }
+      ],
+      "original_request_histories_preserved": 30427,
+      "original_lifetime_scopes_monotonic": 5150,
+      "original_queue_attempts_retained": 7285,
+      "no_causal_throughput_claim": true
+    },
+    "preservation": {
+      "stopped_database_files_exact": true,
+      "custody": {
+        "verdict": "PASS_STOPPED_CUSTODY_PRESERVATION",
+        "original_records_exact": 8392,
+        "original_owned_exact": 5938,
+        "original_active_exact": 2454,
+        "original_journal_records_exact": 481,
+        "original_terminal_and_birth_tables_exact": true,
+        "archived_originals": 0
+      },
+      "funding": {
+        "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+        "tables": {
+          "wt_walkback_transaction_roles": {
+            "original_exact": 9180,
+            "new_rows": 3
+          },
+          "wt_walkback_atomic_flows": {
+            "original_exact": 1361,
+            "new_rows": 0
+          },
+          "wt_walkback_edge_candidates": {
+            "original_exact": 12269,
+            "new_rows": 3
+          }
+        }
+      },
+      "checkpoint": {
+        "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
+        "committed_exact": 4402,
+        "legacy_intent_exact": 1276,
+        "unsent_exact": 134,
+        "unsent_progressed": 7,
+        "failed_queue_exact": 1419,
+        "stopped": false,
+        "archived_originals": 256,
+        "new_checkpoint_rows": 19,
+        "new_reservations": 1
+      },
+      "backup_readback": "PASS_METADATA_PAIR_BACKUP_READBACK"
+    },
+    "production_flags": {
+      "DEV_only": false,
+      "deployed_this_turn": true,
+      "engineering_revision": "8532935102ddf454b936e49b33a6b10227e9df94",
+      "deployment_type": "Six scoped Gate/archive payloads composed over existing role installations; unrelated installed code retained.",
+      "production_source_files_changed": 6,
+      "roles_restarted_once": [
+        "listener",
+        "creator_resolution",
+        "walkback"
+      ],
+      "stop_requests": {
+        "creator_resolution_worker": 1,
+        "walkback_worker": 1,
+        "watchtower_listener": 1
+      },
+      "start_requests": {
+        "watchtower_listener": 1,
+        "creator_resolution_worker": 1,
+        "walkback_worker": 1
+      },
+      "policy_or_supervisor_configuration_changes": 0,
+      "OPS_schema_migrations": 0,
+      "operator_database_or_accounting_edits": 0,
+      "provider_probes": 0,
+      "queue_replay_or_attempt_reset": false,
+      "runtime_archive_created": true,
+      "runtime_uncertain_retirements": 2,
+      "original_uncertain_exact": 17,
+      "funding_evidence_preserved": true
+    },
+    "evidence_refs": [
+      "/private/tmp/flex-853-rollout/MANIFEST.json",
+      "/private/tmp/flex-853-rollout/QUALIFICATION.json",
+      "/private/tmp/flex-853-rollout/INSTALL.json",
+      "/private/tmp/flex-853-rollout/BACKUP_RECEIPT.json",
+      "/private/tmp/flex-853-rollout/STARTUP_LOG_COUNTS.json",
+      "/private/tmp/flex-853-rollout/POST_03.verification.json"
+    ],
+    "blocker": "No deployment blocker. Remaining workflow holds are independent:38 pending CLOCK_RECOVERY_REVIEW_REQUIRED plus creator/anchor-recovery and existing uncertainty; no replay or policy change authorized. This short observation does not establish sustained throughput.",
+    "next_action": "Approved 85329351 rollout complete. Continue existing passive dashboard refresh. Any further engineering, clock-review recovery, unknown-outcome resolution or throughput-policy change requires its own scoped authorization. Future accounting backup/generation move must include completed.sqlite and retain archive-aware writers; never roll back to old writers after archival.",
+    "installed_payload_sha256": {
+      "listener:helius_denial_gate.py": "1df79e0f9e8289f19c5c5df84a00d88953909691ba8749b8c1e24e16b6374aad",
+      "listener:helius_completed_archive.py": "36d900aecc081733753221a5e66604c34acb422fc004b9a0a52e6eac7cd3c331",
+      "creator_resolution:helius_denial_gate.py": "1df79e0f9e8289f19c5c5df84a00d88953909691ba8749b8c1e24e16b6374aad",
+      "creator_resolution:helius_completed_archive.py": "36d900aecc081733753221a5e66604c34acb422fc004b9a0a52e6eac7cd3c331",
+      "walkback:helius_denial_gate.py": "3fed6ac89fec3692d2ba01cfe79ff0f4e4363909336b8a976d95a791742df903",
+      "walkback:helius_completed_archive.py": "36d900aecc081733753221a5e66604c34acb422fc004b9a0a52e6eac7cd3c331"
+    },
+    "config_sha256": "3ed03f1666e51e41fef540b2a84c8055259855bddfb0f606eaf304919f486f25",
+    "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+    "composition_by_role": {
+      "listener": [
+        "Gate._decode",
+        "Gate._publication_operations",
+        "Gate._writer_read",
+        "Gate.finish_publication",
+        "Gate.save",
+        "_reserve2_locked",
+        "_reserve_http"
+      ],
+      "creator_resolution": [
+        "Gate._decode",
+        "Gate._publication_operations",
+        "Gate._writer_read",
+        "Gate.finish_publication",
+        "Gate.save",
+        "_reserve2_locked",
+        "_reserve_http"
+      ],
+      "walkback": [
+        "Gate._decode",
+        "_completed_eligible",
+        "_expire_completed",
+        "_reserve2_locked",
+        "_validate_completed_target"
+      ]
+    }
   }
 }

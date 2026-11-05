@@ -103,14 +103,11 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_PINNED_STAGE_RECOVERY_NEW_WALKBACK_COMPLETED",
-    "milestone": "Pinned stage recovery",
-    "production_changes": true,
-    "provider_probes": 0,
-    "database_writes": 0,
-    "blocker": "Publication stage barrier recovered. No blocker remains to the authorized one-shot recovery and initial live validation. Two of three new admissions are waiting for anchors; 19 original uncertain records and the original inflight evidence remain protected. Root cause of corrupted staged bytes remains unproven. This validates one new completion, not sustained throughput or complete backlog clearance.",
-    "next_action": "Continue normal workers and the existing passive dashboard refresh. Track new admissions, valid CREATE anchor availability, starts and completions. Investigate recurrent publication errors or persistently waiting anchors read-only; do not repeat quarantine, replay uncertain requests or restart services without separately authorized scope.",
-    "evidence_ref": "/private/tmp/flex-c518-rollout/POST_QUARANTINE_02.verification.json"
+    "status": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
+    "audit_only": true,
+    "evidence_ref": "/private/tmp/flex-c518-rollout/RECOVERY_PROGRESS_AUDIT.json",
+    "blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
+    "next_action": "Investigate why prepared publication bytes differ from written stage bytes, starting with the shared writer implementation and both retained malformed stages; read-only audit or isolated DEV qualification only. Do not repeatedly clear stages, disable verification, replay requests or restart workers. The one approved pinned-stage quarantine has been executed; no second live quarantine is authorized."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1231,10 +1228,10 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Publication stage barrier recovered. No blocker remains to the authorized one-shot recovery and initial live validation. Two of three new admissions are waiting for anchors; 19 original uncertain records and the original inflight evidence remain protected. Root cause of corrupted staged bytes remains unproven. This validates one new completion, not sustained throughput or complete backlog clearance.",
+  "blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
   "blockers": [
-    "Two new admissions await CREATE anchors.",
-    "Staged-byte corruption root cause is unproven; evidence retained.",
+    "Recurrent malformed publication stage blocks paid admissions.",
+    "One new job still lacks a valid CREATE anchor.",
     "Nineteen uncertain records remain held by design."
   ],
   "byzantine_103_collapse_timing_completion": {
@@ -2705,13 +2702,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Pinned-stage quarantine and c518 new Walkback live verification",
-    "status": "PASS_PINNED_STAGE_RECOVERY_NEW_WALKBACK_COMPLETED",
+    "milestone": "Post-quarantine progress audit and recurrent publication failure",
+    "status": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
     "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
-    "blocker": "Publication stage barrier recovered. No blocker remains to the authorized one-shot recovery and initial live validation. Two of three new admissions are waiting for anchors; 19 original uncertain records and the original inflight evidence remain protected. Root cause of corrupted staged bytes remains unproven. This validates one new completion, not sustained throughput or complete backlog clearance.",
-    "next_action": "Continue normal workers and the existing passive dashboard refresh. Track new admissions, valid CREATE anchor availability, starts and completions. Investigate recurrent publication errors or persistently waiting anchors read-only; do not repeat quarantine, replay uncertain requests or restart services without separately authorized scope."
+    "blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
+    "next_action": "Investigate why prepared publication bytes differ from written stage bytes, starting with the shared writer implementation and both retained malformed stages; read-only audit or isolated DEV qualification only. Do not repeatedly clear stages, disable verification, replay requests or restart workers. The one approved pinned-stage quarantine has been executed; no second live quarantine is authorized."
   },
-  "current_next_blocker": "Publication stage barrier recovered. No blocker remains to the authorized one-shot recovery and initial live validation. Two of three new admissions are waiting for anchors; 19 original uncertain records and the original inflight evidence remain protected. Root cause of corrupted staged bytes remains unproven. This validates one new completion, not sustained throughput or complete backlog clearance.",
+  "current_next_blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44973,11 +44970,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T09:39:23.845266+00:00",
+    "published_at_utc": "2026-11-05T09:45:04.107155+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T09:39:23.845289+00:00",
-    "last_local_checkpoint_utc": "2026-11-05T09:39:01.650633+00:00",
-    "verification_receipt": "/private/tmp/flex-c518-rollout/RECOVERY_HANDOFF_PUBLICATION.json"
+    "updated_at_utc": "2026-11-05T09:45:04.107193+00:00",
+    "last_local_checkpoint_utc": "2026-11-05T09:44:52.308828+00:00",
+    "verification_receipt": "/private/tmp/flex-c518-rollout/PROGRESS_HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58216,7 +58213,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Continue normal workers and the existing passive dashboard refresh. Track new admissions, valid CREATE anchor availability, starts and completions. Investigate recurrent publication errors or persistently waiting anchors read-only; do not repeat quarantine, replay uncertain requests or restart services without separately authorized scope.",
+  "next_action": "Investigate why prepared publication bytes differ from written stage bytes, starting with the shared writer implementation and both retained malformed stages; read-only audit or isolated DEV qualification only. Do not repeatedly clear stages, disable verification, replay requests or restart workers. The one approved pinned-stage quarantine has been executed; no second live quarantine is authorized.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60450,7 +60447,7 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T09:39:01.650633+00:00",
+    "updated_at_utc": "2026-11-05T09:44:52.308828+00:00",
     "working_tree": "Engineering source remains c5183ec4; no source changes in this recovery turn. Scoped stage rename only. Routine handoff changes remain on the transport branch."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -61913,7 +61910,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_PINNED_STAGE_RECOVERY_NEW_WALKBACK_COMPLETED",
+  "status": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63317,7 +63314,7 @@
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
   "updated_at": "2026-11-05T00:14:39.105292+00:00",
-  "updated_at_utc": "2026-11-05T09:39:01.650633+00:00",
+  "updated_at_utc": "2026-11-05T09:44:52.308828+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63533,7 +63530,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_PINNED_STAGE_RECOVERY_NEW_WALKBACK_COMPLETED",
+  "verdict": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73323,12 +73320,11 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_PINNED_STAGE_RECOVERY_NEW_WALKBACK_COMPLETED",
+    "status": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
     "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
-    "handoff_record": "c518_production_rollout_20261105",
-    "evidence_ref": "/private/tmp/flex-c518-rollout/RECOVERY_MILESTONE.json",
-    "blocker": "Publication stage barrier recovered. No blocker remains to the authorized one-shot recovery and initial live validation. Two of three new admissions are waiting for anchors; 19 original uncertain records and the original inflight evidence remain protected. Root cause of corrupted staged bytes remains unproven. This validates one new completion, not sustained throughput or complete backlog clearance.",
-    "next_action": "Continue normal workers and the existing passive dashboard refresh. Track new admissions, valid CREATE anchor availability, starts and completions. Investigate recurrent publication errors or persistently waiting anchors read-only; do not repeat quarantine, replay uncertain requests or restart services without separately authorized scope."
+    "handoff_record": "post_quarantine_progress_audit_20261105",
+    "blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
+    "next_action": "Investigate why prepared publication bytes differ from written stage bytes, starting with the shared writer implementation and both retained malformed stages; read-only audit or isolated DEV qualification only. Do not repeatedly clear stages, disable verification, replay requests or restart workers. The one approved pinned-stage quarantine has been executed; no second live quarantine is authorized."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -86128,9 +86124,9 @@
     "next_action": "DEVmilestonecomplete atc5183ec4. Ifproductionrolloutisexplicitlyauthorized, qualifyonlydrain_batchcompositionagainstinstalledWalkback, preserveotherinstalledworkerfeatures and853archive-awareaccounting, thenonecontrolledWalkbackrestartandpassivenew-cohortverification. No queue/attempt/unknownreset orproviderprobe. Do notbundlemetric/handoffcadence changes."
   },
   "c518_production_rollout_20261105": {
-    "status": "PASS_PINNED_STAGE_RECOVERY_NEW_WALKBACK_COMPLETED",
+    "status": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
     "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
-    "observed_utc": "2026-11-05T09:39:01.650633+00:00",
+    "observed_utc": "2026-11-05T09:44:52.308828+00:00",
     "authorization": "Human explicitly approved pinned-stage quarantine in the current turn. Executed exactly once under the existing Gate lock after exact qualified pins and READY checksum validation. Existing c518 deployment authorization and one Walkback restart remain historical; no new service action authorized or taken.",
     "compatibility": {
       "status": "PASS_INSTALLED_ONE_FUNCTION_COMPOSITION",
@@ -86299,7 +86295,7 @@
       },
       "original_queue_attempts_RPC_nondecreasing": 7317
     },
-    "live_observation": "At 09:37:50 UTC: three new Walkback admissions since c518 rollout, one started and completed using six RPCs, two waiting for anchors. Full Walkbacks increased 3455 to 3456. Gate OPEN, failures zero. Ledger contains 20 HTTP_COMPLETED request identities updated since quarantine. First observed fresh success; sustained throughput is not yet established.",
+    "live_observation": "Initial new completion verified after one approved quarantine. At 09:43:55 UTC completion total remains 3456; three new jobs are complete/pending/waiting one each. A second invalid stage from Creator reserve_http at 09:38:10 blocks further paid admission. Recovery success was temporary.",
     "publication_blocker": {
       "stage_modified_utc": "2026-11-05T01:11:03.905093+00:00",
       "stage_sha256": "f23907d4a5c24f5b35ca5ad8ea178685cb7be8b255071b402a9ba9f92880158b",
@@ -86311,7 +86307,7 @@
       "target_expected_sha256": "4cf544271f035d6c0d4ac097834376a1df0a844af6805fd3532353ea18debd00",
       "stage_barrier": "HELIUS_PUBLICATION_STAGE_UNCERTAIN",
       "known_cause_limit": "Original malformed stage retained at the receipt path with exact hash. Precise staged-byte corruption cause remains unproven; no prevention code change was made.",
-      "status": "RECOVERED_BY_APPROVED_PINNED_QUARANTINE"
+      "status": "RECURRED_IN_NEW_STAGE_AFTER_SUCCESSFUL_ONE_SHOT_RECOVERY"
     },
     "recovery_qualification_ref": "/private/tmp/flex-c518-rollout/STAGE_RECOVERY_QUALIFICATION.json",
     "recovery_plan_ref": "/private/tmp/flex-c518-rollout/quarantine_stage.py",
@@ -86352,8 +86348,8 @@
       "/private/tmp/flex-c518-rollout/POST_QUARANTINE_02.verification.json",
       "/private/tmp/flex-c518-rollout/POST_QUARANTINE_WATCH.json"
     ],
-    "blocker": "Publication stage barrier recovered. No blocker remains to the authorized one-shot recovery and initial live validation. Two of three new admissions are waiting for anchors; 19 original uncertain records and the original inflight evidence remain protected. Root cause of corrupted staged bytes remains unproven. This validates one new completion, not sustained throughput or complete backlog clearance.",
-    "next_action": "Continue normal workers and the existing passive dashboard refresh. Track new admissions, valid CREATE anchor availability, starts and completions. Investigate recurrent publication errors or persistently waiting anchors read-only; do not repeat quarantine, replay uncertain requests or restart services without separately authorized scope.",
+    "blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
+    "next_action": "Investigate why prepared publication bytes differ from written stage bytes, starting with the shared writer implementation and both retained malformed stages; read-only audit or isolated DEV qualification only. Do not repeatedly clear stages, disable verification, replay requests or restart workers. The one approved pinned-stage quarantine has been executed; no second live quarantine is authorized.",
     "recovery": {
       "receipt": {
         "status": "PASS_PINNED_INVALID_STAGE_QUARANTINED",
@@ -86385,6 +86381,58 @@
       "active_receipts_archived_since_cutover": 128,
       "archived_receipts_now": 4517,
       "runtime_observation_discrepancy": "Walkback PID 40591 and Listener PID 28313 remain unchanged. Creator PID is now 81273 versus 28342 at rollout; this turn performed no service actions and does not attribute that intervening restart."
-    }
+    },
+    "recurrence_audit_ref": "/private/tmp/flex-c518-rollout/RECOVERY_PROGRESS_STAGE_AUDIT.json"
+  },
+  "post_quarantine_progress_audit_20261105": {
+    "status": "PARTIAL_NEW_COMPLETION_VERIFIED_PUBLICATION_STAGE_FAILURE_RECURRED",
+    "engineering_revision": "c5183ec4b4b4a42b68f169bd64a6a771cf23c2b9",
+    "observed_utc": "2026-11-05T09:43:55.832927+00:00",
+    "audit_only": true,
+    "new_admissions": 3,
+    "new_completions": 1,
+    "full_completed_total": 3456,
+    "cohort": {
+      "complete": 1,
+      "pending_valid_anchor": 1,
+      "waiting_anchor": 1
+    },
+    "completed_outcome": "NO_ATTRIBUTION_FOUND",
+    "completed_RPCs": 6,
+    "active_identities": 26555,
+    "active_receipts_archived_from_original_baseline": 128,
+    "gate": "OPEN",
+    "counted_failures": 0,
+    "uncertain_records": 19,
+    "recurrent_stage": {
+      "bytes": 10536164,
+      "mtime_utc": "2026-11-05T09:38:10.897979+00:00",
+      "sha256": "7b7f31f6ba17bffa66333066150db67d3a03ee19cfaf956cb3733b3cf266012c",
+      "json_valid": false,
+      "error": "Invalid control character at",
+      "error_position": 4161504,
+      "publication_diagnostic": {
+        "error": "HELIUS_PUBLICATION_VERIFY_DIGEST",
+        "observed_ns": 1793871490914894000,
+        "operation": "reserve_http",
+        "phase": "publication_failed",
+        "pid": 81273,
+        "schema": 1,
+        "source": "flex-main-workers",
+        "target_bytes": 10536164,
+        "target_sha256": "517f7568623c96c1b474a0f024d5c8a07f1ef11c4c019635dd52e2f1b957ce97",
+        "writer_code_sha256": "56ff8a3ba467f66a9fe1551ecfacb63e7a8afa26a77a919a1055c76fd2fa93fc"
+      }
+    },
+    "blocker": "The approved one-shot quarantine succeeded at 09:36:18 UTC and allowed one new full Walkback completion, but a different invalid JSON stage was created at 09:38:10 UTC by flex-main-workers / Creator reserve_http. HELIUS_PUBLICATION_VERIFY_DIGEST recurred; later admission refused HELIUS_PUBLICATION_STAGE_UNCERTAIN. Committed ledger still validates OPEN with zero counted failures and 19 uncertain records. Three new jobs: one complete NO_ATTRIBUTION_FOUND using six RPCs, one pending VALID anchor with HELIUS_GATE_STATE, one waiting MISSING_OR_MALFORMED anchor. No sustained throughput improvement.",
+    "next_action": "Investigate why prepared publication bytes differ from written stage bytes, starting with the shared writer implementation and both retained malformed stages; read-only audit or isolated DEV qualification only. Do not repeatedly clear stages, disable verification, replay requests or restart workers. The one approved pinned-stage quarantine has been executed; no second live quarantine is authorized.",
+    "operator_database_or_accounting_writes": 0,
+    "service_actions": 0,
+    "provider_probes": 0,
+    "additional_quarantine": false,
+    "evidence_refs": [
+      "/private/tmp/flex-c518-rollout/RECOVERY_PROGRESS_AUDIT.json",
+      "/private/tmp/flex-c518-rollout/RECOVERY_PROGRESS_STAGE_AUDIT.json"
+    ]
   }
 }

@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "010 continued Walkback progress audit",
-    "status": "PASS_010_CONTINUED_NEW_WALKBACK_PROGRESS_NO_RECURRENCE_OBSERVED",
+    "milestone": "Admission card evidence semantics audit",
+    "status": "PASS_READONLY_CARD_SEMANTICS_AUDIT",
     "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "blocker": "At 11:02:07 UTC full completions3460 (+1 since last report3459, +4 since rollout baseline3456). Four new admissions since rollout: three completed, one still waiting for a valid CREATE anchor. GateOPEN, counted failures0, inflight0, uncertain20. At11:02:33 recovery count remains1 for original pre-deployment stage; no current stage/latest rejected file, observed publication stage_verified with matching source checks and no error. No new corruption observed. Original accounting/attempt/unknown/funding checks pass. This is a point-in-time audit, not sustained-throughput or complete-backlog acceptance.",
-    "next_action": "Continue existing passive dashboard and normal workers. Preserve uncertain and review-held work. Separately audit the waiting CREATE/creator-role review case if requested; no service actions, replay, release, account edits or manual quarantine under this progress audit."
+    "blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
+    "next_action": "Explain the historical-proof/current-availability distinction. If metric work is requested, make a scoped DEV metric/label correction using authoritative migration-observation timestamps and retained birth evidence; retain unknown where historical timing is unproven. No source, dashboard, service, queue or accounting changes under this audit."
   },
-  "current_next_blocker": "At 11:02:07 UTC full completions3460 (+1 since last report3459, +4 since rollout baseline3456). Four new admissions since rollout: three completed, one still waiting for a valid CREATE anchor. GateOPEN, counted failures0, inflight0, uncertain20. At11:02:33 recovery count remains1 for original pre-deployment stage; no current stage/latest rejected file, observed publication stage_verified with matching source checks and no error. No new corruption observed. Original accounting/attempt/unknown/funding checks pass. This is a point-in-time audit, not sustained-throughput or complete-backlog acceptance.",
+  "current_next_blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:04:07.019740+00:00",
+    "published_at_utc": "2026-11-05T11:13:45.263791+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:04:07.019762+00:00",
+    "updated_at_utc": "2026-11-05T11:13:45.263810+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-010-progress-audit-20261105b/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-admission-card-audit-20261105b/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60446,8 +60446,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:03:49.668805+00:00",
-    "working_tree": "Engineering and installed 010 composition unchanged. Audit-only local evidence/handoff update; routine handoff dirty plus pre-existing guard."
+    "updated_at_utc": "2026-11-05T11:13:06.861455+00:00",
+    "working_tree": "Engineering and installed 010 composition unchanged. Read-only admission card audit; handoff update only."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_010_CONTINUED_NEW_WALKBACK_PROGRESS_NO_RECURRENCE_OBSERVED",
+    "status": "PASS_READONLY_CARD_SEMANTICS_AUDIT",
     "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
-    "handoff_record": "010_progress_audit_20261105",
-    "evidence_ref": "/private/tmp/flex-010-progress-audit-20261105b/AUDIT.json",
-    "blocker": "At 11:02:07 UTC full completions3460 (+1 since last report3459, +4 since rollout baseline3456). Four new admissions since rollout: three completed, one still waiting for a valid CREATE anchor. GateOPEN, counted failures0, inflight0, uncertain20. At11:02:33 recovery count remains1 for original pre-deployment stage; no current stage/latest rejected file, observed publication stage_verified with matching source checks and no error. No new corruption observed. Original accounting/attempt/unknown/funding checks pass. This is a point-in-time audit, not sustained-throughput or complete-backlog acceptance.",
-    "next_action": "Continue existing passive dashboard and normal workers. Preserve uncertain and review-held work. Separately audit the waiting CREATE/creator-role review case if requested; no service actions, replay, release, account edits or manual quarantine under this progress audit."
+    "handoff_record": "admission_card_audit_20261105",
+    "evidence_ref": "/private/tmp/flex-admission-card-audit-20261105b/COHORT.json",
+    "blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
+    "next_action": "Explain the historical-proof/current-availability distinction. If metric work is requested, make a scoped DEV metric/label correction using authoritative migration-observation timestamps and retained birth evidence; retain unknown where historical timing is unproven. No source, dashboard, service, queue or accounting changes under this audit."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -86908,5 +86908,52 @@
     },
     "blocker": "At 11:02:07 UTC full completions3460 (+1 since last report3459, +4 since rollout baseline3456). Four new admissions since rollout: three completed, one still waiting for a valid CREATE anchor. GateOPEN, counted failures0, inflight0, uncertain20. At11:02:33 recovery count remains1 for original pre-deployment stage; no current stage/latest rejected file, observed publication stage_verified with matching source checks and no error. No new corruption observed. Original accounting/attempt/unknown/funding checks pass. This is a point-in-time audit, not sustained-throughput or complete-backlog acceptance.",
     "next_action": "Continue existing passive dashboard and normal workers. Preserve uncertain and review-held work. Separately audit the waiting CREATE/creator-role review case if requested; no service actions, replay, release, account edits or manual quarantine under this progress audit."
+  },
+  "admission_card_audit_20261105": {
+    "status": "PASS_READONLY_CARD_SEMANTICS_AUDIT",
+    "engineering_revision": "010ead93610d99ad823c002b9c8bc00a33ca0eba",
+    "observed_utc": "2026-11-05T11:10:32.361390+00:00",
+    "displayed_snapshot_utc": "2026-11-05T11:04:46.634205Z",
+    "displayed_counts": {
+      "admitted": 7,
+      "create_available": 5,
+      "pending": 1,
+      "waiting": 2,
+      "complete": 3
+    },
+    "current_same_cohort_summary": {
+      "total": 7,
+      "creator_fields_populated": 5,
+      "syntactically_valid_creator_fields": 5,
+      "CREATE_fields_present": 5,
+      "VALID_CREATE_anchors": 5,
+      "matching_receipt_jobs": 0,
+      "statuses": {
+        "waiting": 2,
+        "complete": 5
+      }
+    },
+    "historical_proof": {
+      "denominator": 7,
+      "creator_known": 0,
+      "create_available": 0,
+      "creator_unknown": 7,
+      "create_unknown": 7,
+      "measurement": "EVIDENCE_CHECKED",
+      "proof": "Exact committed birth receipt with Core readback accepted before the queue admission second. No current-field backdating; no full transaction claim."
+    },
+    "tests": "Inspected fixed collector and admission_evidence source; read-only paired Core/OPS cohort comparison and exact receipt identity checks. No code change or new test suite required.",
+    "production_flags": {
+      "audit_only": true,
+      "production_source_changes": 0,
+      "service_actions": 0,
+      "operator_database_writes": 0,
+      "provider_probes": 0,
+      "dashboard_changes": 0
+    },
+    "verdict": "Historical availability remains unknown; current availability is five of seven. Card label conflates the two readings.",
+    "blocker": "The displayed 11:04:46 UTC hour cohort has seven admissions. Five currently have valid creator/CREATE anchors; by 11:10:32 UTC those five are complete and two remain waiting without anchors. Zero matching exact committed birth receipts were found for the seven jobs, so the existing narrow pre-admission proof metric reports seven unknown. Unknown is not proof data was absent. The requested migration-observation availability metric remains unimplemented; current fields cannot be backdated.",
+    "next_action": "Explain the historical-proof/current-availability distinction. If metric work is requested, make a scoped DEV metric/label correction using authoritative migration-observation timestamps and retained birth evidence; retain unknown where historical timing is unproven. No source, dashboard, service, queue or accounting changes under this audit.",
+    "evidence_ref": "/private/tmp/flex-admission-card-audit-20261105b/COHORT.json"
   }
 }

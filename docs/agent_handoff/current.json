@@ -2701,13 +2701,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Birth-save/reuse reliability and smallest RPC avoidance fix audit",
-    "status": "PASS_AUDIT_STALE_RECOVERY_REUSE_GAP_CONFIRMED",
-    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
-    "next_action": "No changes authorized yet. If user authorizes DEV work, add one saved-birth fast path immediately before creator recovery dispatch, preferring existing qualified PUMPPORTAL Core delivery and exact canonical identity. Reuse existing handoff, preserve prior attempts/charges/errors/inflight/unknown evidence, keep conflicting/unconfirmed work held and missing-data recovery fallback. Qualify birth-before-queue, birth-after-enqueue-before-claim, restart, conflict/missing proof, concurrent birth/worker and rollback. Address only fixture composition needed for installed-source qualification; no production activation without explicit approval."
+    "milestone": "DEV saved-birth reuse before creator recovery RPC",
+    "status": "PASS_DEV_SAVED_BIRTH_REUSE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
+    "blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
+    "next_action": "Await explicit production deployment authorization. If approved, qualify current installed Creator composition and apply only the saved-birth helper/call delta, preserving installed HTTP protection, refusal handling, indexed recovery and all unrelated source. Do not copy the older DEV root module wholesale. No Listener/Walkback restart, accounting mutation, queue replay or provider probes authorized by this DEV task."
   },
-  "current_next_blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
+  "current_next_blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44969,11 +44969,11 @@
     "branch": "agent-handoff",
     "note": "Required milestone checkpoint on dedicated agent-handoff. The external HANDOFF_PUBLICATION receipt records exact remote-file readback; engineering revision is project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-05T11:57:51.692444+00:00",
+    "published_at_utc": "2026-11-05T12:17:04.283944+00:00",
     "status": "PUBLISHED_CHECKPOINT",
-    "updated_at_utc": "2026-11-05T11:57:51.692461+00:00",
+    "updated_at_utc": "2026-11-05T12:17:04.283963+00:00",
     "last_local_checkpoint_utc": "2026-11-05T11:03:49.668805+00:00",
-    "verification_receipt": "/private/tmp/flex-birth-reuse-reliability-audit-20261105/HANDOFF_PUBLICATION.json"
+    "verification_receipt": "/private/tmp/flex-saved-birth-reuse-dev-20261105/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -60444,10 +60444,10 @@
   },
   "project": {
     "branch": "codex/r02-bounded-retention",
-    "git_head": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
+    "git_head": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
     "name": "flex",
-    "updated_at_utc": "2026-11-05T11:57:38.996090+00:00",
-    "working_tree": "f71b59ea engineering/dashboard and installed010 worker source unchanged. Read-only birth-save/reuse audit and disposable provider-free reproducer; handoff update only."
+    "updated_at_utc": "2026-11-05T12:16:50.285104+00:00",
+    "working_tree": "DEV saved-birth reuse committed b580c8aa. Production workers010ead93 and dashboardf71b59ea unchanged; routine handoff dirty and pre-existing guard remain."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -73319,12 +73319,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_AUDIT_STALE_RECOVERY_REUSE_GAP_CONFIRMED",
-    "engineering_revision": "f71b59ea457bb335e9cb2df43c6d0c55e674f3cd",
-    "handoff_record": "birth_save_reuse_reliability_audit_20261105",
-    "evidence_ref": "/private/tmp/flex-birth-reuse-reliability-audit-20261105/AUDIT.json",
-    "blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
-    "next_action": "No changes authorized yet. If user authorizes DEV work, add one saved-birth fast path immediately before creator recovery dispatch, preferring existing qualified PUMPPORTAL Core delivery and exact canonical identity. Reuse existing handoff, preserve prior attempts/charges/errors/inflight/unknown evidence, keep conflicting/unconfirmed work held and missing-data recovery fallback. Qualify birth-before-queue, birth-after-enqueue-before-claim, restart, conflict/missing proof, concurrent birth/worker and rollback. Address only fixture composition needed for installed-source qualification; no production activation without explicit approval."
+    "status": "PASS_DEV_SAVED_BIRTH_REUSE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
+    "handoff_record": "saved_birth_reuse_DEV_20261105",
+    "evidence_ref": "/private/tmp/flex-saved-birth-reuse-dev-20261105/QUALIFICATION.json",
+    "blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
+    "next_action": "Await explicit production deployment authorization. If approved, qualify current installed Creator composition and apply only the saved-birth helper/call delta, preserving installed HTTP protection, refusal handling, indexed recovery and all unrelated source. Do not copy the older DEV root module wholesale. No Listener/Walkback restart, accounting mutation, queue replay or provider probes authorized by this DEV task."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -87202,5 +87202,55 @@
     ],
     "blocker": "Birth-first save/reuse already implemented and live PUMPPORTAL acknowledged CREATE-delivery stock2456 confirms reuse (not capture rate). Confirmed smallest correctness gap: existing queued creator recovery is claimed and reaches _resolve_creator_rpc without a fresh source-qualified saved-birth check. Offline installed-function reproduction reaches provider entry despite matching saved pair and ACKed PP delivery before claim; network/accounting stub prevents any paid call. No active current-pair recovery overlap observed, so no measured wasted-RPC amount claimed. Missing birth events remain a separate unproven acquisition gap. Existing target test run32pass/6fixture-composition failures (missing trace/routing helper bindings); no source changes.",
     "next_action": "No changes authorized yet. If user authorizes DEV work, add one saved-birth fast path immediately before creator recovery dispatch, preferring existing qualified PUMPPORTAL Core delivery and exact canonical identity. Reuse existing handoff, preserve prior attempts/charges/errors/inflight/unknown evidence, keep conflicting/unconfirmed work held and missing-data recovery fallback. Qualify birth-before-queue, birth-after-enqueue-before-claim, restart, conflict/missing proof, concurrent birth/worker and rollback. Address only fixture composition needed for installed-source qualification; no production activation without explicit approval."
+  },
+  "saved_birth_reuse_DEV_20261105": {
+    "status": "PASS_DEV_SAVED_BIRTH_REUSE_QUALIFIED_NOT_DEPLOYED",
+    "engineering_revision": "b580c8aafb17d3116f7a6f6acc7fbf47e2672e48",
+    "observed_utc": "2026-11-05T12:16:50.285104+00:00",
+    "scope": "DEV creator-resolution saved-birth check immediately before recovery RPC; no production changes.",
+    "implementation": {
+      "proof": "Existing active-epoch PUMPPORTAL/PUMPPORTAL_NEW_TOKEN delivery in PENDING or ACK, valid encoded digest and identities, matching current Core creator/CREATE/migration. Plain Core fields, strict-RPC proof, blocked/disabled/old-epoch/conflicting proof do not qualify.",
+      "race": "Read-only lookup followed by atomic reread under existing Core writer; verify exact unexpired claim and unchanged attempts before settling.",
+      "commit": "Existing birth delivery and funding handoff plus stale queue completion in one Core transaction.",
+      "preservation": "No attempt increment/reset; preserve previous errors and paid acquisition metadata; do not touch accounting ledger, inflight, uncertain or funding evidence. Existing funding job is not overwritten. Terminal jobs never reactivated. Ownership review is not settled through this path.",
+      "fallback": "Missing/unqualified evidence retains existing RPC/review path. Already dispatched requests cannot be undone by later birth arrival.",
+      "error_handling": "Failure before saved-birth commit aborts transaction before provider entry; existing stale-lease recovery can retry after restart without another paid attempt."
+    },
+    "tests": {
+      "result": "137 passed in 6.13s",
+      "command": "python -B -m pytest -q tests/test_saved_birth_recovery.py tests/test_dev090_handoff.py tests/test_dev090_prospective_enqueue.py tests/test_b2al_creator_resolution_connection_scope.py tests/test_b2ar_creator_resolution_schema_ready_fast_path.py tests/test_b2av_creator_resolution_funding_index_heartbeat.py",
+      "new_checks": 49,
+      "coverage": [
+        "birth before queue, after enqueue, after claim",
+        "PENDING and ACK birth proofs",
+        "invalid/missing/conflicting/blocked/old-epoch/disabled proof",
+        "ownership-review preservation",
+        "two-worker contention and concurrent birth commit",
+        "fresh transactional proof/claim recheck",
+        "existing funding/CREATE delivery immutability",
+        "real child process exits before commit, SQLite rollback, second process restart and idempotence",
+        "previous attempts/errors/pages/signatures/runtime/tier preserved",
+        "accounting/inflight/uncertain/funding evidence files byte exact",
+        "unaffected source AST exact in both DEV copies"
+      ],
+      "baseline_limit": "Six prior unrelated birth-frame/trace fixture failures remain recorded in preceding audit. Those source interfaces were unchanged and were not part of this 137-check run; no blanket full-suite green claim."
+    },
+    "production_flags": {
+      "deployed": false,
+      "production_source_changes": 0,
+      "production_database_or_accounting_writes": 0,
+      "provider_calls": 0,
+      "service_actions": 0,
+      "queue_replay": false,
+      "dashboard_changes": 0,
+      "schema_changes": 0
+    },
+    "source_evidence_ref": "/private/tmp/flex-saved-birth-reuse-dev-20261105/SOURCE_QUALIFICATION.json",
+    "blocker": "No DEV implementation/qualification blocker. b580c8aa adds exact qualified saved-birth reuse before creator recovery in both DEV copies. 137 targeted checks pass, including real crash/restart, birth/claim races, competing workers, rollback and preservation. Production not deployed; installed workers remain010ead93 and dashboardf71b59ea. This change cannot recover births never captured or undo an already-dispatched request. Six previously recorded unrelated trace/routing fixture failures were not changed or silently treated as green.",
+    "next_action": "Await explicit production deployment authorization. If approved, qualify current installed Creator composition and apply only the saved-birth helper/call delta, preserving installed HTTP protection, refusal handling, indexed recovery and all unrelated source. Do not copy the older DEV root module wholesale. No Listener/Walkback restart, accounting mutation, queue replay or provider probes authorized by this DEV task.",
+    "evidence_refs": [
+      "/private/tmp/flex-saved-birth-reuse-dev-20261105/QUALIFICATION.json",
+      "/private/tmp/flex-saved-birth-reuse-dev-20261105/SOURCE_QUALIFICATION.json"
+    ]
   }
 }

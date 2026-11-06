@@ -103,14 +103,13 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "COMPLETE_DEV_IMPLEMENTATION_AND_QUALIFICATION",
-    "observed_utc": "2026-11-06T12:07:17.922208+00:00",
+    "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
+    "deployed_utc": "2026-11-06T12:28:14.957219+00:00",
+    "observed_utc": "2026-11-06T12:33:49.975078+00:00",
     "engineering_revision": "c1ae6883569db849c5a9569a1576cf6d9fb8725a",
-    "evidence_ref": "/private/tmp/flex-rolling-archive-dev-20261106/QUALIFICATION.json",
-    "production_observation_ref": "/private/tmp/flex-longterm-archive-audit-20261106/CAPACITY.json",
-    "production_observation_is_historical": true,
-    "blocker": "No DEV implementation blocker. Production archive remains on the previous bounded legacy tier; rolling archive has not been activated. Separate cutover authorization and authority/backup/drain preflight required. Finite capacity and protected hot growth remain real limits.",
-    "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
+    "evidence_ref": "/private/tmp/flex-c1ae-rollout/FINAL_SUMMARY.json",
+    "blocker": "None for this approved Walkback cutover: completions and automatic archive batches resumed; unresolved legacy evidence remains held under existing rules.",
+    "next_action": "Continue the existing passive dashboard refresh. Monitor rolling capacity and protected hot growth; keep old readers fenced and preserve all segments for rollback/backup. No further restart, queue replay, accounting repair or provider probe is required for this completed milestone."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1231,11 +1230,8 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No DEV implementation blocker. Production archive remains on the previous bounded legacy tier; rolling archive has not been activated. Separate cutover authorization and authority/backup/drain preflight required. Finite capacity and protected hot growth remain real limits.",
-  "blockers": [
-    "No DEV implementation blocker. Production archive remains on the previous bounded legacy tier; rolling archive has not been activated. Separate cutover authorization and authority/backup/drain preflight required. Finite capacity and protected hot growth remain real limits.",
-    "Pre-existing older historical Git objects remain unavailable; this milestone preserves a scoped commit/patch and pinned installed composition, not a claim of full history repair."
-  ],
+  "blocker": "None for this approved Walkback cutover: completions and automatic archive batches resumed; unresolved legacy evidence remains held under existing rules.",
+  "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -44972,11 +44968,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-06T12:07:48.725581+00:00",
+    "published_at_utc": "2026-11-06T12:38:35.461531+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-06T12:07:17.922208+00:00",
-    "verification_receipt": "/private/tmp/flex-rolling-archive-dev-20261106/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-06T12:37:53.689590+00:00",
+    "verification_receipt": "/private/tmp/flex-c1ae-rollout/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58215,7 +58211,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone.",
+  "next_action": "Continue the existing passive dashboard refresh. Monitor rolling capacity and protected hot growth; keep old readers fenced and preserve all segments for rollback/backup. No further restart, queue replay, accounting repair or provider probe is required for this completed milestone.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60449,8 +60445,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "c1ae6883569db849c5a9569a1576cf6d9fb8725a",
     "name": "flex",
-    "updated_at_utc": "2026-11-06T12:07:17.922208+00:00",
-    "working_tree": "DEV bounded rolling checkpoint archive committed and qualified. Production remains installed7dec652d; no service, provider, queue, production schema or accounting actions. Older unrelated Git object gaps remain pre-existing."
+    "updated_at_utc": "2026-11-06T12:37:53.689590+00:00",
+    "working_tree": "c1ae6883 qualified installed-source composition deployed to Walkback with explicit v3 authority migration, verified paired backup and one operator stop/start. Live full completions3686→3696, automatic archive batches resumed, originals/reservations and immutable RPC receipts preserved. Engineering source unchanged this milestone; old unrelated Git-history gaps remain."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61912,7 +61908,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_BOUNDED_ROLLING_ARCHIVE",
+  "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -89169,14 +89165,74 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "bounded rolling archive DEV qualification only",
-    "production_deployed": false,
-    "production_source_changes": 0,
-    "production_schema_changes": 0,
-    "service_actions": 0,
-    "provider_calls": 0,
+    "scope": "Explicitly approved c1ae6883 bounded rolling archive Walkback deployment",
+    "production_deployed": true,
+    "production_source_modules": 4,
+    "production_schema_version": 3,
+    "walkback_stop_requests": 1,
+    "walkback_start_requests": 1,
+    "listener_service_actions": 0,
+    "creator_service_actions": 0,
+    "operator_provider_probes": 0,
     "queue_replay": false,
-    "accounting_writes": 0,
-    "rolling_archive_activated_live": false
+    "accounting_edits": 0,
+    "rolling_archive_activated_live": true,
+    "paired_backup_verified": true
+  },
+  "bounded_rolling_checkpoint_archive_rollout_20261106": {
+    "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
+    "engineering_revision": "c1ae6883569db849c5a9569a1576cf6d9fb8725a",
+    "deployed_utc": "2026-11-06T12:28:14.957219+00:00",
+    "verification_observed_utc": "2026-11-06T12:33:49.975078+00:00",
+    "observation_seconds": 335.018,
+    "qualified_source_composition_ref": "/private/tmp/flex-rolling-archive-dev-20261106/COMPOSITION_PINS.json",
+    "authority_pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "checkpoint_schema_version": 3,
+    "backup_ref": "/private/tmp/flex-c1ae-rollout/BACKUP.json",
+    "stop_requests": 1,
+    "start_requests": 1,
+    "walkback_pid": 55532,
+    "completions_before": 3686,
+    "completions_now": 3696,
+    "completions_added": 10,
+    "all_preexisting_saved_immutable_requests": 4229,
+    "matched_saved_immutable_accounting_keys": 2570,
+    "new_accounting_keys_matching_saved_immutable_requests": 0,
+    "retained_immutable_receipts_exact": 2433,
+    "duplicate_immutable_attempt_increases": 0,
+    "immutable_receipt_replacements_or_resets": 0,
+    "original_unresolved_reservations_exact": 3,
+    "original_unresolved_reserved_bytes_exact": 6291456,
+    "original_uncertain_requests_exact": 23,
+    "rolling_archive": {
+      "entries": 384,
+      "decoded_bytes": 2365583,
+      "segments": 1,
+      "staging": 0
+    },
+    "operator_initial_archive_records": 128,
+    "worker_automatic_archive_records": 256,
+    "spending_policy_unchanged": true,
+    "operator_rpc_probes": 0,
+    "operator_accounting_edits": 0,
+    "operator_queue_replays": 0,
+    "operator_listener_actions": 0,
+    "operator_creator_actions": 0,
+    "creator_observation": "Supervisor recorded expected clean exit status0 at12:33:18 and automatic spawn at12:33:19; no Creator service action or source/configuration edit issued in this rollout.",
+    "limits": [
+      "Finite eight-segment/512MiB physical envelope, conservative31MiB main SQLite files; no evidence eviction or unlimited-progress guarantee.",
+      "Protected failed/active/unknown evidence and their reservations remain protected and can still fill hot limits.",
+      "No duplicate saved immutable getTransaction RPC observed during this bounded window; normal genuinely new requests and other-role traffic remain accounted.",
+      "Creator had an expected clean exit and Supervisor-managed restart during observation; no Creator service action/source/configuration change was issued.",
+      "Older unrelated DEV Git objects remain unavailable; exact c1 installed composition, hashes, source backup and pre-cutover paired-store backup are preserved."
+    ],
+    "next_action": "Continue the existing passive dashboard refresh. Monitor rolling capacity and protected hot growth; keep old readers fenced and preserve all segments for rollback/backup. No further restart, queue replay, accounting repair or provider probe is required for this completed milestone.",
+    "evidence_ref": "/private/tmp/flex-c1ae-rollout/FINAL_SUMMARY.json",
+    "production_deployed": true,
+    "production_source_modules": 4,
+    "production_schema_migration": true,
+    "qualified_dev_tests_per_composition": 129,
+    "installed_connector_preflight_ref": "/private/tmp/flex-c1ae-rollout/CONNECTOR_PREFLIGHT.json"
   }
 }

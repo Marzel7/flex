@@ -103,15 +103,15 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_DEV_LAYOUT_FOLLOWUP",
+    "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
+    "recorded_utc": "2026-11-06T22:35:23.431449+00:00",
     "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
-    "recorded_utc": "2026-11-06T22:24:42.216727+00:00",
-    "blocker": "None for the approved DEV layout scope. Existing system blockers were not re-audited or changed.",
-    "next_action": "DEV work complete. Live dashboard rollout requires separate user authorization for 9d9930f2 and scoped compatibility/backup checks; no worker or RPC changes.",
-    "evidence_ref": "/private/tmp/flex-dashboard-followup-dev-20261106/QUALIFICATION.json",
-    "production_changes": false,
-    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
-    "live_dashboard_revision": "885cc4dccb92feb2af00db847905fa2f3abc89f6"
+    "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
+    "published_utc": "2026-11-06T22:34:22.246278+00:00",
+    "blocker": null,
+    "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
+    "evidence_ref": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/FINAL_SUMMARY.json"
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1232,7 +1232,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "None for the approved DEV layout scope. Existing system blockers were not re-audited or changed.",
+  "blocker": null,
   "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2702,18 +2702,18 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "PASS_DEV_LAYOUT_FOLLOWUP",
+    "milestone": "Live follow-up dashboard layout rollout",
+    "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
+    "recorded_utc": "2026-11-06T22:35:23.431449+00:00",
     "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
-    "recorded_utc": "2026-11-06T22:24:42.216727+00:00",
-    "blocker": "None for the approved DEV layout scope. Existing system blockers were not re-audited or changed.",
-    "next_action": "DEV work complete. Live dashboard rollout requires separate user authorization for 9d9930f2 and scoped compatibility/backup checks; no worker or RPC changes.",
-    "evidence_ref": "/private/tmp/flex-dashboard-followup-dev-20261106/QUALIFICATION.json",
-    "production_changes": false,
-    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
-    "live_dashboard_revision": "885cc4dccb92feb2af00db847905fa2f3abc89f6",
-    "milestone": "DEV dashboard admissions/capacity/blocker follow-up layout"
+    "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
+    "published_utc": "2026-11-06T22:34:22.246278+00:00",
+    "blocker": null,
+    "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
+    "evidence_ref": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/FINAL_SUMMARY.json"
   },
-  "current_next_blocker": "None for the approved DEV layout scope. Existing system blockers were not re-audited or changed.",
+  "current_next_blocker": "No blocker for this dashboard-only rollout; backend recovery holds and reservations remain under their existing policy and were not re-audited.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44975,11 +44975,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-06T22:25:02.685845+00:00",
+    "published_at_utc": "2026-11-06T22:35:29.493230+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-06T22:24:42.726992+00:00",
-    "verification_receipt": "/private/tmp/flex-dashboard-followup-dev-20261106/HANDOFF_PUBLICATION_SCOPED.json"
+    "last_local_checkpoint_utc": "2026-11-06T22:35:23.431449+00:00",
+    "verification_receipt": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58218,7 +58218,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "DEV work complete. Live dashboard rollout requires separate user authorization for 9d9930f2 and scoped compatibility/backup checks; no worker or RPC changes.",
+  "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60452,8 +60452,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
     "name": "flex",
-    "updated_at_utc": "2026-11-06T22:24:42.216727+00:00",
-    "working_tree": "DEV follow-up layout qualified and committed. Tightened admissions, collapsed recovery details, explanatory capacity freshness and prominent prerequisite/hold blockers. Live dashboard remains 885cc4dc; Walkback runtime remains 3a2a9aa8."
+    "updated_at_utc": "2026-11-06T22:35:23.431449+00:00",
+    "working_tree": "9d9930f2 deployed to live dashboard only: tighter admissions, collapsed recovery details, Capacity Unknown explanation and prominent blockers. Exact backups and initial preservation verified; unchanged real refresh command retained layout with fresh complete snapshot. Worker runtime remains 3a2a9aa8; no worker or RPC changes."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61915,7 +61915,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_LAYOUT_FOLLOWUP",
+  "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63535,7 +63535,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DEV_LAYOUT_FOLLOWUP",
+  "verdict": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89172,18 +89172,24 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "DEV dashboard presentation only",
-    "production_writes": 0,
+    "scope": "Approved live 9d9930f2 dashboard-only rollout",
+    "dashboard_published": true,
+    "dashboard_ui_modules_installed": 1,
+    "source_manifest_updated": true,
+    "collector_implementation_changes": 0,
     "worker_source_changes": 0,
-    "dashboard_source_changes": 0,
-    "provider_probes": 0,
-    "provider_calls": 0,
+    "worker_actions": 0,
     "service_actions": 0,
+    "provider_probes": 0,
+    "database_mutations": 0,
+    "accounting_edits": 0,
     "queue_replay": false,
-    "accounting_or_database_writes": 0,
-    "reservation_or_review_hold_changes": 0,
-    "live_dashboard_revision": "885cc4dccb92feb2af00db847905fa2f3abc89f6",
-    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8"
+    "reservations_released": 0,
+    "review_hold_changes": 0,
+    "automatic_refresh_command_real_runs": 1,
+    "recurring_schedule_changed": false,
+    "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8"
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -90977,5 +90983,69 @@
     },
     "blocker": "None for the approved DEV layout scope. Existing system blockers were not re-audited or changed.",
     "next_action": "DEV work complete. Live dashboard rollout requires separate user authorization for 9d9930f2 and scoped compatibility/backup checks; no worker or RPC changes."
+  },
+  "dashboard_followup_layout_rollout_20261106": {
+    "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
+    "recorded_utc": "2026-11-06T22:35:23.431449+00:00",
+    "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
+    "published_utc": "2026-11-06T22:34:22.246278+00:00",
+    "target": "/Users/kevinkeaveney/Downloads/watchtower_recovery_dashboard.html",
+    "deployed_modules": [
+      "recovery_dashboard_cards_ui.py"
+    ],
+    "payload_pins": {
+      "recovery_dashboard_cards_ui.py": "92c93382e4189b958f936326f7c3f1d5a0c8ececa6bbea1b631bcfee6c06889c"
+    },
+    "source_manifest_scope": "Only recovery_dashboard_cards_ui.py hash changed. Every other existing source pin, collector and refresh implementation unchanged.",
+    "compatibility_tests_reused": 127,
+    "backup_ref": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/BACKUP.json",
+    "backup_status": "PASS_COMPLETE_DASHBOARD_BACKUP_READBACK",
+    "initial_snapshot_metrics_warnings_and_timestamps_exact": true,
+    "historical_programme_and_deployment_records_exact": true,
+    "all_original_nodes_preserved": true,
+    "fresh_snapshot_metrics_warnings_exact": true,
+    "warnings_preserved_in_fresh_snapshot": 6,
+    "fresh_snapshot_utc": "2026-11-06T22:34:32.884058Z",
+    "html_sha256": "2ca39e9d6279c05276a0caf8ac93f0d0bc74717c33f5c3ea1ddb3aab3935dffe",
+    "html_bytes": 142630,
+    "same_snapshot_refresh_idempotent": true,
+    "layout_preserved_by_real_refresh_command": true,
+    "real_refresh_command_runs": 1,
+    "separate_scheduler_tick_observed": false,
+    "recurring_schedule_changed": false,
+    "verification_scope": "One successful real execution of the unchanged command used by the recurring automation; fresh collected snapshot matched published HTML exactly, repeat same-snapshot renderer idempotent. No claim of observing a separate future scheduler tick.",
+    "browser_scope": "Prior qualified DEV desktop/mobile checks reused. Live HTML structure, CSP, node inventory, complete configuration and actual refresh verified directly; no live browser automation.",
+    "first_attempt": {
+      "status": "SAFELY_ROLLED_BACK",
+      "cause": "Verification helper incorrectly classified the intentionally updated SOURCES.json manifest as immutable. All backup files read back exactly restored.",
+      "correction": "Allow approved manifest pin change while verifying its exact expected contents and every other protected source.",
+      "evidence_ref": "/private/tmp/flex-dashboard-followup-rollout-20261106/ROLLBACK_VERIFICATION.json"
+    },
+    "worker_source_changes": 0,
+    "worker_actions": 0,
+    "service_actions": 0,
+    "collector_implementation_changes": 0,
+    "provider_probes": 0,
+    "database_mutations": 0,
+    "accounting_edits": 0,
+    "reservations_or_review_hold_changes": 0,
+    "production_changes": [
+      "Update approved cards UI module",
+      "Update only that module hash in source manifest",
+      "Publish HTML atomically under refresh lock",
+      "Run unchanged passive refresh once"
+    ],
+    "blocker": null,
+    "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
+    "evidence_refs": [
+      "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/PREFLIGHT.json",
+      "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/BACKUP.json",
+      "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/INSTALL.json",
+      "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/VERIFICATION.json",
+      "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/PUBLISHED_INITIAL.html",
+      "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/PUBLISHED_AFTER_REFRESH.html"
+    ]
   }
 }

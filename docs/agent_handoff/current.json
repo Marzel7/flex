@@ -103,11 +103,11 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "COMPLETE_BOUNDED_POST_DEPLOYMENT_OBSERVATION_2_COMPLETIONS_ARCHIVE_FULL",
-    "observed_utc": "2026-11-06T11:04:45.024193+00:00",
-    "evidence_ref": "/private/tmp/flex-7dec-rollout/FINAL.verification.json",
-    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
-    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
+    "status": "COMPLETE_READONLY_CAPACITY_DESIGN_AUDIT",
+    "observed_utc": "2026-11-06T11:20:16.161812+00:00",
+    "evidence_ref": "/private/tmp/flex-longterm-archive-audit-20261106/CAPACITY.json",
+    "blocker": "Current16MiBcompressedarchive has50bytesfree;64MiBdecodedremaining4501941bytes and32768entryremaining21562are furtherceilings.2890eligiblecompletedhotrecords(361jobs,2718150bytes)couldmove underexistingeligibility. Smallestdurablecandidate isboundedrollinglocalindexed full-recordarchive,copy/verifybeforehotretirement,legacyarchiveintact,alltierexactrequest/per-jobreaders,oldreaderfenceandcold-awarerollback. Noimplementationorstorageauthorityactivated. Finitepoolrequirescapacitymanagement; unresolvedhotgrowthremainsprotected.",
+    "next_action": "If authorized, implement and qualify only the bounded local full-record checkpoint archive in DEV, including source/capacity authority, cross-tier readers, atomic publication/retirement, fencing/rollback and the above acceptance tests. Do not alter production, archive policy, schema, services, queues or accounting during this audit."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1228,7 +1228,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
+  "blocker": "Current16MiBcompressedarchive has50bytesfree;64MiBdecodedremaining4501941bytes and32768entryremaining21562are furtherceilings.2890eligiblecompletedhotrecords(361jobs,2718150bytes)couldmove underexistingeligibility. Smallestdurablecandidate isboundedrollinglocalindexed full-recordarchive,copy/verifybeforehotretirement,legacyarchiveintact,alltierexactrequest/per-jobreaders,oldreaderfenceandcold-awarerollback. Noimplementationorstorageauthorityactivated. Finitepoolrequirescapacitymanagement; unresolvedhotgrowthremainsprotected.",
   "blockers": [
     "Assessment complete. Current production hasimproved processing; no evidence supports broadbehaviourchanges based onthisrecommendation. Remaining needsareUIclarity,unexplainedhandoffdelay/Listenerexit,andpremigrationbirthcoverage. DEV40f342dc/3c6ef5d1qualifiedbutundeployed;nozero-regressionclaim. Userquestion doesnotauthorizeimplementation. Remote handoffpushpreviouslyrejectedfatalcommit_refs_rules;no newevidenceor explicittransportretryauthorization,so preserve localcheckpointanddo not retry."
   ],
@@ -2700,13 +2700,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "7dec652d Walkback rollout and bounded live verification",
-    "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
+    "milestone": "Smallest safe long-term checkpoint archive solution audit",
+    "status": "PASS_AUDIT_BOUNDED_ROLLING_FULL_RECORD_ARCHIVE_RECOMMENDED_NOT_IMPLEMENTED",
     "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
-    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
-    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
+    "blocker": "Current16MiBcompressedarchive has50bytesfree;64MiBdecodedremaining4501941bytes and32768entryremaining21562are furtherceilings.2890eligiblecompletedhotrecords(361jobs,2718150bytes)couldmove underexistingeligibility. Smallestdurablecandidate isboundedrollinglocalindexed full-recordarchive,copy/verifybeforehotretirement,legacyarchiveintact,alltierexactrequest/per-jobreaders,oldreaderfenceandcold-awarerollback. Noimplementationorstorageauthorityactivated. Finitepoolrequirescapacitymanagement; unresolvedhotgrowthremainsprotected.",
+    "next_action": "If authorized, implement and qualify only the bounded local full-record checkpoint archive in DEV, including source/capacity authority, cross-tier readers, atomic publication/retirement, fencing/rollback and the above acceptance tests. Do not alter production, archive policy, schema, services, queues or accounting during this audit."
   },
-  "current_next_blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
+  "current_next_blocker": "Current16MiBcompressedarchive has50bytesfree;64MiBdecodedremaining4501941bytes and32768entryremaining21562are furtherceilings.2890eligiblecompletedhotrecords(361jobs,2718150bytes)couldmove underexistingeligibility. Smallestdurablecandidate isboundedrollinglocalindexed full-recordarchive,copy/verifybeforehotretirement,legacyarchiveintact,alltierexactrequest/per-jobreaders,oldreaderfenceandcold-awarerollback. Noimplementationorstorageauthorityactivated. Finitepoolrequirescapacitymanagement; unresolvedhotgrowthremainsprotected.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44968,11 +44968,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-06T11:09:59.215986+00:00",
+    "published_at_utc": "2026-11-06T11:24:42.097300+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-06T11:09:46.251261+00:00",
-    "verification_receipt": "/private/tmp/flex-7dec-rollout/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-06T11:24:30.185204+00:00",
+    "verification_receipt": "/private/tmp/flex-longterm-archive-audit-20261106/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58211,7 +58211,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote.",
+  "next_action": "If authorized, implement and qualify only the bounded local full-record checkpoint archive in DEV, including source/capacity authority, cross-tier readers, atomic publication/retirement, fencing/rollback and the above acceptance tests. Do not alter production, archive policy, schema, services, queues or accounting during this audit.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60445,8 +60445,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
     "name": "flex",
-    "updated_at_utc": "2026-11-06T11:09:46.251261+00:00",
-    "working_tree": "7dec652d exact retention payload deployed to Walkback only; one approved restart. Fresh compatibility59checks and live evidence/RPC verificationPASS;2completions resumed then50archivebytesremaining. DEV tree/source recoverypartial;78unavailablehistoricalobjects requireintactbackup. No source/cap/queue/accounting changes beyond the authorized onefile."
+    "updated_at_utc": "2026-11-06T11:24:30.185204+00:00",
+    "working_tree": "Engineering/runtime remain7dec652d. Read-only long-term checkpoint archive capacity/reader/authority audit; proposed bounded full-record rolling local archive only. Existing live rollout and partial historical Git recovery records retained. No implementation or operational change."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61908,7 +61908,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
+  "status": "PASS_AUDIT_BOUNDED_ROLLING_FULL_RECORD_ARCHIVE_RECOMMENDED_NOT_IMPLEMENTED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63311,8 +63311,8 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-11-06T11:09:46.251261+00:00",
-  "updated_at_utc": "2026-11-06T11:09:46.251261+00:00",
+  "updated_at": "2026-11-06T11:24:30.185204+00:00",
+  "updated_at_utc": "2026-11-06T11:24:30.185204+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63528,7 +63528,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
+  "verdict": "PASS_AUDIT_BOUNDED_ROLLING_FULL_RECORD_ARCHIVE_RECOMMENDED_NOT_IMPLEMENTED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73318,12 +73318,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
+    "status": "PASS_AUDIT_BOUNDED_ROLLING_FULL_RECORD_ARCHIVE_RECOMMENDED_NOT_IMPLEMENTED",
     "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
-    "handoff_record": "quota_aware_archive_7dec_production_rollout_20261106",
-    "evidence_ref": "/private/tmp/flex-7dec-rollout/FINAL_SUMMARY.json",
-    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
-    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
+    "handoff_record": "longterm_checkpoint_archive_readonly_20261106",
+    "evidence_ref": "/private/tmp/flex-longterm-archive-audit-20261106/PROPOSAL.json",
+    "blocker": "Current16MiBcompressedarchive has50bytesfree;64MiBdecodedremaining4501941bytes and32768entryremaining21562are furtherceilings.2890eligiblecompletedhotrecords(361jobs,2718150bytes)couldmove underexistingeligibility. Smallestdurablecandidate isboundedrollinglocalindexed full-recordarchive,copy/verifybeforehotretirement,legacyarchiveintact,alltierexactrequest/per-jobreaders,oldreaderfenceandcold-awarerollback. Noimplementationorstorageauthorityactivated. Finitepoolrequirescapacitymanagement; unresolvedhotgrowthremainsprotected.",
+    "next_action": "If authorized, implement and qualify only the bounded local full-record checkpoint archive in DEV, including source/capacity authority, cross-tier readers, atomic publication/retirement, fencing/rollback and the above acceptance tests. Do not alter production, archive policy, schema, services, queues or accounting during this audit."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74471,17 +74471,17 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "Walkback_retention_source_files_installed": 1,
-    "Walkback_stop_requests": 1,
-    "Walkback_start_requests": 1,
-    "Listener_service_actions": 0,
-    "Creator_service_actions": 0,
-    "operator_database_accounting_writes": 0,
-    "operator_provider_probes": 0,
-    "schema_cap_policy_changes": 0,
+    "this_turn_audit_only": true,
+    "production_source_config_changes": 0,
+    "production_database_accounting_writes": 0,
+    "service_actions": 0,
+    "provider_calls": 0,
+    "new_archive_files_or_schema": 0,
+    "cap_changes": 0,
     "queue_replay": false,
-    "unresolved_reservation_release": false,
-    "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8"
+    "reservation_release": false,
+    "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
+    "existing_deployment_record": "quota_aware_archive_7dec_production_rollout_20261106"
   },
   "post8605_deployment_progress_readonly": {
     "status": "PASS_READ_ONLY_PROGRESS_VERIFIED_SYSTEM_DEGRADED",
@@ -89038,5 +89038,88 @@
     },
     "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
     "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
+  },
+  "longterm_checkpoint_archive_readonly_20261106": {
+    "status": "PASS_AUDIT_BOUNDED_ROLLING_FULL_RECORD_ARCHIVE_RECOMMENDED_NOT_IMPLEMENTED",
+    "verdict": "Audit complete; bounded full-record local archive is the smallest durable candidate, not an implementation/runtime qualification or programme signoff.",
+    "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
+    "observed_utc": "2026-11-06T11:20:16.161812+00:00",
+    "evidence_ref": "/private/tmp/flex-longterm-archive-audit-20261106/PROPOSAL.json",
+    "capacity_ref": "/private/tmp/flex-longterm-archive-audit-20261106/CAPACITY.json",
+    "recommendation_summary": "Add a bounded, rolling, indexed local archive for full completed checkpoint records, retaining exact read-through and retire-from-hot only after durable verified publication. Keep the existing16MiB archive intact as a legacy read tier.",
+    "why_full_records": "Archiving BLOBs alone leaves every hot checkpoint row counted against32768. Move the complete committed record and preserve its original job/request/method/digest/created/observed fields, then retire only that verified hot copy; all evidence remains readable in the archive.",
+    "current": {
+      "legacy_cold_compressed_remaining_bytes": 50,
+      "legacy_cold_decoded_remaining_bytes": 4501941,
+      "journal_entry_slots_remaining": 21562,
+      "eligible_completed_hot_records": 2890,
+      "eligible_completed_jobs": 361,
+      "eligible_completed_hot_payload_bytes": 2718150,
+      "physical_OPS_bytes": 283291648,
+      "physical_OPS_remaining_to_existing_499M_guard": 215708352,
+      "disk_free_bytes": 6025973760,
+      "unresolved_reply_reservations": 3,
+      "reserved_reply_bytes": 6291456
+    },
+    "consumer_inventory": {
+      "searched": "Installed Walkback, Listener, Creator source trees and current dashboard package",
+      "checkpoint_storage_references": [
+        "walkback_checkpoints.py",
+        "walkback_checkpoint_retention.py",
+        "walkback_worker.py",
+        "walkback_job_limits.py"
+      ],
+      "binding_notes": "Direct response lookup and per-job accounting are in Journal/retention. Worker/job-limit wrappers call the Journal and preserve typed capacity/refusal semantics. Offline preservation/backup/export tools also need cold-aware enumeration and validation before rollout. No assertion that this limited inventory proves global programme acceptance."
+    },
+    "proposed_envelope": {
+      "status": "Proposed for DEV qualification, not approved or installed",
+      "segment_physical_limit_bytes": 67108864,
+      "maximum_segments": 8,
+      "maximum_total_segment_physical_bytes": 536870912,
+      "maximum_records_per_segment": 32768,
+      "maintenance_batch_records": 128,
+      "maintenance_raw_scan_bytes": 4194304,
+      "reply_decode_bytes": 2097152,
+      "existing_minimum_disk_free_bytes": 2000000000,
+      "checks": "Reserve physical space for database pages/indexes, rollback journal or WAL, catalog transactions, current paired-store work and orphan/staging files. Every individual file stays strictly below500000000bytes. Seal/rotate before per-file limit; refuse before dispatch if the approved total or disk floor is exhausted."
+    },
+    "forecast": {
+      "basis": "Retained records first created on2026-11-05, last productive calendar day; illustration, not measured future traffic",
+      "records_per_day_proxy": 5378,
+      "decoded_bytes_per_day_proxy": 49541649,
+      "current_archive_compressed_to_decoded_ratio": 0.26797621087367607,
+      "estimated_compressed_payload_bytes_per_day": 13275983,
+      "remaining_current_entry_cap_days_at_proxy_rate": 4.009297136481964,
+      "illustrative_512MiB_payload_only_days": 40.43925761694455,
+      "exclusions": [
+        "SQLite/index/page overhead",
+        "WAL/rollback journal and temporary copies",
+        "future traffic mix/growth",
+        "noneligible or unresolved evidence",
+        "different compression ratios"
+      ]
+    },
+    "limits": [
+      "A finite allocation cannot retain arbitrarily growing evidence forever. Rotation protects individual files; it does not create unlimited disk. The total pool requires monitoring and approved expansion/offload before exhaustion.",
+      "512MiB/8files is an illustrative bounded operating envelope. Payload-only estimate is about40days at the last productive-day proxy; it is not a retention promise or acceptance result.",
+      "This solves growth from positively completed checkpoint evidence. Accumulating unresolved/failed/active evidence can still exhaust protected hot limits and remains a separate review issue.",
+      "No live completion guarantee follows from this audit. Implementation, concurrent-writer/restart qualification, compatibility and activation are separate milestones."
+    ],
+    "tests": "No implementation or mutation tests. Read-only aggregate/source/consumer inspection and arithmetic only. Prior7dec qualification remains a baseline, not qualification of this proposed design.",
+    "production_flags": {
+      "this_turn_audit_only": true,
+      "production_source_config_changes": 0,
+      "production_database_accounting_writes": 0,
+      "service_actions": 0,
+      "provider_calls": 0,
+      "new_archive_files_or_schema": 0,
+      "cap_changes": 0,
+      "queue_replay": false,
+      "reservation_release": false,
+      "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
+      "existing_deployment_record": "quota_aware_archive_7dec_production_rollout_20261106"
+    },
+    "blocker": "Current16MiBcompressedarchive has50bytesfree;64MiBdecodedremaining4501941bytes and32768entryremaining21562are furtherceilings.2890eligiblecompletedhotrecords(361jobs,2718150bytes)couldmove underexistingeligibility. Smallestdurablecandidate isboundedrollinglocalindexed full-recordarchive,copy/verifybeforehotretirement,legacyarchiveintact,alltierexactrequest/per-jobreaders,oldreaderfenceandcold-awarerollback. Noimplementationorstorageauthorityactivated. Finitepoolrequirescapacitymanagement; unresolvedhotgrowthremainsprotected.",
+    "next_action": "If authorized, implement and qualify only the bounded local full-record checkpoint archive in DEV, including source/capacity authority, cross-tier readers, atomic publication/retirement, fencing/rollback and the above acceptance tests. Do not alter production, archive policy, schema, services, queues or accounting during this audit."
   }
 }

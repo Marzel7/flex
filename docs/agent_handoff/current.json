@@ -103,15 +103,16 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
-    "recorded_utc": "2026-11-06T22:35:23.431449+00:00",
+    "status": "PASS_READONLY_PROGRESS_AND_SAVED_RPC_AUDIT_WITH_CAPACITY_WARNING",
+    "recorded_utc": "2026-11-06T22:56:56.276602+00:00",
     "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
     "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
-    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
-    "published_utc": "2026-11-06T22:34:22.246278+00:00",
-    "blocker": null,
-    "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
-    "evidence_ref": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/FINAL_SUMMARY.json"
+    "blocker": "Prerequisite backlog: 2,216 waiting (1,939 missing creator, 277 additional jobs missing CREATE); recovery 846 exhausted, 177 review, 1,193 no record and no queued/retrying/running recovery. 39 attempt-limit holds remain. Three additional retries were delayed with one running at the primary measurement; the follow-up saw two delayed and one running. Four new failed jobs since the prior audit: three uncertain checkpoint outcomes and one mutable revalidation hold. Protected-hot early capacity warning persisted at follow-up: 7,918,123 bytes headroom after next reply, four full-reply slots after reclaim; archive two of eight segments, no staging/new capacity pause.",
+    "next_action": "Audit complete; continue existing passive dashboard refresh. Next focused audit priority is the protected-hot warning and reservation/evidence growth before a pause, plus creator-recovery coverage for the waiting cohort. Do not release reservations/review holds, reset attempts/accounting, replay queues, restart workers or issue provider probes from this audit.",
+    "audit_only": true,
+    "evidence_ref": "/private/tmp/flex-progress-audit-20261106-2253/SUMMARY.json",
+    "observed_utc": "2026-11-06T22:54:14.973119+00:00"
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1232,8 +1233,12 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
-  "blockers": [],
+  "blocker": "Prerequisite backlog: 2,216 waiting (1,939 missing creator, 277 additional jobs missing CREATE); recovery 846 exhausted, 177 review, 1,193 no record and no queued/retrying/running recovery. 39 attempt-limit holds remain. Three additional retries were delayed with one running at the primary measurement; the follow-up saw two delayed and one running. Four new failed jobs since the prior audit: three uncertain checkpoint outcomes and one mutable revalidation hold. Protected-hot early capacity warning persisted at follow-up: 7,918,123 bytes headroom after next reply, four full-reply slots after reclaim; archive two of eight segments, no staging/new capacity pause.",
+  "blockers": [
+    "Prerequisite waits and inactive/exhausted/review creator recovery",
+    "Attempt-limit holds and guarded uncertain/mutable outcomes",
+    "Protected-hot early warning; no new capacity stop observed"
+  ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2702,18 +2707,19 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Live follow-up dashboard layout rollout",
-    "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
-    "recorded_utc": "2026-11-06T22:35:23.431449+00:00",
+    "milestone": "Read-only progress and saved RPC audit since previous audit",
+    "status": "PASS_READONLY_PROGRESS_AND_SAVED_RPC_AUDIT_WITH_CAPACITY_WARNING",
+    "recorded_utc": "2026-11-06T22:56:56.276602+00:00",
     "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
     "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
-    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
-    "published_utc": "2026-11-06T22:34:22.246278+00:00",
-    "blocker": null,
-    "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
-    "evidence_ref": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/FINAL_SUMMARY.json"
+    "blocker": "Prerequisite backlog: 2,216 waiting (1,939 missing creator, 277 additional jobs missing CREATE); recovery 846 exhausted, 177 review, 1,193 no record and no queued/retrying/running recovery. 39 attempt-limit holds remain. Three additional retries were delayed with one running at the primary measurement; the follow-up saw two delayed and one running. Four new failed jobs since the prior audit: three uncertain checkpoint outcomes and one mutable revalidation hold. Protected-hot early capacity warning persisted at follow-up: 7,918,123 bytes headroom after next reply, four full-reply slots after reclaim; archive two of eight segments, no staging/new capacity pause.",
+    "next_action": "Audit complete; continue existing passive dashboard refresh. Next focused audit priority is the protected-hot warning and reservation/evidence growth before a pause, plus creator-recovery coverage for the waiting cohort. Do not release reservations/review holds, reset attempts/accounting, replay queues, restart workers or issue provider probes from this audit.",
+    "audit_only": true,
+    "evidence_ref": "/private/tmp/flex-progress-audit-20261106-2253/SUMMARY.json",
+    "observed_utc": "2026-11-06T22:54:14.973119+00:00"
   },
-  "current_next_blocker": "No blocker for this dashboard-only rollout; backend recovery holds and reservations remain under their existing policy and were not re-audited.",
+  "current_next_blocker": "Prerequisite backlog: 2,216 waiting (1,939 missing creator, 277 additional jobs missing CREATE); recovery 846 exhausted, 177 review, 1,193 no record and no queued/retrying/running recovery. 39 attempt-limit holds remain. Three additional retries were delayed with one running at the primary measurement; the follow-up saw two delayed and one running. Four new failed jobs since the prior audit: three uncertain checkpoint outcomes and one mutable revalidation hold. Protected-hot early capacity warning persisted at follow-up: 7,918,123 bytes headroom after next reply, four full-reply slots after reclaim; archive two of eight segments, no staging/new capacity pause.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44975,11 +44981,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-06T22:35:29.493230+00:00",
+    "published_at_utc": "2026-11-06T22:57:04.957553+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-06T22:35:23.431449+00:00",
-    "verification_receipt": "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-06T22:56:56.276602+00:00",
+    "verification_receipt": "/private/tmp/flex-progress-audit-20261106-2253/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58218,7 +58224,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Deployment complete. Continue the unchanged existing five-minute passive dashboard refresh. Retain verified rollback backups. No worker restart, queue replay, provider probe or accounting action is needed for this UI deployment.",
+  "next_action": "Audit complete; continue existing passive dashboard refresh. Next focused audit priority is the protected-hot warning and reservation/evidence growth before a pause, plus creator-recovery coverage for the waiting cohort. Do not release reservations/review holds, reset attempts/accounting, replay queues, restart workers or issue provider probes from this audit.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60452,8 +60458,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
     "name": "flex",
-    "updated_at_utc": "2026-11-06T22:35:23.431449+00:00",
-    "working_tree": "9d9930f2 deployed to live dashboard only: tighter admissions, collapsed recovery details, Capacity Unknown explanation and prominent blockers. Exact backups and initial preservation verified; unchanged real refresh command retained layout with fresh complete snapshot. Worker runtime remains 3a2a9aa8; no worker or RPC changes."
+    "updated_at_utc": "2026-11-06T22:56:56.276602+00:00",
+    "working_tree": "Read-only progress audit: full Walkbacks 4,049→4,082 (+33); latest hour 29 vs prior 35. Migration records 5,937→5,981 (+44), all handoffs COMPLETE. 2,216 prerequisite waits and 39 attempt-limit holds remain. Protected-hot warning with four reclaimable reply slots, archive two of eight, no new capacity pause. No saved immutable duplicate RPC observed; evidence/holds/original reservations preserved. No production changes."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61915,7 +61921,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
+  "status": "PASS_READONLY_PROGRESS_AND_SAVED_RPC_AUDIT_WITH_CAPACITY_WARNING",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63535,7 +63541,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_9D9930F2_LIVE_DASHBOARD_REFRESH_VERIFIED",
+  "verdict": "PASS_READONLY_PROGRESS_AND_SAVED_RPC_AUDIT_WITH_CAPACITY_WARNING",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89172,24 +89178,17 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Approved live 9d9930f2 dashboard-only rollout",
-    "dashboard_published": true,
-    "dashboard_ui_modules_installed": 1,
-    "source_manifest_updated": true,
-    "collector_implementation_changes": 0,
+    "scope": "Read-only progress and retained RPC audit",
+    "production_writes": 0,
     "worker_source_changes": 0,
-    "worker_actions": 0,
-    "service_actions": 0,
+    "dashboard_source_changes": 0,
     "provider_probes": 0,
-    "database_mutations": 0,
-    "accounting_edits": 0,
+    "service_actions": 0,
     "queue_replay": false,
-    "reservations_released": 0,
-    "review_hold_changes": 0,
-    "automatic_refresh_command_real_runs": 1,
-    "recurring_schedule_changed": false,
-    "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
-    "walkback_runtime_revision_unchanged": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8"
+    "accounting_edits": 0,
+    "reservation_or_review_hold_changes": 0,
+    "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8"
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -91046,6 +91045,428 @@
       "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/VERIFICATION.json",
       "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/PUBLISHED_INITIAL.html",
       "/private/tmp/flex-dashboard-followup-rollout-20261106/manifest-scope-corrected/PUBLISHED_AFTER_REFRESH.html"
+    ]
+  },
+  "progress_since_previous_audit_readonly_20261106_2254": {
+    "status": "PASS_READONLY_PROGRESS_AND_SAVED_RPC_AUDIT_WITH_CAPACITY_WARNING",
+    "recorded_utc": "2026-11-06T22:56:56.276602+00:00",
+    "engineering_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "walkback_runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
+    "dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "audit_only": true,
+    "primary_metrics_observed_utc": "2026-11-06T22:54:14.973119+00:00",
+    "preservation_observed_utc": "2026-11-06T22:54:14.974656+00:00",
+    "previous_preservation_observed_utc": "2026-11-06T21:44:39.084833+00:00",
+    "previous_metrics_observed_utc": "2026-11-06T21:44:02.855388+00:00",
+    "full_walkbacks": {
+      "previous_preservation": 4049,
+      "current_preservation": 4082,
+      "added_since_previous_preservation": 33,
+      "previous_metrics_count": 4048,
+      "current_metrics_count": 4082,
+      "added_since_previous_metrics": 34,
+      "latest_hour": 29,
+      "previous_audit_latest_hour": 35,
+      "last_five_minutes": 2,
+      "latest_completion_epoch": 1794005621,
+      "outcomes_since_previous_metrics": [
+        {
+          "intelligence_outcome": "LINEAGE_GAP",
+          "n": 11
+        },
+        {
+          "intelligence_outcome": "NO_ATTRIBUTION_FOUND",
+          "n": 23
+        }
+      ],
+      "qualification": "Distinct baseline samples are retained: metrics were 4,048 at 21:44:02, preservation was 4,049 at 21:44:39. Current matched primary observations are both 4,082. No sustained acceleration or causal inference is claimed."
+    },
+    "migrations": {
+      "previous": 5937,
+      "current": 5981,
+      "added": 44,
+      "destinations": [
+        {
+          "dex": "pumpswap",
+          "final_verdict": "late_capture",
+          "n": 29
+        },
+        {
+          "dex": "pumpswap",
+          "final_verdict": "no_signal",
+          "n": 15
+        }
+      ],
+      "handoffs": [
+        {
+          "state": "COMPLETE",
+          "n": 44
+        }
+      ],
+      "new_cohort_walkback_states": [
+        {
+          "status": "complete",
+          "outcome": "LINEAGE_GAP",
+          "n": 11
+        },
+        {
+          "status": "complete",
+          "outcome": "NO_ATTRIBUTION_FOUND",
+          "n": 22
+        },
+        {
+          "status": "failed",
+          "outcome": "NONE",
+          "n": 4
+        },
+        {
+          "status": "pending",
+          "outcome": "NONE",
+          "n": 3
+        },
+        {
+          "status": "running",
+          "outcome": "NONE",
+          "n": 1
+        },
+        {
+          "status": "waiting",
+          "outcome": "NONE",
+          "n": 3
+        }
+      ],
+      "qualification": "Recorded migration events and handoff completion are separate from completed Walkback attribution; no new full completion has WATCHTOWER_CONFIRMED in the measured interval."
+    },
+    "primary_queue_stocks": [
+      {
+        "status": "complete",
+        "n": 4316
+      },
+      {
+        "status": "failed",
+        "n": 1556
+      },
+      {
+        "status": "pending",
+        "n": 42
+      },
+      {
+        "status": "running",
+        "n": 1
+      },
+      {
+        "status": "waiting",
+        "n": 2216
+      }
+    ],
+    "primary_pending_readiness": [
+      {
+        "readiness": "HELD_ATTEMPT_LIMIT",
+        "n": 39
+      },
+      {
+        "readiness": "RETRY_DELAYED",
+        "n": 3
+      }
+    ],
+    "followup_pending_readiness": [
+      {
+        "readiness": "HELD_ATTEMPT_LIMIT",
+        "n": 39
+      },
+      {
+        "readiness": "RETRY_DELAYED",
+        "n": 2
+      }
+    ],
+    "waiting_prerequisites": [
+      {
+        "prerequisite": "MISSING_CREATE_SIGNATURE",
+        "n": 277
+      },
+      {
+        "prerequisite": "MISSING_CREATOR",
+        "n": 1939
+      }
+    ],
+    "waiting_recovery": [
+      {
+        "state": "queued",
+        "label": "Queued",
+        "all_waiting": 0,
+        "new_last_hour": 0
+      },
+      {
+        "state": "retrying",
+        "label": "Retrying",
+        "all_waiting": 0,
+        "new_last_hour": 0
+      },
+      {
+        "state": "running",
+        "label": "Running",
+        "all_waiting": 0,
+        "new_last_hour": 0
+      },
+      {
+        "state": "exhausted",
+        "label": "Exhausted",
+        "all_waiting": 846,
+        "new_last_hour": 0
+      },
+      {
+        "state": "review",
+        "label": "Needs review",
+        "all_waiting": 177,
+        "new_last_hour": 2
+      },
+      {
+        "state": "no_record",
+        "label": "No recovery record",
+        "all_waiting": 1193,
+        "new_last_hour": 0
+      },
+      {
+        "state": "unknown",
+        "label": "Unknown recovery state",
+        "all_waiting": 0,
+        "new_last_hour": 0
+      }
+    ],
+    "new_failed_outcomes": [
+      {
+        "reason": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
+        "n": 3
+      },
+      {
+        "reason": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_MUTABLE_REVALIDATION_REQUIRED",
+        "n": 1
+      }
+    ],
+    "capacity_warning": {
+      "primary": {
+        "version": 1,
+        "scope": "456ba0e303be616b08427ad1",
+        "observed_at": 1794005654,
+        "quality": "VERIFIED",
+        "status": "WARNING",
+        "hot": {
+          "used_bytes": 21568893,
+          "entries": 11926,
+          "eligible_bytes": 6553321,
+          "eligible_entries": 4107,
+          "protected_bytes": 15015572,
+          "protected_entries": 7819,
+          "reserved_bytes": 8388608,
+          "reservation_count": 4,
+          "protected_commitment_bytes": 23404180,
+          "headroom_after_next_reply_bytes": 8053100,
+          "protected_entry_headroom_after_next": 24948,
+          "immediate_headroom_after_next_reply_bytes": 1499779,
+          "full_reply_slots_after_reclaim": 4,
+          "maintenance_needed_for_next_reply": false,
+          "next_bounded_reclaim_bytes": null,
+          "headroom_after_next_reply_and_one_batch": 1499779,
+          "max_bytes": 33554432,
+          "max_entries": 32768,
+          "next_reply_bytes": 2097152
+        },
+        "archive": {
+          "allocated_segments": 2,
+          "unallocated_segments": 6,
+          "max_segments": 8,
+          "reserved_envelope_bytes": 134217728,
+          "physical_bytes": 27156480,
+          "main_bytes": 27156480,
+          "max_physical_bytes": 536870912,
+          "main_limit_per_segment": 32505856,
+          "active_main_headroom_bytes": 28123136,
+          "appendable_record_slots": 228608,
+          "worst_batch_reserve_bytes": 17301504,
+          "staging_entries": 0,
+          "oldest_staging_at": null
+        },
+        "storage": {
+          "free_bytes": 24615555072,
+          "required_free_bytes": 2084213760,
+          "disk_margin_bytes": 22531341312,
+          "ops_file_margin_bytes": 191939264,
+          "ops_wal_margin_bytes": 32964608
+        },
+        "alerts": [
+          {
+            "code": "PROTECTED_HOT_BYTES_HIGH",
+            "severity": "WARNING",
+            "remaining": 8053100,
+            "warning_at_or_below": 8388608,
+            "critical_at_or_below": 4194304,
+            "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+          }
+        ]
+      },
+      "followup_observed_utc": "2026-11-06T22:55:44.164948+00:00",
+      "followup": {
+        "version": 1,
+        "scope": "456ba0e303be616b08427ad1",
+        "observed_at": 1794005743,
+        "quality": "VERIFIED",
+        "status": "WARNING",
+        "hot": {
+          "used_bytes": 21805199,
+          "entries": 11949,
+          "eligible_bytes": 6654650,
+          "eligible_entries": 4121,
+          "protected_bytes": 15150549,
+          "protected_entries": 7828,
+          "reserved_bytes": 8388608,
+          "reservation_count": 4,
+          "protected_commitment_bytes": 23539157,
+          "headroom_after_next_reply_bytes": 7918123,
+          "protected_entry_headroom_after_next": 24939,
+          "immediate_headroom_after_next_reply_bytes": 1263473,
+          "full_reply_slots_after_reclaim": 4,
+          "maintenance_needed_for_next_reply": false,
+          "next_bounded_reclaim_bytes": null,
+          "headroom_after_next_reply_and_one_batch": 1263473,
+          "max_bytes": 33554432,
+          "max_entries": 32768,
+          "next_reply_bytes": 2097152
+        },
+        "archive": {
+          "allocated_segments": 2,
+          "unallocated_segments": 6,
+          "max_segments": 8,
+          "reserved_envelope_bytes": 134217728,
+          "physical_bytes": 27156480,
+          "main_bytes": 27156480,
+          "max_physical_bytes": 536870912,
+          "main_limit_per_segment": 32505856,
+          "active_main_headroom_bytes": 28123136,
+          "appendable_record_slots": 228608,
+          "worst_batch_reserve_bytes": 17301504,
+          "staging_entries": 0,
+          "oldest_staging_at": null
+        },
+        "storage": {
+          "free_bytes": 24588013568,
+          "required_free_bytes": 2084213760,
+          "disk_margin_bytes": 22503799808,
+          "ops_file_margin_bytes": 191939264,
+          "ops_wal_margin_bytes": 32964608
+        },
+        "alerts": [
+          {
+            "code": "PROTECTED_HOT_BYTES_HIGH",
+            "severity": "WARNING",
+            "remaining": 7918123,
+            "warning_at_or_below": 8388608,
+            "critical_at_or_below": 4194304,
+            "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+          }
+        ]
+      },
+      "new_capacity_markers_since_audit": [],
+      "qualification": "Warning threshold, not a capacity stop; original reservations remain exact. The reservation job namespace is not assumed equal to a queue mint, so the exploratory equality-join owner grouping is not treated as an orphan or ownership finding."
+    },
+    "preservation_and_rpc_verification": {
+      "status": "PASS_READONLY_PRESERVATION_AND_NO_OBSERVED_SAVED_IMMUTABLE_DUPLICATE_RPC",
+      "observed_utc": "2026-11-06T22:54:14.974656+00:00",
+      "checkpoint_preservation": {
+        "verdict": "PASS_LOGICAL_EVIDENCE_PRESERVATION",
+        "committed_exact": 16986,
+        "legacy_intent_exact": 1279,
+        "unsent_exact": 179,
+        "unsent_progressed": 0,
+        "failed_queue_exact": 1552,
+        "stopped": false,
+        "archived_originals": 11005,
+        "new_checkpoint_rows": 615,
+        "new_reservations": 4
+      },
+      "funding_preservation": {
+        "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+        "tables": {
+          "wt_walkback_transaction_roles": {
+            "original_exact": 11269,
+            "new_rows": 93
+          },
+          "wt_walkback_atomic_flows": {
+            "original_exact": 1535,
+            "new_rows": 4
+          },
+          "wt_walkback_edge_candidates": {
+            "original_exact": 14157,
+            "new_rows": 90
+          }
+        }
+      },
+      "original_reservations_exact": 3,
+      "original_reserved_bytes_exact": 6291456,
+      "original_review_marker_rows": 1477,
+      "original_review_marker_rows_exact": 1477,
+      "previous_review_marker_rows_changed": 0,
+      "original_review_markers_removed": 0,
+      "current_review_holds": 1483,
+      "original_uncertain_receipts_exact": 23,
+      "current_uncertain_receipts": 23,
+      "recovery_permits_exact": 1,
+      "spending_policy_unchanged": true,
+      "lifetime_scopes_monotonic": 6023,
+      "saved_receipt_cohorts": {
+        "last_audit": {
+          "saved_keys": 7721,
+          "matched_receipts": 3813,
+          "retained_exact": 3557,
+          "removed_under_verified_existing_expiry": 256,
+          "reacquisitions_observed": 0,
+          "attempt_increases": 0,
+          "receipt_replacements_or_resets": 0
+        },
+        "pre_deployment": {
+          "saved_keys": 6182,
+          "matched_receipts": 3053,
+          "retained_exact": 2018,
+          "removed_under_verified_existing_expiry": 1035,
+          "reacquisitions_observed": 0,
+          "attempt_increases": 0,
+          "receipt_replacements_or_resets": 0
+        },
+        "post_deployment_5m": {
+          "saved_keys": 6238,
+          "matched_receipts": 3095,
+          "retained_exact": 2074,
+          "removed_under_verified_existing_expiry": 1021,
+          "reacquisitions_observed": 0,
+          "attempt_increases": 0,
+          "receipt_replacements_or_resets": 0
+        }
+      },
+      "new_saved_completed_receipts": 293,
+      "new_saved_completed_receipts_with_multiple_attempts": 0,
+      "protected_production_files_checked": 16,
+      "worker_counter_payload_unchanged": true,
+      "worker_config_unchanged": true,
+      "authorized_dashboard_9d9930f2_source_manifest_verified": true,
+      "production_changes": 0,
+      "provider_probes": 0,
+      "service_actions": 0,
+      "limitation": "Bounded before/after cohorts detect no reacquisition of saved immutable getTransaction responses. Genuine new requests and mutable refreshes are separate; this is not a proof covering every historical or future provider interaction."
+    },
+    "production_writes": 0,
+    "worker_changes": 0,
+    "dashboard_changes": 0,
+    "provider_probes": 0,
+    "service_actions": 0,
+    "queue_replay": false,
+    "accounting_edits": 0,
+    "blocker": "Prerequisite backlog: 2,216 waiting (1,939 missing creator, 277 additional jobs missing CREATE); recovery 846 exhausted, 177 review, 1,193 no record and no queued/retrying/running recovery. 39 attempt-limit holds remain. Three additional retries were delayed with one running at the primary measurement; the follow-up saw two delayed and one running. Four new failed jobs since the prior audit: three uncertain checkpoint outcomes and one mutable revalidation hold. Protected-hot early capacity warning persisted at follow-up: 7,918,123 bytes headroom after next reply, four full-reply slots after reclaim; archive two of eight segments, no staging/new capacity pause.",
+    "next_action": "Audit complete; continue existing passive dashboard refresh. Next focused audit priority is the protected-hot warning and reservation/evidence growth before a pause, plus creator-recovery coverage for the waiting cohort. Do not release reservations/review holds, reset attempts/accounting, replay queues, restart workers or issue provider probes from this audit.",
+    "evidence_refs": [
+      "/private/tmp/flex-progress-audit-20261106-2253/METRICS.json",
+      "/private/tmp/flex-progress-audit-20261106-2253/CURRENT.summary.json",
+      "/private/tmp/flex-progress-audit-20261106-2253/WAITING.json",
+      "/private/tmp/flex-progress-audit-20261106-2253/VERIFICATION.json",
+      "/private/tmp/flex-progress-audit-20261106-2253/CAPACITY_FOLLOWUP.json"
     ]
   }
 }

@@ -103,17 +103,14 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_DEV_SUCCESSFUL_RPC_COUNTER_QUALIFIED_NOT_DEPLOYED",
-    "recorded_utc": "2026-11-06T18:33:56.861958+00:00",
+    "status": "PASS_SCOPED_3A2_COUNTER_DEPLOYED_PRESERVATION_AND_COMPLETIONS_VERIFIED",
     "engineering_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
-    "runtime_revision": "1931b13936f253e6b792ff405f59f2db736f65a6",
-    "evidence_ref": "/private/tmp/flex-success-rpc-counter-dev-20261106/QUALIFICATION.json",
-    "tests": {
-      "regression_passed": 141,
-      "installed_composition_passed": 18
-    },
-    "blocker": null,
-    "next_action": "DEV complete. Retain commit 3a2a9aa8c53f75e7cf97af32433f398f8a9591b8 and the installed-composition candidate. Production deployment requires a separate explicitly authorized milestone with authority/backup/compatibility checks; apply only the run_job correction to the installed composition, preserving unrelated installed code and existing deployment records. No service or production change is authorized by this DEV milestone."
+    "recorded_utc": "2026-11-06T18:55:27.493334+00:00",
+    "deployed_utc": "2026-11-06T18:48:31.769445+00:00",
+    "observed_utc": "2026-11-06T18:54:00.722076+00:00",
+    "evidence_ref": "/private/tmp/flex-3a2-counter-rollout/attempt02/FINAL_SUMMARY.json",
+    "blocker": "No rollout or storage blocker observed. Completions continue, but sustained throughput improvement is not established: 5 completions in 328.93 seconds versus 12 in the preflight preceding ten minutes, with a different workload mix. Two new jobs entered CHECKPOINT_OUTCOME_UNCERTAIN review and one pending RPC_LIMIT was observed. Minute-level heartbeat remains UNHEALTHY during serial work/idle gaps despite a fresh active claim and verified OK capacity. All original review/uncertainty holds remain protected.",
+    "next_action": "Approved deployment complete. Continue the existing passive dashboard refresh. Do not restart again, probe providers, replay queues, release reservations/review holds or reset accounting for this milestone. If further throughput work is requested, separately audit the two new uncertain-outcome reviews and actual job mix from saved evidence before proposing another change; do not bypass uncertainty or increase RPC limits. A sustained causal speedup is unproven."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1234,8 +1231,11 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
-  "blockers": [],
+  "blocker": "No rollout or storage blocker observed. Completions continue, but sustained throughput improvement is not established: 5 completions in 328.93 seconds versus 12 in the preflight preceding ten minutes, with a different workload mix. Two new jobs entered CHECKPOINT_OUTCOME_UNCERTAIN review and one pending RPC_LIMIT was observed. Minute-level heartbeat remains UNHEALTHY during serial work/idle gaps despite a fresh active claim and verified OK capacity. All original review/uncertainty holds remain protected.",
+  "blockers": [
+    "Deployment complete; sustained throughput gain unproven in bounded observation.",
+    "Two new uncertain-outcome review failures and existing held jobs remain guarded; no replay authorized."
+  ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2704,20 +2704,17 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Successful-job RPC counter DEV qualification",
-    "status": "PASS_DEV_SUCCESSFUL_RPC_COUNTER_QUALIFIED_NOT_DEPLOYED",
-    "recorded_utc": "2026-11-06T18:33:56.861958+00:00",
+    "milestone": "Scoped successful-job RPC counter deployment",
+    "status": "PASS_SCOPED_3A2_COUNTER_DEPLOYED_PRESERVATION_AND_COMPLETIONS_VERIFIED",
     "engineering_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
-    "runtime_revision": "1931b13936f253e6b792ff405f59f2db736f65a6",
-    "evidence_ref": "/private/tmp/flex-success-rpc-counter-dev-20261106/QUALIFICATION.json",
-    "tests": {
-      "regression_passed": 141,
-      "installed_composition_passed": 18
-    },
-    "blocker": null,
-    "next_action": "DEV complete. Retain commit 3a2a9aa8c53f75e7cf97af32433f398f8a9591b8 and the installed-composition candidate. Production deployment requires a separate explicitly authorized milestone with authority/backup/compatibility checks; apply only the run_job correction to the installed composition, preserving unrelated installed code and existing deployment records. No service or production change is authorized by this DEV milestone."
+    "recorded_utc": "2026-11-06T18:55:27.493334+00:00",
+    "deployed_utc": "2026-11-06T18:48:31.769445+00:00",
+    "observed_utc": "2026-11-06T18:54:00.722076+00:00",
+    "evidence_ref": "/private/tmp/flex-3a2-counter-rollout/attempt02/FINAL_SUMMARY.json",
+    "blocker": "No rollout or storage blocker observed. Completions continue, but sustained throughput improvement is not established: 5 completions in 328.93 seconds versus 12 in the preflight preceding ten minutes, with a different workload mix. Two new jobs entered CHECKPOINT_OUTCOME_UNCERTAIN review and one pending RPC_LIMIT was observed. Minute-level heartbeat remains UNHEALTHY during serial work/idle gaps despite a fresh active claim and verified OK capacity. All original review/uncertainty holds remain protected.",
+    "next_action": "Approved deployment complete. Continue the existing passive dashboard refresh. Do not restart again, probe providers, replay queues, release reservations/review holds or reset accounting for this milestone. If further throughput work is requested, separately audit the two new uncertain-outcome reviews and actual job mix from saved evidence before proposing another change; do not bypass uncertainty or increase RPC limits. A sustained causal speedup is unproven."
   },
-  "current_next_blocker": "DEV complete; production deployment is outside this authorization.",
+  "current_next_blocker": "No rollout or storage blocker observed. Completions continue, but sustained throughput improvement is not established: 5 completions in 328.93 seconds versus 12 in the preflight preceding ten minutes, with a different workload mix. Two new jobs entered CHECKPOINT_OUTCOME_UNCERTAIN review and one pending RPC_LIMIT was observed. Minute-level heartbeat remains UNHEALTHY during serial work/idle gaps despite a fresh active claim and verified OK capacity. All original review/uncertainty holds remain protected.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44979,11 +44976,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-06T18:34:11.535677+00:00",
+    "published_at_utc": "2026-11-06T18:55:41.100472+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-06T18:33:56.861958+00:00",
-    "verification_receipt": "/private/tmp/flex-success-rpc-counter-dev-20261106/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-06T18:55:27.493334+00:00",
+    "verification_receipt": "/private/tmp/flex-3a2-counter-rollout/attempt02/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58222,7 +58219,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "DEV complete. Retain commit 3a2a9aa8c53f75e7cf97af32433f398f8a9591b8 and the installed-composition candidate. Production deployment requires a separate explicitly authorized milestone with authority/backup/compatibility checks; apply only the run_job correction to the installed composition, preserving unrelated installed code and existing deployment records. No service or production change is authorized by this DEV milestone.",
+  "next_action": "Approved deployment complete. Continue the existing passive dashboard refresh. Do not restart again, probe providers, replay queues, release reservations/review holds or reset accounting for this milestone. If further throughput work is requested, separately audit the two new uncertain-outcome reviews and actual job mix from saved evidence before proposing another change; do not bypass uncertainty or increase RPC limits. A sustained causal speedup is unproven.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60456,8 +60453,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
     "name": "flex",
-    "updated_at_utc": "2026-11-06T18:33:56.861958+00:00",
-    "working_tree": "DEV successful-job scheduling counter fix committed and qualified; 141 regression passes and 18 installed-composition passes. Runtime remains 1931b139. No production/provider/service changes."
+    "updated_at_utc": "2026-11-06T18:55:27.493334+00:00",
+    "working_tree": "Scoped 3a2a9aa8 counter fix deployed to Walkback with one drained stop/start. Backup restored in scratch; all evidence, three original reservations, 23 uncertain requests and 1460 review holds preserved. Five completions observed; no saved immutable duplicate RPC observed. Sustained throughput gain not established; two new uncertain-outcome reviews remain protected."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61919,7 +61916,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_SUCCESSFUL_RPC_COUNTER_QUALIFIED_NOT_DEPLOYED",
+  "status": "PASS_SCOPED_3A2_COUNTER_DEPLOYED_PRESERVATION_AND_COMPLETIONS_VERIFIED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -89176,19 +89173,24 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "DEV implementation and isolated qualification only",
-    "production_writes": 0,
-    "production_source_changes": 0,
-    "database_mutations": 0,
-    "service_actions": 0,
-    "provider_calls": 0,
-    "queue_replay": false,
+    "scope": "Approved scoped 3a2a9aa8 Walkback counter deployment",
+    "production_source_changes": true,
+    "runtime_modules_installed": 1,
+    "schema_migrated": false,
+    "walkback_stops": 1,
+    "walkback_starts": 1,
+    "operator_database_mutations": 0,
+    "provider_probes": 0,
     "accounting_edits": 0,
+    "queue_replay": false,
     "reservations_released": 0,
     "review_holds_released": 0,
-    "candidate_implemented": true,
-    "deployed": false,
-    "runtime_revision": "1931b13936f253e6b792ff405f59f2db736f65a6"
+    "listener_actions": 0,
+    "creator_actions": 0,
+    "dashboard_source_changes": 0,
+    "runtime_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
+    "runtime_scope": "Only qualified run_job correction on prior installed composition",
+    "throughput_gain_established": false
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -90231,6 +90233,154 @@
       "/private/tmp/flex-success-rpc-counter-dev-20261106/COMPOSITION_PINS.json",
       "/private/tmp/flex-success-rpc-counter-dev-20261106/PRODUCTION_BASELINE.json",
       "/private/tmp/flex-success-rpc-counter-dev-20261106/ENGINEERING.patch"
+    ]
+  },
+  "successful_job_rpc_counter_rollout_20261106": {
+    "status": "PASS_SCOPED_3A2_COUNTER_DEPLOYED_PRESERVATION_AND_COMPLETIONS_VERIFIED",
+    "engineering_revision": "3a2a9aa8c53f75e7cf97af32433f398f8a9591b8",
+    "deployed_scope": "Only run_job in the installed Walkback job-limits module; other installed functions remain exact. This is the qualified scoped 3a2a9aa8 composition, not replacement with unrelated DEV module differences.",
+    "recorded_utc": "2026-11-06T18:55:27.493334+00:00",
+    "deployed_utc": "2026-11-06T18:48:31.769445+00:00",
+    "authority_pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
+    "generation": "DEV004-V2-20261024-dfb76562",
+    "source_pins": {
+      "walkback_job_limits.py": "6c55f30ef473c95ec88d2f5e501a1e9bf15108f8d23331dfbb20f83bee45ca0d"
+    },
+    "runtime_modules_installed": 1,
+    "schema_migrated": false,
+    "configuration_and_protected_modules_unchanged": true,
+    "qualified_tests_reused": {
+      "DEV_regression": 141,
+      "installed_composition": 18
+    },
+    "compatibility_and_backup_checks": "PASS",
+    "backup_restore_verification": "PASS_BACKUP_RESTORED_TO_ISOLATED_SCRATCH_ALL_EVIDENCE_EXACT",
+    "backup_ref": "/private/tmp/flex-3a2-counter-rollout/attempt02/BACKUP.json",
+    "backup_verification_ref": "/private/tmp/flex-3a2-counter-rollout/attempt02/BACKUP_VERIFICATION.json",
+    "initial_attempt": {
+      "ref": "/private/tmp/flex-3a2-counter-rollout/INSTALL.json",
+      "result": "Read-only drain check hit transient SQLite lock; aborted before any stop/source change. Bounded contention handling added to rollout helper; prior record retained.",
+      "stop_requests": 0,
+      "start_requests": 0,
+      "source_changes": 0
+    },
+    "stop_requests_total": 1,
+    "start_requests_total": 1,
+    "old_parent_and_children_drained": true,
+    "walkback_pid": 18502,
+    "listener_and_creator_pids_unchanged": true,
+    "preservation_observation_seconds": 300.056,
+    "preservation_observed_utc": "2026-11-06T18:53:31.825366+00:00",
+    "completions_before": 3889,
+    "completions_at_preservation_check": 3893,
+    "completions_added_at_preservation_check": 4,
+    "latest_throughput_observed_utc": "2026-11-06T18:54:00.722076+00:00",
+    "latest_completions": 3894,
+    "latest_completions_added": 5,
+    "latest_observation_seconds": 328.93,
+    "observed_completions_per_minute": 0.912,
+    "preflight_completions_last_10m": 12,
+    "sustained_throughput_gain_established": false,
+    "finished_batches": [
+      {
+        "processed": 4,
+        "skipped_claimed": 1,
+        "transport_allowance_used": 80,
+        "outcomes": {
+          "LINEAGE_GAP": 1,
+          "NO_ATTRIBUTION_FOUND": 2,
+          "pending": 1
+        }
+      }
+    ],
+    "new_review_failures": [
+      {
+        "reason": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
+        "n": 2
+      }
+    ],
+    "deferrals": [
+      {
+        "status": "failed",
+        "reason": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
+        "n": 2
+      },
+      {
+        "status": "pending",
+        "reason": "WALKBACK_JOB_RPC_LIMIT",
+        "n": 1
+      }
+    ],
+    "new_review_classification_ref": "/private/tmp/flex-3a2-counter-rollout/attempt02/REVIEW_CLASSIFICATION.json",
+    "review_classification_limit": "Both new failed jobs arrived after the backup; no preexisting own-job unresolved intent was found in the backup. They retain the existing uncertainty guard. Exact shared-request cause was not requalified in this deployment scope.",
+    "capacity_status": "OK",
+    "capacity_alert_codes": [],
+    "hot_bytes_latest_runtime": 23980467,
+    "original_committed_replies_exact": 13771,
+    "original_legacy_intents_exact": 1279,
+    "original_unsent_exact": 181,
+    "original_unsent_normally_progressed": 1,
+    "original_reservations_exact": 3,
+    "original_reserved_bytes_exact": 6291456,
+    "original_review_holds_exact": 1460,
+    "original_uncertain_requests_exact": 23,
+    "original_recovery_permits_exact": 1,
+    "funding_preservation": {
+      "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+      "tables": {
+        "wt_walkback_transaction_roles": {
+          "original_exact": 10732,
+          "new_rows": 16
+        },
+        "wt_walkback_atomic_flows": {
+          "original_exact": 1505,
+          "new_rows": 0
+        },
+        "wt_walkback_edge_candidates": {
+          "original_exact": 13679,
+          "new_rows": 16
+        }
+      }
+    },
+    "saved_immutable_request_keys_checked": 6182,
+    "saved_immutable_reacquisitions_observed": 0,
+    "saved_immutable_attempt_increases": 0,
+    "receipt_replacements_or_resets": 0,
+    "retained_matched_receipts_exact": 3039,
+    "matched_receipts_removed_under_existing_verified_expiry": 14,
+    "spending_policy_unchanged": true,
+    "lifetime_scopes_monotonic": 5901,
+    "rolling": {
+      "entries": 5213,
+      "decoded_bytes": 39925367,
+      "segments": 1,
+      "staging": 0
+    },
+    "operator_provider_probes": 0,
+    "operator_database_mutations": 0,
+    "operator_accounting_edits": 0,
+    "operator_queue_replays": 0,
+    "reservations_released": 0,
+    "review_holds_released": 0,
+    "listener_actions": 0,
+    "creator_actions": 0,
+    "dashboard_source_changes": 0,
+    "heartbeat_status": "UNHEALTHY",
+    "latest_runtime_active_claim_fresh": true,
+    "limitations": [
+      "Duplicate check is bounded to the saved immutable cohort and observed receipts; genuinely new requests and mutable refreshes remain normally accounted.",
+      "The observation confirms continued completions and preserved caps, not a sustained causal speedup. Variable jobs, review holds, RPC caps and fixed pacing still make progress uneven.",
+      "Existing finite archive and protected nontransaction capacity limits still apply."
+    ],
+    "blocker": "No rollout or storage blocker observed. Completions continue, but sustained throughput improvement is not established: 5 completions in 328.93 seconds versus 12 in the preflight preceding ten minutes, with a different workload mix. Two new jobs entered CHECKPOINT_OUTCOME_UNCERTAIN review and one pending RPC_LIMIT was observed. Minute-level heartbeat remains UNHEALTHY during serial work/idle gaps despite a fresh active claim and verified OK capacity. All original review/uncertainty holds remain protected.",
+    "next_action": "Approved deployment complete. Continue the existing passive dashboard refresh. Do not restart again, probe providers, replay queues, release reservations/review holds or reset accounting for this milestone. If further throughput work is requested, separately audit the two new uncertain-outcome reviews and actual job mix from saved evidence before proposing another change; do not bypass uncertainty or increase RPC limits. A sustained causal speedup is unproven.",
+    "evidence_refs": [
+      "/private/tmp/flex-3a2-counter-rollout/attempt02/FINAL2.verification.json",
+      "/private/tmp/flex-3a2-counter-rollout/attempt02/FINAL_THROUGHPUT.json",
+      "/private/tmp/flex-3a2-counter-rollout/attempt02/RUNTIME_VERIFICATION_FINAL.json",
+      "/private/tmp/flex-3a2-counter-rollout/attempt02/BACKUP.json",
+      "/private/tmp/flex-3a2-counter-rollout/attempt02/BACKUP_VERIFICATION.json",
+      "/private/tmp/flex-3a2-counter-rollout/attempt02/INSTALL.json"
     ]
   }
 }

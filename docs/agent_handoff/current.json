@@ -103,11 +103,11 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "COMPLETE_DEV_QUALIFICATION_NO_PRODUCTION_ACTIVATION",
-    "observed_utc": "2026-11-06T10:36:05.295302+00:00",
-    "evidence_ref": "/private/tmp/flex-quota-aware-dev-20261106/QUALIFICATION.json",
-    "blocker": "DEV implementation and scoped qualification complete. Production activation remains unauthorized; a completely full archive still blocks and this change offers only bounded remaining-capacity relief. Existing DEV checkout lacks93unrelated historical blobs; exact two-file commit delta, pinned installed baseline/candidate, patch and qualification retained. Repair historical object availability before branch integration; no unrelated source content reconstructed.",
-    "next_action": "Review DEV commit7dec652d and qualification. Repair missing unrelated DEV Git history before branch integration. No additional implementation required by this milestone; production rollout, cap/schema changes, service actions, queue replay or reservation release require a separate authorized milestone."
+    "status": "COMPLETE_BOUNDED_POST_DEPLOYMENT_OBSERVATION_2_COMPLETIONS_ARCHIVE_FULL",
+    "observed_utc": "2026-11-06T11:04:45.024193+00:00",
+    "evidence_ref": "/private/tmp/flex-7dec-rollout/FINAL.verification.json",
+    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
+    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1228,7 +1228,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "DEV implementation and scoped qualification complete. Production activation remains unauthorized; a completely full archive still blocks and this change offers only bounded remaining-capacity relief. Existing DEV checkout lacks93unrelated historical blobs; exact two-file commit delta, pinned installed baseline/candidate, patch and qualification retained. Repair historical object availability before branch integration; no unrelated source content reconstructed.",
+  "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
   "blockers": [
     "Assessment complete. Current production hasimproved processing; no evidence supports broadbehaviourchanges based onthisrecommendation. Remaining needsareUIclarity,unexplainedhandoffdelay/Listenerexit,andpremigrationbirthcoverage. DEV40f342dc/3c6ef5d1qualifiedbutundeployed;nozero-regressionclaim. Userquestion doesnotauthorizeimplementation. Remote handoffpushpreviouslyrejectedfatalcommit_refs_rules;no newevidenceor explicittransportretryauthorization,so preserve localcheckpointanddo not retry."
   ],
@@ -2700,13 +2700,13 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Quota-aware checkpoint archive selection implemented and qualified in DEV",
-    "status": "PASS_DEV_QUOTA_AWARE_ARCHIVE_SELECTION_GIT_HISTORY_DEGRADED",
+    "milestone": "7dec652d Walkback rollout and bounded live verification",
+    "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
     "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
-    "blocker": "DEV implementation and scoped qualification complete. Production activation remains unauthorized; a completely full archive still blocks and this change offers only bounded remaining-capacity relief. Existing DEV checkout lacks93unrelated historical blobs; exact two-file commit delta, pinned installed baseline/candidate, patch and qualification retained. Repair historical object availability before branch integration; no unrelated source content reconstructed.",
-    "next_action": "Review DEV commit7dec652d and qualification. Repair missing unrelated DEV Git history before branch integration. No additional implementation required by this milestone; production rollout, cap/schema changes, service actions, queue replay or reservation release require a separate authorized milestone."
+    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
+    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
   },
-  "current_next_blocker": "DEV implementation and scoped qualification complete. Production activation remains unauthorized; a completely full archive still blocks and this change offers only bounded remaining-capacity relief. Existing DEV checkout lacks93unrelated historical blobs; exact two-file commit delta, pinned installed baseline/candidate, patch and qualification retained. Repair historical object availability before branch integration; no unrelated source content reconstructed.",
+  "current_next_blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44968,11 +44968,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-06T10:36:18.778676+00:00",
+    "published_at_utc": "2026-11-06T11:09:59.215986+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-06T10:36:05.295302+00:00",
-    "verification_receipt": "/private/tmp/flex-quota-aware-dev-20261106/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-06T11:09:46.251261+00:00",
+    "verification_receipt": "/private/tmp/flex-7dec-rollout/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58211,7 +58211,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Review DEV commit7dec652d and qualification. Repair missing unrelated DEV Git history before branch integration. No additional implementation required by this milestone; production rollout, cap/schema changes, service actions, queue replay or reservation release require a separate authorized milestone.",
+  "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60445,8 +60445,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
     "name": "flex",
-    "updated_at_utc": "2026-11-06T10:36:05.295302+00:00",
-    "working_tree": "Committed only runtime/walkback/src/core/walkback_checkpoint_retention.py and tests/test_v2_walkback_checkpoint_quota_selection.py. DEV-only59checks passed in DEV and pinned installed composition; source/evidence preserved. Existing93missingunrelatedGitblobs remain; exactsourcepatch/baseline retained. No production activation."
+    "updated_at_utc": "2026-11-06T11:09:46.251261+00:00",
+    "working_tree": "7dec652d exact retention payload deployed to Walkback only; one approved restart. Fresh compatibility59checks and live evidence/RPC verificationPASS;2completions resumed then50archivebytesremaining. DEV tree/source recoverypartial;78unavailablehistoricalobjects requireintactbackup. No source/cap/queue/accounting changes beyond the authorized onefile."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61908,7 +61908,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_QUOTA_AWARE_ARCHIVE_SELECTION_GIT_HISTORY_DEGRADED",
+  "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63311,8 +63311,8 @@
     "status": "HOLD_NEW_BEHAVIOUR_REQUIRED",
     "tests": "21 focused provider-free existing controls passed, 0 failed: Byzantine forward adapter, event-mint guard, managed consumer, and lossless handoff."
   },
-  "updated_at": "2026-11-06T10:36:05.295302+00:00",
-  "updated_at_utc": "2026-11-06T10:36:05.295302+00:00",
+  "updated_at": "2026-11-06T11:09:46.251261+00:00",
+  "updated_at_utc": "2026-11-06T11:09:46.251261+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "v1_graph_analyser_redundancy_audit": {
     "blocker": "Accepted dormant graph/network/risk/prediction/IRC future-refresh scope is not frozen, so neither redundancy nor mandatory V2 rebind can be asserted.",
@@ -63528,7 +63528,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DEV_QUOTA_AWARE_ARCHIVE_SELECTION_GIT_HISTORY_DEGRADED",
+  "verdict": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -73318,12 +73318,12 @@
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
   },
   "active_continuation": {
-    "status": "PASS_DEV_QUOTA_AWARE_ARCHIVE_SELECTION_GIT_HISTORY_DEGRADED",
+    "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
     "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
-    "handoff_record": "quota_aware_archive_selection_DEV_20261106",
-    "evidence_ref": "/private/tmp/flex-quota-aware-dev-20261106/QUALIFICATION.json",
-    "blocker": "DEV implementation and scoped qualification complete. Production activation remains unauthorized; a completely full archive still blocks and this change offers only bounded remaining-capacity relief. Existing DEV checkout lacks93unrelated historical blobs; exact two-file commit delta, pinned installed baseline/candidate, patch and qualification retained. Repair historical object availability before branch integration; no unrelated source content reconstructed.",
-    "next_action": "Review DEV commit7dec652d and qualification. Repair missing unrelated DEV Git history before branch integration. No additional implementation required by this milestone; production rollout, cap/schema changes, service actions, queue replay or reservation release require a separate authorized milestone."
+    "handoff_record": "quota_aware_archive_7dec_production_rollout_20261106",
+    "evidence_ref": "/private/tmp/flex-7dec-rollout/FINAL_SUMMARY.json",
+    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
+    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
   },
   "gate_deployment_birth_recovery_continuation": {
     "status": "PASS_SCOPED_GATE_DEPLOYED_DEV_RECOVERY_QUALIFIED",
@@ -74471,12 +74471,15 @@
     "authorization": "User explicitly approved reader qualification, deployment of 8605a64e, one restart of necessary workers, preservation of all records/spending/attempts, and progress verification."
   },
   "production_flags_current": {
-    "production_source_config_changes": 0,
-    "production_database_or_accounting_writes": 0,
-    "service_actions": 0,
-    "live_provider_calls": 0,
+    "Walkback_retention_source_files_installed": 1,
+    "Walkback_stop_requests": 1,
+    "Walkback_start_requests": 1,
+    "Listener_service_actions": 0,
+    "Creator_service_actions": 0,
+    "operator_database_accounting_writes": 0,
+    "operator_provider_probes": 0,
+    "schema_cap_policy_changes": 0,
     "queue_replay": false,
-    "cap_schema_changes": 0,
     "unresolved_reservation_release": false,
     "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8"
   },
@@ -88924,5 +88927,116 @@
     ],
     "blocker": "DEV implementation and scoped qualification complete. Production activation remains unauthorized; a completely full archive still blocks and this change offers only bounded remaining-capacity relief. Existing DEV checkout lacks93unrelated historical blobs; exact two-file commit delta, pinned installed baseline/candidate, patch and qualification retained. Repair historical object availability before branch integration; no unrelated source content reconstructed.",
     "next_action": "Review DEV commit7dec652d and qualification. Repair missing unrelated DEV Git history before branch integration. No additional implementation required by this milestone; production rollout, cap/schema changes, service actions, queue replay or reservation release require a separate authorized milestone."
+  },
+  "quota_aware_archive_7dec_production_rollout_20261106": {
+    "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
+    "verdict": "PARTIAL: approved live rollout preserved evidence and resumed2fullcompletions; bounded remaining capacity exhausted again; historical Git repair incomplete.",
+    "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
+    "finished_utc": "2026-11-06T11:09:46.251261+00:00",
+    "approval": "RepairDEVGithistory,qualifycompatibilityanddeploy7dec652dtoWalkback,restartonce,preserveevidence/unresolvedreservations,verifycompletions/noduplicateRPC.",
+    "evidence_ref": "/private/tmp/flex-7dec-rollout/FINAL_SUMMARY.json",
+    "install_record_ref": "/private/tmp/flex-7dec-rollout/INSTALL.json",
+    "live_verification_ref": "/private/tmp/flex-7dec-rollout/FINAL.verification.json",
+    "Git_recovery_ref": "/private/tmp/flex-7dec-rollout/GIT_REPAIR_FINAL.json",
+    "summary": {
+      "status": "PARTIAL_DEPLOYED_COMPLETIONS_RESUMED_ARCHIVE_FULL_HISTORY_REPAIR_INCOMPLETE",
+      "revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8",
+      "finished_utc": "2026-11-06T11:09:08.042289+00:00",
+      "deployment_utc": "2026-11-06T10:58:23.739862+00:00",
+      "source_files_installed": 1,
+      "compatibility_checks_passed": 59,
+      "Walkback_stop_requests": 1,
+      "Walkback_start_requests": 1,
+      "before_PIDs": {
+        "walkback_worker": 16565,
+        "watchtower_listener": 56702,
+        "creator_resolution_worker": 95564
+      },
+      "after_PIDs": {
+        "walkback_worker": 36708,
+        "watchtower_listener": 56702,
+        "creator_resolution_worker": 95564
+      },
+      "full_completions_before": 3684,
+      "full_completions_verified": 3686,
+      "full_completions_added": 2,
+      "live_observation_end_utc": "2026-11-06T11:04:45.024193+00:00",
+      "preservation": {
+        "committed_checkpoints_exact": 9734,
+        "unresolved_INTENT_rows_exact": 1279,
+        "UNSENT_rows_exact": 178,
+        "failed_queue_rows_exact": 1499,
+        "original_unresolved_reservations_exact": 3,
+        "original_uncertain_requests_exact": 23,
+        "immutable_owners_exact": 11821,
+        "funding": {
+          "verdict": "PASS_IMMUTABLE_FUNDING_KERNELS",
+          "tables": {
+            "wt_walkback_transaction_roles": {
+              "original_exact": 10116,
+              "new_rows": 1
+            },
+            "wt_walkback_atomic_flows": {
+              "original_exact": 1429,
+              "new_rows": 0
+            },
+            "wt_walkback_edge_candidates": {
+              "original_exact": 13076,
+              "new_rows": 1
+            }
+          }
+        },
+        "operator_database_or_accounting_writes": 0
+      },
+      "RPC_verification": {
+        "saved_immutable_request_keys_matched": 2585,
+        "attempt_increases_observed": 0,
+        "operator_provider_probes": 0,
+        "new_accounting_keys_all_roles": 15,
+        "qualified_expired_old_keys": 105,
+        "semantics": "No observed attempt increase for preexisting immutable saved getTransaction requests during this bounded window. Genuine new requests and normal other-role activity remain accounted; this is not a guarantee of all future traffic."
+      },
+      "archive": {
+        "compressed_bytes": 16777166,
+        "limit_bytes": 16777216,
+        "remaining_bytes": 50,
+        "originals_moved_to_cold": 6,
+        "pending_capacity_holds_last_snapshot": 177,
+        "running_capacity_hold_last_snapshot": 1,
+        "limitation": "Two fullcompletions resumed; remaining finite archive capacity is exhausted for the currently considered candidates. No cap or schema change authorized/performed."
+      },
+      "Git_history_repair": {
+        "status": "PARTIAL_EXACT_GIT_HISTORY_REPAIR_REMOTE_ANCESTOR_UNAVAILABLE",
+        "remaining_missing_reachable_objects": 78,
+        "qualified_deployable_source_and_tree": "EXACT_VERIFIED",
+        "GitHub_ancestor_available": false,
+        "remaining_need": "Intact backup/remote copy containing missing historical objects; no historical record fabricated."
+      },
+      "production_changes": {
+        "Walkback_retention_source_files": 1,
+        "Walkback_restarts": 1,
+        "Listener_restarts": 0,
+        "Creator_restarts": 0,
+        "schema_cap_policy_changes": 0,
+        "queue_replay": false,
+        "reservation_release": false
+      },
+      "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
+    },
+    "production_flags": {
+      "Walkback_retention_source_files_installed": 1,
+      "Walkback_stop_requests": 1,
+      "Walkback_start_requests": 1,
+      "Listener_service_actions": 0,
+      "Creator_service_actions": 0,
+      "operator_database_accounting_writes": 0,
+      "operator_provider_probes": 0,
+      "schema_cap_policy_changes": 0,
+      "queue_replay": false,
+      "unresolved_reservation_release": false,
+      "engineering_revision": "7dec652d5ad44bed147f8e84ffdfa8d5630d5bb8"
+    },
+    "blocker": "Approved7dec deployed to oneWalkbackretentionfile;exactly1stop/start at10:58UTC.59freshcompatchecksPASS;fullcompletions3684->3686(+2).All9734oldCOMMITTED,1279INTENT,178UNSENT,1499failedqueue rows and3unresolvedreservations/23uncertainrequests preserved;fundingkernelsexact;2585matchedsavedimmutableaccountingkeys show0attemptincreases inobservedwindow.Only50compressedarchivebytesremain;177pending+1runningcapacityholdremain,no sustaineddrainclaim. DEV Git tree/sourceobjectrecoverypartial;78historicalobjects unavailable. Forced configuredGitHub ancestor fetch cannot supplyddb70b89; backupneeded, nohistoricalrecords fabricated.",
+    "next_action": "Keep current services and preserved evidence. Qualify a durable lossless archive-capacity/lifecycle remedy in DEV under a separately authorized milestone; do not clear evidence/reservations or repeat restarts. Complete historical Git recovery only from exact original objects supplied by another intact backup/remote."
   }
 }

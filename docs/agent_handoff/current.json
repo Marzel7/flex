@@ -103,17 +103,18 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_DEV_HEALTH_PANEL_746C_QUALIFIED_NOT_LIVE_DEPLOYED",
-    "recorded_utc": "2026-11-07T10:25:24.754418+00:00",
+    "status": "PASS_DASHBOARD_746C_DEPLOYED_HEALTH_LAYOUT_FRESHNESS_REFRESH_VERIFIED",
+    "recorded_utc": "2026-11-07T10:33:46.435635+00:00",
     "engineering_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
-    "dashboard_runtime_revision": "421c0ea75c8bd32e90b1cabe845a339185569119",
+    "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "audit_only": false,
-    "dev_only": true,
-    "production_deployed": false,
-    "blocker": "NONE for authorized DEV milestone. Live dashboard remains421c0ea7. Browser local-file preview blocked by URL security policy; no workaround attempted or browser visual QA claimed. Real DEV renderer execution, native disclosure ownership, exact evidence preservation and refresh acceptance passed.",
-    "next_action": "NONE — DEV COMPLETE. If separately authorized, deploy the two qualified UI modules with their checksum manifest entries after live compatibility/backup checks. This revision includes preceding52b09f57 freshness-display fix. Verify existing automatic refresh preserves health grouping, all evidence/timestamps and separate snapshot delivery/last-measured capacity. No worker or RPC changes needed.",
-    "evidence_ref": "/private/tmp/flex-dashboard-health-panel-dev-20261107/QUALIFICATION.json"
+    "dev_only": false,
+    "production_deployed": true,
+    "dashboard_only": true,
+    "blocker": "NONE for authorized dashboard-only deployment. Browser visual QA not claimed because local-file URL policy remains blocked; published renderer execution, DOM/disclosure structure and refresh preservation passed.",
+    "next_action": "NONE — authorized dashboard deployment complete. Existing five-minute passive refresh remains unchanged. No worker/RPC follow-up, restart or production data changes required.",
+    "evidence_ref": "/private/tmp/flex-dashboard-health-panel-rollout-20261107/DEPLOYMENT.json"
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1234,7 +1235,7 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "NONE for authorized DEV milestone. Live dashboard remains421c0ea7. Browser local-file preview blocked by URL security policy; no workaround attempted or browser visual QA claimed. Real DEV renderer execution, native disclosure ownership, exact evidence preservation and refresh acceptance passed.",
+  "blocker": "NONE for authorized dashboard-only deployment. Browser visual QA not claimed because local-file URL policy remains blocked; published renderer execution, DOM/disclosure structure and refresh preservation passed.",
   "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2704,20 +2705,21 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "DEV simplify health panel priorities, disclosures and retained review findings",
-    "status": "PASS_DEV_HEALTH_PANEL_746C_QUALIFIED_NOT_LIVE_DEPLOYED",
-    "recorded_utc": "2026-11-07T10:25:24.754418+00:00",
+    "milestone": "Deploy746cf616 live health layout and freshness display",
+    "status": "PASS_DASHBOARD_746C_DEPLOYED_HEALTH_LAYOUT_FRESHNESS_REFRESH_VERIFIED",
+    "recorded_utc": "2026-11-07T10:33:46.435635+00:00",
     "engineering_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
-    "dashboard_runtime_revision": "421c0ea75c8bd32e90b1cabe845a339185569119",
+    "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "audit_only": false,
-    "dev_only": true,
-    "production_deployed": false,
-    "blocker": "NONE for authorized DEV milestone. Live dashboard remains421c0ea7. Browser local-file preview blocked by URL security policy; no workaround attempted or browser visual QA claimed. Real DEV renderer execution, native disclosure ownership, exact evidence preservation and refresh acceptance passed.",
-    "next_action": "NONE — DEV COMPLETE. If separately authorized, deploy the two qualified UI modules with their checksum manifest entries after live compatibility/backup checks. This revision includes preceding52b09f57 freshness-display fix. Verify existing automatic refresh preserves health grouping, all evidence/timestamps and separate snapshot delivery/last-measured capacity. No worker or RPC changes needed.",
-    "evidence_ref": "/private/tmp/flex-dashboard-health-panel-dev-20261107/QUALIFICATION.json"
+    "dev_only": false,
+    "production_deployed": true,
+    "dashboard_only": true,
+    "blocker": "NONE for authorized dashboard-only deployment. Browser visual QA not claimed because local-file URL policy remains blocked; published renderer execution, DOM/disclosure structure and refresh preservation passed.",
+    "next_action": "NONE — authorized dashboard deployment complete. Existing five-minute passive refresh remains unchanged. No worker/RPC follow-up, restart or production data changes required.",
+    "evidence_ref": "/private/tmp/flex-dashboard-health-panel-rollout-20261107/DEPLOYMENT.json"
   },
-  "current_next_blocker": "NONE for authorized DEV milestone. Live dashboard remains421c0ea7. Browser local-file preview blocked by URL security policy; no workaround attempted or browser visual QA claimed. Real DEV renderer execution, native disclosure ownership, exact evidence preservation and refresh acceptance passed.",
+  "current_next_blocker": "NONE for authorized dashboard-only deployment. Browser visual QA not claimed because local-file URL policy remains blocked; published renderer execution, DOM/disclosure structure and refresh preservation passed.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44979,11 +44981,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T10:25:38.631813+00:00",
+    "published_at_utc": "2026-11-07T10:33:55.535558+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T10:25:24.754418+00:00",
-    "verification_receipt": "/private/tmp/flex-dashboard-health-panel-dev-20261107/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T10:33:46.435635+00:00",
+    "verification_receipt": "/private/tmp/flex-dashboard-health-panel-rollout-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58222,7 +58224,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE — DEV COMPLETE. If separately authorized, deploy the two qualified UI modules with their checksum manifest entries after live compatibility/backup checks. This revision includes preceding52b09f57 freshness-display fix. Verify existing automatic refresh preserves health grouping, all evidence/timestamps and separate snapshot delivery/last-measured capacity. No worker or RPC changes needed.",
+  "next_action": "NONE — authorized dashboard deployment complete. Existing five-minute passive refresh remains unchanged. No worker/RPC follow-up, restart or production data changes required.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60456,8 +60458,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T10:25:24.754418+00:00",
-    "working_tree": "DEV simplified health panel746cf616 committed and qualified on52b09f57:unverified/problem checks first;verified/info findings collapsed;review holds and retained warnings separate. Real saved snapshot shows5 verified/3 unverified,1 review finding/4 info;each full detail and timestamp retained exactly once.237 tests and actual DEV render/offline-refresh acceptance pass;all30 metrics/Core/sealed records exact. Live dashboard421c0ea7,Walkbackf3ad14e8 and35 protected sources unchanged. Browser local-file visual QA blocked by policy; no circumvention or production/RPC changes."
+    "updated_at_utc": "2026-11-07T10:33:46.435635+00:00",
+    "working_tree": "746cf616 deployed to live dashboard after qualified-source/manifest compatibility and complete target backup. Two executions of existing refresh runner pass; health grouping and52b freshness display preserved. All30 metrics, each native warning inventory, original finding/check timestamps, historical records and Core exact. Other source/config/worker/RPC pins unchanged; no restart, provider calls or production data mutation. Browser visual QA blocked by local-file policy; published JS/DOM/refresh checks pass."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61919,7 +61921,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_HEALTH_PANEL_746C_QUALIFIED_NOT_LIVE_DEPLOYED",
+  "status": "PASS_DASHBOARD_746C_DEPLOYED_HEALTH_LAYOUT_FRESHNESS_REFRESH_VERIFIED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63539,7 +63541,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DEV_HEALTH_PANEL_746C_QUALIFIED_NOT_LIVE_DEPLOYED",
+  "verdict": "PASS_DASHBOARD_746C_DEPLOYED_HEALTH_LAYOUT_FRESHNESS_REFRESH_VERIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89176,8 +89178,9 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "production_source_changes": 0,
-    "live_dashboard_publications": 0,
+    "production_source_changes": 2,
+    "checksum_manifest_updates": 1,
+    "live_dashboard_publications": 2,
     "worker_source_changes": 0,
     "worker_actions": 0,
     "service_actions": 0,
@@ -89185,7 +89188,8 @@
     "accounting_or_database_changes": 0,
     "queue_replay": false,
     "schedule_changes": 0,
-    "production_deployment": false
+    "production_deployment": true,
+    "dashboard_only": true
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -93502,5 +93506,132 @@
     },
     "blocker": "NONE for authorized DEV milestone. Live dashboard remains421c0ea7. Browser local-file preview blocked by URL security policy; no workaround attempted or browser visual QA claimed. Real DEV renderer execution, native disclosure ownership, exact evidence preservation and refresh acceptance passed.",
     "next_action": "NONE — DEV COMPLETE. If separately authorized, deploy the two qualified UI modules with their checksum manifest entries after live compatibility/backup checks. This revision includes preceding52b09f57 freshness-display fix. Verify existing automatic refresh preserves health grouping, all evidence/timestamps and separate snapshot delivery/last-measured capacity. No worker or RPC changes needed."
+  },
+  "dashboard_health_panel_rollout_20261107": {
+    "status": "PASS_DASHBOARD_746C_DEPLOYED_HEALTH_LAYOUT_FRESHNESS_REFRESH_VERIFIED",
+    "recorded_utc": "2026-11-07T10:33:46.435635+00:00",
+    "engineering_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+    "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+    "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "includes_freshness_fix": "52b09f571d77abd4bff7226f020b45b811c743e3",
+    "compatibility_checks": "PASS_QUALIFIED_COMMIT_AND_ALL_LIVE_MANIFEST_SOURCE_PINS",
+    "backup": "PASS_ALL_MUTATION_TARGETS_AND_PRIOR_HTML_SNAPSHOT_DIAGNOSTICS_READBACK",
+    "backup_ref": "/private/tmp/flex-dashboard-health-panel-rollout-20261107/BACKUP.json",
+    "installation_ref": "/private/tmp/flex-dashboard-health-panel-rollout-20261107/INSTALL.json",
+    "verification_ref": "/private/tmp/flex-dashboard-health-panel-rollout-20261107/VERIFICATION_2.json",
+    "verification": {
+      "status": "PASS_LIVE_HEALTH_LAYOUT_FRESHNESS_AND_EXISTING_AUTOMATIC_REFRESH_PATH",
+      "revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+      "verified_utc": "2026-11-07T10:33:08.771854+00:00",
+      "snapshot_utc": "2026-11-07T10:33:03.643854Z",
+      "html_sha256": "cff83655a556c016d37bc4faca8613189dbbc18b5e73407cae0817c1e5dc8cd5",
+      "html_bytes": 147129,
+      "snapshot_metrics": 30,
+      "same_input_all_metrics_warnings_timestamps_exact": true,
+      "fresh_snapshot_all_metrics_warnings_timestamps_exact": true,
+      "historical_programme_deployment_configuration_and_timestamps_exact": true,
+      "Core_exact": true,
+      "all_original_ids_preserved": true,
+      "health_grouping_and_native_closed_disclosures_verified": true,
+      "last_measured_capacity_and_age_retained": true,
+      "snapshot_delivery_overdue_separate_after_seconds": 360,
+      "current_health_expiry_unchanged_seconds": 600,
+      "CSP_and_static_only_policy": "PASS",
+      "backup_readback": "PASS",
+      "same_snapshot_refresh_idempotent": true,
+      "published_html_equals_fixed_refresh_output": true,
+      "other_source_and_configuration_pins_unchanged": true,
+      "qualified_tests_reused": 237,
+      "real_existing_refresh_runner_invocations": 2,
+      "separate_scheduler_tick_observed": false,
+      "recurring_schedule_changed": false,
+      "worker_source_changes": 0,
+      "worker_actions": 0,
+      "service_actions": 0,
+      "operator_RPC_calls": 0,
+      "provider_probes": 0,
+      "accounting_or_database_mutations": 0,
+      "queue_replay": false,
+      "renderer_acceptance": [
+        {
+          "snapshot_age_seconds": 0,
+          "health_check_summary": "5 verified · 3 unverified",
+          "capacity_title": "Capacity: Last measured: OK",
+          "capacity_age": "Last-measured capacity: OK. Last measured 2026-11-07T10:31:59Z (1 min 4 sec ago). Snapshot evidence; not a live storage check.",
+          "snapshot_delivery": "Snapshot delivery within expected interval · last snapshot 2026-11-07T10:33:03.643854Z.",
+          "warning_findings_exact": 6,
+          "review_finding_count": 1,
+          "info_finding_count": 4,
+          "all_inputs_unchanged": true
+        },
+        {
+          "snapshot_age_seconds": 181,
+          "health_check_summary": "5 verified · 3 unverified",
+          "capacity_title": "Capacity: Last measured: OK",
+          "capacity_age": "Last-measured capacity: OK. Last measured 2026-11-07T10:31:59Z (4 min 5 sec ago). Snapshot evidence; not a live storage check.",
+          "snapshot_delivery": "Snapshot delivery within expected interval · last snapshot 2026-11-07T10:33:03.643854Z.",
+          "warning_findings_exact": 6,
+          "review_finding_count": 1,
+          "info_finding_count": 4,
+          "all_inputs_unchanged": true
+        },
+        {
+          "snapshot_age_seconds": 300,
+          "health_check_summary": "5 verified · 3 unverified",
+          "capacity_title": "Capacity: Last measured: OK",
+          "capacity_age": "Last-measured capacity: OK. Last measured 2026-11-07T10:31:59Z (6 min 4 sec ago). Snapshot evidence; not a live storage check.",
+          "snapshot_delivery": "Snapshot delivery within expected interval · last snapshot 2026-11-07T10:33:03.643854Z.",
+          "warning_findings_exact": 6,
+          "review_finding_count": 1,
+          "info_finding_count": 4,
+          "all_inputs_unchanged": true
+        },
+        {
+          "snapshot_age_seconds": 361,
+          "health_check_summary": "5 verified · 3 unverified",
+          "capacity_title": "Capacity: Last measured: OK",
+          "capacity_age": "Last-measured capacity: OK. Last measured 2026-11-07T10:31:59Z (7 min 5 sec ago). Snapshot evidence; not a live storage check.",
+          "snapshot_delivery": "Snapshot update overdue — last snapshot 2026-11-07T10:33:03.643854Z (6 min ago). Expected every 5 minutes; 1 minute grace. Last-measured readings are retained.",
+          "warning_findings_exact": 6,
+          "review_finding_count": 1,
+          "info_finding_count": 4,
+          "all_inputs_unchanged": true
+        },
+        {
+          "snapshot_age_seconds": 1200,
+          "health_check_summary": "0 verified · 8 unverified",
+          "capacity_title": "Capacity: Last measured: OK",
+          "capacity_age": "Last-measured capacity: OK. Last measured 2026-11-07T10:31:59Z (21 min 4 sec ago). Snapshot evidence; not a live storage check.",
+          "snapshot_delivery": "Snapshot update overdue — last snapshot 2026-11-07T10:33:03.643854Z (20 min ago). Expected every 5 minutes; 1 minute grace. Last-measured readings are retained.",
+          "warning_findings_exact": 6,
+          "review_finding_count": 1,
+          "info_finding_count": 4,
+          "all_inputs_unchanged": true
+        }
+      ],
+      "visual_browser_QA": "Not claimed; local-file browser URL policy remains blocked. Published script execution and generated HTML/disclosure semantics verified without network."
+    },
+    "qualified_tests_reused": 237,
+    "runtime_reload": "Two fresh executions of unchanged refresh.py imported checksum-verified installed UI modules; no persistent service or worker restart.",
+    "implementation_scope": "Only recovery_dashboard_overall_health_ui.py and recovery_dashboard_cards_ui.py plus their existing SOURCES.json checksum entries. Fixed collector/refresh implementation, parser, workers, RPC, reservations, review holds and databases unchanged.",
+    "preservation": "Same-input upgrade preserves entire snapshot/configuration and Core exactly. Fresh publications exactly match native collected snapshot metrics/warnings/observation timestamps. Historical programme/deployment/configuration timestamps and INSTALLATION.json unchanged. Every original check/finding detail and timestamp rendered once in its group. Fresh warning inventory naturally changed5to6 between actual observations; no warning suppressed or synthesized.",
+    "functional_acceptance": "Fresh native sample renders5 verified/3 unverified,1 review finding,4 informational findings; latest snapshot also contains1 retained WARNING, kept visible. Verified/info/native measurement disclosures remain collapsed. Capacity is Last measured:OK with original timestamp and increasing age through3minutes/5minutes/late snapshots; delivery overdue is separate after360seconds; overall health still expires after600seconds. All30 metrics and existing ids retained.",
+    "source_protection": "All other programme/package/worker/RPC/config pins unchanged.",
+    "production_flags": {
+      "production_source_changes": 2,
+      "checksum_manifest_updates": 1,
+      "live_dashboard_publications": 2,
+      "worker_source_changes": 0,
+      "worker_actions": 0,
+      "service_actions": 0,
+      "provider_calls": 0,
+      "accounting_or_database_changes": 0,
+      "queue_replay": false,
+      "schedule_changes": 0,
+      "production_deployment": true,
+      "dashboard_only": true
+    },
+    "blocker": "NONE for authorized dashboard-only deployment. Browser visual QA not claimed because local-file URL policy remains blocked; published renderer execution, DOM/disclosure structure and refresh preservation passed.",
+    "next_action": "NONE — authorized dashboard deployment complete. Existing five-minute passive refresh remains unchanged. No worker/RPC follow-up, restart or production data changes required."
   }
 }

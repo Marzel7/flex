@@ -1222,8 +1222,11 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "NONE — requested DEV milestone complete",
-  "blockers": [],
+  "blocker": "8b944ece is active but failed runtime acceptance. The qualified correction is a different production revision and has no activation approval.",
+  "blockers": [
+    "Clock recovery initialized successfully but guard observation failure restarted the whole manager; production is not certified healthy or 24/7 reliable.",
+    "8b944ece is active but failed runtime acceptance. The qualified correction is a different production revision and has no activation approval."
+  ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2692,193 +2695,601 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "PASS_DEV_TRUSTED_RUNTIME_CLOCK_RECOVERY",
-    "recorded_utc": "2026-11-07T22:59:15.643281+00:00",
-    "engineering_revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
-    "branch": "codex/live-clock-recovery",
-    "worktree": "/private/tmp/flex-live-clock-dev",
-    "scope": "Approved DEV fix and qualification for trusted-clock recovery while the Supervisor remains running; no production changes or provider probes.",
-    "implementation": "Guard samples every five seconds; fixed durable runtime-clock intent; identity-bound private Unix Supervisor control; administrative grouped quiescence of three fixed children; unchanged independent proof and two-store clock-only recovery; idempotent child resumption under the same manager.",
-    "changed_files": [
-      "runtime/startup/guarded_startup.py",
-      "runtime/startup/guarded_startup_config.py",
-      "runtime/startup/README.md",
-      "tests/test_guarded_startup_processes.py",
-      "tests/test_live_clock_recovery.py",
-      "tests/test_live_clock_processes.py"
-    ],
+    "status": "PARTIAL_PRODUCTION_8B_ACCEPTANCE_HOLD_CORRECTIVE_DEV_READY",
+    "recorded_utc": "2026-11-07T23:31:29.287290+00:00",
+    "engineering_revision": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+    "branch": "codex/live-clock-read-recovery",
+    "worktree": "/private/tmp/flex-clock-read-dev",
+    "scope": "Complete approved 8b944ece deployment acceptance; reproduce its directly observed sampling failure and prepare a scoped DEV correction, without further production changes.",
+    "production_activation_8b944ece": {
+      "status": "HOLD_DEPLOYED_8B944ECE_UNEXPECTED_MONITOR_EXIT_AND_MANAGER_RESTART",
+      "recorded_utc": "2026-11-07T23:31:29.287290+00:00",
+      "observed_utc": "2026-11-07T23:17:36.026743+00:00",
+      "engineering_revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+      "user_authorized_deployment": true,
+      "approved_patch_installed": true,
+      "active_release": "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca",
+      "active_manifest_sha256": "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03",
+      "initial_cutover": "PASS_SINGLE_GUARDED_CUTOVER",
+      "cutover_started_utc": "2026-11-07T23:05:31.840250+00:00",
+      "cutover_finished_utc": "2026-11-07T23:08:15.477612+00:00",
+      "operator_guard_start_requests": 1,
+      "operator_clock_start_requests": 1,
+      "core_source_changes": 0,
+      "startup_guard_config_files_changed": 2,
+      "schema_or_quota_changes": 0,
+      "hot_profile_preserved_bytes": 41943040,
+      "fresh_fenced_backup": {
+        "status": "PASS_FRESH_FENCED_BACKUP_AND_STARTUP_ROLLBACK_PINS",
+        "observed_utc": "2026-11-07T23:05:25.884831+00:00",
+        "backup_manifest_sha256": "b66eb89a3b42e2bef3f4a2411be322ed93028072160adf2eb5d97e4574a39f45",
+        "backup_files_verified": 18,
+        "old_startup_rollback_files_verified": 3,
+        "largest_file_bytes": 296239104,
+        "SQLite_integrity": "Qualified copier quick_check verified copied databases before publication",
+        "hot_profile_unchanged_bytes": 41943040,
+        "live_restore": false,
+        "provider_probes": 0
+      },
+      "initial_trusted_clock_recovery": "PASS — existing approved root clock helper supplied fresh proof; stopped protected digests compare exactly.",
+      "initial_startup_and_worker_readiness": "PASS",
+      "RUNTIME_DEPLOYMENT_GATE": "HOLD",
+      "runtime_gate_reason": "Steady-state guard sampling raised OperationalError and exited 78. Its finally block terminated Supervisor; launchd automatically restarted it. Same-manager stability and full-completion acceptance failed.",
+      "failure_evidence": "/private/tmp/flex-8b944ece-rollout-20261107/LIVE_ACCEPTANCE_FAILURE.json",
+      "failure": {
+        "status": "HOLD_LIVE_MONITOR_OPERATIONAL_ERROR_AUTOMATIC_MANAGER_RESTART",
+        "observed_utc": "2026-11-07T23:20:56.972771+00:00",
+        "revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+        "diagnostic": {
+          "at": 1794093355,
+          "code": "OperationalError",
+          "status": "HOLD"
+        },
+        "initial_guard": {
+          "pid": 9697,
+          "created": 1794092840.021957,
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca/guarded_startup.py",
+            "--manifest",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-8b944ece.json",
+            "--sha256",
+            "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03"
+          ]
+        },
+        "current_guard": {
+          "pid": 10177,
+          "created": 1794093355.630619,
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca/guarded_startup.py",
+            "--manifest",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-8b944ece.json",
+            "--sha256",
+            "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03"
+          ]
+        },
+        "initial_manager": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
+          ],
+          "created": 1794092884.573311,
+          "pid": 9713
+        },
+        "current_manager": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
+          ],
+          "created": 1794093367.312229,
+          "pid": 10182
+        },
+        "initial_workers": [
+          {
+            "pid": 9715,
+            "ppid": 9713,
+            "module": "src.core.creator_resolution_worker",
+            "created": 1794092885.101646
+          },
+          {
+            "pid": 9716,
+            "ppid": 9713,
+            "module": "src.core.walkback_worker",
+            "created": 1794092885.106499
+          },
+          {
+            "pid": 9717,
+            "ppid": 9713,
+            "module": "src.core.pumpfun_curve_listener",
+            "created": 1794092885.113687
+          }
+        ],
+        "current_workers": [
+          {
+            "pid": 10184,
+            "ppid": 10182,
+            "module": "src.core.creator_resolution_worker",
+            "created": 1794093368.669437
+          },
+          {
+            "pid": 10185,
+            "ppid": 10182,
+            "module": "src.core.walkback_worker",
+            "created": 1794093368.684574
+          },
+          {
+            "pid": 10186,
+            "ppid": 10182,
+            "module": "src.core.pumpfun_curve_listener",
+            "created": 1794093368.687826
+          }
+        ],
+        "runtime_clock_receipt": null,
+        "full_completions": 4599,
+        "full_added": 0,
+        "original_reservations_exact": 16,
+        "original_review_holds_exact": 1566,
+        "immutable_receipts_exact": 23028,
+        "operator_restart_requests_after_cutover": 0,
+        "provider_probes": 0,
+        "retention_clock_accepted": true,
+        "failure_analysis": "SQLite OperationalError escaped live sampling before the recovery try/hold path; manage finally stopped the supervisor. Exact SQLite subtype was not retained by the installed fixed diagnostic; BUSY/LOCKED contention is a hypothesis until DEV reproduction, not an observed subtype."
+      },
+      "failure_type_source": "Installed fixed diagnostic retained OperationalError type only; exact production SQLite subtype is unknown. Real SQLite BUSY read lock reproduces the same escaping error/manager-stop path in DEV.",
+      "full_completions": 4599,
+      "full_added": 0,
+      "running": 1,
+      "capacity": {
+        "version": 1,
+        "scope": "456ba0e303be616b08427ad1",
+        "observed_at": 1794093454,
+        "quality": "VERIFIED",
+        "status": "CRITICAL",
+        "hot": {
+          "used_bytes": 940348,
+          "entries": 6702,
+          "eligible_bytes": 709828,
+          "eligible_entries": 60,
+          "protected_bytes": 230520,
+          "protected_entries": 6642,
+          "reserved_bytes": 35651584,
+          "reservation_count": 17,
+          "protected_commitment_bytes": 35882104,
+          "headroom_after_next_reply_bytes": 3963784,
+          "protected_entry_headroom_after_next": 26125,
+          "immediate_headroom_after_next_reply_bytes": 3253956,
+          "full_reply_slots_after_reclaim": 2,
+          "maintenance_needed_for_next_reply": false,
+          "next_bounded_reclaim_bytes": null,
+          "headroom_after_next_reply_and_one_batch": 3253956,
+          "max_bytes": 41943040,
+          "max_entries": 32768,
+          "next_reply_bytes": 2097152
+        },
+        "archive": {
+          "allocated_segments": 3,
+          "unallocated_segments": 29,
+          "max_segments": 32,
+          "reserved_envelope_bytes": 201326592,
+          "physical_bytes": 72007680,
+          "main_bytes": 72007680,
+          "max_physical_bytes": 2147483648,
+          "main_limit_per_segment": 32505856,
+          "active_main_headroom_bytes": 15441920,
+          "appendable_record_slots": 977260,
+          "worst_batch_reserve_bytes": 17301504,
+          "staging_entries": 0,
+          "oldest_staging_at": null
+        },
+        "storage": {
+          "free_bytes": 12285140992,
+          "required_free_bytes": 2112328704,
+          "disk_margin_bytes": 10172812288,
+          "ops_file_margin_bytes": 157278912,
+          "ops_wal_margin_bytes": 4849664
+        },
+        "alerts": [
+          {
+            "code": "PROTECTED_HOT_BYTES_HIGH",
+            "severity": "CRITICAL",
+            "remaining": 3963784,
+            "warning_at_or_below": 8388608,
+            "critical_at_or_below": 4194304,
+            "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+          },
+          {
+            "code": "OPS_WAL_MARGIN_LOW",
+            "severity": "WARNING",
+            "remaining": 4849664,
+            "warning_at_or_below": 8388608,
+            "critical_at_or_below": 4194304,
+            "message": "OPS WAL headroom is approaching the unchanged storage guard."
+          }
+        ],
+        "retention": {
+          "version": 1,
+          "retention_seconds": 604800,
+          "retired_records": 0,
+          "marker_budget_bytes": 0,
+          "marker_bytes_remaining": 67108864,
+          "marker_records_remaining": 262144,
+          "metadata_growth_allowance_bytes": 167772160,
+          "pending": false,
+          "capacity_warning": false
+        }
+      },
+      "original_reservations_exact": 16,
+      "current_reservations": 17,
+      "original_review_holds_exact": 1566,
+      "current_review_holds": 1567,
+      "immutable_completed_receipts_exact": 23028,
+      "duplicate_pre_cutover_immutable_completed_RPC_receipts": 0,
+      "uncertain_receipts_exact": 31,
+      "operator_restart_requests_after_cutover": 0,
+      "provider_probes": 0,
+      "manual_time_source_queries": 0,
+      "manual_store_reanchors": 0,
+      "legacy_hold_edits": 0,
+      "queue_replay": false,
+      "FileVault": "On at deployment preflight; no settings changes",
+      "previous_26f_release_preserved": true,
+      "inactive_8f_release_preserved_at": "/Library/Application Support/FLEXStartup/rollback/9a6fcaedc889a01e30a10375d730c749",
+      "release_inventory_cap": 2,
+      "blocker": "Clock recovery initialized successfully but guard observation failure restarted the whole manager; production is not certified healthy or 24/7 reliable.",
+      "next_action": "Do not repeat 8b944ece activation or change quotas/holds. Review the qualified fd759140 corrective guard and separately approve its production promotion."
+    },
+    "DEV_correction_status": "PASS_DEV_CLOCK_OBSERVATION_ERROR_RECOVERY",
+    "DEV_correction_tests_passed": 95,
+    "DEV_correction_tests_failed": 0,
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "intended_runtime": "Installed disposable DEV CLI and real SQLite/Supervisor/fake-worker fixtures for fd759140. Production 8b944ece is a separate HOLD target.",
+    "production_RUNTIME_DEPLOYMENT_GATE": "HOLD",
+    "production_current_patch": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "production_current_active_release": "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca",
+    "production_health_last_verified_utc": "2026-11-07T23:17:36.026743+00:00",
+    "production_reaudited_after_read_error_DEV": false,
     "source_pins": {
       "runtime/startup/guarded_startup.py": {
-        "sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
-        "bytes": 32790
-      },
-      "runtime/startup/guarded_startup_config.py": {
-        "sha256": "540b1dce725f4d906f551ef2fabbfed49babe9ac12805e69cfda683bbed2bec9",
-        "bytes": 5419
+        "sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "bytes": 34540
       },
       "runtime/startup/README.md": {
-        "sha256": "3f3feb7af5c3f0be0f5a6bed9c7faae9bf8ad38ed00c375b24fdd8b351a7b0eb",
-        "bytes": 13593
+        "sha256": "f1e964f8c010fb091a3d9f8035126d75586f2d6b97efbeea40b8573db8babade",
+        "bytes": 14789
       },
-      "tests/test_guarded_startup_processes.py": {
-        "sha256": "da702fe1de408753454ae7e44aec3c66c79bb8172648f7efe23f5ab9ac437085",
-        "bytes": 13173
+      "tests/test_live_clock_read_errors.py": {
+        "sha256": "51e983210dfb6fb4381b8a8a7c171c020b1bfb7a308cdbf319558293ee1f229e",
+        "bytes": 3304
       },
-      "tests/test_live_clock_recovery.py": {
-        "sha256": "d5c6fe1c67d7d47ee96a9e2a25a9d37def747304d8f304f84d982f454fc0dfbf",
-        "bytes": 10160
-      },
-      "tests/test_live_clock_processes.py": {
-        "sha256": "0d8d30974c261372b216c7871caeba3eb5aa7b6cc65b237ff334cb8425e19a37",
-        "bytes": 10061
+      "tests/test_live_clock_read_processes.py": {
+        "sha256": "bd79c262c111d6d8be6e0be16f74e152052235418ade58f78c0df64731f75548",
+        "bytes": 5176
       }
     },
-    "engineering_patch": "/private/tmp/flex-live-clock-qualification-20261107/ENGINEERING.patch",
-    "tests_passed": 150,
-    "tests_failed": 0,
-    "tests_artifact": "/private/tmp/flex-live-clock-qualification-20261107/QUALIFIED_TESTS.xml",
-    "fault_coverage": [
-      "drift 6/31/53/3600 seconds",
-      "sleep/resume wall-versus-monotonic discontinuity and backward/reset clocks",
-      "expired or changed proof including expiry during scan",
-      "SIGKILL before quiescence, after quiescence, after ledger/retention anchor and after one child resumes",
-      "idempotent same-manager adoption and duplicate independent guard refusal",
-      "rejected foreign/changed manager/boot/pair and unsafe private control endpoint",
-      "partial-evidence mismatch refuses recovery",
-      "immutable saved reply reuse with a failing fake wire callback",
-      "installed small and current-scale stores with 15 retained reservations, review holds, completed and uncertain receipts, fixed 40MiB profile"
+    "changed_files": [
+      "runtime/startup/guarded_startup.py",
+      "runtime/startup/README.md",
+      "tests/test_live_clock_read_errors.py",
+      "tests/test_live_clock_read_processes.py"
     ],
-    "qualification_receipt": "/private/tmp/flex-live-clock-qualification-20261107/QUALIFICATION.json",
-    "qualification_sha256": "6f1ccfe3f4b725d740a1af352e27adcb1ee471658822825a76139608c97cd7c8",
-    "RUNTIME_DEPLOYMENT_GATE": "PASS",
-    "runtime_target": "Installed disposable DEV CLI with actual Supervisor, real bound SQLite/ledger stores, fake workers and disabled IP sockets. Production is a separate unchanged target.",
-    "runtime_installation": "Exact qualified guard/config copied into private disposable DEV installed CLI packages; observed actual guard/Supervisor/fake worker processes, then stopped/reaped after acceptance.",
-    "runtime_source_identity_before": "26f07f05242b90830e9d3b791383b4834bba6777",
-    "runtime_source_identity_after": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
-    "runtime_installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
-    "supervisor_restart_required_for_clock_recovery": false,
-    "child_quiesce_and_resume_required_and_completed": true,
-    "small_runtime_acceptance": {
-      "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
-      "scale": false,
-      "manager_identity_unchanged": {
-        "command": [
-          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
-          "-B",
-          "-m",
-          "supervisor.supervisord",
-          "-n",
-          "-c",
-          "/private/tmp/flex-sg-tv651t04/supervisord.conf"
-        ],
-        "created": 1794091988.850073,
-        "pid": 7844
+    "qualification": "/private/tmp/flex-clock-read-qualification-20261107/QUALIFICATION.json",
+    "qualification_sha256": "117607005420b344055f855700d6e8e22bcd2fe48cc56bf7283f12e6f15db7ec",
+    "engineered_patch": "/private/tmp/flex-clock-read-qualification-20261107/ENGINEERING.patch",
+    "tests_artifact": "/private/tmp/flex-clock-read-qualification-20261107/QUALIFIED_TESTS.xml",
+    "fault_coverage": [
+      "real SQL read-lock failure reproduction on 8b944ece",
+      "transient real lock preserves guard, manager and worker identities without reanchor or proof request",
+      "persistent real lock pauses children, keeps manager alive, resumes only after proof and bound-store recovery",
+      "BUSY, LOCKED and extended numeric codes",
+      "unclassified, IOERR and SQLITE_ERROR failures immediately pause writers",
+      "clock discontinuity survives unavailable samples",
+      "existing drift, sleep/resume, SIGKILL, duplicate starts and current-scale regressions"
+    ],
+    "DEV_acceptance": {
+      "READ_ERROR_REPRODUCTION.json": {
+        "status": "PASS_PRIOR_8B944ECE_FAILURE_REPRODUCED",
+        "error": "OperationalError from real SQLite EXCLUSIVE lock on a disposable DELETE-journal fixture",
+        "old_guard_exited": 78,
+        "supervisor_stopped": true,
+        "protected_state_exact": {
+          "ledger": "f135e92e352f9db80e5a27984916169cd752b15ee7569516261aa789c1865f06",
+          "ops": "846093cab1f86030bb869754643e491b265937d89b6c44e1ec81feaddc8c922f"
+        },
+        "production_error_subtype": "Unknown; installed old diagnostic retained type only. This reproduces the same escaping OperationalError path, not a claim about the exact production SQLite subtype.",
+        "provider_probes": 0,
+        "production_changes": 0
       },
-      "before_workers": {
-        "pumpfun_curve_listener": 7847,
-        "walkback_worker": 7846,
-        "creator_resolution_worker": 7845
+      "READ_TRANSIENT_RUNTIME.json": {
+        "status": "PASS_INSTALLED_TRANSIENT_READ_RETRY",
+        "persistent": false,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-7ch_lwz8/supervisord.conf"
+          ],
+          "created": 1794093947.816574,
+          "pid": 10666
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10669,
+          "walkback_worker": 10668,
+          "creator_resolution_worker": 10667
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10669,
+          "walkback_worker": 10668,
+          "creator_resolution_worker": 10667
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "fixture_lock_type": "EXCLUSIVE SQLite lock; numeric SQLITE_BUSY observed",
+        "protected_state_exact": {
+          "ledger": "1832df8e96b5d1490f51d5a37dd12871f0a2b39d664c604614fe10f2492cec67",
+          "ops": "5cac88b5a859609e601e5f7423bcd1344dd3192e97cfe2dc7cfaab845a41dcc7"
+        },
+        "original_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "40MiB_profile_unchanged": true,
+        "no_duplicate_completed_request_attempts": true,
+        "uncertain_receipt_held": true,
+        "no_proof_or_reanchor_on_transient_read": true,
+        "guard_stayed_running": true,
+        "provider_probes": 0,
+        "production_changes": 0
       },
-      "after_workers": {
-        "pumpfun_curve_listener": 7849,
-        "walkback_worker": 7851,
-        "creator_resolution_worker": 7850
+      "READ_PERSISTENT_RUNTIME.json": {
+        "status": "PASS_INSTALLED_PERSISTENT_READ_RECOVERY",
+        "persistent": true,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-x_72hn5f/supervisord.conf"
+          ],
+          "created": 1794093960.029146,
+          "pid": 10682
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10685,
+          "walkback_worker": 10684,
+          "creator_resolution_worker": 10683
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10725,
+          "walkback_worker": 10727,
+          "creator_resolution_worker": 10726
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "fixture_lock_type": "EXCLUSIVE SQLite lock; numeric SQLITE_BUSY observed",
+        "protected_state_exact": {
+          "ledger": "582d36ffdff0d56b674f02f1cbdf130ee527be4b17f3bec8fe7cdee3ae4ef82d",
+          "ops": "f0490a12e998c23b8d54d736942d1a58aa465857d693c1009dca1105cfaffa37"
+        },
+        "original_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "40MiB_profile_unchanged": true,
+        "no_duplicate_completed_request_attempts": true,
+        "uncertain_receipt_held": true,
+        "no_proof_or_reanchor_on_transient_read": false,
+        "guard_stayed_running": true,
+        "provider_probes": 0,
+        "production_changes": 0
       },
-      "installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
-      "installed_config_sha256": "efb8d1a42a142f361f78ae52e021cc11f347bf3beb8789ab1104d76b66d9e6b5",
-      "protected_digest_unchanged": {
-        "ledger": "f7c865ddda5f6be8a955124d5480286f276c0cae2ce1d443214141b6191332a4",
-        "ops": "7185f1548acd1a97165024fb6d3cbb2dd6681e96b521430b3bcdf252282d9aff"
+      "RUNTIME_SMALL.json": {
+        "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+        "scale": false,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-jm8oryr5/supervisord.conf"
+          ],
+          "created": 1794093992.478083,
+          "pid": 10733
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10736,
+          "walkback_worker": 10735,
+          "creator_resolution_worker": 10734
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10737,
+          "walkback_worker": 10739,
+          "creator_resolution_worker": 10738
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "installed_config_sha256": "5b2141966a27b19721f42f43421b3f6c819b339bba55fdf1b92ac52e6f4281f8",
+        "protected_digest_unchanged": {
+          "ledger": "8f212be6e1f33cbddfeecea6c162960a040328888a769400511607fc60f3d8c4",
+          "ops": "da72f94a02d9d6dc16ad214b2015011121266131cf4f11a585f58643d134ef7f"
+        },
+        "full_retained_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "hot_profile_bytes": 41943040,
+        "completed_immutable_attempts": 1,
+        "uncertain_receipt_held": true,
+        "duplicate_guard_refused": true,
+        "production_changes": 0,
+        "provider_probes": 0,
+        "network": "IP sockets disabled in parent and guard/worker subprocesses",
+        "max_fixture_single_file_bytes": 184320
       },
-      "full_retained_reservations": 15,
-      "reservation_bytes": 31457280,
-      "review_holds": 15,
-      "hot_profile_bytes": 41943040,
-      "completed_immutable_attempts": 1,
-      "uncertain_receipt_held": true,
-      "duplicate_guard_refused": true,
-      "production_changes": 0,
-      "provider_probes": 0,
-      "network": "IP sockets disabled in parent and guard/worker subprocesses",
-      "max_fixture_single_file_bytes": 184320
+      "RUNTIME_SCALE.json": {
+        "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+        "scale": true,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-9999pmi6/supervisord.conf"
+          ],
+          "created": 1794094009.866294,
+          "pid": 10749
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10754,
+          "walkback_worker": 10753,
+          "creator_resolution_worker": 10752
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10759,
+          "walkback_worker": 10761,
+          "creator_resolution_worker": 10760
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "installed_config_sha256": "351374efdca1cb8c3295954d660effc9edf40fc1efc6af563e7e488bfc559b13",
+        "protected_digest_unchanged": {
+          "ledger": "3eca543f509cb4d169a72a951507041082f08ffbcb6a66803f6355dc33ad8ac5",
+          "ops": "2e9417a0890276abf20ee96974f65b1c9012f8e8d93eb3223a149f8821dff278"
+        },
+        "full_retained_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "hot_profile_bytes": 41943040,
+        "completed_immutable_attempts": 1,
+        "uncertain_receipt_held": true,
+        "duplicate_guard_refused": true,
+        "production_changes": 0,
+        "provider_probes": 0,
+        "network": "IP sockets disabled in parent and guard/worker subprocesses",
+        "max_fixture_single_file_bytes": 191909888
+      }
     },
-    "current_scale_runtime_acceptance": {
-      "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
-      "scale": true,
-      "manager_identity_unchanged": {
-        "command": [
-          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
-          "-B",
-          "-m",
-          "supervisor.supervisord",
-          "-n",
-          "-c",
-          "/private/tmp/flex-sg-ui1uy9xw/supervisord.conf"
-        ],
-        "created": 1794092005.597797,
-        "pid": 7866
-      },
-      "before_workers": {
-        "pumpfun_curve_listener": 7869,
-        "walkback_worker": 7868,
-        "creator_resolution_worker": 7867
-      },
-      "after_workers": {
-        "pumpfun_curve_listener": 7877,
-        "walkback_worker": 7879,
-        "creator_resolution_worker": 7878
-      },
-      "installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
-      "installed_config_sha256": "fc930adfbee0d81b5075ca1165bac7d675648fa71ae4fa075fdda6da60f6c689",
-      "protected_digest_unchanged": {
-        "ledger": "42c0af373ce6fe683b21c8e7f4f31e52cc318fda3489f5b8d9349623534bb0f6",
-        "ops": "75b76959d2ecba5f7f54ee9edf9af06916bd65f40f499bd931d7d117735fba5a"
-      },
-      "full_retained_reservations": 15,
-      "reservation_bytes": 31457280,
-      "review_holds": 15,
-      "hot_profile_bytes": 41943040,
-      "completed_immutable_attempts": 1,
-      "uncertain_receipt_held": true,
-      "duplicate_guard_refused": true,
-      "production_changes": 0,
-      "provider_probes": 0,
-      "network": "IP sockets disabled in parent and guard/worker subprocesses",
-      "max_fixture_single_file_bytes": 191909888
-    },
-    "dedup_evidence_reservations_review_holds": "PASS — full protected digests exact across clock-only recovery. Fifteen retained 2MiB reservations, fifteen fixture review holds, completed and uncertain receipts, scopes and fixed 40MiB profile preserved. Saved reply reuse rejects duplicate simulated wire.",
-    "proof_policy": "Unchanged approved-apple-sntp-v1; no proof self-issuance in runtime guard. DEV uses synthetic authority/packet fixtures. Existing native sources and final binaries hash-verified unchanged.",
-    "clock_tolerances": "Unchanged ledger/proof five-second and retention thirty-second checks; proof max age/expiry120 seconds; protected scan30 seconds/pass, max3 passes.",
-    "native_source_binary_verification": "/private/tmp/flex-live-clock-qualification-20261107/NATIVE_UNCHANGED.json",
+    "implementation": "BUSY/LOCKED including extended codes defer on fixed five-second polls, at most five deferred observations. Sixth consecutive failure, non-contention or unclassified operational errors use the existing stopped-writer proof/CAS recovery while Supervisor remains alive. No failed sample becomes clock authority.",
     "bounds": {
-      "new_runtime_single_file_bounds": {
-        "runtime-clock.json": 8192,
-        "runtime-clock.json.stage": 8192,
-        "last-run.json": 8192,
-        "last-run.json.stage": 8192
-      },
-      "control_response_bytes": 32768,
-      "socket_timeout_seconds": 20,
-      "per_child_stop_grace_seconds": 15,
-      "inherited_kernel_file_bytes": 499000000,
-      "largest_observed_fixture_file_bytes": 191909888,
-      "new_unbounded_growth_paths": 0,
-      "raw_provider_retention": "No new retained provider payloads. Synthetic fixtures only."
+      "poll_seconds": 5,
+      "maximum_consecutive_busy_attempt_counter": 6,
+      "per_file_kernel_bytes": 499000000,
+      "fixed_runtime_receipt_bytes": 8192,
+      "fixed_stage_bytes": 8192,
+      "fixed_diagnostic_bytes": 8192,
+      "fixed_diagnostic_stage_bytes": 8192,
+      "largest_observed_fixture_file_bytes": 191909888
     },
-    "production_changes": 0,
-    "production_worker_actions": 0,
+    "raw_provider_retention": "No new provider bodies; synthetic fixtures only.",
+    "new_unbounded_growth_paths": 0,
+    "new_core_worker_Gate_HTTP_proof_quota_policy_changes": 0,
+    "production_changes_after_failure_discovery": 0,
     "provider_probes": 0,
-    "time_server_queries": 0,
-    "FileVault_changes": 0,
-    "production_deployment": "QUALIFIED_NOT_DEPLOYED — separate production target and authorization.",
-    "production_last_verified_patch": "26f07f05242b90830e9d3b791383b4834bba6777",
-    "production_health_last_verified_status": "HOLD_WALKBACK_CLOCK_AUTHORITY_RESTART_LOOP",
-    "production_health_last_verified_utc": "2026-11-07T22:37:32.242327+00:00",
-    "production_health_reaudited_this_DEV": false,
-    "blocker": "NONE — requested DEV milestone complete",
-    "next_action": "NONE — DEV complete. Any production promotion requires separate explicit authorization and pinned compatibility/backup/drain planning. Existing live clock failure is not changed by this DEV milestone."
+    "time_server_queries_by_DEV": 0,
+    "local_candidate": {
+      "status": "PASS_LOCAL_CANDIDATE_PREPARED_NOT_PRODUCTION_AUTHORIZED",
+      "revision": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+      "qualification": "/private/tmp/flex-clock-read-qualification-20261107/QUALIFICATION.json",
+      "tests_passed": 95,
+      "bundle": {
+        "bundle": "/private/tmp/flex-fd759140-rollout-20261107/bundle/bundle.json",
+        "sha256": "450dfbb2f151551f69d03824f8b8798f24049af098eeb66697175bc32cde9786",
+        "release": "/Library/Application Support/FLEXStartup/releases/887ec1105796f1b23efec66c6e9085d3",
+        "installer_sha256": "b02623df4f92478fd656eedd430f8216ca43e9af97cf897c744ad219d6363b64",
+        "activated": false,
+        "mode": "PRODUCTION"
+      },
+      "payloads": {
+        "clock-config.json": {
+          "bytes": 467,
+          "mode": 384,
+          "sha256": "70a675a8b2589a5b4816099079eb2b059cae0c59942b4a170985e41b6db84165"
+        },
+        "clock-job.plist": {
+          "bytes": 906,
+          "mode": 420,
+          "sha256": "b044de960760cb81605e9aadce0c92236c8c69a4adb24ea80548b6eaefc7d95f"
+        },
+        "clock-verifier": {
+          "bytes": 74203,
+          "mode": 493,
+          "sha256": "96112dcccd8a07cbaba396e379c52fc04673014844e5de4c030d20d2b88f47e1"
+        },
+        "guard-job.plist": {
+          "bytes": 1142,
+          "mode": 420,
+          "sha256": "f209b7033fc9b76a9caba638dca8e63ebf8777160040c6bc99f79aa9995e8602"
+        },
+        "guard-manifest.json": {
+          "bytes": 3908,
+          "mode": 420,
+          "sha256": "347f6767d5f43f59497675eea22ad601c8118d836bf4495bb22e6f75d3dbcd6d"
+        },
+        "guarded_startup.py": {
+          "bytes": 34540,
+          "mode": 420,
+          "sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f"
+        },
+        "guarded_startup_config.py": {
+          "bytes": 5419,
+          "mode": 420,
+          "sha256": "540b1dce725f4d906f551ef2fabbfed49babe9ac12805e69cfda683bbed2bec9"
+        }
+      },
+      "runtime_manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-fd759140.json",
+      "runtime_manifest_sha256": "347f6767d5f43f59497675eea22ad601c8118d836bf4495bb22e6f75d3dbcd6d",
+      "live_before_manifest_sha256": "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03",
+      "core_source_pins_unchanged": {
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_completed_archive.py": "36d900aecc081733753221a5e66604c34acb422fc004b9a0a52e6eac7cd3c331",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py": "2c4dd6890ed9db80470892896c771fd9e0868baee929cad909a234603e213aef",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_stage_recovery.py": "b29168e1b6c09179331342a432a8f243f380960622c9dbd267f14f952767cb06",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/paired_binding_guard.py": "e21478adb8536e525f0eff8d836260a6940d265a2ae885776625c8376a59ad57",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_capacity_alerts.py": "700775d4aa128ec12778c3db3327b1126aaeb7234fa6a5a83975e68533ee552a",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_backup.py": "1dd1e8c724aa57994ba65c4b36dcf72a44de71af214a744782038b35ce81bb5f",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_lifecycle.py": "ad8f018f8c4a3db67396677e318281e810f3917ba2d93c1a356beb458e43c403",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_retention.py": "e2dbc26efb838954db5cf14fb5f31f80eb33a73e485d49560864f887278d01b7",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_segments.py": "a44563f65d5ac19f8f5d3f54bb81421a5da2f45208df7c42482578c671c440b1",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoints.py": "faf134862b684d3a59f5bfdf1939545c6f264353b802b66b030c92371c346273",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_hot_capacity.py": "62fbe3e2a428eb30858f3f8536fb4ca21a357b4a28cfe349c1e2fd3841142e8e",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_job_limits.py": "d485fbecc05f87835bab042ae2f29c841bd13bf958da924150f9da687e55f7f7",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py": "d87a8047870cb6ee00b7061ef35a5ea29ba9f416aef5f21161221cabe9c32264"
+      },
+      "scope": "Corrective startup guard only; config, native clock helper/installer, core worker/Gate/HTTP sources, proof policy and 40MiB quota unchanged.",
+      "production_changes": 0,
+      "production_install": false,
+      "production_activation": false,
+      "worker_actions": 0,
+      "provider_probes": 0,
+      "approval_required_for_different_production_revision": true,
+      "preserve_inactive_26f_release_before_any_future_install": "/Library/Application Support/FLEXStartup/releases/3dd84960c51f20adafe43fd800a64868",
+      "future_rollback_target": "/Library/Application Support/FLEXStartup/rollback/3dd84960c51f20adafe43fd800a64868",
+      "future_plan": "After explicit approval: verify administrator/authority/capacity, preserve known inactive release intact, install pinned inactive bundle, take fresh fenced backup, single controlled cutover, verify read-recovery residency and protected-state/completion progress. No probes, fabricated proof, quota/hold changes or additional activation under the old approval."
+    },
+    "candidate_production_authorized": false,
+    "candidate_installed": false,
+    "candidate_activated": false,
+    "blocker": "8b944ece is active but failed runtime acceptance. The qualified correction is a different production revision and has no activation approval.",
+    "next_action": "User: explicitly approve fd759140acc8d9e455e726622c0852efeb96cbdf for production. Then reuse the exact local pinned bundle, recheck authority/admin/backup/capacity, preserve the known inactive 26f07f05 release intact outside the unchanged two-release inventory, take a fresh fenced backup and perform one controlled cutover. Verify stable monitoring, protected state and full-completion progress without duplicate RPC/provider probes. No further activation is authorized by this handoff."
   },
-  "current_next_blocker": "DEV complete. Production last verified degraded on 26f07f05; new revision is qualified but not deployed.",
+  "current_next_blocker": "8b944ece is active but failed runtime acceptance. The qualified correction is a different production revision and has no activation approval.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45140,11 +45551,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T22:59:19.889597+00:00",
+    "published_at_utc": "2026-11-07T23:31:34.528956+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T22:59:15.643281+00:00",
-    "verification_receipt": "/private/tmp/flex-live-clock-qualification-20261107/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T23:31:29.287290+00:00",
+    "verification_receipt": "/private/tmp/flex-clock-read-qualification-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58383,7 +58794,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE — DEV complete. Any production promotion requires separate explicit authorization and pinned compatibility/backup/drain planning. Existing live clock failure is not changed by this DEV milestone.",
+  "next_action": "User: explicitly approve fd759140acc8d9e455e726622c0852efeb96cbdf for production. Then reuse the exact local pinned bundle, recheck authority/admin/backup/capacity, preserve the known inactive 26f07f05 release intact outside the unchanged two-release inventory, take a fresh fenced backup and perform one controlled cutover. Verify stable monitoring, protected state and full-completion progress without duplicate RPC/provider probes. No further activation is authorized by this handoff.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60614,11 +61025,11 @@
     "other_service_fields": "Historical transport context; not reverified or changed in this milestone."
   },
   "project": {
-    "branch": "codex/live-clock-recovery",
-    "git_head": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "branch": "codex/live-clock-read-recovery",
+    "git_head": "fd759140acc8d9e455e726622c0852efeb96cbdf",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T22:59:15.643281+00:00",
-    "working_tree": "/private/tmp/flex-live-clock-dev"
+    "updated_at_utc": "2026-11-07T23:31:29.287290+00:00",
+    "working_tree": "/private/tmp/flex-clock-read-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -62080,7 +62491,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_DEV_TRUSTED_RUNTIME_CLOCK_RECOVERY",
+  "status": "PARTIAL_PRODUCTION_8B_ACCEPTANCE_HOLD_CORRECTIVE_DEV_READY",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63700,7 +64111,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_DEV_RUNTIME_QUALIFIED_PRODUCTION_UNCHANGED",
+  "verdict": "PARTIAL — 8b944ece production acceptance HOLD; fd759140 DEV and installed fixture acceptance PASS; local promotion bundle ready, unapproved",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89337,18 +89748,26 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "DEV trusted runtime-clock recovery qualification only",
-    "production_source_config_or_database_changes": 0,
-    "production_worker_service_actions": 0,
+    "scope": "Authorized 8b944ece activation occurred; post-failure correction is DEV/local-candidate only",
+    "8b_operator_guard_starts": 1,
+    "8b_operator_clock_starts": 1,
+    "8b_root_startup_files_changed": 2,
+    "8b_core_source_files_changed": 0,
+    "8b_domain_schema_or_quota_changes": 0,
+    "8b_guarded_clock_recovery": true,
+    "unexpected_automatic_manager_restart_observed": true,
+    "extra_operator_restarts_after_failure": 0,
+    "fd759140_production_changes": 0,
+    "fd759140_installation_or_activation": false,
     "provider_or_RPC_probes": 0,
-    "time_server_queries": 0,
-    "production_clock_or_store_reanchors": 0,
+    "manual_time_source_queries": 0,
+    "manual_store_reanchors": 0,
+    "reservation_dedup_evidence_review_hold_manual_edits": 0,
     "queue_replay": false,
-    "production_reservation_dedup_evidence_review_hold_changes": 0,
     "FileVault_changes": 0,
-    "production_activation_authorized_by_this_handoff": false,
-    "DEV_RUNTIME_DEPLOYMENT_GATE": "PASS",
-    "production_deployment_status": "QUALIFIED_NOT_DEPLOYED"
+    "current_production_patch": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "proposed_patch": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+    "new_production_approval_required": true
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -97780,5 +98199,850 @@
     "production_health_reaudited_this_DEV": false,
     "blocker": "NONE — requested DEV milestone complete",
     "next_action": "NONE — DEV complete. Any production promotion requires separate explicit authorization and pinned compatibility/backup/drain planning. Existing live clock failure is not changed by this DEV milestone."
+  },
+  "runtime_clock_read_error_correction_dev_20261107": {
+    "status": "PARTIAL_PRODUCTION_8B_ACCEPTANCE_HOLD_CORRECTIVE_DEV_READY",
+    "recorded_utc": "2026-11-07T23:31:29.287290+00:00",
+    "engineering_revision": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+    "branch": "codex/live-clock-read-recovery",
+    "worktree": "/private/tmp/flex-clock-read-dev",
+    "scope": "Complete approved 8b944ece deployment acceptance; reproduce its directly observed sampling failure and prepare a scoped DEV correction, without further production changes.",
+    "production_activation_8b944ece": {
+      "status": "HOLD_DEPLOYED_8B944ECE_UNEXPECTED_MONITOR_EXIT_AND_MANAGER_RESTART",
+      "recorded_utc": "2026-11-07T23:31:29.287290+00:00",
+      "observed_utc": "2026-11-07T23:17:36.026743+00:00",
+      "engineering_revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+      "user_authorized_deployment": true,
+      "approved_patch_installed": true,
+      "active_release": "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca",
+      "active_manifest_sha256": "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03",
+      "initial_cutover": "PASS_SINGLE_GUARDED_CUTOVER",
+      "cutover_started_utc": "2026-11-07T23:05:31.840250+00:00",
+      "cutover_finished_utc": "2026-11-07T23:08:15.477612+00:00",
+      "operator_guard_start_requests": 1,
+      "operator_clock_start_requests": 1,
+      "core_source_changes": 0,
+      "startup_guard_config_files_changed": 2,
+      "schema_or_quota_changes": 0,
+      "hot_profile_preserved_bytes": 41943040,
+      "fresh_fenced_backup": {
+        "status": "PASS_FRESH_FENCED_BACKUP_AND_STARTUP_ROLLBACK_PINS",
+        "observed_utc": "2026-11-07T23:05:25.884831+00:00",
+        "backup_manifest_sha256": "b66eb89a3b42e2bef3f4a2411be322ed93028072160adf2eb5d97e4574a39f45",
+        "backup_files_verified": 18,
+        "old_startup_rollback_files_verified": 3,
+        "largest_file_bytes": 296239104,
+        "SQLite_integrity": "Qualified copier quick_check verified copied databases before publication",
+        "hot_profile_unchanged_bytes": 41943040,
+        "live_restore": false,
+        "provider_probes": 0
+      },
+      "initial_trusted_clock_recovery": "PASS — existing approved root clock helper supplied fresh proof; stopped protected digests compare exactly.",
+      "initial_startup_and_worker_readiness": "PASS",
+      "RUNTIME_DEPLOYMENT_GATE": "HOLD",
+      "runtime_gate_reason": "Steady-state guard sampling raised OperationalError and exited 78. Its finally block terminated Supervisor; launchd automatically restarted it. Same-manager stability and full-completion acceptance failed.",
+      "failure_evidence": "/private/tmp/flex-8b944ece-rollout-20261107/LIVE_ACCEPTANCE_FAILURE.json",
+      "failure": {
+        "status": "HOLD_LIVE_MONITOR_OPERATIONAL_ERROR_AUTOMATIC_MANAGER_RESTART",
+        "observed_utc": "2026-11-07T23:20:56.972771+00:00",
+        "revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+        "diagnostic": {
+          "at": 1794093355,
+          "code": "OperationalError",
+          "status": "HOLD"
+        },
+        "initial_guard": {
+          "pid": 9697,
+          "created": 1794092840.021957,
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca/guarded_startup.py",
+            "--manifest",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-8b944ece.json",
+            "--sha256",
+            "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03"
+          ]
+        },
+        "current_guard": {
+          "pid": 10177,
+          "created": 1794093355.630619,
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca/guarded_startup.py",
+            "--manifest",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-8b944ece.json",
+            "--sha256",
+            "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03"
+          ]
+        },
+        "initial_manager": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
+          ],
+          "created": 1794092884.573311,
+          "pid": 9713
+        },
+        "current_manager": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
+          ],
+          "created": 1794093367.312229,
+          "pid": 10182
+        },
+        "initial_workers": [
+          {
+            "pid": 9715,
+            "ppid": 9713,
+            "module": "src.core.creator_resolution_worker",
+            "created": 1794092885.101646
+          },
+          {
+            "pid": 9716,
+            "ppid": 9713,
+            "module": "src.core.walkback_worker",
+            "created": 1794092885.106499
+          },
+          {
+            "pid": 9717,
+            "ppid": 9713,
+            "module": "src.core.pumpfun_curve_listener",
+            "created": 1794092885.113687
+          }
+        ],
+        "current_workers": [
+          {
+            "pid": 10184,
+            "ppid": 10182,
+            "module": "src.core.creator_resolution_worker",
+            "created": 1794093368.669437
+          },
+          {
+            "pid": 10185,
+            "ppid": 10182,
+            "module": "src.core.walkback_worker",
+            "created": 1794093368.684574
+          },
+          {
+            "pid": 10186,
+            "ppid": 10182,
+            "module": "src.core.pumpfun_curve_listener",
+            "created": 1794093368.687826
+          }
+        ],
+        "runtime_clock_receipt": null,
+        "full_completions": 4599,
+        "full_added": 0,
+        "original_reservations_exact": 16,
+        "original_review_holds_exact": 1566,
+        "immutable_receipts_exact": 23028,
+        "operator_restart_requests_after_cutover": 0,
+        "provider_probes": 0,
+        "retention_clock_accepted": true,
+        "failure_analysis": "SQLite OperationalError escaped live sampling before the recovery try/hold path; manage finally stopped the supervisor. Exact SQLite subtype was not retained by the installed fixed diagnostic; BUSY/LOCKED contention is a hypothesis until DEV reproduction, not an observed subtype."
+      },
+      "failure_type_source": "Installed fixed diagnostic retained OperationalError type only; exact production SQLite subtype is unknown. Real SQLite BUSY read lock reproduces the same escaping error/manager-stop path in DEV.",
+      "full_completions": 4599,
+      "full_added": 0,
+      "running": 1,
+      "capacity": {
+        "version": 1,
+        "scope": "456ba0e303be616b08427ad1",
+        "observed_at": 1794093454,
+        "quality": "VERIFIED",
+        "status": "CRITICAL",
+        "hot": {
+          "used_bytes": 940348,
+          "entries": 6702,
+          "eligible_bytes": 709828,
+          "eligible_entries": 60,
+          "protected_bytes": 230520,
+          "protected_entries": 6642,
+          "reserved_bytes": 35651584,
+          "reservation_count": 17,
+          "protected_commitment_bytes": 35882104,
+          "headroom_after_next_reply_bytes": 3963784,
+          "protected_entry_headroom_after_next": 26125,
+          "immediate_headroom_after_next_reply_bytes": 3253956,
+          "full_reply_slots_after_reclaim": 2,
+          "maintenance_needed_for_next_reply": false,
+          "next_bounded_reclaim_bytes": null,
+          "headroom_after_next_reply_and_one_batch": 3253956,
+          "max_bytes": 41943040,
+          "max_entries": 32768,
+          "next_reply_bytes": 2097152
+        },
+        "archive": {
+          "allocated_segments": 3,
+          "unallocated_segments": 29,
+          "max_segments": 32,
+          "reserved_envelope_bytes": 201326592,
+          "physical_bytes": 72007680,
+          "main_bytes": 72007680,
+          "max_physical_bytes": 2147483648,
+          "main_limit_per_segment": 32505856,
+          "active_main_headroom_bytes": 15441920,
+          "appendable_record_slots": 977260,
+          "worst_batch_reserve_bytes": 17301504,
+          "staging_entries": 0,
+          "oldest_staging_at": null
+        },
+        "storage": {
+          "free_bytes": 12285140992,
+          "required_free_bytes": 2112328704,
+          "disk_margin_bytes": 10172812288,
+          "ops_file_margin_bytes": 157278912,
+          "ops_wal_margin_bytes": 4849664
+        },
+        "alerts": [
+          {
+            "code": "PROTECTED_HOT_BYTES_HIGH",
+            "severity": "CRITICAL",
+            "remaining": 3963784,
+            "warning_at_or_below": 8388608,
+            "critical_at_or_below": 4194304,
+            "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+          },
+          {
+            "code": "OPS_WAL_MARGIN_LOW",
+            "severity": "WARNING",
+            "remaining": 4849664,
+            "warning_at_or_below": 8388608,
+            "critical_at_or_below": 4194304,
+            "message": "OPS WAL headroom is approaching the unchanged storage guard."
+          }
+        ],
+        "retention": {
+          "version": 1,
+          "retention_seconds": 604800,
+          "retired_records": 0,
+          "marker_budget_bytes": 0,
+          "marker_bytes_remaining": 67108864,
+          "marker_records_remaining": 262144,
+          "metadata_growth_allowance_bytes": 167772160,
+          "pending": false,
+          "capacity_warning": false
+        }
+      },
+      "original_reservations_exact": 16,
+      "current_reservations": 17,
+      "original_review_holds_exact": 1566,
+      "current_review_holds": 1567,
+      "immutable_completed_receipts_exact": 23028,
+      "duplicate_pre_cutover_immutable_completed_RPC_receipts": 0,
+      "uncertain_receipts_exact": 31,
+      "operator_restart_requests_after_cutover": 0,
+      "provider_probes": 0,
+      "manual_time_source_queries": 0,
+      "manual_store_reanchors": 0,
+      "legacy_hold_edits": 0,
+      "queue_replay": false,
+      "FileVault": "On at deployment preflight; no settings changes",
+      "previous_26f_release_preserved": true,
+      "inactive_8f_release_preserved_at": "/Library/Application Support/FLEXStartup/rollback/9a6fcaedc889a01e30a10375d730c749",
+      "release_inventory_cap": 2,
+      "blocker": "Clock recovery initialized successfully but guard observation failure restarted the whole manager; production is not certified healthy or 24/7 reliable.",
+      "next_action": "Do not repeat 8b944ece activation or change quotas/holds. Review the qualified fd759140 corrective guard and separately approve its production promotion."
+    },
+    "DEV_correction_status": "PASS_DEV_CLOCK_OBSERVATION_ERROR_RECOVERY",
+    "DEV_correction_tests_passed": 95,
+    "DEV_correction_tests_failed": 0,
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "intended_runtime": "Installed disposable DEV CLI and real SQLite/Supervisor/fake-worker fixtures for fd759140. Production 8b944ece is a separate HOLD target.",
+    "production_RUNTIME_DEPLOYMENT_GATE": "HOLD",
+    "production_current_patch": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "production_current_active_release": "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca",
+    "production_health_last_verified_utc": "2026-11-07T23:17:36.026743+00:00",
+    "production_reaudited_after_read_error_DEV": false,
+    "source_pins": {
+      "runtime/startup/guarded_startup.py": {
+        "sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "bytes": 34540
+      },
+      "runtime/startup/README.md": {
+        "sha256": "f1e964f8c010fb091a3d9f8035126d75586f2d6b97efbeea40b8573db8babade",
+        "bytes": 14789
+      },
+      "tests/test_live_clock_read_errors.py": {
+        "sha256": "51e983210dfb6fb4381b8a8a7c171c020b1bfb7a308cdbf319558293ee1f229e",
+        "bytes": 3304
+      },
+      "tests/test_live_clock_read_processes.py": {
+        "sha256": "bd79c262c111d6d8be6e0be16f74e152052235418ade58f78c0df64731f75548",
+        "bytes": 5176
+      }
+    },
+    "changed_files": [
+      "runtime/startup/guarded_startup.py",
+      "runtime/startup/README.md",
+      "tests/test_live_clock_read_errors.py",
+      "tests/test_live_clock_read_processes.py"
+    ],
+    "qualification": "/private/tmp/flex-clock-read-qualification-20261107/QUALIFICATION.json",
+    "qualification_sha256": "117607005420b344055f855700d6e8e22bcd2fe48cc56bf7283f12e6f15db7ec",
+    "engineered_patch": "/private/tmp/flex-clock-read-qualification-20261107/ENGINEERING.patch",
+    "tests_artifact": "/private/tmp/flex-clock-read-qualification-20261107/QUALIFIED_TESTS.xml",
+    "fault_coverage": [
+      "real SQL read-lock failure reproduction on 8b944ece",
+      "transient real lock preserves guard, manager and worker identities without reanchor or proof request",
+      "persistent real lock pauses children, keeps manager alive, resumes only after proof and bound-store recovery",
+      "BUSY, LOCKED and extended numeric codes",
+      "unclassified, IOERR and SQLITE_ERROR failures immediately pause writers",
+      "clock discontinuity survives unavailable samples",
+      "existing drift, sleep/resume, SIGKILL, duplicate starts and current-scale regressions"
+    ],
+    "DEV_acceptance": {
+      "READ_ERROR_REPRODUCTION.json": {
+        "status": "PASS_PRIOR_8B944ECE_FAILURE_REPRODUCED",
+        "error": "OperationalError from real SQLite EXCLUSIVE lock on a disposable DELETE-journal fixture",
+        "old_guard_exited": 78,
+        "supervisor_stopped": true,
+        "protected_state_exact": {
+          "ledger": "f135e92e352f9db80e5a27984916169cd752b15ee7569516261aa789c1865f06",
+          "ops": "846093cab1f86030bb869754643e491b265937d89b6c44e1ec81feaddc8c922f"
+        },
+        "production_error_subtype": "Unknown; installed old diagnostic retained type only. This reproduces the same escaping OperationalError path, not a claim about the exact production SQLite subtype.",
+        "provider_probes": 0,
+        "production_changes": 0
+      },
+      "READ_TRANSIENT_RUNTIME.json": {
+        "status": "PASS_INSTALLED_TRANSIENT_READ_RETRY",
+        "persistent": false,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-7ch_lwz8/supervisord.conf"
+          ],
+          "created": 1794093947.816574,
+          "pid": 10666
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10669,
+          "walkback_worker": 10668,
+          "creator_resolution_worker": 10667
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10669,
+          "walkback_worker": 10668,
+          "creator_resolution_worker": 10667
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "fixture_lock_type": "EXCLUSIVE SQLite lock; numeric SQLITE_BUSY observed",
+        "protected_state_exact": {
+          "ledger": "1832df8e96b5d1490f51d5a37dd12871f0a2b39d664c604614fe10f2492cec67",
+          "ops": "5cac88b5a859609e601e5f7423bcd1344dd3192e97cfe2dc7cfaab845a41dcc7"
+        },
+        "original_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "40MiB_profile_unchanged": true,
+        "no_duplicate_completed_request_attempts": true,
+        "uncertain_receipt_held": true,
+        "no_proof_or_reanchor_on_transient_read": true,
+        "guard_stayed_running": true,
+        "provider_probes": 0,
+        "production_changes": 0
+      },
+      "READ_PERSISTENT_RUNTIME.json": {
+        "status": "PASS_INSTALLED_PERSISTENT_READ_RECOVERY",
+        "persistent": true,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-x_72hn5f/supervisord.conf"
+          ],
+          "created": 1794093960.029146,
+          "pid": 10682
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10685,
+          "walkback_worker": 10684,
+          "creator_resolution_worker": 10683
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10725,
+          "walkback_worker": 10727,
+          "creator_resolution_worker": 10726
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "fixture_lock_type": "EXCLUSIVE SQLite lock; numeric SQLITE_BUSY observed",
+        "protected_state_exact": {
+          "ledger": "582d36ffdff0d56b674f02f1cbdf130ee527be4b17f3bec8fe7cdee3ae4ef82d",
+          "ops": "f0490a12e998c23b8d54d736942d1a58aa465857d693c1009dca1105cfaffa37"
+        },
+        "original_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "40MiB_profile_unchanged": true,
+        "no_duplicate_completed_request_attempts": true,
+        "uncertain_receipt_held": true,
+        "no_proof_or_reanchor_on_transient_read": false,
+        "guard_stayed_running": true,
+        "provider_probes": 0,
+        "production_changes": 0
+      },
+      "RUNTIME_SMALL.json": {
+        "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+        "scale": false,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-jm8oryr5/supervisord.conf"
+          ],
+          "created": 1794093992.478083,
+          "pid": 10733
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10736,
+          "walkback_worker": 10735,
+          "creator_resolution_worker": 10734
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10737,
+          "walkback_worker": 10739,
+          "creator_resolution_worker": 10738
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "installed_config_sha256": "5b2141966a27b19721f42f43421b3f6c819b339bba55fdf1b92ac52e6f4281f8",
+        "protected_digest_unchanged": {
+          "ledger": "8f212be6e1f33cbddfeecea6c162960a040328888a769400511607fc60f3d8c4",
+          "ops": "da72f94a02d9d6dc16ad214b2015011121266131cf4f11a585f58643d134ef7f"
+        },
+        "full_retained_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "hot_profile_bytes": 41943040,
+        "completed_immutable_attempts": 1,
+        "uncertain_receipt_held": true,
+        "duplicate_guard_refused": true,
+        "production_changes": 0,
+        "provider_probes": 0,
+        "network": "IP sockets disabled in parent and guard/worker subprocesses",
+        "max_fixture_single_file_bytes": 184320
+      },
+      "RUNTIME_SCALE.json": {
+        "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+        "scale": true,
+        "manager_identity_unchanged": {
+          "command": [
+            "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+            "-B",
+            "-m",
+            "supervisor.supervisord",
+            "-n",
+            "-c",
+            "/private/tmp/flex-sg-9999pmi6/supervisord.conf"
+          ],
+          "created": 1794094009.866294,
+          "pid": 10749
+        },
+        "before_workers": {
+          "pumpfun_curve_listener": 10754,
+          "walkback_worker": 10753,
+          "creator_resolution_worker": 10752
+        },
+        "after_workers": {
+          "pumpfun_curve_listener": 10759,
+          "walkback_worker": 10761,
+          "creator_resolution_worker": 10760
+        },
+        "installed_guard_sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f",
+        "installed_config_sha256": "351374efdca1cb8c3295954d660effc9edf40fc1efc6af563e7e488bfc559b13",
+        "protected_digest_unchanged": {
+          "ledger": "3eca543f509cb4d169a72a951507041082f08ffbcb6a66803f6355dc33ad8ac5",
+          "ops": "2e9417a0890276abf20ee96974f65b1c9012f8e8d93eb3223a149f8821dff278"
+        },
+        "full_retained_reservations": 15,
+        "reservation_bytes": 31457280,
+        "review_holds": 15,
+        "hot_profile_bytes": 41943040,
+        "completed_immutable_attempts": 1,
+        "uncertain_receipt_held": true,
+        "duplicate_guard_refused": true,
+        "production_changes": 0,
+        "provider_probes": 0,
+        "network": "IP sockets disabled in parent and guard/worker subprocesses",
+        "max_fixture_single_file_bytes": 191909888
+      }
+    },
+    "implementation": "BUSY/LOCKED including extended codes defer on fixed five-second polls, at most five deferred observations. Sixth consecutive failure, non-contention or unclassified operational errors use the existing stopped-writer proof/CAS recovery while Supervisor remains alive. No failed sample becomes clock authority.",
+    "bounds": {
+      "poll_seconds": 5,
+      "maximum_consecutive_busy_attempt_counter": 6,
+      "per_file_kernel_bytes": 499000000,
+      "fixed_runtime_receipt_bytes": 8192,
+      "fixed_stage_bytes": 8192,
+      "fixed_diagnostic_bytes": 8192,
+      "fixed_diagnostic_stage_bytes": 8192,
+      "largest_observed_fixture_file_bytes": 191909888
+    },
+    "raw_provider_retention": "No new provider bodies; synthetic fixtures only.",
+    "new_unbounded_growth_paths": 0,
+    "new_core_worker_Gate_HTTP_proof_quota_policy_changes": 0,
+    "production_changes_after_failure_discovery": 0,
+    "provider_probes": 0,
+    "time_server_queries_by_DEV": 0,
+    "local_candidate": {
+      "status": "PASS_LOCAL_CANDIDATE_PREPARED_NOT_PRODUCTION_AUTHORIZED",
+      "revision": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+      "qualification": "/private/tmp/flex-clock-read-qualification-20261107/QUALIFICATION.json",
+      "tests_passed": 95,
+      "bundle": {
+        "bundle": "/private/tmp/flex-fd759140-rollout-20261107/bundle/bundle.json",
+        "sha256": "450dfbb2f151551f69d03824f8b8798f24049af098eeb66697175bc32cde9786",
+        "release": "/Library/Application Support/FLEXStartup/releases/887ec1105796f1b23efec66c6e9085d3",
+        "installer_sha256": "b02623df4f92478fd656eedd430f8216ca43e9af97cf897c744ad219d6363b64",
+        "activated": false,
+        "mode": "PRODUCTION"
+      },
+      "payloads": {
+        "clock-config.json": {
+          "bytes": 467,
+          "mode": 384,
+          "sha256": "70a675a8b2589a5b4816099079eb2b059cae0c59942b4a170985e41b6db84165"
+        },
+        "clock-job.plist": {
+          "bytes": 906,
+          "mode": 420,
+          "sha256": "b044de960760cb81605e9aadce0c92236c8c69a4adb24ea80548b6eaefc7d95f"
+        },
+        "clock-verifier": {
+          "bytes": 74203,
+          "mode": 493,
+          "sha256": "96112dcccd8a07cbaba396e379c52fc04673014844e5de4c030d20d2b88f47e1"
+        },
+        "guard-job.plist": {
+          "bytes": 1142,
+          "mode": 420,
+          "sha256": "f209b7033fc9b76a9caba638dca8e63ebf8777160040c6bc99f79aa9995e8602"
+        },
+        "guard-manifest.json": {
+          "bytes": 3908,
+          "mode": 420,
+          "sha256": "347f6767d5f43f59497675eea22ad601c8118d836bf4495bb22e6f75d3dbcd6d"
+        },
+        "guarded_startup.py": {
+          "bytes": 34540,
+          "mode": 420,
+          "sha256": "c68b40b7c6c2c6af0ace49d5cfb1509e5ebc0e2cf3e766adf2e5ff3ac6e1490f"
+        },
+        "guarded_startup_config.py": {
+          "bytes": 5419,
+          "mode": 420,
+          "sha256": "540b1dce725f4d906f551ef2fabbfed49babe9ac12805e69cfda683bbed2bec9"
+        }
+      },
+      "runtime_manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-fd759140.json",
+      "runtime_manifest_sha256": "347f6767d5f43f59497675eea22ad601c8118d836bf4495bb22e6f75d3dbcd6d",
+      "live_before_manifest_sha256": "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03",
+      "core_source_pins_unchanged": {
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_completed_archive.py": "36d900aecc081733753221a5e66604c34acb422fc004b9a0a52e6eac7cd3c331",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_denial_gate.py": "2c4dd6890ed9db80470892896c771fd9e0868baee929cad909a234603e213aef",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/helius_stage_recovery.py": "b29168e1b6c09179331342a432a8f243f380960622c9dbd267f14f952767cb06",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/paired_binding_guard.py": "e21478adb8536e525f0eff8d836260a6940d265a2ae885776625c8376a59ad57",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_capacity_alerts.py": "700775d4aa128ec12778c3db3327b1126aaeb7234fa6a5a83975e68533ee552a",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_backup.py": "1dd1e8c724aa57994ba65c4b36dcf72a44de71af214a744782038b35ce81bb5f",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_lifecycle.py": "ad8f018f8c4a3db67396677e318281e810f3917ba2d93c1a356beb458e43c403",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_retention.py": "e2dbc26efb838954db5cf14fb5f31f80eb33a73e485d49560864f887278d01b7",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoint_segments.py": "a44563f65d5ac19f8f5d3f54bb81421a5da2f45208df7c42482578c671c440b1",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_checkpoints.py": "faf134862b684d3a59f5bfdf1939545c6f264353b802b66b030c92371c346273",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_hot_capacity.py": "62fbe3e2a428eb30858f3f8536fb4ca21a357b4a28cfe349c1e2fd3841142e8e",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_job_limits.py": "d485fbecc05f87835bab042ae2f29c841bd13bf958da924150f9da687e55f7f7",
+        "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py": "d87a8047870cb6ee00b7061ef35a5ea29ba9f416aef5f21161221cabe9c32264"
+      },
+      "scope": "Corrective startup guard only; config, native clock helper/installer, core worker/Gate/HTTP sources, proof policy and 40MiB quota unchanged.",
+      "production_changes": 0,
+      "production_install": false,
+      "production_activation": false,
+      "worker_actions": 0,
+      "provider_probes": 0,
+      "approval_required_for_different_production_revision": true,
+      "preserve_inactive_26f_release_before_any_future_install": "/Library/Application Support/FLEXStartup/releases/3dd84960c51f20adafe43fd800a64868",
+      "future_rollback_target": "/Library/Application Support/FLEXStartup/rollback/3dd84960c51f20adafe43fd800a64868",
+      "future_plan": "After explicit approval: verify administrator/authority/capacity, preserve known inactive release intact, install pinned inactive bundle, take fresh fenced backup, single controlled cutover, verify read-recovery residency and protected-state/completion progress. No probes, fabricated proof, quota/hold changes or additional activation under the old approval."
+    },
+    "candidate_production_authorized": false,
+    "candidate_installed": false,
+    "candidate_activated": false,
+    "blocker": "8b944ece is active but failed runtime acceptance. The qualified correction is a different production revision and has no activation approval.",
+    "next_action": "User: explicitly approve fd759140acc8d9e455e726622c0852efeb96cbdf for production. Then reuse the exact local pinned bundle, recheck authority/admin/backup/capacity, preserve the known inactive 26f07f05 release intact outside the unchanged two-release inventory, take a fresh fenced backup and perform one controlled cutover. Verify stable monitoring, protected state and full-completion progress without duplicate RPC/provider probes. No further activation is authorized by this handoff."
+  },
+  "trusted_runtime_clock_recovery_activation_20261107": {
+    "status": "HOLD_DEPLOYED_8B944ECE_UNEXPECTED_MONITOR_EXIT_AND_MANAGER_RESTART",
+    "recorded_utc": "2026-11-07T23:31:29.287290+00:00",
+    "observed_utc": "2026-11-07T23:17:36.026743+00:00",
+    "engineering_revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "user_authorized_deployment": true,
+    "approved_patch_installed": true,
+    "active_release": "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca",
+    "active_manifest_sha256": "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03",
+    "initial_cutover": "PASS_SINGLE_GUARDED_CUTOVER",
+    "cutover_started_utc": "2026-11-07T23:05:31.840250+00:00",
+    "cutover_finished_utc": "2026-11-07T23:08:15.477612+00:00",
+    "operator_guard_start_requests": 1,
+    "operator_clock_start_requests": 1,
+    "core_source_changes": 0,
+    "startup_guard_config_files_changed": 2,
+    "schema_or_quota_changes": 0,
+    "hot_profile_preserved_bytes": 41943040,
+    "fresh_fenced_backup": {
+      "status": "PASS_FRESH_FENCED_BACKUP_AND_STARTUP_ROLLBACK_PINS",
+      "observed_utc": "2026-11-07T23:05:25.884831+00:00",
+      "backup_manifest_sha256": "b66eb89a3b42e2bef3f4a2411be322ed93028072160adf2eb5d97e4574a39f45",
+      "backup_files_verified": 18,
+      "old_startup_rollback_files_verified": 3,
+      "largest_file_bytes": 296239104,
+      "SQLite_integrity": "Qualified copier quick_check verified copied databases before publication",
+      "hot_profile_unchanged_bytes": 41943040,
+      "live_restore": false,
+      "provider_probes": 0
+    },
+    "initial_trusted_clock_recovery": "PASS — existing approved root clock helper supplied fresh proof; stopped protected digests compare exactly.",
+    "initial_startup_and_worker_readiness": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD",
+    "runtime_gate_reason": "Steady-state guard sampling raised OperationalError and exited 78. Its finally block terminated Supervisor; launchd automatically restarted it. Same-manager stability and full-completion acceptance failed.",
+    "failure_evidence": "/private/tmp/flex-8b944ece-rollout-20261107/LIVE_ACCEPTANCE_FAILURE.json",
+    "failure": {
+      "status": "HOLD_LIVE_MONITOR_OPERATIONAL_ERROR_AUTOMATIC_MANAGER_RESTART",
+      "observed_utc": "2026-11-07T23:20:56.972771+00:00",
+      "revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+      "diagnostic": {
+        "at": 1794093355,
+        "code": "OperationalError",
+        "status": "HOLD"
+      },
+      "initial_guard": {
+        "pid": 9697,
+        "created": 1794092840.021957,
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca/guarded_startup.py",
+          "--manifest",
+          "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-8b944ece.json",
+          "--sha256",
+          "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03"
+        ]
+      },
+      "current_guard": {
+        "pid": 10177,
+        "created": 1794093355.630619,
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "/Library/Application Support/FLEXStartup/releases/492b628c3837b1b2edcadeac5edcfcca/guarded_startup.py",
+          "--manifest",
+          "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/manifest-8b944ece.json",
+          "--sha256",
+          "91fe4aa39be1056547a3750ed3ed94ddeceaaeabc660815d16e713b3018b3a03"
+        ]
+      },
+      "initial_manager": {
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "-m",
+          "supervisor.supervisord",
+          "-n",
+          "-c",
+          "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
+        ],
+        "created": 1794092884.573311,
+        "pid": 9713
+      },
+      "current_manager": {
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "-m",
+          "supervisor.supervisord",
+          "-n",
+          "-c",
+          "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
+        ],
+        "created": 1794093367.312229,
+        "pid": 10182
+      },
+      "initial_workers": [
+        {
+          "pid": 9715,
+          "ppid": 9713,
+          "module": "src.core.creator_resolution_worker",
+          "created": 1794092885.101646
+        },
+        {
+          "pid": 9716,
+          "ppid": 9713,
+          "module": "src.core.walkback_worker",
+          "created": 1794092885.106499
+        },
+        {
+          "pid": 9717,
+          "ppid": 9713,
+          "module": "src.core.pumpfun_curve_listener",
+          "created": 1794092885.113687
+        }
+      ],
+      "current_workers": [
+        {
+          "pid": 10184,
+          "ppid": 10182,
+          "module": "src.core.creator_resolution_worker",
+          "created": 1794093368.669437
+        },
+        {
+          "pid": 10185,
+          "ppid": 10182,
+          "module": "src.core.walkback_worker",
+          "created": 1794093368.684574
+        },
+        {
+          "pid": 10186,
+          "ppid": 10182,
+          "module": "src.core.pumpfun_curve_listener",
+          "created": 1794093368.687826
+        }
+      ],
+      "runtime_clock_receipt": null,
+      "full_completions": 4599,
+      "full_added": 0,
+      "original_reservations_exact": 16,
+      "original_review_holds_exact": 1566,
+      "immutable_receipts_exact": 23028,
+      "operator_restart_requests_after_cutover": 0,
+      "provider_probes": 0,
+      "retention_clock_accepted": true,
+      "failure_analysis": "SQLite OperationalError escaped live sampling before the recovery try/hold path; manage finally stopped the supervisor. Exact SQLite subtype was not retained by the installed fixed diagnostic; BUSY/LOCKED contention is a hypothesis until DEV reproduction, not an observed subtype."
+    },
+    "failure_type_source": "Installed fixed diagnostic retained OperationalError type only; exact production SQLite subtype is unknown. Real SQLite BUSY read lock reproduces the same escaping error/manager-stop path in DEV.",
+    "full_completions": 4599,
+    "full_added": 0,
+    "running": 1,
+    "capacity": {
+      "version": 1,
+      "scope": "456ba0e303be616b08427ad1",
+      "observed_at": 1794093454,
+      "quality": "VERIFIED",
+      "status": "CRITICAL",
+      "hot": {
+        "used_bytes": 940348,
+        "entries": 6702,
+        "eligible_bytes": 709828,
+        "eligible_entries": 60,
+        "protected_bytes": 230520,
+        "protected_entries": 6642,
+        "reserved_bytes": 35651584,
+        "reservation_count": 17,
+        "protected_commitment_bytes": 35882104,
+        "headroom_after_next_reply_bytes": 3963784,
+        "protected_entry_headroom_after_next": 26125,
+        "immediate_headroom_after_next_reply_bytes": 3253956,
+        "full_reply_slots_after_reclaim": 2,
+        "maintenance_needed_for_next_reply": false,
+        "next_bounded_reclaim_bytes": null,
+        "headroom_after_next_reply_and_one_batch": 3253956,
+        "max_bytes": 41943040,
+        "max_entries": 32768,
+        "next_reply_bytes": 2097152
+      },
+      "archive": {
+        "allocated_segments": 3,
+        "unallocated_segments": 29,
+        "max_segments": 32,
+        "reserved_envelope_bytes": 201326592,
+        "physical_bytes": 72007680,
+        "main_bytes": 72007680,
+        "max_physical_bytes": 2147483648,
+        "main_limit_per_segment": 32505856,
+        "active_main_headroom_bytes": 15441920,
+        "appendable_record_slots": 977260,
+        "worst_batch_reserve_bytes": 17301504,
+        "staging_entries": 0,
+        "oldest_staging_at": null
+      },
+      "storage": {
+        "free_bytes": 12285140992,
+        "required_free_bytes": 2112328704,
+        "disk_margin_bytes": 10172812288,
+        "ops_file_margin_bytes": 157278912,
+        "ops_wal_margin_bytes": 4849664
+      },
+      "alerts": [
+        {
+          "code": "PROTECTED_HOT_BYTES_HIGH",
+          "severity": "CRITICAL",
+          "remaining": 3963784,
+          "warning_at_or_below": 8388608,
+          "critical_at_or_below": 4194304,
+          "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+        },
+        {
+          "code": "OPS_WAL_MARGIN_LOW",
+          "severity": "WARNING",
+          "remaining": 4849664,
+          "warning_at_or_below": 8388608,
+          "critical_at_or_below": 4194304,
+          "message": "OPS WAL headroom is approaching the unchanged storage guard."
+        }
+      ],
+      "retention": {
+        "version": 1,
+        "retention_seconds": 604800,
+        "retired_records": 0,
+        "marker_budget_bytes": 0,
+        "marker_bytes_remaining": 67108864,
+        "marker_records_remaining": 262144,
+        "metadata_growth_allowance_bytes": 167772160,
+        "pending": false,
+        "capacity_warning": false
+      }
+    },
+    "original_reservations_exact": 16,
+    "current_reservations": 17,
+    "original_review_holds_exact": 1566,
+    "current_review_holds": 1567,
+    "immutable_completed_receipts_exact": 23028,
+    "duplicate_pre_cutover_immutable_completed_RPC_receipts": 0,
+    "uncertain_receipts_exact": 31,
+    "operator_restart_requests_after_cutover": 0,
+    "provider_probes": 0,
+    "manual_time_source_queries": 0,
+    "manual_store_reanchors": 0,
+    "legacy_hold_edits": 0,
+    "queue_replay": false,
+    "FileVault": "On at deployment preflight; no settings changes",
+    "previous_26f_release_preserved": true,
+    "inactive_8f_release_preserved_at": "/Library/Application Support/FLEXStartup/rollback/9a6fcaedc889a01e30a10375d730c749",
+    "release_inventory_cap": 2,
+    "blocker": "Clock recovery initialized successfully but guard observation failure restarted the whole manager; production is not certified healthy or 24/7 reliable.",
+    "next_action": "Do not repeat 8b944ece activation or change quotas/holds. Review the qualified fd759140 corrective guard and separately approve its production promotion."
   }
 }

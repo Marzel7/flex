@@ -1222,8 +1222,10 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
-  "blockers": [],
+  "blocker": "Expected root installer and release have not been installed at approved locations; cannot PASS installed identity/ownership/receipt verification.",
+  "blockers": [
+    "Expected root installer and release have not been installed at approved locations; cannot PASS installed identity/ownership/receipt verification."
+  ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2692,85 +2694,161 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "PASS_EA9BB39D_PRODUCTION_BUNDLE_STAGED_ADMIN_INSTALL_PENDING_NO_ACTIVATION",
-    "recorded_utc": "2026-11-07T16:13:43.302598+00:00",
+    "status": "HOLD_EA9BB39D_INSTALLATION_NOT_PRESENT_INACTIVE_VERIFIED",
+    "recorded_utc": "2026-11-07T17:57:46.116620+00:00",
     "engineering_revision": "ea9bb39d71838983a7af74396a3ed8595e755c87",
     "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "audit_only": true,
     "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Requested artifact preparation only; no installer/worker/helper executed against production.",
-    "staging_only": true,
-    "installer_executed": false,
-    "activated": false,
-    "Apple_SNTP_policy_approval": "Explicit user approval in current request, PRODUCTION staging-spec source_policy_approved=true",
-    "bundle": {
-      "bundle": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/bundle/bundle.json",
-      "sha256": "3ac6120a733f933f66468639af4fc4edc1cd48e96f2cc37ff5b55e7502dc8b55",
-      "release": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
-      "installer_sha256": "b02623df4f92478fd656eedd430f8216ca43e9af97cf897c744ad219d6363b64",
-      "activated": false,
-      "mode": "PRODUCTION"
-    },
-    "candidate_profile": {
-      "path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf",
-      "sha256": "7f4e062c6f292c6203a80bbc1c40bc6b07f586049e15e97482b7230c1bbaf60b",
-      "owner_uid": 501,
-      "mode": "0o600",
-      "credentials": "Exact existing explicit environment retained privately; no values exported."
-    },
-    "generation": "DEV004-V2-20261024-dfb76562",
-    "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783",
-    "authority_validation": "PASS_EXISTING_VALIDATOR_READONLY",
-    "verification": {
-      "status": "PASS_INDEPENDENT_PRODUCTION_STAGING_VERIFICATION",
-      "mode": "PRODUCTION",
-      "files_verified": 7,
-      "native_installer_verified": true,
-      "root_path_metadata": [
+    "runtime_deployment_reason": "Requested passive verification only. No package executable or service action was used for verification.",
+    "read_only_audit_completed": true,
+    "installation_verdict": "HOLD_NOT_INSTALLED",
+    "inactivity_verdict": "PASS_NOT_REGISTERED_OR_RUNNING",
+    "staged_bundle_verdict": "PASS_PINNED_PAYLOADS_AND_PRIVATE_PROFILE_INTACT",
+    "expected_installer": "/Library/PrivilegedHelperTools/com.flex.startup-installer",
+    "expected_release": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
+    "installation_observation": "All six approved root destinations (installer/base/release/clock directory/two active plist paths) are absent; no installation receipt exists. No claim that the administrator command was or was not attempted.",
+    "install_state": {
+      "status": "NOT_INSTALLED_STAGED_BUNDLE_INTACT_AND_INACTIVE",
+      "observed_utc": "2026-11-07T17:56:25.158646+00:00",
+      "engineering_revision": "ea9bb39d71838983a7af74396a3ed8595e755c87",
+      "expected_release": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
+      "expected_bundle_sha256": "3ac6120a733f933f66468639af4fc4edc1cd48e96f2cc37ff5b55e7502dc8b55",
+      "expected_installer_sha256": "b02623df4f92478fd656eedd430f8216ca43e9af97cf897c744ad219d6363b64",
+      "expected_paths": [
         {
-          "path": "/Library",
-          "uid": 0,
-          "mode": "0o755"
+          "path": "/Library/PrivilegedHelperTools/com.flex.startup-installer",
+          "exists": false
         },
         {
-          "path": "/Library/Application Support",
-          "uid": 0,
-          "mode": "0o755"
+          "path": "/Library/Application Support/FLEXStartup",
+          "exists": false
         },
         {
-          "path": "/Library/PrivilegedHelperTools",
-          "uid": 0,
-          "mode": "0o755"
+          "path": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
+          "exists": false
+        },
+        {
+          "path": "/Library/Application Support/FLEXStartup/clock",
+          "exists": false
+        },
+        {
+          "path": "/Library/LaunchDaemons/com.flex.startup.clock.plist",
+          "exists": false
+        },
+        {
+          "path": "/Library/LaunchDaemons/com.flex.startup.guard.plist",
+          "exists": false
         }
       ],
-      "guard_user": "kevinkeaveney",
-      "clock_helper_user": "root when activated later",
-      "bindings": "Existing accepted generation/pair plus auxiliary validated; no synthetic fixture",
-      "activation": false,
+      "staged_payloads_verified": 7,
+      "staged_installer_verified": true,
+      "private_candidate_profile_digest_verified": true,
+      "launchd_registration": [
+        {
+          "domain": "system",
+          "label": "com.flex.startup.clock",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "system",
+          "label": "com.flex.startup.guard",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "gui/501",
+          "label": "com.flex.startup.clock",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "gui/501",
+          "label": "com.flex.startup.guard",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "user/501",
+          "label": "com.flex.startup.clock",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "user/501",
+          "label": "com.flex.startup.guard",
+          "registered": false,
+          "exit": 113
+        }
+      ],
+      "new_package_processes": [],
+      "existing_worker_manager_inventory": [
+        {
+          "pid": 1131,
+          "ppid": 1,
+          "created": 1792427331.096134,
+          "kind": "Supervisor",
+          "config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf"
+        },
+        {
+          "pid": 44253,
+          "ppid": 1131,
+          "created": 1794043065.667792,
+          "kind": [
+            "src.core.walkback_worker"
+          ],
+          "config": null
+        },
+        {
+          "pid": 48593,
+          "ppid": 1131,
+          "created": 1793965423.48722,
+          "kind": [
+            "src.core.pumpfun_curve_listener"
+          ],
+          "config": null
+        },
+        {
+          "pid": 76225,
+          "ppid": 1131,
+          "created": 1794054817.892024,
+          "kind": [
+            "src.core.creator_resolution_worker"
+          ],
+          "config": null
+        }
+      ],
+      "inactive": true,
+      "installation_correctness": "Cannot PASS installation: native installer, root release and clock directory do not exist at approved locations. Staging is intact.",
+      "root_receipt_available": false,
+      "runtime_deployment_required": false,
+      "reason": "Read-only verification request; installer/helper/guard are not executed to test them.",
       "provider_probes": 0,
-      "time_queries": 0,
-      "new_file_max_bytes": 74203,
-      "raw_provider_retention": false,
-      "private_profile": "0600 in private UID501 runtime directory; no credential values included in this report"
-    },
-    "prior_DEV_qualification": {
-      "tests_passed": 89,
-      "evidence_ref": "/private/tmp/flex-clock-helper-dev-20261107/QUALIFICATION.json"
+      "time_server_queries": 0,
+      "Supervisor_RPC_calls": 0,
+      "worker_actions": 0,
+      "production_or_system_setting_changes": 0,
+      "FileVault_changes": 0,
+      "next_action": "Run the previously supplied checksum-gated administrator installation block, stop after PASS_STAGED/activated=false, then request passive verification. Do not load jobs or run the helper/guard.",
+      "all_uid_native_process_inventory": [],
+      "audit_completed_utc": "2026-11-07T17:57:10.110852+00:00"
     },
     "preservation": {
       "status": "PASS_READONLY_PRESERVATION_AND_SOURCE_IDENTITIES",
-      "observed_utc": "2026-11-07T16:12:01.878489+00:00",
-      "read_seconds": 0.111,
+      "observed_utc": "2026-11-07T17:56:19.401392+00:00",
+      "read_seconds": 0.11,
       "original_reservations_exact": 7,
       "original_reserved_bytes_exact": 14680064,
-      "current_reservations": 9,
+      "current_reservations": 10,
       "original_review_holds_exact": 1512,
-      "current_review_marked_jobs": 1534,
+      "current_review_marked_jobs": 1539,
       "original_uncertain_receipts_exact": 23,
       "original_saved_completed_receipts_exact": 5690,
-      "saved_receipts_hot_exact": 4914,
-      "saved_receipts_archive_exact": 776,
-      "comparison_note": "776 baseline receipts are exact in the identity-bound archive and 4914 in the hot ledger; no attempts or credits changed.",
+      "saved_receipts_hot_exact": 4555,
+      "saved_receipts_archive_exact": 1135,
+      "comparison_note": "1135 baseline receipts are exact in the identity-bound archive and 4555 in the hot ledger; no attempts or credits changed.",
       "spending_policy_unchanged": true,
       "protected_sources_and_config_unchanged": true,
       "active_config_sha256": "3ed03f1666e51e41fef540b2a84c8055259855bddfb0f606eaf304919f486f25",
@@ -2781,44 +2859,30 @@
       "service_actions": 0
     },
     "production_change_flags": {
-      "scope": "Explicitly authorized PRODUCTION-mode artifact staging only",
-      "private_inactive_staging_writes_authorized": true,
-      "private_new_paths": [
-        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d",
-        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup"
-      ],
-      "active_production_source_or_config_writes": 0,
-      "production_database_or_accounting_writes": 0,
+      "scope": "Read-only installation and inactivity verification",
+      "production_writes": 0,
+      "system_or_runtime_installer_execution": false,
+      "native_clock_helper_execution": false,
       "worker_actions": 0,
       "service_mutations": 0,
-      "root_installer_execution": false,
-      "native_clock_helper_execution": false,
-      "job_installation_or_activation": false,
+      "job_activation": false,
       "provider_probes": 0,
       "time_server_queries": 0,
       "Supervisor_RPC_calls": 0,
+      "accounting_edits": 0,
       "queue_replay": false,
       "reservation_or_review_hold_edits": 0,
-      "FileVault_SSH_sudo_policy_changes": 0,
+      "FileVault_SSH_sudo_changes": 0,
       "production_restarts_or_reboots": 0
     },
-    "file_bounds": {
-      "max_new_file_bytes": 74203,
-      "raw_provider_retention": false,
-      "credential_state": "Exact accepted environment in new private UID501 mode0600 inactive profile; not in bundle/report/handoff.",
-      "unbounded_growth_paths": 0,
-      "no_database_clone_created": true
-    },
-    "readiness_verdict": "PASS_STAGED_NOT_INSTALLED_NOT_ACTIVATED",
-    "blocker": null,
-    "pending_human_step": "Local administrator authentication for checksum-gated inactive installer; credentials are never sent to chat.",
-    "administrator_instructions": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md",
-    "evidence_ref": "/private/tmp/flex-ea9bb39d-production-stage-20261107/STAGING.json",
-    "verification_ref": "/private/tmp/flex-ea9bb39d-production-stage-20261107/VERIFICATION.json",
-    "preservation_ref": "/private/tmp/flex-ea9bb39d-production-stage-20261107/PRESERVATION.json",
-    "next_action": "User runs the exact checksum-gated commands in /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md in their own administrator Terminal. Expect PASS_STAGED and activated=false, then stop. Do not load jobs, run the clock/guard, restart/drain workers, restore stores or issue probes. Activation and fresh fenced backup remain a separate explicit step. Keep FileVault enabled; preserve all original request/evidence/hold authority."
+    "blocker": "Expected root installer and release have not been installed at approved locations; cannot PASS installed identity/ownership/receipt verification.",
+    "next_action": "Run the already supplied checksum-gated inactive administrator installation steps at /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md. Stop after PASS_STAGED/activated=false and obtain passive installation verification. Do not load jobs, run helper/guard, activate, drain/restart workers, restore stores or issue provider/time probes.",
+    "evidence_ref": "/private/tmp/flex-ea9bb39d-install-verify-20261107/INSTALL_STATE.json",
+    "preservation_ref": "/private/tmp/flex-ea9bb39d-install-verify-20261107/PRESERVATION.json",
+    "source_tests_unchanged": "Prior 89-test qualification remains closed; no new code or tests required for passive audit.",
+    "administrator_instructions": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md"
   },
-  "current_next_blocker": "NONE for requested staging. Await the human administrator inactive installation; no activation authorized by this milestone.",
+  "current_next_blocker": "Expected root installer and release have not been installed at approved locations; cannot PASS installed identity/ownership/receipt verification.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45080,11 +45144,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T16:14:00.863696+00:00",
+    "published_at_utc": "2026-11-07T17:57:58.735745+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T16:13:43.302598+00:00",
-    "verification_receipt": "/private/tmp/flex-ea9bb39d-production-stage-20261107/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T17:57:46.116620+00:00",
+    "verification_receipt": "/private/tmp/flex-ea9bb39d-install-verify-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58323,7 +58387,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "User runs the exact checksum-gated commands in /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md in their own administrator Terminal. Expect PASS_STAGED and activated=false, then stop. Do not load jobs, run the clock/guard, restart/drain workers, restore stores or issue probes. Activation and fresh fenced backup remain a separate explicit step. Keep FileVault enabled; preserve all original request/evidence/hold authority.",
+  "next_action": "Run the already supplied checksum-gated inactive administrator installation steps at /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md. Stop after PASS_STAGED/activated=false and obtain passive installation verification. Do not load jobs, run helper/guard, activate, drain/restart workers, restore stores or issue provider/time probes.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60557,7 +60621,7 @@
     "branch": "codex/clock-helper-installer",
     "git_head": "ea9bb39d71838983a7af74396a3ed8595e755c87",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T16:13:43.302598+00:00",
+    "updated_at_utc": "2026-11-07T17:57:46.116620+00:00",
     "working_tree": "/private/tmp/flex-r02-retention-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -62020,7 +62084,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_EA9BB39D_PRODUCTION_BUNDLE_STAGED_ADMIN_INSTALL_PENDING_NO_ACTIVATION",
+  "status": "HOLD_EA9BB39D_INSTALLATION_NOT_PRESENT_INACTIVE_VERIFIED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63640,7 +63704,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_EA9BB39D_PRODUCTION_BUNDLE_STAGED_ADMIN_INSTALL_PENDING_NO_ACTIVATION",
+  "verdict": "HOLD_EA9BB39D_INSTALLATION_NOT_PRESENT_INACTIVE_VERIFIED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89277,25 +89341,20 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Explicitly authorized PRODUCTION-mode artifact staging only",
-    "private_inactive_staging_writes_authorized": true,
-    "private_new_paths": [
-      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d",
-      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup"
-    ],
-    "active_production_source_or_config_writes": 0,
-    "production_database_or_accounting_writes": 0,
+    "scope": "Read-only installation and inactivity verification",
+    "production_writes": 0,
+    "system_or_runtime_installer_execution": false,
+    "native_clock_helper_execution": false,
     "worker_actions": 0,
     "service_mutations": 0,
-    "root_installer_execution": false,
-    "native_clock_helper_execution": false,
-    "job_installation_or_activation": false,
+    "job_activation": false,
     "provider_probes": 0,
     "time_server_queries": 0,
     "Supervisor_RPC_calls": 0,
+    "accounting_edits": 0,
     "queue_replay": false,
     "reservation_or_review_hold_edits": 0,
-    "FileVault_SSH_sudo_policy_changes": 0,
+    "FileVault_SSH_sudo_changes": 0,
     "production_restarts_or_reboots": 0
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
@@ -95368,5 +95427,194 @@
     "verification_ref": "/private/tmp/flex-ea9bb39d-production-stage-20261107/VERIFICATION.json",
     "preservation_ref": "/private/tmp/flex-ea9bb39d-production-stage-20261107/PRESERVATION.json",
     "next_action": "User runs the exact checksum-gated commands in /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md in their own administrator Terminal. Expect PASS_STAGED and activated=false, then stop. Do not load jobs, run the clock/guard, restart/drain workers, restore stores or issue probes. Activation and fresh fenced backup remain a separate explicit step. Keep FileVault enabled; preserve all original request/evidence/hold authority."
+  },
+  "ea9bb39d_install_inactivity_verification_20261107": {
+    "status": "HOLD_EA9BB39D_INSTALLATION_NOT_PRESENT_INACTIVE_VERIFIED",
+    "recorded_utc": "2026-11-07T17:57:46.116620+00:00",
+    "engineering_revision": "ea9bb39d71838983a7af74396a3ed8595e755c87",
+    "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+    "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "audit_only": true,
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Requested passive verification only. No package executable or service action was used for verification.",
+    "read_only_audit_completed": true,
+    "installation_verdict": "HOLD_NOT_INSTALLED",
+    "inactivity_verdict": "PASS_NOT_REGISTERED_OR_RUNNING",
+    "staged_bundle_verdict": "PASS_PINNED_PAYLOADS_AND_PRIVATE_PROFILE_INTACT",
+    "expected_installer": "/Library/PrivilegedHelperTools/com.flex.startup-installer",
+    "expected_release": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
+    "installation_observation": "All six approved root destinations (installer/base/release/clock directory/two active plist paths) are absent; no installation receipt exists. No claim that the administrator command was or was not attempted.",
+    "install_state": {
+      "status": "NOT_INSTALLED_STAGED_BUNDLE_INTACT_AND_INACTIVE",
+      "observed_utc": "2026-11-07T17:56:25.158646+00:00",
+      "engineering_revision": "ea9bb39d71838983a7af74396a3ed8595e755c87",
+      "expected_release": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
+      "expected_bundle_sha256": "3ac6120a733f933f66468639af4fc4edc1cd48e96f2cc37ff5b55e7502dc8b55",
+      "expected_installer_sha256": "b02623df4f92478fd656eedd430f8216ca43e9af97cf897c744ad219d6363b64",
+      "expected_paths": [
+        {
+          "path": "/Library/PrivilegedHelperTools/com.flex.startup-installer",
+          "exists": false
+        },
+        {
+          "path": "/Library/Application Support/FLEXStartup",
+          "exists": false
+        },
+        {
+          "path": "/Library/Application Support/FLEXStartup/releases/4aefdfe27b28fef3a23203d2f759a67c",
+          "exists": false
+        },
+        {
+          "path": "/Library/Application Support/FLEXStartup/clock",
+          "exists": false
+        },
+        {
+          "path": "/Library/LaunchDaemons/com.flex.startup.clock.plist",
+          "exists": false
+        },
+        {
+          "path": "/Library/LaunchDaemons/com.flex.startup.guard.plist",
+          "exists": false
+        }
+      ],
+      "staged_payloads_verified": 7,
+      "staged_installer_verified": true,
+      "private_candidate_profile_digest_verified": true,
+      "launchd_registration": [
+        {
+          "domain": "system",
+          "label": "com.flex.startup.clock",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "system",
+          "label": "com.flex.startup.guard",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "gui/501",
+          "label": "com.flex.startup.clock",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "gui/501",
+          "label": "com.flex.startup.guard",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "user/501",
+          "label": "com.flex.startup.clock",
+          "registered": false,
+          "exit": 113
+        },
+        {
+          "domain": "user/501",
+          "label": "com.flex.startup.guard",
+          "registered": false,
+          "exit": 113
+        }
+      ],
+      "new_package_processes": [],
+      "existing_worker_manager_inventory": [
+        {
+          "pid": 1131,
+          "ppid": 1,
+          "created": 1792427331.096134,
+          "kind": "Supervisor",
+          "config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf"
+        },
+        {
+          "pid": 44253,
+          "ppid": 1131,
+          "created": 1794043065.667792,
+          "kind": [
+            "src.core.walkback_worker"
+          ],
+          "config": null
+        },
+        {
+          "pid": 48593,
+          "ppid": 1131,
+          "created": 1793965423.48722,
+          "kind": [
+            "src.core.pumpfun_curve_listener"
+          ],
+          "config": null
+        },
+        {
+          "pid": 76225,
+          "ppid": 1131,
+          "created": 1794054817.892024,
+          "kind": [
+            "src.core.creator_resolution_worker"
+          ],
+          "config": null
+        }
+      ],
+      "inactive": true,
+      "installation_correctness": "Cannot PASS installation: native installer, root release and clock directory do not exist at approved locations. Staging is intact.",
+      "root_receipt_available": false,
+      "runtime_deployment_required": false,
+      "reason": "Read-only verification request; installer/helper/guard are not executed to test them.",
+      "provider_probes": 0,
+      "time_server_queries": 0,
+      "Supervisor_RPC_calls": 0,
+      "worker_actions": 0,
+      "production_or_system_setting_changes": 0,
+      "FileVault_changes": 0,
+      "next_action": "Run the previously supplied checksum-gated administrator installation block, stop after PASS_STAGED/activated=false, then request passive verification. Do not load jobs or run the helper/guard.",
+      "all_uid_native_process_inventory": [],
+      "audit_completed_utc": "2026-11-07T17:57:10.110852+00:00"
+    },
+    "preservation": {
+      "status": "PASS_READONLY_PRESERVATION_AND_SOURCE_IDENTITIES",
+      "observed_utc": "2026-11-07T17:56:19.401392+00:00",
+      "read_seconds": 0.11,
+      "original_reservations_exact": 7,
+      "original_reserved_bytes_exact": 14680064,
+      "current_reservations": 10,
+      "original_review_holds_exact": 1512,
+      "current_review_marked_jobs": 1539,
+      "original_uncertain_receipts_exact": 23,
+      "original_saved_completed_receipts_exact": 5690,
+      "saved_receipts_hot_exact": 4555,
+      "saved_receipts_archive_exact": 1135,
+      "comparison_note": "1135 baseline receipts are exact in the identity-bound archive and 4555 in the hot ledger; no attempts or credits changed.",
+      "spending_policy_unchanged": true,
+      "protected_sources_and_config_unchanged": true,
+      "active_config_sha256": "3ed03f1666e51e41fef540b2a84c8055259855bddfb0f606eaf304919f486f25",
+      "global_legacy_DB_PATH_exists": false,
+      "production_writes": 0,
+      "provider_probes": 0,
+      "worker_actions": 0,
+      "service_actions": 0
+    },
+    "production_change_flags": {
+      "scope": "Read-only installation and inactivity verification",
+      "production_writes": 0,
+      "system_or_runtime_installer_execution": false,
+      "native_clock_helper_execution": false,
+      "worker_actions": 0,
+      "service_mutations": 0,
+      "job_activation": false,
+      "provider_probes": 0,
+      "time_server_queries": 0,
+      "Supervisor_RPC_calls": 0,
+      "accounting_edits": 0,
+      "queue_replay": false,
+      "reservation_or_review_hold_edits": 0,
+      "FileVault_SSH_sudo_changes": 0,
+      "production_restarts_or_reboots": 0
+    },
+    "blocker": "Expected root installer and release have not been installed at approved locations; cannot PASS installed identity/ownership/receipt verification.",
+    "next_action": "Run the already supplied checksum-gated inactive administrator installation steps at /Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md. Stop after PASS_STAGED/activated=false and obtain passive installation verification. Do not load jobs, run helper/guard, activate, drain/restart workers, restore stores or issue provider/time probes.",
+    "evidence_ref": "/private/tmp/flex-ea9bb39d-install-verify-20261107/INSTALL_STATE.json",
+    "preservation_ref": "/private/tmp/flex-ea9bb39d-install-verify-20261107/PRESERVATION.json",
+    "source_tests_unchanged": "Prior 89-test qualification remains closed; no new code or tests required for passive audit.",
+    "administrator_instructions": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/dev004-v2/authority/startup-ea9bb39d/ADMIN_INSTALL.md"
   }
 }

@@ -1222,10 +1222,8 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "macOS administrator authorization for preserving the inactive 51892c86 release and staging the new pinned native bundle timed out after 60 seconds. New release is absent; old inactive release, active 8f349ee1 job definitions and all live source files remain unchanged. No drain, backup, migration or cutover attempted.",
-  "blockers": [
-    "macOS administrator authorization for preserving the inactive 51892c86 release and staging the new pinned native bundle timed out after 60 seconds. New release is absent; old inactive release, active 8f349ee1 job definitions and all live source files remain unchanged. No drain, backup, migration or cutover attempted."
-  ],
+  "blocker": "NONE for authorized deployment and first resumed full completion; sustained throughput and retained warnings require later observation.",
+  "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2694,17 +2692,16 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "HOLD_ADMIN_AUTHORIZATION_TIMEOUT",
-    "recorded_utc": "2026-11-07T22:04:31.510649+00:00",
+    "status": "PASS_DEPLOYED_FULL_COMPLETION_RESUMED_WITH_WARNINGS",
+    "recorded_utc": "2026-11-07T22:19:33.571679+00:00",
     "engineering_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
     "branch": "codex/bounded-hot-capacity",
-    "user_deployment_authorization_remains_active": true,
-    "approved_scope": "Deploy 26f07f05 after compatibility/fresh backup checks; drain once and enable 40MiB profile; preserve reservations, dedup, evidence and review holds; verify full completions and no duplicate RPC without provider probes.",
-    "compatibility": "PASS_QUALIFIED_COMPOSITION_LIVE_BASELINE_MATCH",
-    "engineering_tests_previously_passed": 385,
-    "composition_tests_previously_passed": 365,
-    "live_before_source_hashes_match_qualified_baseline": true,
-    "new_candidate_source_pins": {
+    "user_authorized_deployment": true,
+    "source_installed": true,
+    "composition": "Scoped qualified 26f07f05 composition on installed f3ad14e8 baseline, preserving existing account-recovery and completion variants. Production checkout HEAD is not claimed to equal engineering revision.",
+    "production_checkout_baseline": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "patch_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "composition_file_pins": {
       "walkback_worker.py": "d87a8047870cb6ee00b7061ef35a5ea29ba9f416aef5f21161221cabe9c32264",
       "walkback_checkpoint_backup.py": "1dd1e8c724aa57994ba65c4b36dcf72a44de71af214a744782038b35ce81bb5f",
       "walkback_capacity_alerts.py": "700775d4aa128ec12778c3db3327b1126aaeb7234fa6a5a83975e68533ee552a",
@@ -2720,7 +2717,8 @@
       "helius_stage_recovery.py": "b29168e1b6c09179331342a432a8f243f380960622c9dbd267f14f952767cb06",
       "walkback_checkpoint_segments.py": "a44563f65d5ac19f8f5d3f54bb81421a5da2f45208df7c42482578c671c440b1"
     },
-    "changed_source_files_planned": [
+    "composition_receipt": "/private/tmp/flex-26f07f05-rollout-20261107/COMPOSITION.json",
+    "changed_source_files": [
       "walkback_checkpoint_backup.py",
       "walkback_capacity_alerts.py",
       "walkback_hot_capacity.py",
@@ -2729,50 +2727,165 @@
       "walkback_checkpoints.py",
       "walkback_checkpoint_segments.py"
     ],
-    "migration_data_preservation_test": "PASS; accepted canonical guard scan over every original wt_* table unchanged, only added data is one fixed hot-profile row",
-    "runtime_source_pins_include_new_hot_module": true,
-    "staging": "/private/tmp/flex-26f07f05-rollout-20261107/STAGING.json",
-    "candidate_root_release": "/Library/Application Support/FLEXStartup/releases/3dd84960c51f20adafe43fd800a64868",
-    "candidate_bundle_sha256": "38d5425ff1815c317aaa4a15f1d0d1ca10ca55f4f7e1af949df78b8ef79c721e",
-    "candidate_manifest_sha256": "57e8f34640bfc545b30992afbfa1fe05af5e3769b2213360faac402d7ddf83f0",
-    "inactive_install": {
-      "status": "HOLD_ADMIN_AUTHORIZATION_TIMEOUT",
-      "observed_utc": "2026-11-07T22:03:49.500436+00:00",
-      "candidate_release_exists": false,
-      "inactive_old_release_not_moved": true,
-      "live_source_and_active_job_definitions_unchanged": true,
-      "worker_actions": 0,
-      "cutover_attempts": 0,
-      "fresh_fenced_backup_taken": false,
-      "profile_enabled": false,
-      "provider_probes": 0,
-      "admin_steps": "/private/tmp/flex-26f07f05-rollout-20261107/ADMIN_STEPS.txt"
+    "engineering_tests_previously_passed": 385,
+    "composition_tests_previously_passed": 365,
+    "source_installation": "PASS",
+    "single_manager_three_workers": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS_WITH_RETAINED_WARNINGS",
+    "cutover_requests": 1,
+    "guard_start_requests": 1,
+    "clock_start_requests": 1,
+    "new_manager_pid": 4191,
+    "worker_pids": [
+      4193,
+      4194,
+      4195
+    ],
+    "startup_guard_code_revision": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "startup_manifest_patch_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "active_manifest_sha256": "57e8f34640bfc545b30992afbfa1fe05af5e3769b2213360faac402d7ddf83f0",
+    "active_startup_release": "/Library/Application Support/FLEXStartup/releases/3dd84960c51f20adafe43fd800a64868",
+    "inactive_51892c86_release_preserved_at": "/Library/Application Support/FLEXStartup/rollback/4a4dd6baf52a0c71886bd9c58b72e450",
+    "previous_8f349ee1_release_preserved": true,
+    "installer_release_limit_unchanged": 2,
+    "fresh_fenced_backup": "PASS",
+    "backup_verification": {
+      "status": "PASS_FRESH_FENCED_BACKUP_AND_SOURCE_ROLLBACK_PINS",
+      "observed_utc": "2026-11-07T22:10:29.753607+00:00",
+      "backup_manifest_sha256": "1b316ac8fffb1b2df0d311e4201c77534b6f6192273e4c39aeab9e8695cb39df",
+      "backup_files_verified": 18,
+      "before_source_files_verified": 6,
+      "new_module_previously_absent": [
+        "walkback_hot_capacity.py"
+      ],
+      "largest_file_bytes": 296239104,
+      "SQLite_integrity": "Qualified copier quick_check verified each copied database before publication.",
+      "live_restore": false,
+      "provider_probes": 0
     },
-    "administrator_steps": "/private/tmp/flex-26f07f05-rollout-20261107/ADMIN_STEPS.txt",
-    "fresh_fenced_backup_taken": false,
-    "profile_enabled": false,
-    "source_installed": false,
-    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
-    "cutover_attempts": 0,
-    "worker_actions": 0,
-    "provider_probes": 0,
-    "production_source_config_database_changes": 0,
-    "production_last_verified_patch": "8f349ee1bb37d05a4157ff8e8af8b59336f1e567",
-    "production_hot_limit_bytes": 33554432,
-    "preflight_observed_utc": "2026-11-07T22:00:21.948855+00:00",
-    "full_completions": 4598,
-    "reservation_count": 15,
-    "reserved_bytes": 31457280,
-    "full_reply_slots_before_reclaim": 0,
-    "existing_clock_recovery_required": true,
-    "existing_worker_status_before_any_deployment": "creator_resolution_worker        RUNNING   pid 99628, uptime 0:33:34\nwalkback_worker                  BACKOFF   Exited too quickly (process log may have details)\nwatchtower_listener              RUNNING   pid 99630, uptime 0:33:34",
-    "clock_recovery_plan": "Use existing root-owned Apple-policy evidence and unchanged guarded recovery during the single cutover; no manual probes, fabricated clock proof or relaxed clock guard.",
+    "hot_profile_migration": {
+      "status": "ENABLED",
+      "hot_bytes": 41943040,
+      "previous_hot_bytes": 33554432
+    },
+    "profile_preservation": {
+      "all_preexisting_wt_tables_and_ledger_exact": true,
+      "only_added_data_row": "fixed hot profile",
+      "new_protected_digest": {
+        "ledger": "91d7c7215c94525b974c02108300a3c28375f9f2b524c53d1b466a3db180995d",
+        "ops": "f7e0ff36f914815b1466f0be201b6d0a2dbf01372b1fd2929429509b9146cb62"
+      }
+    },
+    "clock_recovery": "Existing root-owned Apple SNTP policy supplied fresh evidence after initial CLOCK_PROOF_EXPIRED; unchanged guard recovered anchors before starting manager once. No manual provider/time-source probes or store reanchors.",
+    "full_before_cutover": 4598,
+    "full_completions": 4599,
+    "full_added": 1,
+    "completed_since_cutover": 1,
+    "business_progress_verdict": "PASS_FULL_COMPLETION_RESUMED",
+    "capacity": {
+      "version": 1,
+      "scope": "456ba0e303be616b08427ad1",
+      "observed_at": 1794089918,
+      "quality": "VERIFIED",
+      "status": "WARNING",
+      "hot": {
+        "used_bytes": 376896,
+        "entries": 6657,
+        "eligible_bytes": 146590,
+        "eligible_entries": 18,
+        "protected_bytes": 230306,
+        "protected_entries": 6639,
+        "reserved_bytes": 31457280,
+        "reservation_count": 15,
+        "protected_commitment_bytes": 31687586,
+        "headroom_after_next_reply_bytes": 8158302,
+        "protected_entry_headroom_after_next": 26128,
+        "immediate_headroom_after_next_reply_bytes": 8011712,
+        "full_reply_slots_after_reclaim": 4,
+        "maintenance_needed_for_next_reply": false,
+        "next_bounded_reclaim_bytes": null,
+        "headroom_after_next_reply_and_one_batch": 8011712,
+        "max_bytes": 41943040,
+        "max_entries": 32768,
+        "next_reply_bytes": 2097152
+      },
+      "archive": {
+        "allocated_segments": 3,
+        "unallocated_segments": 29,
+        "max_segments": 32,
+        "reserved_envelope_bytes": 201326592,
+        "physical_bytes": 72007680,
+        "main_bytes": 72007680,
+        "max_physical_bytes": 2147483648,
+        "main_limit_per_segment": 32505856,
+        "active_main_headroom_bytes": 15441920,
+        "appendable_record_slots": 977260,
+        "worst_batch_reserve_bytes": 17301504,
+        "staging_entries": 0,
+        "oldest_staging_at": null
+      },
+      "storage": {
+        "free_bytes": 12055584768,
+        "required_free_bytes": 2108003328,
+        "disk_margin_bytes": 9947581440,
+        "ops_file_margin_bytes": 161604288,
+        "ops_wal_margin_bytes": 9175040
+      },
+      "alerts": [
+        {
+          "code": "PROTECTED_HOT_BYTES_HIGH",
+          "severity": "WARNING",
+          "remaining": 8158302,
+          "warning_at_or_below": 8388608,
+          "critical_at_or_below": 4194304,
+          "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+        }
+      ],
+      "retention": {
+        "version": 1,
+        "retention_seconds": 604800,
+        "retired_records": 0,
+        "marker_budget_bytes": 0,
+        "marker_bytes_remaining": 67108864,
+        "marker_records_remaining": 262144,
+        "metadata_growth_allowance_bytes": 167772160,
+        "pending": false,
+        "capacity_warning": false
+      }
+    },
+    "original_reservations_exact": 15,
+    "current_reservations": 15,
+    "original_review_holds_exact": 1564,
+    "current_review_holds": 1565,
+    "immutable_completed_receipts_exact": 23003,
+    "uncertain_receipts_exact": 30,
+    "original_reservation_receipts_exact": 14,
+    "original_reservations_without_receipt_still_held": 1,
+    "duplicate_completed_immutable_RPC_receipts": 0,
+    "RPC_verification_scope": "All 23003 pre-cutover completed immutable getTransaction receipts compare exactly across hot and identity-bound archive, including no changed hot shadow of old archived keys. Attempts and credits unchanged. All retained uncertain/reservation receipts exact. Passive bounded observation only; not a universal proof of all RPC semantics.",
+    "multi_attempt_review": "One newly completed receipt had attempts=2; prior stopped receipt was RETRYABLE with attempts=1, not a prior completed immutable request. Legitimate retry retained.",
+    "new_completed_immutable_rpc_receipts": 12,
+    "multi_attempt_review_artifact": "/private/tmp/flex-26f07f05-rollout-20261107/MULTI_ATTEMPT_REVIEW.json",
+    "operator_provider_probes": 0,
+    "legacy_reservation_edits": 0,
+    "review_hold_edits": 0,
+    "queue_replay": false,
     "FileVault": "On; unchanged",
-    "preservation": "No production accounting, source, queue, reservation, dedup, evidence or review-hold edits.",
-    "blocker": "macOS administrator authorization for preserving the inactive 51892c86 release and staging the new pinned native bundle timed out after 60 seconds. New release is absent; old inactive release, active 8f349ee1 job definitions and all live source files remain unchanged. No drain, backup, migration or cutover attempted.",
-    "next_action": "User: paste the exact Terminal block in /private/tmp/flex-26f07f05-rollout-20261107/ADMIN_STEPS.txt to move only the known inactive 51892c86 release intact into existing root rollback storage, then run the unchanged checksum-pinned native installer. Report PASS_STAGED / activated:false. Existing deployment approval remains valid. Continue with refreshed preflight, one drain, fresh fenced backups, seven coupled source files and explicit 40MiB profile activation, exact pre-existing data preservation checks, one guarded cutover/clock recovery, and passive full-completion plus duplicate-RPC verification. No hold release or provider probes."
+    "runtime_acceptance": "/private/tmp/flex-26f07f05-rollout-20261107/RUNTIME_ACCEPTANCE.json",
+    "final_progress": "/private/tmp/flex-26f07f05-rollout-20261107/FINAL_PROGRESS.json",
+    "observed_utc": "2026-11-07T22:18:40.066954+00:00",
+    "retained_warning": "Capacity remains WARNING: protected hot obligations are near the existing warning threshold. Worker heartbeat remains UNHEALTHY because pending work exists with completed_per_minute zero; one full Walkback has completed since cutover. This is not an all-healthy or indefinite 24/7 guarantee.",
+    "heartbeat": [
+      "UNHEALTHY",
+      1794089892
+    ],
+    "heartbeat_reasons": [
+      "pending work exists but completed_per_minute is zero"
+    ],
+    "blocker": "NONE for authorized deployment and first resumed full completion; sustained throughput and retained warnings require later observation.",
+    "next_action": "No additional restart, drain, quota adjustment, queue replay or hold release. Deployment complete. At the next authorized passive progress audit, compare full completions, oldest pending work, protected hot commitments, archive growth and completed-receipt identity; retain current warnings and holds. No provider probes."
   },
-  "current_next_blocker": "macOS administrator authorization for preserving the inactive 51892c86 release and staging the new pinned native bundle timed out after 60 seconds. New release is absent; old inactive release, active 8f349ee1 job definitions and all live source files remain unchanged. No drain, backup, migration or cutover attempted.",
+  "current_next_blocker": "Capacity remains WARNING: protected hot obligations are near the existing warning threshold. Worker heartbeat remains UNHEALTHY because pending work exists with completed_per_minute zero; one full Walkback has completed since cutover. This is not an all-healthy or indefinite 24/7 guarantee.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45034,11 +45147,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T22:04:43.331390+00:00",
+    "published_at_utc": "2026-11-07T22:19:44.968825+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T22:04:31.510649+00:00",
-    "verification_receipt": "/private/tmp/flex-26f07f05-rollout-20261107/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T22:19:33.571679+00:00",
+    "verification_receipt": "/private/tmp/flex-26f07f05-rollout-20261107/activation-handoff/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58277,7 +58390,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "User: paste the exact Terminal block in /private/tmp/flex-26f07f05-rollout-20261107/ADMIN_STEPS.txt to move only the known inactive 51892c86 release intact into existing root rollback storage, then run the unchanged checksum-pinned native installer. Report PASS_STAGED / activated:false. Existing deployment approval remains valid. Continue with refreshed preflight, one drain, fresh fenced backups, seven coupled source files and explicit 40MiB profile activation, exact pre-existing data preservation checks, one guarded cutover/clock recovery, and passive full-completion plus duplicate-RPC verification. No hold release or provider probes.",
+  "next_action": "No additional restart, drain, quota adjustment, queue replay or hold release. Deployment complete. At the next authorized passive progress audit, compare full completions, oldest pending work, protected hot commitments, archive growth and completed-receipt identity; retain current warnings and holds. No provider probes.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60511,7 +60624,7 @@
     "branch": "codex/bounded-hot-capacity",
     "git_head": "26f07f05242b90830e9d3b791383b4834bba6777",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T22:04:31.510649+00:00",
+    "updated_at_utc": "2026-11-07T22:19:33.571679+00:00",
     "working_tree": "/private/tmp/flex-r02-retention-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -61974,7 +62087,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "HOLD_ADMIN_AUTHORIZATION_TIMEOUT",
+  "status": "PASS_DEPLOYED_FULL_COMPLETION_RESUMED_WITH_WARNINGS",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63594,7 +63707,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PARTIAL_COMPATIBILITY_STAGED_PRODUCTION_UNCHANGED_ADMIN_HOLD",
+  "verdict": "PASS_DEPLOYED_PRESERVATION_AND_FULL_COMPLETION_WITH_WARNINGS",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89231,18 +89344,23 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Approved 40MiB production deployment staged; macOS administrator authorization timed out",
-    "production_source_config_database_changes": 0,
-    "production_service_worker_actions": 0,
+    "scope": "Explicitly approved single 26f07f05 cutover and fixed 40MiB hot profile",
+    "source_files_changed": 7,
+    "startup_job_definitions_rebound": 2,
+    "supervisor_profile_changed": false,
+    "guard_start_requests": 1,
+    "clock_start_requests": 1,
     "provider_or_RPC_probes": 0,
     "manual_time_source_queries": 0,
-    "quota_migration_applied": false,
-    "inactive_root_release_archived": false,
+    "existing_clock_service_recovery_policy": "approved-apple-sntp-v1 unchanged",
+    "manual_store_reanchors": 0,
+    "guard_clock_anchor_recovery": true,
+    "domain_schema_changes": "Fixed hot profile and qualified SQL quota/fences; old rows exact",
+    "quota_changes": "33554432 to 41943040 hot bytes only",
+    "legacy_reservation_review_hold_or_dedup_edits": 0,
     "queue_replay": false,
-    "reservation_dedup_evidence_review_hold_edits": 0,
     "FileVault_changes": 0,
-    "fresh_backup_taken": false,
-    "cutover_attempts": 0
+    "inactive_release_archived_intact": true
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -97106,5 +97224,199 @@
     "preservation": "No production accounting, source, queue, reservation, dedup, evidence or review-hold edits.",
     "blocker": "macOS administrator authorization for preserving the inactive 51892c86 release and staging the new pinned native bundle timed out after 60 seconds. New release is absent; old inactive release, active 8f349ee1 job definitions and all live source files remain unchanged. No drain, backup, migration or cutover attempted.",
     "next_action": "User: paste the exact Terminal block in /private/tmp/flex-26f07f05-rollout-20261107/ADMIN_STEPS.txt to move only the known inactive 51892c86 release intact into existing root rollback storage, then run the unchanged checksum-pinned native installer. Report PASS_STAGED / activated:false. Existing deployment approval remains valid. Continue with refreshed preflight, one drain, fresh fenced backups, seven coupled source files and explicit 40MiB profile activation, exact pre-existing data preservation checks, one guarded cutover/clock recovery, and passive full-completion plus duplicate-RPC verification. No hold release or provider probes."
+  },
+  "bounded_hot_capacity_activation_20261107": {
+    "status": "PASS_DEPLOYED_FULL_COMPLETION_RESUMED_WITH_WARNINGS",
+    "recorded_utc": "2026-11-07T22:19:33.571679+00:00",
+    "engineering_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "branch": "codex/bounded-hot-capacity",
+    "user_authorized_deployment": true,
+    "source_installed": true,
+    "composition": "Scoped qualified 26f07f05 composition on installed f3ad14e8 baseline, preserving existing account-recovery and completion variants. Production checkout HEAD is not claimed to equal engineering revision.",
+    "production_checkout_baseline": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "patch_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "composition_file_pins": {
+      "walkback_worker.py": "d87a8047870cb6ee00b7061ef35a5ea29ba9f416aef5f21161221cabe9c32264",
+      "walkback_checkpoint_backup.py": "1dd1e8c724aa57994ba65c4b36dcf72a44de71af214a744782038b35ce81bb5f",
+      "walkback_capacity_alerts.py": "700775d4aa128ec12778c3db3327b1126aaeb7234fa6a5a83975e68533ee552a",
+      "walkback_hot_capacity.py": "62fbe3e2a428eb30858f3f8536fb4ca21a357b4a28cfe349c1e2fd3841142e8e",
+      "helius_http_protection.py": "73dd3d4e5bed1d2c6efafea609589caebb91f11489dd8345e5e3f27789584f96",
+      "helius_completed_archive.py": "36d900aecc081733753221a5e66604c34acb422fc004b9a0a52e6eac7cd3c331",
+      "walkback_checkpoint_retention.py": "e2dbc26efb838954db5cf14fb5f31f80eb33a73e485d49560864f887278d01b7",
+      "walkback_checkpoint_lifecycle.py": "ad8f018f8c4a3db67396677e318281e810f3917ba2d93c1a356beb458e43c403",
+      "paired_binding_guard.py": "e21478adb8536e525f0eff8d836260a6940d265a2ae885776625c8376a59ad57",
+      "walkback_job_limits.py": "d485fbecc05f87835bab042ae2f29c841bd13bf958da924150f9da687e55f7f7",
+      "helius_denial_gate.py": "2c4dd6890ed9db80470892896c771fd9e0868baee929cad909a234603e213aef",
+      "walkback_checkpoints.py": "faf134862b684d3a59f5bfdf1939545c6f264353b802b66b030c92371c346273",
+      "helius_stage_recovery.py": "b29168e1b6c09179331342a432a8f243f380960622c9dbd267f14f952767cb06",
+      "walkback_checkpoint_segments.py": "a44563f65d5ac19f8f5d3f54bb81421a5da2f45208df7c42482578c671c440b1"
+    },
+    "composition_receipt": "/private/tmp/flex-26f07f05-rollout-20261107/COMPOSITION.json",
+    "changed_source_files": [
+      "walkback_checkpoint_backup.py",
+      "walkback_capacity_alerts.py",
+      "walkback_hot_capacity.py",
+      "walkback_checkpoint_retention.py",
+      "walkback_job_limits.py",
+      "walkback_checkpoints.py",
+      "walkback_checkpoint_segments.py"
+    ],
+    "engineering_tests_previously_passed": 385,
+    "composition_tests_previously_passed": 365,
+    "source_installation": "PASS",
+    "single_manager_three_workers": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS_WITH_RETAINED_WARNINGS",
+    "cutover_requests": 1,
+    "guard_start_requests": 1,
+    "clock_start_requests": 1,
+    "new_manager_pid": 4191,
+    "worker_pids": [
+      4193,
+      4194,
+      4195
+    ],
+    "startup_guard_code_revision": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "startup_manifest_patch_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "active_manifest_sha256": "57e8f34640bfc545b30992afbfa1fe05af5e3769b2213360faac402d7ddf83f0",
+    "active_startup_release": "/Library/Application Support/FLEXStartup/releases/3dd84960c51f20adafe43fd800a64868",
+    "inactive_51892c86_release_preserved_at": "/Library/Application Support/FLEXStartup/rollback/4a4dd6baf52a0c71886bd9c58b72e450",
+    "previous_8f349ee1_release_preserved": true,
+    "installer_release_limit_unchanged": 2,
+    "fresh_fenced_backup": "PASS",
+    "backup_verification": {
+      "status": "PASS_FRESH_FENCED_BACKUP_AND_SOURCE_ROLLBACK_PINS",
+      "observed_utc": "2026-11-07T22:10:29.753607+00:00",
+      "backup_manifest_sha256": "1b316ac8fffb1b2df0d311e4201c77534b6f6192273e4c39aeab9e8695cb39df",
+      "backup_files_verified": 18,
+      "before_source_files_verified": 6,
+      "new_module_previously_absent": [
+        "walkback_hot_capacity.py"
+      ],
+      "largest_file_bytes": 296239104,
+      "SQLite_integrity": "Qualified copier quick_check verified each copied database before publication.",
+      "live_restore": false,
+      "provider_probes": 0
+    },
+    "hot_profile_migration": {
+      "status": "ENABLED",
+      "hot_bytes": 41943040,
+      "previous_hot_bytes": 33554432
+    },
+    "profile_preservation": {
+      "all_preexisting_wt_tables_and_ledger_exact": true,
+      "only_added_data_row": "fixed hot profile",
+      "new_protected_digest": {
+        "ledger": "91d7c7215c94525b974c02108300a3c28375f9f2b524c53d1b466a3db180995d",
+        "ops": "f7e0ff36f914815b1466f0be201b6d0a2dbf01372b1fd2929429509b9146cb62"
+      }
+    },
+    "clock_recovery": "Existing root-owned Apple SNTP policy supplied fresh evidence after initial CLOCK_PROOF_EXPIRED; unchanged guard recovered anchors before starting manager once. No manual provider/time-source probes or store reanchors.",
+    "full_before_cutover": 4598,
+    "full_completions": 4599,
+    "full_added": 1,
+    "completed_since_cutover": 1,
+    "business_progress_verdict": "PASS_FULL_COMPLETION_RESUMED",
+    "capacity": {
+      "version": 1,
+      "scope": "456ba0e303be616b08427ad1",
+      "observed_at": 1794089918,
+      "quality": "VERIFIED",
+      "status": "WARNING",
+      "hot": {
+        "used_bytes": 376896,
+        "entries": 6657,
+        "eligible_bytes": 146590,
+        "eligible_entries": 18,
+        "protected_bytes": 230306,
+        "protected_entries": 6639,
+        "reserved_bytes": 31457280,
+        "reservation_count": 15,
+        "protected_commitment_bytes": 31687586,
+        "headroom_after_next_reply_bytes": 8158302,
+        "protected_entry_headroom_after_next": 26128,
+        "immediate_headroom_after_next_reply_bytes": 8011712,
+        "full_reply_slots_after_reclaim": 4,
+        "maintenance_needed_for_next_reply": false,
+        "next_bounded_reclaim_bytes": null,
+        "headroom_after_next_reply_and_one_batch": 8011712,
+        "max_bytes": 41943040,
+        "max_entries": 32768,
+        "next_reply_bytes": 2097152
+      },
+      "archive": {
+        "allocated_segments": 3,
+        "unallocated_segments": 29,
+        "max_segments": 32,
+        "reserved_envelope_bytes": 201326592,
+        "physical_bytes": 72007680,
+        "main_bytes": 72007680,
+        "max_physical_bytes": 2147483648,
+        "main_limit_per_segment": 32505856,
+        "active_main_headroom_bytes": 15441920,
+        "appendable_record_slots": 977260,
+        "worst_batch_reserve_bytes": 17301504,
+        "staging_entries": 0,
+        "oldest_staging_at": null
+      },
+      "storage": {
+        "free_bytes": 12055584768,
+        "required_free_bytes": 2108003328,
+        "disk_margin_bytes": 9947581440,
+        "ops_file_margin_bytes": 161604288,
+        "ops_wal_margin_bytes": 9175040
+      },
+      "alerts": [
+        {
+          "code": "PROTECTED_HOT_BYTES_HIGH",
+          "severity": "WARNING",
+          "remaining": 8158302,
+          "warning_at_or_below": 8388608,
+          "critical_at_or_below": 4194304,
+          "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
+        }
+      ],
+      "retention": {
+        "version": 1,
+        "retention_seconds": 604800,
+        "retired_records": 0,
+        "marker_budget_bytes": 0,
+        "marker_bytes_remaining": 67108864,
+        "marker_records_remaining": 262144,
+        "metadata_growth_allowance_bytes": 167772160,
+        "pending": false,
+        "capacity_warning": false
+      }
+    },
+    "original_reservations_exact": 15,
+    "current_reservations": 15,
+    "original_review_holds_exact": 1564,
+    "current_review_holds": 1565,
+    "immutable_completed_receipts_exact": 23003,
+    "uncertain_receipts_exact": 30,
+    "original_reservation_receipts_exact": 14,
+    "original_reservations_without_receipt_still_held": 1,
+    "duplicate_completed_immutable_RPC_receipts": 0,
+    "RPC_verification_scope": "All 23003 pre-cutover completed immutable getTransaction receipts compare exactly across hot and identity-bound archive, including no changed hot shadow of old archived keys. Attempts and credits unchanged. All retained uncertain/reservation receipts exact. Passive bounded observation only; not a universal proof of all RPC semantics.",
+    "multi_attempt_review": "One newly completed receipt had attempts=2; prior stopped receipt was RETRYABLE with attempts=1, not a prior completed immutable request. Legitimate retry retained.",
+    "new_completed_immutable_rpc_receipts": 12,
+    "multi_attempt_review_artifact": "/private/tmp/flex-26f07f05-rollout-20261107/MULTI_ATTEMPT_REVIEW.json",
+    "operator_provider_probes": 0,
+    "legacy_reservation_edits": 0,
+    "review_hold_edits": 0,
+    "queue_replay": false,
+    "FileVault": "On; unchanged",
+    "runtime_acceptance": "/private/tmp/flex-26f07f05-rollout-20261107/RUNTIME_ACCEPTANCE.json",
+    "final_progress": "/private/tmp/flex-26f07f05-rollout-20261107/FINAL_PROGRESS.json",
+    "observed_utc": "2026-11-07T22:18:40.066954+00:00",
+    "retained_warning": "Capacity remains WARNING: protected hot obligations are near the existing warning threshold. Worker heartbeat remains UNHEALTHY because pending work exists with completed_per_minute zero; one full Walkback has completed since cutover. This is not an all-healthy or indefinite 24/7 guarantee.",
+    "heartbeat": [
+      "UNHEALTHY",
+      1794089892
+    ],
+    "heartbeat_reasons": [
+      "pending work exists but completed_per_minute is zero"
+    ],
+    "blocker": "NONE for authorized deployment and first resumed full completion; sustained throughput and retained warnings require later observation.",
+    "next_action": "No additional restart, drain, quota adjustment, queue replay or hold release. Deployment complete. At the next authorized passive progress audit, compare full completions, oldest pending work, protected hot commitments, archive growth and completed-receipt identity; retain current warnings and holds. No provider probes."
   }
 }

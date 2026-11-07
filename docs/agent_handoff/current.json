@@ -1222,10 +1222,8 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Audit complete; production business progress remains held. FULL completions are still 4596 at 20:28 UTC. Reservations grew from 13/26MiB to 14/28MiB, leaving one full-reply slot after reclaim; 29 archive segments remain available. The 13 older reservations all bind failed review-held jobs with missing replies: 8 HTTP_COMPLETED receipts (one archived), 4 OWNER_EXIT_UNCERTAIN, 1 RETRYABLE. Current deadline/finalization behavior can strand INTENT plus a full reservation; unchanged code reproduced this without real network calls. Four recent backlog rows additionally lacked creator authority. Do not release or retry held evidence based on age or a missing hot receipt.",
-  "blockers": [
-    "Audit complete; production business progress remains held. FULL completions are still 4596 at 20:28 UTC. Reservations grew from 13/26MiB to 14/28MiB, leaving one full-reply slot after reclaim; 29 archive segments remain available. The 13 older reservations all bind failed review-held jobs with missing replies: 8 HTTP_COMPLETED receipts (one archived), 4 OWNER_EXIT_UNCERTAIN, 1 RETRYABLE. Current deadline/finalization behavior can strand INTENT plus a full reservation; unchanged code reproduced this without real network calls. Four recent backlog rows additionally lacked creator authority. Do not release or retry held evidence based on age or a missing hot receipt."
-  ],
+  "blocker": "NONE — requested DEV implementation and qualification complete. Production progress is not re-audited or changed in this milestone.",
+  "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2694,98 +2692,62 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "PASS_READONLY_HOT_RESERVATION_AUDIT_FIX_IDENTIFIED",
-    "recorded_utc": "2026-11-07T20:32:30.259475+00:00",
-    "engineering_revision": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
-    "branch": "codex/startup-evidence-scan-bound",
-    "audit_only": true,
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Read-only metadata/source audit and six synthetic in-memory cases of unchanged code; no engineering or runtime behavior change.",
-    "active_startup_revision": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
-    "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
-    "startup_deployment_remains_active": true,
-    "business_progress_verdict": "HOLD_NO_NEW_FULL_COMPLETIONS_AND_CRITICAL_PROTECTED_HOT_CAPACITY",
-    "as_of_utc": "2026-11-07T20:28:19.264858+00:00",
-    "full_completions": 4596,
-    "reservation_count": 14,
-    "reserved_bytes": 29360128,
-    "original_13_classification": {
-      "HTTP_COMPLETED": 8,
-      "OWNER_EXIT_UNCERTAIN": 4,
-      "RETRYABLE": 1
-    },
-    "all_14_tokens_bytes_unchanged_between_audit_snapshots": true,
-    "capacity": {
-      "status": "CRITICAL",
-      "hot_used_bytes": 1793373,
-      "protected_payload_bytes": 228530,
-      "reserved_bytes": 29360128,
-      "full_reply_slots_after_reclaim": 1,
-      "archive_segments_available": 29,
-      "archive_staging_entries": 0
-    },
-    "causal_findings": [
-      {
-        "finding": "Known completed HTTP receipts without saved reply and unresolved intents cause conservative CHECKPOINT_OUTCOME_UNCERTAIN refusal; reserved obligations cannot be archived as if they were completed payloads.",
-        "evidence": "All original 13 reservations correlate with failed review-held jobs and null reply/digest; 8 have HTTP_COMPLETED, 4 OWNER_EXIT_UNCERTAIN, 1 RETRYABLE."
-      },
-      {
-        "finding": "The child/finalization deadline can strand reservations, including after HTTP completion. This mechanism was reproduced with unchanged source and an actual SIGTERM delivered only to the isolated audit process.",
-        "evidence": "Six compact cases: normal saved reuse and clean unsent cleanup succeed; interrupted cleanup, post-completion termination and pre-checkpoint interruption retain INTENT plus 2MiB.",
-        "live_timing": "Nine intents appear 113–118 seconds after the first saved checkpoint for their job. This is consistent with the 120-second deadline; exact historical signal timing is not retained, so the interruption point of each old request is not retrospectively proven.",
-        "near_deadline_records": 9
-      },
-      {
-        "finding": "80 in TIME_LIMIT batch logs is a conservative scheduling allowance, not proof of 80 HTTP credits spent.",
-        "evidence": "run_job returns the cap for TIME_LIMIT/CHILD_ERROR; recent queue rows record only 1–12 local uses, with timeout and capacity deferrals."
-      },
-      {
-        "finding": "There are additional data-readiness and contention refusals, so reservation pressure alone is not a complete explanation of every job.",
-        "evidence": {
-          "recent_missing_creator_authority_refusals": 4,
-          "other_recent_codes": [
-            "HELIUS_GATE_BUSY",
-            "CHECKPOINT_GLOBAL_BYTES",
-            "TIME_LIMIT_RPC_USAGE_UNCERTAIN"
-          ]
-        }
-      }
+    "status": "PASS_DEV_CHECKPOINT_FINALIZATION",
+    "recorded_utc": "2026-11-07T21:04:09.704013+00:00",
+    "engineering_revision": "8f349ee1bb37d05a4157ff8e8af8b59336f1e567",
+    "engineering_parent": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "branch": "codex/checkpoint-finalization",
+    "dev_only": true,
+    "implementation": [
+      "Reserve finalization time within existing timeout and lease, recheck before INTENT and defer SIGTERM through saved reply publication.",
+      "Read both hot and identity-bound archived receipts; no receipt absence shortcut.",
+      "Reconcile only exact proven-unsent token from currently reaped child under pair/claim/clock/storage checks; write bounded durable metadata proof atomically.",
+      "Apply creator/anchor readiness at backlog selection and ordinary/capacity claim CAS."
     ],
-    "smallest_safe_fix": {
-      "primary": "Separate the 120-second child work deadline from a bounded checkpoint-finalization allowance inside a qualified overall child/lease budget. Stop admission early enough for the transport and durable ledger/checkpoint publication; protect finalization from normal termination, retaining the existing hard fail-closed behavior on crash or overrun.",
-      "no_dispatch_cleanup": "Add or qualify bounded parent-side finalization after kernel-proven child exit, under exact generation/pair, claim and reservation-token CAS. Release bytes only where absence of dispatch is authoritatively proven across hot plus checksum/identity-verified completed ledger archive. Retain intent/proof and queue review state; missing hot JSON alone is never sufficient. Existing paid, retryable or uncertain cases remain held.",
-      "receipt_lookup": "The current child receipt callback checks only hot ledger keys. Any reconciliation must use both tiers: R1 has a verified completed receipt only in the archive.",
-      "separate_readiness_issue": "Four recent backlog claims had an anchor but no creator; the child correctly refused CHECKPOINT_AUTHORITY. Apply the existing fresh-work readiness predicate to backlog selection in a separately qualified change, without clearing these existing review holds or fabricating creator authority.",
-      "scope_limits": "Do not raise paid RPC limits or clear old holds as a substitute for fixing finalization. Capacity enlargement alone would postpone accumulation. No proposed fix was implemented or deployed by this audit.",
-      "qualification_needed": "Synthetic exact-deadline SIGTERM before dispatch, during HTTP receipt publication, between receipt and checkpoint, during SQLite commit, and after commit; failed cleanup reads; hot/archive and ambiguous publication cases; concurrency with same-token and superseded claims; crash/restart; no duplicate acquisition of saved or uncertain requests; existing caps and sub-500MB file bounds; current retained-reservation pressure."
+    "tests": 356,
+    "test_failures": 0,
+    "test_errors": 0,
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "runtime_deployment_kind": "Installed disposable DEV package with synthetic domain worker and transport; actual changed child entrypoint/journal and unchanged Gate/HTTP. No production deployment.",
+    "qualified_cases": [
+      "SIGTERM deferred through durable paid reply commit",
+      "restart saved response reuse without duplicate acquisition",
+      "hard-kill protected unknown intent",
+      "parent-only reaped-child provenance and bound proof handoff",
+      "matching token/claim/pair CAS only",
+      "hot and archived-only receipts protect paid results",
+      "legacy thirteen reservations unchanged under fourteen-reservation pressure",
+      "v4 retention binding unchanged",
+      "fault-injected SQL and storage rollback",
+      "concurrent reconcilers release one token",
+      "backlog readiness selection/claim race and duplicate starts",
+      "eight/32 segment and seven-day lifecycle regressions"
+    ],
+    "historical_static_assertion_excluded": {
+      "test": "test_completed_request_archive.py::test_accounting_policy_completion_and_recovery_kernels_are_unchanged",
+      "historical_parent": "d78dc02ea9d0a9462765d306ac91c18646f077be",
+      "reason": "Original archive-milestone delta assertion predates accepted Gate recovery changes. Current milestone independently pins all three roles Gate and HTTP byte-for-byte to 51892c86. Functional archive tests passed.",
+      "prior_result_preserved": "/private/tmp/flex-checkpoint-finalization-dev-20261107/BASE_prior_static_pin_failure.xml"
     },
-    "reproduction": {
-      "status": "PASS_AUDIT_REPRODUCTION_SIX_CASES",
-      "case_count": 6,
-      "real_network_calls": 0,
-      "unchanged_source_sha256": {
-        "walkback_checkpoints.py": "e73b815194aed0c21230dec5a97635c27c857b1f794f153877d968df0343feeb",
-        "walkback_job_limits.py": "0ad3f84f1ee0008262fb48bc2ed293707647fd59b2a275dd75fa086d401dab18"
-      },
-      "historical_causation_limit": "The deadline race is reproduced and live timing supports it; the exact interruption phase of each historical lost reply was not retained. No claim that every held request can be safely recovered."
-    },
-    "production_change_flags": {
-      "scope": "Audit only with synthetic in-memory reproduction of unchanged deployed code",
-      "production_source_config_database_changes": 0,
-      "production_service_worker_actions": 0,
-      "provider_or_RPC_probes": 0,
-      "time_source_queries": 0,
-      "queue_replay": false,
-      "evidence_dedup_reservation_review_hold_edits": 0,
-      "engineering_source_changes": 0,
-      "isolated_audit_process_SIGTERM_fixture_only": true
-    },
-    "storage_scope": "Only fixed audit metadata reports below 128KiB each, a small local harness and an in-memory synthetic database; no raw provider payloads or production database copies. No persistent runtime feature/growth path added.",
-    "audit_report_ref": "/private/tmp/flex-hot-reservation-audit-20261107/AUDIT_REPORT.json",
-    "blocker": "Audit complete; production business progress remains held. FULL completions are still 4596 at 20:28 UTC. Reservations grew from 13/26MiB to 14/28MiB, leaving one full-reply slot after reclaim; 29 archive segments remain available. The 13 older reservations all bind failed review-held jobs with missing replies: 8 HTTP_COMPLETED receipts (one archived), 4 OWNER_EXIT_UNCERTAIN, 1 RETRYABLE. Current deadline/finalization behavior can strand INTENT plus a full reservation; unchanged code reproduced this without real network calls. Four recent backlog rows additionally lacked creator authority. Do not release or retry held evidence based on age or a missing hot receipt.",
-    "next_action": "Requested audit is complete. Seek a separately authorized DEV milestone to fix and qualify the child/checkpoint finalization boundary: reserve bounded finalization time within the child/lease limits, finish ledger/checkpoint publication safely around termination, and reconcile only authoritatively never-dispatched reservations under exact claim/generation/pair/token CAS using both hot and archived receipts. Preserve paid/missing/uncertain/review-held cases; do not increase RPC limits, clear holds, replay queues or change production under this audit. Also qualify applying the existing fresh-lane creator/anchor readiness predicate to backlog selection so missing-creator jobs are not claimed into review failures. Existing legacy holds require their own evidence-backed review, not blanket retries."
+    "source_pins": "/private/tmp/flex-checkpoint-finalization-dev-20261107/SOURCE_PINS.json",
+    "qualification_receipt": "/private/tmp/flex-checkpoint-finalization-dev-20261107/QUALIFICATION.json",
+    "runtime_acceptance": "/private/tmp/flex-checkpoint-finalization-dev-20261107/RUNTIME_ACCEPTANCE.json",
+    "qualification_sha256": "9a610223d011eb94150c72e19ae54bf83507d0253372f8fd699dd2217ac9e90b",
+    "source_composition_discrepancy": "Engineering tree preserves its existing account-recovery and publication-lineage behavior; deployed Walkback composition differs and was not replaced.",
+    "historical_reservation_policy": "All legacy reservations and review holds remain untouched. Parent-only current-child proof cannot retrospectively authorize cleanup of the 13 previously audited holds or the later 14th reservation.",
+    "production_changes": 0,
+    "provider_probes": 0,
+    "queue_replay": false,
+    "production_services_or_workers_changed": false,
+    "active_startup_revision_from_last_verified_baseline": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "walkback_runtime_revision_from_last_verified_baseline": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "production_progress_reaudited": false,
+    "production_progress_baseline_as_of_utc": "2026-11-07T20:28:19.264858+00:00",
+    "production_progress_baseline_verdict": "HOLD_NO_NEW_FULL_COMPLETIONS_AND_CRITICAL_PROTECTED_HOT_CAPACITY",
+    "blocker": "NONE — requested DEV implementation and qualification complete. Production progress is not re-audited or changed in this milestone.",
+    "next_action": "NONE — DEV milestone complete. Production deployment is a separate explicitly authorized milestone."
   },
-  "current_next_blocker": "Audit complete; production business progress remains held. FULL completions are still 4596 at 20:28 UTC. Reservations grew from 13/26MiB to 14/28MiB, leaving one full-reply slot after reclaim; 29 archive segments remain available. The 13 older reservations all bind failed review-held jobs with missing replies: 8 HTTP_COMPLETED receipts (one archived), 4 OWNER_EXIT_UNCERTAIN, 1 RETRYABLE. Current deadline/finalization behavior can strand INTENT plus a full reservation; unchanged code reproduced this without real network calls. Four recent backlog rows additionally lacked creator authority. Do not release or retry held evidence based on age or a missing hot receipt.",
+  "current_next_blocker": "NONE — requested DEV implementation and qualification complete. Production progress is not re-audited or changed in this milestone.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45047,11 +45009,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T20:32:44.274981+00:00",
+    "published_at_utc": "2026-11-07T21:04:24.039877+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T20:32:30.259475+00:00",
-    "verification_receipt": "/private/tmp/flex-hot-reservation-audit-20261107/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T21:04:09.704013+00:00",
+    "verification_receipt": "/private/tmp/flex-checkpoint-finalization-dev-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58290,7 +58252,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Requested audit is complete. Seek a separately authorized DEV milestone to fix and qualify the child/checkpoint finalization boundary: reserve bounded finalization time within the child/lease limits, finish ledger/checkpoint publication safely around termination, and reconcile only authoritatively never-dispatched reservations under exact claim/generation/pair/token CAS using both hot and archived receipts. Preserve paid/missing/uncertain/review-held cases; do not increase RPC limits, clear holds, replay queues or change production under this audit. Also qualify applying the existing fresh-lane creator/anchor readiness predicate to backlog selection so missing-creator jobs are not claimed into review failures. Existing legacy holds require their own evidence-backed review, not blanket retries.",
+  "next_action": "NONE — DEV milestone complete. Production deployment is a separate explicitly authorized milestone.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60521,10 +60483,10 @@
     "other_service_fields": "Historical transport context; not reverified or changed in this milestone."
   },
   "project": {
-    "branch": "codex/startup-evidence-scan-bound",
-    "git_head": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "branch": "codex/checkpoint-finalization",
+    "git_head": "8f349ee1bb37d05a4157ff8e8af8b59336f1e567",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T20:32:30.259475+00:00",
+    "updated_at_utc": "2026-11-07T21:04:09.704013+00:00",
     "working_tree": "/private/tmp/flex-r02-retention-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -61987,7 +61949,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_READONLY_HOT_RESERVATION_AUDIT_FIX_IDENTIFIED",
+  "status": "PASS_DEV_CHECKPOINT_FINALIZATION",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63607,7 +63569,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_AUDIT_COMPLETE_SYSTEM_PROGRESS_HOLD",
+  "verdict": "PASS_DEV_QUALIFIED_PRODUCTION_UNCHANGED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89244,15 +89206,15 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Audit only with synthetic in-memory reproduction of unchanged deployed code",
+    "scope": "DEV implementation and disposable process qualification only",
     "production_source_config_database_changes": 0,
     "production_service_worker_actions": 0,
     "provider_or_RPC_probes": 0,
     "time_source_queries": 0,
     "queue_replay": false,
-    "evidence_dedup_reservation_review_hold_edits": 0,
-    "engineering_source_changes": 0,
-    "isolated_audit_process_SIGTERM_fixture_only": true
+    "production_evidence_dedup_reservation_review_hold_edits": 0,
+    "engineering_source_changes": 6,
+    "production_activation": false
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -96670,5 +96632,61 @@
     "audit_report_ref": "/private/tmp/flex-hot-reservation-audit-20261107/AUDIT_REPORT.json",
     "blocker": "Audit complete; production business progress remains held. FULL completions are still 4596 at 20:28 UTC. Reservations grew from 13/26MiB to 14/28MiB, leaving one full-reply slot after reclaim; 29 archive segments remain available. The 13 older reservations all bind failed review-held jobs with missing replies: 8 HTTP_COMPLETED receipts (one archived), 4 OWNER_EXIT_UNCERTAIN, 1 RETRYABLE. Current deadline/finalization behavior can strand INTENT plus a full reservation; unchanged code reproduced this without real network calls. Four recent backlog rows additionally lacked creator authority. Do not release or retry held evidence based on age or a missing hot receipt.",
     "next_action": "Requested audit is complete. Seek a separately authorized DEV milestone to fix and qualify the child/checkpoint finalization boundary: reserve bounded finalization time within the child/lease limits, finish ledger/checkpoint publication safely around termination, and reconcile only authoritatively never-dispatched reservations under exact claim/generation/pair/token CAS using both hot and archived receipts. Preserve paid/missing/uncertain/review-held cases; do not increase RPC limits, clear holds, replay queues or change production under this audit. Also qualify applying the existing fresh-lane creator/anchor readiness predicate to backlog selection so missing-creator jobs are not claimed into review failures. Existing legacy holds require their own evidence-backed review, not blanket retries."
+  },
+  "checkpoint_finalization_dev_20261107": {
+    "status": "PASS_DEV_CHECKPOINT_FINALIZATION",
+    "recorded_utc": "2026-11-07T21:04:09.704013+00:00",
+    "engineering_revision": "8f349ee1bb37d05a4157ff8e8af8b59336f1e567",
+    "engineering_parent": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "branch": "codex/checkpoint-finalization",
+    "dev_only": true,
+    "implementation": [
+      "Reserve finalization time within existing timeout and lease, recheck before INTENT and defer SIGTERM through saved reply publication.",
+      "Read both hot and identity-bound archived receipts; no receipt absence shortcut.",
+      "Reconcile only exact proven-unsent token from currently reaped child under pair/claim/clock/storage checks; write bounded durable metadata proof atomically.",
+      "Apply creator/anchor readiness at backlog selection and ordinary/capacity claim CAS."
+    ],
+    "tests": 356,
+    "test_failures": 0,
+    "test_errors": 0,
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "runtime_deployment_kind": "Installed disposable DEV package with synthetic domain worker and transport; actual changed child entrypoint/journal and unchanged Gate/HTTP. No production deployment.",
+    "qualified_cases": [
+      "SIGTERM deferred through durable paid reply commit",
+      "restart saved response reuse without duplicate acquisition",
+      "hard-kill protected unknown intent",
+      "parent-only reaped-child provenance and bound proof handoff",
+      "matching token/claim/pair CAS only",
+      "hot and archived-only receipts protect paid results",
+      "legacy thirteen reservations unchanged under fourteen-reservation pressure",
+      "v4 retention binding unchanged",
+      "fault-injected SQL and storage rollback",
+      "concurrent reconcilers release one token",
+      "backlog readiness selection/claim race and duplicate starts",
+      "eight/32 segment and seven-day lifecycle regressions"
+    ],
+    "historical_static_assertion_excluded": {
+      "test": "test_completed_request_archive.py::test_accounting_policy_completion_and_recovery_kernels_are_unchanged",
+      "historical_parent": "d78dc02ea9d0a9462765d306ac91c18646f077be",
+      "reason": "Original archive-milestone delta assertion predates accepted Gate recovery changes. Current milestone independently pins all three roles Gate and HTTP byte-for-byte to 51892c86. Functional archive tests passed.",
+      "prior_result_preserved": "/private/tmp/flex-checkpoint-finalization-dev-20261107/BASE_prior_static_pin_failure.xml"
+    },
+    "source_pins": "/private/tmp/flex-checkpoint-finalization-dev-20261107/SOURCE_PINS.json",
+    "qualification_receipt": "/private/tmp/flex-checkpoint-finalization-dev-20261107/QUALIFICATION.json",
+    "runtime_acceptance": "/private/tmp/flex-checkpoint-finalization-dev-20261107/RUNTIME_ACCEPTANCE.json",
+    "qualification_sha256": "9a610223d011eb94150c72e19ae54bf83507d0253372f8fd699dd2217ac9e90b",
+    "source_composition_discrepancy": "Engineering tree preserves its existing account-recovery and publication-lineage behavior; deployed Walkback composition differs and was not replaced.",
+    "historical_reservation_policy": "All legacy reservations and review holds remain untouched. Parent-only current-child proof cannot retrospectively authorize cleanup of the 13 previously audited holds or the later 14th reservation.",
+    "production_changes": 0,
+    "provider_probes": 0,
+    "queue_replay": false,
+    "production_services_or_workers_changed": false,
+    "active_startup_revision_from_last_verified_baseline": "51892c8696937e52b0b5b4c355822b7a0d7c829a",
+    "walkback_runtime_revision_from_last_verified_baseline": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "production_progress_reaudited": false,
+    "production_progress_baseline_as_of_utc": "2026-11-07T20:28:19.264858+00:00",
+    "production_progress_baseline_verdict": "HOLD_NO_NEW_FULL_COMPLETIONS_AND_CRITICAL_PROTECTED_HOT_CAPACITY",
+    "blocker": "NONE — requested DEV implementation and qualification complete. Production progress is not re-audited or changed in this milestone.",
+    "next_action": "NONE — DEV milestone complete. Production deployment is a separate explicitly authorized milestone."
   }
 }

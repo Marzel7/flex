@@ -1222,8 +1222,10 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": null,
-  "blockers": [],
+  "blocker": "No configured production trusted-clock attestation issuer; cold-boot access to encrypted data/credentials unverified; no non-interactive administrator access to install boot job.",
+  "blockers": [
+    "No configured production trusted-clock attestation issuer; cold-boot access to encrypted data/credentials unverified; no non-interactive administrator access to install boot job."
+  ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2692,103 +2694,150 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "PASS_GUARDED_STARTUP_RECOVERY_DEV_COMPLETE_PRODUCTION_UNCHANGED",
-    "recorded_utc": "2026-11-07T12:02:01.355282+00:00",
+    "status": "HOLD_NOT_DEPLOYED_TRUSTED_CLOCK_AND_BOOT_ACCESS_REQUIRED",
+    "recorded_utc": "2026-11-07T12:11:31.306922+00:00",
     "engineering_revision": "8dc72cbb0e5d90fa0ed9a0fd50124ffd96cf5587",
-    "engineering_branch": "codex/guarded-startup-recovery",
     "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
-    "audit_only": false,
+    "production_deployment_authorized": true,
+    "authorization": "User approved deploying 8dc72cbb after trusted-clock, boot-access and backup checks, preserving evidence/dedup/reservations/review holds and with no provider probes. Authorization persists; no second approval sought for the same cutover.",
     "runtime_deployment_required": true,
-    "RUNTIME_DEPLOYMENT_GATE": "PASS",
-    "production_activation_unchanged": true,
-    "production_readiness": "QUALIFIED_DEV_ONLY_NOT_INSTALLED_IN_PRODUCTION",
-    "implementation": [
-      "One foreground Supervisor under lifetime singleton and exact boot/process identity; autostart only Listener, Creator-resolution and Walkback with group-safe stop.",
-      "Independent clock proof gates initial/reboot/discontinuous clocks; clock-only ledger publication and retention CAS with durable phase/readback recovery.",
-      "Existing dedup, receipts, budgets, reservations, evidence and review holds retained; no resend, replay or implicit initialization.",
-      "Bounded profile/plist generation; no daemon installed or existing worker/store/dashboard source edited."
-    ],
-    "tests": {
-      "passed": 44,
-      "failed": 0,
-      "errors": 0,
-      "skipped": 0,
-      "simulated_reboot_clock_reset": true,
-      "fractional_monotonic_publication_crash": true,
-      "actual_child_SIGKILL_restart": true,
-      "actual_guard_SIGKILL_manager_adoption": true,
-      "actual_duplicate_CLI_start": true,
-      "interrupted_two_store_recovery": true,
-      "saved_response_reuse_zero_mock_dispatches": true,
-      "uncertain_request_review_still_denied": true,
-      "native_protected_evidence_hashes_exact": true,
-      "invalid_authority_or_modified_stage": "HOLD without granting workers or retry authority"
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD_NOT_INSTALLED_PREREQUISITES_UNMET",
+    "prior_DEV_qualification": {
+      "status": "PASS",
+      "tests": 44,
+      "evidence_ref": "/private/tmp/flex-guarded-startup-dev-20261107/QUALIFICATION.json"
     },
-    "runtime_evidence": {
-      "status": "PASS_INSTALLED_DEV_CLI_REAL_STORES_AND_SUPERVISOR",
-      "entrypoint": "/private/tmp/flex-sg-_2rn6msg/runtime/guarded_startup.py",
-      "entrypoint_sha256": "6fae2b604c336f2d15a38fa15e0571da60ab568c7e185d94d516955f84f6cfaa",
-      "guard_pid": 71017,
-      "crashed_guard_pid": 70975,
-      "guard_SIGKILL_adopted_existing_manager_without_respawn": true,
-      "manager_identity": {
-        "command": [
-          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
-          "-B",
-          "-m",
-          "supervisor.supervisord",
-          "-n",
-          "-c",
-          "/private/tmp/flex-sg-_2rn6msg/supervisord.conf"
-        ],
-        "created": 1794052828.491355,
-        "pid": 70977
+    "trusted_clock": {
+      "status": "HOLD_REQUIRED_PRODUCTION_TRUSTED_CLOCK_ISSUER_NOT_FOUND",
+      "required": "Existing independently trusted UTC issuer publishing fresh root-owned boot/generation/pair-bound proof",
+      "configured_startup_or_clock_jobs": [],
+      "unreadable_job_metadata": [
+        {
+          "path": "/Library/LaunchDaemons/com.microsoft.teams.TeamsUpdaterDaemon.plist",
+          "reason": "PermissionError"
+        }
+      ],
+      "bounded_authority_candidates": [],
+      "scope": "Current boot job directories and active authority directory depth two; no claim of a machine-wide historical file search.",
+      "os_automatic_time_setting": "Unavailable to non-admin; sudo -n requires password. No network time/provider probes issued.",
+      "synthetic_or_self_attested_proof_issued": false
+    },
+    "boot_access": {
+      "status": "HOLD_COLD_BOOT_DATA_AND_CREDENTIAL_AVAILABILITY_NOT_ESTABLISHED",
+      "data_volume": {
+        "MountPoint": "/System/Volumes/Data",
+        "DeviceIdentifier": "disk3s5",
+        "Internal": true,
+        "FileVault": true,
+        "Encryption": true,
+        "Locked": false,
+        "Writable": true,
+        "APFSContainerFree": 19523895296
       },
-      "fake_worker_pids": {
-        "pumpfun_curve_listener": 71005,
-        "walkback_worker": 71004,
-        "creator_resolution_worker": 71003
-      },
-      "config_sha256": "679c48f15ca3b143a47ad2d6ed22ea72e51b62fc5edefcf6bfdc3d7774cc0b06",
-      "only_approved_fake_workers_started": true,
-      "simulated_reboot_clock_reset_recovered": true,
-      "duplicate_cli_start_blocked": true,
-      "group_shutdown_reaped_workers": true,
-      "denial_and_reservations_preserved": true,
-      "provider_calls": 0,
-      "supervisor_RPC_calls": 0,
-      "production_changes": 0
+      "interpretation": "The data volume is FileVault-encrypted and unlocked now. Current login-session access does not prove availability after an unattended cold boot.",
+      "security_setting_changes": 0
+    },
+    "administrative_access": "No non-interactive sudo access. No launchd job installed or loaded.",
+    "backups": {
+      "status": "PASS_EXISTING_V4_BACKUP_BYTES_REVERIFIED_NOT_A_FRESH_CUTOVER_BACKUP",
+      "checked_utc": "2026-11-07T12:08:48.738846+00:00",
+      "source_backup_observed_utc": "2026-11-07T09:17:45.408420+00:00",
+      "core_verified": true,
+      "files": [
+        {
+          "name": "ops.sqlite",
+          "bytes": 296239104,
+          "verified": true
+        },
+        {
+          "name": "segment-01.sqlite",
+          "bytes": 22773760,
+          "verified": true
+        },
+        {
+          "name": "segment-02.sqlite",
+          "bytes": 24129536,
+          "verified": true
+        },
+        {
+          "name": "retention-stage.sqlite",
+          "bytes": 0,
+          "verified": true
+        }
+      ],
+      "manifest_verified": true,
+      "fresh_cutover_backup": "DEFERRED — no drain/cutover while trusted clock and cold-boot access checks are unmet",
+      "no_live_restore": true,
+      "no_backup_clone_created": true,
+      "rollback_rule": "Never restore pre-v4 OPS/ledger after any expiry; recover retaining all retired markers and paired accounting authority."
+    },
+    "preservation": {
+      "status": "PASS_READONLY_PRESERVATION_AND_SOURCE_IDENTITIES",
+      "observed_utc": "2026-11-07T12:09:27.717882+00:00",
+      "read_seconds": 0.133,
+      "original_reservations_exact": 7,
+      "original_reserved_bytes_exact": 14680064,
+      "current_reservations": 7,
+      "original_review_holds_exact": 1512,
+      "current_review_marked_jobs": 1523,
+      "original_uncertain_receipts_exact": 23,
+      "original_saved_completed_receipts_exact": 5690,
+      "saved_receipts_hot_exact": 5684,
+      "saved_receipts_archive_exact": 6,
+      "comparison_note": "Six prior hot receipts moved unchanged to the existing identity-bound read-only completed archive; no attempts or credits changed.",
+      "spending_policy_unchanged": true,
+      "protected_sources_and_config_unchanged": true,
+      "active_config_sha256": "3ed03f1666e51e41fef540b2a84c8055259855bddfb0f606eaf304919f486f25",
+      "global_legacy_DB_PATH_exists": false,
+      "production_writes": 0,
+      "provider_probes": 0,
+      "worker_actions": 0,
+      "service_actions": 0
     },
     "compatibility": {
-      "accepted_composition_pins": "/private/tmp/flex-guarded-startup-dev-20261107/COMPOSITION_PINS.json",
-      "production_static_paths_unchanged": 37,
-      "production_comparison": "PASS_ALL_SOURCE_AND_CONFIG_HASHES_IDENTICAL"
+      "source_pins": "PASS",
+      "production_static_hashes_unchanged": 37
     },
-    "storage_bounds": {
-      "startup_receipt_bytes": 8192,
-      "receipt_stage_bytes": 8192,
-      "manifest_bytes": 32768,
-      "clock_proof_bytes": 4096,
-      "supervisor_config_bytes": 131072,
-      "launchd_plist_bytes": 8192,
-      "logs_total_bytes": 14680064,
-      "ledger_read_bytes": 16777216,
-      "inherited_kernel_single_file_ceiling_bytes": 499000000,
-      "raw_retention": "No new provider bodies retained or exported; existing retention policy unchanged. Protected rows are hashed in memory.",
-      "unbounded_growth_paths": 0,
-      "large_file_prohibition": "PASS"
-    },
-    "source_files": [
-      "runtime/startup/guarded_startup.py",
-      "runtime/startup/guarded_startup_config.py",
-      "runtime/startup/README.md",
-      "tests/test_guarded_startup.py",
-      "tests/test_guarded_startup_processes.py"
+    "running_process_identities": [
+      {
+        "pid": 1131,
+        "parent": 1,
+        "created": 1792427331.096134,
+        "kind": "Supervisor",
+        "config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf"
+      },
+      {
+        "pid": 23790,
+        "parent": 1131,
+        "created": 1794033213.339774,
+        "kind": [
+          "src.core.creator_resolution_worker"
+        ],
+        "config": null
+      },
+      {
+        "pid": 44253,
+        "parent": 1131,
+        "created": 1794043065.667792,
+        "kind": [
+          "src.core.walkback_worker"
+        ],
+        "config": null
+      },
+      {
+        "pid": 48593,
+        "parent": 1131,
+        "created": 1793965423.48722,
+        "kind": [
+          "src.core.pumpfun_curve_listener"
+        ],
+        "config": null
+      }
     ],
-    "qualified_diff_sha256": "d409d53bc1c24affa807220cdb9652a2ac1be18cc21d23d94848dec9e3406f2d",
+    "guarded_recovery_live_acceptance": "NOT_RUN — conditional prerequisites not met; existing manager/workers left running. Prior isolated DEV crash/reboot/duplicate qualification remains PASS.",
     "production_change_flags": {
-      "scope": "Isolated DEV guarded startup and reboot recovery implementation/qualification",
+      "scope": "Approved 8dc72cbb production rollout prerequisite checks; stopped before mutation",
       "production_writes": 0,
       "worker_source_changes": 0,
       "dashboard_source_changes": 0,
@@ -2801,27 +2850,17 @@
       "reservation_or_review_hold_changes": 0,
       "configuration_changes": 0,
       "production_restarts_or_reboots": 0,
-      "DEV_only_fake_processes": "Disposable Supervisor/fake-worker crash, restart, adoption and shutdown; no live service signals"
+      "source_installations": 0,
+      "launchd_or_encryption_changes": 0
     },
-    "qualification_limits": [
-      "Production boot package is not installed or activated.",
-      "Fresh independently trusted root-owned clock proof is required for initial/new-boot or ambiguous clock recovery; package deliberately contains no self-attesting issuer.",
-      "Production rollout must verify pre-login volume/credential availability and perform controlled existing-manager cutover.",
-      "Protected table scan is bounded to ten seconds/128 tables/262144 rows each; missing proof or exceeded bounds yields HOLD."
-    ],
-    "blocker": null,
-    "production_deployment_prerequisites": [
-      "Independently trusted root-owned UTC issuer: deliberately not self-issued by bootstrap.",
-      "Pre-login data volume and credentials verified.",
-      "Controlled existing-manager cutover and source/manifest/config pins under separate authorization."
-    ],
-    "next_action": "NONE — DEV COMPLETE. Guarded package 8dc72cbb is qualified in isolated DEV only. A separately authorized production rollout must provision independently trusted root-owned UTC proof, verify pre-login data/credential availability, pin manifest/source/config identities and cut over the existing manager once; do not start a second Supervisor, clear dedup, release reservations/holds or probe RPC.",
-    "evidence_ref": "/private/tmp/flex-guarded-startup-dev-20261107/QUALIFICATION.json",
-    "tests_ref": "/private/tmp/flex-guarded-startup-dev-20261107/DEV.xml",
-    "source_pins_ref": "/private/tmp/flex-guarded-startup-dev-20261107/SOURCE_PINS.json",
-    "commit_ref": "/private/tmp/flex-guarded-startup-dev-20261107/COMMIT.json"
+    "blocker": "No configured production trusted-clock attestation issuer; cold-boot access to encrypted data/credentials unverified; no non-interactive administrator access to install boot job.",
+    "next_action": "Provision and qualify a real trusted-clock attestation issuer and an approved FileVault-compatible boot-access path with administrator access. Keep existing services running; then take a fresh fenced backup and perform the already-authorized single-manager cutover. Do not manufacture a clock proof, weaken encryption or restore stale paired backups.",
+    "evidence_ref": "/private/tmp/flex-guarded-startup-deploy-20261107/PREFLIGHT.json",
+    "backup_check_ref": "/private/tmp/flex-guarded-startup-deploy-20261107/BACKUP_CHECK.json",
+    "preservation_ref": "/private/tmp/flex-guarded-startup-deploy-20261107/PRESERVATION.json",
+    "discrepancy_resolved": "Initial hot-only comparison omitted six receipts. All six remain byte-equivalent in the identity-bound completed archive; all 5690 baseline saved receipts remain exact with no attempt/credit change. No missing evidence or duplicate RPC established."
   },
-  "current_next_blocker": "NONE — authorized DEV milestone complete. Production startup activation remains separate; trusted clock issuer and pre-login availability are deployment prerequisites.",
+  "current_next_blocker": "No configured production trusted-clock attestation issuer; cold-boot access to encrypted data/credentials unverified; no non-interactive administrator access to install boot job.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45083,11 +45122,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T12:02:16.092008+00:00",
+    "published_at_utc": "2026-11-07T12:11:45.257450+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T12:02:01.355282+00:00",
-    "verification_receipt": "/private/tmp/flex-guarded-startup-dev-20261107/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T12:11:31.306922+00:00",
+    "verification_receipt": "/private/tmp/flex-guarded-startup-deploy-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58326,7 +58365,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE — DEV COMPLETE. Guarded package 8dc72cbb is qualified in isolated DEV only. A separately authorized production rollout must provision independently trusted root-owned UTC proof, verify pre-login data/credential availability, pin manifest/source/config identities and cut over the existing manager once; do not start a second Supervisor, clear dedup, release reservations/holds or probe RPC.",
+  "next_action": "Provision and qualify a real trusted-clock attestation issuer and an approved FileVault-compatible boot-access path with administrator access. Keep existing services running; then take a fresh fenced backup and perform the already-authorized single-manager cutover. Do not manufacture a clock proof, weaken encryption or restore stale paired backups.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60560,7 +60599,7 @@
     "branch": "codex/guarded-startup-recovery",
     "git_head": "8dc72cbb0e5d90fa0ed9a0fd50124ffd96cf5587",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T12:02:01.355282+00:00",
+    "updated_at_utc": "2026-11-07T12:11:31.306922+00:00",
     "working_tree": "/private/tmp/flex-r02-retention-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -62023,7 +62062,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_GUARDED_STARTUP_RECOVERY_DEV_COMPLETE_PRODUCTION_UNCHANGED",
+  "status": "HOLD_NOT_DEPLOYED_TRUSTED_CLOCK_AND_BOOT_ACCESS_REQUIRED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63643,7 +63682,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_GUARDED_STARTUP_RECOVERY_DEV_COMPLETE_PRODUCTION_UNCHANGED",
+  "verdict": "HOLD_NOT_DEPLOYED_TRUSTED_CLOCK_AND_BOOT_ACCESS_REQUIRED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89280,7 +89319,7 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Isolated DEV guarded startup and reboot recovery implementation/qualification",
+    "scope": "Approved 8dc72cbb production rollout prerequisite checks; stopped before mutation",
     "production_writes": 0,
     "worker_source_changes": 0,
     "dashboard_source_changes": 0,
@@ -89293,7 +89332,8 @@
     "reservation_or_review_hold_changes": 0,
     "configuration_changes": 0,
     "production_restarts_or_reboots": 0,
-    "DEV_only_fake_processes": "Disposable Supervisor/fake-worker crash, restart, adoption and shutdown; no live service signals"
+    "source_installations": 0,
+    "launchd_or_encryption_changes": 0
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -94702,5 +94742,172 @@
     "tests_ref": "/private/tmp/flex-guarded-startup-dev-20261107/DEV.xml",
     "source_pins_ref": "/private/tmp/flex-guarded-startup-dev-20261107/SOURCE_PINS.json",
     "commit_ref": "/private/tmp/flex-guarded-startup-dev-20261107/COMMIT.json"
+  },
+  "guarded_startup_deployment_preflight_20261107": {
+    "status": "HOLD_NOT_DEPLOYED_TRUSTED_CLOCK_AND_BOOT_ACCESS_REQUIRED",
+    "recorded_utc": "2026-11-07T12:11:31.306922+00:00",
+    "engineering_revision": "8dc72cbb0e5d90fa0ed9a0fd50124ffd96cf5587",
+    "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+    "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "production_deployment_authorized": true,
+    "authorization": "User approved deploying 8dc72cbb after trusted-clock, boot-access and backup checks, preserving evidence/dedup/reservations/review holds and with no provider probes. Authorization persists; no second approval sought for the same cutover.",
+    "runtime_deployment_required": true,
+    "RUNTIME_DEPLOYMENT_GATE": "HOLD_NOT_INSTALLED_PREREQUISITES_UNMET",
+    "prior_DEV_qualification": {
+      "status": "PASS",
+      "tests": 44,
+      "evidence_ref": "/private/tmp/flex-guarded-startup-dev-20261107/QUALIFICATION.json"
+    },
+    "trusted_clock": {
+      "status": "HOLD_REQUIRED_PRODUCTION_TRUSTED_CLOCK_ISSUER_NOT_FOUND",
+      "required": "Existing independently trusted UTC issuer publishing fresh root-owned boot/generation/pair-bound proof",
+      "configured_startup_or_clock_jobs": [],
+      "unreadable_job_metadata": [
+        {
+          "path": "/Library/LaunchDaemons/com.microsoft.teams.TeamsUpdaterDaemon.plist",
+          "reason": "PermissionError"
+        }
+      ],
+      "bounded_authority_candidates": [],
+      "scope": "Current boot job directories and active authority directory depth two; no claim of a machine-wide historical file search.",
+      "os_automatic_time_setting": "Unavailable to non-admin; sudo -n requires password. No network time/provider probes issued.",
+      "synthetic_or_self_attested_proof_issued": false
+    },
+    "boot_access": {
+      "status": "HOLD_COLD_BOOT_DATA_AND_CREDENTIAL_AVAILABILITY_NOT_ESTABLISHED",
+      "data_volume": {
+        "MountPoint": "/System/Volumes/Data",
+        "DeviceIdentifier": "disk3s5",
+        "Internal": true,
+        "FileVault": true,
+        "Encryption": true,
+        "Locked": false,
+        "Writable": true,
+        "APFSContainerFree": 19523895296
+      },
+      "interpretation": "The data volume is FileVault-encrypted and unlocked now. Current login-session access does not prove availability after an unattended cold boot.",
+      "security_setting_changes": 0
+    },
+    "administrative_access": "No non-interactive sudo access. No launchd job installed or loaded.",
+    "backups": {
+      "status": "PASS_EXISTING_V4_BACKUP_BYTES_REVERIFIED_NOT_A_FRESH_CUTOVER_BACKUP",
+      "checked_utc": "2026-11-07T12:08:48.738846+00:00",
+      "source_backup_observed_utc": "2026-11-07T09:17:45.408420+00:00",
+      "core_verified": true,
+      "files": [
+        {
+          "name": "ops.sqlite",
+          "bytes": 296239104,
+          "verified": true
+        },
+        {
+          "name": "segment-01.sqlite",
+          "bytes": 22773760,
+          "verified": true
+        },
+        {
+          "name": "segment-02.sqlite",
+          "bytes": 24129536,
+          "verified": true
+        },
+        {
+          "name": "retention-stage.sqlite",
+          "bytes": 0,
+          "verified": true
+        }
+      ],
+      "manifest_verified": true,
+      "fresh_cutover_backup": "DEFERRED — no drain/cutover while trusted clock and cold-boot access checks are unmet",
+      "no_live_restore": true,
+      "no_backup_clone_created": true,
+      "rollback_rule": "Never restore pre-v4 OPS/ledger after any expiry; recover retaining all retired markers and paired accounting authority."
+    },
+    "preservation": {
+      "status": "PASS_READONLY_PRESERVATION_AND_SOURCE_IDENTITIES",
+      "observed_utc": "2026-11-07T12:09:27.717882+00:00",
+      "read_seconds": 0.133,
+      "original_reservations_exact": 7,
+      "original_reserved_bytes_exact": 14680064,
+      "current_reservations": 7,
+      "original_review_holds_exact": 1512,
+      "current_review_marked_jobs": 1523,
+      "original_uncertain_receipts_exact": 23,
+      "original_saved_completed_receipts_exact": 5690,
+      "saved_receipts_hot_exact": 5684,
+      "saved_receipts_archive_exact": 6,
+      "comparison_note": "Six prior hot receipts moved unchanged to the existing identity-bound read-only completed archive; no attempts or credits changed.",
+      "spending_policy_unchanged": true,
+      "protected_sources_and_config_unchanged": true,
+      "active_config_sha256": "3ed03f1666e51e41fef540b2a84c8055259855bddfb0f606eaf304919f486f25",
+      "global_legacy_DB_PATH_exists": false,
+      "production_writes": 0,
+      "provider_probes": 0,
+      "worker_actions": 0,
+      "service_actions": 0
+    },
+    "compatibility": {
+      "source_pins": "PASS",
+      "production_static_hashes_unchanged": 37
+    },
+    "running_process_identities": [
+      {
+        "pid": 1131,
+        "parent": 1,
+        "created": 1792427331.096134,
+        "kind": "Supervisor",
+        "config": "/Users/kevinkeaveney/Dev/claude/flex-development/DEV090/operational-restoration/supervisord.selective-retry2.conf"
+      },
+      {
+        "pid": 23790,
+        "parent": 1131,
+        "created": 1794033213.339774,
+        "kind": [
+          "src.core.creator_resolution_worker"
+        ],
+        "config": null
+      },
+      {
+        "pid": 44253,
+        "parent": 1131,
+        "created": 1794043065.667792,
+        "kind": [
+          "src.core.walkback_worker"
+        ],
+        "config": null
+      },
+      {
+        "pid": 48593,
+        "parent": 1131,
+        "created": 1793965423.48722,
+        "kind": [
+          "src.core.pumpfun_curve_listener"
+        ],
+        "config": null
+      }
+    ],
+    "guarded_recovery_live_acceptance": "NOT_RUN — conditional prerequisites not met; existing manager/workers left running. Prior isolated DEV crash/reboot/duplicate qualification remains PASS.",
+    "production_change_flags": {
+      "scope": "Approved 8dc72cbb production rollout prerequisite checks; stopped before mutation",
+      "production_writes": 0,
+      "worker_source_changes": 0,
+      "dashboard_source_changes": 0,
+      "worker_actions": 0,
+      "service_mutations": 0,
+      "provider_probes": 0,
+      "Supervisor_RPC_calls": 0,
+      "queue_replay": false,
+      "accounting_edits": 0,
+      "reservation_or_review_hold_changes": 0,
+      "configuration_changes": 0,
+      "production_restarts_or_reboots": 0,
+      "source_installations": 0,
+      "launchd_or_encryption_changes": 0
+    },
+    "blocker": "No configured production trusted-clock attestation issuer; cold-boot access to encrypted data/credentials unverified; no non-interactive administrator access to install boot job.",
+    "next_action": "Provision and qualify a real trusted-clock attestation issuer and an approved FileVault-compatible boot-access path with administrator access. Keep existing services running; then take a fresh fenced backup and perform the already-authorized single-manager cutover. Do not manufacture a clock proof, weaken encryption or restore stale paired backups.",
+    "evidence_ref": "/private/tmp/flex-guarded-startup-deploy-20261107/PREFLIGHT.json",
+    "backup_check_ref": "/private/tmp/flex-guarded-startup-deploy-20261107/BACKUP_CHECK.json",
+    "preservation_ref": "/private/tmp/flex-guarded-startup-deploy-20261107/PRESERVATION.json",
+    "discrepancy_resolved": "Initial hot-only comparison omitted six receipts. All six remain byte-equivalent in the identity-bound completed archive; all 5690 baseline saved receipts remain exact with no attempt/credit change. No missing evidence or duplicate RPC established."
   }
 }

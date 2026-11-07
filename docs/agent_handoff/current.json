@@ -103,18 +103,18 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_READONLY_PROGRESS_1036_CAPACITY_OK_NO_OBSERVED_DUPLICATE_SAVED_RPC",
-    "recorded_utc": "2026-11-07T10:37:44.240044+00:00",
-    "observed_utc": "2026-11-07T10:36:20.980092+00:00",
+    "status": "PARTIAL_UNATTENDED_READINESS_CURRENT_STORAGE_OK_STARTUP_PATH_UNPROVEN",
+    "recorded_utc": "2026-11-07T10:45:10.475204+00:00",
+    "observed_utc": "2026-11-07T10:43:47.501761+00:00",
     "engineering_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
     "audit_only": true,
     "runtime_deployment_required": false,
     "production_activation_unchanged": true,
-    "blocker": "39 attempt-limit pending holds and2234 prerequisite waits remain(848 exhausted,193 need review,1193 no recovery record). One job newly failed into existing mutable-revalidation-required review since10:06. No running jobs in sample; fresh UNHEALTHY heartbeat reason is zero latest-minute completions with held pending work, not missing heartbeat, stalled running work or current write failures. No new pending storage refusal observed.",
-    "next_action": "NONE — read-only audit complete. Continue only existing passive dashboard refresh. Do not restart workers, replay queues, release reservations/review holds or issue RPC probes without a separately authorized milestone.",
-    "evidence_ref": "/private/tmp/flex-progress-audit-20261107-1035/SUMMARY.json"
+    "blocker": "Current native storage is VERIFIED/OK and worker heartbeat HEALTHY. Accepted Supervisor worker config hasautorestart=true butautostart=false; no full Supervisor/host-reboot auto-start path established by this read-only check. Seven-day payload expiry has DEV qualification but0 live retired records so far; protected holds/reservations and permanent dedup markers have finite separate budgets. CapacityOK is a current observation, not a months-long unattended-operation guarantee.",
+    "next_action": "Explanation complete; no production changes. If separately requested, audit the accepted Supervisor/host startup path and the finite retained-metadata/storage operating horizon before proposing a scoped startup/config or policy change. Do not change autostart, restart processes, remove evidence or issue RPC probes in this explanatory turn.",
+    "evidence_ref": "/private/tmp/flex-storage-horizon-explanation-20261107-1043/SUMMARY.json"
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1235,9 +1235,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "39 attempt-limit pending holds and2234 prerequisite waits remain(848 exhausted,193 need review,1193 no recovery record). One job newly failed into existing mutable-revalidation-required review since10:06. No running jobs in sample; fresh UNHEALTHY heartbeat reason is zero latest-minute completions with held pending work, not missing heartbeat, stalled running work or current write failures. No new pending storage refusal observed.",
+  "blocker": "Current native storage is VERIFIED/OK and worker heartbeat HEALTHY. Accepted Supervisor worker config hasautorestart=true butautostart=false; no full Supervisor/host-reboot auto-start path established by this read-only check. Seven-day payload expiry has DEV qualification but0 live retired records so far; protected holds/reservations and permanent dedup markers have finite separate budgets. CapacityOK is a current observation, not a months-long unattended-operation guarantee.",
   "blockers": [
-    "39 attempt-limit pending holds and2234 prerequisite waits remain(848 exhausted,193 need review,1193 no recovery record). One job newly failed into existing mutable-revalidation-required review since10:06. No running jobs in sample; fresh UNHEALTHY heartbeat reason is zero latest-minute completions with held pending work, not missing heartbeat, stalled running work or current write failures. No new pending storage refusal observed."
+    "Current native storage is VERIFIED/OK and worker heartbeat HEALTHY. Accepted Supervisor worker config hasautorestart=true butautostart=false; no full Supervisor/host-reboot auto-start path established by this read-only check. Seven-day payload expiry has DEV qualification but0 live retired records so far; protected holds/reservations and permanent dedup markers have finite separate budgets. CapacityOK is a current observation, not a months-long unattended-operation guarantee."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2707,21 +2707,21 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Read-only progress since10:06 audit, hot storage and saved-RPC dedup verification",
-    "status": "PASS_READONLY_PROGRESS_1036_CAPACITY_OK_NO_OBSERVED_DUPLICATE_SAVED_RPC",
-    "recorded_utc": "2026-11-07T10:37:44.240044+00:00",
-    "observed_utc": "2026-11-07T10:36:20.980092+00:00",
+    "milestone": "Explain hot32MiB guard and assess unattended-operation claim read-only",
+    "status": "PARTIAL_UNATTENDED_READINESS_CURRENT_STORAGE_OK_STARTUP_PATH_UNPROVEN",
+    "recorded_utc": "2026-11-07T10:45:10.475204+00:00",
+    "observed_utc": "2026-11-07T10:43:47.501761+00:00",
     "engineering_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
     "audit_only": true,
     "runtime_deployment_required": false,
     "production_activation_unchanged": true,
-    "blocker": "39 attempt-limit pending holds and2234 prerequisite waits remain(848 exhausted,193 need review,1193 no recovery record). One job newly failed into existing mutable-revalidation-required review since10:06. No running jobs in sample; fresh UNHEALTHY heartbeat reason is zero latest-minute completions with held pending work, not missing heartbeat, stalled running work or current write failures. No new pending storage refusal observed.",
-    "next_action": "NONE — read-only audit complete. Continue only existing passive dashboard refresh. Do not restart workers, replay queues, release reservations/review holds or issue RPC probes without a separately authorized milestone.",
-    "evidence_ref": "/private/tmp/flex-progress-audit-20261107-1035/SUMMARY.json"
+    "blocker": "Current native storage is VERIFIED/OK and worker heartbeat HEALTHY. Accepted Supervisor worker config hasautorestart=true butautostart=false; no full Supervisor/host-reboot auto-start path established by this read-only check. Seven-day payload expiry has DEV qualification but0 live retired records so far; protected holds/reservations and permanent dedup markers have finite separate budgets. CapacityOK is a current observation, not a months-long unattended-operation guarantee.",
+    "next_action": "Explanation complete; no production changes. If separately requested, audit the accepted Supervisor/host startup path and the finite retained-metadata/storage operating horizon before proposing a scoped startup/config or policy change. Do not change autostart, restart processes, remove evidence or issue RPC probes in this explanatory turn.",
+    "evidence_ref": "/private/tmp/flex-storage-horizon-explanation-20261107-1043/SUMMARY.json"
   },
-  "current_next_blocker": "39 attempt-limit pending holds and2234 prerequisite waits remain(848 exhausted,193 need review,1193 no recovery record). One job newly failed into existing mutable-revalidation-required review since10:06. No running jobs in sample; fresh UNHEALTHY heartbeat reason is zero latest-minute completions with held pending work, not missing heartbeat, stalled running work or current write failures. No new pending storage refusal observed.",
+  "current_next_blocker": "Current native storage is VERIFIED/OK and worker heartbeat HEALTHY. Accepted Supervisor worker config hasautorestart=true butautostart=false; no full Supervisor/host-reboot auto-start path established by this read-only check. Seven-day payload expiry has DEV qualification but0 live retired records so far; protected holds/reservations and permanent dedup markers have finite separate budgets. CapacityOK is a current observation, not a months-long unattended-operation guarantee.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44983,11 +44983,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T10:38:02.385042+00:00",
+    "published_at_utc": "2026-11-07T10:45:25.815306+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T10:37:44.240044+00:00",
-    "verification_receipt": "/private/tmp/flex-progress-audit-20261107-1035/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T10:45:10.475204+00:00",
+    "verification_receipt": "/private/tmp/flex-storage-horizon-explanation-20261107-1043/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58226,7 +58226,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "NONE — read-only audit complete. Continue only existing passive dashboard refresh. Do not restart workers, replay queues, release reservations/review holds or issue RPC probes without a separately authorized milestone.",
+  "next_action": "Explanation complete; no production changes. If separately requested, audit the accepted Supervisor/host startup path and the finite retained-metadata/storage operating horizon before proposing a scoped startup/config or policy change. Do not change autostart, restart processes, remove evidence or issue RPC probes in this explanatory turn.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60460,8 +60460,8 @@
     "branch": "codex/r02-bounded-retention",
     "git_head": "746cf616dc749fddc6ee0c7356754795f1891d8f",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T10:37:44.240044+00:00",
-    "working_tree": "Read-only progress audit10:36 vs10:06:10 more full Walkbacks(total4358;53 since retention restart),10 additional recorded migrations(total6304). Hot storage fell15.75to15.20MiB,native capacityOK,80 more archived replies,8 reply slots after reclaim,30 archive segments available and no new capacity pause.6028 earlier saved RPC receipts exact;95 new receipts single-attempt.39 held pending/2234 prerequisites persist;one new mutable-revalidation-required review. Original reservations/uncertainty/review holds and deployed source/config pins preserved. No production changes."
+    "updated_at_utc": "2026-11-07T10:45:10.475204+00:00",
+    "working_tree": "Read-only unattended/storage explanation10:43:worker heartbeatHEALTHY,native capacityOK. Hot14.70MiB+14MiB reservations against32MiB guard,8 full-reply slots after eligible reclaim,30 archive segments available. Seven-day bulk lifecycle and full-window/scaled30day tests qualified,live expiry0. Accepted worker configautorestart=true/autostart=false; host/Supervisor startup recovery not established. Full24/7 no-issues readiness not asserted. No production/config/worker/RPC changes."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61923,7 +61923,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_READONLY_PROGRESS_1036_CAPACITY_OK_NO_OBSERVED_DUPLICATE_SAVED_RPC",
+  "status": "PARTIAL_UNATTENDED_READINESS_CURRENT_STORAGE_OK_STARTUP_PATH_UNPROVEN",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63543,7 +63543,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_READONLY_PROGRESS_1036_CAPACITY_OK_NO_OBSERVED_DUPLICATE_SAVED_RPC",
+  "verdict": "PARTIAL_UNATTENDED_READINESS_CURRENT_STORAGE_OK_STARTUP_PATH_UNPROVEN",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89180,7 +89180,7 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Read-only progress audit",
+    "scope": "Read-only storage and unattended-readiness explanation",
     "production_writes": 0,
     "worker_source_changes": 0,
     "dashboard_source_changes": 0,
@@ -89189,8 +89189,8 @@
     "provider_probes": 0,
     "queue_replay": false,
     "accounting_edits": 0,
-    "records_deleted_from_production": 0,
-    "reservation_or_review_hold_changes": 0
+    "reservation_or_review_hold_changes": 0,
+    "configuration_changes": 0
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -93947,5 +93947,153 @@
       "/private/tmp/flex-progress-audit-20261107-1035/RPC_VERIFICATION.json",
       "/private/tmp/flex-progress-audit-20261107-1035/WAITING.json"
     ]
+  },
+  "storage_unattended_readiness_explanation_readonly_20261107_1043": {
+    "status": "PARTIAL_UNATTENDED_READINESS_CURRENT_STORAGE_OK_STARTUP_PATH_UNPROVEN",
+    "recorded_utc": "2026-11-07T10:45:10.475204+00:00",
+    "engineering_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+    "dashboard_runtime_revision": "746cf616dc749fddc6ee0c7356754795f1891d8f",
+    "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "audit_only": true,
+    "runtime_deployment_required": false,
+    "evidence_ref": "/private/tmp/flex-storage-horizon-explanation-20261107-1043/EVIDENCE.json",
+    "current_observed_utc": "2026-11-07T10:43:47.501761+00:00",
+    "capacity": {
+      "alerts": [],
+      "archive": {
+        "active_main_headroom_bytes": 5410816,
+        "allocated_segments": 2,
+        "appendable_record_slots": 1006922,
+        "main_bytes": 49868800,
+        "main_limit_per_segment": 32505856,
+        "max_physical_bytes": 2147483648,
+        "max_segments": 32,
+        "oldest_staging_at": null,
+        "physical_bytes": 49868800,
+        "reserved_envelope_bytes": 134217728,
+        "staging_entries": 0,
+        "unallocated_segments": 30,
+        "worst_batch_reserve_bytes": 17301504
+      },
+      "hot": {
+        "eligible_bytes": 15225400,
+        "eligible_entries": 2199,
+        "entries": 8623,
+        "full_reply_slots_after_reclaim": 8,
+        "headroom_after_next_reply_and_one_batch": 1359135,
+        "headroom_after_next_reply_bytes": 16584535,
+        "immediate_headroom_after_next_reply_bytes": 1359135,
+        "maintenance_needed_for_next_reply": false,
+        "max_bytes": 33554432,
+        "max_entries": 32768,
+        "next_bounded_reclaim_bytes": null,
+        "next_reply_bytes": 2097152,
+        "protected_bytes": 192681,
+        "protected_commitment_bytes": 14872745,
+        "protected_entries": 6424,
+        "protected_entry_headroom_after_next": 26343,
+        "reservation_count": 7,
+        "reserved_bytes": 14680064,
+        "used_bytes": 15418081
+      },
+      "observed_at": 1794048203,
+      "quality": "VERIFIED",
+      "retention": {
+        "capacity_warning": false,
+        "marker_budget_bytes": 0,
+        "marker_bytes_remaining": 67108864,
+        "marker_records_remaining": 262144,
+        "metadata_growth_allowance_bytes": 167772160,
+        "pending": false,
+        "retention_seconds": 604800,
+        "retired_records": 0,
+        "version": 1
+      },
+      "scope": "456ba0e303be616b08427ad1",
+      "status": "OK",
+      "storage": {
+        "disk_margin_bytes": 18189687808,
+        "free_bytes": 20280389632,
+        "ops_file_margin_bytes": 178905792,
+        "ops_wal_margin_bytes": 26476544,
+        "required_free_bytes": 2090701824
+      },
+      "version": 1
+    },
+    "hot_quota": {
+      "bytes": 15418081,
+      "entries": 8623
+    },
+    "reservations": {
+      "n": 7,
+      "bytes": 14680064
+    },
+    "worker_supervisor_config": {
+      "program:walkback_worker": {
+        "autostart": "false",
+        "autorestart": "true",
+        "startretries": "999",
+        "startsecs": "5",
+        "exitcodes": "UNSPECIFIED",
+        "stopwaitsecs": "15"
+      }
+    },
+    "worker_config_qualification": "Read accepted deployment configuration only; not a new process-manager/reboot test.",
+    "storage_interpretation": "32MiB is the configured live hot reply-payload guard, not total disk capacity. At10:43:47 hot payload14.70MiB plus14MiB reserved=28.70MiB;about14.52MiB of payload is eligible for lossless archive relocation. Native report8 worst-case2MiB reply slots AFTER eligible reclaim, not RPC concurrency or a fixed remaining lifetime.2/32 archive segments allocated,30 available;47.56MiB archive physical bytes against qualified2GiB physical envelope. Before paying for another request, installed worker runs bounded capacity preparation/maintenance when needed, then rechecks and reserves.",
+    "retention_interpretation": "Seven-day retention retires eligible completed bulk payload only after strict age/dependency/terminal-outcome proof. Open/review/uncertain/shared/pinned evidence and reservations remain protected. Compact exact retirement/dedup markers prevent silent reacquisition after payload expiry. Markers/identities and protected obligations have finite separate budgets; not unrestricted indefinite capacity.",
+    "retention_qualification": {
+      "DEV_full_window": {
+        "status": "PASS",
+        "logical_payload_bytes": 802582302,
+        "records": 56973,
+        "no_compression_gain_assumed": true,
+        "segments": 30,
+        "segment_main_bytes": 948625408,
+        "largest_file_bytes": 32165888,
+        "physical_envelope_bytes": 2147483648,
+        "metadata_markers": 187197,
+        "marker_budget_bytes": 57282282,
+        "ops_file_bytes": 128700416,
+        "ops_growth_and_WAL_guard": "PASS_160_MiB_v4",
+        "bounded_projected_operation_reserve_bytes": 8650752,
+        "unresolved_reservations_exact": 5,
+        "reserved_bytes_exact": 10485760,
+        "sample_original_digests_exact": 5,
+        "full_catalog_validation_seconds": 0.077,
+        "fixture_requalification": "Full no-compression dataset generated under identical archive/marker format; reviewed experimental policy re-pinned to final160MiB OPS growth allowance. Payload/dedup/reservation totals unchanged."
+      },
+      "DEV_thirty_days": {
+        "status": "PASS",
+        "simulated_days": 30,
+        "scaled_records_per_day": 128,
+        "total_saved": 3840,
+        "retired_exact_markers": 2944,
+        "final_live_records": 896,
+        "maximum_live_records": 896,
+        "seven_day_boundary_and_bounded_lag_preserved": true,
+        "duplicate_rpc": 0,
+        "qualification": "Time/restart protocol at scaled daily volume, independent of full-size byte/cardinality qualification above."
+      },
+      "live_retired_markers": 0,
+      "live_expiry_cycle_observed": false
+    },
+    "RPC_scope": "No new receipt reconciliation in this explanation. Last passive saved-immutable RPC audit at10:36 found no duplicates; do not present that as an all-history/future guarantee.",
+    "tests": "No new engineering/test or reboot/restart run; read source and0.013second native paired metadata snapshot, accepted config and previously qualified sizing results.",
+    "source_and_protected_config_unchanged": true,
+    "production_flags": {
+      "scope": "Read-only storage and unattended-readiness explanation",
+      "production_writes": 0,
+      "worker_source_changes": 0,
+      "dashboard_source_changes": 0,
+      "worker_actions": 0,
+      "service_actions": 0,
+      "provider_probes": 0,
+      "queue_replay": false,
+      "accounting_edits": 0,
+      "reservation_or_review_hold_changes": 0,
+      "configuration_changes": 0
+    },
+    "blocker": "Current native storage is VERIFIED/OK and worker heartbeat HEALTHY. Accepted Supervisor worker config hasautorestart=true butautostart=false; no full Supervisor/host-reboot auto-start path established by this read-only check. Seven-day payload expiry has DEV qualification but0 live retired records so far; protected holds/reservations and permanent dedup markers have finite separate budgets. CapacityOK is a current observation, not a months-long unattended-operation guarantee.",
+    "next_action": "Explanation complete; no production changes. If separately requested, audit the accepted Supervisor/host startup path and the finite retained-metadata/storage operating horizon before proposing a scoped startup/config or policy change. Do not change autostart, restart processes, remove evidence or issue RPC probes in this explanatory turn."
   }
 }

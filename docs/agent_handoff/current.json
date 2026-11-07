@@ -1222,10 +1222,8 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Walkback is in an automatic supervisor restart loop: CHECKPOINT_RETENTION_CLOCK_AUTHORITY. Retention wall/monotonic elapsed discrepancy is 53.095 seconds, over the unchanged 30-second guard; the manager and other two workers remain up. Full completions remain 4599, unchanged from the deployment acceptance observation.",
-  "blockers": [
-    "Walkback is in an automatic supervisor restart loop: CHECKPOINT_RETENTION_CLOCK_AUTHORITY. Retention wall/monotonic elapsed discrepancy is 53.095 seconds, over the unchanged 30-second guard; the manager and other two workers remain up. Full completions remain 4599, unchanged from the deployment acceptance observation."
-  ],
+  "blocker": "NONE — requested DEV milestone complete",
+  "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2694,193 +2692,193 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "HOLD_WALKBACK_CLOCK_AUTHORITY_RESTART_LOOP",
-    "recorded_utc": "2026-11-07T22:38:43.671480+00:00",
-    "observed_utc": "2026-11-07T22:37:32.242327+00:00",
-    "engineering_revision": "26f07f05242b90830e9d3b791383b4834bba6777",
-    "branch": "codex/bounded-hot-capacity",
-    "scope": "User asked whether system is running well; passive local health/progress/preservation audit only.",
-    "audit_artifact": "/private/tmp/flex-26f07f05-rollout-20261107/STATUS_AUDIT.json",
-    "clock_audit_artifact": "/private/tmp/flex-26f07f05-rollout-20261107/STATUS_CLOCK_AUDIT.json",
-    "source_pins_verified": true,
-    "manager_identity_verified": true,
-    "supervisor_status": {
-      "creator_resolution_worker": "RUNNING pid 4193",
-      "watchtower_listener": "RUNNING pid 4195",
-      "walkback_worker": "BACKOFF/restarting; transient child process is not sustained readiness"
-    },
-    "clock_failure": {
-      "observed_utc": "2026-11-07T22:38:06.876123+00:00",
-      "retention_last_wall": 1794089894,
-      "wall_elapsed": 1192.876116991043,
-      "monotonic_elapsed": 1139.7813111250289,
-      "elapsed_discrepancy_seconds": 53.09480586601421,
-      "allowed_seconds": 30,
-      "clock_guard_accepts": false,
-      "worker_exits_since_cutover_in_retained_log": 62,
-      "latest_worker_events": [
-        "2026-11-07 22:36:55,122 WARN exited: walkback_worker (exit status 1; not expected)",
-        "2026-11-07 22:37:26,360 INFO spawned: 'walkback_worker' with pid 6439",
-        "2026-11-07 22:37:28,080 WARN exited: walkback_worker (exit status 1; not expected)",
-        "2026-11-07 22:38:00,636 INFO spawned: 'walkback_worker' with pid 6462",
-        "2026-11-07 22:38:02,280 WARN exited: walkback_worker (exit status 1; not expected)"
-      ],
-      "error_code": "CHECKPOINT_RETENTION_CLOCK_AUTHORITY",
-      "operator_worker_actions": 0,
-      "provider_probes": 0
-    },
-    "ledger_clock_anchors_accepted": true,
-    "full_completions": 4599,
-    "full_added_since_deployment": 1,
-    "full_added_since_last_acceptance": 0,
-    "last_full_completion_epoch": 1794089717,
-    "running_walkbacks": 0,
-    "heartbeat": [
-      "UNHEALTHY",
-      1794090227
+    "status": "PASS_DEV_TRUSTED_RUNTIME_CLOCK_RECOVERY",
+    "recorded_utc": "2026-11-07T22:59:15.643281+00:00",
+    "engineering_revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "branch": "codex/live-clock-recovery",
+    "worktree": "/private/tmp/flex-live-clock-dev",
+    "scope": "Approved DEV fix and qualification for trusted-clock recovery while the Supervisor remains running; no production changes or provider probes.",
+    "implementation": "Guard samples every five seconds; fixed durable runtime-clock intent; identity-bound private Unix Supervisor control; administrative grouped quiescence of three fixed children; unchanged independent proof and two-store clock-only recovery; idempotent child resumption under the same manager.",
+    "changed_files": [
+      "runtime/startup/guarded_startup.py",
+      "runtime/startup/guarded_startup_config.py",
+      "runtime/startup/README.md",
+      "tests/test_guarded_startup_processes.py",
+      "tests/test_live_clock_recovery.py",
+      "tests/test_live_clock_processes.py"
     ],
-    "heartbeat_reasons": [
-      "pending work exists but completed_per_minute is zero"
-    ],
-    "capacity": {
-      "version": 1,
-      "scope": "456ba0e303be616b08427ad1",
-      "observed_at": 1794091050,
-      "quality": "VERIFIED",
-      "status": "WARNING",
-      "hot": {
-        "used_bytes": 551940,
-        "entries": 6668,
-        "eligible_bytes": 321634,
-        "eligible_entries": 28,
-        "protected_bytes": 230306,
-        "protected_entries": 6640,
-        "reserved_bytes": 33554432,
-        "reservation_count": 16,
-        "protected_commitment_bytes": 33784738,
-        "headroom_after_next_reply_bytes": 6061150,
-        "protected_entry_headroom_after_next": 26127,
-        "immediate_headroom_after_next_reply_bytes": 5739516,
-        "full_reply_slots_after_reclaim": 3,
-        "maintenance_needed_for_next_reply": false,
-        "next_bounded_reclaim_bytes": null,
-        "headroom_after_next_reply_and_one_batch": 5739516,
-        "max_bytes": 41943040,
-        "max_entries": 32768,
-        "next_reply_bytes": 2097152
+    "source_pins": {
+      "runtime/startup/guarded_startup.py": {
+        "sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+        "bytes": 32790
       },
-      "archive": {
-        "allocated_segments": 3,
-        "unallocated_segments": 29,
-        "max_segments": 32,
-        "reserved_envelope_bytes": 201326592,
-        "physical_bytes": 72007680,
-        "main_bytes": 72007680,
-        "max_physical_bytes": 2147483648,
-        "main_limit_per_segment": 32505856,
-        "active_main_headroom_bytes": 15441920,
-        "appendable_record_slots": 977260,
-        "worst_batch_reserve_bytes": 17301504,
-        "staging_entries": 0,
-        "oldest_staging_at": null
+      "runtime/startup/guarded_startup_config.py": {
+        "sha256": "540b1dce725f4d906f551ef2fabbfed49babe9ac12805e69cfda683bbed2bec9",
+        "bytes": 5419
       },
-      "storage": {
-        "free_bytes": 12054683648,
-        "required_free_bytes": 2110166016,
-        "disk_margin_bytes": 9944517632,
-        "ops_file_margin_bytes": 159441600,
-        "ops_wal_margin_bytes": 7012352
+      "runtime/startup/README.md": {
+        "sha256": "3f3feb7af5c3f0be0f5a6bed9c7faae9bf8ad38ed00c375b24fdd8b351a7b0eb",
+        "bytes": 13593
       },
-      "alerts": [
-        {
-          "code": "PROTECTED_HOT_BYTES_HIGH",
-          "severity": "WARNING",
-          "remaining": 6061150,
-          "warning_at_or_below": 8388608,
-          "critical_at_or_below": 4194304,
-          "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
-        },
-        {
-          "code": "OPS_WAL_MARGIN_LOW",
-          "severity": "WARNING",
-          "remaining": 7012352,
-          "warning_at_or_below": 8388608,
-          "critical_at_or_below": 4194304,
-          "message": "OPS WAL headroom is approaching the unchanged storage guard."
-        }
-      ],
-      "retention": {
-        "version": 1,
-        "retention_seconds": 604800,
-        "retired_records": 0,
-        "marker_budget_bytes": 0,
-        "marker_bytes_remaining": 67108864,
-        "marker_records_remaining": 262144,
-        "metadata_growth_allowance_bytes": 167772160,
-        "pending": false,
-        "capacity_warning": false
+      "tests/test_guarded_startup_processes.py": {
+        "sha256": "da702fe1de408753454ae7e44aec3c66c79bb8172648f7efe23f5ab9ac437085",
+        "bytes": 13173
+      },
+      "tests/test_live_clock_recovery.py": {
+        "sha256": "d5c6fe1c67d7d47ee96a9e2a25a9d37def747304d8f304f84d982f454fc0dfbf",
+        "bytes": 10160
+      },
+      "tests/test_live_clock_processes.py": {
+        "sha256": "0d8d30974c261372b216c7871caeba3eb5aa7b6cc65b237ff334cb8425e19a37",
+        "bytes": 10061
       }
     },
-    "current_reservations": 16,
-    "original_reservations_exact": 15,
-    "original_review_holds_exact": 1564,
-    "current_review_holds": 1566,
-    "uncertain_receipts_exact": 30,
-    "immutable_completed_receipts_exact": 23003,
-    "archived_hot_shadow_check_passed": true,
-    "duplicate_pre_cutover_immutable_RPC_receipts": 0,
-    "RPC_verification_scope": "All 23003 pre-cutover immutable completed getTransaction receipts remain exact, including no conflicting live hot shadow of baseline archived receipts. All original uncertain and reservation receipts exact. This bounded evidence is not a universal proof of all current RPC semantics.",
-    "pending_reasons": [
-      [
-        "HELIUS_REQUEST_COOLDOWN",
-        22
-      ],
-      [
-        "HELIUS_REQUEST_RATE_LIMIT",
-        7
-      ],
-      [
-        "HELIUS_GATE_BUSY",
-        7
-      ],
-      [
-        "WALKBACK_JOB_CHECKPOINT_CAPACITY_CHECKPOINT_GLOBAL_BYTES",
-        4
-      ],
-      [
-        "HELIUS_UNCERTAIN_REQUEST_REQUIRES_REVIEW",
-        3
-      ],
-      [
-        "WALKBACK_JOB_TIME_LIMIT_RPC_USAGE_UNCERTAIN",
-        2
-      ],
-      [
-        "WALKBACK_JOB_CHECKPOINT_CAPACITY_CHECKPOINT_DISPATCH_HEADROOM",
-        2
-      ],
-      [
-        "NONE",
-        2
-      ],
-      [
-        "HELIUS_BUDGET_CLOCK_AMBIGUOUS",
-        1
-      ]
+    "engineering_patch": "/private/tmp/flex-live-clock-qualification-20261107/ENGINEERING.patch",
+    "tests_passed": 150,
+    "tests_failed": 0,
+    "tests_artifact": "/private/tmp/flex-live-clock-qualification-20261107/QUALIFIED_TESTS.xml",
+    "fault_coverage": [
+      "drift 6/31/53/3600 seconds",
+      "sleep/resume wall-versus-monotonic discontinuity and backward/reset clocks",
+      "expired or changed proof including expiry during scan",
+      "SIGKILL before quiescence, after quiescence, after ledger/retention anchor and after one child resumes",
+      "idempotent same-manager adoption and duplicate independent guard refusal",
+      "rejected foreign/changed manager/boot/pair and unsafe private control endpoint",
+      "partial-evidence mismatch refuses recovery",
+      "immutable saved reply reuse with a failing fake wire callback",
+      "installed small and current-scale stores with 15 retained reservations, review holds, completed and uncertain receipts, fixed 40MiB profile"
     ],
+    "qualification_receipt": "/private/tmp/flex-live-clock-qualification-20261107/QUALIFICATION.json",
+    "qualification_sha256": "6f1ccfe3f4b725d740a1af352e27adcb1ee471658822825a76139608c97cd7c8",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "runtime_target": "Installed disposable DEV CLI with actual Supervisor, real bound SQLite/ledger stores, fake workers and disabled IP sockets. Production is a separate unchanged target.",
+    "runtime_installation": "Exact qualified guard/config copied into private disposable DEV installed CLI packages; observed actual guard/Supervisor/fake worker processes, then stopped/reaped after acceptance.",
+    "runtime_source_identity_before": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "runtime_source_identity_after": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "runtime_installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+    "supervisor_restart_required_for_clock_recovery": false,
+    "child_quiesce_and_resume_required_and_completed": true,
+    "small_runtime_acceptance": {
+      "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+      "scale": false,
+      "manager_identity_unchanged": {
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "-m",
+          "supervisor.supervisord",
+          "-n",
+          "-c",
+          "/private/tmp/flex-sg-tv651t04/supervisord.conf"
+        ],
+        "created": 1794091988.850073,
+        "pid": 7844
+      },
+      "before_workers": {
+        "pumpfun_curve_listener": 7847,
+        "walkback_worker": 7846,
+        "creator_resolution_worker": 7845
+      },
+      "after_workers": {
+        "pumpfun_curve_listener": 7849,
+        "walkback_worker": 7851,
+        "creator_resolution_worker": 7850
+      },
+      "installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+      "installed_config_sha256": "efb8d1a42a142f361f78ae52e021cc11f347bf3beb8789ab1104d76b66d9e6b5",
+      "protected_digest_unchanged": {
+        "ledger": "f7c865ddda5f6be8a955124d5480286f276c0cae2ce1d443214141b6191332a4",
+        "ops": "7185f1548acd1a97165024fb6d3cbb2dd6681e96b521430b3bcdf252282d9aff"
+      },
+      "full_retained_reservations": 15,
+      "reservation_bytes": 31457280,
+      "review_holds": 15,
+      "hot_profile_bytes": 41943040,
+      "completed_immutable_attempts": 1,
+      "uncertain_receipt_held": true,
+      "duplicate_guard_refused": true,
+      "production_changes": 0,
+      "provider_probes": 0,
+      "network": "IP sockets disabled in parent and guard/worker subprocesses",
+      "max_fixture_single_file_bytes": 184320
+    },
+    "current_scale_runtime_acceptance": {
+      "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+      "scale": true,
+      "manager_identity_unchanged": {
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "-m",
+          "supervisor.supervisord",
+          "-n",
+          "-c",
+          "/private/tmp/flex-sg-ui1uy9xw/supervisord.conf"
+        ],
+        "created": 1794092005.597797,
+        "pid": 7866
+      },
+      "before_workers": {
+        "pumpfun_curve_listener": 7869,
+        "walkback_worker": 7868,
+        "creator_resolution_worker": 7867
+      },
+      "after_workers": {
+        "pumpfun_curve_listener": 7877,
+        "walkback_worker": 7879,
+        "creator_resolution_worker": 7878
+      },
+      "installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+      "installed_config_sha256": "fc930adfbee0d81b5075ca1165bac7d675648fa71ae4fa075fdda6da60f6c689",
+      "protected_digest_unchanged": {
+        "ledger": "42c0af373ce6fe683b21c8e7f4f31e52cc318fda3489f5b8d9349623534bb0f6",
+        "ops": "75b76959d2ecba5f7f54ee9edf9af06916bd65f40f499bd931d7d117735fba5a"
+      },
+      "full_retained_reservations": 15,
+      "reservation_bytes": 31457280,
+      "review_holds": 15,
+      "hot_profile_bytes": 41943040,
+      "completed_immutable_attempts": 1,
+      "uncertain_receipt_held": true,
+      "duplicate_guard_refused": true,
+      "production_changes": 0,
+      "provider_probes": 0,
+      "network": "IP sockets disabled in parent and guard/worker subprocesses",
+      "max_fixture_single_file_bytes": 191909888
+    },
+    "dedup_evidence_reservations_review_holds": "PASS — full protected digests exact across clock-only recovery. Fifteen retained 2MiB reservations, fifteen fixture review holds, completed and uncertain receipts, scopes and fixed 40MiB profile preserved. Saved reply reuse rejects duplicate simulated wire.",
+    "proof_policy": "Unchanged approved-apple-sntp-v1; no proof self-issuance in runtime guard. DEV uses synthetic authority/packet fixtures. Existing native sources and final binaries hash-verified unchanged.",
+    "clock_tolerances": "Unchanged ledger/proof five-second and retention thirty-second checks; proof max age/expiry120 seconds; protected scan30 seconds/pass, max3 passes.",
+    "native_source_binary_verification": "/private/tmp/flex-live-clock-qualification-20261107/NATIVE_UNCHANGED.json",
+    "bounds": {
+      "new_runtime_single_file_bounds": {
+        "runtime-clock.json": 8192,
+        "runtime-clock.json.stage": 8192,
+        "last-run.json": 8192,
+        "last-run.json.stage": 8192
+      },
+      "control_response_bytes": 32768,
+      "socket_timeout_seconds": 20,
+      "per_child_stop_grace_seconds": 15,
+      "inherited_kernel_file_bytes": 499000000,
+      "largest_observed_fixture_file_bytes": 191909888,
+      "new_unbounded_growth_paths": 0,
+      "raw_provider_retention": "No new retained provider payloads. Synthetic fixtures only."
+    },
     "production_changes": 0,
-    "worker_service_actions": 0,
+    "production_worker_actions": 0,
     "provider_probes": 0,
-    "clock_or_store_reanchors": 0,
-    "queue_replay": false,
+    "time_server_queries": 0,
     "FileVault_changes": 0,
-    "tests": "No engineering tests for audit. Paired authority/source pins, singleton manager, read-only capacity/completion queries and checksum-verified receipt comparisons passed. Strict three-worker readiness acceptance failed twice and is correctly reported degraded; distinct audit completed other checks.",
-    "observation_limits": "Snapshot Listener has no authoritative intake heartbeat and receive-to-persistence completeness is unmeasured; a running process alone does not certify intake health. Clock discrepancy is measured; sleep versus a clock adjustment has not been established.",
-    "verdict": "HOLD: system is degraded; Walkback full throughput not sustained. Capacity has three slots, so the immediate restart blocker is clock authority rather than zero hot capacity.",
-    "blocker": "Walkback is in an automatic supervisor restart loop: CHECKPOINT_RETENTION_CLOCK_AUTHORITY. Retention wall/monotonic elapsed discrepancy is 53.095 seconds, over the unchanged 30-second guard; the manager and other two workers remain up. Full completions remain 4599, unchanged from the deployment acceptance observation.",
-    "next_action": "Smallest next engineering step: separately authorize a DEV fix/qualification for trusted clock recovery after drift while the supervisor remains alive (including sleep/resume or wall/monotonic discontinuity, crash recovery and duplicate-start fencing). Existing guard invokes coordinator recovery only before starting a new manager; supervisor child restarts do not requalify the retention anchor. Preserve all clock tolerances, root-owned fresh UTC proof policy, paired authority, evidence, reservations, review holds and no-duplicate guarantees. Do not manually reanchor, restart production, relax clocks, release holds or make provider probes on this audit authorization."
+    "production_deployment": "QUALIFIED_NOT_DEPLOYED — separate production target and authorization.",
+    "production_last_verified_patch": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "production_health_last_verified_status": "HOLD_WALKBACK_CLOCK_AUTHORITY_RESTART_LOOP",
+    "production_health_last_verified_utc": "2026-11-07T22:37:32.242327+00:00",
+    "production_health_reaudited_this_DEV": false,
+    "blocker": "NONE — requested DEV milestone complete",
+    "next_action": "NONE — DEV complete. Any production promotion requires separate explicit authorization and pinned compatibility/backup/drain planning. Existing live clock failure is not changed by this DEV milestone."
   },
-  "current_next_blocker": "Walkback is in an automatic supervisor restart loop: CHECKPOINT_RETENTION_CLOCK_AUTHORITY. Retention wall/monotonic elapsed discrepancy is 53.095 seconds, over the unchanged 30-second guard; the manager and other two workers remain up. Full completions remain 4599, unchanged from the deployment acceptance observation.",
+  "current_next_blocker": "DEV complete. Production last verified degraded on 26f07f05; new revision is qualified but not deployed.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45142,11 +45140,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T22:38:50.444772+00:00",
+    "published_at_utc": "2026-11-07T22:59:19.889597+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T22:38:43.671480+00:00",
-    "verification_receipt": "/private/tmp/flex-26f07f05-rollout-20261107/status-audit-handoff/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T22:59:15.643281+00:00",
+    "verification_receipt": "/private/tmp/flex-live-clock-qualification-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58385,7 +58383,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Smallest next engineering step: separately authorize a DEV fix/qualification for trusted clock recovery after drift while the supervisor remains alive (including sleep/resume or wall/monotonic discontinuity, crash recovery and duplicate-start fencing). Existing guard invokes coordinator recovery only before starting a new manager; supervisor child restarts do not requalify the retention anchor. Preserve all clock tolerances, root-owned fresh UTC proof policy, paired authority, evidence, reservations, review holds and no-duplicate guarantees. Do not manually reanchor, restart production, relax clocks, release holds or make provider probes on this audit authorization.",
+  "next_action": "NONE — DEV complete. Any production promotion requires separate explicit authorization and pinned compatibility/backup/drain planning. Existing live clock failure is not changed by this DEV milestone.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60616,11 +60614,11 @@
     "other_service_fields": "Historical transport context; not reverified or changed in this milestone."
   },
   "project": {
-    "branch": "codex/bounded-hot-capacity",
-    "git_head": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "branch": "codex/live-clock-recovery",
+    "git_head": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T22:38:43.671480+00:00",
-    "working_tree": "/private/tmp/flex-r02-retention-dev"
+    "updated_at_utc": "2026-11-07T22:59:15.643281+00:00",
+    "working_tree": "/private/tmp/flex-live-clock-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -62082,7 +62080,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "HOLD_WALKBACK_CLOCK_AUTHORITY_RESTART_LOOP",
+  "status": "PASS_DEV_TRUSTED_RUNTIME_CLOCK_RECOVERY",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63702,7 +63700,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "HOLD: system is degraded; Walkback full throughput not sustained. Capacity has three slots, so the immediate restart blocker is clock authority rather than zero hot capacity.",
+  "verdict": "PASS_DEV_RUNTIME_QUALIFIED_PRODUCTION_UNCHANGED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89339,14 +89337,18 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Passive system status audit",
+    "scope": "DEV trusted runtime-clock recovery qualification only",
     "production_source_config_or_database_changes": 0,
-    "worker_service_actions": 0,
+    "production_worker_service_actions": 0,
     "provider_or_RPC_probes": 0,
-    "clock_or_store_reanchors": 0,
+    "time_server_queries": 0,
+    "production_clock_or_store_reanchors": 0,
     "queue_replay": false,
-    "reservation_dedup_evidence_review_hold_changes": 0,
-    "FileVault_changes": 0
+    "production_reservation_dedup_evidence_review_hold_changes": 0,
+    "FileVault_changes": 0,
+    "production_activation_authorized_by_this_handoff": false,
+    "DEV_RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "production_deployment_status": "QUALIFIED_NOT_DEPLOYED"
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -97591,5 +97593,192 @@
     "verdict": "HOLD: system is degraded; Walkback full throughput not sustained. Capacity has three slots, so the immediate restart blocker is clock authority rather than zero hot capacity.",
     "blocker": "Walkback is in an automatic supervisor restart loop: CHECKPOINT_RETENTION_CLOCK_AUTHORITY. Retention wall/monotonic elapsed discrepancy is 53.095 seconds, over the unchanged 30-second guard; the manager and other two workers remain up. Full completions remain 4599, unchanged from the deployment acceptance observation.",
     "next_action": "Smallest next engineering step: separately authorize a DEV fix/qualification for trusted clock recovery after drift while the supervisor remains alive (including sleep/resume or wall/monotonic discontinuity, crash recovery and duplicate-start fencing). Existing guard invokes coordinator recovery only before starting a new manager; supervisor child restarts do not requalify the retention anchor. Preserve all clock tolerances, root-owned fresh UTC proof policy, paired authority, evidence, reservations, review holds and no-duplicate guarantees. Do not manually reanchor, restart production, relax clocks, release holds or make provider probes on this audit authorization."
+  },
+  "trusted_runtime_clock_recovery_dev_20261107": {
+    "status": "PASS_DEV_TRUSTED_RUNTIME_CLOCK_RECOVERY",
+    "recorded_utc": "2026-11-07T22:59:15.643281+00:00",
+    "engineering_revision": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "branch": "codex/live-clock-recovery",
+    "worktree": "/private/tmp/flex-live-clock-dev",
+    "scope": "Approved DEV fix and qualification for trusted-clock recovery while the Supervisor remains running; no production changes or provider probes.",
+    "implementation": "Guard samples every five seconds; fixed durable runtime-clock intent; identity-bound private Unix Supervisor control; administrative grouped quiescence of three fixed children; unchanged independent proof and two-store clock-only recovery; idempotent child resumption under the same manager.",
+    "changed_files": [
+      "runtime/startup/guarded_startup.py",
+      "runtime/startup/guarded_startup_config.py",
+      "runtime/startup/README.md",
+      "tests/test_guarded_startup_processes.py",
+      "tests/test_live_clock_recovery.py",
+      "tests/test_live_clock_processes.py"
+    ],
+    "source_pins": {
+      "runtime/startup/guarded_startup.py": {
+        "sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+        "bytes": 32790
+      },
+      "runtime/startup/guarded_startup_config.py": {
+        "sha256": "540b1dce725f4d906f551ef2fabbfed49babe9ac12805e69cfda683bbed2bec9",
+        "bytes": 5419
+      },
+      "runtime/startup/README.md": {
+        "sha256": "3f3feb7af5c3f0be0f5a6bed9c7faae9bf8ad38ed00c375b24fdd8b351a7b0eb",
+        "bytes": 13593
+      },
+      "tests/test_guarded_startup_processes.py": {
+        "sha256": "da702fe1de408753454ae7e44aec3c66c79bb8172648f7efe23f5ab9ac437085",
+        "bytes": 13173
+      },
+      "tests/test_live_clock_recovery.py": {
+        "sha256": "d5c6fe1c67d7d47ee96a9e2a25a9d37def747304d8f304f84d982f454fc0dfbf",
+        "bytes": 10160
+      },
+      "tests/test_live_clock_processes.py": {
+        "sha256": "0d8d30974c261372b216c7871caeba3eb5aa7b6cc65b237ff334cb8425e19a37",
+        "bytes": 10061
+      }
+    },
+    "engineering_patch": "/private/tmp/flex-live-clock-qualification-20261107/ENGINEERING.patch",
+    "tests_passed": 150,
+    "tests_failed": 0,
+    "tests_artifact": "/private/tmp/flex-live-clock-qualification-20261107/QUALIFIED_TESTS.xml",
+    "fault_coverage": [
+      "drift 6/31/53/3600 seconds",
+      "sleep/resume wall-versus-monotonic discontinuity and backward/reset clocks",
+      "expired or changed proof including expiry during scan",
+      "SIGKILL before quiescence, after quiescence, after ledger/retention anchor and after one child resumes",
+      "idempotent same-manager adoption and duplicate independent guard refusal",
+      "rejected foreign/changed manager/boot/pair and unsafe private control endpoint",
+      "partial-evidence mismatch refuses recovery",
+      "immutable saved reply reuse with a failing fake wire callback",
+      "installed small and current-scale stores with 15 retained reservations, review holds, completed and uncertain receipts, fixed 40MiB profile"
+    ],
+    "qualification_receipt": "/private/tmp/flex-live-clock-qualification-20261107/QUALIFICATION.json",
+    "qualification_sha256": "6f1ccfe3f4b725d740a1af352e27adcb1ee471658822825a76139608c97cd7c8",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "runtime_target": "Installed disposable DEV CLI with actual Supervisor, real bound SQLite/ledger stores, fake workers and disabled IP sockets. Production is a separate unchanged target.",
+    "runtime_installation": "Exact qualified guard/config copied into private disposable DEV installed CLI packages; observed actual guard/Supervisor/fake worker processes, then stopped/reaped after acceptance.",
+    "runtime_source_identity_before": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "runtime_source_identity_after": "8b944ece7c55b96094cf66be6daf813a2f24e0f5",
+    "runtime_installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+    "supervisor_restart_required_for_clock_recovery": false,
+    "child_quiesce_and_resume_required_and_completed": true,
+    "small_runtime_acceptance": {
+      "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+      "scale": false,
+      "manager_identity_unchanged": {
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "-m",
+          "supervisor.supervisord",
+          "-n",
+          "-c",
+          "/private/tmp/flex-sg-tv651t04/supervisord.conf"
+        ],
+        "created": 1794091988.850073,
+        "pid": 7844
+      },
+      "before_workers": {
+        "pumpfun_curve_listener": 7847,
+        "walkback_worker": 7846,
+        "creator_resolution_worker": 7845
+      },
+      "after_workers": {
+        "pumpfun_curve_listener": 7849,
+        "walkback_worker": 7851,
+        "creator_resolution_worker": 7850
+      },
+      "installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+      "installed_config_sha256": "efb8d1a42a142f361f78ae52e021cc11f347bf3beb8789ab1104d76b66d9e6b5",
+      "protected_digest_unchanged": {
+        "ledger": "f7c865ddda5f6be8a955124d5480286f276c0cae2ce1d443214141b6191332a4",
+        "ops": "7185f1548acd1a97165024fb6d3cbb2dd6681e96b521430b3bcdf252282d9aff"
+      },
+      "full_retained_reservations": 15,
+      "reservation_bytes": 31457280,
+      "review_holds": 15,
+      "hot_profile_bytes": 41943040,
+      "completed_immutable_attempts": 1,
+      "uncertain_receipt_held": true,
+      "duplicate_guard_refused": true,
+      "production_changes": 0,
+      "provider_probes": 0,
+      "network": "IP sockets disabled in parent and guard/worker subprocesses",
+      "max_fixture_single_file_bytes": 184320
+    },
+    "current_scale_runtime_acceptance": {
+      "status": "PASS_INSTALLED_LIVE_CLOCK_RECOVERY",
+      "scale": true,
+      "manager_identity_unchanged": {
+        "command": [
+          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
+          "-B",
+          "-m",
+          "supervisor.supervisord",
+          "-n",
+          "-c",
+          "/private/tmp/flex-sg-ui1uy9xw/supervisord.conf"
+        ],
+        "created": 1794092005.597797,
+        "pid": 7866
+      },
+      "before_workers": {
+        "pumpfun_curve_listener": 7869,
+        "walkback_worker": 7868,
+        "creator_resolution_worker": 7867
+      },
+      "after_workers": {
+        "pumpfun_curve_listener": 7877,
+        "walkback_worker": 7879,
+        "creator_resolution_worker": 7878
+      },
+      "installed_guard_sha256": "4100eeda78c98d7a434d401fce297139c8090a1468a77e8af7e500951f45de38",
+      "installed_config_sha256": "fc930adfbee0d81b5075ca1165bac7d675648fa71ae4fa075fdda6da60f6c689",
+      "protected_digest_unchanged": {
+        "ledger": "42c0af373ce6fe683b21c8e7f4f31e52cc318fda3489f5b8d9349623534bb0f6",
+        "ops": "75b76959d2ecba5f7f54ee9edf9af06916bd65f40f499bd931d7d117735fba5a"
+      },
+      "full_retained_reservations": 15,
+      "reservation_bytes": 31457280,
+      "review_holds": 15,
+      "hot_profile_bytes": 41943040,
+      "completed_immutable_attempts": 1,
+      "uncertain_receipt_held": true,
+      "duplicate_guard_refused": true,
+      "production_changes": 0,
+      "provider_probes": 0,
+      "network": "IP sockets disabled in parent and guard/worker subprocesses",
+      "max_fixture_single_file_bytes": 191909888
+    },
+    "dedup_evidence_reservations_review_holds": "PASS — full protected digests exact across clock-only recovery. Fifteen retained 2MiB reservations, fifteen fixture review holds, completed and uncertain receipts, scopes and fixed 40MiB profile preserved. Saved reply reuse rejects duplicate simulated wire.",
+    "proof_policy": "Unchanged approved-apple-sntp-v1; no proof self-issuance in runtime guard. DEV uses synthetic authority/packet fixtures. Existing native sources and final binaries hash-verified unchanged.",
+    "clock_tolerances": "Unchanged ledger/proof five-second and retention thirty-second checks; proof max age/expiry120 seconds; protected scan30 seconds/pass, max3 passes.",
+    "native_source_binary_verification": "/private/tmp/flex-live-clock-qualification-20261107/NATIVE_UNCHANGED.json",
+    "bounds": {
+      "new_runtime_single_file_bounds": {
+        "runtime-clock.json": 8192,
+        "runtime-clock.json.stage": 8192,
+        "last-run.json": 8192,
+        "last-run.json.stage": 8192
+      },
+      "control_response_bytes": 32768,
+      "socket_timeout_seconds": 20,
+      "per_child_stop_grace_seconds": 15,
+      "inherited_kernel_file_bytes": 499000000,
+      "largest_observed_fixture_file_bytes": 191909888,
+      "new_unbounded_growth_paths": 0,
+      "raw_provider_retention": "No new retained provider payloads. Synthetic fixtures only."
+    },
+    "production_changes": 0,
+    "production_worker_actions": 0,
+    "provider_probes": 0,
+    "time_server_queries": 0,
+    "FileVault_changes": 0,
+    "production_deployment": "QUALIFIED_NOT_DEPLOYED — separate production target and authorization.",
+    "production_last_verified_patch": "26f07f05242b90830e9d3b791383b4834bba6777",
+    "production_health_last_verified_status": "HOLD_WALKBACK_CLOCK_AUTHORITY_RESTART_LOOP",
+    "production_health_last_verified_utc": "2026-11-07T22:37:32.242327+00:00",
+    "production_health_reaudited_this_DEV": false,
+    "blocker": "NONE — requested DEV milestone complete",
+    "next_action": "NONE — DEV complete. Any production promotion requires separate explicit authorization and pinned compatibility/backup/drain planning. Existing live clock failure is not changed by this DEV milestone."
   }
 }

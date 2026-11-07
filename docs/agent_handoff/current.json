@@ -103,17 +103,17 @@
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
   "active_observation": {
-    "status": "PASS_RETENTION_PROGRESS_AND_NATIVE_RECLAIM_AUDIT_NO_OBSERVED_DUPLICATE_RPC",
-    "recorded_utc": "2026-11-07T09:33:14.102560+00:00",
-    "observed_utc": "2026-11-07T09:31:31.019140+00:00",
-    "engineering_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "status": "PASS_DEV_DASHBOARD_8_32_PROFILE_FIX_QUALIFIED_NOT_DEPLOYED",
+    "recorded_utc": "2026-11-07T09:41:06.793517+00:00",
+    "engineering_revision": "421c0ea75c8bd32e90b1cabe845a339185569119",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
-    "audit_only": true,
-    "RUNTIME_DEPLOYMENT_REQUIRED": false,
-    "production_activation_unchanged": true,
-    "blocker": "No new post-cutover storage pause observed. Three jobs entered existing checkpoint-uncertainty review and one job has an RPC-limit retry;39 attempt-limit holds and2235 prerequisite waits remain at the initial audit sample. Dashboard capacity display still assumes8 segments, so it rejects the qualified32-segment heartbeat and showsUnknown despite fresh direct capacityOK.",
-    "next_action": "Audit complete; no production changes. Continue only the existing passive dashboard refresh. If requested, make a separate DEV-only dashboard capacity-parser compatibility correction for v3/v4 profiles. Do not restart workers, replay queues, release reservations/holds or alter spending policy.",
-    "evidence_ref": "/private/tmp/flex-retention-progress-audit-20261107-0925/SUMMARY.json"
+    "dashboard_runtime_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "audit_only": false,
+    "dev_only": true,
+    "production_deployed": false,
+    "blocker": "NONE for the authorized DEV milestone. Live dashboard intentionally unchanged.",
+    "next_action": "NONE — DEV COMPLETE. A separately authorized live-dashboard cutover can install this parser after source/backup checks and verify automatic refresh; no worker or RPC change is needed.",
+    "evidence_ref": "/private/tmp/flex-dashboard-capacity-profile-dev-20261107/QUALIFICATION.json"
   },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
@@ -1234,10 +1234,8 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "No new post-cutover storage pause observed. Three jobs entered existing checkpoint-uncertainty review and one job has an RPC-limit retry;39 attempt-limit holds and2235 prerequisite waits remain at the initial audit sample. Dashboard capacity display still assumes8 segments, so it rejects the qualified32-segment heartbeat and showsUnknown despite fresh direct capacityOK.",
-  "blockers": [
-    "No new post-cutover storage pause observed. Three jobs entered existing checkpoint-uncertainty review and one job has an RPC-limit retry;39 attempt-limit holds and2235 prerequisite waits remain at the initial audit sample. Dashboard capacity display still assumes8 segments, so it rejects the qualified32-segment heartbeat and showsUnknown despite fresh direct capacityOK."
-  ],
+  "blocker": "NONE for the authorized DEV milestone. Live dashboard intentionally unchanged.",
+  "blockers": [],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
     "engineering_revision": "5904a907 plus uncommitted bounded rate-gate/completion materializers",
@@ -2706,20 +2704,20 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "milestone": "Read-only progress since retention deployment, native reclaim and saved-RPC verification",
-    "status": "PASS_RETENTION_PROGRESS_AND_NATIVE_RECLAIM_AUDIT_NO_OBSERVED_DUPLICATE_RPC",
-    "recorded_utc": "2026-11-07T09:33:14.102560+00:00",
-    "observed_utc": "2026-11-07T09:31:31.019140+00:00",
-    "engineering_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "milestone": "DEV fix and qualification for dashboard eight/32-segment capacity profiles",
+    "status": "PASS_DEV_DASHBOARD_8_32_PROFILE_FIX_QUALIFIED_NOT_DEPLOYED",
+    "recorded_utc": "2026-11-07T09:41:06.793517+00:00",
+    "engineering_revision": "421c0ea75c8bd32e90b1cabe845a339185569119",
     "walkback_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
-    "audit_only": true,
-    "RUNTIME_DEPLOYMENT_REQUIRED": false,
-    "production_activation_unchanged": true,
-    "blocker": "No new post-cutover storage pause observed. Three jobs entered existing checkpoint-uncertainty review and one job has an RPC-limit retry;39 attempt-limit holds and2235 prerequisite waits remain at the initial audit sample. Dashboard capacity display still assumes8 segments, so it rejects the qualified32-segment heartbeat and showsUnknown despite fresh direct capacityOK.",
-    "next_action": "Audit complete; no production changes. Continue only the existing passive dashboard refresh. If requested, make a separate DEV-only dashboard capacity-parser compatibility correction for v3/v4 profiles. Do not restart workers, replay queues, release reservations/holds or alter spending policy.",
-    "evidence_ref": "/private/tmp/flex-retention-progress-audit-20261107-0925/SUMMARY.json"
+    "dashboard_runtime_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "audit_only": false,
+    "dev_only": true,
+    "production_deployed": false,
+    "blocker": "NONE for the authorized DEV milestone. Live dashboard intentionally unchanged.",
+    "next_action": "NONE — DEV COMPLETE. A separately authorized live-dashboard cutover can install this parser after source/backup checks and verify automatic refresh; no worker or RPC change is needed.",
+    "evidence_ref": "/private/tmp/flex-dashboard-capacity-profile-dev-20261107/QUALIFICATION.json"
   },
-  "current_next_blocker": "No new post-cutover storage pause observed. Three jobs entered existing checkpoint-uncertainty review and one job has an RPC-limit retry;39 attempt-limit holds and2235 prerequisite waits remain at the initial audit sample. Dashboard capacity display still assumes8 segments, so it rejects the qualified32-segment heartbeat and showsUnknown despite fresh direct capacityOK.",
+  "current_next_blocker": "NONE for the authorized DEV milestone. Live dashboard intentionally unchanged.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -44981,11 +44979,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-07T09:33:21.282657+00:00",
+    "published_at_utc": "2026-11-07T09:41:11.761152+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-07T09:33:14.102560+00:00",
-    "verification_receipt": "/private/tmp/flex-retention-progress-audit-20261107-0925/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-07T09:41:06.793517+00:00",
+    "verification_receipt": "/private/tmp/flex-dashboard-capacity-profile-dev-20261107/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58224,7 +58222,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Audit complete; no production changes. Continue only the existing passive dashboard refresh. If requested, make a separate DEV-only dashboard capacity-parser compatibility correction for v3/v4 profiles. Do not restart workers, replay queues, release reservations/holds or alter spending policy.",
+  "next_action": "NONE — DEV COMPLETE. A separately authorized live-dashboard cutover can install this parser after source/backup checks and verify automatic refresh; no worker or RPC change is needed.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60456,10 +60454,10 @@
   },
   "project": {
     "branch": "codex/r02-bounded-retention",
-    "git_head": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "git_head": "421c0ea75c8bd32e90b1cabe845a339185569119",
     "name": "flex",
-    "updated_at_utc": "2026-11-07T09:33:14.102560+00:00",
-    "working_tree": "Read-only post-retention audit:18 full Walkbacks since restart(total4323),5 recorded migrations(total6277),99 additional naturally archived replies and verified capacityOK. No duplicate saved immutable RPC observed in5690/5712 receipt cohorts;151 new saved transaction receipts each single-attempt. Original7 reservations/23 uncertain records and1512 review holds preserved. Dashboard still assumes8 segments and rejects actual32-segment capacity; no production changes."
+    "updated_at_utc": "2026-11-07T09:41:06.793517+00:00",
+    "working_tree": "DEV-only dashboard capacity compatibility fix committed:known8/32-segment profiles, legacy8 fallback and consistent count/physical-envelope validation.141 tests pass; actual recorded32-profile replay nowOK with30 segments available and timestamp unchanged. Metrics/warnings/render and worker/RPC sources preserved; live dashboard not changed."
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "pumpfun_archived_prebuy_state": {
@@ -61921,7 +61919,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PASS_RETENTION_PROGRESS_AND_NATIVE_RECLAIM_AUDIT_NO_OBSERVED_DUPLICATE_RPC",
+  "status": "PASS_DEV_DASHBOARD_8_32_PROFILE_FIX_QUALIFIED_NOT_DEPLOYED",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63541,7 +63539,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PASS_RETENTION_PROGRESS_AND_NATIVE_RECLAIM_AUDIT_NO_OBSERVED_DUPLICATE_RPC",
+  "verdict": "PASS_DEV_DASHBOARD_8_32_PROFILE_FIX_QUALIFIED_NOT_DEPLOYED",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89178,16 +89176,14 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Read-only audit only",
-    "production_writes": 0,
+    "production_source_changes": 0,
+    "live_dashboard_publications": 0,
     "worker_source_changes": 0,
-    "dashboard_source_changes": 0,
-    "service_actions": 0,
-    "provider_probes": 0,
+    "worker_actions": 0,
+    "provider_calls": 0,
+    "accounting_or_database_changes": 0,
     "queue_replay": false,
-    "accounting_edits": 0,
-    "records_deleted_from_production": 0,
-    "reservation_or_review_hold_changes": 0
+    "production_deployment": false
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -92816,5 +92812,79 @@
       "/private/tmp/flex-retention-progress-audit-20261107-0925/FINAL_RPC.json",
       "/private/tmp/flex-retention-progress-audit-20261107-0925/DASHBOARD_CAPACITY_FINDING.json"
     ]
+  },
+  "dashboard_capacity_profiles_DEV_20261107": {
+    "status": "PASS_DEV_DASHBOARD_8_32_PROFILE_FIX_QUALIFIED_NOT_DEPLOYED",
+    "parent": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "tests": {
+      "tests": 141,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "test_receipt_sha256": "b5499de1604af3c525347b172fa3750fc36ec4835872335c6313d83efceca035",
+    "recorded_replay": {
+      "status": "PASS_RECORDED_32_SEGMENT_HEARTBEAT_REPLAY",
+      "basis": "Read-only replay of already captured metadata, using its original recorded clock; no current liveness inference.",
+      "input_sha256": "0267fddd2778c806765396280de16cb45f007eac3ebe5981a08a01ceace89da0",
+      "original_observation_epoch": 1794043530,
+      "original_evaluation_epoch": 1794043652.117567,
+      "before": {
+        "status": "UNKNOWN",
+        "observed_utc": null,
+        "alerts": [],
+        "detail": "Fresh Walkback capacity measurements are unavailable."
+      },
+      "after": {
+        "status": "OK",
+        "observed_utc": "2026-11-07T09:25:30Z",
+        "alerts": [],
+        "protected_reply_slots": 8,
+        "reply_reservations": 7,
+        "headroom_after_next_reply_bytes": 16585115,
+        "archive_segments": 2,
+        "archive_segments_available": 30,
+        "detail": "Capacity headroom is verified; existing storage and request guards remain in force."
+      },
+      "input_unchanged": true,
+      "timestamp_preserved": true,
+      "worker_or_rpc_actions": 0
+    },
+    "scope": "Only capacity_assessment behavior changed; every other parser AST, observations/collection, renderer, worker, RPC and accounting source unchanged.",
+    "production_source_files_unchanged": 21,
+    "DEV_RUNTIME_DEPLOYMENT_GATE": "PASS_REAL_DEV_PARSER_AND_NODE_RENDER_EXECUTION",
+    "production_status": "QUALIFIED_NOT_DEPLOYED",
+    "production_changes": 0,
+    "worker_changes": 0,
+    "provider_calls": 0,
+    "large_file_rule": "No storage-producing runtime change or new I/O path. Existing input/output bounds unchanged; compact test/artifact files only, below500000000 bytes.",
+    "new_unbounded_growth_paths": 0,
+    "raw_retention": "No raw provider payloads or retention-policy changes.",
+    "recorded_utc": "2026-11-07T09:41:06.793517+00:00",
+    "engineering_revision": "421c0ea75c8bd32e90b1cabe845a339185569119",
+    "worker_runtime_revision": "f3ad14e8e5bb63aadab66001691ba8234b2983b4",
+    "production_dashboard_revision": "9d9930f23a1a237b825c4c4ebe9475295d643fe8",
+    "source_pins": "/private/tmp/flex-dashboard-capacity-profile-dev-20261107/SOURCE_PINS.json",
+    "changed_files": [
+      "scripts/recovery_dashboard_overall_health.py",
+      "tests/test_dashboard_capacity_alerts.py"
+    ],
+    "implementation": "Read only the explicitly declared max_segments for known8/32 profiles, defaulting to legacy8 when omitted; reconcile allocated/unallocated and any declared physical envelope. Preserve every output key, metric, warning, observation timestamp and all freshness/unknown guards.",
+    "tests_receipt": "/private/tmp/flex-dashboard-capacity-profile-dev-20261107/DEV.xml",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS_IN_DEV_REAL_PARSER_AND_NODE_RENDER",
+    "production_deployment_status": "QUALIFIED_NOT_DEPLOYED",
+    "blocker": "NONE for the authorized DEV milestone. Live dashboard intentionally unchanged.",
+    "next_action": "NONE — DEV COMPLETE. A separately authorized live-dashboard cutover can install this parser after source/backup checks and verify automatic refresh; no worker or RPC change is needed.",
+    "production_flags": {
+      "production_source_changes": 0,
+      "live_dashboard_publications": 0,
+      "worker_source_changes": 0,
+      "worker_actions": 0,
+      "provider_calls": 0,
+      "accounting_or_database_changes": 0,
+      "queue_replay": false,
+      "production_deployment": false
+    },
+    "storage_rule": "Parser adds no runtime I/O, retention or growth path. Existing metadata/render bounds unchanged; only compact bounded DEV test and qualification artifacts are written."
   }
 }

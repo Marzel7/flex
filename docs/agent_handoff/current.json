@@ -99973,5 +99973,21 @@
     "verification": "Read-only SQLite URI/query_only; indexed exact signature and primary-key mint queries with bounded limits/progress interrupt. No provider calls,DB/queue/config/source changes or service actions. Existing parser milestone remains closed. No new storage feature; metadata only.",
     "blocker": "27 missing mint attribution;29 owner rebind integrity refusal blocks automatic replay.",
     "next_action": "Report delivery incomplete. A separately scoped correction/recovery must establish27mint and diagnose29owner binding without bypassing protected replay or budgets."
+  },
+  "migration_27_29_blocker_diagnosis_20261108": {
+    "engineering_revision": "b9bab5d20f2c2f552366d2d166ef108263f83694",
+    "status": "PARTIAL_RETAINED_EVIDENCE_LIMIT",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only bounded diagnosis and in-memory installed function execution; no implementation.",
+    "target27": "No mint in active journal or exact signature Core/migration_persist_queue/durable RPC cache; previous terminal/deferred/history lookups0. Retained debug27truncated. No provider acquisition or receipt tree scan. Mint recovery not achieved from checked retention.",
+    "target29": "Retained log proves successful getTransaction cache10057bytes at1794180130 after original timeout. In-memory transaction cache lost on listener restart; durable RPC exact key absent. Existing migration alias9ff3b7e... and mintGHLM aliasf2c83962... share rootf2c83962...; origin proof matches admitted PumpPortal subject. No existing conflict between expected identities.",
+    "concrete_defect": "Installed _extract_mint_from_tx returns first nonWSOL43/44char postTokenBalance mint, with unsafe generic account fallback. Compact two-mint fixture returns other token before expected migration subject. Nested _process_migration_with_mint accounting attempts binding selected mint under current migration root; installed _bind_child allows correct existing mint root and raises exact HELIUS_OWNER_REBIND_REFUSED for different existing root.",
+    "causal_limit": "Wrong-mint extraction is demonstrated and consistent with29failure, but exact selected29mint unavailable without original tx; do not label exact cause independently proven. No ownership reset/rebind/replay justified.",
+    "verification": "Installed extractor AST executed in-memory on compact fixture; installed _bind_child read-only fast path executed against bounded current ledger snapshot, correct root succeeds/different root refuses. No real Gate object instantiated and no gate writes. DB mode=ro/query_only/progress budgets; exact indexed lookups.",
+    "production_state": "No source/config/DB/queue/ownership/provider/service mutations. Prior parser deployment remains unchanged.",
+    "storage": "No new storage feature or raw payload retention; handoff metadata only; no production DB clone.",
+    "blocker": "27mint absent from inspected retention;29original fetched transaction unavailable, preventing exact selected-mint proof.",
+    "next_action": "Qualify strict transaction mint selection from Pump migration instruction/completion event with notification-subject agreement, retaining fail-closed ownership. Historical recovery needs separately approved bounded exact-signature acquisition under a valid budget scope; never reset ownership or bypass protected replay.",
+    "updated_at_utc": "2026-11-08T23:46:14.305745+00:00"
   }
 }

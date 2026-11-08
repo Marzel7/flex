@@ -99961,5 +99961,17 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-08T23:36:21.197875+00:00"
+  },
+  "migration_27_29_delivery_readback_20261108": {
+    "engineering_revision": "b9bab5d20f2c2f552366d2d166ef108263f83694",
+    "status": "PASS_READ_ONLY_CHECK_DELIVERY_INCOMPLETE",
+    "observed_at_utc": "2026-11-08T23:41:06.615519+00:00",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only bounded exact-signature/mint queries and journal inspection.",
+    "target27": "Active journal PENDING,attempts0,HELIUS_ORIGIN_UNKNOWN,mint null. Core exact migration_tx lookup0rows; no terminal/deferred/history exact-signature rows. Mint unavailable, therefore cannot independently query Walkback by mint or rule out alternate-signature registration.",
+    "target29": "No Core token by exact migration signature or known mint GHLMKtZta7JMcRHXTXa65xS4ubXEzieM5rQvjc8Bpump; no mint handoff or OPS Walkback queue. Terminal custody VERIFIED,recovery_rights PROTECTED_NO_AUTOMATIC_REPLAY; retained refusal Integrity HELIUS_OWNER_REBIND_REFUSED,attempts1,acknull. Earlier admission timeout is not latest blocker.",
+    "verification": "Read-only SQLite URI/query_only; indexed exact signature and primary-key mint queries with bounded limits/progress interrupt. No provider calls,DB/queue/config/source changes or service actions. Existing parser milestone remains closed. No new storage feature; metadata only.",
+    "blocker": "27 missing mint attribution;29 owner rebind integrity refusal blocks automatic replay.",
+    "next_action": "Report delivery incomplete. A separately scoped correction/recovery must establish27mint and diagnose29owner binding without bypassing protected replay or budgets."
   }
 }

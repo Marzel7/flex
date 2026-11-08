@@ -102,7 +102,11 @@
     "tests_run": 0,
     "verdict": "Conditional slot recycling only; no existing qualified history store and no indefinite bounded-storage solution"
   },
-  "active_observation": null,
+  "active_observation": {
+    "status": "DEV_QUALIFICATION_COMPLETE",
+    "production_state": "Not changed or re-audited by this milestone; existing capacity hold remains",
+    "artifacts": "/private/tmp/flex-acquisition-qualification-20261108"
+  },
   "ad_hoc_funding_analytics_addendum": {
     "fact_mapping": "creator_networks contains stale February/March connected-creator/network labels and shared-destination summaries; direct relation facts are derivable from creator_outgoing_transfers, creator_to_creator_networks, creator_funders, network_membership and retained topology, but exact historical label/snapshot semantics are not yet migration-proven. funding_networks and funding_network_members are February static aggregate/network-ID projections; counts and membership can be derived from creator_funders, token_analysis and retained network projections, but exact legacy network-ID/name mapping must be explicitly classified before drop. funding_chains holds directional source_creator→bridge_funder→target_creator ordering, two amounts, source block time and confidence; the current generic selected-edge corpus does not yet prove an equivalent full historical first-leg reconstruction for every chain. creator_funding_graph is a current extractor-owned TTL cache, not authority, with first_seen/last_seen/inbound totals; it is rebuildable from current acquisition facts but actively written/read and may materially improve interactive investigation performance.",
     "indexes": "Good current paths: creator_funders creator/funder and CEX indexes, token_analysis creator/created_at, graph creator/funder/first_seen/last_seen, Walkback parent/mint-hop and queue funder/status, provisioning from/to/type-time, session treasury/subprov, and operator membership by operator. High-value future candidates, not created: composite creator_funders(funder_address, first_detected_at), creator_funders(creator_address, first_detected_at), queue(funder_sig) or signature index, provisioning sessions creator/time, and a normalized epoch time expression/materialization if mixed first_detected_at typing remains a performance concern.",
@@ -1222,9 +1226,9 @@
     "safety": "Birdeye=0; Helius=0; no raw retention; acquisition/UI/evidence/production/Supervisor/runtime/trading changes=0; RUNTIME_DEPLOYMENT_REQUIRED=false.",
     "status": "PASS_DETERMINISTIC_REQUEST_BOUNDARY_DIFFERENCE_IDENTIFIED"
   },
-  "blocker": "Full Walkbacks resumed (+2), but 19 retained INTENT reservations consume 38MiB and leave zero further full-reply slots after reclaim in the 40MiB profile. Two new receipt-without-body cases accumulated after cutover; one live TIME_LIMIT case matches the reproduced hard-kill-during-paid-publication failure class. Exact slow live phase is not retained. Existing holds cannot be cleared from an HTTP status alone.",
+  "blocker": "Production remains capacity-held: 19 retained 2MiB reservations plus protected hot bytes leave no new full-reply slot in the unchanged 40MiB profile. No existing reservation or review hold may be cleared from an HTTP receipt alone. The DEV Git parent also has two pre-existing missing unchanged objects; exact references were preserved and a qualified patch exported, but complete engineering Git export requires original authoritative blobs.",
   "blockers": [
-    "Full Walkbacks resumed (+2), but 19 retained INTENT reservations consume 38MiB and leave zero further full-reply slots after reclaim in the 40MiB profile. Two new receipt-without-body cases accumulated after cutover; one live TIME_LIMIT case matches the reproduced hard-kill-during-paid-publication failure class. Exact slow live phase is not retained. Existing holds cannot be cleared from an HTTP status alone."
+    "Production remains capacity-held: 19 retained 2MiB reservations plus protected hot bytes leave no new full-reply slot in the unchanged 40MiB profile. No existing reservation or review hold may be cleared from an HTTP receipt alone. The DEV Git parent also has two pre-existing missing unchanged objects; exact references were preserved and a qualified patch exported, but complete engineering Git export requires original authoritative blobs."
   ],
   "byzantine_103_collapse_timing_completion": {
     "artifacts": "manifest=acce8ac7dc95de034f7298b626526e99a5392cb312bcff91fea23c3d7f444ef1; extended=1be2e123fc66766c56ee2cd1183f0280560cac680ab4c8046801e5071d6e3137; timing=548aadfafd0237b4b5b968209edebb2ecc1e5ae0745e07f13ab71a47b38acb15; summary=2e88611f867fd296709dfb6fdb93d53e34ff8bd371f2c0cb1b8250e1ecf73564; censored=51b6535090297bbf645990cc45bb00801e5539a498c37b4111ec006554f803d6.",
@@ -2694,359 +2698,121 @@
     "status": "CANDIDATE_READY_FOR_V2_ADMISSION_NOT_STARTED"
   },
   "current_milestone": {
-    "status": "PARTIAL_AUDIT_FULL_COMPLETIONS_RESUMED_CAPACITY_EXHAUSTED_PUBLICATION_DEADLINE_GAP_REPRODUCED",
-    "recorded_utc": "2026-11-08T00:48:56.070155+00:00",
-    "observed_utc": "2026-11-08T00:43:01.116361+00:00",
-    "engineering_revision": "fd759140acc8d9e455e726622c0852efeb96cbdf",
-    "branch": "codex/live-clock-read-recovery",
+    "status": "PASS_DEV_ACQUISITION_CHECKPOINT_PRODUCTION_CAPACITY_HOLD",
+    "recorded_utc": "2026-11-08T10:47:36.374362+00:00",
+    "engineering_revision": "bd975abaf9db9ba2fe1dcb2966175a0364e281b4",
+    "source_parent": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+    "branch": "codex/acquisition-checkpoint-boundary",
     "worktree": "/private/tmp/flex-clock-read-dev",
-    "scope": "User requested read-only audit and smallest safe fix; subsequent user steering requested simpler end-to-end engineering rather than repeated symptom patches.",
-    "production_changes": 0,
-    "worker_service_actions": 0,
-    "provider_probes": 0,
-    "manual_time_source_queries": 0,
-    "engineering_changes": 0,
-    "runtime_guard_active": "fd759140",
-    "supervisor_stable": true,
-    "manager_pid": 13347,
-    "manager_uptime_seconds_at_observation": 1956.89,
-    "clock_checks_passed": true,
-    "automatic_runtime_clock_recovery_receipt": {
-      "at": 1794098226,
-      "boot_id": "4F8A17E6-BED1-4328-8DA5-6E6BA7B8C872",
-      "identity": {
-        "generation": "DEV004-V2-20261024-dfb76562",
-        "manifest_sha256": "347f6767d5f43f59497675eea22ad601c8118d836bf4495bb22e6f75d3dbcd6d",
-        "pair_sha256": "3c4ab700f26dca6e841ea85316a1b8fc6d3967981ce8bea7c05e863c8545d783"
+    "scope": "DEV acquisition-to-checkpoint fix and qualification only",
+    "tests_passed": 398,
+    "test_suites": {
+      "boundary-scale.xml": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
       },
-      "phase": "READY",
-      "process": {
-        "command": [
-          "/Users/kevinkeaveney/anaconda3/envs/algotrader/bin/python",
-          "-B",
-          "-m",
-          "supervisor.supervisord",
-          "-n",
-          "-c",
-          "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/supervisord.conf"
-        ],
-        "created": 1794096624.22617,
-        "pid": 13347
+      "checkpoint-regression.xml": {
+        "tests": 192,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
       },
-      "version": 1
-    },
-    "worker_lifecycle_observation": {
-      "first_workers": [
-        {
-          "pid": 13350,
-          "ppid": 13347,
-          "module": "src.core.creator_resolution_worker",
-          "created": 1794096625.041416
-        },
-        {
-          "pid": 13351,
-          "ppid": 13347,
-          "module": "src.core.walkback_worker",
-          "created": 1794096625.048186
-        },
-        {
-          "pid": 13352,
-          "ppid": 13347,
-          "module": "src.core.pumpfun_curve_listener",
-          "created": 1794096625.05592
-        }
-      ],
-      "final_workers": [
-        {
-          "pid": 14787,
-          "ppid": 13347,
-          "module": "src.core.pumpfun_curve_listener",
-          "created": 1794098327.431304
-        },
-        {
-          "pid": 14788,
-          "ppid": 13347,
-          "module": "src.core.creator_resolution_worker",
-          "created": 1794098327.449526
-        },
-        {
-          "pid": 14789,
-          "ppid": 13347,
-          "module": "src.core.walkback_worker",
-          "created": 1794098327.458616
-        }
-      ],
-      "same_manager": true,
-      "same_guard": true,
-      "recent_supervisor_lifecycle": [
-        "2026-11-07 23:35:49,021 INFO spawned: 'creator_resolution_worker' with pid 11607",
-        "2026-11-07 23:35:49,037 INFO spawned: 'walkback_worker' with pid 11608",
-        "2026-11-07 23:35:49,040 INFO spawned: 'watchtower_listener' with pid 11609",
-        "2026-11-07 23:35:54,934 INFO success: creator_resolution_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
-        "2026-11-07 23:35:54,935 INFO success: walkback_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
-        "2026-11-07 23:35:59,512 INFO success: watchtower_listener entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)",
-        "2026-11-07 23:45:11,715 WARN stopped: watchtower_listener (terminated by SIGTERM)",
-        "2026-11-07 23:45:26,734 WARN stopped: creator_resolution_worker (terminated by SIGKILL)",
-        "2026-11-07 23:54:03,949 WARN stopped: walkback_worker (terminated by SIGTERM)",
-        "2026-11-08 00:10:25,046 INFO spawned: 'creator_resolution_worker' with pid 13350",
-        "2026-11-08 00:10:25,049 INFO spawned: 'walkback_worker' with pid 13351",
-        "2026-11-08 00:10:25,056 INFO spawned: 'watchtower_listener' with pid 13352",
-        "2026-11-08 00:10:30,088 INFO success: creator_resolution_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
-        "2026-11-08 00:10:30,088 INFO success: walkback_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
-        "2026-11-08 00:10:35,060 INFO success: watchtower_listener entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)",
-        "2026-11-08 00:37:06,832 WARN stopped: watchtower_listener (terminated by SIGTERM)",
-        "2026-11-08 00:37:21,854 WARN stopped: creator_resolution_worker (terminated by SIGKILL)",
-        "2026-11-08 00:37:21,872 WARN stopped: walkback_worker (terminated by SIGTERM)",
-        "2026-11-08 00:38:47,432 INFO spawned: 'watchtower_listener' with pid 14787",
-        "2026-11-08 00:38:47,450 INFO spawned: 'creator_resolution_worker' with pid 14788",
-        "2026-11-08 00:38:47,462 INFO spawned: 'walkback_worker' with pid 14789",
-        "2026-11-08 00:38:52,760 INFO success: creator_resolution_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
-        "2026-11-08 00:38:52,760 INFO success: walkback_worker entered RUNNING state, process has stayed up for > than 5 seconds (startsecs)",
-        "2026-11-08 00:38:57,738 INFO success: watchtower_listener entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)"
-      ]
-    },
-    "worker_lifecycle_note": "All three workers were automatically cycled during the existing runtime clock recovery and returned RUNNING, while guard and Supervisor identities remained unchanged. No operator worker action. The initiating live continuity failure subtype is not retained in READY metadata; do not label it SQLite contention or sleep without proof.",
-    "full_completions": 4611,
-    "full_added_since_drained_baseline": 2,
-    "full_progress_verdict": "PASS_OBSERVED_TWO_FULL_COMPLETIONS_WITHOUT_AUDIT_PRODUCTION_CHANGES",
-    "full_completion_examples": [
-      {
-        "mint_sha256": "169c8db1cfd7bd2e077db3f21e9ade5b1340fe55422aebddb6a45521fccea72c",
-        "status": "complete",
-        "attempts": 1,
-        "rpc_used": 15,
-        "started_at": 1794097148,
-        "claimed_at": 1794098026,
-        "completed_at": 1794098122,
-        "updated_at": 1794098122,
-        "last_error": "WALKBACK_JOB_CHECKPOINT_CAPACITY_CHECKPOINT_DISPATCH_HEADROOM",
-        "intelligence_outcome": "NO_ATTRIBUTION_FOUND"
+      "drain.xml": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
       },
-      {
-        "mint_sha256": "174f651d304a748a7bdf3c4f259b9691ffcb00fa77949739f807c48233dff10e",
-        "status": "complete",
-        "attempts": 1,
-        "rpc_used": 5,
-        "started_at": 1794098224,
-        "claimed_at": 1794098224,
-        "completed_at": 1794098251,
-        "updated_at": 1794098251,
-        "last_error": null,
-        "intelligence_outcome": "LINEAGE_GAP"
+      "startup.xml": {
+        "tests": 100,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed-clock.xml": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "http-regression.xml": {
+        "tests": 88,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
       }
+    },
+    "qualification": "/private/tmp/flex-acquisition-qualification-20261108/QUALIFICATION.json",
+    "tracked_qualification": "/private/tmp/flex-clock-read-dev/docs/dev/acquisition_checkpoint_qualification.json",
+    "qualified_patch": "/private/tmp/flex-acquisition-qualification-20261108/qualified-dev.patch",
+    "qualified_patch_sha256": "b4a89f8c6094f0f733301293466f84e4844d5d2767ac70609bea36a40190844a",
+    "source_sha256": {
+      "runtime/startup/guarded_startup.py": "0420a2d959e9f47ba2b0b5493d05b5e12b8654896132fa9f0c1d1b40a37b7c15",
+      "runtime/walkback/src/core/walkback_job_limits.py": "c6b4f0d9cf1254d6eccbf3b2561aa5be64ee5d5509908769fb0afbc4570e2371",
+      "runtime/walkback/src/core/walkback_checkpoints.py": "256bdbcccebb93b53159604a975fa1fce867894804ab9c710d85d543995432dc",
+      "runtime/walkback/src/core/walkback_worker.py": "78e9ab393a0591cb04e2604674d415e8c35aa38b472e8f26d95c6fb0b50c7460",
+      "runtime/listener/src/core/helius_http_protection.py": "e894946e8b3f2588ff3262386379901716f590e0e96a7d5b189fa006226b51c9",
+      "runtime/creator_resolution/src/core/helius_http_protection.py": "eed880f620469675533025737c4069dd7fdd5f5aa7efb4b0062e0ea55662a723",
+      "runtime/walkback/src/core/helius_http_protection.py": "1af1881dd8311cf5a1d622024636e0cb4d86a39f2cc349ac26418c23fa3a136d"
+    },
+    "behavior": [
+      "Absolute bounded response-body reading with covered read1 accounting",
+      "Admission covers header/body budgets and pending stop; finalization reserve before unchanged job hard limit",
+      "Termination masked before INTENT commit through acquired-body checkpoint publication",
+      "Exact usage and same-attempt continuation after completed soft stop",
+      "Supervisor drain detects and waits for bounded child before store recovery/resume"
     ],
-    "capacity": {
-      "version": 1,
-      "scope": "456ba0e303be616b08427ad1",
-      "observed_at": 1794098578,
-      "quality": "VERIFIED",
-      "status": "CRITICAL",
-      "hot": {
-        "used_bytes": 554347,
-        "entries": 6808,
-        "eligible_bytes": 314008,
-        "eligible_entries": 113,
-        "protected_bytes": 240339,
-        "protected_entries": 6695,
-        "reserved_bytes": 39845888,
-        "reservation_count": 19,
-        "protected_commitment_bytes": 40086227,
-        "headroom_after_next_reply_bytes": -240339,
-        "protected_entry_headroom_after_next": 26072,
-        "immediate_headroom_after_next_reply_bytes": -554347,
-        "full_reply_slots_after_reclaim": 0,
-        "maintenance_needed_for_next_reply": true,
-        "next_bounded_reclaim_bytes": 314008,
-        "headroom_after_next_reply_and_one_batch": -240339,
-        "max_bytes": 41943040,
-        "max_entries": 32768,
-        "next_reply_bytes": 2097152
-      },
-      "archive": {
-        "allocated_segments": 3,
-        "unallocated_segments": 29,
-        "max_segments": 32,
-        "reserved_envelope_bytes": 201326592,
-        "physical_bytes": 72839168,
-        "main_bytes": 72839168,
-        "max_physical_bytes": 2147483648,
-        "main_limit_per_segment": 32505856,
-        "active_main_headroom_bytes": 14610432,
-        "appendable_record_slots": 977132,
-        "worst_batch_reserve_bytes": 17301504,
-        "staging_entries": 0,
-        "oldest_staging_at": null
-      },
-      "storage": {
-        "free_bytes": 17699405824,
-        "required_free_bytes": 2116654080,
-        "disk_margin_bytes": 15582751744,
-        "ops_file_margin_bytes": 152953536,
-        "ops_wal_margin_bytes": 524288
-      },
-      "alerts": [
-        {
-          "code": "HOT_RECLAIM_BATCH_INSUFFICIENT",
-          "severity": "CRITICAL",
-          "remaining": -240339,
-          "message": "One bounded archive operation cannot make room for the next full reply. Review maintenance capacity while preserving every original and reservation."
-        },
-        {
-          "code": "PROTECTED_HOT_BYTES_HIGH",
-          "severity": "CRITICAL",
-          "remaining": -240339,
-          "warning_at_or_below": 8388608,
-          "critical_at_or_below": 4194304,
-          "message": "Protected evidence and reply reservations are nearing the hot byte guard; review capacity without deleting evidence or releasing reservations."
-        },
-        {
-          "code": "OPS_WAL_MARGIN_LOW",
-          "severity": "CRITICAL",
-          "remaining": 524288,
-          "warning_at_or_below": 8388608,
-          "critical_at_or_below": 4194304,
-          "message": "OPS WAL headroom is approaching the unchanged storage guard."
-        }
+    "qualification_results": {
+      "full_fresh_reply_completion": true,
+      "full_cached_completion_with_19_reservations": true,
+      "current_scale_stop_resume_no_duplicate": true,
+      "fresh_19_reservations_capacity_hold_without_dispatch": true,
+      "private_supervisor_publication_drain_resume": true,
+      "actual_installed_clock_recovery_and_guard_crash_same_manager": true,
+      "dedup_evidence_reservations_review_holds_preserved": true,
+      "ops_fixture_bytes_at_least": 296239104,
+      "actual_queue_rows": 8824,
+      "cold_record_count": 21853,
+      "ledger_original_keys_at_least": 10330,
+      "max_fixture_single_file_bytes": 296853504,
+      "hot_profile_bytes_unchanged": 41943040,
+      "synthetic_adapters": [
+        "synthetic transport replies",
+        "unrelated post-commit projectors",
+        "synthetic deep evidence sink"
       ],
-      "retention": {
-        "version": 1,
-        "retention_seconds": 604800,
-        "retired_records": 0,
-        "marker_budget_bytes": 0,
-        "marker_bytes_remaining": 67108864,
-        "marker_records_remaining": 262144,
-        "metadata_growth_allowance_bytes": 167772160,
-        "pending": false,
-        "capacity_warning": false
-      }
+      "all_new_IP_networking_forbidden": true
     },
-    "original_17_reservations_exact": true,
-    "current_reservations": 19,
-    "current_reserved_bytes": 39845888,
-    "original_uncertain_or_review_rows_retained": 1568,
-    "original_queue_rows_exact": 1567,
-    "previously_qualified_safety_hold_transition_count": 1,
-    "current_review_or_uncertain_rows": 1570,
-    "baseline_immutable_getTransaction_receipts_exact": 23124,
-    "baseline_uncertain_receipts_exact": 32,
-    "duplicate_baseline_immutable_receipts": 0,
-    "new_completed_immutable_receipts": 20,
-    "new_completed_immutable_multi_attempt_receipts": 0,
-    "reservation_receipt_status_counts": {
-      "HTTP_COMPLETED": 12,
-      "OWNER_EXIT_UNCERTAIN": 5,
-      "RETRYABLE": 1,
-      "NO_RECEIPT": 1
-    },
-    "new_retained_reservation_summary": [
-      {
-        "method": "getTransaction",
-        "created_at": 1794097505,
-        "receipt_status": "HTTP_COMPLETED",
-        "queue_status": "failed",
-        "queue_error": "WALKBACK_JOB_CHECKPOINT_REVIEW_CHECKPOINT_OUTCOME_UNCERTAIN",
-        "reserved_bytes": 2097152
-      },
-      {
-        "method": "getAccountInfo",
-        "created_at": 1794098520,
-        "receipt_status": "HTTP_COMPLETED",
-        "queue_status": "pending",
-        "queue_error": "WALKBACK_JOB_TIME_LIMIT_RPC_USAGE_UNCERTAIN",
-        "reserved_bytes": 2097152
-      }
-    ],
-    "source_findings": {
-      "deadline": "Child work deadline reserves 10 seconds and dispatch checks reserve RPC timeout plus 1 second; parent still terminates at its hard deadline and kills after 5 seconds even while child SIGTERM is blocked inside paid acquisition/publication.",
-      "receipt_semantics": "HTTP_COMPLETED is recorded by the transport before worker response.read/JSON qualification and checkpoint commit. It proves an HTTP outcome, not that the checkpoint body is durable.",
-      "capacity": "18 retained reservations were observed between active requests; a second post-cutover time-limit case raised retained reservations to 19. 38MiB reservations plus protected bytes leave less than one 2MiB reply in the 40MiB profile even after eligible reclaim. Archive free segments cannot retire unresolved INTENT rows.",
-      "wal_warning": "OPS WAL was absent (zero bytes). The warning is projected headroom after all outstanding obligations and the bounded maintenance reserve, not an observed growing WAL.",
-      "cached_response_semantics": "Two account-observation intents have older committed candidates. Older mutable observations are not proof of the missing later result and do not authorize clearing the hold. Held immutable transaction keys have no saved committed candidate in the inspected shared tiers.",
-      "observability": "Health heartbeat is updated around complete batch work. A short snapshot window with zero completed_per_minute did not establish permanent inability to complete; actual full total rose from 4609 to 4611 during this audit.",
-      "latency_limit": "A 3-second native sample showed JSON parse/serialize/hash/GC activity; standalone ledger validation was about 0.17 seconds on a 9MB state. These observations do not prove which live phase consumed the interval before the forced timeout."
-    },
-    "offline_counterexample": {
-      "status": "PASS_OFFLINE_DEADLINE_COUNTEREXAMPLE_REPRODUCED",
-      "installed_source_sha256": {
-        "walkback_job_limits.py": "d485fbecc05f87835bab042ae2f29c841bd13bf958da924150f9da687e55f7f7",
-        "walkback_checkpoints.py": "faf134862b684d3a59f5bfdf1939545c6f264353b802b66b030c92371c346273"
-      },
-      "cases": [
-        {
-          "case": "fast_control",
-          "parent_status": "OK",
-          "elapsed_seconds": 0.13368887500837445,
-          "checkpoint_states": [
-            [
-              "COMMITTED",
-              1
-            ]
-          ],
-          "reservation_count": 0,
-          "reserved_bytes": 0,
-          "receipt_status": "HTTP_COMPLETED",
-          "fixture_attempts": 1
-        },
-        {
-          "case": "slow_paid_publication",
-          "parent_status": "TIME_LIMIT",
-          "elapsed_seconds": 5.5157390830572695,
-          "checkpoint_states": [
-            [
-              "INTENT",
-              1
-            ]
-          ],
-          "reservation_count": 1,
-          "reserved_bytes": 2097152,
-          "receipt_status": "HTTP_COMPLETED",
-          "fixture_attempts": 1
-        }
-      ],
-      "meaning": "The current parent hard deadline followed by five-second kill grace can kill a SIGTERM-protected paid publication, leaving a completed receipt and an INTENT reservation. A fast control commits and releases normally.",
-      "causality_limit": "Matches the live time-limit/receipt/INTENT failure class; fixture does not prove whether live latency was response-body reading, accounting publication, storage or checkpoint finalization.",
-      "engineering_changes": 0,
-      "production_changes": 0,
-      "provider_probes": 0,
-      "network_forbidden": true
-    },
-    "audit_tests": {
-      "private_fast_publication_control": "PASS_COMMITTED_AND_NO_RESERVATION",
-      "private_slow_publication_counterexample": "PASS_REPRODUCED_TIME_LIMIT_HTTP_COMPLETED_INTENT_2MiB_RESERVATION",
-      "network_forbidden": true,
+    "production_flags": {
+      "scope": "User-authorized DEV acquisition-to-checkpoint implementation and qualification",
+      "production_source_config_database_changes": 0,
+      "worker_service_actions": 0,
+      "provider_or_RPC_probes": 0,
+      "manual_time_source_queries": 0,
       "live_fault_injection": false,
-      "read_path_profile_steps": 5,
-      "previous_guard_tests_reused": 95
+      "private_fixture_writes_only": true,
+      "reservation_dedup_evidence_review_hold_edits": 0,
+      "queue_replay": false,
+      "quota_changes": 0,
+      "FileVault_changes": 0,
+      "engineering_changes": true,
+      "implementation_authorization": "Explicit user approval: fix and qualify acquisition-to-checkpoint path in DEV at current scale; no production changes or provider probes."
     },
-    "smallest_safe_fix_proposal": {
-      "scope": "Existing bounded child acquisition-to-checkpoint finalization protocol, with one jointly qualified capacity envelope for retained obligations if required.",
-      "not_implemented": true,
-      "live_slow_phase_unproven": true,
-      "acceptance": [
-        "One full Walkback finishes on a private current-scale paired fixture with all 19 original-to-this-audit reservations and review holds preserved.",
-        "Paid reply at the execution boundary is either durably checkpointed within the admitted bound or remains a strict review hold on a true uncertain failure; normal slicing must not kill in-progress paid publication.",
-        "Repeated execution slices advance to a terminal result; typed known-null/unavailable results must be tested without inventing evidence or re-billing.",
-        "Baseline immutable and uncertain receipts unchanged; new immutable requests acquired at most once; reservations return to baseline after every successful reply.",
-        "Hot bytes, entries, archive, OPS file and projected WAL capacity are qualified together; adding hot bytes alone does not certify the unchanged WAL/maintenance envelope.",
-        "Crash, duplicate starts and automatic runtime-clock quiescence during paid publication preserve unresolved evidence and holds; no provider probes."
-      ]
+    "repository_caveat": {
+      "status": "PREEXISTING_UNCHANGED_OBJECTS_MISSING",
+      "objects": {
+        "qualification/r02_retention/global/REGRESSION_DISPOSITION.json": "04dbff92826392bf571a85758daac6a553f227d6",
+        "runtime/walkback/src/core/helius_retention_living.py": "68276590e24e05317d0ef8f57aba9987700dcfa7"
+      },
+      "action": "Native write-tree --missing-ok and commit-tree preserved the parent tree references exactly; only the allowlisted DEV files differ. Bounded qualified patch exported for review/apply. No unrelated history or source was fabricated.",
+      "future_engineering_push": "Requires original blobs from an authoritative backup before claiming a complete Git object closure."
     },
-    "process_failure_assessment": "Individual startup/storage component PASS results were not sufficient business acceptance. The release gate should be end-to-end current-scale full completion, deadline-boundary safety and steady reservation behavior together. The previous deployment was honestly left PARTIAL, but repeated fixes without this representative gate prolonged the patch cycle.",
-    "handoff_discrepancy": "CWD checkout current.json was stale at revision 1e292f25 / human morning review. Audit began from the remote-byte-verified 8006e5d9 checkpoint in canonical mirrors, then verified actual fd759140 runtime/source pins. Historical files retained.",
-    "artifacts": {
-      "FINAL_PROGRESS.json": "/private/tmp/flex-full-progress-audit-20261108/FINAL_PROGRESS.json",
-      "RESERVATION_FINAL.json": "/private/tmp/flex-full-progress-audit-20261108/RESERVATION_FINAL.json",
-      "DEADLINE_COUNTEREXAMPLE.json": "/private/tmp/flex-full-progress-audit-20261108/DEADLINE_COUNTEREXAMPLE.json",
-      "COMPLETION_AND_REPAIR_AUTHORITY.json": "/private/tmp/flex-full-progress-audit-20261108/COMPLETION_AND_REPAIR_AUTHORITY.json",
-      "READ_PATH_PROFILE.json": "/private/tmp/flex-full-progress-audit-20261108/READ_PATH_PROFILE.json",
-      "CHILD_SAMPLE_METADATA.json": "/private/tmp/flex-full-progress-audit-20261108/CHILD_SAMPLE_METADATA.json",
-      "PAUSED_JOB_PROGRESS.json": "/private/tmp/flex-full-progress-audit-20261108/PAUSED_JOB_PROGRESS.json",
-      "WORKER_LIFECYCLE_AUDIT.json": "/private/tmp/flex-full-progress-audit-20261108/WORKER_LIFECYCLE_AUDIT.json"
-    },
-    "blocker": "Full Walkbacks resumed (+2), but 19 retained INTENT reservations consume 38MiB and leave zero further full-reply slots after reclaim in the 40MiB profile. Two new receipt-without-body cases accumulated after cutover; one live TIME_LIMIT case matches the reproduced hard-kill-during-paid-publication failure class. Exact slow live phase is not retained. Existing holds cannot be cleared from an HTTP status alone.",
-    "next_action": "Audit complete; no further production changes authorized. Propose one narrowly scoped DEV qualification package for the existing acquisition-to-checkpoint path: bound the complete response-body/accounting/checkpoint operation, reserve its measured finalization budget before INTENT/dispatch, and make the parent deadline/drain protocols honor that bounded critical phase, including an automatic runtime-clock recovery while a reply is publishing. Preserve crash fail-closed holds and all existing reservations/dedup/evidence. Reproduce the current-scale full job and paid-receipt-before-body boundary offline with network forbidden, verify repeated slices advance and successful publication returns to baseline reservations with no duplicate immutable RPC, and qualify a single consistent hot/file/WAL working-capacity envelope around the 19 untouched held reservations if additional new-request headroom is needed. No broad rewrite, extra supervisor/clock work, quota-only production increase, hold release or replay. Seek implementation authorization before DEV engineering changes and separate approval before any deployment."
+    "blocker": "Production remains capacity-held: 19 retained 2MiB reservations plus protected hot bytes leave no new full-reply slot in the unchanged 40MiB profile. No existing reservation or review hold may be cleared from an HTTP receipt alone. The DEV Git parent also has two pre-existing missing unchanged objects; exact references were preserved and a qualified patch exported, but complete engineering Git export requires original authoritative blobs.",
+    "next_action": "Review bd975aba DEV qualification and the exported qualified-dev.patch. Before a separately authorized production promotion, qualify the smallest consistent working-capacity envelope for all 19 untouched reservations, protected evidence and one full job, including OPS/WAL/cold file limits; recover the two unchanged Git blobs from an authoritative backup before claiming complete repository transport. No production source/config/database/service changes, activation, replay, provider/RPC or time-source probes are authorized by this DEV milestone."
   },
-  "current_next_blocker": "Full Walkbacks resumed (+2), but 19 retained INTENT reservations consume 38MiB and leave zero further full-reply slots after reclaim in the 40MiB profile. Two new receipt-without-body cases accumulated after cutover; one live TIME_LIMIT case matches the reproduced hard-kill-during-paid-publication failure class. Exact slow live phase is not retained. Existing holds cannot be cleared from an HTTP status alone.",
+  "current_next_blocker": "Production remains capacity-held: 19 retained 2MiB reservations plus protected hot bytes leave no new full-reply slot in the unchanged 40MiB profile. No existing reservation or review hold may be cleared from an HTTP receipt alone. The DEV Git parent also has two pre-existing missing unchanged objects; exact references were preserved and a qualified patch exported, but complete engineering Git export requires original authoritative blobs.",
   "deep_walkback_schema_validator": {
     "audit": "docs/audits/deep_walkback_schema_validator.v1.json sha256 ccb386b255c510ed958404b091a6a64aa2cd6812c4ef23237cfdf3d9d03a0d4e",
     "engineering_revision": "e21867c1591931720bf85d17beaccf0e226097ee working tree",
@@ -45308,11 +45074,11 @@
     "branch": "agent-handoff",
     "note": "External publication receipt records remote byte verification. Engineering revision remains project.git_head.",
     "protocol_version": 1,
-    "published_at_utc": "2026-11-08T00:49:19.240140+00:00",
+    "published_at_utc": "2026-11-08T10:47:42.947062+00:00",
     "status": "PUBLISHED_CHECKPOINT",
     "updated_at_utc": "2026-11-05T16:02:45.901980+00:00",
-    "last_local_checkpoint_utc": "2026-11-08T00:48:56.070155+00:00",
-    "verification_receipt": "/private/tmp/flex-full-progress-audit-20261108/HANDOFF_PUBLICATION.json"
+    "last_local_checkpoint_utc": "2026-11-08T10:47:36.374362+00:00",
+    "verification_receipt": "/private/tmp/flex-acquisition-qualification-20261108/HANDOFF_PUBLICATION.json"
   },
   "handoff_transport_status": "PUBLISHED_CHECKPOINT",
   "helius_absence_diagnosis_20261030": {
@@ -58551,7 +58317,7 @@
     "TRANSACTION_VERSION_SUPPORT": "maxSupportedTransactionVersion=1 in both funding getTransaction paths; legacy, v0 and v1 fixtures preserve transfer attribution; -32015 is counted as a failed read without assuming a single cause; no live provider capability claim",
     "updated_at_utc": "2026-10-20T20:18:51.827312+00:00"
   },
-  "next_action": "Audit complete; no further production changes authorized. Propose one narrowly scoped DEV qualification package for the existing acquisition-to-checkpoint path: bound the complete response-body/accounting/checkpoint operation, reserve its measured finalization budget before INTENT/dispatch, and make the parent deadline/drain protocols honor that bounded critical phase, including an automatic runtime-clock recovery while a reply is publishing. Preserve crash fail-closed holds and all existing reservations/dedup/evidence. Reproduce the current-scale full job and paid-receipt-before-body boundary offline with network forbidden, verify repeated slices advance and successful publication returns to baseline reservations with no duplicate immutable RPC, and qualify a single consistent hot/file/WAL working-capacity envelope around the 19 untouched held reservations if additional new-request headroom is needed. No broad rewrite, extra supervisor/clock work, quota-only production increase, hold release or replay. Seek implementation authorization before DEV engineering changes and separate approval before any deployment.",
+  "next_action": "Review bd975aba DEV qualification and the exported qualified-dev.patch. Before a separately authorized production promotion, qualify the smallest consistent working-capacity envelope for all 19 untouched reservations, protected evidence and one full job, including OPS/WAL/cold file limits; recover the two unchanged Git blobs from an authoritative backup before claiming complete repository transport. No production source/config/database/service changes, activation, replay, provider/RPC or time-source probes are authorized by this DEV milestone.",
   "no_selected_funder_24h_audit": {
     "finding": "All 236 have zero retained edge candidates, selected edges, or alternatives. 164 have creator_funders evidence outside Walkback selected-edge projection; 67 are completed with LINEAGE_GAP/quality outcome; 3 have role-aware deeper evidence only; 2 have no retained explanatory funding evidence. 231/236 have creator_funders evidence and 47/236 have retained transaction-role evidence. This is primarily a creator-funding/Walkback projection gap plus lineage abstention, not a multi-creator filter or alternative-edge rejection issue.",
     "next_action": "Analysis-only recommendation: IMPROVE_CREATOR_FUNDING_JOIN; preserve strict selected-edge semantics and surface separately proven creator_funders evidence without promoting it to a selected Walkback edge.",
@@ -60782,10 +60548,10 @@
     "other_service_fields": "Historical transport context; not reverified or changed in this milestone."
   },
   "project": {
-    "branch": "codex/live-clock-read-recovery",
-    "git_head": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+    "branch": "codex/acquisition-checkpoint-boundary",
+    "git_head": "bd975abaf9db9ba2fe1dcb2966175a0364e281b4",
     "name": "flex",
-    "updated_at_utc": "2026-11-08T00:48:56.070155+00:00",
+    "updated_at_utc": "2026-11-08T10:47:36.374362+00:00",
     "working_tree": "/private/tmp/flex-clock-read-dev"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -62248,7 +62014,7 @@
     },
     "verdict": "EVIDENCE_INDEPENDENT_CORPORA_RETIREMENT_PARTIAL"
   },
-  "status": "PARTIAL_AUDIT_FULL_COMPLETIONS_RESUMED_CAPACITY_EXHAUSTED_PUBLICATION_DEADLINE_GAP_REPRODUCED",
+  "status": "PASS_DEV_ACQUISITION_CHECKPOINT_PRODUCTION_CAPACITY_HOLD",
   "stopped_supervisor_service_residue_audit": {
     "critical_findings": [
       "STOPPED_CONSUMER_ACTIVE_PRODUCER_MISMATCH: ws_cascade still calls dust_observatory.enqueue_sig while dust_observatory_enricher is stopped.",
@@ -63868,7 +63634,7 @@
       "2026-10-25T15:10:34Z"
     ]
   },
-  "verdict": "PARTIAL_AUDIT_FULL_COMPLETIONS_RESUMED_CAPACITY_EXHAUSTED_PUBLICATION_DEADLINE_GAP_REPRODUCED",
+  "verdict": "PASS_DEV_ACQUISITION_CHECKPOINT_PRODUCTION_CAPACITY_HOLD",
   "walkback_health_decoupling_deployment": {
     "audit": "docs/audits/walkback_health_decoupling_deployment.v1.json",
     "baseline": "phase-a-e21867c-dirty-74caf5e01308 sha256=74caf5e01308047289ae23b3ec8ab4853935e2b321253c62b5cfc7d060360a0d; 98 unique focused tests passed, health 60-second isolation regression PASS, normal bare writers=0.",
@@ -89505,7 +89271,7 @@
     "next_action": "Review the pinned DEV/installed-composition change. Any production cutover remains a separately authorized milestone with verified current pair, complete backup, capacity preflight and drain; perform no production action in this milestone."
   },
   "production_change_flags_current_milestone": {
-    "scope": "Read-only post-deployment Walkback/capacity audit plus private offline counterexample",
+    "scope": "User-authorized DEV acquisition-to-checkpoint implementation and qualification",
     "production_source_config_database_changes": 0,
     "worker_service_actions": 0,
     "provider_or_RPC_probes": 0,
@@ -89516,8 +89282,8 @@
     "queue_replay": false,
     "quota_changes": 0,
     "FileVault_changes": 0,
-    "engineering_changes": 0,
-    "implementation_authorization_requested_or_assumed": false
+    "engineering_changes": true,
+    "implementation_authorization": "Explicit user approval: fix and qualify acquisition-to-checkpoint path in DEV at current scale; no production changes or provider probes."
   },
   "bounded_rolling_checkpoint_archive_rollout_20261106": {
     "status": "PASS_DEPLOYED_C1AE6883_PROGRESS_AUTOMATIC_ARCHIVE_AND_PRESERVATION",
@@ -99639,5 +99405,167 @@
     },
     "blocker": "Full Walkbacks resumed (+2), but 19 retained INTENT reservations consume 38MiB and leave zero further full-reply slots after reclaim in the 40MiB profile. Two new receipt-without-body cases accumulated after cutover; one live TIME_LIMIT case matches the reproduced hard-kill-during-paid-publication failure class. Exact slow live phase is not retained. Existing holds cannot be cleared from an HTTP status alone.",
     "next_action": "Audit complete; no further production changes authorized. Propose one narrowly scoped DEV qualification package for the existing acquisition-to-checkpoint path: bound the complete response-body/accounting/checkpoint operation, reserve its measured finalization budget before INTENT/dispatch, and make the parent deadline/drain protocols honor that bounded critical phase, including an automatic runtime-clock recovery while a reply is publishing. Preserve crash fail-closed holds and all existing reservations/dedup/evidence. Reproduce the current-scale full job and paid-receipt-before-body boundary offline with network forbidden, verify repeated slices advance and successful publication returns to baseline reservations with no duplicate immutable RPC, and qualify a single consistent hot/file/WAL working-capacity envelope around the 19 untouched held reservations if additional new-request headroom is needed. No broad rewrite, extra supervisor/clock work, quota-only production increase, hold release or replay. Seek implementation authorization before DEV engineering changes and separate approval before any deployment."
+  },
+  "acquisition_checkpoint_dev_qualification_20261108": {
+    "status": "PASS_DEV_ACQUISITION_CHECKPOINT_PRODUCTION_CAPACITY_HOLD",
+    "recorded_utc": "2026-11-08T10:47:36.374362+00:00",
+    "engineering_revision": "bd975abaf9db9ba2fe1dcb2966175a0364e281b4",
+    "source_parent": "fd759140acc8d9e455e726622c0852efeb96cbdf",
+    "branch": "codex/acquisition-checkpoint-boundary",
+    "worktree": "/private/tmp/flex-clock-read-dev",
+    "scope": "DEV acquisition-to-checkpoint fix and qualification only",
+    "tests_passed": 398,
+    "test_suites": {
+      "boundary-scale.xml": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "checkpoint-regression.xml": {
+        "tests": 192,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "drain.xml": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "startup.xml": {
+        "tests": 100,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed-clock.xml": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "http-regression.xml": {
+        "tests": 88,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "qualification": "/private/tmp/flex-acquisition-qualification-20261108/QUALIFICATION.json",
+    "tracked_qualification": "/private/tmp/flex-clock-read-dev/docs/dev/acquisition_checkpoint_qualification.json",
+    "qualified_patch": "/private/tmp/flex-acquisition-qualification-20261108/qualified-dev.patch",
+    "qualified_patch_sha256": "b4a89f8c6094f0f733301293466f84e4844d5d2767ac70609bea36a40190844a",
+    "source_sha256": {
+      "runtime/startup/guarded_startup.py": "0420a2d959e9f47ba2b0b5493d05b5e12b8654896132fa9f0c1d1b40a37b7c15",
+      "runtime/walkback/src/core/walkback_job_limits.py": "c6b4f0d9cf1254d6eccbf3b2561aa5be64ee5d5509908769fb0afbc4570e2371",
+      "runtime/walkback/src/core/walkback_checkpoints.py": "256bdbcccebb93b53159604a975fa1fce867894804ab9c710d85d543995432dc",
+      "runtime/walkback/src/core/walkback_worker.py": "78e9ab393a0591cb04e2604674d415e8c35aa38b472e8f26d95c6fb0b50c7460",
+      "runtime/listener/src/core/helius_http_protection.py": "e894946e8b3f2588ff3262386379901716f590e0e96a7d5b189fa006226b51c9",
+      "runtime/creator_resolution/src/core/helius_http_protection.py": "eed880f620469675533025737c4069dd7fdd5f5aa7efb4b0062e0ea55662a723",
+      "runtime/walkback/src/core/helius_http_protection.py": "1af1881dd8311cf5a1d622024636e0cb4d86a39f2cc349ac26418c23fa3a136d"
+    },
+    "behavior": [
+      "Absolute bounded response-body reading with covered read1 accounting",
+      "Admission covers header/body budgets and pending stop; finalization reserve before unchanged job hard limit",
+      "Termination masked before INTENT commit through acquired-body checkpoint publication",
+      "Exact usage and same-attempt continuation after completed soft stop",
+      "Supervisor drain detects and waits for bounded child before store recovery/resume"
+    ],
+    "qualification_results": {
+      "full_fresh_reply_completion": true,
+      "full_cached_completion_with_19_reservations": true,
+      "current_scale_stop_resume_no_duplicate": true,
+      "fresh_19_reservations_capacity_hold_without_dispatch": true,
+      "private_supervisor_publication_drain_resume": true,
+      "actual_installed_clock_recovery_and_guard_crash_same_manager": true,
+      "dedup_evidence_reservations_review_holds_preserved": true,
+      "ops_fixture_bytes_at_least": 296239104,
+      "actual_queue_rows": 8824,
+      "cold_record_count": 21853,
+      "ledger_original_keys_at_least": 10330,
+      "max_fixture_single_file_bytes": 296853504,
+      "hot_profile_bytes_unchanged": 41943040,
+      "synthetic_adapters": [
+        "synthetic transport replies",
+        "unrelated post-commit projectors",
+        "synthetic deep evidence sink"
+      ],
+      "all_new_IP_networking_forbidden": true
+    },
+    "production_flags": {
+      "scope": "User-authorized DEV acquisition-to-checkpoint implementation and qualification",
+      "production_source_config_database_changes": 0,
+      "worker_service_actions": 0,
+      "provider_or_RPC_probes": 0,
+      "manual_time_source_queries": 0,
+      "live_fault_injection": false,
+      "private_fixture_writes_only": true,
+      "reservation_dedup_evidence_review_hold_edits": 0,
+      "queue_replay": false,
+      "quota_changes": 0,
+      "FileVault_changes": 0,
+      "engineering_changes": true,
+      "implementation_authorization": "Explicit user approval: fix and qualify acquisition-to-checkpoint path in DEV at current scale; no production changes or provider probes."
+    },
+    "repository_caveat": {
+      "status": "PREEXISTING_UNCHANGED_OBJECTS_MISSING",
+      "objects": {
+        "qualification/r02_retention/global/REGRESSION_DISPOSITION.json": "04dbff92826392bf571a85758daac6a553f227d6",
+        "runtime/walkback/src/core/helius_retention_living.py": "68276590e24e05317d0ef8f57aba9987700dcfa7"
+      },
+      "action": "Native write-tree --missing-ok and commit-tree preserved the parent tree references exactly; only the allowlisted DEV files differ. Bounded qualified patch exported for review/apply. No unrelated history or source was fabricated.",
+      "future_engineering_push": "Requires original blobs from an authoritative backup before claiming a complete Git object closure."
+    },
+    "blocker": "Production remains capacity-held: 19 retained 2MiB reservations plus protected hot bytes leave no new full-reply slot in the unchanged 40MiB profile. No existing reservation or review hold may be cleared from an HTTP receipt alone. The DEV Git parent also has two pre-existing missing unchanged objects; exact references were preserved and a qualified patch exported, but complete engineering Git export requires original authoritative blobs.",
+    "next_action": "Review bd975aba DEV qualification and the exported qualified-dev.patch. Before a separately authorized production promotion, qualify the smallest consistent working-capacity envelope for all 19 untouched reservations, protected evidence and one full job, including OPS/WAL/cold file limits; recover the two unchanged Git blobs from an authoritative backup before claiming complete repository transport. No production source/config/database/service changes, activation, replay, provider/RPC or time-source probes are authorized by this DEV milestone."
+  },
+  "tests_current_milestone": {
+    "passed": 398,
+    "suites": {
+      "boundary-scale.xml": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "checkpoint-regression.xml": {
+        "tests": 192,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "drain.xml": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "startup.xml": {
+        "tests": 100,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed-clock.xml": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "http-regression.xml": {
+        "tests": 88,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "network": "all new acquisition fixtures prohibit IP sockets; only private Unix Supervisor control is permitted",
+    "exploratory_caveats": [
+      "Historical renderer scope test is excluded: it assumes a three-pin-only change relative to a much earlier baseline; renderer is unchanged from fd759140.",
+      "The earlier 6s contention fixture also failed on fd759140 because it lacked the unchanged 3s lock wait plus dispatch reserve. The fixture now has 12s and passes; no gate wait, limits or replay policy changed.",
+      "Broader legacy budget tests contain obsolete scope/integrity assumptions and were not represented as a whole-suite pass. Missing thin-checkout dependencies were restored unchanged for the focused suites."
+    ]
   }
 }

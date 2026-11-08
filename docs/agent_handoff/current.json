@@ -60562,8 +60562,8 @@
     "other_service_fields": "Historical transport context; not reverified or changed in this milestone."
   },
   "project": {
-    "branch": "codex/reservation-sealing",
-    "git_head": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "branch": "codex/migration-event-mint",
+    "git_head": "b9bab5d20f2c2f552366d2d166ef108263f83694",
     "name": "flex",
     "updated_at_utc": "2026-11-08T13:40:49.429666+00:00",
     "working_tree": "/private/tmp/flex-clock-read-dev"
@@ -99932,5 +99932,34 @@
     "verification": "Official IDL inspected through GitHub connector. Existing parser AST executed in memory against compact binary event: None. Exact28 complete retained logs inspected. No provider calls,code/config/DB/queue/service changes. Storage rule not applicable; metadata only.",
     "blocker": null,
     "next_action": "Investigation complete. Correction should decode and validate mint-bearing events before scoped RPC admission, retain notification mint, and distinguish already-migrated no-op; signature-only fallback must remain bounded. Exact27 event availability requires complete bounded notification evidence before claiming zero-RPC recovery."
+  },
+  "migration_event_mint_fix_20261108": {
+    "status": "PASS",
+    "objective": "Decode Pump migration event notification mint before scoped RPC admission; exclude already-migrated no-op calls.",
+    "engineering_revision": "b9bab5d20f2c2f552366d2d166ef108263f83694",
+    "engineering_branch": "codex/migration-event-mint",
+    "engineering_worktree": "/private/tmp/flex-migration-event-mint",
+    "baseline_snapshot_revision": "919c3140",
+    "runtime_target": "/Users/kevinkeaveney/Production/flex-listener",
+    "runtime_git_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "runtime_deployment_gate": "PASS",
+    "deployment": {
+      "pre_listener_sha256": "8f0c51f2f42e454b72b820c77aadb4515e3bcee64ad017b0b156096b381cbfce",
+      "post_listener_sha256": "7a8a4705b505c7b2c215a5c9f1f308e708d669e759918aa9dc1b8b8b7aa9af6b",
+      "decoder_sha256": "e0226ed8653520e268baca6c994e2305dd58415ab5cdf660b54502102e55b6de",
+      "pre_pid": 28351,
+      "post_pid": 39274,
+      "restart_required": true,
+      "restart_completed": true,
+      "running_identity": "Supervisor watchtower_listener RUNNING; new PID emitted MIGRATION_DECODER version=pump-migration-event-v1; PumpSwap subscription16157774 confirmed and PumpPortal subscribed. Exact installed two-file byte parity verified. Existing runtime modifications preserved using baseline snapshot; no runtime git reset."
+    },
+    "implementation": "Pure bounded decoder validates Pump invocation ownership, known168/200-byte completion-event layout, nonzero32-byte mint, conflicting events and log bounds. Routes decoded mint into existing journal notification_mint before accounting scope; never fabricates creator or canonical migration evidence. Single already-migrated invocation with no completion event excluded. Invalid event retains signature custody through existing path.",
+    "verification": "15 focused tests passed both offline and using actual installed decoder; actual routing and scheduling bodies exercised. Legacy/current layouts, ownership, conflicts, malformed payloads, capacity, no-op, multiple invocation and durable notification_mint admission covered. Three older connection-close tests fail identically on unchanged baseline; unrelated unchanged function, no expansion.",
+    "production_flags": "Existing provider budgets, credentials, signature-first journal/deferred flags and service configuration unchanged. Only listener restarted. No manual provider calls or queue/DB edits. Ordinary service acquisition resumed under existing controls.",
+    "storage": "No new file-producing feature or raw retention; decoder in-memory only, max512log entries/262144UTF8 bytes, event4096encoded chars. Existing bounded journal unchanged (2,000,000 bytes,4096/record,512records);0new unbounded growth paths. Engineering files/tests and handoff metadata only.",
+    "limits": "Exact #27 notification completion-event presence unproven because retained diagnostic truncated. #28 was already-migrated no-op. No historical replay or Walkback recovery claimed. Separate event-loop stall cause/fix outside approved parser objective. No new live mint-bearing event was required as acceptance; installed decoder/routing bounded fixtures and running import/subscriptions verified.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-08T23:36:21.197875+00:00"
   }
 }

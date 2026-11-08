@@ -99989,5 +99989,20 @@
     "blocker": "27mint absent from inspected retention;29original fetched transaction unavailable, preventing exact selected-mint proof.",
     "next_action": "Qualify strict transaction mint selection from Pump migration instruction/completion event with notification-subject agreement, retaining fail-closed ownership. Historical recovery needs separately approved bounded exact-signature acquisition under a valid budget scope; never reset ownership or bypass protected replay.",
     "updated_at_utc": "2026-11-08T23:46:14.305745+00:00"
+  },
+  "pumpportal_exact29_subject_test_20261108": {
+    "engineering_revision": "b9bab5d20f2c2f552366d2d166ef108263f83694",
+    "status": "PASS_FOUR_READ_ONLY_TESTS",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained subject and in-memory installed functions test; no implementation.",
+    "mint": "GHLMKtZta7JMcRHXTXa65xS4ubXEzieM5rQvjc8Bpump",
+    "finding": "Exact29 terminal record sourcePUMPPORTAL_MIGRATION retains this notification_mint, exact full signature and no conflicting_mint. Base58 decodes32bytes; registered mint owner proof exactly matches admitted notification identity. Installed _bind_child read-only fast path accepts correct PumpPortal mint under current migration root. Existing _extract_mint_from_tx selects other mint if its postTokenBalances entry precedes expected PumpPortal mint.",
+    "verification": "4unittest checks PASS using actual retained exact29record and existing gate snapshot. Actual installed functions AST-loaded with no runtime service imports or mutable Gate. Expected-first and other-first transaction fixtures synthetic, not original29payload. Test script /private/tmp/test_pumpportal_migration_subject.py; no raw provider data persisted.",
+    "limits": "PumpPortal subject/ownership agreement verified, not independent onchain confirmation. Original29transaction payload remains unavailable, so exact misselected mint not proven.27mint unresolved.",
+    "production_state": "No provider requests,queue/DB/ownership/source/config/service changes.",
+    "storage": "No new storage-producing feature; small bounded test script and handoff metadata only.",
+    "blocker": null,
+    "next_action": "Implement strict migration transaction mint extraction and require notification-subject agreement before nested mint scope; do not reset budget ownership or replay protected historical record.",
+    "updated_at_utc": "2026-11-08T23:49:44.300810+00:00"
   }
 }

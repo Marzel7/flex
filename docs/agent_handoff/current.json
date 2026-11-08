@@ -99920,5 +99920,17 @@
     "blocker": null,
     "next_action": "NONE \u2014 requested investigation complete. If correction requested, isolate event-loop blocking cause and signature-only origin admission dependency before implementation.",
     "observed_at_utc": "2026-11-08T23:21:11.304891+00:00"
+  },
+  "migration_mint_notification_investigation_20261108": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "listener_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PASS_INVESTIGATION_WITH_EXACT27_LIMIT",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only investigation and in-memory existing parser check; no implementation.",
+    "finding": "Official pump-fun/pump-public-docs main idl/pump.json CompletePumpAmmMigrationEvent has mint pubkey after user; migrate/migrate_v2 instruction accounts include mint/base_mint. Existing logsSubscribe handler routes signature+logs without notification_mint; fallback only plaintext mint regex and returns None for synthetic binary Program data event. Scoped ownership check precedes handle_migration; handler fetches RPC before logs fallback. Therefore existing parser cannot recover binary completion-event mint even if delivered.",
+    "exact_targets": "#27 retained MigrateV2 prefix only: debug logging slices first20 entries and1200chars; complete payload unavailable, so binary event presence in exact notification UNPROVEN. #28 complete5-line log says Bonding curve already migrated, success; no mint-bearing Program data. Detector incorrectly counts no-op invocation as new migration. No RPC acquisition needed to establish these retained findings.",
+    "verification": "Official IDL inspected through GitHub connector. Existing parser AST executed in memory against compact binary event: None. Exact28 complete retained logs inspected. No provider calls,code/config/DB/queue/service changes. Storage rule not applicable; metadata only.",
+    "blocker": null,
+    "next_action": "Investigation complete. Correction should decode and validate mint-bearing events before scoped RPC admission, retain notification mint, and distinguish already-migrated no-op; signature-only fallback must remain bounded. Exact27 event availability requires complete bounded notification evidence before claiming zero-RPC recovery."
   }
 }

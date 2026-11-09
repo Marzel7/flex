@@ -100172,5 +100172,17 @@
     "updated_at_utc": "2026-11-09T14:28:55.207582+00:00",
     "audit": "docs/audits/birth_receipt_pumpportal_feed_coverage_review_20261109.v1.json",
     "verification": "Installedunfilteredsubscriptionmatchesdocumentedmethod;33parsedframes:21PumpCREATE,3BonkCREATE,4migrate,5control;0parserejects;23uniqueCREATEs=21Pump+2Bonk;1CONNECTED,noreconnect/timeouts. Publicofficialdocsreviewed,noexplicitversionexclusionlocated."
+  },
+  "birth_webhook_existing_fallback_discovery_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_EXISTING_FALLBACK_FOUND_DELIVERY_UNVERIFIED",
+    "finding": "UseridentifiesPUMPFUN_BIRTH_WEBHOOK_ID. Installedmain.pyroute/api/webhook/pumpfun-birthqueuesHeliusenhancedCREATEsignatures;listenerdrainerhandle_birthfallbackexists. HandlerusesIDforusage_trackerlabel,notregistration. ActiveCoreall168queue rows inspectedboundedlimit500:sourcepumpportal_retry only(139unconsumed,29consumed),noHelius-labelledrows. BothprovenmissingCREATEsignaturesabsentbyindexedexactlookup. ActiveguardedSupervisorconfigonlylistener/resolver/walkback,noreceivingAPIprogram;doesnotruleoutAPIunderothermanager.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-onlysourceandboundedmetadataqueries;noimplementation.",
+    "verification": "ExactCREATEsignaturequeuequeriesandbounded168metadatarecords;noHTTP/provider/registrationrequests;noAPIrestartorchanges.",
+    "production_state": "Unchanged.",
+    "storage": "Handoffmetadataonly;rawretentionOFF;unboundedgrowthpaths0;nostoragefeature.",
+    "next_action": "InspectregisteredHeliuswebhookdestination/type/transactionfilters/deliveryandlocateactivereceivingAPI/Corebinding. NoHeliusconfigmutationauthorizedorperformed;IDalonedoesnotproveworkingfallback.",
+    "updated_at_utc": "2026-11-09T14:31:28.952550+00:00"
   }
 }

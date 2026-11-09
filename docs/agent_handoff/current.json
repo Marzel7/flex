@@ -100343,5 +100343,37 @@
     "blocker": null,
     "next_action": "NONE \u2014 requestedlocalHTMLdelivered;usercanopenDownloadsfile.",
     "updated_at_utc": "2026-11-09T21:33:09.706290+00:00"
+  },
+  "creator_funding_price_action_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PARTIAL_PRICE_ACTION_MEASURED_MARKETCAP_AND_BIRTH_LAG_UNVERIFIED",
+    "objective": "Measurepriceactionofthe88tokensinthefivefundinggroupsandtestWatchtowerlikebehavior.",
+    "audit": "docs/audits/creator_funding_price_action_20261109.v1.json",
+    "dashboard": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "verification": "88uniqueplannedidentities,88singleattempts,79series+8empty+1unretained;normalizedtimestampsuniqueandinboundedwindows;groupcountsreconcile;27/27group2laterdrawdownsverifiedusingstrictlylatercandles. Marketcap/CREATElagnotqualified.",
+    "accounting": {
+      "Birdeye_requests": 88,
+      "logical_tokens": 88,
+      "credential_alias": "BIRDEYE",
+      "concurrency": 1,
+      "retries": 0,
+      "pagination": 0,
+      "retained_series": 79,
+      "empty": 8,
+      "dispatched_result_not_retained": 1,
+      "Helius_calls": 0,
+      "other_provider_calls": 0
+    },
+    "findings": "Group2(5SOL)27/27pricehistories,medianobservedpeak0.000154344USD,range0.000114604\u20130.000276752USD,median7.03minafterdetectionproxy;all27observed>=95percentlatercandledrawdown. Group1median0.000045767USD(4/4);group4median0.000128888(3/3);group5median0.000043082(8/11). Group3(37/43)22higherpreproxylookbackpeaks,timingconfounded.",
+    "limits": "NoverifiedsupplyororiginalCREATEtimes;true75\u2013150kmarketcapandimmediatemigrationnotqualified. Illustrative1bFDVstrictlyconditional.0/79contiguousfullwindows;observedpeaksnotATH;nomodelofexecutableprofit.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Analyticalacquisitionandstaticreportonly;noexecutableservicedeployment.",
+    "production_state": "NoCore/ops/queue/runtime/trading/config/sourcechanges.88BirdeyeattemptsusingauthoritativeBIRDEYE;0Helius/other. Noautonomouswatchlistortradingactivation.",
+    "storage": "Acquisitionledger<=500000bytesactual428646;singlememoryresponse<=1048576bytes;derivedreport<=131072bytes;HTML<=250000bytes;fixedtransientledgerstage<=500000bytes;rawpayloadretentionOFF,compactOHLCfactsretained;unboundedgrowthpaths0;noDBclone.",
+    "storage_incident": "PrettyJSONreachedfixed500000bytecap;oversizepublicationrefused.Onepostdispatchresultnotretainedmarkedunavailable,noreplay. Compactedledgerresumedonly24remainingplannedrequests;final428646bytes.",
+    "html_verification": "166051byteHTML;79staticSVGcharts;HTMLstructurechecksPASS;Downloadscopyhashmatchesworkspace. NoUIpreviewattemptrepeatedafterpreviousChrometooltimeout.",
+    "blocker": "Marketcapandbirthlagclaimsunverified;priceactionmeasurementcomplete.",
+    "next_action": "Reviewupdatedlocaldashboard. Qualifytoken-specificsupplyandcanonicalCREATE/migrationtimesbeforeclaimingWatchtowerlikeUSDmarketcaporimmediatemigration.",
+    "updated_at_utc": "2026-11-09T21:49:53.419374+00:00"
   }
 }

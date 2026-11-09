@@ -100562,5 +100562,32 @@
     "blocker": "Sui exactT+1birthopeningnotretained;delayedT+2referencequalifiedasdelayedonly. Noexecutionfillorhistoricalcirculatingsupplyproof.",
     "next_action": "Requestedthree-tokenpasscomplete;reviewlocalreport. Noautomaticothergroupacquisition;preserveSuidelayed-referencequalification.",
     "updated_at_utc": "2026-11-09T22:57:40.450749+00:00"
+  },
+  "group1_funder_birth_denominator_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PARTIAL_KNOWN_CREATOR_COHORT_COUNTED_ACCOUNT_WIDE_DENOMINATOR_UNKNOWN",
+    "audit": "docs/audits/group1_funder_birth_denominator_20261109.v1.json",
+    "funder_wallet": "5aK4YKjsfpAKtQUawVWCQorARqYjHNT5dNDCuuxiMuwQ",
+    "summary": {
+      "observed_funding_edge_rows": 4,
+      "selected_funding_edge_rows": 4,
+      "creator_funders_rows": 0,
+      "funder_webhook_event_rows": 0,
+      "known_linked_creators": 4,
+      "core_tokens_for_known_creators": 4,
+      "core_migration_recorded": 4,
+      "core_no_migration_recorded": 0,
+      "core_birth_identity_present": 4,
+      "known_creator_launch_rows": 0
+    },
+    "finding": "4selectedtransactionderivedfundingedges,4knowncreators,4Coretokensallmigrationrecorded,0additionalbirth-onlytokensforthose4creators. Creator_funders0,funder_webhook_events0,noexhaustivewalletoutflowdenominator. Migration-orientedselectionmeans4/4cannotbeclaimed100percentwalletlaunchsuccess.",
+    "verification": "Indexedexactparent/funder/creatorqueries;Coreearliestcreatorfallbackoneboundedscanrowid<=220108(<250000)withdeadline. Queryonlyprovider0. Dashboardlead1coveragewarningadded;Downloadscopyhashmatches.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-onlyretaineddenominatoranalysis.",
+    "production_state": "NoDB/queue/runtime/config/tradingchanges.",
+    "storage": "Report<=65536bytes;temporaryscript<=16384;rawpayloadretentionOFF;unboundedgrowthpaths0;noDBclone.HTMLfixed<=500000bytesx2copies.",
+    "blocker": "Completewalletrecipient/launchcoverageunavailableinretaineddata.",
+    "next_action": "Ifrequested,scopeboundedfunderoutgoing-transfercensusandrecipientbirthcohortforsamedatewindowbeforeestimatingmigrationrate;noautomaticprovideracquisition.",
+    "updated_at_utc": "2026-11-09T23:06:26.922931+00:00"
   }
 }

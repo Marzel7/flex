@@ -100487,5 +100487,19 @@
     "blocker": null,
     "next_action": "NONE \u2014 bolcandleparitypilotCOMPLETE. Usercanreviewopening/peak/redcandletimeline;do notautomaticallyexpandtoother87.",
     "updated_at_utc": "2026-11-09T22:32:03.142579+00:00"
+  },
+  "funding_birth_peak_red_candle_columns_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_REPORT_FIELDS_ADDED",
+    "objective": "Displaybirth-to-peakmultiple,redcandlecapanddelayafterpeakinthefundingreport.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "implementation": "Added3visiblecolumnsineachfundingtable:birthopeningreference-topeakmultiple,largestred1scapOtoC,delayafterpeak. Bol6.367x;redMC17827.10to3119.56(-82.501percent),328secafterpeak. InitialFDVred19411.77to3396.86alsoshown. Other87unverified/notreconstructed. Addedbolsummarycards;95percentcrossing334secseparatelylabelled.",
+    "verification": "88rowsall9cells;5headergroups;redtimestamp>peak;328seccomputed;FDV/MCbasesseparate;Downloadscopyhashidentical372135bytes. Noproviderrequests.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Staticreportfieldsfromexistingqualifiedbolfacts.",
+    "production_state": "NoDB/queue/runtime/trading/configchanges.",
+    "storage": "FixedHTML<=500000bytesactual372135eachoftwocopies;facts<32768bytes;temporaryscript<16384bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "next_action": "NONE \u2014 COMPLETE;refreshlocalreport.",
+    "updated_at_utc": "2026-11-09T22:38:38.480062+00:00"
   }
 }

@@ -100375,5 +100375,20 @@
     "blocker": "Marketcapandbirthlagclaimsunverified;priceactionmeasurementcomplete.",
     "next_action": "Reviewupdatedlocaldashboard. Qualifytoken-specificsupplyandcanonicalCREATE/migrationtimesbeforeclaimingWatchtowerlikeUSDmarketcaporimmediatemigration.",
     "updated_at_utc": "2026-11-09T21:49:53.419374+00:00"
+  },
+  "creator_funding_dashboard_market_links_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_LOCAL_HTML_UPDATED",
+    "objective": "IncludepriceactionfindingsandGMGN/Birdeyetokenlinksintheexistingreadablelocalreport.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "workspace_copy": "docs/audits/creator_funding_opportunities.html",
+    "implementation": "Expanded5SOLfindingwithpeakrange,conditionalFDVandlimits. AddedGMGNandBirdeyebuttonsbesideall88tokensand15repeatedevidencesamples. Noautofetchornewproviders.",
+    "verification": "HTMLparserPASS:103GMGN+103Birdeyelinkscoverexact88uniquemints;Birdeyechain=solana;0scripts;uniqueIDs;Downloadscopyhashidentical214908bytes. Visualbrowserpreviewnotattemptedafterpreviousconnectiontimeout.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "StaticlocalHTMLcontenteditonly.",
+    "production_state": "NoproviderRPC/runtime/DB/queue/tradingchanges.",
+    "storage": "FixedHTML<=250000bytesactual214908eachoftwocopies;temporaryscript<16384bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "next_action": "NONE \u2014 COMPLETE;refreshlocalHTMLfile.",
+    "updated_at_utc": "2026-11-09T21:55:52.328474+00:00"
   }
 }

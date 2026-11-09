@@ -100241,5 +100241,16 @@
     "storage": "Compact capture lines (<300 rows) in session scratchpad; raw payload OFF; unbounded growth paths 0.",
     "next_action": "Accept recover() (~10cr per migrating v1 token) as the coverage path; Helius birth webhook remains deliberately disabled (cost). Optional: report v1 omission to PumpPortal (draft only, user to send).",
     "updated_at_utc": "2026-11-09T16:22:17.879321+00:00"
+  },
+  "walkback_stale_waiting_retirement_20261109": {
+    "status": "PASS",
+    "action": "User-authorized one-off ops DB update: wt_walkback_queue rows with status='waiting' AND enqueued_at older than 24h set to status='failed', last_error='RETIRED_STALE_WAITING_20261109'. 2,259 rows (1,992 MISSING_CREATE_EVIDENCE / 278 UNQUALIFIED_ANCHOR class; ~1,688 older than 7 days, mostly pre-2026-11-05 resolver BUDGET_EXCEEDED era). Rows retained (not deleted) to avoid re-enqueue recreating them; no JSON backup per user.",
+    "verification": "Single BEGIN IMMEDIATE transaction, rowcount==precount (2259), 33 ms. After: waiting=34 (all <24h), failed=3952. Workers unchanged and healthy; resolver cycling.",
+    "reversal": "UPDATE wt_walkback_queue SET status='waiting', last_error=NULL WHERE last_error='RETIRED_STALE_WAITING_20261109'",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only change; no executable change.",
+    "storage": "Not applicable (in-place UPDATE, no growth).",
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-09T17:44:00.121901+00:00"
   }
 }

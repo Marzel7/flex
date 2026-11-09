@@ -100067,5 +100067,20 @@
     "blocker": "Missing-token birth-time provenance is not established; source routing alone cannot identify historical cause.",
     "next_action": "Trace a bounded missing-versus-present migrated-token cohort using retained provenance and boundary events; distinguish original WS receipt, later creator resolution, retention expiry and receipt lookup path before proposing a fix.",
     "updated_at_utc": "2026-11-09T13:21:19.939673+00:00"
+  },
+  "birth_receipt_bounded_cohort_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_RETAINED_COHORT_COMPLETE_CURRENT_EVIDENCE_UNAVAILABLE",
+    "objective": "Compare bounded missing/present migrated cohort using retained provenance and receipt paths.",
+    "audit": "docs/audits/birth_receipt_bounded_cohort_20261109.v1.json",
+    "verification": "24 deterministic retained October21 tokens:8 qualified receipt controls,8 missing with strictRPC,8 missing without creator. Controls8/8 matching legacy/sharded exactidentity files and ack before migration handoff. MissingRPC8/8 creator present but0/16exactpaths;unknown8/8no creator/pathidentity.4MBbounded logtails0exactmint hits;logs endNov7. JSON report18199bytes.",
+    "finding": "Creator completeness is distinct from receipt capture; RPC-derived creator evidence exists in missing cohort. No causal receipt-write/routing/non-delivery/retention defect established. No current backlog or69percent coverage claim independently verified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retained evidence comparison; no implementation.",
+    "production_state": "Provider calls0;DB/queue/source/config/service mutations0.",
+    "storage": "Derived report<32768bytes; temporary script<8192bytes;raw retentionOFF;new unbounded growth paths0;no database clone.",
+    "blocker": "Configured Core database path absent; bounded retained logs do not cover October births and no original birth time exists for missing sample.",
+    "next_action": "Identify authoritative current read-only Core/receipt locations and retained birth-boundary evidence; then trace current missing/present cohort. No runtime correction supported.",
+    "updated_at_utc": "2026-11-09T13:23:45.946381+00:00"
   }
 }

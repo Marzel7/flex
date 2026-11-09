@@ -60562,8 +60562,8 @@
     "other_service_fields": "Historical transport context; not reverified or changed in this milestone."
   },
   "project": {
-    "branch": "codex/migration-event-mint",
-    "git_head": "b9bab5d20f2c2f552366d2d166ef108263f83694",
+    "branch": "codex/migration-signature-recovery",
+    "git_head": "8eedf6757c2a923b69655fae251fbd4852996d90",
     "name": "flex",
     "updated_at_utc": "2026-11-08T13:40:49.429666+00:00",
     "working_tree": "/private/tmp/flex-clock-read-dev"
@@ -100004,5 +100004,43 @@
     "blocker": null,
     "next_action": "Implement strict migration transaction mint extraction and require notification-subject agreement before nested mint scope; do not reset budget ownership or replay protected historical record.",
     "updated_at_utc": "2026-11-08T23:49:44.300810+00:00"
+  },
+  "migration_signature_recovery_20261109": {
+    "status": "PASS",
+    "objective": "Permit one accounted transaction lookup for durably admitted signature-only migration and decode correct mint before existing creator/Walkback processing.",
+    "engineering_revision": "8eedf6757c2a923b69655fae251fbd4852996d90",
+    "engineering_branch": "codex/migration-signature-recovery",
+    "engineering_worktree": "/private/tmp/flex-migration-signature-recovery",
+    "baseline_snapshot_revision": "19919272",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Production/flex-listener",
+    "runtime_git_head": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "pre_source_sha256": {
+      "pumpfun_curve_listener.py": "7a8a4705b505c7b2c215a5c9f1f308e708d669e759918aa9dc1b8b8b7aa9af6b",
+      "helius_denial_gate.py": "1b7f5600596e976b488d390c96b55bd47adbbd2ba003fce004159209cd1bf6e5",
+      "helius_http_protection.py": "d060bef64f7e8350ab187cab1abf61fbc07b1dc5f06e3d96ce76e8b7af5be20d",
+      "migration_notification.py": "e0226ed8653520e268baca6c994e2305dd58415ab5cdf660b54502102e55b6de"
+    },
+    "post_source_sha256": {
+      "pumpfun_curve_listener.py": "e94ebb66f2dfb6b5ffe47a71f196df6ee5ebda6aa4d57ceb190339610faac8ea",
+      "helius_denial_gate.py": "20671576d545519da5bfc25e62a88f970afd85dc042c51029988c64ce9a3aa07",
+      "helius_http_protection.py": "2bf6b799c7faf6740abc3514e1207ce37e07695c1bfbff02c3bd516e409df5a4",
+      "migration_notification.py": "6d9d67a14d0db103541f7d43fd87c3e31acf091ac38c46afe9d1a402a097da42"
+    },
+    "deployment": {
+      "pre_pid": 39274,
+      "post_pid": 45842,
+      "restart_required": true,
+      "restart_completed": true,
+      "running_identity": "PID45842 RUNNING; emitted MIGRATION_DECODER version=pump-migration-event-v1 signature_recovery=v1; PumpSwap subscription16162910 confirmed and PumpPortal newToken+migration subscribed after transient connect timeout. Four installed source files byte-identical to qualified revision; no runtime git reset."
+    },
+    "implementation": "Trusted durable PUMPSWAP_MIGRATION_ACCOUNT/PUMPPORTAL_MIGRATION PENDING signature-only admission validates64-byte signature and opens separate tagged immutable lookup root. Enforced listener/getTransaction/exactsignature only;1 lifetime charged request across restart/endpoints,0pagination,0automatic request retries;primary Helius endpoint only. Existing denial/rate/inflight/cost/capacity gates retained. Strict Pump migrate/migrate_v2 discriminator+account2 decoding supports parsed/raw keys,loaded addresses,CPI;requires success/signature and notification-mint agreement. No balance/address guessing in migration path. After journal mint resolution, normal processing resumes under existing mint owner without root rebind,credit reset or merging lookup charge. CREATE handler/general extractor unchanged.",
+    "verification": "43 focused tests PASS offline and again using installed gate/http/decoder modules. Covers8instruction format/version/CPI combinations,lookup table accounts,wrongfirstbalance,failed/signature/conflicting/notificationmismatch refusals,durable eligibility,exactsig/method enforcement,one request across restart+concurrency,provider denial,existing ownership refusal,unchanged mint spending,async context propagation,handler handing correctmint into existing processing owner and completion result. Gate fixtures compact/schema-only,network forbidden. Official previously fetched Pump IDL confirms both8byte discriminators and account2 mint/base_mint.",
+    "production_flags": "Existing provider credentials,policies,flags,other services unchanged;only listener restarted. No manual acquisition/backfill or production queue/DB/owner edits. Ordinary listener provider activity remains under existing gates plus explicit bootstrap limit.",
+    "storage": "No raw retention or new storage paths. New lookup owner/counters use existing bounded gate:single final/stage<=16777216bytes each,transient pair<=33554432bytes plus fixed lock/diagnostic overhead;publication fails closed at cap. Existing journal<=2000000bytes,record4096bytes,512records and restart-safe custody unchanged. Sequential deployment stage<1000000bytes each and atomically removed. New unbounded growth paths0. No full production DB clone.",
+    "limits": "Installed-source functional acceptance uses bounded fixtures and live loaded process/subscriptions;no new live signature-only migration or full creator/Walkback completion claimed. Existing historical protected27/29records not reset or replayed;prior protection remains authoritative. Separate event-loop stalls not changed.",
+    "blocker": null,
+    "next_action": "NONE \u2014 approved signature-to-mint implementation COMPLETE",
+    "updated_at_utc": "2026-11-09T00:11:29.176444+00:00"
   }
 }

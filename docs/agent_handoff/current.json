@@ -100311,5 +100311,21 @@
     "storage": "status_state.json < 4 KB; no growth paths.",
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-09T19:23:11.906701+00:00"
+  },
+  "creator_funding_opportunity_pilot_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_READ_ONLY_PILOT_COMPLETE",
+    "objective": "Retaineddataonlypilotwithfiveevidence-backedcreatorfundingresearchleads.",
+    "audit": "docs/audits/creator_funding_opportunity_pilot_20261109.v1.json",
+    "verification": "JSONvalidated;5leads;88selectedtransaction-derivededgesmatch88distinctfundingsignatures;all15sampleCorecreatoridentitiesagree;allevidencesamplesmatchselectedparent/signature;exchangeunknownandupstreamrolespreserved.",
+    "population": "Latest5000completedWalkbackrows;3592withfunder/signature;boundedretrospectivecohort2026Aug22\u2013Nov9queueenqueues;notpopulation-wideinference.",
+    "finding": "Fiveleads:5aK4YK4creators4x1.06SOL;9rtqtQg27creators27x5SOL;FHpcNSe35creators43WSOLclosepaths;8Sx2uK3creatorsvia3intermediates;3g8CG4historical11creators11x1.06SOLcomparison. AllLINEAGE_GAP/nooperatorassignments;noneontheexactfunderwatchlistchecked. Transactionlinksretained,butownership/profitability/leadtimeunproven;serviceclassificationunknown,notcleared.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-onlyanalyticalpilot;noexecutableimplementation.",
+    "production_state": "Provider0;DB/queue/runtime/trading/config/sourcechanges0. Noautomaticscheduleorwatchlistactivation.",
+    "storage": "Intermediatecandidates<8000000bytes;finalreport<65536bytes;scripts<32768byteseach;rawproviderretentionOFF;newunboundedgrowthpaths0;noDBclone.",
+    "blocker": null,
+    "next_action": "NONE \u2014 requestedpilotCOMPLETE. Optionalfollowup:classifylead1/2sourcesandqualifyhistoricalas-ofutilitybeforeautomation.",
+    "updated_at_utc": "2026-11-09T19:25:59.749429+00:00"
   }
 }

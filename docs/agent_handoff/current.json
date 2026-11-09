@@ -100042,5 +100042,17 @@
     "blocker": null,
     "next_action": "NONE \u2014 approved signature-to-mint implementation COMPLETE",
     "updated_at_utc": "2026-11-09T00:11:29.176444+00:00"
+  },
+  "system_status_20261109_0107": {
+    "engineering_revision": "8eedf6757c2a923b69655fae251fbd4852996d90",
+    "status": "RUNNING_DEGRADED",
+    "observed_at_utc": "2026-11-09T01:07:05Z",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only system status.",
+    "services": "Listener45842 RUNNING uptime58m;creator_resolution28352 andWalkback28353 RUNNING uptime2h31m. Provider gateOPEN,inflight1.",
+    "delivery": "15retained MIGRATION_MINT_RESOLVED log records. Last3records represent2unique mints:3igUgQKe53ReAuuyHcyG7MbDe7EdS7SveDdYxVWppump andAxWd7zsqNmgcPyt8evEzycPAAgfAPNdZh8nToP1bpump. Exact signature canonical matches and handoffCOMPLETE for both;Walkback running/pending respectively,last_errorHELIUS_GATE_BUSY. Not completed Walkback claims.",
+    "degradation": "Recent event-loop warnings2.0\u20139.4s;PumpPortal keepalive timeout thenreconnected/subscribed. Active journal491/512records:482PENDING,5RESOLVED,3ACKED,1QUARANTINED. Refusals438ORIGIN_UNKNOWN,11ADMISSION_TIMEOUT,2LOOKUP_EXHAUSTED,3GATE_BUSY,4OWNERSHIP_RECOVERY_HOLD,29DISPATCH_RESERVED,1CANONICAL_SIGNATURE_CONFLICT,3none. Journal fullness alone not proof of intake failure;existing bounded custody unchanged.",
+    "verification": "Supervisor read;bounded current listener log<=2MB and journal<=2MB;indexed exactmint Core/handoff/OPS read-only lookups. No source/config/provider/queue/service mutations. Storage rule not applicable to read-only status.",
+    "next_action": "Report degraded status. Existing parser milestone remains closed;event-loop/gate contention and held backlog require separately scoped correction."
   }
 }

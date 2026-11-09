@@ -100710,5 +100710,19 @@
     "limitations": "Observed windows not lifetime peaks; reportedMC not verified initial-supplyFDV. Only4\u201310one-second candles and1\u20135minute candles per token. No interpolation or fills. Outcome status not refreshed. Creator roles preserved separately.",
     "next_action": "NONE \u2014 COMPLETE for this bounded six-token price pass.",
     "updated_at_utc": "2026-11-09T23:38:36.557166+00:00"
+  },
+  "group1_nonmigrated_price_table_layout_fix_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS",
+    "objective": "Fix overlapping values and labels in six-column non-migrated price table.",
+    "implementation": "Scoped six-column widths override inherited seven-column styles; labels block-level, wrapping enabled and typography separated. Recorded data unchanged.",
+    "verification": "Exact affected section and production CSS rendered in isolated headless Chrome1200x1500 and screenshot visually reviewed: all six rows readable, no overlap. Under500000byte HTML; source/Downloads SHA match; six retained opening/peak values checked.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Static HTML/CSS artifact only.",
+    "production_state": "No runtime/config/database/queue/trading changes; provider requests0.",
+    "storage": "HTML<500000bytes each x2 copies; no raw retention, no unbounded growth paths. Temporary visual fixture/screenshot only.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-09T23:50:50.254647+00:00"
   }
 }

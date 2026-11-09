@@ -100294,5 +100294,22 @@
     "storage": "Reduces storage; no growth paths added.",
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-09T19:07:24.316205+00:00"
+  },
+  "dashboard_system_status_20261109": {
+    "engineering_revision": "2c578256 on dashboard/system-status (installed into .runtime/recovery-dashboard)",
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "change": "Recovery dashboard System status banner + tab title (Healthy/Warning/Critical) from 8 read-only checks: processes, births arriving, creator resolver, walkback, database locks, storage (incl. walkback OPS WAL/growth margins and capacity alerts), receipt cleanup, RPC accounting. Legacy always-Unknown health strip hidden (toggle) and duplicated diagnostics block hidden. collect.py/refresh.py wired; new modules recovery_dashboard_system_status.py and recovery_dashboard_status_ui.py; SOURCES.json hashes updated.",
+    "tests": "14 pytest pass (checks, thresholds, first-observation baseline, idempotent page upgrade on the real page, node --check on all 3 scripts).",
+    "deployment": {
+      "target": ".runtime/recovery-dashboard + ~/Downloads/watchtower_recovery_dashboard.html",
+      "backup": "session scratchpad dashboard-backup (collect.py, refresh.py, SOURCES.json, page)",
+      "acceptance": "Manual refresh PASS; published status OK, all 8 checks OK; page 153 KB < 256 KB; collector ~0.4 s CPU within 2 s limit."
+    },
+    "findings": "Walkback heartbeat UNHEALTHY flag flaps (one-minute completed_per_minute); ignored. Walkback raised OPS_WAL_MARGIN_LOW / PROTECTED_HOT_BYTES_HIGH / HOT_RECLAIM_BATCH_INSUFFICIENT capacity alerts 29-44 h ago; none critical recently. OPS growth margin ~158 MB is a real ceiling to watch.",
+    "runtime_deployment_required": true,
+    "storage": "status_state.json < 4 KB; no growth paths.",
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-09T19:23:11.906701+00:00"
   }
 }

@@ -100252,5 +100252,19 @@
     "storage": "Not applicable (in-place UPDATE, no growth).",
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-09T17:44:00.121901+00:00"
+  },
+  "birth_receipt_retention_20261109": {
+    "engineering_revision": "0bbea226 (d4b70827 script+tests) on fix/birth-receipt-retention",
+    "status": "PARTIAL_CLEANED_SCHEDULE_PENDING_USER_INSTALL",
+    "problem": "Compact birth receipt store (256 buckets x 1,536) had no eviction; fullest bucket 1,326/1,536, projected full ~2026-11-13, after which births lose receipts and the birth->walkback handoff (accepted_birth) falls back to ~10cr resolver per token.",
+    "policy": "Delete PUMPPORTAL_BIRTH of migrated mints 24h after migration; unmigrated after 72h; MIGRATION_HANDOFF markers after 24h. Never files modified <24h, .tmp, symlinks, unknown records. Core read failure aborts before deletes. <=25k deletes/pass; single-instance lock; own log rotates 1MB.",
+    "executed": "User-authorized one-off run 2026-11-09T18:19Z: deleted 298,645 (8,418 migrated births, 279,411 unmigrated births, 10,816 markers), 0 errors, 160 s. Store now 28,742 files, max bucket 143/1536. +1.1 GB free. Listener: 0 receipt failures, all processes unchanged.",
+    "tests": "5/5 pytest (rules, dry-run, bound, fail-closed, lock). Production dry run matched.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No change to running processes; standalone maintenance script. Guarded supervisord.conf deliberately not edited (manifest pins config_sha256).",
+    "pending": "Recurring schedule NOT installed (LaunchAgent install blocked as persistence; requires user). Script installed at .runtime/receipt-retention/prune_compact_birth_receipts.py; plist at scripts/launchd/com.flex.birth-receipt-retention.plist on the branch. Without it buckets refill ~2026-12-06.",
+    "storage": "Deletes only; max log 2x1MB; stderr truncated >1MB; unbounded growth paths 0.",
+    "next_action": "User: cp plist to ~/Library/LaunchAgents and launchctl bootstrap gui/$UID it; then confirm .runtime/receipt-retention/retention.log shows passes.",
+    "updated_at_utc": "2026-11-09T18:20:44.210255+00:00"
   }
 }

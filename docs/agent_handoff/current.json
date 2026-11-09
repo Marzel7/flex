@@ -100724,5 +100724,15 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-09T23:50:50.254647+00:00"
+  },
+  "pumpswap_mintless_migration_gap_20261109": {
+    "engineering_revision": "No code change (read-only investigation; 10 getTransaction calls on HELIUS_TEMP_API_KEY).",
+    "status": "HOLD",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "finding": "293 PENDING PUMPSWAP_MIGRATION_ACCOUNT rows with no mint in .runtime/dev004-v2/journals/migration.jsonl (Nov7 ~123, Nov8 ~243 reboot day, Nov9 ~69 vs 724 captured ~9%; <=1%/day before Nov7). 10/10 sampled are real pump.fun migrations via 39azUYFW (mostly MigrateV2, tx v0); 9/10 mints never recorded as migrated. None are in PumpPortal migration census. Gate allows one lifetime getTransaction per mintless migration signature (helius_denial_gate._reserve2_locked MIGRATION_LOOKUP_ONLY_V1): 232 HELIUS_ORIGIN_UNKNOWN, 49 HELIUS_MIGRATION_LOOKUP_EXHAUSTED; listener retries ~10/min refused pre-wire (0 credits).",
+    "also": "walkback PAID_RESULT_MISSING failures 55 on Nov 9 (13 from serial creator GqF3nhzS); exact refused request not identifiable without walkback logging the wire hash.",
+    "production_flags": "unchanged",
+    "blocker": "Fix requires listener/gate code change; helius_* modules are pinned in guarded startup.",
+    "next_action": "User decision: (1) qualify a listener/gate change so mintless PumpSwap migration lookups are admitted and retried until resolved; (2) bounded backfill of the 293 stuck signatures (mint from on-chain tx)."
   }
 }

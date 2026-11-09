@@ -100529,5 +100529,38 @@
     "storage": "FixedHTML<=500000byteseachof2copies;rawretentionOFF;unboundedgrowthpaths0.",
     "next_action": "NONE \u2014 COMPLETE;refreshreport.",
     "updated_at_utc": "2026-11-09T22:50:00.449109+00:00"
+  },
+  "group1_other_three_candle_reconstruction_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "installed_validation_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_THREE_RECONSTRUCTIONS_COMPLETE_SUI_EXACT_OPENING_UNAVAILABLE",
+    "objective": "Applybolreconstructiontootherthree1.06SOLgroup tokens.",
+    "audit": "docs/audits/group1_three_token_candle_reconstruction_20261109.v1.json",
+    "dashboard": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "accounting": {
+      "Helius_requests": 6,
+      "Birdeye_requests": 8,
+      "Birdeye_cap": 9,
+      "HTTP200_all": true,
+      "retries": 0,
+      "pagination": 0,
+      "bol_reacquisition": 0,
+      "other_groups": 0
+    },
+    "findings": "ImpeachopeningFDV7295.95peak124144.92birth17.02xmigration3.63x;redcap20201.25to7659.81(-62.08percent),282secafterpeak. SuiT+1absent,T+2reference3316.48peak40192.24birth12.12xdelayed,migration1.09x;redcap16961to5485.52(-67.66percent),323sec. Dogopening7010.53peak45158.27birth6.44xmigration1.27x;redcap15895.45to2814.64(-82.29percent),339sec. Initialminted1bandrevokedmintauthorityverifiedforall3;providerMCbasiskeptseparate.",
+    "verification": "6canonicaltxstrictsignature/mint/successchecks;8paired1sprice/mcapresponsesallHTTP200;alltimestamp/scaling/parityandold1mpeakmatchchecksPASS. Dogtwo-requestnonoverlapping601\u2013720secextensionjustifiedbyretained1mredoutsidefirst600sec. SuiT+2visiblyasterisked;nomissingT+1fabricated. HTML88rowsgroups4/27/43/3/11,88uniquemarketlinktargets,uniqueIDs,0scripts;Downloadscopyhashmatches449289bytes.",
+    "group_pattern": {
+      "four_token_large_red_delay_min_seconds": 282,
+      "four_token_large_red_delay_max_seconds": 339,
+      "median_seconds": 325.5,
+      "interpretation": "Fourretainedtokenpathsfromsamesourceshowtheir largestmeasuredpostpeakred1scandlesbetween4m42sand5m39safterpeak. Smallretrospectivegroup;notproofcommoncontrolorpredictivesuccess."
+    },
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Analyticalacquisitionandlocalreportonly.",
+    "production_state": "NoCore/ops/queue/runtime/trading/configchanges. ExistingHeliusaccountingonly;noBolreacquisitionorothergroupcalls.",
+    "storage": "Events<=16384each;marketfacts<=250000eachplusfixedstage<=250000;summary<=65536;HTML<=500000eachoftwofixedcopies;responsememory<=1048576each;rawretentionOFF;compactfactsretained;unboundedgrowthpaths0;noDBclone.",
+    "blocker": "Sui exactT+1birthopeningnotretained;delayedT+2referencequalifiedasdelayedonly. Noexecutionfillorhistoricalcirculatingsupplyproof.",
+    "next_action": "Requestedthree-tokenpasscomplete;reviewlocalreport. Noautomaticothergroupacquisition;preserveSuidelayed-referencequalification.",
+    "updated_at_utc": "2026-11-09T22:57:40.450749+00:00"
   }
 }

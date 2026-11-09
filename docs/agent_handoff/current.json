@@ -100189,14 +100189,14 @@
     "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
     "status": "PASS_ROOT_CAUSE_CONFIRMED",
     "finding": "Missing compact birth receipts (~50.6% of 11,435 migrations since 2026-10-19) are CREATEs in Solana transaction version 1, which the PumpPortal create feed did not deliver to this listener. Full pass: 0 of 5,651 receipt-present migrated mints have a v1 CREATE (5,387 v0, 264 legacy, 0 fetch errors). Day-stratified sample: 87/100 receipt-missing are v1; 9 of 13 v0 misses coincide with listener receive gaps. Live trace 2026-11-09: two v1 CREATEs inside the capture window received PumpPortal migrate frames but no create frame. Listener routing/write path ruled out (every create frame writes a receipt on every branch). Oct27-Nov1 0% miss is a selection artifact (no migration-inserted rows those days).",
-    "side_findings": "note_handoff fails with HANDOFF_IDENTITY (migration_tx not str), depressing the dashboard at-migration metric independently. Real receipt failure log token is COMPACT_RECEIPT_FAILURE on stderr. Bucket capacity warnings present (no eviction).",
+    "side_findings": "CORRECTED: HANDOFF_IDENTITY lines are benign. fast_path_register calls note_handoff with migration_tx=None (always fails); migration_tx_store later writes the marker. Since 2026-10-25 only 2/~6,500 migrations lack a marker (460 missing on Oct 22-24 incident). Does NOT depress dashboard at-migration metric; v1 gap alone explains it. Bucket capacity warnings present (no eviction).",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only investigation; no executable change.",
     "verification": "getTransaction with maxSupportedTransactionVersion=1 on PumpPortal-supplied birth signatures; ~6.2k credits total on HELIUS_TEMP_API_KEY; no production key used.",
     "production_state": "Unchanged.",
     "storage": "Scratch receipt index 67MB in session scratchpad only; not a runtime feature; unbounded growth paths 0.",
     "next_action": "Decide on a non-PumpPortal birth source for v1 CREATEs (see birth_webhook_existing_fallback_discovery_20261109) or accept ~10cr recover() per affected token. Investigate HANDOFF_IDENTITY separately.",
-    "updated_at_utc": "2026-11-09T15:41:16.387554+00:00"
+    "updated_at_utc": "2026-11-09T15:49:52.265982+00:00"
   },
   "crq_newest_first_ordering_20261109": {
     "engineering_revision": "40945747",
@@ -100218,5 +100218,16 @@
     "storage": "Not applicable (no file/DB growth).",
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-09T15:41:16.387554+00:00"
+  },
+  "birth_webhook_fallback_delivery_check_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "FAIL_FALLBACK_NOT_DELIVERING_IN_THIS_RUNTIME",
+    "finding": "webhook_birth_queue holds 168 rows, all source=pumpportal_retry; zero Helius-sourced rows ever. No process listens for webhook delivery (no API program in guarded supervisor; only macOS ControlCenter on :5000). Even if PUMPFUN_BIRTH_WEBHOOK_ID is registered at Helius, deliveries cannot reach this Core.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only DB/process inspection.",
+    "production_state": "Unchanged. Helius webhook registration not queried.",
+    "storage": "Not applicable.",
+    "next_action": "User decision: (a) PumpPortal authenticated (api-key) feed test for v1 creates, (b) independent birth capture (e.g. Helius WS on pump program), or (c) accept recover() ~10cr per affected token.",
+    "updated_at_utc": "2026-11-09T15:49:52.265982+00:00"
   }
 }

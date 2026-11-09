@@ -100097,5 +100097,21 @@
     "blocker": "Configured old boundary trace expired and capture file absent; original CREATE timing/reception unknown for missing group.",
     "next_action": "No runtime correction supported. Recover retained original CREATE boundary evidence if available; otherwise separately scope a bounded prospective boundary capture to establish where missing births disappear.",
     "updated_at_utc": "2026-11-09T13:29:51.599482+00:00"
+  },
+  "birth_receipt_prospective_trace_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_CAUSE_UNRESOLVED_BOUNDED_TRACE_COMPLETE",
+    "audit": "docs/audits/birth_receipt_prospective_trace_20261109.v1.json",
+    "objective": "Measure CREATE reception to creator persistence and receipt commitment alongside migrations lacking prior birthregistration.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Existing installed diagnostic enabled;no executable source change.",
+    "runtime": "Supervisor guarded-startup config;Core .runtime/dev004-v2/databases/core.sqlite;listener oneauthorizedrestart24401to39417,stillRUNNINGafter6min;source unchanged.",
+    "verification": "Trace EXPIRED,298accepted=298written,dropped0,pending0,LOCAL_WRITER_DRAINED,117330bytes.21receivedPumpCREATEs:21Corecreator/signaturematches,21COMMITTEDreceipts.2nonPumpCREATEs:2EXCLUDED_NON_PUMPreceipts.4migrations:1CREATEseen+receipt,1priorwindowbirthreceipt,2noCREATEseen/noexactreceipt. Indexedbirthreadback andbounded latest5000Core/100migration scan;noDBclone.",
+    "finding": "No internal loss of receivedPumpCREATE demonstrated in capture. Missingmigration births remain unknownage;traceabsence doesnotprove provideromission orlocaldrop.31percent/2287population figuresnot independently refreshed.",
+    "production_state": "Oneapprovedlistenerrestart toenableboundedexistingdiagnostic;no manualproviderrequests,budget/credentialchanges,DB/queue/source mutations. Prior3diagnostic settings restoredondisk andSupervisor reread;notupdated again so nosecondrestart. Runningprocess trace automaticallyexpired. Privateconfigpreimage removed.",
+    "storage": "Singletrace<=2097152actual117330bytes,report<=65536,temporarycohort<=32768,configpreimage<=131072removed;rawpayloadOFF,newunboundedgrowthpaths0.",
+    "blocker": "Original CREATE timing/reception unavailable for two missingmigration mints; shortcapture cannot assign cause.",
+    "next_action": "Establish authoritative original CREATE time/provenance for nESZvJxDQ3BiedvHxXTyn27HQ6BJdReEZvB9hALpump and cJbCUhSbKkCUhjBAv3R9ndkC5m9bxxYoAwRCxZXpump from existingdurableretention before proposingruntimefix. No additionalcapture/restart/acquisition performed.",
+    "updated_at_utc": "2026-11-09T13:42:06.854907+00:00"
   }
 }

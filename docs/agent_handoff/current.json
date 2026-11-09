@@ -100589,5 +100589,18 @@
     "blocker": "Completewalletrecipient/launchcoverageunavailableinretaineddata.",
     "next_action": "Ifrequested,scopeboundedfunderoutgoing-transfercensusandrecipientbirthcohortforsamedatewindowbeforeestimatingmigrationrate;noautomaticprovideracquisition.",
     "updated_at_utc": "2026-11-09T23:06:26.922931+00:00"
+  },
+  "ops_lineage_quarantine_retirement_20261109": {
+    "engineering_revision": "No engineering code change; one-off maintenance on live ops.sqlite. Dashboard follow-ups 8113a559 (storage % of limit) and f27197d0 (one line per metric) on dashboard/system-status, installed into .runtime/recovery-dashboard.",
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "reason": "Row deletion only; no running code changed. Dashboard changes are display-only and installed + refreshed (PASS).",
+    "change": "Deleted all 207,116 rows of wt_lineage_quarantine from .runtime/dev004-v2/databases/ops.sqlite (table and schema kept). Rows were the Aug 7 2026 69SN-contamination quarantine markers (X78.9-X78.13); every row referenced a wt_active_subprov_sessions id 15471-232281 that no longer exists (live ids >=275385), so the only runtime reader (operation_intelligence._quarantined_treasuries JOIN) matched nothing. User authorized deletion without archive.",
+    "method": "User-run script: 1,000-row DELETE batches, each BEGIN IMMEDIATE under flock on ops.sqlite.write.lock, yielding while write-lane waiters existed or WAL > 12 MB. 1,221 s, 5,555 yields.",
+    "verification": "count=0; PRAGMA quick_check ok; all 3 supervised processes RUNNING with unchanged PIDs; dashboard refresh OK: lock errors 0, longest DB wait 0.1 s, walkback completing.",
+    "storage": "ops.sqlite stays 296 MB on disk; ~130 MB (33,150 pages) now on the SQLite freelist and is reused before the file grows. Walkback's OPS file margin (499 MB guard on file size) therefore still reads ~165 MB but should stay flat for weeks. No VACUUM run (would need walkback stopped; pair binding risk).",
+    "production_flags": "unchanged",
+    "blocker": null,
+    "next_action": "NONE - COMPLETE"
   }
 }

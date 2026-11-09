@@ -100156,5 +100156,21 @@
     "blocker": "Exactprovider/subscription/transportcauseunproven;31percenthistoricalpopulationnotrecomputed.",
     "next_action": "TracePumpPortal subscription/filter andconnectionhandling at/before receive boundary forversion1strictCREATEcases;compareobservedreceivedPumpbirthfeatures before proposing fix. Noadditionalprovideracquisitionneededforcurrenttimingproof.",
     "updated_at_utc": "2026-11-09T14:26:54.568049+00:00"
+  },
+  "birth_receipt_pumpportal_feed_coverage_review_20261109": {
+    "status": "PARTIAL_DOCUMENTED_SUBSCRIPTION_MATCHES_FEED_OMISSION_UNEXPLAINED",
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "objective": "InvestigatePumpPortal documentedcoverage andlistener subscription/parser for twoprovenmissingbirths.",
+    "conclusion": "Noapplicationparser/routingfilteror documentedlaunchtypeexclusionexplainsmissingbirths. Twovalidatedonchainbirthsduringcapturehaveonlymigrationframes. Failureat/beforews.recv remainsdemonstratedbutprovideromission/authentication/transportcauseunproven.",
+    "auth_difference": "Currentexamplesincludeapikey;installedURLdoesnot. Noassertionthatkeylessfeedisfiltered;noapikeyswitch,credentialcreationorwalletfundingperformed.",
+    "version_distinction": "SolanaRPCmaxSupportedTransactionVersion1requirementisnotPumpcreate_v2anddoesnotprovefeedexclusion.",
+    "next_action": "UseexacttwoCREATEsignatures/mints/blocktimesandtracewindowinaprovidercoveragequery;askwhethereachCREATEwaspublishedtothekeylesssubscribeNewTokenstreamandwhetherauthenticatedcoverage differs. Draftonly;donotsendwithoutauthorization. Ifprovidercannotaccountforevents,designindependentboundedbirthcapturefallbackratherthanclaimcurrentfeedcomplete.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-onlyinstalledsource/retainedtrace/publicdocumentationreview.",
+    "production_state": "NoproviderRPC,restart,configuration,DB,queue,sourceorcredentialchanges;noexternalmessagesent.",
+    "storage": "Derivedreport<=8192bytes;rawpayloadretentionOFF;unboundedgrowthpaths0;noDBclone.",
+    "updated_at_utc": "2026-11-09T14:28:55.207582+00:00",
+    "audit": "docs/audits/birth_receipt_pumpportal_feed_coverage_review_20261109.v1.json",
+    "verification": "Installedunfilteredsubscriptionmatchesdocumentedmethod;33parsedframes:21PumpCREATE,3BonkCREATE,4migrate,5control;0parserejects;23uniqueCREATEs=21Pump+2Bonk;1CONNECTED,noreconnect/timeouts. Publicofficialdocsreviewed,noexplicitversionexclusionlocated."
   }
 }

@@ -100327,5 +100327,21 @@
     "blocker": null,
     "next_action": "NONE \u2014 requestedpilotCOMPLETE. Optionalfollowup:classifylead1/2sourcesandqualifyhistoricalas-ofutilitybeforeautomation.",
     "updated_at_utc": "2026-11-09T19:25:59.749429+00:00"
+  },
+  "creator_funding_pilot_readable_html_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_HTML_DELIVERED_VISUAL_PREVIEW_UNAVAILABLE",
+    "objective": "PresentexistingfiveleadpilotinaselfcontainedreadableHTMLfilematchinglocalrecoverydashboard.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "workspace_copy": "docs/audits/creator_funding_opportunities.html",
+    "implementation": "Darkdashboardstyle,shortlist,fiveEnglishleadcards,expandable15transactionsamples,fullwallet/explorerlinks,scopeandtiminglimits,datedsnapshot. Noautorefreshorremotedatacalls.",
+    "verification": "HTMLparserchecksPASS:uniqueIDs,allanchorstargetexistingIDs,6disclosures,0scripts;Downloadscopyhashidentical39128bytes. NativeChromepreviewconnectiontimedout;visualrendernotverified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Staticlocalreportartifact;noexecutableruntimebehaviorchange.",
+    "production_state": "Noprovider/queue/DB/runtime/tradingchanges;nohostedpublication.",
+    "storage": "HTML<=250000bytesactual39128eachoftwofixedcopies;temporarygenerator<32768bytes;rawretentionOFF;unboundedgrowthpaths0;noDBclone.",
+    "blocker": null,
+    "next_action": "NONE \u2014 requestedlocalHTMLdelivered;usercanopenDownloadsfile.",
+    "updated_at_utc": "2026-11-09T21:33:09.706290+00:00"
   }
 }

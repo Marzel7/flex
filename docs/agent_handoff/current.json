@@ -100082,5 +100082,20 @@
     "blocker": "Configured Core database path absent; bounded retained logs do not cover October births and no original birth time exists for missing sample.",
     "next_action": "Identify authoritative current read-only Core/receipt locations and retained birth-boundary evidence; then trace current missing/present cohort. No runtime correction supported.",
     "updated_at_utc": "2026-11-09T13:23:45.946381+00:00"
+  },
+  "birth_receipt_current_cohort_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_CURRENT_AUTHORITY_FOUND_COHORT_TRACED",
+    "audit": "docs/audits/birth_receipt_current_cohort_20261109.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only runtime authority and bounded cohort trace.",
+    "runtime_authority": "Supervisor8798 config .runtime/guarded-startup/supervisord.conf;listener24401 command and cwd installedProduction/flex-listener. Core .runtime/dev004-v2/databases/core.sqlite;ops same directory ops.sqlite;receiptroot logs/pumpportal_compact_birth_receipts;active logs .runtime/guarded-startup/watchtower_listener.stdout.log[.1]. Earlier legacy database absence was path mismatch, not unavailable active database.",
+    "verification": "Latest24migrations within latest500Core rowids:10matching COMMITTED receipts,14missing exactcanonicalidentity paths. Missing14/14resolver complete source migration_direct tierGENERIC with currentcreator matching;controls0resolver rows. Birthseed prefixes10/10controls,0/14missing;inlinebackfilldisabled14/14missing. Indexed24resolver+24birthqueue reads;48receipt pathchecks;~1.1MB active logs;0birthwriterfailure markers. Queryonly/deadline;compact29975byte report.",
+    "finding": "Missing group creator fields reflect later RPC resolution; field completeness cannot measure birthcapture. No original CREATE reception/time retained for missing group; no causal writer/routing/non-delivery defect established. Current2287/69percent population not independently refreshed.",
+    "production_state": "No provider calls,DB/queue/source/config/service mutations.",
+    "storage": "Report<32768bytes,tempcohort<32768bytes,combined<65536bytes;rawretentionOFF;newunboundedgrowthpaths0;noDBclone.",
+    "blocker": "Configured old boundary trace expired and capture file absent; original CREATE timing/reception unknown for missing group.",
+    "next_action": "No runtime correction supported. Recover retained original CREATE boundary evidence if available; otherwise separately scope a bounded prospective boundary capture to establish where missing births disappear.",
+    "updated_at_utc": "2026-11-09T13:29:51.599482+00:00"
   }
 }

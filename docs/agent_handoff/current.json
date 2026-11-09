@@ -100676,5 +100676,39 @@
     "scope_limit": "Ten identified tokens only; wallet-wide birth denominator remains incomplete. Status labels reuse prior migration/curve snapshot; no new status acquisition.",
     "next_action": "NONE \u2014 COMPLETE for ten-token funding-path comparison; account-wide census remains a separate unfinished task.",
     "updated_at_utc": "2026-11-09T23:29:28.282796+00:00"
+  },
+  "group1_nonmigrated_birdeye_price_action_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_BOUNDED_SIX_TOKEN_ACQUISITION",
+    "objective": "Retrieve Birdeye token price action for six identified non-migrated births and add readable dashboard metrics.",
+    "audit": "docs/audits/group1_nonmigrated_birdeye_price_action_20261109.v1.json",
+    "summary": {
+      "tokens": 6,
+      "birdeye_requests": 18,
+      "all_http_200": true,
+      "exact_first_full_post_birth_second_openings": 6,
+      "observed_peak_reported_cap_min": 7032.199740372514,
+      "observed_peak_reported_cap_max": 7057.939905128416,
+      "immediate_red_1s_tokens": 5,
+      "delayed_red_1m_tokens": 1
+    },
+    "finding": "All six peaks about7032\u20137058USD reported market cap. Five immediate40.47\u201361.71percent red1s candles; sixth39.99percent red1m candle about1h53m33s\u20131h54m33s after early peak. Opening-reference multiples1.002\u20131.034. One peak precedes first-full-second opening reference.",
+    "verification": "18unique Birdeye HTTP200 requests, authoritative BIRDEYE only, concurrency1, no retries/pages; paired1s price/mcap first600s plus1m mcap first7200s. One gated Helius birth-anchor lookup. Six exact blockT+1 openings; metrics independently checked, sparse candles explicit. HTML structure/links and Downloads SHA match, no visual QA.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only provider acquisition and static report, no runtime changes.",
+    "production_state": "No runtime/config/database/queue/trading changes.",
+    "storage": {
+      "per_token_file_and_stage_max_bytes": 300000,
+      "token_files": 6,
+      "audit_max_bytes": 65536,
+      "html_each_max_bytes": 500000,
+      "response_ram_max_bytes": 1048576,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "blocker": null,
+    "limitations": "Observed windows not lifetime peaks; reportedMC not verified initial-supplyFDV. Only4\u201310one-second candles and1\u20135minute candles per token. No interpolation or fills. Outcome status not refreshed. Creator roles preserved separately.",
+    "next_action": "NONE \u2014 COMPLETE for this bounded six-token price pass.",
+    "updated_at_utc": "2026-11-09T23:38:36.557166+00:00"
   }
 }

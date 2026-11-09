@@ -100390,5 +100390,20 @@
     "storage": "FixedHTML<=250000bytesactual214908eachoftwocopies;temporaryscript<16384bytes;rawretentionOFF;unboundedgrowthpaths0.",
     "next_action": "NONE \u2014 COMPLETE;refreshlocalHTMLfile.",
     "updated_at_utc": "2026-11-09T21:55:52.328474+00:00"
+  },
+  "creator_funding_all_tokens_inline_valuations_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_ALL_TOKENS_VISIBLE_ESTIMATES_LABELLED",
+    "objective": "Fix4creatorsshowingonly3examples;showinlineentryreferenceandobservedpeakvaluationwithoutopeningexternalmarkets.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "implementation": "Always-visiblefulltokentablesineachfivefundingcards:4/27/43/3/11rows=88unique. Namesfromretainedmetadatacache,mint,entryreferenceestimatedFDV,observedpeakestimatedFDV,candleratio,GMGN/Birdeyebuttons. Existing3fundingevidenceexamplesremainlabelledexamples.",
+    "verification": "HTMLparserrowcounts4/27/43/3/11and88uniquemintsPASS;281135bytes;Downloadscopyhashmatchesworkspace. Noproviderrequests.",
+    "limits": "Dollarvaluesprice*1billionconditionalFDV;notverifiedmarketcaporexecutableentry. SupplyandCREATEtimingunverified;missingdatavisiblyUnavailable. Candleopeningmayincludepremigrationmovement.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Staticlocalreportonly.",
+    "production_state": "NoDB/queue/runtime/config/tradingchanges;readonlyindexedmetadataqueries.",
+    "storage": "FixedHTML<=400000bytesactual281135eachoftwocopies;generator<16384bytes;rawproviderretentionOFF;unboundedgrowthpaths0.",
+    "next_action": "NONE \u2014 requestedpresentationCOMPLETE;actualentryMCqualificationremainsseparatelyunresolvedandclearlylabelled.",
+    "updated_at_utc": "2026-11-09T22:02:23.023760+00:00"
   }
 }

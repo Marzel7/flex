@@ -100229,5 +100229,17 @@
     "storage": "Not applicable.",
     "next_action": "User decision: (a) PumpPortal authenticated (api-key) feed test for v1 creates, (b) independent birth capture (e.g. Helius WS on pump program), or (c) accept recover() ~10cr per affected token.",
     "updated_at_utc": "2026-11-09T15:49:52.265982+00:00"
+  },
+  "pumpportal_keyed_feed_v1_coverage_test_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PASS_NEGATIVE_KEY_DOES_NOT_ADD_CREATES",
+    "finding": "Two separate 10-minute subscribeNewToken captures on wss://pumpportal.fun/api/data?api-key=PUMPPORTAL_API_KEY. Unfunded (provider message: Minimum balance not met for PumpSwap websocket data): 148 creates, 148 also received by keyless production listener, 0 extra. Funded wallet: 118 creates, 118 also received, 0 extra. API key/payment does not change create coverage; v1 CREATE omission is provider-side.",
+    "cost": "subscribeNewToken is free per provider docs; no metered subscriptions opened; 0 RPC credits.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Separate diagnostic connection; production listener untouched.",
+    "production_state": "Unchanged.",
+    "storage": "Compact capture lines (<300 rows) in session scratchpad; raw payload OFF; unbounded growth paths 0.",
+    "next_action": "Accept recover() (~10cr per migrating v1 token) as the coverage path; Helius birth webhook remains deliberately disabled (cost). Optional: report v1 omission to PumpPortal (draft only, user to send).",
+    "updated_at_utc": "2026-11-09T16:22:17.879321+00:00"
   }
 }

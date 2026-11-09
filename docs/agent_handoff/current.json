@@ -100405,5 +100405,19 @@
     "storage": "FixedHTML<=400000bytesactual281135eachoftwocopies;generator<16384bytes;rawproviderretentionOFF;unboundedgrowthpaths0.",
     "next_action": "NONE \u2014 requestedpresentationCOMPLETE;actualentryMCqualificationremainsseparatelyunresolvedandclearlylabelled.",
     "updated_at_utc": "2026-11-09T22:02:23.023760+00:00"
+  },
+  "creator_funding_birdeye_link_fix_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_OBSOLETE_ROUTE_REPLACED",
+    "objective": "CorrectbrokenBirdeyelinksinthelocalfundingreport.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "implementation": "Replacedobsoletehttps://birdeye.so/token/MINT?chain=solanawithhttps://birdeyeterminal.com/solana/token/MINT;191placements/88uniquemints. Temporarygeneratorsupdatedtoavoidreintroducingoldroute.",
+    "verification": "OldSOLURL404;birdeye.so/solana/token/SOLredirectstobirdeyeterminal.com/solana/token/SOLandloadsSOLtokenpage. TwoactualreporttokenURLsnotaccessiblethroughwebtool,soindividualtokenlistingavailabilitynotverified. HTMLroutecountsPASS,0oldroutes,Downloadscopyhashidentical.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "StaticlocalHTMLlinkcorrectiononly.",
+    "production_state": "NopaidAPIcalls,DB/queue/runtime/config/tradingchanges.",
+    "storage": "FixedHTML<=400000bytes;2copies;rawretentionOFF;unboundedgrowthpaths0.",
+    "next_action": "NONE \u2014 routecorrectioncomplete;refreshlocalreport.",
+    "updated_at_utc": "2026-11-09T22:05:05.995608+00:00"
   }
 }

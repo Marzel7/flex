@@ -100515,5 +100515,19 @@
     "storage": "FixedHTML<=500000bytesactual395032eachoftwocopies;temporarygenerator<32768bytes;rawretentionOFF;unboundedgrowthpaths0.",
     "next_action": "NONE \u2014 COMPLETE;refreshlocalreport.",
     "updated_at_utc": "2026-11-09T22:47:10.254312+00:00"
+  },
+  "funding_dashboard_migration_peak_column_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS",
+    "objective": "AddcompactMigrationtopeakXcolumnbesideBirthtopeak.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "implementation": "88rowmigration-topeakratiosrestoredtoprimarytable.Bol1.32xexactT+1migrationreference;othersretainexplicitexploratorylocaldetectionminutereference. Noanalyticaldatachange.",
+    "verification": "88rows7cells,5headers,bol1.32x,Downloadshashmatches406786bytes.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "StaticHTMLpresentationonly.",
+    "production_state": "No provider/DB/queue/runtime/tradingchanges.",
+    "storage": "FixedHTML<=500000byteseachof2copies;rawretentionOFF;unboundedgrowthpaths0.",
+    "next_action": "NONE \u2014 COMPLETE;refreshreport.",
+    "updated_at_utc": "2026-11-09T22:50:00.449109+00:00"
   }
 }

@@ -100113,5 +100113,19 @@
     "blocker": "Original CREATE timing/reception unavailable for two missingmigration mints; shortcapture cannot assign cause.",
     "next_action": "Establish authoritative original CREATE time/provenance for nESZvJxDQ3BiedvHxXTyn27HQ6BJdReEZvB9hALpump and cJbCUhSbKkCUhjBAv3R9ndkC5m9bxxYoAwRCxZXpump from existingdurableretention before proposingruntimefix. No additionalcapture/restart/acquisition performed.",
     "updated_at_utc": "2026-11-09T13:42:06.854907+00:00"
+  },
+  "birth_receipt_missing_two_create_time_20261109": {
+    "status": "PARTIAL_RETAINED_CREATE_TIME_UNAVAILABLE",
+    "objective": "Establish originalCREATE timing for two receiptlessmigrations from retained evidence.",
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "conclusion": "No authoritative originalCREATEtime recovered. Cannotclassify birthsasbefore/duringtrace;nosource/pipeline/providerlossattribution justified.",
+    "next_action": "If timestamp recovery is authorized, use exactlyonegetTransaction perknownCREATEsignature,2requests total,0pagination/automaticretries,existingcredentialandspendinggates;retainonlysignature,slot,blockTime,success,andvalidationresult. No acquisitionmade.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only retainedevidence andinstalledsourcetrace.",
+    "production_state": "No provider,DB,queue,config,sourceorservicechanges.",
+    "storage": "Derivedreport<8192bytes;rawpayloadretentionOFF;newunboundedgrowthpaths0;noDBclone.",
+    "updated_at_utc": "2026-11-09T13:47:38.555676+00:00",
+    "audit": "docs/audits/birth_receipt_missing_two_create_time_20261109.v1.json",
+    "verification": "2exactCore/resolver/deliverytargets;6exactRPCcachekeys+2indexedmintpageranges absent;deliveryslot/block_timeNULL;Corecreated_atpreservesmigrationtimestampbyCOALESCE;creator_resolved_slotmigrationfallbacknotCREATEauthority;boundedresolverlogtailsnooriginaltiming."
   }
 }

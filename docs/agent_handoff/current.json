@@ -100501,5 +100501,19 @@
     "storage": "FixedHTML<=500000bytesactual372135eachoftwocopies;facts<32768bytes;temporaryscript<16384bytes;rawretentionOFF;unboundedgrowthpaths0.",
     "next_action": "NONE \u2014 COMPLETE;refreshlocalreport.",
     "updated_at_utc": "2026-11-09T22:38:38.480062+00:00"
+  },
+  "funding_dashboard_table_presentation_cleanup_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_LOCAL_PRESENTATION_UPDATED",
+    "objective": "CleanupthefundingreporttableUIwithoutchangingdata.",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "implementation": "Reduced9busyprimarycolumnsto6:Token,OpeningFDV,PeakFDV,Birthtopeak,Redcandlecap,Afterpeak. Shortheadings,compactmintaddresses/tooltips,inlineGMGN/Birdeyelinks,1s/1mevidencebadges,dashesforunknowns,highlightedbolrow,tabularnumbers,compactredrangeanddropbadge. Migrationreference/multiple,fulladdresses,exactrednumbersandvaluationmethodsretainedinpergroupdisclosures. Mobilehorizontaloverflowwithstickytokenidentity.",
+    "verification": "HTMLparser88primaryrowswith6cellseach,uniqueIDs,zeroscripts;allbolsourcevaluesretained;395032bytes;Downloadscopyhashidentical. BrowservisualverificationunavailablefrompriorChrometooltimeout;notclaimed.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "StaticlocalHTML/CSSpresentationonly.",
+    "production_state": "Noprovider,DB,queue,runtime,configortradingchanges;analyticaldataunchanged.",
+    "storage": "FixedHTML<=500000bytesactual395032eachoftwocopies;temporarygenerator<32768bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "next_action": "NONE \u2014 COMPLETE;refreshlocalreport.",
+    "updated_at_utc": "2026-11-09T22:47:10.254312+00:00"
   }
 }

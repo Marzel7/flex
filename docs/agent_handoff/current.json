@@ -100141,5 +100141,20 @@
     "blocker": "NoauthoritativeCREATEtime;approvedtworequestbudgetspent.",
     "next_action": "STOP:twoapprovedrequestsattempted,noautomaticretry/fallback. Reviewproviderresponseclassificationbeforeauthorizinganyfurtheracquisition;cannotclassifybirthsbefore/duringtrace.",
     "updated_at_utc": "2026-11-09T14:18:16.759801+00:00"
+  },
+  "birth_receipt_coverage_classification_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_COVERAGE_GAP_DEMONSTRATED_CAUSE_NOT_YET_LOCALIZED",
+    "audit": "docs/audits/birth_receipt_coverage_classification_20261109.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "BoundeddiagnosticRPCandread-onlyclassification;nosourcechange.",
+    "verification": "Latest100migrationsamong2000rows:42exactreceiptmatches,58missing,55missingwithCREATEsignature.10evenlyspacedmissingselected+2tracecases;combined12requests1v0error-32015+11v1supportedtransactions:10strictCREATEPASS,1strictFAILnotaccepted. Classified2duringtrace,7before,1after,1unqualified. Bothtracecasesonchainbirth13:36:29and13:40:27UTCwithin13:35:40.854545\u201313:40:58;neitherCREATEintrace,onlymigrate. Nearby2and3receivedframes. Trace298/298written,dropped0,pending0;21receivedPumpCREATEsallcommitted.",
+    "finding": "Bothoriginaltrace-missingmints independentlystrictCREATEvalidatedsuccess/signature/mint/slot/blockTime. Births13:36:29and13:40:27UTCduringtrace13:35:40.854545to13:40:58UTC. NeitherhascapturedCREATE;tracewritten298/298,dropped0,pending0;concurrentframesobservednearbothtimes. ReceivedPumpCREATE21/21committed. Gap isbetweenonchainbirthsandobservedCREATEstream;notestablishedwhetherprovideromission,subscriptioncoverageorpretraceboundaryhandling.",
+    "boundary_check": "Installedlistener sendsunfilteredsubscribeNewToken+subscribeMigration. Trace.receive executesimmediatelyafterws.recv andbeforeJSONparse/routing. No applicationfilter foundbetweenreturnedwebsocketframeandtrace. TracehasoneCONNECTEDandnoreconnect/timeoutmarkers. Thisnarrowsgapto at/beforewebsocketreceive;doesnotindependentlyproveproviderdelivery.",
+    "production_state": "Norestarts,Core/ops/queue/source/configmutations;normalprovidergateaccountingonly.",
+    "storage": "Cohort<=65536bytes;responsememory<=1048576bytes;reports<=32768bytes;rawpayloadretentionOFF;unboundedgrowthpaths0;noDBclone.",
+    "blocker": "Exactprovider/subscription/transportcauseunproven;31percenthistoricalpopulationnotrecomputed.",
+    "next_action": "TracePumpPortal subscription/filter andconnectionhandling at/before receive boundary forversion1strictCREATEcases;compareobservedreceivedPumpbirthfeatures before proposing fix. Noadditionalprovideracquisitionneededforcurrenttimingproof.",
+    "updated_at_utc": "2026-11-09T14:26:54.568049+00:00"
   }
 }

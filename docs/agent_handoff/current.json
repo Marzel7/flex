@@ -100419,5 +100419,21 @@
     "storage": "FixedHTML<=400000bytes;2copies;rawretentionOFF;unboundedgrowthpaths0.",
     "next_action": "NONE \u2014 routecorrectioncomplete;refreshlocalreport.",
     "updated_at_utc": "2026-11-09T22:05:05.995608+00:00"
+  },
+  "creator_funding_bol_opening_correction_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_PRESENTATION_CORRECTED_OPENING_DISCREPANCY_UNRESOLVED",
+    "audit": "docs/audits/creator_funding_bol_opening_correction_20261109.v1.json",
+    "artifact": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "finding": "Usercorrectlyidentifiesbolopening~8konGMGN1schart.31529previousreferenceisBirdeye17:50migration-containingcandleopen,not17:48launch. EarliestretainedBirdeye1m17:48openimplies2498FDVat1b;crossproviderdiscrepancyunresolved. Noexactentryclaim.",
+    "implementation": "Addedopeningvs migrationreferencecorrectionpanel;all88rowsseparateOpeningcapchartobservation/MigrationreferenceconditionalFDV/ObservedpostdetectionpeakconditionalFDV. bol~8kuser-screenshotreference,31529migration,46375peak;other87openingsunverified.",
+    "verification": "88rowcorrectioncount,5openingcolumnheaders,87unverifiedmarkers;bolall3valueschecked;289718byteHTML;Downloadscopyhashidentical.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Staticreportlabelcorrectiononly.",
+    "production_state": "Noproviderrequests,DB/queue/runtime/tradingchanges.",
+    "storage": "FixedHTML<=400000bytes;compactcorrection<=8192bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "ActualtradeentryandGMGN/Birdeyeopeningdifferenceunresolved;notrequiredtopreservethecorrectlabeldistinction.",
+    "next_action": "NONE \u2014 presentationcorrectioncomplete;usercanrefresh. Do not treatmigrationreferenceaslaunchopening.",
+    "updated_at_utc": "2026-11-09T22:07:51.817936+00:00"
   }
 }

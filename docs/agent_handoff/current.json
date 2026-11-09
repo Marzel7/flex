@@ -100127,5 +100127,19 @@
     "updated_at_utc": "2026-11-09T13:47:38.555676+00:00",
     "audit": "docs/audits/birth_receipt_missing_two_create_time_20261109.v1.json",
     "verification": "2exactCore/resolver/deliverytargets;6exactRPCcachekeys+2indexedmintpageranges absent;deliveryslot/block_timeNULL;Corecreated_atpreservesmigrationtimestampbyCOALESCE;creator_resolved_slotmigrationfallbacknotCREATEauthority;boundedresolverlogtailsnooriginaltiming."
+  },
+  "birth_receipt_two_create_rpc_timing_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_TWO_REQUEST_BUDGET_EXHAUSTED_TIMES_UNAVAILABLE",
+    "audit": "docs/audits/birth_receipt_two_create_rpc_timing_20261109.v1.json",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Approvedboundedproviderlookuponly;noexecutablesourcechange.",
+    "verification": "Exactly2sequentialgetTransactionattempts,HTTP200each,neitherreturnstransactionobject usableforvalidation;0pagination,0retries,0fallback. Existingcreator_resolutionmintownershipandHeliusdenial/spendinggatesinstalled. InitialASTvalidatorloadfailedbeforeanyrequest;fixedbeforeapproved2attempts.",
+    "finding": "BothapprovedexactgetTransactionlookups returnedHTTP200butnotransactionobject;nooriginalCREATEtimevalidated. ResponseRPCerrorcode/nullreasonnotretained,soarchiveabsence/providerfailurecauseunknown.",
+    "production_state": "NoCore/ops/queue/source/config/servicechanges;existingprovideraccountingledgerchargednormally. Rawresponsesnotretained.",
+    "storage": "Compactreport<8192bytes;script<16384bytes;responsesmemoryonly<=1048576bytes each;rawretentionOFF;unboundedgrowthpaths0;noDBclone.",
+    "blocker": "NoauthoritativeCREATEtime;approvedtworequestbudgetspent.",
+    "next_action": "STOP:twoapprovedrequestsattempted,noautomaticretry/fallback. Reviewproviderresponseclassificationbeforeauthorizinganyfurtheracquisition;cannotclassifybirthsbefore/duringtrace.",
+    "updated_at_utc": "2026-11-09T14:18:16.759801+00:00"
   }
 }

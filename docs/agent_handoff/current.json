@@ -100268,13 +100268,31 @@
     "updated_at_utc": "2026-11-09T18:53:24.711005+00:00"
   },
   "system_infrastructure_doc_20261109": {
-    "engineering_revision": "b96c77b0 (8d7d275c doc + removal) on docs/system-infrastructure",
+    "engineering_revision": "latest on docs/system-infrastructure (adds reboot/boot-identity section and funding-queue retirement)",
     "status": "PASS_ON_BRANCH_NOT_MERGED",
     "change": "Added docs/SYSTEM_INFRASTRUCTURE.md (single system reference, verified against running code/config). Removed 304 unreferenced legacy prose docs (.md/.txt/.html/.pdf/.png); kept all JSON/schema evidence, code/handoff-referenced docs and agent_handoff. Filename and path searches across src/scripts/tests/config/Production checkouts/.runtime found no references to removed files.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Documentation-only.",
     "storage": "Not applicable.",
     "next_action": "User to merge docs/system-infrastructure into main. Worktree /private/tmp/flex-system-doc retained until merged.",
-    "updated_at_utc": "2026-11-09T18:53:24.711005+00:00"
+    "updated_at_utc": "2026-11-09T19:07:24.316205+00:00"
+  },
+  "crq_retire_creator_funding_queue_20261109": {
+    "engineering_revision": "7f6965ab on fix/crq-retire-funding-queue (parent 40945747)",
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "change": "creator_resolution_queue._enqueue_funding_handoff is a no-op (legacy queue; funding is done by walkback). New _prune_legacy_funding_tables deletes creator_funding_queue/created_at and creator_funding_lifecycle_events/occurred_at rows older than 7 days, <=2,000 per table, at most every 10 min, through the existing write lane, fail-open. walkback_worker.py (pinned by guarded manifest) untouched; its fallback read of the table is preserved. Listener not restarted (still inserts ~180/day, bounded by prune).",
+    "tests": "5 new pytest pass; existing creator_resolution suite 27 pass, 1 pre-existing failure identical on baseline.",
+    "deployment": {
+      "target": "/Users/kevinkeaveney/Production/flex-main-workers/src/core/creator_resolution_queue.py",
+      "pre_sha1": "fc6f2c72d87f876111d3b2374312c598f7753ca3",
+      "post_sha1": "337835f8f6faf9d11652c6b6d385e8663371e69a",
+      "restart": "creator_resolution_worker only (pid 63389 -> 4610)",
+      "acceptance": "cycle=5 processed=2 resolved=2 failed=0 funding_enqueued=0; 0 new resolver rows; first prune removed 4,000 (queue 11,172->9,172, events 6,115->4,115); walkback still completing with funders; no new stderr."
+    },
+    "guarded_manifest_check": "All 15 pinned sources match; creator_resolution_queue.py is not pinned.",
+    "storage": "Reduces storage; no growth paths added.",
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-09T19:07:24.316205+00:00"
   }
 }

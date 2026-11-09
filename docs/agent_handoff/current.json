@@ -100054,5 +100054,18 @@
     "degradation": "Recent event-loop warnings2.0\u20139.4s;PumpPortal keepalive timeout thenreconnected/subscribed. Active journal491/512records:482PENDING,5RESOLVED,3ACKED,1QUARANTINED. Refusals438ORIGIN_UNKNOWN,11ADMISSION_TIMEOUT,2LOOKUP_EXHAUSTED,3GATE_BUSY,4OWNERSHIP_RECOVERY_HOLD,29DISPATCH_RESERVED,1CANONICAL_SIGNATURE_CONFLICT,3none. Journal fullness alone not proof of intake failure;existing bounded custody unchanged.",
     "verification": "Supervisor read;bounded current listener log<=2MB and journal<=2MB;indexed exactmint Core/handoff/OPS read-only lookups. No source/config/provider/queue/service mutations. Storage rule not applicable to read-only status.",
     "next_action": "Report degraded status. Existing parser milestone remains closed;event-loop/gate contention and held backlog require separately scoped correction."
+  },
+  "birth_receipt_route_trace_20261109": {
+    "engineering_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PARTIAL_CAUSE_UNRESOLVED",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only installed source trace; no implementation.",
+    "finding": "Installed create handler attempts audit.record for both EXCLUDED_NON_PUMP and HELD_POOL_UNKNOWN before return; normal Pump route also records before persistence. record invokes _compact_record when compact_path is configured. Those branches do not bypass the receipt attempt. pf_ws_creator can also be populated by _ensure_pf_ws_creator through later CREATE-transaction RPC resolution, so aggregate field completeness alone does not establish birth-time WS capture.",
+    "verification": "Bounded source inspection only; no provider calls, receipt scan, database writes, configuration or service changes. Supplied backlog and coverage counts not independently refreshed.",
+    "production_state": "Unchanged by this trace.",
+    "storage": "No new storage-producing feature; handoff metadata only.",
+    "blocker": "Missing-token birth-time provenance is not established; source routing alone cannot identify historical cause.",
+    "next_action": "Trace a bounded missing-versus-present migrated-token cohort using retained provenance and boundary events; distinguish original WS receipt, later creator resolution, retention expiry and receipt lookup path before proposing a fix.",
+    "updated_at_utc": "2026-11-09T13:21:19.939673+00:00"
   }
 }

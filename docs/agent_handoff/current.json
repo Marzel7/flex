@@ -100460,5 +100460,32 @@
     "storage": "Review<=8192bytes;HTML<=400000bytesfixedcopies;rawretentionOFF;unboundedgrowthpaths0;noDBclone.",
     "next_action": "Reconstructbolwithcanonicaleventsand1sreferenceasparitypilotbeforerebuilding88entries;noadditionalacquisitionmadeinmethodreview.",
     "updated_at_utc": "2026-11-09T22:20:49.497517+00:00"
+  },
+  "bol_qualified_candle_reconstruction_20261109": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "installed_validation_revision": "bf1bdfc59b4acfed0338a493189d91d212bda50f",
+    "status": "PASS_BOL_CANDLE_PARITY_PILOT_COMPLETE_EXECUTION_FILL_UNQUALIFIED",
+    "audit": "docs/audits/bol_qualified_candle_reconstruction_20261109.v1.json",
+    "dashboard": "/Users/kevinkeaveney/Downloads/creator_funding_opportunities.html",
+    "verification": "2canonicalgetTransactionsuccesseswithsignature/mint/strictinstructionvalidation,CREATE17:48:14UTCmigration17:50:05UTC111secgap. Initialminted1b,6decimals,mintauthorityrevoked. Birdeyeprice/mcap1scandles277eachwithidenticaltimestampsandconstant918365481.771supplyratio;T0close=T1openatbothbirthandmigration. Peakmatchesretained1m. HTML88rows,uniqueIDs,0scripts,353362bytes,Downloadscopyhashmatches.",
+    "findings": "BirthT+1open17:48:15=$7283.55initialsupplyFDV/$6688.96Birdeyecap. MigrationT+1open17:50:06=$35182.84FDV/$32310.71cap. Peak17:50:07=$46375.36FDV/$42589.53cap. Largestfirst10m1sredcandle17:55:35drops82.501percentOtoC;firstobserved95percentpeakdrawdown17:55:41(+334sec). Birthreference-topeak6.367x;postmigrationreference-topeak1.318x,notexecutionreturns.",
+    "valuation_limits": "Birdeyemcapbasisinferred918.365mcomparedtoverifiedinitialminted1b;actualhistoricalcirculatingsupplynotindependentlyverified. KeepreportedcapandinitialFDVseparate.",
+    "accounting": {
+      "Helius": 2,
+      "Birdeye": 3,
+      "Birdeye_success": 2,
+      "Birdeye_trade_HTTP400": 1,
+      "retries": 0,
+      "pagination": 0,
+      "other_tokens": 0
+    },
+    "limits": "Sparse1snointerpolation,maxgap31s,first10minobservedpeak/rednotlifetimeATH. ThirdBirdeyebirthtraderequestHTTP400,no retry;firstexecutedtrade/fillnotqualified. Other87notupgraded.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Single-tokenreconstructionandstaticreportonly.",
+    "production_state": "NoCore/ops/queue/runtime/config/tradingchanges;existingHeliusbudgetaccountingonly. Noadditionaltokenacquisition.",
+    "storage": "Events<=16384bytes;marketfacts<=250000bytesplusfixedstage<=250000bytes;summary<=32768bytes;HTML<=500000byteseachoftwofixedcopies;responsesmemory<=1048576bytes;rawretentionOFF,compactfactsretained;unboundedgrowthpaths0;noDBclone.",
+    "blocker": null,
+    "next_action": "NONE \u2014 bolcandleparitypilotCOMPLETE. Usercanreviewopening/peak/redcandletimeline;do notautomaticallyexpandtoother87.",
+    "updated_at_utc": "2026-11-09T22:32:03.142579+00:00"
   }
 }

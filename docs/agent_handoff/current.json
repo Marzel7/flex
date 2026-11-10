@@ -101607,5 +101607,69 @@
     "blocker": null,
     "next_action": "NONE \u2014 approved recognition update COMPLETE;next scheduled cycle uses installed role-linked discovery and post-freeze reference matching.",
     "updated_at_utc": "2026-11-10T12:37:33.462528+00:00"
+  },
+  "creator_agent_named_operation_publication_20261110": {
+    "engineering_revision": "df32d3afeeb58cde56bde3f2c9b59f8cea9e09be",
+    "engineering_branch": "codex/creator-operation-reference-publication",
+    "source_worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source",
+    "status": "DEV_COMPLETE",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "objective": "Publish recognised existing references as assigned named research operations with token lists;automate same post-freeze publication.",
+    "audit": "docs/audits/creator_agent_named_operation_publication_20261110.v1.json",
+    "implementation": "Installed creator_operation_reference_ui.py plus runner/task integration. Post-freeze reference matches generate stable namedoperationIDs/navigation,latest5tokenpreview,complete100token/page lists and compactdatasets. Membershipfilter uses existing canonical rows only;unassignedcandidate tokens neveradmitted. Qualified cap rows preserved. Existing delayed USD artifacts reused asUSDobservations,notopening/cap values. Bounded researchcatalog32operations/5000members/1.5MB. Files staged and published only after canonicalreport concurrency check.",
+    "published_operations": {
+      "10": {
+        "name": "WATCHTOWER",
+        "tokens": 263,
+        "families": 5
+      },
+      "11": {
+        "name": "Byzantine",
+        "tokens": 92,
+        "families": 1
+      },
+      "12": {
+        "name": "WATCHTOWER_DEEP",
+        "tokens": 26,
+        "families": 2
+      }
+    },
+    "verification": "55focusedtestsPASS;4directUItestsrerunPASS afterfinalcoveragewording. Freshinstalledmoduleexecutedprepare+commit against actual researchtarget;source/installed3filehashesmatch. Nineexistingoperationarticles(includingconcurrent scheduledrunnew09)preserved. Named10Watchtower263,11Byzantine92,12WatchtowerDeep26:381uniqueexistingreference members,5HTMLtokenpages.14local linksverified;Downloadssymlinkcontentmatches;dashboard345285bytes. Mainnavigation/fulltokenpage actual Chrome rendersreviewed. Installedrunnerpublisherbinding/frozennewsectionevidencevalidationPASS.",
+    "deployment": {
+      "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+      "before_sha256": {
+        "creator_operation_reference_ui.py": null,
+        "runner.py": "d82b81b7c054b6198b3af2736edf732cad823e1cb6d8bac6d4390fa5bbd665f9",
+        "task.txt": "229a1e2b9827465f0e02cea610f0a7146dc532d339cfe38fa78568bba3f909c9"
+      },
+      "after_sha256": {
+        "creator_operation_reference_ui.py": "32be6a4e66d7574be77eb598c490aa12a9bd1351cbd981e84cc26ae42cb52018",
+        "runner.py": "ba3357d4043404e9ca6aae236256fc5d5144c4cf2178e23b9c6744ba19fbbf1b",
+        "task.txt": "7483790db2fc3703ed738827621c8f44383b80f4e497e00cdc69acd120e924b1"
+      },
+      "restart_required": false,
+      "running_code_identity": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_reference_ui.py executed in fresh Python process; installed runner imports this sibling.",
+      "installation_lock": "runner.lock held after active scheduled run finished; no active invocation modified"
+    },
+    "activation_state": "InstalledACTIVE_FOR_NEXT_INVOCATION;namedsectionsalreadyvisible. Waitedforactive scheduledrun6ba9...tofinish beforelocking/installing;didnotinvalidateitsqualifiedchanges. Fourhourinterval,model,pilotexpiry,providercredentials/budgetsunchanged. NoCore/OPS/queue/membership/tradingwrites.",
+    "provider_requests": {
+      "helius": 0,
+      "birdeye": 0
+    },
+    "provider_scope": "Zero requests for this assignment/publication milestone;separateconcurrent scheduledrunperformeditsownboundedacquisition. No counters/identities reset.",
+    "storage": {
+      "max_single_file_or_transient_bytes": 5000000,
+      "catalog_max_bytes": 1500000,
+      "catalog_max_operations": 32,
+      "catalog_max_members": 5000,
+      "detail_page_max_bytes": 200000,
+      "tokens_per_detail_page": 100,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "coverage_limits": "Operationscontain recoveredexistingreference members,notentireglobaloperationpopulation. All-birthcensusandqualifiedprice/caplinkage/backfillremainpending;blankcellsdo notproveabsentretaineddata. USDsamples arenotexecutableopenings. Manualinitialpublicationusesfrozenretained-baselineevidence,notfabricatednewmodelcycle.",
+    "blocker": null,
+    "next_action": "NONE \u2014 named research-operation assignment and automatic post-freeze publication COMPLETE. Price linkage/backfill and all-birth coverage are separately pending.",
+    "updated_at_utc": "2026-11-10T12:59:54.069004+00:00"
   }
 }

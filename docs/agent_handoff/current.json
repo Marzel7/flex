@@ -102943,5 +102943,40 @@
     "source_authority": "Local X78 branch commits exist: WAL holder provenance 4f7821a09cb586ccfc30c3a4b2ecf82f767384ef, checkpoint-execution bound 2f5c8116af59867220e98e6cf9841d9e926df94b, and SQLite lifecycle serialization cb441a2899bb6f1de80dbdf08674d2dd2148acfc. Subsequent origin check remotely verified only codex/operations-sqlite-lifecycle-provenance at cb441a2899bb6f1de80dbdf08674d2dd2148acfc; the two WAL branches were not listed remotely, so they remain local qualified historical authority and must not be deployed without requalification/remote publication.",
     "status": "X78_ACCEPTED_DIAGNOSIS_COMPLETE_REMEDIATION_NOT_AUTHORIZED",
     "supporting_dev024_scope": "DEV-024 remains supporting owner only for creator-funding auxiliary timeout/retry behavior. It does not own shared Supervisor topology, global writer coordination, creator-resolution, WAL-reader attribution, or API health infrastructure. DEV-014, DEV-019, and DEV-023 boundaries remain unchanged."
+  },
+  "creator_funder_ui_cleanup_20261110": {
+    "objective": "Remove repeated tokens from single-funder detail UI.",
+    "project": {
+      "git_head": "6a03ed8a15daf19e8565d3b4d455a7bc13ea30be",
+      "branch": "codex/funder-detail-deduplicate"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "ee64c6885fd1960978c031d6e1363e4270d385ebbcb724da4917f6d24bf88297",
+    "after_sha256": "07fd3f1dec86f6586d6a74b5cce8b5df86957daaa75b68e815152497504827b2",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 36,
+    "functional_acceptance": {
+      "pages": 37,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "browser_screenshot_funder": {
+        "tokens": 7,
+        "each_once": true,
+        "duplicate_inventory_absent": true
+      }
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T20:23:58.527359+00:00"
   }
 }

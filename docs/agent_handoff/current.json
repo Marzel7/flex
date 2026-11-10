@@ -101946,5 +101946,68 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE for execution repair and requested live run. Normal four-hour research continues; 24 linked launches await qualified price rows.",
     "updated_at_utc": "2026-11-10T15:20:16.339921+00:00"
+  },
+  "creator_agent_requested_one_off_20261110_1532": {
+    "engineering_revision": "453e83c115f6cddb256500c301934e46697fdb11",
+    "objective": "Execute one existing bounded live research cycle now, preserving the four-hour schedule.",
+    "milestone_verdict": "PASS",
+    "research_status": "PARTIAL",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "No executable changes; existing installed qualified runner invoked once.",
+    "result_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/runs/run-be46729c5e934eef83da7277db1aceb9/result.json",
+    "run_id": "run-be46729c5e934eef83da7277db1aceb9",
+    "finished_at_utc": "2026-11-10T15:32:30.177604+00:00",
+    "verification": {
+      "turn_state": "completed",
+      "execution": {
+        "state": "READY",
+        "findings_present": true,
+        "review_present": true
+      },
+      "actions": 17,
+      "new_walkbacks_screened": 7,
+      "total_screened": 5084,
+      "families_interpreted": 9,
+      "buckets_reviewed": 4,
+      "launches_investigated": 18,
+      "reference_family_matches": {
+        "WATCHTOWER": 3
+      },
+      "byzantine_matched_this_run": false,
+      "operations_added": 1,
+      "operations_updated": 1,
+      "tokens_added": 1,
+      "tokens_price_updated": 1,
+      "new_section": "lead-16",
+      "dashboard_header_utc": "2026-11-10T15:32:30Z",
+      "summary_and_publication_verified": true
+    },
+    "provider_requests": {
+      "birdeye": 3,
+      "helius": 1
+    },
+    "estimated_standard_credits": 11.8775,
+    "limitations": [
+      "Nine cohorts are hypotheses, not nine proven operators. This is routine evidence-first discovery, not a fresh sealed blind test.",
+      "Six current-census tokens remain pending prices. Prior Candidate13\u201315 cards are unchanged; the earlier 24 missing price rows were not backfilled by this cycle."
+    ],
+    "activation_state": {
+      "next_run_at": "2026-11-10T16:50:04.720691+00:00",
+      "interval_hours": 4,
+      "model": "gpt-5.6-terra",
+      "trading_and_canonical_memberships": "UNCHANGED",
+      "provider_limits": "UNCHANGED"
+    },
+    "storage": {
+      "single_file_design_max_bytes": 5000000,
+      "run_max_bytes": 5000000,
+      "actual_run_bytes": 1356179,
+      "report_bytes": 351300,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE for requested one-off. Normal scheduled research continues; remaining price coverage is incomplete.",
+    "updated_at_utc": "2026-11-10T15:33:40.220107+00:00"
   }
 }

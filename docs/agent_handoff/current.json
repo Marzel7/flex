@@ -103305,5 +103305,65 @@
       "git_head": "8d2f2f4041df81f7bf4446ea1e7cb877cbdf4c08",
       "branch": "codex/research-failure-diagnostics"
     }
+  },
+  "creator_agent_one_off_20261110_2119": {
+    "objective": "Run one manual research cycle now without moving recurring schedule.",
+    "project": {
+      "git_head": "8d2f2f4041df81f7bf4446ea1e7cb877cbdf4c08",
+      "branch": "codex/research-failure-diagnostics"
+    },
+    "result": "PARTIAL",
+    "runtime_deployment_required": false,
+    "reason": "Manual execution of already-installed runner; no source or activation changes.",
+    "run_id": "run-d75d77f587604b478c3338bbf1f449b7",
+    "started_at_utc": "2026-11-10T21:19:07.676176+00:00",
+    "finished_at_utc": "2026-11-10T21:23:07.507626+00:00",
+    "validation": {
+      "state": "READY",
+      "findings_present": true,
+      "review_present": true
+    },
+    "changes": {
+      "operations_added": 1,
+      "operations_updated": 1,
+      "tokens_added": 2,
+      "tokens_price_updated": 0
+    },
+    "price_profiles_retained": 5,
+    "ledger_reservations": {
+      "birdeye": 15,
+      "helius": 6
+    },
+    "helius_retained": 5,
+    "helius_unavailable": 1,
+    "estimated_standard_credits": 8.84473,
+    "screening": {
+      "jobs_screened": 19,
+      "total_jobs_screened": 5247,
+      "groups_reviewed": 4,
+      "tokens_investigated": 18,
+      "families_recognised": 6,
+      "reference_family_matches": {
+        "WATCHTOWER": 1
+      }
+    },
+    "qualification_note": "Post-freeze membership comparison links one supporting token toWATCHTOWER; not proof of new launch, control or autonomous naming.",
+    "remaining_gaps": [
+      "One selected token was unavailable due to HELIUS_GATE_PUBLICATION_AMBIGUOUS.",
+      "Two price profiles remain elapsed-partial and require a later non-overlapping resume.",
+      "No selected census returned a birth-only launch; local migration records do not establish migration completion.",
+      "Frozen families require post-freeze reconciliation and human attribution review before any operator claim."
+    ],
+    "schedule_state": "ACTIVE",
+    "next_due_unchanged": "2026-11-11T00:54:58.806033+00:00",
+    "browser_acceptance": {
+      "operation18_listed": true,
+      "operation18_detail_opens": true,
+      "watchtower_reference_match_recorded": true
+    },
+    "storage": "Existing run5MB, HTML500KB, JSON64KB and provider-file300KB limits; no added unbounded retention.",
+    "blocker": "One gate-publication refusal; two elapsed-partial profiles need nonoverlapping continuation.",
+    "next_action": "Resume qualified incomplete price windows and review frozen families during the next scheduled00:55UTCcycle; no blocked-request retry or operator promotion.",
+    "updated_at_utc": "2026-11-10T21:24:17.175688+00:00"
   }
 }

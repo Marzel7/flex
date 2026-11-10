@@ -101671,5 +101671,34 @@
     "blocker": null,
     "next_action": "NONE \u2014 named research-operation assignment and automatic post-freeze publication COMPLETE. Price linkage/backfill and all-birth coverage are separately pending.",
     "updated_at_utc": "2026-11-10T12:59:54.069004+00:00"
+  },
+  "creator_agent_blind_end_to_end_20261110": {
+    "engineering_revision": "df32d3afeeb58cde56bde3f2c9b59f8cea9e09be",
+    "harness_revision": "f2556eb1b0eed76d101388f473ed49a5c123f6f7",
+    "harness_branch": "codex/creator-operation-sealed-acceptance",
+    "status": "FAIL_END_TO_END_ACCEPTANCE_TEST_COMPLETE",
+    "objective": "Test installed recurring pipeline independently discovering and publishing established families without manual predictions or reference seeds.",
+    "audit": "docs/audits/creator_agent_blind_end_to_end_20261110.v1.json",
+    "report": "docs/audits/creator_agent_blind_end_to_end_20261110.html",
+    "execution": "Initial malformed fixture attempt invalid(stopped,noPASS);strict extraction corrected andcounts verified. Two separately frozen scoredcycles used actualinstalledrunner/model,no stubsorpredictioninjection.746retainedlaunches outside previousbaselines/model-token/proofexposures;314Watchtower/58Byzantine targets plusotherknown/unassignedcontrols.3,156edges/709atomicflows/624sessions preserved.52neutralfamilies available. Bothcycles returnedPARTIALfuture-intention summaries;0freeze,0review,0namedpublication,0targetrecovery. No turn-completionusage retained.",
+    "seal": "6direct/filesystem/link canariesPASS forproduction,answerkeys,labelledDB,reports. Pseudonyms,freshshadowstate/outputs,hiddenpost-freezereferences. OuterSeatbeltreplacedunsupportednestedCLI sandbox/approvalflags;notidenticallivepermissionenvelope. Acquisitiondisabledadapter/providercredentialswithheld. Genericbundledcodemaycontainlegacynamepaths;absenceofalllexicalnamecuesnotcertified.",
+    "verification": "5scorerharnesstestsPASS. StrictfixtureSQLcounts matched source. Configuredmodelread-onlytoolsmoke andseparatepost-testwriteprobeactuallyexecuted;writeprobehadcompletedturn. Scoredcycletooloutputsnotretained,stoppingcauseunresolved. Installedsourcehashesunchanged. Bothinitial/correctedcopiedauthhomesremoved.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Isolated test-only harness;noinstalledproductionexecutablechange.",
+    "activation_state": "Live12operationdashboard, memberships, fourhourrunner/source/config/scheduleunchanged. Testtargetsprivateisolatedworkspace. No livepromotion/trading/queuewrites.",
+    "market_provider_state": "Zero-acquisitiontestscope;no dispatchledgers recorded. No OSnetworkisolationclaim. Codexusage/creditsincomplete,donotestimatefullcost.",
+    "storage": {
+      "single_file_hard_limit": 20000000,
+      "fixture_db_max_bytes": 20000000,
+      "max_cycles": 3,
+      "run_limit_bytes": 5000000,
+      "raw_provider_retention": false,
+      "auth_copy_removed_at_end": true,
+      "unbounded_growth_paths": 0
+    },
+    "limits": "Aninvalidattemptprecededcorrectedtestonsubstantiallythesameheldoutpopulation;notpristinefirstexposure. Consecutivefrozencycles,nofourhourtiming/priceacquisitiontest. Testfailuredoesnotestablishmodelincapableofpatternrecognition;workflowneverproducedqualifiedfindings. No manualrescueinscoredcycles. Threecyclesstartedtotal;noadditionalcyclesunderthisbudget.",
+    "blocker": "Missing required discovery/review outputs and missing terminal-completion evidence; detailed tool errors unavailable, so causal diagnosis remains unresolved.",
+    "next_action": "Beforeanotheracceptancetest,requireterminalcompletionandfreeze/revieworexplicitboundedrefusal;retainboundedtooloutcome/error summaries;remove remaininglabel-bearingpostprocessorvisibility. Do not claim autonomousrediscoveryfrommanuallypublishedops10-12.",
+    "updated_at_utc": "2026-11-10T13:44:05.116428+00:00"
   }
 }

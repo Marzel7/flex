@@ -103185,5 +103185,62 @@
     "updated_at_utc": "2026-11-10T20:50:53.869449+00:00",
     "provider_calls": 0,
     "method": "PreferT+1;otherwise earliest completed1s cap atT+2..T+30, labelled actual delay. Peak taken only at/after reference candle. Never fill forward or mix FDV/provider cap."
+  },
+  "creator_funder_metric_completion_20261110": {
+    "objective": "Complete every supported metric across37funders; explain genuinely unavailable fields without inventing values.",
+    "project": {
+      "git_head": "9d5f8902a00cf0e61fa318fe60d42538fb698700",
+      "branch": "codex/complete-funder-metric-display"
+    },
+    "result": "PARTIAL",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "db0d9682bcb8d6048cf94b495fd1ea61f955af60a7337c080f8e8758d9dab98d",
+    "after_sha256": "27f21fba1bfc2ed39f52c695a209813eba7e238ad622090a25870634c2827f61",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 42,
+    "functional_acceptance": {
+      "pages": 37,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "retained_rows": 336,
+      "empty_cells": 0,
+      "before_missing": {
+        "4": 142,
+        "5": 18,
+        "6": 24,
+        "1": 34,
+        "2": 13,
+        "3": 64
+      },
+      "unavailable_after": {
+        "4": 140,
+        "5": 16,
+        "6": 16,
+        "1": 34,
+        "2": 13,
+        "3": 40
+      },
+      "net_fields_filled": 36,
+      "browser": {
+        "pages_verified": 37,
+        "rows_verified": 336,
+        "unexplained_blank_cells": 0,
+        "unavailable_cells_with_reasons": 259
+      }
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": "Not all requested numeric fields exist in retained evidence: one-second opening/migration windows, observed red candles, and five qualified birth acquisitions remain unavailable.",
+    "next_action": "UI implementation complete. Missing numeric data requires qualifying retained/provider evidence; do not reacquire successful empty profiles or bypass birth/gate checks.",
+    "updated_at_utc": "2026-11-10T20:58:34.808643+00:00",
+    "limitation": "Unavailable markers are not price data. Five previously blocked tokens still lack qualified acquisition. Other gaps require qualifying candles, reference or migration evidence. Research added one token during publication wait.",
+    "provider_calls": 0
   }
 }

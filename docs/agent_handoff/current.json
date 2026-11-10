@@ -102719,5 +102719,77 @@
     "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-remaining-20261110/manifest.json",
     "updated_at_utc": "2026-11-10T19:26:15.300829+00:00",
     "publication_note": "104 normalized profiles acquired;82 additional linked rows.22 profiles overlapped existing published price evidence, which takes precedence."
+  },
+  "creator_birdeye_335_backfill_20261110": {
+    "project": {
+      "git_head": "0328b0f337b133ca2918d367242967b6333b5d8b",
+      "branch": "codex/birdeye-backfill-display"
+    },
+    "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
+    "objective": "Continue335retained-token set including older launches within unused approved envelope.",
+    "milestone_verdict": "PARTIAL",
+    "bounded_pass_status": "COMPLETE",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only acquisition and existing installed renderer; no code/config/schedule change.",
+    "new_nonempty_profiles": 137,
+    "frozen_targets": 140,
+    "failed_or_interrupted": 3,
+    "untouched": 0,
+    "ledger_reservations": {
+      "birdeye": 411,
+      "helius": 140
+    },
+    "request_note": "Helius count includes gate refusals and interrupted reservation, not successful wire calls.",
+    "coverage": {
+      "before": 142,
+      "after": 279,
+      "retained": 335,
+      "remaining": 56
+    },
+    "limits": {
+      "tokens": 140,
+      "birdeye": 420,
+      "helius": 140,
+      "concurrency": 1,
+      "spacing_seconds": 2,
+      "retries": 0,
+      "pagination": 0,
+      "raw_retention": false,
+      "single_token_bytes": 300000,
+      "data_set_bytes": 42000000,
+      "manifest_bytes": 524288,
+      "run_bytes": 5000000,
+      "unbounded_growth_paths": 0
+    },
+    "combined_approved_envelope": {
+      "birdeye_reserved": 723,
+      "helius_reserved": 275,
+      "ceilings": {
+        "birdeye": 825,
+        "helius": 275
+      }
+    },
+    "verification": {
+      "three_nonempty_families_each": true,
+      "dashboard_sha256": "cb35e54197bd3cc9db857d1888f1bd976873cf2984893181e6a4b2b567a8e9f6",
+      "linked_counts_verified": true,
+      "schedule_unchanged": true,
+      "existing_published_metrics_take_precedence": true,
+      "browser": {
+        "funders": 37,
+        "linked_profiles": 279,
+        "summary_in_document": true,
+        "detail_navigation_verified": true
+      }
+    },
+    "production_flags": "No gate/credential/recurring limits/trading/canonical changes.",
+    "blocker": "Three CREATE-binding failures this pass; prior blocked subjects remain excluded.",
+    "next_action": "Await additional75Birdeye/25Helius budget selection for25untouched tokens;31blocked subjects require separate review before retry.",
+    "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-older-20261110/manifest.json",
+    "updated_at_utc": "2026-11-10T20:07:58.228447+00:00",
+    "remaining_inventory": {
+      "untouched_with_create_signature": 25,
+      "blocked_or_unresolved": 31
+    }
   }
 }

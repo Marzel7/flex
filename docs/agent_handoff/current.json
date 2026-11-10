@@ -103057,5 +103057,40 @@
     "updated_at_utc": "2026-11-10T20:32:38.052127+00:00",
     "provider_requests": 0,
     "calculation": "Same-basis observed cap peak / first full1s cap close. Local migration ratio requires retained migration signature+timestamp and exactT+1cap candle; numerator includes only completed returned candles after migration. No claim timestamp independently verified on-chain."
+  },
+  "creator_funder_compact_metrics_20261110": {
+    "objective": "Compact red-candle amounts and timings; collapse repeated measurement notes.",
+    "project": {
+      "git_head": "85868d43419e726125c8fc6237b47ecda6c95de8",
+      "branch": "codex/compact-funder-metrics"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "3170dbc117c248020faa740ad481c868f98f7b0350b166e93b8835fb6c509325",
+    "after_sha256": "cf6e40db0b1ffbe42c71346540cd29e3a3819afc82f10ce5d1f0a3be3987e319",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 39,
+    "functional_acceptance": {
+      "pages": 37,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "browser": {
+        "compact_caps": true,
+        "readable_time_range": true,
+        "notes_collapsed_and_expandable": true
+      }
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T20:37:47.891092+00:00"
   }
 }

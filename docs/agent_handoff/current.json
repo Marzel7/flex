@@ -102856,5 +102856,72 @@
       "untouched": 0,
       "blocked": 31
     }
+  },
+  "creator_birdeye_retry31_backfill_20261110": {
+    "project": {
+      "git_head": "0328b0f337b133ca2918d367242967b6333b5d8b",
+      "branch": "codex/birdeye-backfill-display"
+    },
+    "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
+    "objective": "Finish remaining31blocked tokens through reviewed acquisition and exact-anchor diagnosis within93Birdeye/31Helius envelope.",
+    "milestone_verdict": "PARTIAL",
+    "bounded_pass_status": "COMPLETE",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only acquisition and existing installed renderer; no code/config/schedule change.",
+    "acquired_profiles": 26,
+    "frozen_targets": 28,
+    "failed_or_interrupted": 2,
+    "untouched": 0,
+    "ledger_reservations": {
+      "birdeye": 78,
+      "helius": 31
+    },
+    "request_note": "78Birdeyecalls/31Heliusreservations including3diagnostic RPCs;2gate holds.",
+    "coverage": {
+      "before": 304,
+      "after": 330,
+      "retained": 335,
+      "remaining": 5
+    },
+    "limits": {
+      "tokens": 31,
+      "birdeye": 93,
+      "helius": 31,
+      "concurrency": 1,
+      "spacing_seconds": 2,
+      "retries": 0,
+      "pagination": 0,
+      "raw_retention": false,
+      "single_token_bytes": 300000,
+      "data_set_bytes": 9300000,
+      "manifest_bytes": 524288,
+      "run_bytes": 5000000,
+      "unbounded_growth_paths": 0
+    },
+    "verification": {
+      "nonempty_profiles": 22,
+      "linked_counts_verified": true,
+      "schedule_unchanged": true,
+      "existing_published_metrics_take_precedence": true,
+      "browser": {
+        "funders": 37,
+        "linked_profiles": 330,
+        "summary_in_document": true,
+        "detail_navigation_verified": true
+      }
+    },
+    "production_flags": "No gate/credential/recurring limits/trading/canonical changes.",
+    "blocker": "Two ownership-recovery holds remain; three retained anchors have zero Pump.fun instructions and cannot qualify birth.",
+    "next_action": "Correct or independently qualify the three invalid birth anchors and resolve two ownership-recovery holds before remaining five prices can be acquired. No further acquisition within exhausted31Helius envelope.",
+    "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-retry31-20261110/manifest.json",
+    "updated_at_utc": "2026-11-10T20:19:15.870913+00:00",
+    "all_three_nonempty_profiles": 22,
+    "minute_cap_only_profiles": 4,
+    "remaining_inventory": {
+      "untouched": 0,
+      "invalid_anchor": 3,
+      "ownership_recovery_hold": 2
+    },
+    "binding_diagnosis": ".runtime/creator-operation-price-backfill-retry31-20261110/binding-diagnosis.json"
   }
 }

@@ -102078,5 +102078,88 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE. Existing dashboard URL now opens the operation index; scheduled publication preserves this structure.",
     "updated_at_utc": "2026-11-10T15:53:46.064687+00:00"
+  },
+  "creator_operation_launch_order_20261110": {
+    "project": {
+      "git_head": "a90cc953a5f9150162b0a6e802f57657dabc5a46",
+      "branch": "codex/creator-operation-launch-order",
+      "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source"
+    },
+    "engineering_revision": "a90cc953a5f9150162b0a6e802f57657dabc5a46",
+    "objective": "Add last linked token launch date and elapsed age, always ordering the operation index newest first.",
+    "milestone_verdict": "PASS",
+    "audit": "docs/audits/creator_operation_launch_order_20261110.v1.json",
+    "implementation": [
+      "Bounded indexed read-only lookups of linked token births and the full existing reference-member catalog.",
+      "Prefer retained CREATE anchor per token; otherwise explicitly label Core birth observation. Never use funding, completion, migration or research-update times.",
+      "UTC date/time and age at dashboard refresh; unknown dates blank and last; stable operation IDs and detail links."
+    ],
+    "verification": {
+      "focused_tests_passed": 55,
+      "browser": {
+        "desktop_order": "PASS",
+        "date_header": "PASS",
+        "unknown_last": "PASS",
+        "detail_back_navigation": "PASS",
+        "mobile_no_document_overflow": true,
+        "dated_operations": 15
+      },
+      "runtime_acceptance": {
+        "engineering_revision": "a90cc953a5f9150162b0a6e802f57657dabc5a46",
+        "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+        "before_sha256": "265452d69ef18211fa91779ed2f887a0d02b3562e87256397024ca30f724e73f",
+        "after_sha256": "1a16a7de62e8e090015aa707400e230386ad63228dbcab3e83f46de80f269cc1",
+        "restart_required": false,
+        "source_article_hashes_unchanged": true,
+        "schedule_unchanged": true,
+        "provider_requests": 0,
+        "order": [
+          13,
+          14,
+          8,
+          6,
+          16,
+          2,
+          3,
+          1,
+          4,
+          7,
+          11,
+          5,
+          10,
+          12,
+          15,
+          9
+        ],
+        "dated_operations": 15,
+        "unknown_dates": 1,
+        "installed_at_utc": "2026-11-10T16:07:53.849069+00:00"
+      },
+      "all_source_operation_articles_unchanged": true
+    },
+    "runtime_deployment_gate": "PASS",
+    "activation_state": "Installed renderer and actual publisher verified. No restart required. Model, provider limits, schedule, trading and canonical memberships unchanged; no research cycle or provider requests started.",
+    "storage": {
+      "maximum_single_generated_or_stage_file_bytes": 500000,
+      "maximum_generated_view_set_bytes": 5000000,
+      "maximum_detail_pages": 96,
+      "new_date_cache_files": 0,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "acquisition": {
+      "provider_requests": 0,
+      "local_unique_mints_limit": 5000,
+      "local_lookup_deadline_seconds": 15,
+      "local_open_retry_limit": 1,
+      "external_acquisition": false
+    },
+    "limitations": [
+      "Dates describe linked known launches; incomplete operation membership is not proof of dormancy.",
+      "Core-only dates are labelled observed birth. Elapsed ages are calculated when the dashboard is published."
+    ],
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T16:09:17.650101+00:00"
   }
 }

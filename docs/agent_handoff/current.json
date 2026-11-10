@@ -101521,5 +101521,24 @@
     "blocker": null,
     "next_action": "NONE \u2014 agent update COMPLETE. Next scheduled model cycle uses installed screening; a paid oneoff was not part of this update.",
     "updated_at_utc": "2026-11-10T12:06:28.910990+00:00"
+  },
+  "creator_agent_complete_screening_oneoff_20261110": {
+    "engineering_revision": "15d4094e77464aa00c33c38ddb51909fe3a84cb3",
+    "status": "PARTIAL_ONE_OFF_COMPLETE",
+    "audit": "docs/audits/creator_agent_complete_screening_oneoff_20261110.v1.json",
+    "run_id": "run-d50ff2df2d7142afa648ae1c93a7842e",
+    "results": "5000baseline rows structurally screened in initial attempt;retry reused state and added2completions/undated exception,total5002. 286neutralbuckets;24agent-declared reviewed,2mints detailed,262pending. One creator local census4births/0without localmigrationrecords. Frozen pattern reconciled existingCandidate08;0newoperations/tokens/prices. No Watchtower/Byzantine attribution established.",
+    "verification": "ActualinstalledCLI/model run finishedPARTIAL;summary published. All8operation articleDOMs identical before/after. Downloadssymlinkverified. Nextdue12:42:18.721740UTCunchanged. Initial restricted-shellCLIstateDBfailure happened before research;authorized escalatedretry succeeded.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Oneoffexecutionofinstalledrunner;no executablechanges.",
+    "activation_state": "Scheduledfour-hourrunnerunchanged;pilotactive;pendinggroupstatepersisted. NoCore/OPS/queue/membership/tradingwrites.",
+    "provider_requests": {
+      "birdeye": 0,
+      "helius": 0
+    },
+    "storage": "Existing42runfolderretention;5MB/run/transient,1.5MBscreenstate,rawretentionOFF;newunboundedgrowthpaths0.",
+    "blocker": "One birth verification remains refused from prior gate-integrity failure;no provider bypass/retry. Broader interpretation and pending price profiles remain incomplete.",
+    "next_action": "Continue262saved buckets in subsequent scheduled cycles;qualified gate-integrity review required before pending-token acquisition.",
+    "updated_at_utc": "2026-11-10T12:13:03.203044+00:00"
   }
 }

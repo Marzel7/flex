@@ -101212,5 +101212,34 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T08:13:10.102086+00:00"
+  },
+  "operation03_migration_classification_correction_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PARTIAL_COMPLETION_UNVERIFIED_METRICS_WITHDRAWN",
+    "objective": "Correct unsupported Post-migration classifications/figures in Operation03.",
+    "audit": "docs/audits/operation03_migration_status_correction_20261110.v1.json",
+    "summary": {
+      "reviewed_classifications": 42,
+      "completion_events_confirmed": 0,
+      "post_migration_figures_withheld": 42,
+      "price_histories_retained": 42,
+      "provider_held": 1,
+      "rpc_attempts": 19,
+      "rpc_review_batch_stopped_after": 18,
+      "diagnostic_requests": 1,
+      "diagnostic_reason": "MIGRATION_LOG_TRUNCATED",
+      "new_birdeye_requests": 0
+    },
+    "finding": "Previoustransaction_migration_mint decoder proves successful migrateinstructionboundtomint, not completion.42candidateinstructionanchorscannotcurrentlysupportpostmigrationtiming.18requestreviewstoppedafterValueErrors;oneGREENdiagnosticidentifiedMIGRATION_LOG_TRUNCATED. No non-migration inference from missingevent.",
+    "implementation": "All42postmigrationfigureswithdrawn;UIshowsMigrationstatusNotconfirmed.42pricehistoriesretained;candidateinstructioncontextkeptasprovenance. Activepost_migration_observedandmigration_to_peak_multiple null. Research-stateforbidsreintroductionwithoutqualifiedcompletionANDtimestamp.",
+    "verification": "43rowsretained;42activepostmigrationcontexts/ratiosnull;candidateinstructiondelaykeptseparatefromactualmigrationdelay;HTML/factboundsandDownloadssymlinkdeliverychecked.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Finite acquisition/review and static report/fact correction; no executable runtime changes.",
+    "activation_state": "Existing four-hour runner unchanged; continuationstateupdatedwithmandatoryevidencerule.",
+    "production_state": "No Core/queue/tradingwrites;existingHeliusgateandownershippolicyunchanged.19RPCattempts,0Birdeye;noautomaticretries.",
+    "storage": "Review<16384bytes;facts<262144bytes;HTML<500000bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "Completed migration and actual timestamp unqualified;one diagnostic rejected truncatedlogs;remainingprovider-heldtokenunchanged.",
+    "next_action": "Qualifyactualcompletioneventorpooltransitionandtimestamp before reinstatinganypostmigrationperformance. Do not repeat identical failedrequestswithoutconcretenew evidence/decoder correction.",
+    "updated_at_utc": "2026-11-10T08:20:02.786604+00:00"
   }
 }

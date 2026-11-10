@@ -101285,5 +101285,36 @@
     "limitations": "Peaksareobservedwithinbirth2h,notlifetimeATH. Historicalcirculatingsupply/executableentriesnotverified.Migrationcompletionnotassessed.GMGNpricehighdifferences0.10%,0.10%,0.79%retainedasproviderdifferences.",
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T08:30:03.150384+00:00"
+  },
+  "operation05_price_backfill_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PARTIAL_6_OF_11_PROVIDER_GATE_BLOCKS",
+    "objective": "Backfill Operation05token prices and update UI.",
+    "audit": "docs/audits/operation05_qualified_price_backfill_20261110.v1.json",
+    "summary": {
+      "requested": 11,
+      "price_histories_acquired": 6,
+      "tokens_blocked": 5,
+      "one_second_first_observations": 6,
+      "one_second_peaks": 6,
+      "gmgn_price_high_comparisons": 6,
+      "max_relative_price_difference": 0.00588410197186251,
+      "provider_requests": {
+        "helius": 11,
+        "birdeye": 18,
+        "gmgn_kline": 6
+      },
+      "migration_completion_verified": 0
+    },
+    "implementation": "KURUKUMA,Rocky,POOPIE,BOARDO,AI,Fortress have qualifiedCREATEtimes,firstobserved1sCLOSEcaps,1speaks/multiples,earlydrawdown,peak-half/redcandletiming. All6GMGNpricehighschecked,maximumdifference0.59%. Fivependingrowsblank;oldexploratoryreferencesarchived. Migrationcellsblank;noentry/historicalsupply/completionclaim.",
+    "verification": "11rowschecked;6values/ratiosboundtoretainedcandlesand1speaks;5pendingrowspricecellsblank;allmigrationcellsblank;actual1600x1400browserrenderreviewed;fileboundsandDownloadssymlinkdeliverychecked.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Finite data acquisition/reduction and static dashboard only;no executable runtime changes.",
+    "activation_state": "Existing four-hour runner unchanged;research-state records6durableresultsand5blockedbirthlookups;do not repeat refusedrequests without gate-statechange.",
+    "production_state": "NoCore/queue/tradingwrites.11Heliusattempts(6successfulbirths,5gate-denied),18Birdeye,6GMGNcommands;serial2spacingforBirdeye;no manualretries;authoritativeBIRDEYEonly.",
+    "storage": "11fixednormalizedtokenfilesmaximum<300000byteseach,totaldesignbound3300000;GMGNnormalizedfilesmax11x65536;tranchesmax4each<5000000;manifest<65536;audit<131072;HTML<500000;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "Koyuri:HELIUS_OWNERSHIP_RECOVERY_HOLD. XiaoHuang,Memelord,Kekcoin,Louie:HELIUS_ORIGIN_CAPACITY(origin-trackingcapacity). No roots/aliases/policiesresetorborrowed.",
+    "next_action": "Reconcile existing ownership-recovery hold and origin-tracking capacity through established gate process, then qualify births/acquire only the5missinghistories. Reuse6completedresults.",
+    "updated_at_utc": "2026-11-10T08:41:27.312140+00:00"
   }
 }

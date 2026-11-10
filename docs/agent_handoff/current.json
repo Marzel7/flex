@@ -101540,5 +101540,24 @@
     "blocker": "One birth verification remains refused from prior gate-integrity failure;no provider bypass/retry. Broader interpretation and pending price profiles remain incomplete.",
     "next_action": "Continue262saved buckets in subsequent scheduled cycles;qualified gate-integrity review required before pending-token acquisition.",
     "updated_at_utc": "2026-11-10T12:13:03.203044+00:00"
+  },
+  "creator_agent_exact_presence_recognition_20261110": {
+    "engineering_revision": "15d4094e77464aa00c33c38ddb51909fe3a84cb3",
+    "status": "PRESENCE_PASS_RECOGNITION_TEST_FAIL",
+    "objective": "Prove exactbaseline presence and test independent pattern recognition without named operator seeds.",
+    "presence_audit": "docs/audits/creator_agent_exact_baseline_presence_20261110.v1.json",
+    "recognition_audit": "docs/audits/creator_agent_neutral_group_recognition_20261110.v1.json",
+    "report": "docs/audits/creator_agent_recognition_proof_20261110.html",
+    "presence": "Exact5000unique manifest mints:315WATCHTOWER,92Byzantine,26WATCHTOWER_DEEP against current registry via read-only indexedlookups. Prioroneoff reviewed buckets include18Watchtower/32Byzantine members,but0detailedtargetmembers and0targetsupport in frozenfindings.",
+    "recognition_test": "Configuredgpt-5.6-terra received all286neutralgroup summaries, pseudonymisedtokens/wallets,retainedroutes/amounts,knownlabelswithheld. Predictionsfrozenbeforecanonicalscoring. Modelreportedall286reviewedbutcollapsed285groupsinto5generictransfer/WSOL/evidenceclasses. F02supports2Watchtower+6unassignedexamples;notoperator-specificrecovery. NoByzantinesupporttokens. Bothfamilyrecognitionclaimsremainunproven;do notpromotecoarsebucketinclusiontorecognition.",
+    "verification": "5000unique manifestassertion;exactcurrentregistrylookupsinreadonlysnapshot;all286aliascoverage;input/predictionsSHA256retained;supporttoken-to-groupbindingsvalidated;ownershipfalse. Acceptancecriteriarecordedbeforepredictionscompleted. 0Helius/0Birdeye;no DBorcanonicalmembershipwrites.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only postrun evaluator and standalone model test/static report;runtimepolicyunchanged.",
+    "activation_state": "Scheduled agent remains15d4094e;no additional livecycle/modelpolicychange. Known referencesonlypost-freeze;neutraltestinput/predictionsarchived.",
+    "limitations": "Currentregistryreference,nothistoricalsnapshot;model-declaredreviewnotindependentqualityproof. Samebaseline,nofreshholdout. Standalonemodeltest,notscheduledfulltoolloop. Instruction-constrained,notOSsealed;filecompliancepermodeldeclaration. Unknownownershipnotnegative;no precisionclaim.",
+    "storage": "Neutralinput203992bytes(<262144);predictions7702(<65536);testworkspace<1MB;audits<65536each;HTML<20000;rawproviderretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "The agent distinguishes generic mechanisms but has not isolated the established operational funding families.",
+    "next_action": "Recognitionrequiresnarrowersource/role/creator-continuityfamilyclusteringwithinmechanismclassesandindependentvalidation. Do not claim both proofs passed.",
+    "updated_at_utc": "2026-11-10T12:21:03.212385+00:00"
   }
 }

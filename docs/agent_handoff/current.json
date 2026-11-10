@@ -101165,5 +101165,39 @@
     "blocker": "One token still held by existing HELIUS_OWNERSHIP_RECOVERY_HOLD. Three birthhistoriesminute-only;executableentryunprovenbycandles.",
     "next_action": "Reuse corrected42histories. Reconcile held token through established ownership policy; no bypass or alias change. Do not silently upgrade minute observations to exact entries.",
     "updated_at_utc": "2026-11-10T07:54:51.556460+00:00"
+  },
+  "operation03_peak_basis_review_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PARTIAL_HISTORICAL_CAP_BASIS_UNVERIFIED",
+    "objective": "Reconcile BEAST chart peak mismatch and check retained Operation03price/cap bases.",
+    "audit": "docs/audits/operation03_peak_basis_review_20261110.v1.json",
+    "summary": {
+      "tokens_checked": 42,
+      "paired_price_cap_series_consistent": 42,
+      "birdeye_implied_supply_range": [
+        628431379.215205,
+        1999999993.071471
+      ],
+      "gmgn_independently_price_checked": [
+        "BEAST"
+      ],
+      "new_provider_requests": {
+        "birdeye": 3,
+        "gmgn_kline": 1,
+        "gmgn_token_info": 1
+      },
+      "historical_supply_verified": false
+    },
+    "finding": "BEAST GMGNpeakprice0.000010160745 andBirdeyeprice0.000010159419867 agreewithin0.02%. Birdeyereportedpeak20318.27usesimpliedsupply1999944203.995524, matchingcurrentGMGNcirculatingsupply. Screenshotwicknear10kisconsistentwith1bnpricebasis(10160.745);historicalsupplynotverified.42retainedBirdeyepairedseriesallconstantwithin-tokenbases; no blankethalvingapplied.",
+    "implementation": "UI explicitly labels Birdeye first/peak cap and impliedbasis;BEASTshowsseparate1bnchartreferenceandGMGNpricehigh. Future research-statepoints to reconciliationaudit and forbids silentbasisreplacement.",
+    "verification": "All42pairedseriesdeviation<1e-6;BEASTcross-providerpricecomparison<0.001relativeerror;43UIrowsretained;BEAST20318/10161valueschecked;actual1600x900browserrenderreviewed;fileboundschecked.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded acquisition, derived facts and static dashboard only.",
+    "activation_state": "Existing four-hour runner unchanged; correctedfactsandcontinuationstatepublishedlocally.",
+    "production_state": "No Core/queue/tradingwrites; providerbudgetandownershippoliciesunchanged.3newBirdeye+2GMGNcalls,noretries.",
+    "storage": "Review<65536bytes;mainfacts<262144bytes;normalizedtokenfiles<300000bytes;dashboard<500000bytes;normalizedGMGNfacts<65536bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "Historicalcirculatingsupplyunverified.OtherGMGNchartsnotindependentlyreconciled;oneexistingproviderheldtoken.",
+    "next_action": "Usepricehighsascomparisonanchor;keepreportedcapandchartreferencesdistinct.Qualifiedhistoricalsupplyevidenceisneededbeforeclaimingcanonicalhistoricalmarketcap.",
+    "updated_at_utc": "2026-11-10T08:04:39.505381+00:00"
   }
 }

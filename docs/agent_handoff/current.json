@@ -100848,5 +100848,25 @@
     "production_flags": "unchanged (no env/supervisor changes)",
     "blocker": null,
     "next_action": "NONE - COMPLETE (optional follow-up: OWNERSHIP_RECOVERY_HOLD ~2% PumpPortal migrations)"
+  },
+  "creator_operation_data_first_ui_20261110": {
+    "engineering_revision": "df0636bd7c94b80ad47d0a924c12d86561523e44",
+    "status": "PASS",
+    "objective": "Default dashboard to each operation and its token data, reducing explanation text.",
+    "implementation": "Six navigable operation blocks with109token records visible;4migrated+6nonmigrated rows forgroup1. Added15pending-price rows for new candidate. Run updates, funding evidence and methodology collapsed. Large historical analysis moved to linked fixed research-notes page.",
+    "artifacts": [
+      "docs/audits/creator_funding_opportunities.html",
+      "docs/audits/creator_funding_research_notes.html",
+      "docs/audits/creator_operation_data_first_ui_20261110.v1.json"
+    ],
+    "verification": "Browser-rendered real dashboard1400x1700 visually reviewed: immediate operation headers and tables, explanations collapsed.19original tables preserved across dashboard/notes;15new pending rows. Links and IDs reconciled across documents; Downloads symlinks verified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Static HTML presentation and recurring task prose guidance only; no executable runner changes. Task copied and SHA verified; next fresh invocation reads it.",
+    "activation_state": "Four-hour pilot remains ACTIVE; timing, provider budgets and trading state unchanged.",
+    "installed_task_sha256": "4d5c4b3cb77c35e8ad92903d89b3a76e39c48d81e45736ad1e901848a230128b",
+    "storage": "Two fixed HTML artifacts each<500000bytes; Downloads dashboard symlink preserved; no provider calls or unbounded growth.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T01:10:48.392316+00:00"
   }
 }

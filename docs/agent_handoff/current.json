@@ -100747,11 +100747,87 @@
     "verification": "Headless Chrome1200x1000 render visually reviewed; counts/source timestamp checked; HTML structure, unique panel ID and Downloads hash verified.",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Static HTML and data-contract artifact only; no scheduled runner implementation.",
-    "activation_state": "Four-hour cadence agreed but scheduler NOT_CONFIGURED. No scheduled runs or next-run timestamp claimed. Future runner must write ledger and render summaries.",
+    "activation_state": "Superseded: ACTIVE local launchd four-hour pilot; see creator_operation_four_hour_runner_20261110.",
     "production_state": "No runtime/config/database/queue/trading changes; provider requests0.",
     "storage": "HTML<500000bytes each x2; ledger<65536bytes,design100entries,summary1200chars. RawretentionOFF;unboundedgrowthpaths0.",
     "blocker": null,
-    "next_action": "NONE \u2014 COMPLETE for requested UI addition. Configure/wire recurring runner as separate implementation before automated summaries occur.",
+    "next_action": "NONE \u2014 UI is connected to active local runner.",
     "updated_at_utc": "2026-11-10T00:20:18.180912+00:00"
+  },
+  "creator_operation_four_hour_runner_20261110": {
+    "engineering_revision": "6905ed95efe2defacccfcf2c5247baae83222596",
+    "engineering_branch": "codex/creator-operation-four-hour",
+    "engineering_worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/source",
+    "status": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "objective": "Configure and connect four-hour local Codex operation research, progress and dashboard summaries.",
+    "audit": "docs/audits/creator_operation_four_hour_runner_20261110.v1.json",
+    "qualified_runner_sha256": "68f8a2111b52f397ef13dee85bf370dd1629164edb2e5a67655b3a812e728338",
+    "qualified_task_sha256": "4a90e4eea9a24277d9060f3f06fd8cd0387d85204e6a6885712062ac54fd0eae",
+    "actual_runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py",
+    "deployment": {
+      "before": "No recurring research runner or LaunchAgent existed.",
+      "after": "LaunchAgent loaded, StartInterval14400; installed files hash match isolated qualified source. Actual CLI research run finished and renderer published summary. Final publication-only hardening installed with matching hashes; next fresh invocation reads it, no daemon reload needed.",
+      "reload": "Initial bootstrap and explicit first-run kickstart completed. Each launch executes installed Python and reads current task; no trading-worker restart.",
+      "process_identity": "launchctl showed configured /usr/bin/python3 runner.py --config path while real run held its lock. Job is idle between runs."
+    },
+    "activation": {
+      "state": "ACTIVE",
+      "interval_hours": 4,
+      "model": "gpt-5.6-terra",
+      "authentication": "Existing ChatGPT subscription sign-in, not an API key",
+      "ends_at_utc": "2026-11-17T00:27:17.878582+00:00",
+      "next_expected_run": "2026-11-10T04:31:38.263587+00:00",
+      "requires": "Mac awake, online and logged in. No replay storm for missed intervals."
+    },
+    "verification": "Nine focused tests pass including expiry, no-change, failure recovery, malformed proposal, staged publication and concurrent-edit preservation. One actual signed-in Codex research run completed;15unique mints/creators and1source verified; initial result reviewed as PARTIAL with exact funding-hop wording corrected. Browser-rendered panel checked; final code/task identities match source and Downloads symlink resolves to canonical report.",
+    "first_run": {
+      "run_id": "run-ee91f35b0c7f41469b8334672a139c39",
+      "status": "PARTIAL",
+      "new_candidate_operations": 1,
+      "new_linked_tokens": 15,
+      "new_price_tokens": 0,
+      "provider_requests": {
+        "birdeye": 0,
+        "helius": 0
+      },
+      "estimated_standard_codex_credits": 12.94762
+    },
+    "provider_caps": {
+      "birdeye_requests": 18,
+      "price_tokens": 6,
+      "helius_requests": 20,
+      "helius_policy_credits": 200,
+      "pagination_pages": 4,
+      "per_wallet_pages": 2,
+      "concurrency": 1,
+      "automatic_retries": 0,
+      "enforcement": "Research task mandates durable pre-dispatch ledgers and installed Helius gates; wrapper validates reported counts. These are provider caps, not a guaranteed Codex credit ceiling."
+    },
+    "storage": {
+      "dashboard_bytes_max": 500000,
+      "history_bytes_max": 65536,
+      "history_entries_max": 100,
+      "history_shown": 8,
+      "research_state_file_max": 2000000,
+      "normalized_token_file_max": 300000,
+      "token_files_per_run_max": 6,
+      "run_folder_max": 5000000,
+      "retained_run_folders_max": 42,
+      "run_events": "RAM only,16MB total streaming cap,1MB partial-event buffer",
+      "subprocess": "ephemeral Codex sessions,780second timeout,45tool actions",
+      "raw_payload_retention": false,
+      "unbounded_growth_paths": 0,
+      "full_db_clone": false
+    },
+    "production_state": "No trading, runtime-worker, Core/ops write, queue or watchlist changes. Only the authorized research LaunchAgent, artifacts and normal provider budget bookkeeping are involved.",
+    "blocker": null,
+    "limitations": [
+      "First research result is PARTIAL: new candidate found; exact hop hydration, funded-birth census and price backfill remain pending.",
+      "The initial model was unavailable to this CLI account; configured advertised GPT5.6Terra explicitly. Startup failures are retained.",
+      "Recurring research correctness still requires summary review; no automatic tradeability decision."
+    ],
+    "next_action": "NONE \u2014 COMPLETE for scheduler connection. Next bounded recurring research run continues saved census/price-backfill work.",
+    "updated_at_utc": "2026-11-10T00:42:05.093968+00:00"
   }
 }

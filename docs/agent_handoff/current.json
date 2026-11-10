@@ -101199,5 +101199,18 @@
     "blocker": "Historicalcirculatingsupplyunverified.OtherGMGNchartsnotindependentlyreconciled;oneexistingproviderheldtoken.",
     "next_action": "Usepricehighsascomparisonanchor;keepreportedcapandchartreferencesdistinct.Qualifiedhistoricalsupplyevidenceisneededbeforeclaimingcanonicalhistoricalmarketcap.",
     "updated_at_utc": "2026-11-10T08:04:39.505381+00:00"
+  },
+  "operation03_basis_label_cleanup_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PASS",
+    "implementation": "Removed42repeated Implied basis labels from Operation03token rows at user request. Methodology and BEAST known-discrepancy comparison retained. Research-state records display preference.",
+    "verification": "No Implied basis row labels remain;methodologyandBEASTcomparison retained;Downloads symlink resolves to updated canonical HTML.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Static report text only.",
+    "activation_state": "Existing runner unchanged.",
+    "storage": "No new growth path;existing HTML<500000bytes.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T08:13:10.102086+00:00"
   }
 }

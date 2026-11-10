@@ -102658,5 +102658,56 @@
     "blocker": "The completed manual pass exhausted its explicit60Birdeye/20Helius/20token envelope. A budget-sizing question is pending for further acquisition; no automatic enlargement/retry.",
     "next_action": "Await user-selected next acquisition envelope; continue only within that bounded budget. Older tokens outside the initial recent-sample policy require separately scoped historical coverage.",
     "updated_at_utc": "2026-11-10T18:24:02.371773+00:00"
+  },
+  "creator_birdeye_remaining_backfill_20261110": {
+    "objective": "Approved remaining recent eligible Birdeye backfill, ceiling825 Birdeye/275 Helius.",
+    "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
+    "milestone_verdict": "HOLD",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only acquisition and existing installed renderer publication; no executable changes.",
+    "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-remaining-20261110/manifest.json",
+    "new_profiles": 0,
+    "eligible_targets": 134,
+    "attempted_subjects": 26,
+    "untouched_subjects": 108,
+    "ledger_reservations": {
+      "birdeye": 0,
+      "helius": 27
+    },
+    "reservation_note": "Includes pre-dispatch refusals and one interrupted dispatch; not successful wire-call counts.",
+    "linked_coverage": {
+      "tokens": 60,
+      "retained": 335,
+      "remaining": 275
+    },
+    "limits": {
+      "tokens": 275,
+      "birdeye": 825,
+      "helius": 275,
+      "concurrency": 1,
+      "spacing_seconds": 2,
+      "retries": 0,
+      "pagination": 0,
+      "raw_retention": false,
+      "single_token_bytes": 300000,
+      "data_set_bytes": 82500000,
+      "manifest_bytes": 524288,
+      "run_bytes": 5000000,
+      "unbounded_growth_paths": 0
+    },
+    "verification": {
+      "dashboard_summary_present": true,
+      "schedule_unchanged": true,
+      "dashboard_sha256": "e663a452c83074c6c8bd6d9bddccf04a8f4482f54ff33a70b19bf18f7a907d81",
+      "existing_prices_preserved": true
+    },
+    "production_flags": "No gate, credential, recurring budget, trading or canonical membership changes.",
+    "blocker": "Authoritative Helius gate OUTAGE and acquisition deferred after cooldown; no qualified CREATE proof, so Birdeye acquisition not dispatched.",
+    "next_action": "After authoritative Helius recovery, resume only108 untouched frozen targets within remaining approved budget; separately review26 failed/interrupted subjects before retry.",
+    "updated_at_utc": "2026-11-10T18:52:07.480314+00:00",
+    "project": {
+      "git_head": "0328b0f337b133ca2918d367242967b6333b5d8b",
+      "branch": "codex/birdeye-backfill-display"
+    }
   }
 }

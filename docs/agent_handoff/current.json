@@ -101017,5 +101017,41 @@
     },
     "next_action": "Reconcile the existing HELIUS_OWNERSHIP_RECOVERY_HOLD for FNMip... through authorized ownership recovery; then acquire that one token under a fresh explicit bounded tranche without repeating26completed results. Other operation backfill can proceed through existing rotation.",
     "updated_at_utc": "2026-11-10T06:24:37.508207+00:00"
+  },
+  "operation02_opening_semantics_correction_20261110": {
+    "engineering_revision": "87ab7c7d9025895bb89b82fe98fe0e5ddcd3225b",
+    "engineering_branch": "codex/creator-operation-birth-opening",
+    "status": "PASS",
+    "objective": "Distinguish literal birth candle opens from later T+1/migration references.",
+    "audit": "docs/audits/operation02_opening_semantics_correction_20261110.v1.json",
+    "finding": "Previous Opening was first-full-birth-second T+1, already61kfor two Teslaexamples. Literal birth-candle O is2395.56and2395.07reportedcap.26rows corrected, separate postmigration reference column added, literal birth\u2192peak ratios recomputed. OldT+1references preserved. Other previously accepted T+1values kept but explicitly labelled Birth reference.",
+    "examples": [
+      {
+        "mint": "Fqomw6nEU7fnKBtZ2hAAKdybCSq71BtJxRmsuXaEpump",
+        "symbol": "Tesla",
+        "previous_T1_reference_cap": 61385.03555613525,
+        "birth_candle_open_cap": 2395.562425777749,
+        "migration_reference_cap": 102951.49294451684,
+        "birth_to_peak_multiple": 46.50636498112279
+      },
+      {
+        "mint": "DgcUJCFZy5bvpbcwRve3stpRVTrz2Zka6MuEzxSLpump",
+        "symbol": "Tesla",
+        "previous_T1_reference_cap": 61372.40684292788,
+        "birth_candle_open_cap": 2395.0695878967995,
+        "migration_reference_cap": 104653.30953655721,
+        "birth_to_peak_multiple": 50.75520610401639
+      }
+    ],
+    "verification": "26birth-candle O values checked against exact CREATE timestamps and retained candles;26recomputed ratios checked.27rows\u00d78columns,1held. OldT+1references retained. Actual browser render1600x1500 reviewed, separate birth/migration columns readable; Downloads canonical copy matches.0providerrequests.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Retained-data correction and static HTML; no executable runtime change.",
+    "installed_task_sha256": "3e504794497eb542cca70dab699fbb0af4a8bf9fb565b1b99922925f70b38b3b",
+    "activation_state": "Four-hour schedule and provider transport/budgets unchanged. Corrected prose contract installed; next invocation reads it.",
+    "production_state": "NoCore/ops/queue/trading changes; providerrequests0. Existing ownership-held token unchanged.",
+    "storage": "Existing audit<262144bytes,HTML<500000bytes,summary<65536bytes; rawretentionOFF; unboundedgrowthpaths0.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE for opening semantics correction.",
+    "updated_at_utc": "2026-11-10T06:46:16.128709+00:00"
   }
 }

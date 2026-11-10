@@ -101559,5 +101559,53 @@
     "blocker": "The agent distinguishes generic mechanisms but has not isolated the established operational funding families.",
     "next_action": "Recognitionrequiresnarrowersource/role/creator-continuityfamilyclusteringwithinmechanismclassesandindependentvalidation. Do not claim both proofs passed.",
     "updated_at_utc": "2026-11-10T12:21:03.212385+00:00"
+  },
+  "creator_agent_role_family_recognition_20261110": {
+    "engineering_revision": "a380128ac64d8e996297f1624d49eac83a7c3cfa",
+    "engineering_branch": "codex/creator-operation-role-families",
+    "source_worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source",
+    "status": "DEV_COMPLETE",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "objective": "Correct generic-mechanism grouping so recurring neutral funding families can be recovered before post-freeze named-reference comparison.",
+    "audit": "docs/audits/creator_agent_role_family_recognition_20261110.v1.json",
+    "report": "docs/audits/creator_agent_role_family_recognition_20261110.html",
+    "implementation": "New provider-free creator_operation_families.py links shared upstream roots, rotating providers and creator external-role evidence across retained history;coarse WSOL/plain categories no longerdefinefamilies.<=10000proof-historyrows,<=5000targetmints,<=24selectededges/mint,30seconddeadline. Two distinct creators required. Self-owned closes/unbacked hints excluded;missingfinallegs/ordergaps explicit. Separate8repeated/8recent/8rotating candidate slots. Freeze binds candidatekey/supportmints/twocreators,scope/schema/features. OnlyAFTERmodel freeze launcher evaluates exactcanonicalsupportreferences and publishes names/counts,without membershipwrites. Evidence-digest review continuation.",
+    "recognition_result": "Configuredgpt-5.6-terra blind pseudonymised retained-baseline test froze24distinct hypotheses. Post-freeze mapping recovered5Watchtowerfamilies containing263knownmembers(of315baseline),1Byzantinefamily containing92knownmembers(of92baseline)+2unassignedtokens,2WatchtowerDeepfamilies containing26knownmembers(of26baseline). Unassignedtokensnotadmitted.",
+    "verification": "51focusedtestsPASS. Finalhelpervalidatesall24frozenpredictionsagainstsamebaseline. Exactsource/installed3fileSHA256matches. Fresh/usr/bin/python3installedrunner exercisedlive5000scan/familybuild;replayedoriginalfrozeninput+actualblindoutput through validation,post-referencecomparison andUIpublication. OldpredictionsagainstlaterrollinginputcorrectlyrejectedDISCOVERY_FAMILY_BINDING. Dashboardqualificationnoteadded;all8operationarticlespreserved.",
+    "deployment": {
+      "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+      "before_sha256": {
+        "creator_operation_families.py": null,
+        "runner.py": "11f968c4a20f042b2761a2639f8cd5e9217b0176b17d2cde4fc67bcfa61c23e3",
+        "task.txt": "a0a36f4c3756f885fc4d75dd2ad2a987dc3606125e7dd1303ee3697912cd776e"
+      },
+      "after_sha256": {
+        "creator_operation_families.py": "3fd763140cbcf0e3af6e81847b1fb59db0a65249fddfd7577175492ce6f6b41d",
+        "runner.py": "d82b81b7c054b6198b3af2736edf732cad823e1cb6d8bac6d4390fa5bbd665f9",
+        "task.txt": "229a1e2b9827465f0e02cea610f0a7146dc532d339cfe38fa78568bba3f909c9"
+      },
+      "restart_required": false,
+      "installation_lock": "runner.lock held; no active invocation modified",
+      "running_code_identity": "Fresh/usr/bin/python3 executed installed runner and family module in bounded acceptance; LaunchAgent starts these installed paths each cycle."
+    },
+    "activation_state": "InstalledACTIVE_FOR_NEXT_INVOCATION;four-hourinterval,pilotexpiry,configuredmodel,providerkeys/budgetsunchanged. Noactiveinvocationmodified(installationheldrunner.lock). NoCore/OPS/queue/membership/tradingwrites. Noadditionalpaidacquisitioncycletriggered.",
+    "provider_requests": {
+      "helius": 0,
+      "birdeye": 0
+    },
+    "storage": {
+      "max_single_file_or_transient_bytes": 5000000,
+      "family_candidates_file_max_bytes": 1500000,
+      "family_review_state_file_max_bytes": 1500000,
+      "proof_history_rows_max": 10000,
+      "target_mints_max": 5000,
+      "selected_edges_per_mint_max": 24,
+      "raw_provider_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "limitations": "Successfulretrospectiveregressiononthealreadyexaminedbaseline,nofreshholdout/generalisationclaim. Testexercisescombineddeterministicfamilyhelper+configuredmodelinterpretation,notunaidedLLMclustering. Instruction-constrained,notsandboxsealed;compliancepermodeldeclaration. Fullinstalledrunneracceptanceusedfrozeninput/outputreplayatmodelboundary;noautonomousfullacquisition/publicationclaim. Somecontinuitytimingunqualified;reference-linkedfamilydoesnotassignallcohortmembers.",
+    "blocker": null,
+    "next_action": "NONE \u2014 approved recognition update COMPLETE;next scheduled cycle uses installed role-linked discovery and post-freeze reference matching.",
+    "updated_at_utc": "2026-11-10T12:37:33.462528+00:00"
   }
 }

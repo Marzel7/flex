@@ -101406,5 +101406,14 @@
     "blocker": null,
     "next_action": "NONE \u2014 UPDATE COMPLETE. Next scheduled run loads deployed structural policy; any efficacy benchmark is a separate new unseen test.",
     "updated_at_utc": "2026-11-10T10:23:07.815437+00:00"
+  },
+  "listener_pumpportal_wrong_mint_correction_20261110": {
+    "engineering_revision": "fix/listener-migration-mint-recovery ded7be47 (pumpfun_curve_listener.py 623112c5, migration_signature_journal.py 3ebf9a84), deployed 2026-11-10 06:05, listener pid 30795",
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "change": "On MIGRATION_NOTIFICATION_MINT_MISMATCH, trust the migrate instruction's mint (account index 2, bonding curve verified) via narrow MigrationJournal.correct_notification_subject() instead of quarantining; PumpPortal reports account index 3 for some MigrateV2 graduations.",
+    "acceptance": "Live 2026-11-10 10:27: [MIGRATION_NOTIFICATION_MINT_CORRECTED] sig n51Cjh7v reported 7rKF4cYJ...pump decoded GCHVpZ7p...pump -> token_analysis migrated (migration_tx n51Cjh7v) 10:27:43 -> wt_walkback_queue waiting 10:27:46; 0 MISMATCH quarantines since deploy. Offline: 9 tests on real quarantined txs; 130/139 migration-suite tests pass, 9 failures identical on snapshot.",
+    "blocker": null,
+    "next_action": "NONE - COMPLETE"
   }
 }

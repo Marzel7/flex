@@ -102009,5 +102009,74 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE for requested one-off. Normal scheduled research continues; remaining price coverage is incomplete.",
     "updated_at_utc": "2026-11-10T15:33:40.220107+00:00"
+  },
+  "creator_operation_index_ui_20261110": {
+    "project": {
+      "git_head": "9da417a48d4da1fc924b6e7e91153f0ee7baa24b",
+      "branch": "codex/creator-operation-index-ui",
+      "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source"
+    },
+    "engineering_revision": "9da417a48d4da1fc924b6e7e91153f0ee7baa24b",
+    "objective": "Compact operation index with linked per-operation token and price detail views, preserved by future research cycles.",
+    "milestone_verdict": "PASS",
+    "audit": "docs/audits/creator_operation_index_ui_20261110.v1.json",
+    "implementation": [
+      "Generated a 16-row main operation index showing existing names, candidate status, token counts and labelled price coverage.",
+      "Generated stable standalone detail pages, back/previous/next links and narrow-screen cards.",
+      "Reused all 263 Watchtower, 92 Byzantine and 26 Watchtower Deep token rows from existing published pages.",
+      "Publisher regenerates views on each cycle; task instructions preserve generated navigation and retained article data. Invalid rendering is rejected before replacing qualified source content."
+    ],
+    "verification": {
+      "focused_tests_passed": 52,
+      "browser": {
+        "downloads_entrypoint": true,
+        "operation_10_tokens": 263,
+        "operation_11_tokens": 92,
+        "operation_12_tokens": 26,
+        "price_table_navigation": true,
+        "mobile_no_document_overflow": true,
+        "browser_errors": 0
+      },
+      "source_operation_articles_unchanged": true,
+      "operation_count": 16,
+      "price_values_recalculated": false,
+      "links_from_downloads": "PASS",
+      "existing_reference_pagination": "PRESERVED"
+    },
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "before_sha256": {
+      "runner.py": "8c3662a4bda36e2e2972ae762501aaad8c30c6448cad6d8ce4c7f2b7f7478bfe",
+      "creator_operation_navigation.py": null,
+      "task.txt": "d04904ba5a1596d606b0d34126bd5be8676be14af1b464d141ac6f06a475753c"
+    },
+    "after_sha256": {
+      "runner.py": "8d0cb74f26e76245734674543e9da957a2a83a073635d3d2719a38dfdd62fa15",
+      "creator_operation_navigation.py": "265452d69ef18211fa91779ed2f887a0d02b3562e87256397024ca30f724e73f",
+      "task.txt": "7251f9f43566f8e5ba2f3993b8d69338096b0676567dd9955f1fdc33581e81ea"
+    },
+    "runtime_acceptance": "Fresh installed runner imported under runner.lock and invoked actual publisher. All16 source article hashes unchanged; Chrome verified actual Downloads entrypoint, detail/back navigation, full reference rows, preserved price values and mobile layout. No restart required.",
+    "activation_state": {
+      "model": "gpt-5.6-terra",
+      "scheduler": "UNCHANGED",
+      "provider_limits": "UNCHANGED",
+      "trading_and_canonical_memberships": "UNCHANGED",
+      "research_runs_started": 0,
+      "provider_requests": 0,
+      "restart_required": false
+    },
+    "storage": {
+      "maximum_single_generated_or_stage_file_bytes": 500000,
+      "maximum_generated_view_set_bytes": 5000000,
+      "maximum_operation_detail_pages": 96,
+      "actual_detail_bytes": 884481,
+      "largest_actual_detail_bytes": 166223,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0,
+      "cleanup": "Only owned stale creator_operation_detail_NN.html/stage views; datasets and reference token pages retained."
+    },
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE. Existing dashboard URL now opens the operation index; scheduled publication preserves this structure.",
+    "updated_at_utc": "2026-11-10T15:53:46.064687+00:00"
   }
 }

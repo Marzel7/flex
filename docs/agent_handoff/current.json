@@ -101745,5 +101745,47 @@
     "blocker": null,
     "next_action": "Continueauthorisedagent-improvementworkwithneutralworkedexamplesandseparateboundedpractice;keeprealoperatornamesoutofdiscoverytraining.",
     "updated_at_utc": "2026-11-10T14:07:54.893543+00:00"
+  },
+  "creator_agent_neutral_playbook_20261110": {
+    "engineering_revision": "7ebfe1bc4a4c98ea608d082298ee19546ef35b15",
+    "engineering_branch": "codex/creator-operation-neutral-playbook",
+    "status": "DEV_COMPLETE",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "audit": "docs/audits/creator_agent_neutral_playbook_20261110.v1.json",
+    "practice_audit": "docs/audits/creator_agent_funding_playbook_practice_20261110.v1.json",
+    "objective": "Give recurring agent neutral worked examples and an early-output workflow, without known-operator seeds.",
+    "implementation": "Bounded32768byteJSON playbook injectedbytrustedlauncher eachrun whenconfigured.8syntheticworkedexamples:sharedroot/providerrotation,unlinkedWSOL,creatorcontinuity,AMMself-receipt,missingfinalleg,allbirthcensus,lateprice/openingdistinction,explicitexecutionblock. Earlyfreeze/review workflowbeforeenrichment. Norealoperatornames/wallets/amountclassificationthresholds. Model-readabletestbundle narrowedtoscreening/provider/censusadapter/task;postprocessorname-bearingcodeexcluded.",
+    "verification": "69focusedtestsPASS;configuredgpt-5.6-terra separatelywrittenpracticeanswers8/8correctonchangedsyntheticvariants. Installedrunnerloadedconfigured8examplebookandhashmatchespracticeinput;3installedfilesmatchqualifiedsource. No rawproviderdata ormarketacquisition.",
+    "deployment": {
+      "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+      "before_sha256": {
+        "funding_playbook.json": null,
+        "runner.py": "5fafdbfe19351584c8560cd5db67c6de06cd2d2f783437001093d0efb91fa4b3",
+        "task.txt": "d6a9d404b0d76e6fe3d67ed4267060d831a59ea6d6313192ece597c5e6d62d96"
+      },
+      "after_sha256": {
+        "funding_playbook.json": "080b242814e583a1d56ce0b5c450493f93889b243bbc13a51748cde4eb821992",
+        "runner.py": "30c882fd8058333c9fc092567a96b74015ebd1fe9ccd5d963e7b8ef9999d842b",
+        "task.txt": "d04904ba5a1596d606b0d34126bd5be8676be14af1b464d141ac6f06a475753c"
+      },
+      "restart_required": false,
+      "running_code_identity": "Fresh Python imported installed runner and loaded configured installed playbook;8examples verified and prompt injection exercised.",
+      "installation_lock": "runner.lock held;no active invocation modified"
+    },
+    "activation_state": "Installedfornextfreshscheduledinvocation;model,budgets,interval,expiry unchanged.",
+    "storage": {
+      "playbook_max_bytes": 32768,
+      "run_and_transient_max_bytes": 5000000,
+      "single_file_max_bytes": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "limitations": [
+      "Instruction/few-shot playbook,notmodel-weighttraining.",
+      "Syntheticpracticeonly,notproof ofrealoperationrecovery orunseenoperatorgeneralisation."
+    ],
+    "blocker": null,
+    "next_action": "Oneisolatedretained-researchdiagnosticwithnewtrace/playbook;notfreshholdoutorpreviousfailedtestPASS.",
+    "updated_at_utc": "2026-11-10T14:16:42.940060+00:00"
   }
 }

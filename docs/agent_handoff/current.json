@@ -101136,5 +101136,34 @@
     "blocker": "One token held by existing HELIUS_OWNERSHIP_RECOVERY_HOLD.23exact early seconds absent; market references do not prove executable fills.",
     "next_action": "Reuse retained Op03 windows. Reconcile existing held token through established ownership policy; do not bypass gate. Do not substitute delayed candles for missing exact opening seconds.",
     "updated_at_utc": "2026-11-10T07:34:51.977552+00:00"
+  },
+  "operation03_observed_price_correction_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PARTIAL_42_OBSERVED_HISTORIES_ONE_HELD",
+    "objective": "Complete correct observed price information for Operation03 without falsely presenting candle data as executable entry.",
+    "audit": "docs/audits/operation03_observed_price_review_20261110.v1.json",
+    "facts": "docs/audits/operation03_qualified_price_backfill_20261110.v1.json",
+    "summary": {
+      "requested": 43,
+      "price_histories": 42,
+      "first_observed_1s": 39,
+      "first_observed_1m": 3,
+      "early_20pct_drop_within_60s": 34,
+      "peak_half_close_observed": 42,
+      "provider_held": 1,
+      "additional_birdeye_requests": 3,
+      "helius_requests": 0,
+      "executable_entries_verified": 0
+    },
+    "implementation": "DefaultUIusesfirst_observed_reference CLOSE with resolution/availabilitydelay, descriptivepeakmultiple,first20%earlydrawdownwithin60s,peak-halfcloseinterval,separatepostmigrationobservedreferenceandsubsequentpeak,andlargestredcandlewithtiming.39one-secondbirthhistories;3minute-onlybirthhistoriesacquiredwith3newrequests. Legacyexactsecondfieldsretainedasprovenance,notmissingobserveddata.",
+    "verification": "All43rows checked;42firstobservedvalues bound to retained candle CLOSE, ratios recomputed,early20%thresholdand60swindowchecked,postmigrationpeaksfollowreferencecompletion. Actual1600x1100browser render reviewed;columnsfit. Downloads symlink verified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Bounded manual acquisition, retained-data reduction and static HTML;no executable runtime change.",
+    "activation_state": "Existing four-hour runner unchanged. Research-state instructs future reuse of corrected Op03fields and preservation of distinct Op02exactpostmigrationreference rule.",
+    "production_state": "No Core/queue/trading writes; Helius ownership policy unchanged. Existing heldchildscope recheckedread-only andstillheld.",
+    "storage": "43fixednormalizedfiles<300000byteseach;facts<262144bytes;review<16384bytes;dashboard300889bytes<500000;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "One token still held by existing HELIUS_OWNERSHIP_RECOVERY_HOLD. Three birthhistoriesminute-only;executableentryunprovenbycandles.",
+    "next_action": "Reuse corrected42histories. Reconcile held token through established ownership policy; no bypass or alias change. Do not silently upgrade minute observations to exact entries.",
+    "updated_at_utc": "2026-11-10T07:54:51.556460+00:00"
   }
 }

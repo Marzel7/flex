@@ -101099,5 +101099,42 @@
     "blocker": "Two exactM+1candle observations absent; one existing provider ownership-recovery hold. Executable fill remains unproven for candle references.",
     "next_action": "Resolve the two absent exact-second observations and existing provider-held token before claiming complete opening coverage. Do not substitute later candles or certify fills.",
     "updated_at_utc": "2026-11-10T07:11:08.662895+00:00"
+  },
+  "operation03_price_backfill_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PARTIAL_PRICE_DATA_42_OF_43",
+    "objective": "Acquire Operation03 token price histories and update operation-first UI.",
+    "audit": "docs/audits/operation03_qualified_price_backfill_20261110.v1.json",
+    "summary": {
+      "tokens_requested": 43,
+      "tokens_acquired": 42,
+      "tokens_blocked": 1,
+      "exact_opening_references": 19,
+      "missing_exact_opening_second": 23,
+      "exact_migration_references": 35,
+      "migration_delay_range_seconds": [
+        65,
+        165282
+      ],
+      "peaks_before_migration_reference": 38,
+      "tokens_with_between_window_gaps": 0,
+      "provider_attempts": {
+        "helius": 84,
+        "birdeye": 189,
+        "retries": 0,
+        "http_200": 273,
+        "http_429": 0
+      }
+    },
+    "finding": "Verified successful CREATE and migrate instruction timestamps for42tokens. Migration occurred65seconds to165282seconds afterbirth, unlike instantmigrationOperation02.19exactbirth+1secondCLOSEmarketreferences;23missingexactsecondswithheld.38observedpeaksbeforemigrationreference;correspondingmultipleswithheld.21minute-gaprequestscover11longpre-migrationintervals.",
+    "verification": "All43table rows checked;42acquisitionartifacts retained outside rotating run folders. ExactsecondCLOSEvalues and ratios checked; missing reference values withheld. HTML<500000bytes and Downloads symlink delivery verified. Provider requests84Helius+189Birdeye,0retries/429.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Finite acquisition, normalized retained facts and static dashboard; no executable runtime changes.",
+    "activation_state": "Existing four-hour runner unchanged; research-state records durable Op03 results and next priority Op04.",
+    "production_state": "No Core, ops, queue or trading writes; existing Helius gate and ownership recovery preserved.",
+    "storage": "43fixednormalizedfiles<300000bytes each, totaldesignbound12900000bytes; audit<262144bytes; dashboard287614bytes<500000; rawretentionOFF; unboundedgrowthpaths0.",
+    "blocker": "One token held by existing HELIUS_OWNERSHIP_RECOVERY_HOLD.23exact early seconds absent; market references do not prove executable fills.",
+    "next_action": "Reuse retained Op03 windows. Reconcile existing held token through established ownership policy; do not bypass gate. Do not substitute delayed candles for missing exact opening seconds.",
+    "updated_at_utc": "2026-11-10T07:34:51.977552+00:00"
   }
 }

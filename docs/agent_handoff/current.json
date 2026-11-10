@@ -100887,5 +100887,52 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T05:34:42.313000+00:00"
+  },
+  "creator_operation_provider_bridge_repair_20261110": {
+    "engineering_revision": "40afd6674782a54d7c33aefff663807fd9f5f7ea",
+    "engineering_branch": "codex/creator-operation-provider-bridge",
+    "status": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "objective": "Fix scheduled research Helius gate discovery and prove gated birth-to-Birdeye acquisition.",
+    "audit": "docs/audits/creator_operation_provider_bridge_repair_20261110.v1.json",
+    "root_cause": "Task had prose discovery instructions but no tested installed helper; the agent avoided module import although the gate/protection modules have no initialization on import.",
+    "implementation": "Stable provider_bridge.py loads actual supervised creator-resolution environment and installed side-effect-free gate; validates active paired authority; uses existing owned mint investigation and provider budget enforcement. Explicit interpreter/helper command installed into task.",
+    "actual_runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/provider_bridge.py",
+    "pre_identity": "Helper absent; prior scheduled run HELIUS_GATE_UNAVAILABLE,0providerrequests.",
+    "post_identity": "b58c6764121f2f2e7d6c52fd4cd5595a427032508e1132c651cd80dd0dcd5417",
+    "installed_task_sha256": "2d514dbc2fd9da97301c4f6f2f485350ec7bc3f3cce2c4ef3632fa88ff033e1a",
+    "reload": "No restart required; next invocation reads updated task/helper. Existing schedule unchanged.",
+    "verification": "16focused tests pass. Installed helper probe validates authoritative gate. Actual Codex-context probe PASS,0providers. Live D5Jz.../CC:1gated Helius lookup+3Birdeye requests allHTTP200,424paired1s+28minute candles. Cached secondcall REUSED with0dispatches. Browser-verified token row, dashboard header/summary and canonical Downloads link updated.",
+    "result": {
+      "token_symbol": "CC",
+      "mint": "D5JzKppVwUBgyj1xVavUCwzBZtjWHCJnWSkYXjBupump",
+      "opening_reported_cap": 3032.7539793653423,
+      "observed_peak_reported_cap": 40375.834222009675,
+      "other_candidate_tokens_pending": 16
+    },
+    "activation_state": "Existing four-hour pilot ACTIVE, next expected08:36UTC10Nov. Explicit installed helper command in task; source scripts no longer need to rediscover gate.",
+    "provider_limits": {
+      "helius_requests": 20,
+      "helius_policy_credits": 200,
+      "birdeye_requests": 18,
+      "price_tokens": 6,
+      "concurrency": 1,
+      "automatic_retries": 0,
+      "duplicate_failed_requests": "Refused; durable dispatch before network."
+    },
+    "storage": {
+      "normalized_token_artifact_max_bytes": 300000,
+      "dispatch_and_cache_each_max_bytes": 2000000,
+      "cache_tokens_max": 1000,
+      "dashboard_max_bytes": 500000,
+      "audit_max_bytes": 65536,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0,
+      "full_db_clone": false
+    },
+    "production_state": "No worker restarts, no Core/ops writes, no gate disable/reset, no trading changes. Provider budget bookkeeping only.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE for provider bridge repair. Scheduled runs continue bounded pending backfill.",
+    "updated_at_utc": "2026-11-10T05:48:42.275721+00:00"
   }
 }

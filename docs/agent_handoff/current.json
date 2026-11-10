@@ -101415,5 +101415,55 @@
     "acceptance": "Live 2026-11-10 10:27: [MIGRATION_NOTIFICATION_MINT_CORRECTED] sig n51Cjh7v reported 7rKF4cYJ...pump decoded GCHVpZ7p...pump -> token_analysis migrated (migration_tx n51Cjh7v) 10:27:43 -> wt_walkback_queue waiting 10:27:46; 0 MISMATCH quarantines since deploy. Offline: 9 tests on real quarantined txs; 130/139 migration-suite tests pass, 9 failures identical on snapshot.",
     "blocker": null,
     "next_action": "NONE - COMPLETE"
+  },
+  "creator_agent_recent_launch_oneoff_20261110": {
+    "engineering_revision": "c203d8fae84ad1e76209e364f727a5d6b0f40183",
+    "engineering_branch": "codex/creator-operation-recent-births",
+    "source_worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source",
+    "status": "PARTIAL_ONE_OFF_PUBLISHED_WITH_SUPERVISED_RECOVERY",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "objective": "Run one-off;prioritiserecentlaunchaccounts;locallycensusallbirthsincludingbirth-only;fetchBirdeyepriceswithinexistinglimits.",
+    "audit": "docs/audits/creator_agent_recent_launch_oneoff_20261110.v1.json",
+    "deployment_audit": "docs/audits/creator_agent_recent_launch_deployment_20261110.v1.json",
+    "implementation": "Permanentrecency-firsttask;indexedcreator-birthsCLI(Corepf_ws_creator)withnumeric/ISOtimestampnormalisation;up6creators/100rowspercreator,localtotalsandmigration-recordcoverage. Recentbirthpricesuseelapsedclosedbucketsandlaternonoverlappingextensions. --oncepreservesscheduledduetime. Boundedstreamparserdropsoversizedirrelevanttool-eventlineswhileretainingfinalresults,withoutincreasing1MBbuffer/16MBstreamcaps. Boundedstage-fragmentCLIupdatesonlytargetarticles,preservestokensandmanagedsection.",
+    "results": "Threecreatorwallets/sixlocalbirthschecked;0withoutlocalmigrationrecords,notcompletionproof. FournewBirdeyehistoriesplusonevalidcachedhistory;onebirthlookupgate-integrityrefusal. AddedprovisionalCandidate08(fourlocalbirths,threepriced,onepending),updatedexisting06withoutduplicatingit. Twoelapsedminuteprofilesremainpendinglaterextensions.",
+    "execution_limitations": "InitialattemptfailedEVENT_BUFFER_BUDGETbeforepaidledger. Retryacquireddata/censusbutdeclinedminifiedHTMLediting;boundedcontinuationtimedoutafteradditionalpricework. Finaltargetedpublicationwassupervised. Fullyunaidedcycleonfinalrevisionnotyetverified;donotcallthisautonomoussuccess. Usagefromfailed/timedoutphasesunknown;fullcreditestimatewithheld.",
+    "verification": "34focusedtestspassed. Installedsourcehashesmatchqualifiedcommit. Actualone-offexercisedcensusandpartialprices;installedstage-fragmentCLI5boundedactionscheckedpreservation. Operations1-5and7textunchanged;new4rowtable,migrationblanks,reference/peakratiosverified;browserrenderreviewed;Downloadsdeliveryverified.",
+    "deployment": {
+      "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+      "before_sha256": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py": "ec1417aee6c62a203befa849dd5f9f8a8f7ff3ce451fdd56acb221acd9568c91",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/provider_bridge.py": "99ad5f812019149e96f55cf4ed9c188ec3efee066274d4b6abbf323d49860142",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/task.txt": "79926f06721a4edf226cced659f21fdab99e5b6e80cba00623fc934d2756db77"
+      },
+      "after_sha256": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py": "93d7c6d746793584214ba7288fc3b4a1aea7d476a03b7d375c6cadfeb88e148f",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/provider_bridge.py": "64e879ddf9399e0739f60ec47c5b3f6901611de322a0b5797e7a13dd9434cf6f",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/task.txt": "2842d7c2337ebee39f2dd046b4467aba225144487aa2af380c0dc3392bfe7cfd"
+      },
+      "restart_required": false,
+      "code_identity": "Actual/usr/bin/python3one-offrunnerinvokedinstalledscripts;configuredgpt-5.6-terraanalysedandacquireddata;finalalgotraderPythonstage-fragmentCLIexecutedinstalledhelper.",
+      "scope": "ComponentdeploymentPASS;overallrunPARTIAL."
+    },
+    "provider_safety": "Sharedledger7Heliusattempts(6HTTP200,1Integrity),12BirdeyeHTTP200;0paidretries;global20H/200credits/18B/sixsubjectcapsunchanged. Fixednormalizedpricecopiespreservedforreuse;failedbirthcacherequiresreviewbeforeauthorisedretry.",
+    "production_flags": "Nothird-partytrading/Core/queue/membershipwrites. Four-hourintervalandpilotexpiryunchanged. Nextscheduledrun2026-11-10T12:42:18.721740+00:00preserved.",
+    "storage": {
+      "local_census_files_max": 6,
+      "local_census_file_max": 65536,
+      "local_census_rows_per_creator_max": 100,
+      "stage_fragment_max": 262144,
+      "stage_actions_max": 6,
+      "census_summary_max": 262144,
+      "price_file_max": 300000,
+      "cache_max": 2000000,
+      "run_total_max": 5000000,
+      "stream_buffer_max": 1048576,
+      "stream_total_ram_budget": 16000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "blocker": "OnebirthverificationfailedgateIntegrity(exactcodewasnotpersisted). Autonomouspublicationdidnotcompletebeforetargetedhelperrecovery;newhelpernotyetprovenbyunaidedfullcycle.",
+    "next_action": "Reviewrecordedgate-integrityfailurebeforequalifiedretryof9GLdwAST\u2026;resumeXandMrBeastpartialminuteprofilesinalatercycleonly. Nextscheduledagentusesrecency/census/staginghelpers;reusefournewpluscachedhistoriesanddonotresetbudgets/identities.",
+    "updated_at_utc": "2026-11-10T11:17:03.090136+00:00"
   }
 }

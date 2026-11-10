@@ -101254,5 +101254,36 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T08:21:49.844574+00:00"
+  },
+  "operation04_price_backfill_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "PASS_BOUNDED_PRICE_BACKFILL",
+    "objective": "Backfill Operation04token price histories and update UI.",
+    "audit": "docs/audits/operation04_qualified_price_backfill_20261110.v1.json",
+    "summary": {
+      "requested": 3,
+      "price_histories_acquired": 3,
+      "one_second_first_observations": 3,
+      "one_second_peaks": 3,
+      "gmgn_price_high_comparisons": 3,
+      "max_relative_price_difference": 0.00789309700266505,
+      "provider_requests": {
+        "helius": 3,
+        "birdeye": 11,
+        "gmgn_kline": 3
+      },
+      "migration_completion_verified": 0
+    },
+    "implementation": "SOBCAT,KEYFO,HALLOWINU acquired: qualifiedsuccessfulCREATEtimestamps;firstobserved1sCLOSEcaps;observedpeaks/multiples;early20%drawdownwithin60s;peak-halfcloseinterval;largestredcandleandtiming. SOBCATextra600-900sbirth1swindowresolvespeak. GMGNpricehighscomparedoverbirth2h. Migrationcellsblank;historicalsupply/entrynotasserted.",
+    "verification": "All3rowscheckeddirectlyagainstretainedcandles;all3peakshave1sevidence;ratioschecked;migrationcellsblank;actual1600x1100browserrenderreviewed;storageboundsandDownloadssymlinkverified. Localstr/Pathbookkeepingerrorrecoveredfromvalidcachewithoutrepeatingproviderrequests.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Finite data acquisition/reduction and static HTML only;no executable runtime changes.",
+    "activation_state": "Existing four-hour runner unchanged;research-state points to durable Op04facts and nextpriorityOp05.",
+    "production_state": "NoCore/queue/tradingwrites;3gatedHelius+11Birdeye+3GMGNchartcommands;serialpacing;no manualretries;BIRDEYEauthoritativecredentialonly.",
+    "storage": "3fixednormalizedtokenfiles<300000byteseach;900000bytestotaldesignbound;runfolder<5000000bytes;manifest/audit<65536bytes;HTML<500000bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": null,
+    "limitations": "Peaksareobservedwithinbirth2h,notlifetimeATH. Historicalcirculatingsupply/executableentriesnotverified.Migrationcompletionnotassessed.GMGNpricehighdifferences0.10%,0.10%,0.79%retainedasproviderdifferences.",
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T08:30:03.150384+00:00"
   }
 }

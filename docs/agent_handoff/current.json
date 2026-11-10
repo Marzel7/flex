@@ -100734,5 +100734,24 @@
     "production_flags": "unchanged",
     "blocker": "Fix requires listener/gate code change; helius_* modules are pinned in guarded startup.",
     "next_action": "User decision: (1) qualify a listener/gate change so mintless PumpSwap migration lookups are admitted and retried until resolved; (2) bounded backfill of the 293 stuck signatures (mint from on-chain tx)."
+  },
+  "creator_operation_run_summary_ui_20261110": {
+    "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
+    "status": "PASS_STATIC_UI_SCHEDULER_NOT_CONFIGURED",
+    "objective": "Add brief per-four-hour-run updates to research dashboard.",
+    "implementation": "Latest-update panel and expandable history; actual manual acquisition baseline (0new operations,1updated,0new tokens,6price updates). Structured capped ledger defines completed/no-change/partial/failed entries and usage/gaps.",
+    "artifacts": [
+      "docs/audits/creator_funding_opportunities.html",
+      "docs/audits/creator_operation_run_summaries.v1.json"
+    ],
+    "verification": "Headless Chrome1200x1000 render visually reviewed; counts/source timestamp checked; HTML structure, unique panel ID and Downloads hash verified.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Static HTML and data-contract artifact only; no scheduled runner implementation.",
+    "activation_state": "Four-hour cadence agreed but scheduler NOT_CONFIGURED. No scheduled runs or next-run timestamp claimed. Future runner must write ledger and render summaries.",
+    "production_state": "No runtime/config/database/queue/trading changes; provider requests0.",
+    "storage": "HTML<500000bytes each x2; ledger<65536bytes,design100entries,summary1200chars. RawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE for requested UI addition. Configure/wire recurring runner as separate implementation before automated summaries occur.",
+    "updated_at_utc": "2026-11-10T00:20:18.180912+00:00"
   }
 }

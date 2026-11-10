@@ -103242,5 +103242,39 @@
     "updated_at_utc": "2026-11-10T20:58:34.808643+00:00",
     "limitation": "Unavailable markers are not price data. Five previously blocked tokens still lack qualified acquisition. Other gaps require qualifying candles, reference or migration evidence. Research added one token during publication wait.",
     "provider_calls": 0
+  },
+  "creator_research_failure_diagnostics_20261110": {
+    "objective": "Make scheduled research failures diagnosable and preserve truthful status when rendering fails.",
+    "project": {
+      "git_head": "8d2f2f4041df81f7bf4446ea1e7cb877cbdf4c08",
+      "branch": "codex/research-failure-diagnostics"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py",
+    "before_sha256": "f607327beeabea65dad054d8d538b94aaf0f3915c64cee1c9f9297c8765d26c4",
+    "after_sha256": "b091b79a6a2d4c1a3d104acf86686047f11b8497189fafe3c7455cd55bf66059",
+    "qualified_tests_passed": 63,
+    "installed_runtime_tests_passed": 25,
+    "installed_acceptance": "Actual installed runner executed against compact temporary fixtures, including real SQLiteCANTOPEN, final-publication failure and early-publication failure. No model/provider calls.",
+    "restart_required": false,
+    "process_identity": "launchd starts a fresh Python process importing this installed runner each cycle. Existing idle runner lock held during installation.",
+    "legacy_stale_status_corrected": true,
+    "next_due_unchanged": "2026-11-11T00:54:58.806033+00:00",
+    "storage": {
+      "diagnostic_single_and_transient_file_bytes": 32768,
+      "per_run_failure_files": 1,
+      "per_run_progress_files": 1,
+      "latest_failure_files": 1,
+      "diagnostic_failures_per_file": 2,
+      "retained_run_directories": 41,
+      "run_bytes": 5000000,
+      "raw_payload_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Next scheduled invocation uses installed diagnostics; provider budgets, model, cadence, trading and gate unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T21:09:48.700401+00:00"
   }
 }

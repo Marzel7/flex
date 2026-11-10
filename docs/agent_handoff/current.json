@@ -101327,5 +101327,20 @@
     "production_flags": "unchanged; gate state edited only through the gate API",
     "blocker": null,
     "next_action": "User installs LaunchAgent: cp scripts/launchd/com.flex.helius-gate-root-retention.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.flex.helius-gate-root-retention.plist"
+  },
+  "creator_research_known_identity_gap_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "status": "AUDIT_CONFIRMED_RECONCILIATION_GAP",
+    "objective": "Explain why recurring research did not re-establish Watchtower/Byzantine.",
+    "audit": "docs/audits/creator_operation_known_identity_gap_20261110.v1.json",
+    "finding": "Task seeds pilot funding candidates and scans latest5000completedWalkback;knownregistry/fingerprint reconciliationandhistoricalpositivecontrolsarenotexplicitlyrequired. KnownregistrydoescontainWatchtower/Byzantine/Nexus. Currentlatest5000canonical-membershipjoinreturned0;thisdoesnotestablishinactivityorabsenceofunassignedmatchinglaunches. Researchnumberedgroupsarenotcanonicaloperationidentities.",
+    "verification": "Installedtaskandcompactrunresultsinspected;registryexistencecheckedreadonly;boundedindexedlatest5000membershipjoincompleted;0providerrequests.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Read-only diagnosis; no executable/task change.",
+    "activation_state": "Existing four-hour runner/task unchanged; correction not implemented.",
+    "storage": "Diagnostic<16384bytes;rawretentionOFF;unboundedgrowthpaths0.",
+    "blocker": "Researchprocessdoesnotexplicitlyvalidateknown-operationrediscovery/reconcilecandidateidentities.",
+    "next_action": "Implementknownregistry/evidence matching before newcandidatecreation andhistoricalknown-positivecontrols, separatelyreportingrecentactivity versus identityreconfirmation. Preserveexistingmembershipandownershipsafety.",
+    "updated_at_utc": "2026-11-10T09:32:57.549524+00:00"
   }
 }

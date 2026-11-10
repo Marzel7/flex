@@ -102660,25 +102660,30 @@
     "updated_at_utc": "2026-11-10T18:24:02.371773+00:00"
   },
   "creator_birdeye_remaining_backfill_20261110": {
-    "objective": "Approved remaining recent eligible Birdeye backfill, ceiling825 Birdeye/275 Helius.",
-    "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
-    "milestone_verdict": "HOLD",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Data-only acquisition and existing installed renderer publication; no executable changes.",
-    "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-remaining-20261110/manifest.json",
-    "new_profiles": 0,
-    "eligible_targets": 134,
-    "attempted_subjects": 26,
-    "untouched_subjects": 108,
-    "ledger_reservations": {
-      "birdeye": 0,
-      "helius": 27
+    "project": {
+      "git_head": "0328b0f337b133ca2918d367242967b6333b5d8b",
+      "branch": "codex/birdeye-backfill-display"
     },
-    "reservation_note": "Includes pre-dispatch refusals and one interrupted dispatch; not successful wire-call counts.",
-    "linked_coverage": {
-      "tokens": 60,
+    "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
+    "objective": "Backfill remaining recent eligible tokens within approved825Birdeye/275Helius envelope.",
+    "milestone_verdict": "PARTIAL",
+    "bounded_pass_status": "COMPLETE",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Data-only acquisition and existing installed renderer; no code/config/schedule change.",
+    "new_nonempty_profiles": 104,
+    "frozen_targets": 134,
+    "failed_or_interrupted": 30,
+    "untouched": 0,
+    "ledger_reservations": {
+      "birdeye": 312,
+      "helius": 135
+    },
+    "request_note": "Helius count includes gate refusals and interrupted reservation, not successful wire calls.",
+    "coverage": {
+      "before": 60,
+      "after": 142,
       "retained": 335,
-      "remaining": 275
+      "remaining": 193
     },
     "limits": {
       "tokens": 275,
@@ -102696,18 +102701,23 @@
       "unbounded_growth_paths": 0
     },
     "verification": {
-      "dashboard_summary_present": true,
+      "three_nonempty_families_each": true,
+      "dashboard_sha256": "c3ec3d8564d5e48ff285e0feb73d00b5f757565f93e31eec597d00251c29bab2",
+      "linked_counts_verified": true,
       "schedule_unchanged": true,
-      "dashboard_sha256": "e663a452c83074c6c8bd6d9bddccf04a8f4482f54ff33a70b19bf18f7a907d81",
-      "existing_prices_preserved": true
+      "existing_published_metrics_take_precedence": true,
+      "browser": {
+        "funders": 37,
+        "linked_profiles": 142,
+        "summary_in_document": true,
+        "detail_navigation_verified": true
+      }
     },
-    "production_flags": "No gate, credential, recurring budget, trading or canonical membership changes.",
-    "blocker": "Authoritative Helius gate OUTAGE and acquisition deferred after cooldown; no qualified CREATE proof, so Birdeye acquisition not dispatched.",
-    "next_action": "After authoritative Helius recovery, resume only108 untouched frozen targets within remaining approved budget; separately review26 failed/interrupted subjects before retry.",
-    "updated_at_utc": "2026-11-10T18:52:07.480314+00:00",
-    "project": {
-      "git_head": "0328b0f337b133ca2918d367242967b6333b5d8b",
-      "branch": "codex/birdeye-backfill-display"
-    }
+    "production_flags": "No gate/credential/recurring limits/trading/canonical changes.",
+    "blocker": "30 unavailable/interrupted subjects remain excluded from retries; older/ineligible coverage outside recent frozen scope.",
+    "next_action": "Approved untouched recent-target pass exhausted. Review failed subjects individually before any retry; scope older tokens separately.",
+    "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-remaining-20261110/manifest.json",
+    "updated_at_utc": "2026-11-10T19:26:15.300829+00:00",
+    "publication_note": "104 normalized profiles acquired;82 additional linked rows.22 profiles overlapped existing published price evidence, which takes precedence."
   }
 }

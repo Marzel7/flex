@@ -102978,5 +102978,38 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T20:23:58.527359+00:00"
+  },
+  "creator_funder_unified_table_20261110": {
+    "objective": "Render every single-funder token in one consistent seven-column table.",
+    "project": {
+      "git_head": "875b2ac1bbacbd2e7ebaa2b94950bc5f0f8bafe1",
+      "branch": "codex/unified-funder-token-table"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "83f660585d5b22933d08b591a68edcc0717a306ab33dac41c3403bc4e08b337d",
+    "after_sha256": "1ffd73904b256a8e7ded94e83f2f7190be97b3db8703c5ee6eaedb99fcd0166e",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 37,
+    "functional_acceptance": {
+      "pages": 37,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "one_table_all37pages": true,
+      "browser_tokens": 7,
+      "browser_columns_each_row": 7
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T20:29:13.976239+00:00"
   }
 }

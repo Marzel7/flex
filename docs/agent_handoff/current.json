@@ -103403,5 +103403,72 @@
     "updated_at_utc": "2026-11-10T21:28:23.005019+00:00",
     "deployment_note": "First install/publication succeeded; acceptance harness then encountered updated39candidate count rather than its stale37assertion. Idempotent fresh publication verified against current snapshot.",
     "original_predeployment_sha256": "27f21fba1bfc2ed39f52c695a209813eba7e238ad622090a25870634c2827f61"
+  },
+  "creator_global_price_queue_20261110": {
+    "objective": "Make pricing of newly displayed retained-funder launches part of the agent workflow and backfill the missed latest token.",
+    "project": {
+      "git_head": "0e1c93e38127d744e9f097c367ed470e4a4474d2",
+      "branch": "codex/global-funder-price-queue"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_paths": [
+      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py",
+      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/task.txt"
+    ],
+    "before_sha256": {
+      "runner": "b091b79a6a2d4c1a3d104acf86686047f11b8497189fafe3c7455cd55bf66059",
+      "task": "a5d178875de3373ce04fb07c909c15af0629743c8bda2aec5eedb263d92b6cd4"
+    },
+    "after_sha256": {
+      "runner": "103be3fac86d6ce5fd7d9026ee59cb4b7cf5909d210ca5b084b158bd6ad70f1b",
+      "task": "85cddab261181f779112a6a81dd57a194938cc6aabf886b0582a2d8ca5f20594"
+    },
+    "tests_passed": 67,
+    "installed_runtime_tests_passed": 27,
+    "runtime_acceptance": "Installed runner planned actual neutral global queue from current funder snapshot; installed tests verified global selection, blocked/complete reuse exclusions and partial outcome for unattempted priority tokens. Actual missed token acquired and published.",
+    "acquisition": {
+      "mint": "38gjirePwWw2ZVn5Z2ez2AzigK2zPi4KKmNgtWwxpump",
+      "symbol": "hopecoin",
+      "birdeye": 3,
+      "helius": 1,
+      "families_nonempty": 3,
+      "durable_artifact": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-latest-20261110/data/38gjirePwWw2ZVn5Z2ez2AzigK2zPi4KKmNgtWwxpump.json"
+    },
+    "actual_queue": {
+      "pending": 12,
+      "priority_subjects": 5,
+      "blocked_excluded": 6
+    },
+    "restart_required": false,
+    "code_identity": "Fresh per-cycle Python imports installed runner; hash-qualified task instructions appended. No running cycle was interrupted.",
+    "schedule_unchanged": {
+      "interval_hours": 4,
+      "activation_state": "ACTIVE",
+      "next_run_at": "2026-11-11T00:54:58.806033+00:00",
+      "ends_at_utc": "2026-11-17T00:27:17.878582+00:00",
+      "scheduler": "launchd",
+      "model": "gpt-5.6-terra",
+      "pilot_days": 7
+    },
+    "storage": {
+      "queue_and_outcome_file_and_stage_max_bytes": 65536,
+      "queue_rows": 24,
+      "priority_rows": 5,
+      "manual_token_file_bytes": 300000,
+      "run_bytes": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "New queue active for next agent invocation. Six subjects/18Birdeye/20Helius shared limits unchanged. Queue is read after independent discovery freeze; no new canonical identity hints.",
+    "limitation": "Global coverage is incremental within existing limits; not every missing token can be acquired every cycle. Blocked requests remain blocked.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T21:34:07.384940+00:00",
+    "browser_acceptance": {
+      "hopecoin_newest_first": true,
+      "opening_reference_and_peak_visible": true,
+      "awaiting_price_label_removed": true
+    }
   }
 }

@@ -102301,5 +102301,89 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE. The next existing scheduled cycle uses the new check.",
     "updated_at_utc": "2026-11-10T16:23:21.436972+00:00"
+  },
+  "creator_direct_funder_requested_run_20261110_1630": {
+    "engineering_revision": "c8f066fc336dedc23a0e8c033382cf29c487953f",
+    "objective": "Run one bounded live cycle with the new direct-funder check and report what it raises.",
+    "milestone_verdict": "PASS",
+    "research_status": "PARTIAL",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Existing qualified installed code invoked; no executable changes.",
+    "run_id": "run-984d54defe2842408b24b552313d99be",
+    "result_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/runs/run-984d54defe2842408b24b552313d99be/result.json",
+    "finished_at_utc": "2026-11-10T16:30:41.509050+00:00",
+    "verification": {
+      "turn_state": "completed",
+      "execution": {
+        "state": "READY",
+        "findings_present": true,
+        "review_present": true
+      },
+      "actions": 22,
+      "new_walkbacks_screened": 21,
+      "total_screened": 5105,
+      "direct_funder_candidates_generated": 59,
+      "families_frozen": [
+        {
+          "candidate_key": "route-family-aeac2d1ea454361d257f",
+          "kind": "upstream_role_route",
+          "retained_creators": 74,
+          "supporting_launches_reviewed": 4
+        },
+        {
+          "candidate_key": "direct-funder-45ec1066e64c13e856d1",
+          "kind": "direct_funder_fanout",
+          "retained_creators": 51,
+          "supporting_launches_reviewed": 4
+        },
+        {
+          "candidate_key": "direct-funder-06941f4efb894ae24050",
+          "kind": "direct_funder_fanout",
+          "retained_creators": 12,
+          "supporting_launches_reviewed": 4
+        },
+        {
+          "candidate_key": "direct-funder-1e0e661f779ae8c026c9",
+          "kind": "direct_funder_fanout",
+          "retained_creators": 2,
+          "supporting_launches_reviewed": 2
+        }
+      ],
+      "groups_reviewed": 5,
+      "launches_investigated": 12,
+      "reference_family_matches": {},
+      "published_research_article": "lead-17",
+      "published_token_price_rows": 3,
+      "summary_header_and_detail_link_verified": true
+    },
+    "interpretation": "Three direct-funder hypotheses cover retained groups of51,12,2creators; one upstream family covers74creators. Group sizes are not newly discovered launches or individual deep reviews. No Watchtower/Byzantine reference match in this cycle. One combined research entry was added, not four confirmed operators.",
+    "provider_requests": {
+      "birdeye": 15,
+      "helius": 5
+    },
+    "estimated_standard_credits": 12.93261,
+    "remaining_gaps": [
+      "GpdnRAeoLWTrV4rWxksDQukvwC5C9iSvQSvUrSQJpump price profile remains unavailable: HELIUS_GATE_PUBLICATION_AMBIGUOUS.",
+      "Two completed acquired profiles remain available only in normalized run artifacts, not the staged three-row article."
+    ],
+    "budget_stops": [
+      "Authoritative Helius gate denied one price request; no retry performed."
+    ],
+    "activation_state": {
+      "model": "gpt-5.6-terra",
+      "next_run_at": "2026-11-10T16:50:04.720691+00:00",
+      "interval_hours": 4,
+      "trading_and_canonical_memberships": "UNCHANGED",
+      "provider_limits": "UNCHANGED"
+    },
+    "storage": {
+      "run_max_bytes": 5000000,
+      "actual_run_bytes": 1932161,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE for requested one-off. Normal scheduled research continues; two acquired profiles need UI linkage and one token remains denied by the authoritative gate without retry.",
+    "updated_at_utc": "2026-11-10T16:33:51.449394+00:00"
   }
 }

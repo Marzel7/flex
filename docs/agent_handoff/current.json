@@ -102385,5 +102385,97 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE for requested one-off. Normal scheduled research continues; two acquired profiles need UI linkage and one token remains denied by the authoritative gate without retry.",
     "updated_at_utc": "2026-11-10T16:33:51.449394+00:00"
+  },
+  "creator_known_direct_infrastructure_20261110": {
+    "project": {
+      "git_head": "64f155c30f9f41225e977b3d0d5cef896c7ffc76",
+      "branch": "codex/known-infra-direct-table",
+      "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source"
+    },
+    "engineering_revision": "64f155c30f9f41225e977b3d0d5cef896c7ffc76",
+    "objective": "Use existing infrastructure/CEX mapping to place known immediate funders in a separate table beneath the operation index; preserve indirect paths and retained evidence.",
+    "milestone_verdict": "PASS",
+    "audit": "docs/audits/creator_known_direct_infrastructure_20261110.v1.json",
+    "implementation": [
+      "Reused existing get_funder_label mapping and exact address-bound active runtime CEX/infra labels; no heuristic or external classification.",
+      "Known direct-funder groups remain in retained family data and a bounded snapshot but are excluded from operator-candidate shortlists and freeze admission. Upstream-only infrastructure ancestry stays eligible for independent private-route review.",
+      "Added a separately sorted lower known-service table with mapped names, funding-wallet links, creator/token counts and latest linked dates.",
+      "Preserved source articles; moved mapped-service price rows only in the rendered views. Mixed Operation17 retains two rows; Bybit DREAD evidence is available in the lower table.",
+      "Recurring task and publisher maintain the separation automatically."
+    ],
+    "verification": {
+      "focused_tests_passed": 77,
+      "browser": {
+        "mapped_direct_rows": 22,
+        "lower_table_position": "PASS",
+        "bybit_DREAD_price_evidence_preserved": "PASS",
+        "operation17_remaining_price_rows": 2,
+        "detail_back_navigation": "PASS",
+        "mobile_document_overflow": false
+      },
+      "runtime_deployment": {
+        "before_sha256": {
+          "creator_operation_infrastructure.py": null,
+          "creator_operation_families.py": "552d73aa0c06bb82db5ad2b230b918fa18c7320c48a2718a7c14dbbb3d164a31",
+          "creator_operation_navigation.py": "1a16a7de62e8e090015aa707400e230386ad63228dbcab3e83f46de80f269cc1",
+          "runner.py": "eb233332e3e087216240a6fa19e0727cb4e7a0436bc03517349e43766e83fb33",
+          "task.txt": "0fa32f9d2a22dec8e71c308ceabd062a7cd1ce883c049e9cedaf42d2195e7677"
+        },
+        "after_sha256": {
+          "creator_operation_infrastructure.py": "1c522d7fb52a796196139d1bf7cfaec3762f70c02073d0fd1c1f460c1a0167e3",
+          "creator_operation_families.py": "afc0fcf9318626d13d709818a37494436f113fb9a2bfad0ecd0aefaccb28d98d",
+          "creator_operation_navigation.py": "95cee12a9684fe34ab39bd01523dea0e079938f8cdc55bfe930a21ca39c8e7f2",
+          "runner.py": "12b92dc7723b268a8d92a40d31edad462af70eb46beec245a570f20b1159be66",
+          "task.txt": "cde10060e4e595e6b15e53a2aad91ac972d73e00675ef4af9a97b44b6540e94c"
+        },
+        "engineering_revision": "64f155c30f9f41225e977b3d0d5cef896c7ffc76",
+        "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+        "restart_required": false,
+        "mapping_source": "/Users/kevinkeaveney/Dev/claude/flex/src/utils/infra_mapping.py",
+        "mapping_sha256": "00837174032e1350ffc90b552dbc1b2f16bf14728ed325ccdd5bbb69f68daa08",
+        "local_refresh_seconds": 0.474,
+        "screened_mints": 5000,
+        "direct_funder_groups": 59,
+        "known_direct_funders": 22,
+        "research_shortlist_excludes_known": true,
+        "source_articles_unchanged": true,
+        "operation17_display_rows": 2,
+        "service_price_rows": 1,
+        "main_page_bytes": 392391,
+        "known_index_bytes": 26388,
+        "schedule_unchanged": true,
+        "provider_requests": 0,
+        "model_runs": 0,
+        "installed_at_utc": "2026-11-10T16:56:41.041786+00:00"
+      }
+    },
+    "runtime_deployment_gate": "PASS",
+    "runtime_evidence": "Qualified installed detector, mapping helper, renderer, runner and task were installed under runner.lock and executed in a fresh process. Actual bounded detector build excludes mapped direct sources from the shortlist. Actual publisher and Chrome verify the displayed separation. No restart required.",
+    "activation_state": "Model, four-hour schedule, provider limits, credentials, trading and canonical memberships unchanged. No research cycle or external provider acquisition started.",
+    "storage": {
+      "known_snapshot_max_bytes": 1500000,
+      "known_snapshot_stage_max_bytes": 1500000,
+      "family_candidates_max_bytes": 1500000,
+      "run_max_bytes": 5000000,
+      "main_and_detail_single_file_max_bytes": 500000,
+      "generated_view_set_max_bytes": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0,
+      "retention": "One replaceable known snapshot; existing bounded run retention and owned-page cleanup. No database clones or raw provider payloads."
+    },
+    "lookup_bounds": {
+      "mapped_addresses_max": 2500,
+      "mapping_lookup_deadline_seconds": 10,
+      "latest_date_mints_max": 10000,
+      "latest_date_lookup_deadline_seconds": 15,
+      "provider_requests": 0
+    },
+    "limitations": [
+      "Counts describe retained walkbacks, not all exchange withdrawals.",
+      "Unmapped funders are not proven operators; known indirect ancestry is not itself a reason to discard private evidence."
+    ],
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T16:59:46.559393+00:00"
   }
 }

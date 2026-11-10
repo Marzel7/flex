@@ -101072,5 +101072,32 @@
     "blocker": null,
     "next_action": "Requested UI removal COMPLETE. Do not certify these candle references as first-public-executable fills; exact buyability needs trade/ordering and signal-timing evidence before tradeability decisions.",
     "updated_at_utc": "2026-11-10T07:00:43.483499+00:00"
+  },
+  "operation02_all_opening_review_20261110": {
+    "engineering_revision": "822d9a93b5e68ead56209e2488090f24422d3a5d",
+    "engineering_branch": "codex/creator-operation-completed-opening",
+    "status": "PARTIAL_OPENING_REVIEW_24_QUALIFIED_3_UNVERIFIED",
+    "objective": "Check every Operation02opening and correct launch-transition contamination.",
+    "audit": "docs/audits/operation02_all_opening_review_20261110.v1.json",
+    "finding": "Concrete field mismatch: T+1OPEN still carries launch transition in some tokens (Tesla8JRE61,327\u2192completedC103,038;ELON61,802\u2192102,160). Retained Watchtower earliest-observable reducer uses full postmigration candle CLOSE. All27checked;24exactM+1closes displayed and ratios recomputed,2missing exact seconds withheld,1held.",
+    "reference_contract": "FIRST_FULL_POST_MIGRATION_SECOND_CLOSE",
+    "source_method": "scripts/audit_watchtower_recent36_earliest_observable_market_state.py",
+    "summary": {
+      "reviewed": 27,
+      "exact_completed_second_references": 24,
+      "missing_exact_second": 2,
+      "provider_held": 1,
+      "provider_requests": 0
+    },
+    "verification": "All27rows inspected.24exactM+1timestamps and CLOSEvalues match retained candles, ratios recomputed; peaks follow reference availability.2missing exact candles have no displayed opening/multiple;1held. Actual1400x1500browser render reviewed, no overlap. Source task SHA and canonical Downloads delivery verified.0providerrequests.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Retained-data correction and static report only.",
+    "installed_task_sha256": "aefdbba2537405589b482692163486981b4b7e5dd45dbacf58299cca592a060d",
+    "activation_state": "Existing schedule, tested provider helper and budgets unchanged; explicit close/no-substitution contract installed for next invocation.",
+    "production_state": "NoCore/ops/queue/trading changes;providerrequests0.",
+    "storage": "Existing facts<262144bytes,HTML<500000bytes,review<65536bytes; rawretentionOFF; unboundedgrowthpaths0.",
+    "blocker": "Two exactM+1candle observations absent; one existing provider ownership-recovery hold. Executable fill remains unproven for candle references.",
+    "next_action": "Resolve the two absent exact-second observations and existing provider-held token before claiming complete opening coverage. Do not substitute later candles or certify fills.",
+    "updated_at_utc": "2026-11-10T07:11:08.662895+00:00"
   }
 }

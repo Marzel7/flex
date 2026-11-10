@@ -103276,5 +103276,34 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T21:09:48.700401+00:00"
+  },
+  "creator_agent_summary_document_20261110": {
+    "objective": "Create a readable summary of the research agent workflow and measured performance.",
+    "result": "PASS",
+    "engineering_revision": "8d2f2f4041df81f7bf4446ea1e7cb877cbdf4c08",
+    "document": "/Users/kevinkeaveney/Dev/claude/flex/docs/reports/creator_funding_agent_summary.html",
+    "sha256": "e76425532d21465eab641a051a02d09f404832a1045c7c29eaee71cf959e8f3e",
+    "runtime_deployment_required": false,
+    "reason": "Static HTML document only; no runner, schedule, provider or production changes.",
+    "verification": {
+      "desktop_and_mobile_layout": true,
+      "all_local_links_resolve": true,
+      "separates_manual_and_autonomous_results": true,
+      "snapshot_counts": "330of335unique retained unmapped-funder tokens;37candidate funders;22known direct services;17operation/reviewed entries"
+    },
+    "storage": {
+      "single_document_and_stage_limit": 100000,
+      "qa_image_limit_each": 3000000,
+      "qa_images": 2,
+      "raw_payload_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T21:15:50.129338+00:00",
+    "project": {
+      "git_head": "8d2f2f4041df81f7bf4446ea1e7cb877cbdf4c08",
+      "branch": "codex/research-failure-diagnostics"
+    }
   }
 }

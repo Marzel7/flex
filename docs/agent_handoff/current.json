@@ -103127,5 +103127,63 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T20:39:47.195809+00:00"
+  },
+  "creator_funder_sparse_migration_20261110": {
+    "objective": "Fill sparse migration multiples from first observed1s cap within30s, labelling actual delay.",
+    "project": {
+      "git_head": "f22ecb253815a82fd6b3e4654e09257352790e06",
+      "branch": "codex/sparse-migration-reference"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "8981aa0b040830f4a3094b7cf43ab7093c54ef1020d6812887dd9158dc0fbea0",
+    "after_sha256": "f7893edc67feb4890c36f239793b1b3a2f797dda4b5fe553d1d49dc8e44eee39",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 39,
+    "functional_acceptance": {
+      "pages": 37,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "browser_filled_six_rows": [
+        {
+          "mint": "79BWnD7JhHcphgt2EXdXQj1sdSK5DkqXgbquZwX9pump",
+          "migration_multiple": "1.74\u00d7\nMigration \u2192 peak\nFirst observed cap +2.0s after local migration"
+        },
+        {
+          "mint": "Be3VV5Cs5uZiDF2UPGJuYrgWD39mfrAgsB9PDCKgpump",
+          "migration_multiple": "1.45\u00d7\nMigration \u2192 peak\nFirst observed cap +8.0s after local migration"
+        },
+        {
+          "mint": "CZADAAEbAj9GSnb3SGHZrUaccQnh7a4zkWgyyBTnpump",
+          "migration_multiple": "1.57\u00d7\nMigration \u2192 peak\nFirst observed cap +2.0s after local migration"
+        },
+        {
+          "mint": "CtUeBwNojsdCt5RbKyz7msZiTGeKQP4HNBsvvAm2pump",
+          "migration_multiple": "1.58\u00d7\nMigration \u2192 peak\nFirst observed cap +2.0s after local migration"
+        },
+        {
+          "mint": "DvVrqAkLwSyaCaJbs8Z7AK8SGTnmEpKxzWBX3sCbpump",
+          "migration_multiple": "1.73\u00d7\nMigration \u2192 peak\nFirst observed cap +3.0s after local migration"
+        },
+        {
+          "mint": "FNMipZwFFTSoZQcPqFVabGW1tWi9P928Zy8kMDSrpump",
+          "migration_multiple": "1.39\u00d7\nMigration \u2192 peak\nFirst observed cap +3.0s after local migration"
+        }
+      ]
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T20:50:53.869449+00:00",
+    "provider_calls": 0,
+    "method": "PreferT+1;otherwise earliest completed1s cap atT+2..T+30, labelled actual delay. Peak taken only at/after reference candle. Never fill forward or mix FDV/provider cap."
   }
 }

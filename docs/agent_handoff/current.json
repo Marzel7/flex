@@ -101053,5 +101053,24 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE for opening semantics correction.",
     "updated_at_utc": "2026-11-10T06:46:16.128709+00:00"
+  },
+  "operation02_market_opening_view_20261110": {
+    "engineering_revision": "4b75faa38dd338e2d126199de5dc5212b4ee790c",
+    "engineering_branch": "codex/creator-operation-market-opening",
+    "status": "PASS_VIEW_ONLY_EXECUTABLE_OPENING_UNVERIFIED",
+    "objective": "Remove irrelevant birth-candle values and show established post-migration opening references.",
+    "audit": "docs/audits/operation02_market_opening_view_20261110.v1.json",
+    "implementation": "Removed active birth-candle cap and birth-to-peak columns. Six columns now:token,postmigration opening reference,peak,migration\u2192peak,redcandle,afterpeak.26references remain,1held. Rawbirth data is provenance only.",
+    "verification": "27rows\u00d76columns verified; literal birth values/ratios absent from active table;26preserved postmigration references and multiples match retained facts. Actual browser render1400x1500 visually checked, columns readable. Downloads canonical link and installed task SHA match.0providerrequests.",
+    "material_limit": "First executable/public buy is not established by candle references alone; approximately110kGMGN screenshot is not an exact verified fill.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Static presentation and retained fact selection only.",
+    "installed_task_sha256": "d5ebd7301ecd058efc4ffe5401c53378e060fc8a87fd69af6b687c0618a6aafc",
+    "activation_state": "Four-hour schedule and tested provider transport/budgets unchanged. Revised contract installed; next invocation reads it.",
+    "production_state": "NoCore/ops/queue/trading changes; providerrequests0.",
+    "storage": "Existing report<500000bytes; facts<262144bytes; audit<65536bytes; rawretentionOFF; unboundedgrowthpaths0.",
+    "blocker": null,
+    "next_action": "Requested UI removal COMPLETE. Do not certify these candle references as first-public-executable fills; exact buyability needs trade/ordering and signal-timing evidence before tradeability decisions.",
+    "updated_at_utc": "2026-11-10T07:00:43.483499+00:00"
   }
 }

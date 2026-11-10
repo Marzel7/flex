@@ -101316,5 +101316,16 @@
     "blocker": "Koyuri:HELIUS_OWNERSHIP_RECOVERY_HOLD. XiaoHuang,Memelord,Kekcoin,Louie:HELIUS_ORIGIN_CAPACITY(origin-trackingcapacity). No roots/aliases/policiesresetorborrowed.",
     "next_action": "Reconcile existing ownership-recovery hold and origin-tracking capacity through established gate process, then qualify births/acquire only the5missinghistories. Reuse6completedresults.",
     "updated_at_utc": "2026-11-10T08:41:27.312140+00:00"
+  },
+  "helius_gate_root_capacity_20261110": {
+    "engineering_revision": "fix/helius-gate-root-retention fd7bd366 + b1c772bf (scripts/helius_gate_root_retention.py, tests, LaunchAgent plist); dashboard/system-status b702bd6b (gate roots/identities on Storage); listener fix/listener-migration-mint-recovery ded7be47 deployed 06:05 (PumpPortal wrong-mint correction, not yet exercised live)",
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "root_cause": "helius_denial_gate budget v2 investigation roots (rpc_budget.scopes) cap 8192 with no expiry in any deployed gate version; reached ~2026-11-10 08:15 -> HELIUS_ORIGIN_CAPACITY for every new token: migrations recorded fell to 55%, walkback stalled.",
+    "change": "Retention job retires roots of tokens >3d old (Core created_at) with no active walkback/resolver job, never inflight / OWNER_EXIT_UNCERTAIN / owner-recovery-interval roots, removing bound identities, via the pinned walkback gate module's own locked _writer_read/_budget2/save. Acts when free<1024, frees to 2048, max 2500/run. Installed .runtime/gate-retention/; hourly LaunchAgent com.flex.helius-gate-root-retention (user to install).",
+    "verification": "Copy test: all 3 deployed gate versions accept result; nothing but scopes/owners changed; 82/82 protected roots kept; youngest retired token 8.1d; new registration OK; lock held 0.48s; DB access read-only. Live run 2026-11-10T09:28:16Z: 8192->6144 roots, 4351 identities removed; within 3 min 8 migrations processed and walkback completing.",
+    "production_flags": "unchanged; gate state edited only through the gate API",
+    "blocker": null,
+    "next_action": "User installs LaunchAgent: cp scripts/launchd/com.flex.helius-gate-root-retention.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.flex.helius-gate-root-retention.plist"
   }
 }

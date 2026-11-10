@@ -103011,5 +103011,51 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T20:29:13.976239+00:00"
+  },
+  "creator_funder_multiples_20261110": {
+    "objective": "Populate same-basis reference and local-migration peak multiples from retained candles.",
+    "project": {
+      "git_head": "a87bc12a289d0aa562e0e436531155454cbe54cf",
+      "branch": "codex/funder-price-multiples"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "1ffd73904b256a8e7ded94e83f2f7190be97b3db8703c5ee6eaedb99fcd0166e",
+    "after_sha256": "8335ce0a6516bc0dd299a4ecd43eaa6d922454a1949078811aa4d4346fd530e6",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 38,
+    "functional_acceptance": {
+      "pages": 37,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "browser_multiples": {
+        "Stockwits": [
+          "6.10\u00d7",
+          "1.71\u00d7"
+        ],
+        "RING": [
+          "6.36\u00d7",
+          "1.13\u00d7"
+        ],
+        "XSHAMA": [
+          "5.38\u00d7",
+          "1.05\u00d7"
+        ]
+      }
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T20:32:38.052127+00:00",
+    "provider_requests": 0,
+    "calculation": "Same-basis observed cap peak / first full1s cap close. Local migration ratio requires retained migration signature+timestamp and exactT+1cap candle; numerator includes only completed returned candles after migration. No claim timestamp independently verified on-chain."
   }
 }

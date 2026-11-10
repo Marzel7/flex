@@ -101479,5 +101479,47 @@
     "blocker": null,
     "next_action": "NONE \u2014 approved evaluation complete. Existing oneoff price/gate limitations remain separately recorded.",
     "updated_at_utc": "2026-11-10T11:35:24.706847+00:00"
+  },
+  "creator_agent_complete_screening_20261110": {
+    "engineering_revision": "15d4094e77464aa00c33c38ddb51909fe3a84cb3",
+    "engineering_branch": "codex/creator-operation-complete-screening",
+    "source_worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source",
+    "status": "DEV_COMPLETE",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "audit": "docs/audits/creator_agent_complete_screening_20261110.v1.json",
+    "objective": "Account for full baseline and incremental completed Walkbacks before selective model investigation; persist unfinished neutral groups and publish honest coverage.",
+    "implementation": "Installed deterministic local screening before model invocation: latest5000 completions baseline, subsequent up-to5000 completion-cursor batches, same-second boundary deduplication, late completion inclusion, undated exception continuation. Every processed mint has manifest membership and neutral role/topology/lifecycle bucket; amounts and literal wallets do not define structural identity. All buckets retained under bounded state; shortlist reserves12 recent and12 rotating backlog slots. Validated model-declared bucket/detail receipts advance review counts. Dashboard shows screened jobs, structural buckets, reviewed buckets, detailed launches and pending buckets. Provider helper and runner guard5MB run/transient storage before managed writes.",
+    "verification": "42 focused testsPASS. Real DB read-only qualification5000rows/286buckets/~1second;1742missing selected-edge rows explicitly counted. Actual installed/usr/bin/python3 scanner executed baseline5000 and incremental1undated exception. Installed full runner path tested with model stub only: scanner->state->coverage publicationPASS. No model-discovery success claimed. Source/installed4fileSHA256matches;LaunchAgent points installedrunner;14400second interval unchanged.",
+    "deployment": {
+      "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+      "before_sha256": {
+        "creator_operation_screening.py": null,
+        "provider_bridge.py": "64e879ddf9399e0739f60ec47c5b3f6901611de322a0b5797e7a13dd9434cf6f",
+        "task.txt": "2842d7c2337ebee39f2dd046b4467aba225144487aa2af380c0dc3392bfe7cfd",
+        "runner.py": "93d7c6d746793584214ba7288fc3b4a1aea7d476a03b7d375c6cadfeb88e148f"
+      },
+      "after_sha256": {
+        "creator_operation_screening.py": "dd7eb91ce30ff7f5520ddba318978770b4b8abfddf8010545b16e543dfac98cd",
+        "provider_bridge.py": "45a9cda5e721a6c946ac648f73184806951628f133ef3cabc9e8d66327244b66",
+        "task.txt": "a0a36f4c3756f885fc4d75dd2ad2a987dc3606125e7dd1303ee3697912cd776e",
+        "runner.py": "11f968c4a20f042b2761a2639f8cd5e9217b0176b17d2cde4fc67bcfa61c23e3"
+      },
+      "restart_required": false,
+      "identity": "Fresh installed Python runner and sibling scanner executed in acceptance. Installation held runner.lock;no active invocation changed."
+    },
+    "production_flags": "Model,subscriptionauth,pilotexpiry,four-hourdue time,providercredentials/globalbudgets unchanged. No Core/OPS/queue/membership/trading writes;no paid oneoff triggered. Next real cycle performs its own baseline;acceptance state isolated in bounded temp roots.",
+    "provider_safety": "0Helius/0Birdeye requests;existing18B/20H/200credit/sixsubject limits unchanged.",
+    "storage": {
+      "single_file_max_bytes": 5000000,
+      "screen_artifacts_combined_max_bytes": 2500000,
+      "run_and_transient_max_bytes": 5000000,
+      "state_max_bytes": 1500000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "limitations": "Local structural screening is not detailed transaction analysis or operator attribution. Numeric completion timestamp contract fail-closed; incremental assumes completion times do not move backwards. Older-than-baseline completions excluded explicitly. Missing/truncated edges remain evidence gaps. Bucket/detail receipts are model-declared work counts,not independent reasoning verification. Unseen rediscovery efficacy not yet tested.",
+    "blocker": null,
+    "next_action": "NONE \u2014 agent update COMPLETE. Next scheduled model cycle uses installed screening; a paid oneoff was not part of this update.",
+    "updated_at_utc": "2026-11-10T12:06:28.910990+00:00"
   }
 }

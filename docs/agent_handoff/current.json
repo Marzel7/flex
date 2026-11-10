@@ -103365,5 +103365,43 @@
     "blocker": "One gate-publication refusal; two elapsed-partial profiles need nonoverlapping continuation.",
     "next_action": "Resume qualified incomplete price windows and review frozen families during the next scheduled00:55UTCcycle; no blocked-request retry or operator promotion.",
     "updated_at_utc": "2026-11-10T21:24:17.175688+00:00"
+  },
+  "creator_funder_token_order_20261110": {
+    "objective": "Sort all funder tokens newest-first, including tokens awaiting price data.",
+    "project": {
+      "git_head": "106285b86dbad859726e6f57348f6e3ae29374cf",
+      "branch": "codex/funder-tokens-newest-first"
+    },
+    "result": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "before_sha256": "36c6f883520ed8fc10ae9a101ff344158c228eb917b9b045dbbd68f4e0db6fc0",
+    "after_sha256": "36c6f883520ed8fc10ae9a101ff344158c228eb917b9b045dbbd68f4e0db6fc0",
+    "reload_required": false,
+    "running_code_identity": "Fresh installed runner.publish imported changed installed navigation module. Static HTML verified.",
+    "tests_passed": 47,
+    "functional_acceptance": {
+      "pages": 39,
+      "duplicate_linked_above_removed": true,
+      "source_articles_unchanged": true,
+      "browser": {
+        "latest_launch_first": true,
+        "all22tokens_retained": true,
+        "awaiting_price_status_visible": true
+      },
+      "all_pages_newest_first": 39
+    },
+    "storage": {
+      "single_html_and_stage_limit": 500000,
+      "view_set_limit": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "activation": "Installed renderer; schedule/provider/trading unchanged.",
+    "blocker": null,
+    "next_action": "NONE \u2014 COMPLETE",
+    "updated_at_utc": "2026-11-10T21:28:23.005019+00:00",
+    "deployment_note": "First install/publication succeeded; acceptance harness then encountered updated39candidate count rather than its stale37assertion. Idempotent fresh publication verified against current snapshot.",
+    "original_predeployment_sha256": "27f21fba1bfc2ed39f52c695a209813eba7e238ad622090a25870634c2827f61"
   }
 }

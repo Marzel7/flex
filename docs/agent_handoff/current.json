@@ -100934,5 +100934,88 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE for provider bridge repair. Scheduled runs continue bounded pending backfill.",
     "updated_at_utc": "2026-11-10T05:48:42.275721+00:00"
+  },
+  "operation02_price_backfill_20261110": {
+    "engineering_revision": "40afd6674782a54d7c33aefff663807fd9f5f7ea",
+    "status": "PARTIAL",
+    "objective": "Backfill token price data, starting with Operation02, respecting documented Birdeye pacing/backoff.",
+    "audit": "docs/audits/operation02_qualified_price_backfill_20261110.v1.json",
+    "manifest": ".runtime/operation02-price-backfill-20261110/manifest.json",
+    "summary": {
+      "tokens_requested": 27,
+      "tokens_acquired": 26,
+      "tokens_blocked": 1,
+      "exact_birth_T1": 26,
+      "delayed_birth_references": 0,
+      "unavailable_birth_references": 0,
+      "exact_migration_T1": 24,
+      "same_birth_and_migration_timestamp": 11,
+      "migration_within_one_second_of_birth": 25,
+      "migration_delay_range_seconds": [
+        0,
+        2
+      ],
+      "reused_identical_windows": 11,
+      "provider_attempts": {
+        "helius": 53,
+        "birdeye": 93,
+        "retries": 0,
+        "http_200": 145,
+        "http_429": 0
+      }
+    },
+    "implementation": "Finite27token cohort. Existing supervised Helius gate and authoritative BIRDEYE. Exact CREATE+Pump migrate transactions; paired birth1s price/mcap, migration1s mcap and migration-5mto+2h1m mcap.11identical windows reused. Dashboard26populated+1held; prior exploratory references retained in closed disclosure.",
+    "verification": {
+      "helius_http200": 52,
+      "helius_gate_refusals_before_wire": 1,
+      "birdeye_http200": 93,
+      "birdeye_429": 0,
+      "duplicate_paid_dispatches": 0,
+      "completed_windows_reused": 11,
+      "normalized_files_max_bytes": 225865,
+      "tranches": 7,
+      "counts": "26exactCREATE/migration pairs;26exact birthT+1,24exact migrationT+1,2delayed migration refs explicitly starred. One provider-owned recovery hold not bypassed.",
+      "dashboard": "Browser-rendered Operation02 table1400x1800 reviewed;26populated rows+1held,7columns readable, ranges wrap, red-candle cells retain active contrast. Existing exploratory references archived in closed disclosure. Exact displayed opening/peak/ratio readback verified; other operations retained.",
+      "current_gate_policy": "No ownership policy, root binding, budget allowance or recovery marker was changed. Transient shared publication ambiguity later returned READY through the existing runtime; the single confirmed ownership hold remains."
+    },
+    "provider_limits": {
+      "helius_max": 54,
+      "birdeye_max": 135,
+      "retries_max_total": 27,
+      "concurrency": 1,
+      "pagination": 0,
+      "credential": "BIRDEYE only",
+      "raw_retention": false,
+      "normalized_token_file_max_bytes": 300000,
+      "manifest_and_audit_max_bytes": 262144,
+      "dashboard_max_bytes": 500000,
+      "unbounded_growth_paths": 0,
+      "full_db_clone": false
+    },
+    "backoff": {
+      "minimum_seconds": 2,
+      "shared_policy": "src/ops/birdeye_rate_limit.py",
+      "documented_schedule": [
+        2,
+        5,
+        10,
+        30,
+        60
+      ],
+      "manual_max_retries_per_window": 2,
+      "retry_after_respected_up_to_seconds": 60,
+      "larger_retry_after": "Defer instead of retrying early.",
+      "observed_minimum_dispatch_spacing_seconds": 2.000554084777832
+    },
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Finite provider acquisition, derived facts and static dashboard only; no executable runtime changes.",
+    "production_state": "No Core/ops/queue/trading/service changes. Normal provider accounting only; gate/recovery/owner policy unchanged. Existing four-hour schedule unchanged.",
+    "blocker": {
+      "mint": "FNMipZwFFTSoZQcPqFVabGW1tWi9P928Zy8kMDSrpump",
+      "reason": "HELIUS_OWNERSHIP_RECOVERY_HOLD",
+      "action": "Reconcile the existing owner-recovery policy through its authorized recovery procedure; do not create a replacement root or relax the gate."
+    },
+    "next_action": "Reconcile the existing HELIUS_OWNERSHIP_RECOVERY_HOLD for FNMip... through authorized ownership recovery; then acquire that one token under a fresh explicit bounded tranche without repeating26completed results. Other operation backfill can proceed through existing rotation.",
+    "updated_at_utc": "2026-11-10T06:24:37.508207+00:00"
   }
 }

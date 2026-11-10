@@ -101362,5 +101362,49 @@
     "blocker": null,
     "next_action": "NONE \u2014 BENCHMARK COMPLETE. A separateimprovedexperimentneedsretainedtransactionordering/accountroles,structuralinvariantsnotobservedamount/timeextrema,andNEWunseenholdout. Do not seedknownoperationnamesintodiscoveryorretuneagainstconsumedholdout.",
     "updated_at_utc": "2026-11-10T10:00:27.520789+00:00"
+  },
+  "creator_agent_structural_update_20261110": {
+    "engineering_revision": "5adfeb8c642d1a53363bfd3899cd2d58aa48ae7d",
+    "engineering_branch": "codex/creator-operation-structural-discovery",
+    "source_worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source",
+    "status": "DEV_COMPLETE",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "objective": "Update the recurring research agent from blind-benchmark findings without seeding known operator identities.",
+    "audit": "docs/audits/creator_agent_structural_update_20261110.v1.json",
+    "implementation": "Evidence-firstindependentstructuralfreeze;rolegraphinvariantsversussoftamount/time/sourcevariation;family/operatorhypothesis/possiblevariantseparation;priorresearchfamilycomparisonbeforecreatingnewgroup;correctqueuestatuscomplete;noautomaticownershiporcanonicalmembershippromotion. New funding-proofCLI binds mint/signature/wallet to retainededge, preserves top/CPIorderingandSystem/SPLaccountlifecycles, andcachesnormalizedproofs. Launcherrequiresboundedprovisionalfreezeartifactforreported/newHTMLcandidategroups;countslabelNewcandidategroups.",
+    "verification": "26focusedrunner/helpertestsPASS. Sourceand3installedfilesSHA256match. Scheduled/usr/bin/python3importsinstalledrunner;registeredLaunchAgentpointsatactualinstalledpath/config. Configuredgpt-5.6-terrapassedofflineexpected-casesprotocolsmoke:variablewallets/amounts/delaysretainedasfamily,structurallydifferentrecipientexcluded,ownershipfalse. Oneactualgatedfundinglookupnormalized3orderedsteps;secondcallreusedcachewith0RPC. FinalUI/deliverychecksPASS.",
+    "deployment": {
+      "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+      "before_sha256": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py": "ff9929e8e56dcd66ff5148546b067ea02cd764e97d30e2a7d3db7f983f5707eb",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/provider_bridge.py": "b58c6764121f2f2e7d6c52fd4cd5595a427032508e1132c651cd80dd0dcd5417",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/task.txt": "aefdbba2537405589b482692163486981b4b7e5dd45dbacf58299cca592a060d"
+      },
+      "after_sha256": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py": "ec1417aee6c62a203befa849dd5f9f8a8f7ff3ce451fdd56acb221acd9568c91",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/provider_bridge.py": "99ad5f812019149e96f55cf4ed9c188ec3efee066274d4b6abbf323d49860142",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/task.txt": "79926f06721a4edf226cced659f21fdab99e5b6e80cba00623fc934d2756db77"
+      },
+      "restart_required": false,
+      "process_identity": "Fresh installed helper CLI executed successfully; actual installed runner codex_run invoked configuredgpt-5.6-terra. Scheduledinterpreterimportverified;LaunchAgentwaitingfornextfreshinvocation.",
+      "activation": "INSTALLED_ACTIVE_FOR_NEXT_FOUR_HOUR_RUN"
+    },
+    "production_flags": "Four-hourinterval,seven-dayexpiry,model,providerkeys/globalbudgets,Core/queue/membership/tradingflagsunchanged. Installationheldrunner.lock;noactiveinvocationmodified.",
+    "provider_safety": "Fundingproofsatmost2new/runINSIDEexisting20Helius/200credit/sixsubjectcaps;Birdeye18unchanged;concurrency1,retries0;retainededgebindingrequired;noalternatealias/providerroot. Acceptanceused1Helius,0Birdeye.",
+    "storage": {
+      "funding_normalized_file_max": 65536,
+      "funding_new_files_per_run_max": 2,
+      "funding_cache_refs_max": 1000,
+      "cache_file_max": 2000000,
+      "discovery_freeze_max": 262144,
+      "run_total_max": 5000000,
+      "max_single_file_or_transient_design_bound": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "performance_limitation": "Syntheticfixturewasanexpected-casesconfigurationcheck,notanindependentperformancebenchmark. Freshunseenreal-datablindvalidationnotyetperformed;oldholdoutconsumedandmustnotbereused.",
+    "blocker": null,
+    "next_action": "NONE \u2014 UPDATE COMPLETE. Next scheduled run loads deployed structural policy; any efficacy benchmark is a separate new unseen test.",
+    "updated_at_utc": "2026-11-10T10:23:07.815437+00:00"
   }
 }

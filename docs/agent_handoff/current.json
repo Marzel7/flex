@@ -102573,5 +102573,90 @@
     "blocker": null,
     "next_action": "NONE \u2014 COMPLETE",
     "updated_at_utc": "2026-11-10T17:50:11.243045+00:00"
+  },
+  "creator_birdeye_backfill_20261110": {
+    "project": {
+      "git_head": "0328b0f337b133ca2918d367242967b6333b5d8b",
+      "branch": "codex/birdeye-backfill-display",
+      "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source"
+    },
+    "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
+    "objective": "Backfill missing Birdeye observations and publish usable retained profiles without weakening opening-value qualification.",
+    "milestone_verdict": "PARTIAL",
+    "bounded_pass_status": "COMPLETE",
+    "audit": "docs/audits/creator_birdeye_backfill_20261110.v1.json",
+    "acquisition": {
+      "new_profiles": 20,
+      "all_nonempty": true,
+      "requests": {
+        "birdeye": 60,
+        "helius": 20
+      },
+      "limits": {
+        "tokens": 20,
+        "birdeye": 60,
+        "helius": 20,
+        "concurrency": 1,
+        "spacing_seconds": 2,
+        "retries": 0,
+        "pagination": 0,
+        "raw_retention": false,
+        "single_token_bytes": 300000,
+        "data_set_bytes": 6000000,
+        "manifest_bytes": 65536,
+        "run_bytes": 5000000,
+        "unbounded_growth_paths": 0
+      },
+      "retries": 0,
+      "failed_requests": 0,
+      "existing_blocked_tokens_not_retried": 6,
+      "previously_complete_profiles_not_reacquired": 10,
+      "manifest": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-price-backfill-20261110/manifest.json"
+    },
+    "publication": {
+      "linked_before": 40,
+      "linked_after": 60,
+      "retained_unmapped_tokens": 335,
+      "remaining_without_linked_price_rows": 275,
+      "existing_source_articles_unchanged": true,
+      "method": "Already-published price quotes take precedence. Cache rows require exact mint/CREATE evidence and completed valid USD candles; pending placeholders do not suppress valid profiles. First full-second close is labelled as a reference, not executable opening or FDV. Observed peak/decline window and timing uncertainty remain explicit."
+    },
+    "verification": {
+      "focused_tests_passed": 54,
+      "browser": {
+        "linked_tokens": 60,
+        "funders": 37,
+        "new_profile_visible": true,
+        "reference_not_executable_labels_present": true
+      },
+      "deployment": {
+        "before_linked": 40,
+        "before_sha256": "db3a85d6ca8d7f48ffb60247638cd46ca427cabd0222b2589e6de9648d73c5cc",
+        "engineering_revision": "0328b0f337b133ca2918d367242967b6333b5d8b",
+        "after_sha256": "ee64c6885fd1960978c031d6e1363e4270d385ebbcb724da4917f6d24bf88297",
+        "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+        "after_linked": 60,
+        "source_articles_unchanged": true,
+        "schedule_unchanged": true,
+        "restart_required": false,
+        "installed_at_utc": "2026-11-10T18:19:11.459980+00:00"
+      }
+    },
+    "runtime_deployment_gate": "PASS",
+    "activation_state": "Only qualified cache renderer installed. No LLM cycle started. Model, four-hour schedule, provider credentials/recurring limits, trading and canonical memberships unchanged. Manual envelope exhausted and not silently extended.",
+    "storage": {
+      "token_file_max_bytes": 300000,
+      "new_token_files_max": 20,
+      "new_token_set_max_bytes": 6000000,
+      "run_max_bytes": 5000000,
+      "manifest_max_bytes": 65536,
+      "html_and_stage_max_bytes": 500000,
+      "view_set_max_bytes": 5000000,
+      "raw_retention": false,
+      "unbounded_growth_paths": 0
+    },
+    "blocker": "The completed manual pass exhausted its explicit60Birdeye/20Helius/20token envelope. A budget-sizing question is pending for further acquisition; no automatic enlargement/retry.",
+    "next_action": "Await user-selected next acquisition envelope; continue only within that bounded budget. Older tokens outside the initial recent-sample policy require separately scoped historical coverage.",
+    "updated_at_utc": "2026-11-10T18:24:02.371773+00:00"
   }
 }

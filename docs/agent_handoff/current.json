@@ -100727,13 +100727,14 @@
   },
   "pumpswap_mintless_migration_gap_20261109": {
     "engineering_revision": "No code change (read-only investigation; 10 getTransaction calls on HELIUS_TEMP_API_KEY).",
-    "status": "HOLD",
+    "status": "SUPERSEDED",
     "RUNTIME_DEPLOYMENT_REQUIRED": false,
     "finding": "293 PENDING PUMPSWAP_MIGRATION_ACCOUNT rows with no mint in .runtime/dev004-v2/journals/migration.jsonl (Nov7 ~123, Nov8 ~243 reboot day, Nov9 ~69 vs 724 captured ~9%; <=1%/day before Nov7). 10/10 sampled are real pump.fun migrations via 39azUYFW (mostly MigrateV2, tx v0); 9/10 mints never recorded as migrated. None are in PumpPortal migration census. Gate allows one lifetime getTransaction per mintless migration signature (helius_denial_gate._reserve2_locked MIGRATION_LOOKUP_ONLY_V1): 232 HELIUS_ORIGIN_UNKNOWN, 49 HELIUS_MIGRATION_LOOKUP_EXHAUSTED; listener retries ~10/min refused pre-wire (0 credits).",
     "also": "walkback PAID_RESULT_MISSING failures 55 on Nov 9 (13 from serial creator GqF3nhzS); exact refused request not identifiable without walkback logging the wire hash.",
     "production_flags": "unchanged",
     "blocker": "Fix requires listener/gate code change; helius_* modules are pinned in guarded startup.",
-    "next_action": "User decision: (1) qualify a listener/gate change so mintless PumpSwap migration lookups are admitted and retried until resolved; (2) bounded backfill of the 293 stuck signatures (mint from on-chain tx)."
+    "next_action": "User decision: (1) qualify a listener/gate change so mintless PumpSwap migration lookups are admitted and retried until resolved; (2) bounded backfill of the 293 stuck signatures (mint from on-chain tx).",
+    "superseded_by": "listener_migration_ws_restore_20261110"
   },
   "creator_operation_run_summary_ui_20261110": {
     "engineering_revision": "580508a70c80e7fc944e0069f85e67b851a117fa",
@@ -100829,5 +100830,23 @@
     ],
     "next_action": "NONE \u2014 COMPLETE for scheduler connection. Next bounded recurring research run continues saved census/price-backfill work.",
     "updated_at_utc": "2026-11-10T00:42:05.093968+00:00"
+  },
+  "listener_migration_ws_restore_20261110": {
+    "engineering_revision": "branch fix/listener-migration-mint-recovery: d2109a5f (snapshot of running listener incl. uncommitted DEV004-ROLLBACK hotfix), 375dc0f6+bf637390 (mintless lookup delay; legacy re-dispatch reverted), 689cfff7 (migration WS TLS permission + deferral log). Only src/core/pumpfun_curve_listener.py changed.",
+    "status": "PASS",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "root_cause": "Primary migration listener (Helius logsSubscribe on 39azUYFW, listen_pumpswap_websocket) never connected after DEV004-ROLLBACK: helius_http_protection.install() refuses Helius TLS handshakes lacking transport permission (HELIUS_UNQUALIFIED_TRANSPORT) and the except _HeliusDeferred branch swallowed it silently (60s loop). No PUMPSWAP_MIGRATION_ACCOUNT rows from 2026-11-09 08:46 until fix; PumpPortal carried all migrations (~33-54/h since Nov 9 12:00). Earlier '9%/day ongoing mintless loss' was wrong: the 293 mintless rows were the Nov 7-9 morning outage when PumpPortal was not delivering.",
+    "change": "Wrap migration WS connect in helius_http_protection.websocket_connection() (handshake permission only, no gate reservation, keeps rollback intent) and log deferrals. Mintless (truncated MigrateV2 log) lookups wait until received_at+20s (LISTENER_MIGRATION_LOOKUP_DELAY_S) before spending the single gate lookup.",
+    "deployment": {
+      "target": "/Users/kevinkeaveney/Production/flex-listener/src/core/pumpfun_curve_listener.py",
+      "pre_sha256_prefix": "46ac9935 (original) -> a8aa6f92 -> d361d5ba -> c2c288e8 (final)",
+      "restart": "supervisorctl restart watchtower_listener; final pid 76165",
+      "rollback": "~/Production/backups/flex-listener-pre-migration-fix-20261110.tgz (+ .sha256, verified 5432 files) or snapshot commit d2109a5f"
+    },
+    "acceptance": "Log: '[WEBSOCKET][PUMPSWAP] \u2713 Connected via Helius' + 'Subscription confirmed (id=20754920)'. First Helius-detected migration cuyQcm3H...: MIGRATION_LOG_TRUNCATED -> lookup fetched on first try -> MIGRATION_MINT_RESOLVED 2ECeFpEh...pump -> token_analysis migrated (migration_tx matches) 01:02:27 -> wt_walkback_queue waiting 01:02:30. Tests: 2 new pass; 3 pre-existing failures in test_b2bf_watchtower_migration_connection_close.py identical on snapshot.",
+    "not_done": "Legacy backlog (~468 stuck journal rows, Nov 7-9) accepted as lost by user. ~13/day PumpPortal rows stuck on HELIUS_OWNERSHIP_RECOVERY_HOLD/DISPATCH_RESERVED not investigated. listen_pumpfun_websocket (Helius birth WS, currently disabled) has the same unwrapped connect and would fail the same way if enabled.",
+    "production_flags": "unchanged (no env/supervisor changes)",
+    "blocker": null,
+    "next_action": "NONE - COMPLETE (optional follow-up: OWNERSHIP_RECOVERY_HOLD ~2% PumpPortal migrations)"
   }
 }

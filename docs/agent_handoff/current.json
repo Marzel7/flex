@@ -7368,6 +7368,23 @@
     "status": "PASS_AUDIT_CREATOR_CONTENTION_AND_RETRY_POLICY",
     "tests": "No suite or live tests. Read-only source inspection, six checksum-verified passive gate samples and targeted paired-store snapshot."
   },
+  "creator_coverage_baseline_20261111": {
+    "blocker": null,
+    "engineering_revision": "227879f6",
+    "implementation": "Installed runner and coverage module. Baseline produced on 2026-11-11 from latest retained families, no provider calls. Spam and dust excluded from attribution overlay; existing family bytes unchanged. Coverage result stored as bounded run-summary.json.",
+    "next_action": "Implement, qualify and run bounded upstream merging once; present first-run merges to user before enabling recurring merging.",
+    "objective": "Per-run coverage baseline and provider-free source labels",
+    "production_flags": {
+      "listener_detection_database_changes": false,
+      "next_run_at": "2026-11-11T21:09:13.909439+00:00",
+      "research_agent_installed": true,
+      "scheduled_upstream_merge_enabled": false
+    },
+    "runtime_deployment_gate": "PASS for installed baseline; end-to-end next regular cycle pending",
+    "storage": "No raw provider payloads; run summary <16KB, 100000 row read ceiling, no added unbounded growth paths.",
+    "tests": "62 source tests pass; installed code hash matched and provider-free baseline rendered.",
+    "verdict": "PARTIAL"
+  },
   "creator_decoder_383_dashboard_1f_production_rollout": {
     "authorization": "User explicitly approved decoder38303ff2 and dashboard1f040aaa deployment, creator-resolution restart once, preserving accounting/attempts and verifying liveness/historical-warning removal.",
     "blocker": "No blocker to approved scoped rollout. Other existing health warnings remain. Known handoff transport unavailable.",
@@ -83237,11 +83254,11 @@
     }
   },
   "project": {
-    "branch": "codex/screen-review-normalize",
-    "git_head": "428b1fca4d284abc964d3bed7200ea7330701e6e",
+    "branch": "codex/creator-coverage-baseline",
+    "git_head": "227879f6",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T17:26:09.163486+00:00",
-    "working_tree": "/private/tmp/flex-screen-review"
+    "updated_at_utc": "2026-11-11T19:00:19.028114+00:00",
+    "working_tree": "/private/tmp/flex-creator-coverage"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {

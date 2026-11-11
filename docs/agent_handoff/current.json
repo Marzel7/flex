@@ -8986,6 +8986,67 @@
     "updated_at_utc": "2026-11-10T00:20:18.180912+00:00",
     "verification": "Headless Chrome1200x1000 render visually reviewed; counts/source timestamp checked; HTML structure, unique panel ID and Downloads hash verified."
   },
+  "creator_operation_watchtower_treasury_annotations_20261111": {
+    "blocker": null,
+    "engineering_source_revision": "1434237073bf1ecb49ad868b5e0db6cc361179d3",
+    "evidence": "docs/audits/creator_watchtower_reference_annotations_20261111.v1.json",
+    "next_action": "NONE \u2014 COMPLETE. Next scheduled cycle may annotate 5tBX if its review includes the current retained family.",
+    "objective": "Post-review Watchtower treasury annotation without new grouping or provider calls",
+    "production_flags": {
+      "canonical_membership_writes": 0,
+      "live_detection_changes": false,
+      "next_run_at": "2026-11-11T00:54:58.806033+00:00",
+      "provider_calls": 0,
+      "research_runner_installed": true,
+      "schedule_active": true
+    },
+    "reload_required": false,
+    "runtime_deployment_gate": "PASS",
+    "runtime_process_identity": "launchd com.flex.creator-operation-research points to installed runner; currently idle between cycles",
+    "runtime_targets": {
+      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_reference_annotations.py": {
+        "after_sha256": "1b2789a5070fce262a1ba6f2903a447f58702a3eebbb06d8378497149238f04a",
+        "before_sha256": null,
+        "source_sha256": "1b2789a5070fce262a1ba6f2903a447f58702a3eebbb06d8378497149238f04a"
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_reference_ui.py": {
+        "after_sha256": "c3d423091e65ec5cd976946434280f17b56673e771a5e1a0f23a8647ad3a4274",
+        "before_sha256": "32be6a4e66d7574be77eb598c490aa12a9bd1351cbd981e84cc26ae42cb52018",
+        "source_sha256": "c3d423091e65ec5cd976946434280f17b56673e771a5e1a0f23a8647ad3a4274"
+      },
+      "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/runner.py": {
+        "after_sha256": "6fff6b81414d58a354732f6004120a07fc30d07d45b603339588637facbdb6fa",
+        "before_sha256": "103be3fac86d6ce5fd7d9026ee59cb4b7cf5909d210ca5b084b158bd6ad70f1b",
+        "source_sha256": "6fff6b81414d58a354732f6004120a07fc30d07d45b603339588637facbdb6fa"
+      }
+    },
+    "storage": "Raw retention disabled; individual files under 1.5 MB, HTML under 500 KB, guarded run output under 5 MB; no unbounded growth paths added.",
+    "verdict": "PASS",
+    "verification": {
+      "current_retained_data_replay": {
+        "families": 4,
+        "family_output_unchanged": true,
+        "negative_false_positives": 0,
+        "positive_hits": 9,
+        "positive_misses": [],
+        "retained_members": 40
+      },
+      "installed_tests_passed": 38,
+      "last_completed_review": {
+        "families": 4,
+        "family_output_unchanged": true,
+        "negative_false_positives": 0,
+        "positive_hits": 8,
+        "positive_misses": [
+          "5tBXkPVh716zSXHNZSr8i1PX7e6Uuj46JnBLdYchpump"
+        ],
+        "retained_members": 39
+      },
+      "negative_controls": 57,
+      "provider_calls": 0,
+      "source_tests_passed": 95
+    }
+  },
   "creator_research_failure_diagnostics_20261110": {
     "activation": "Next scheduled invocation uses installed diagnostics; provider budgets, model, cadence, trading and gate unchanged.",
     "after_sha256": "b091b79a6a2d4c1a3d104acf86686047f11b8497189fafe3c7455cd55bf66059",
@@ -83130,11 +83191,11 @@
     }
   },
   "project": {
-    "branch": "fix/walkback-retention-inode-identity",
-    "git_head": "1e2cf4d7",
+    "branch": "codex/watchtower-treasury-research",
+    "git_head": "1434237073bf1ecb49ad868b5e0db6cc361179d3",
     "name": "flex",
-    "updated_at_utc": "2026-11-10T22:31:05.874267+00:00",
-    "working_tree": "/private/tmp/flex-walkback-capfix"
+    "updated_at_utc": "2026-11-11T00:22:01.195242+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {

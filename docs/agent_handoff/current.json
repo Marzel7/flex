@@ -84740,6 +84740,41 @@
     "verdict": "RA4_LEGACY_DB_DELETION_COMPLETE"
   },
   "ra4_status_unchanged_note": "RA4 storage retirement remains CLOSED (RA4-C3 through C6) -- not reopened by B2N-P3I. V2 cap is process-lifetime (resets only on restart, which did not occur here) -- known engineering debt, recorded, not addressed this milestone.",
+  "reader_ro_open_retry_20261111": {
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "backup": "/Users/kevinkeaveney/Production/backups/ro-connect-pre-20261111T170016Z",
+    "blocker": null,
+    "deployed_utc": "2026-11-11T17:00:16Z",
+    "implementation": "_ro_connect helper: retry mode=ro with jittered waits (cap 50 ms), then fall back to mode=rw + pragma query_only (never creates a DB; writes refused). No persistent connection, so the ops WAL bound (8 MB) is unaffected.",
+    "next_action": "Codex: accept bucket_id objects or tighten the model schema for groups_reviewed. Observe dashboard refresh misses for an hour; if worse than 1-2/h, lower dashboard retry budgets.",
+    "objective": "Research agent and recovery dashboard must open core/ops read-only despite writers deleting -wal/-shm (replaces reverted keep-alive holder).",
+    "project": {
+      "agent": {
+        "branch": "codex/watchtower-treasury-research",
+        "files": [
+          "creator_operation_infrastructure.py",
+          "creator_operation_navigation.py",
+          "creator_operation_screening.py",
+          "provider_bridge.py"
+        ],
+        "git_head": "c1768f22"
+      },
+      "dashboard": {
+        "branch": "dashboard/system-status",
+        "files": [
+          "paired_reader.py",
+          "recovery_dashboard_system_status.py"
+        ],
+        "git_head": "ab6e8375",
+        "sources_json_updated": true
+      }
+    },
+    "runtime_acceptance": "Agent run run-a9108f41 (17:09) passed initial_publication and DB reads (previous failure point). Dashboard 17:15 PASS; 17:05 COLLECTOR_TIMEOUT and 17:10 SQLITE_READ_UNAVAILABLE at query time (dashboard missed 1-2 refreshes/hour before any change today).",
+    "separate_finding": "run-a9108f41 then FAILED at research_commit: model wrote screening-review.json groups_reviewed as objects, screening.finish() expects bucket-id strings -> set() TypeError. Agent output-schema issue for Codex; unrelated to DB open.",
+    "storage": "No new files beyond an empty -wal/-shm that SQLite already manages; 0 unbounded growth paths.",
+    "tests": "agent 62 passed/2 skipped (11 new incl. anaconda-writer reproduction + no-writer fallback); dashboard 34 passed (3 new).",
+    "verdict": "PASS_AGENT_DB_OPEN; DASHBOARD_OBSERVE"
+  },
   "real_dev_byzantine_e2e_20261005": {
     "engineering_revision": "a300ddf1ac6ec8c5dda9375b275ab1b839465eb4",
     "next_action": "FIX_ONLY_THE_MANAGED_ZERO_ARGUMENT_CAPABILITY_FACTORY_BINDING",

@@ -8491,6 +8491,67 @@
     "updated_at_utc": "2026-11-03T19:48:12.442112+00:00",
     "worker_actions": false
   },
+  "creator_generic_upstream_discovery_20261111": {
+    "blocker": null,
+    "engineering_revision": "a170b17a15a68a2aac695d898635a059e493378b",
+    "next_action": "User reviews results before any recurring merging is enabled. Deferred searches resume without repeating recorded provider requests.",
+    "objective": "Generic, fairly budgeted shared-upstream one-off discovery",
+    "runtime_deployment_gate": "PASS",
+    "runtime_evidence": {
+      "blocker": null,
+      "installed_targets": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_upstream.py": "7af0993795a670c55bd2f0e36a3dd7423bc0b1ecd0c291726781c1e85420aa0f",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_upstream_candidates.py": "da615921a6f1c85f59378f4cf27d6864a067ec2ec28dd24a68e516d3e2382779"
+      },
+      "next_action": "User reviews results before any recurring merging is enabled. Deferred searches resume without repeating recorded provider requests.",
+      "objective": "Generic, fairly budgeted shared-upstream one-off discovery",
+      "pre_deployment_hashes": {
+        "candidates": "78a0880107355f468122ffeac1bb640f91b24628d4330fa6e84abe03a26aabab",
+        "upstream": "5343b7c97c5aaac9fbae4318544ad6fb7a926b550031292b4e4cb1149bdadc72"
+      },
+      "process_identity": "One-off invoked installed script with algotrader Python under runner lock; resumed same run after six calls with shared ledger and journal",
+      "production_flags": {
+        "listener_detection_database_changes": false,
+        "raw_new_provider_payloads_retained": false,
+        "read_only_fallback_preserved": true,
+        "recurring_merging_enabled": false
+      },
+      "recorded_at_utc": "2026-11-11T20:13:36.529223+00:00",
+      "reload_required": false,
+      "remaining_limit": "First pass reached installed Helius policy cap; 9VFk chain has no qualified shared root and unverified pass-through/service evidence, so no merge was proposed.",
+      "runtime_deployment_gate": "PASS",
+      "source_revision": "a170b17a15a68a2aac695d898635a059e493378b",
+      "storage_bounds": {
+        "html_bytes": "<500000",
+        "negative_cache_bytes": "<2000000, <=5000 groups",
+        "request_journal_bytes": "<2000000, <=20000 hashed request identities, fail closed",
+        "run_proposals_bytes": "<300000",
+        "signature_buffer_bytes": "<2000000, compact signatures and proof only",
+        "transient_file_max_bytes": "<6500000",
+        "unbounded_growth_paths": 0,
+        "wallet_cache_bytes": "<6500000, <=20000 wallets, each <=512 bytes, oldest evicted"
+      },
+      "verdict": "PASS",
+      "verification": {
+        "annotation_bytes_unchanged": true,
+        "family_bytes_unchanged": true,
+        "groups_considered": 49,
+        "groups_searched_continuation": 9,
+        "installed_tests": 16,
+        "ninevf_signed_edges": 6,
+        "observed_chains": 1,
+        "proposals": 0,
+        "provider_requests": 20,
+        "run_id": "run-38c008e2edf34c2ba0c318e596fcff14",
+        "source_tests": 77,
+        "stop_reason": "UPSTREAM_INSTALLED_POLICY_LIMIT",
+        "subjects": 6,
+        "unique_provider_requests": 20,
+        "wallets": 6
+      }
+    },
+    "verdict": "PASS"
+  },
   "creator_global_price_queue_20261110": {
     "acquisition": {
       "birdeye": 3,
@@ -83344,11 +83405,11 @@
     }
   },
   "project": {
-    "branch": "codex/creator-upstream-merging",
-    "git_head": "a1e29a4a98ab5f6b335219d71895aabda08ce416",
+    "branch": "codex/upstream-generic-discovery",
+    "git_head": "a170b17a15a68a2aac695d898635a059e493378b",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T19:49:33.546172+00:00",
-    "working_tree": "/private/tmp/flex-upstream-merging"
+    "updated_at_utc": "2026-11-11T20:13:45.986399+00:00",
+    "working_tree": "/private/tmp/flex-upstream-generic"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {

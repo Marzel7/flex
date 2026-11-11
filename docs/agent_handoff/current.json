@@ -9338,6 +9338,23 @@
       }
     }
   },
+  "creator_upstream_merging_wip_20261111": {
+    "blocker": "The first-run merges are not yet available: the Helius upstream dispatcher, cache, and address-proof qualification are unfinished. 41TD exchange funding signatures are absent from retained evidence.",
+    "engineering_revision": "3ea42305085d576f2de610c2e98f874920c0f024",
+    "evidence": "Retained 41TD root family has six members; eight cached full signature pages do not reach origin and available transaction cache contains no exchange funding transaction. Existing provider ledger enforces a maximum of 20 Helius requests and six subjects per run, stricter than requested maximum 30; preserve installed policy.",
+    "implementation": "WIP includes shared-stop candidate selection and pure conservative proof rules, 3 fixture tests; behaviour grouping, provider-backed history, durable wallet cache, real compact proof extraction, provisional-op publication, full required acceptance and first run are NOT complete. Never enable current WIP.",
+    "next_action": "Finish bounded provider_bridge-based history lookup and restart-safe compact cache, test all acceptance fixtures and installed policy limit, run once with auto-merging disabled, then show user exact proven merges before any recurring activation.",
+    "objective": "Address-proven upstream merging and first run",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED: upstream proof work is incomplete and not installed",
+    "runtime_flags": {
+      "coverage_baseline_installed": true,
+      "listener_detection_database_changes": false,
+      "upstream_merging_enabled": false,
+      "upstream_merging_installed": false
+    },
+    "storage": "Provisional WIP creates no files and makes no provider requests. Final cache must obey 20000-wallet and 5000-operation bounds, no raw payload retention.",
+    "verdict": "PARTIAL"
+  },
   "crq_newest_first_ordering_20261109": {
     "RUNTIME_DEPLOYMENT_GATE": "PASS",
     "branch": "fix/crq-newest-first",
@@ -83254,11 +83271,11 @@
     }
   },
   "project": {
-    "branch": "codex/creator-coverage-baseline",
-    "git_head": "227879f6",
+    "branch": "codex/creator-upstream-merging",
+    "git_head": "3ea42305085d576f2de610c2e98f874920c0f024",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T19:00:19.028114+00:00",
-    "working_tree": "/private/tmp/flex-creator-coverage"
+    "updated_at_utc": "2026-11-11T19:05:01.862872+00:00",
+    "working_tree": "/private/tmp/flex-upstream-merging"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {

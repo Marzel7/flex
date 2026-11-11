@@ -83480,9 +83480,9 @@
   },
   "project": {
     "branch": "codex/open-upstream-networks",
-    "git_head": "44b8767b",
+    "git_head": "915cf9a3b0fe6fef159cbf713f726222321f202e",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T22:20:50.124821+00:00",
+    "updated_at_utc": "2026-11-11T22:29:14.793052+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -103933,31 +103933,49 @@
   "creator_open_network_amendment_20261111": {
     "verdict": "PARTIAL",
     "objective": "Implement and deploy Amendment 2 open networks with capped exploration, coverage and scheduled report.",
-    "engineering_revision": "44b8767b",
+    "engineering_revision": "915cf9a3b0fe6fef159cbf713f726222321f202e",
     "engineering_worktree": "/private/tmp/flex-open-upstream-networks",
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED: end-to-end acceptance not complete",
+    "runtime_deployment_gate": "HOLD: installed and offline-qualified; first scheduled run/report not yet observed",
     "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
-    "runtime_unchanged": true,
-    "completed": "Draft lookup uses the latest fetched postBalance when complete inflow is known, falling back to sampled outflows only when balance unavailable. Graph records compact balance proofs; unproven graph paths create OPEN unproven frontiers without membership; open graph-network launches are included in provisional coverage. 94 focused tests passed.",
+    "runtime_unchanged": false,
+    "completed": "Installed six qualified modules between scheduled runs under runner lock. 118 source tests and 77 installed-module tests passed. Existing installed family and Watchtower annotation files byte-identical. Runtime hashes and predeployment identities recorded below. No provider lookup during installation.",
     "important": "Draft helpers are not wired into scheduled execution; the fixture connectivity test is not the full end-to-end network acceptance. Full production deployment is not authorized until acceptance passes.",
     "fixture_gap": "RESOLVED: both missing signatures already exist as compact, previously gated graph edges; tXhUegEK connects 6wRun to 5Mex and 3ziRriAg connects 2gHL to 5Mex. A gated retry was rejected UPSTREAM_REQUEST_ALREADY_VISITED; no new provider calls.",
     "unfinished": "Network creation and actual join, slot-proof, cap/frontier integration into lookup loop and end-to-end 9VFk fixture acceptance remain incomplete. Scheduled hook not installed/enabled. No provider lookups were made.",
-    "activation_state": "Recurring merges remain off, scheduled runner unchanged.",
-    "next_action": "Complete graph/network and scheduled integration, run full 9VFk acceptance and family/Watchtower regressions, then install and observe scheduled report; retain unproven branches as OPEN frontiers.",
-    "storage": "Draft network tables in existing <100MB graph SQLite; compact fixture 8008 bytes; no raw payloads added. Full storage qualification remains required.",
+    "activation_state": "upstream_wallets_enabled=true; upstream_auto_enabled=false; scheduled research active",
+    "next_action": "Observe first scheduled run at 2026-11-12 01:15:38 UTC; inspect report, wallet counts, budget usage, family/Watchtower byte-identical output and proposal-only behavior. Diagnose and remediate any run failure before claiming acceptance.",
+    "storage": "100MB graph with SQLite page cap, no raw provider payload retention; compact run report under 300KB, dashboard under 500KB, no unbounded growth paths.",
     "blocker": null,
-    "evidence": "run-7aac9e8331a8401cb42e654dfaa69f17 has 25 Helius reservations: 24 retained, one DISPATCHING; durable graph has one RESERVED. The run was stopped to avoid concentrating the full budget on one wallet before wallet-first scheduling was implemented. Acquired compact graph edges remain retained; no raw payload retained."
+    "evidence": "run-7aac9e8331a8401cb42e654dfaa69f17 has 25 Helius reservations: 24 retained, one DISPATCHING; durable graph has one RESERVED. The run was stopped to avoid concentrating the full budget on one wallet before wallet-first scheduling was implemented. Acquired compact graph edges remain retained; no raw payload retained.",
+    "limitations": "Network construction, cap/frontier and proof integration remain incomplete; report lists stored networks/frontiers and conservative 9VFk UNPROVEN status. No automatic merge is enabled. Full scheduled execution and report remain unverified.",
+    "post_hashes": {
+      "runner.py": "09dabb7bc4ef7a2609ab9a94aadba5681718bc43d86fcdb7f69dfdd1bed3b4a3",
+      "creator_operation_upstream.py": "e57c904007be565935c3bab24906f8f6571b854a833b5f8e74a83377ba348daf",
+      "creator_operation_upstream_candidates.py": "7b59b2e008f48ba523e1a93d3d6cdcaba7c87554b7dde94aa819a7e2c62664a6",
+      "creator_operation_upstream_proofs.py": "ded8cc1c9e24eec0f96d26d825c27254921fc667790b170c3caa7dfbf685cd9",
+      "creator_operation_graph.py": "8ba6ae47343bb46f7b6edfd5b2bd46e8aa3ddd375e6a7790e7ee29317669b053",
+      "creator_operation_coverage.py": "98c42a3949180a0fd1f97bce7efb9146e2c7798f48c47d51570c43b767776140"
+    },
+    "pre_hashes": {
+      "runner.py": "0ab9e7dee6547ab370edbd6f8e8836d03519bb1be7eaba9ffa5e8b21b91ddbca",
+      "creator_operation_upstream.py": "2caca49ee4e0da6cd868403a08f7d312a992ac7fe8c929fc4944f057bf685cd9",
+      "creator_operation_upstream_candidates.py": "da615921a6f1c85f59378f4cf27d6864a067ec2ec28dd24a68e516d3e2382779",
+      "creator_operation_upstream_proofs.py": "ee94fc31a06fb3377a0f5ccc96be2c741a637b87e4c138ccd9c1eaf61440c85f",
+      "creator_operation_graph.py": "fe9ab056d7685697ffc4307bdff850226098b2d01f5a6c4412c84fa79fc521c8",
+      "creator_operation_coverage.py": "82a8c8181e2ab1d9948fa7d271c1e2bc512f45accb1fc2014ff4be6bc3dc4b25"
+    },
+    "reload": "No persistent Python runner; launchd starts a new interpreter each run."
   },
   "creator_upstream_wallet_work_20261111": {
     "verdict": "PARTIAL",
-    "engineering_revision": "44b8767b",
+    "engineering_revision": "915cf9a3b0fe6fef159cbf713f726222321f202e",
     "engineering_worktree": "/private/tmp/flex-open-upstream-networks",
     "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED: helper only, integration and acceptance outstanding",
-    "runtime_unchanged": true,
+    "runtime_unchanged": false,
     "completed": "Wallet first pass and gated scheduled runner hook added in draft. 90 focused tests passed.",
     "unfinished": "Hook is disabled and not installed; report, network semantics and full acceptance remain incomplete.",
     "next_action": "Implement durable round state, budget-aware first-look phase and second-phase barrier, actual operation/family/frontier mapping, per-run reporting, and full tests; then install only after original network acceptance.",
     "storage": "No new persistent files; helper enforces 5000 input subjects per category, 32 signals per input and at most 20 returned partners per wallet. Existing upstream graph remains bounded under 100 MB.",
-    "activation_state": "Recurring merges remain off; scheduler unchanged."
+    "activation_state": "wallet-first enabled, automatic merges disabled, first scheduled run pending"
   }
 }

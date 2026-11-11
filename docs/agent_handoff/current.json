@@ -87864,6 +87864,31 @@
     "tests": "63 focused protected-path tests passed: creator funding fast paths/lifecycle, Walkback startup, P3R, canonical evidence foundation, bounded liquidity-owned gate, Potential Operation visual structure, and P3R tiering. compileall and git diff --check passed before activation.",
     "verdict": "SIMULATION_SUBSYSTEM_RETIRED_CORE_PRESERVED"
   },
+  "sqlite_wal_keepalive_20261111": {
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "blocker": null,
+    "cause": "Anaconda-SQLite writers delete core.sqlite -wal/-shm on last close; mode=ro readers cannot recreate them. Measured 1073/2316 ro opens failing (07:27 UTC). Agent runs 00:55 and 04:55 failed at initial_publication for this reason.",
+    "implementation": "Standalone LaunchAgent com.flex.sqlite-wal-keepalive holds one idle read-only connection (query_only, autocommit, no transaction) to core.sqlite and ops.sqlite. Not in guarded supervisord; guard manifest untouched.",
+    "next_action": "Confirm the 08:55 UTC research-agent run passes initial_publication (first exercise of the Watchtower annotation).",
+    "objective": "Stop read-only readers (research agent, recovery dashboard) failing with 'unable to open database file' on core.sqlite.",
+    "project": {
+      "branch": "fix/sqlite-wal-keepalive",
+      "git_head": "e9fd4763",
+      "worktree": "/private/tmp/flex-db-keepalive"
+    },
+    "revert": "launchctl bootout gui/501/com.flex.sqlite-wal-keepalive && rm the plist",
+    "runtime": {
+      "plist": "~/Library/LaunchAgents/com.flex.sqlite-wal-keepalive.plist",
+      "script": ".runtime/sqlite-keepalive/sqlite_wal_keepalive.py",
+      "sha256": "07455ea02a6d4dd7e05cd73224465568d70030b5eb8c51915d02f103aefea830",
+      "started_utc": "2026-11-11T07:42:19Z",
+      "status_file": ".runtime/sqlite-keepalive/status.json"
+    },
+    "runtime_acceptance": "Live probe after deploy: 2297/2297 ro opens OK (was 46% failing). WAL sizes 0.2-0.8 MB after start.",
+    "storage": "Status file <2 KB overwritten; log lines only on open/reopen; 0 unbounded growth paths; no raw retention.",
+    "tests": "tests/test_sqlite_wal_keepalive.py 5/5 pass (reproduces fault without holder; 0 failures with holder; WAL bounded ~4MB; no writes; reopen on replace).",
+    "verdict": "PASS"
+  },
   "stage5_archive_build_redundancy_census": {
     "inventory": "flex_investigation_archive.db=2.87GB, 2 tables, primarily archived funder_networks (42,314 rows); transaction_first_lineage.db=1.43GB with 1.60m tf_launches/1.53m queue and a default-off read-only cache adapter; local_operation_discovery_corpus.db=23MB with candidate families/direct funding/upstream evidence. _p5a_migration_build is referenced by active hot/cold rollover code, so is not assumed dead.",
     "next_action": "Finish source/route reachability classification for flex_investigation_archive main.py readers, then audit _p5a and Evidence Platform shallow stores separately before any retirement proposal.",

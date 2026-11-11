@@ -83482,7 +83482,7 @@
     "branch": "codex/durable-price-artifacts",
     "git_head": "374cdc04b42927a3d0a5dbcb3c4d33fb92c66fa4",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T22:54:17.089615+00:00",
+    "updated_at_utc": "2026-11-11T23:08:04.132843+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -103997,5 +103997,18 @@
     "storage": "At most 1000 compact price artifacts, each under 300000 bytes; each transient stage under 300000 bytes; 152 files currently 10,871,952 bytes. No raw provider payload retention, zero unbounded paths. Existing dashboard set under 5MB.",
     "activation_state": "wallet-first scheduling remains enabled; automatic upstream merges remain off; next scheduled research run unchanged.",
     "next_action": "Wait for Helius budget deferral to clear; review the blocked token before any retry and resume eligible operation backfill in bounded batches. Verify the next scheduled agent report separately."
+  },
+  "creator_operation_price_backfill_20261111_resume": {
+    "verdict": "PARTIAL",
+    "objective": "Continue backfilling eligible operation launch price data.",
+    "engineering_revision": "374cdc04b42927a3d0a5dbcb3c4d33fb92c66fa4",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Provider acquisition and dashboard publication only; no executable changes.",
+    "result": "89 additional token subjects acquired with returned market-cap observations; all 89 have one-minute market-cap candles only, with no one-second market-cap candles returned. Files retained in bounded durable price-artifacts and dashboard summary published.",
+    "reservations": "90 Helius and 267 Birdeye across 18 bounded runs. Last Helius reservation returned BudgetDeferred; stopped immediately, no retry.",
+    "remaining": "234 eligible operation tokens and 19 funder-only tokens; 12 blocked records across both populations.",
+    "activation_state": "Scheduled wallet-first research remains enabled; automatic upstream merging remains disabled.",
+    "storage": "89 compact price files verified present under durable price-artifacts, individual files under 300000 bytes, directory cap 1000, no raw payloads or unbounded paths.",
+    "next_action": "Respect the gate deferral and leave blocked subjects excluded; review gate status and resume eligible bounded batches when permitted."
   }
 }

@@ -83479,10 +83479,10 @@
     }
   },
   "project": {
-    "branch": "codex/open-upstream-networks",
-    "git_head": "915cf9a3b0fe6fef159cbf713f726222321f202e",
+    "branch": "codex/durable-price-artifacts",
+    "git_head": "374cdc04b42927a3d0a5dbcb3c4d33fb92c66fa4",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T22:29:14.793052+00:00",
+    "updated_at_utc": "2026-11-11T22:54:17.089615+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -103977,5 +103977,25 @@
     "next_action": "Implement durable round state, budget-aware first-look phase and second-phase barrier, actual operation/family/frontier mapping, per-run reporting, and full tests; then install only after original network acceptance.",
     "storage": "No new persistent files; helper enforces 5000 input subjects per category, 32 signals per input and at most 20 returned partners per wallet. Existing upstream graph remains bounded under 100 MB.",
     "activation_state": "wallet-first enabled, automatic merges disabled, first scheduled run pending"
+  },
+  "creator_operation_price_backfill_20261111_late": {
+    "verdict": "PARTIAL",
+    "objective": "Backfill available Birdeye price data for operation launches and publish results.",
+    "engineering_revision": "374cdc04b42927a3d0a5dbcb3c4d33fb92c66fa4",
+    "worktree": "/private/tmp/flex-durable-price-artifacts",
+    "runtime_deployment_gate": "PASS for price-retention and linked-token display changes; provider acquisition paused by gate budget deferral",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "provider_bridge_sha256_before": "b4be376c6bde25246140142ac8221bc527ea8284317fbd9dcfc79c5e9e97426d",
+    "provider_bridge_sha256_after": "5a87fb8e6b263fe62bce27a6c3d423d246ceec7ec3335556d764bc08b8eb2c04",
+    "navigation_sha256_before": "94b3d239bb6bc3e65d236e106b0602d245f8da8b6918845a25213aed5f9b4d4a",
+    "navigation_sha256_after": "9e1d6a59b8f1bc91d7fe8b1929b1ea671d5a8aac6ce09bab16c89d2224132e5b",
+    "runtime_process": "launchd starts a fresh Python interpreter each run; no restart required. Installed module tests and a live bounded provider batch verified changed paths.",
+    "results": "113 token subjects acquired or extended with market-cap observations: 69 with one-second market-cap candles, 44 with only one-minute market-cap candles. 111 Helius and 333 Birdeye request reservations; one Helius BudgetDeferred reservation ended work, no retry.",
+    "remaining": "324 eligible operation tokens plus 19 funder-only tokens; 11 blocked across both populations. Queue is based on retained candidates and is not a complete census.",
+    "data_integrity": "109 indexed run-folder artifacts migrated byte-for-byte to durable price-artifacts before scheduled prune; subsequent acquisition verified new artifacts persist there. Existing index had 20 pre-existing missing file references. Dashboard regenerated and linked-token prices shown; no existing qualified values overwritten.",
+    "tests": "82 focused source tests passed; 19 installed provider tests and 33 installed navigation/reference tests passed; live 5-token provider acquisition confirmed durable storage; real operation 10 linked-token row and dashboard summary verified.",
+    "storage": "At most 1000 compact price artifacts, each under 300000 bytes; each transient stage under 300000 bytes; 152 files currently 10,871,952 bytes. No raw provider payload retention, zero unbounded paths. Existing dashboard set under 5MB.",
+    "activation_state": "wallet-first scheduling remains enabled; automatic upstream merges remain off; next scheduled research run unchanged.",
+    "next_action": "Wait for Helius budget deferral to clear; review the blocked token before any retry and resume eligible operation backfill in bounded batches. Verify the next scheduled agent report separately."
   }
 }

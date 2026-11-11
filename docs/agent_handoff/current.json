@@ -9179,6 +9179,52 @@
     "status": "PASS_AUDIT_CREATOR_RETRY_STILL_DEFERRED",
     "tests": "Bounded paired-authority read-only Core/OPS queries and installed resolver exception-handler source inspection; no test suite or provider calls."
   },
+  "creator_screen_review_normalization_20261111": {
+    "blocker": null,
+    "engineering_revision": "428b1fca4d284abc964d3bed7200ea7330701e6e",
+    "next_action": "NONE \u2014 COMPLETE. Existing Helius gate correctly blocked one price request; resume only under normal provider rules.",
+    "objective": "Normalize screening review identifiers and preserve research runtime",
+    "production_flags": {
+      "database_open_fix_preserved": true,
+      "detection_listener_changed": false,
+      "research_agent_installed": true
+    },
+    "runtime_deployment_gate": "PASS",
+    "runtime_evidence": {
+      "code_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_screening.py",
+      "database_open_fix_preserved": true,
+      "objective": "Normalize screening review identifiers and preserve research runtime",
+      "process_identity": "launchd starts installed runner.py per cycle; manual run executed same runner and configuration",
+      "production_detection_listener_changes": false,
+      "provider_requests": {
+        "birdeye": 12,
+        "helius": 5
+      },
+      "reload_required": false,
+      "remaining_gaps": [
+        "Priority mint 5MwCCnpLM7X6EXsjWaV6CB4v1CJ1MeWdeGUJD1cLpump remains blocked; do not retry this run.",
+        "Birth-only census rows for selected direct-funder and route cohorts remain a continuation price backlog.",
+        "Direct-funder cohorts remain funding-family evidence only; CREATE ordering, financing continuity, ownership, and migration completion are unqualified."
+      ],
+      "research_commit": "PASS",
+      "revision": "428b1fca4d284abc964d3bed7200ea7330701e6e",
+      "run_id": "run-f507c8dc7be2419bb0908d675481156e",
+      "run_status": "PARTIAL",
+      "runtime_deployment_gate": "PASS",
+      "screening_post_sha256": "f036cf783da24813c3232881dd5745757d468071b06977326b98be10f6140c4c",
+      "screening_pre_sha256": "c17b306b81cea6dcc9b83e47b15a905ece1757c70b30c1a35c511dc278529280",
+      "storage": "No new storage growth paths; existing bounded review artifact and task file only.",
+      "task_post_sha256": "4fafb7e317d4816e3947097c2903ea6af38c257799784226a09ad9a85d75bcf9",
+      "task_pre_sha256": "85cddab261181f779112a6a81dd57a194938cc6aabf886b0582a2d8ca5f20594",
+      "task_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/task.txt",
+      "tests_passed": 44,
+      "timestamp_utc": "2026-11-11T17:26:01.389116+00:00",
+      "verdict": "PASS",
+      "watchtower_treasuries_matched": true,
+      "watchtower_treasury_families": 4
+    },
+    "verdict": "PASS"
+  },
   "creator_three_section_funder_ui_20261110": {
     "activation_state": "No model/provider calls or research cycles. Four-hour cadence, provider limits/credentials, trading and canonical memberships unchanged. Candidate presentation does not imply detailed agent review.",
     "audit": "docs/audits/creator_three_section_funder_ui_20261110.v1.json",
@@ -83191,11 +83237,11 @@
     }
   },
   "project": {
-    "branch": "codex/watchtower-treasury-research",
-    "git_head": "1434237073bf1ecb49ad868b5e0db6cc361179d3",
+    "branch": "codex/screen-review-normalize",
+    "git_head": "428b1fca4d284abc964d3bed7200ea7330701e6e",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T00:22:01.195242+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-runner/structural-source"
+    "updated_at_utc": "2026-11-11T17:26:09.163486+00:00",
+    "working_tree": "/private/tmp/flex-screen-review"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {

@@ -9338,6 +9338,68 @@
       }
     }
   },
+  "creator_upstream_first_run_20261111": {
+    "blocker": "The supplied cached 9VFk history has 918 signatures but lacks enough qualified outgoing transactions to prove 50% pass-through. The installed conservative lookup marks histories over 12 transactions unverified; it does not satisfy the requested complete relay/broad-history acceptance. The 20-request installed policy was reached on the first run. No repeat was attempted.",
+    "engineering_revision": "a1e29a4a98ab5f6b335219d71895aabda08ce416",
+    "next_action": "User reviews the provisional 41TD proposal; do not enable recurring merging. To finish full part 3, implement/test bounded incremental proof for large histories while preserving gate limits, durable no-repeat cache, and all specified safety constraints.",
+    "objective": "Bounded one-off upstream proposal with user-supplied 41TD exchange evidence",
+    "runtime_deployment_gate": "HOLD: one-off ran and installed code identity matches source, but full requested relay and broad-history acceptance is not satisfied",
+    "runtime_evidence": {
+      "blocker": "The supplied cached 9VFk history has 918 signatures but lacks enough qualified outgoing transactions to prove 50% pass-through. The installed conservative lookup marks histories over 12 transactions unverified; it does not satisfy the requested complete relay/broad-history acceptance. The 20-request installed policy was reached on the first run. No repeat was attempted.",
+      "installed_files": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_coverage.py": "82a8c8181e2ab1d9948fa7d271c1e2bc512f45accb1fc2014ff4be6bc3dc4b25",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_upstream.py": "5343b7c97c5aaac9fbae4318544ad6fb7a926b550031292b4e4cb1149bdadc72",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_upstream_candidates.py": "78a0880107355f468122ffeac1bb640f91b24628d4330fa6e84abe03a26aabab",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_upstream_proofs.py": "ee94fc31a06fb3377a0f5ccc96be2c741a637b87e4c138ccd9c1eaf61440c85f"
+      },
+      "manual_run": {
+        "exchange_transaction_count": 3,
+        "launches": 6,
+        "proposal_count": 1,
+        "proposal_root": "41TDcpTypTUd5BjVkQUv1fCbDrKbUxkUZESQbg23upnx",
+        "provider_reservations": 20,
+        "raw_retention": false,
+        "retained_launch_path_edges": 12,
+        "run_id": "run-807165bcf3bf4927806fd352b2bc2ae2",
+        "stop_reason": "UNAVAILABLE_UPSTREAM_INSTALLED_POLICY_LIMIT"
+      },
+      "next_action": "User reviews the provisional 41TD proposal; do not enable recurring merging. To finish full part 3, implement/test bounded incremental proof for large histories while preserving gate limits, durable no-repeat cache, and all specified safety constraints.",
+      "objective": "Bounded one-off upstream proposal with user-supplied 41TD exchange evidence",
+      "pre_install_hashes": {
+        "creator_operation_coverage.py": "8749630e4cfa711a0002683032ad97d4519d2d099564ce96329f7bc268beb9db",
+        "creator_operation_upstream.py": null,
+        "creator_operation_upstream_candidates.py": null,
+        "creator_operation_upstream_proofs.py": null
+      },
+      "process_identity": "Manual one-off invoked installed script in algotrader Python; runner lock acquired; recurring automatic merging disabled",
+      "production_flags": {
+        "automatic_upstream_merging": false,
+        "binance_added_only_to_agent_config": true,
+        "listener_and_detection_changed": false,
+        "read_only_database_fallback_preserved": true,
+        "walkback_registry_changed": false
+      },
+      "recorded_at_utc": "2026-11-11T19:49:15.716164+00:00",
+      "reload_required": false,
+      "revision": "a1e29a4a98ab5f6b335219d71895aabda08ce416",
+      "runtime_deployment_gate": "HOLD: one-off ran and installed code identity matches source, but full requested relay and broad-history acceptance is not satisfied",
+      "storage_bounds": {
+        "negative_cache_bytes": "<2000000; at most 5000 groups",
+        "raw_provider_retention": false,
+        "review_html_bytes": "<500000",
+        "run_proposals_bytes": "<300000",
+        "transient_wallet_cache_bytes": "<10500000",
+        "unbounded_growth_paths": 0,
+        "wallet_cache_bytes": "<10500000; maximum 20000 entries, each <=512 bytes; oldest evicted"
+      },
+      "tests": {
+        "installed_passed": 10,
+        "source_passed": 71
+      },
+      "verdict": "PARTIAL"
+    },
+    "verdict": "PARTIAL"
+  },
   "creator_upstream_merging_wip_20261111": {
     "blocker": "The first-run merges are not yet available: the Helius upstream dispatcher, cache, and address-proof qualification are unfinished. 41TD exchange funding signatures are absent from retained evidence.",
     "engineering_revision": "3ea42305085d576f2de610c2e98f874920c0f024",
@@ -83272,9 +83334,9 @@
   },
   "project": {
     "branch": "codex/creator-upstream-merging",
-    "git_head": "3ea42305085d576f2de610c2e98f874920c0f024",
+    "git_head": "a1e29a4a98ab5f6b335219d71895aabda08ce416",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T19:05:01.862872+00:00",
+    "updated_at_utc": "2026-11-11T19:49:33.546172+00:00",
     "working_tree": "/private/tmp/flex-upstream-merging"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",

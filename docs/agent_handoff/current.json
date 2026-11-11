@@ -83479,10 +83479,10 @@
     }
   },
   "project": {
-    "branch": "codex/operation-price-coverage",
-    "git_head": "3f3aa873bffa7956c8856fbf082bef782ef4fdf2",
+    "branch": "codex/open-upstream-networks",
+    "git_head": "f74482ef",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T21:32:53.946193+00:00",
+    "updated_at_utc": "2026-11-11T21:38:26.926666+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -103929,5 +103929,18 @@
     "production_flags": "Recurring upstream merging remains off; research schedule unchanged.",
     "storage_bounds": "No new unbounded growth paths; queue 65,536 bytes, detail/main page under 500,000 bytes, generated pages together under 5 MB; existing compact provider artifact under 300,000 bytes; no raw provider retention.",
     "next_action": "Diagnose HELIUS_TRANSPORT_UNAVAILABLE through existing gate without bypassing or retrying the blocked subject; resume bounded acquisition only when transport and gate permit, then publish newly retained prices."
+  },
+  "creator_open_network_amendment_20261111": {
+    "verdict": "PARTIAL",
+    "objective": "Implement open funding networks, per-network upward caps, durable frontiers and provisional coverage.",
+    "engineering_revision": "f74482ef",
+    "engineering_worktree": "/private/tmp/flex-open-upstream-networks",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Only a compact evidence fixture was added; executable behavior is unchanged.",
+    "completed": "Added compact transaction-signature and slot evidence for the three frontier relays and six synchronized staging wallets. Checked successful source transactions and relay forwarding in retained cache.",
+    "verification": "Fixture check passed for three relay proofs and six synchronized staging pairs.",
+    "activation_state": "Recurring upstream merging remains off; existing runtime is unchanged.",
+    "unfinished": "Network storage, safe proof-based joins, per-run upward caps, frontier resumption policy, provisional coverage and full seven-splitter acceptance fixture/test are not implemented. The existing agent still uses shared-root semantics.",
+    "next_action": "Implement and test Amendment 2 network semantics and the new cap in the isolated worktree; install only after qualification and keep recurring merges disabled."
   }
 }

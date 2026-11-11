@@ -83480,9 +83480,9 @@
   },
   "project": {
     "branch": "codex/open-upstream-networks",
-    "git_head": "f74482ef",
+    "git_head": "54420200",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T21:38:26.926666+00:00",
+    "updated_at_utc": "2026-11-11T21:43:20.966211+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -103932,15 +103932,18 @@
   },
   "creator_open_network_amendment_20261111": {
     "verdict": "PARTIAL",
-    "objective": "Implement open funding networks, per-network upward caps, durable frontiers and provisional coverage.",
-    "engineering_revision": "f74482ef",
+    "objective": "Implement and deploy Amendment 2 open networks with capped exploration, coverage and scheduled report.",
+    "engineering_revision": "54420200",
     "engineering_worktree": "/private/tmp/flex-open-upstream-networks",
-    "runtime_deployment_required": false,
-    "runtime_deployment_reason": "Only a compact evidence fixture was added; executable behavior is unchanged.",
-    "completed": "Added compact transaction-signature and slot evidence for the three frontier relays and six synchronized staging wallets. Checked successful source transactions and relay forwarding in retained cache.",
-    "verification": "Fixture check passed for three relay proofs and six synchronized staging pairs.",
-    "activation_state": "Recurring upstream merging remains off; existing runtime is unchanged.",
-    "unfinished": "Network storage, safe proof-based joins, per-run upward caps, frontier resumption policy, provisional coverage and full seven-splitter acceptance fixture/test are not implemented. The existing agent still uses shared-root semantics.",
-    "next_action": "Implement and test Amendment 2 network semantics and the new cap in the isolated worktree; install only after qualification and keep recurring merges disabled."
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED: groundwork only, full qualification absent",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "runtime_unchanged": true,
+    "completed": "Compact fixture for three frontier relay pairs and six staging pairs; draft SQLite tables, stable IDs, network join/frontier storage, merge proposals, and cap helper. 27 graph/upstream/coverage tests passed.",
+    "important": "Draft join API needs proof-rule review including pass-through qualification before integration; tests currently check retained-edge continuity, not sufficient downstream pass-through proof. It is not wired to the runner and is not deployed.",
+    "fixture_gap": "Cached 5Mex collector signature page contains transactions tXhUegEK… and 3ziRriAg… but transaction bodies are absent from retained cache; fixture branches cannot all be proven from compact data yet. Previous price lookup hit HELIUS_TRANSPORT_UNAVAILABLE; do not bypass gate or retry a blocked subject.",
+    "unfinished": "Complete and review slot-synchrony and transfer proof qualification, cap integration and frontier resumption, all 9VFk fixture edges, network joins/proposal semantics, provisional coverage and reports; wire scheduled lookups and run full acceptance; install and verify; observe first scheduled report.",
+    "activation_state": "Recurring merges remain off, scheduled runner unchanged.",
+    "next_action": "Continue implementation and proof qualification on isolated branch; obtain missing fixture transactions within the gated provider budget when available; never infer absent signatures. Then test, install between runs, and observe a scheduled report.",
+    "storage": "Draft network tables in existing <100MB graph SQLite; compact fixture 8008 bytes; no raw payloads added. Full storage qualification remains required."
   }
 }

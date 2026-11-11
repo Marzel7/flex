@@ -83479,10 +83479,10 @@
     }
   },
   "project": {
-    "branch": "codex/price-retention-resolution",
-    "git_head": "0888e9f32610048399dfede869f597e7e52711e8",
+    "branch": "codex/operation-price-analysis-ui",
+    "git_head": "88b7738ec06e7c8213f9ab5ff1d757eaf38dd99f",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T23:43:20.364675+00:00",
+    "updated_at_utc": "2026-11-11T23:53:16.898621+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -104031,5 +104031,24 @@
     "storage": "At most 1000 compact artifact files, each and each transient stage under 300000 bytes; dashboard set approximately 3.5MB; no raw payload retention and no unbounded paths.",
     "activation_state": "Scheduled wallet-first research remains enabled and automatic merges remain disabled.",
     "next_action": "Review the 8 blocked operation records before any retry; process the separately listed funder-only queue only if requested. First scheduled network report remains an independent pending acceptance."
+  },
+  "creator_operation_price_analysis_ui_20261111": {
+    "verdict": "PASS",
+    "objective": "Present cached operation price analysis in separate funder-style columns and clarify candle reference timing.",
+    "engineering_revision": "88b7738ec06e7c8213f9ab5ff1d757eaf38dd99f",
+    "worktree": "/private/tmp/flex-operation-price-analysis-ui",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "runner_sha256_before": "09dabb7bc4ef7a2609ab9a94aadba5681718bc43d86fcdb7f69dfdd1bed3b4a3",
+    "runner_sha256_after": "93f6fc5dd11b7929898e29473608fcf43dc317baeb832775947f448dd415c4ca",
+    "navigation_sha256_before": "bc91691140d42d7b09d9f3e8fc493f3f51680316485c1728b9763c23725ff48b",
+    "navigation_sha256_after": "95adb2bdee9189f2809007fbc107db0bf57298ae6a843e27f29e6ce6fe5dac72",
+    "reload": "No restart required; scheduled runner loads installed modules in a fresh interpreter.",
+    "implementation": "Operation reference views and paginated copies display opening reference, observed peak, reference/migration multiples, largest retained red candle and after-peak range. Per-token candle width and close-availability delay are shown; nonmatching bases do not receive computed multiples. Original canonical operation articles and price records preserved.",
+    "verification": "89 focused source tests and 68 installed-module tests passed; actual Watchtower detail and pagination rendered with 15s reference and measured birth delay, reference multiple and red candle. Canonical operation articles byte-identical; family and Watchtower annotation modules unchanged. Browser access host unavailable, so no visual browser inspection.",
+    "limits": "Reference is a retained candle close and not a verified executable opening. One-minute-only data does not invent a one-second or 15-second opening. Peaks and candle timing are limited to returned windows.",
+    "storage": "Generated set under 5 MB; single operation page under 500000 bytes; reference analysis page under 200000 bytes; owned generated pages retired safely; no raw payloads or unbounded paths.",
+    "activation_state": "Scheduled wallet-first research remains enabled; automatic merges remain off; next scheduled run unchanged.",
+    "next_action": "NONE — COMPLETE for display milestone."
   }
 }

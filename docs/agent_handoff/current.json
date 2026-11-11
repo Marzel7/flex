@@ -83479,10 +83479,10 @@
     }
   },
   "project": {
-    "branch": "codex/durable-price-artifacts",
-    "git_head": "374cdc04b42927a3d0a5dbcb3c4d33fb92c66fa4",
+    "branch": "codex/price-retention-resolution",
+    "git_head": "0888e9f32610048399dfede869f597e7e52711e8",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T23:08:04.132843+00:00",
+    "updated_at_utc": "2026-11-11T23:43:20.364675+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -104010,5 +104010,26 @@
     "activation_state": "Scheduled wallet-first research remains enabled; automatic upstream merging remains disabled.",
     "storage": "89 compact price files verified present under durable price-artifacts, individual files under 300000 bytes, directory cap 1000, no raw payloads or unbounded paths.",
     "next_action": "Respect the gate deferral and leave blocked subjects excluded; review gate status and resume eligible bounded batches when permitted."
+  },
+  "creator_operation_price_retention_20261111": {
+    "verdict": "PARTIAL",
+    "objective": "Finish the retained operation-token price queue with correct candle resolution and skip individual deferrals.",
+    "engineering_revision": "0888e9f32610048399dfede869f597e7e52711e8",
+    "worktree": "/private/tmp/flex-price-retention-resolution",
+    "runtime_deployment_gate": "PASS for retention-aware price acquisition and display; live provider, durable artifact and operation-page acceptance passed.",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "provider_bridge_sha256_before": "5a87fb8e6b263fe62bce27a6c3d423d246ceec7ec3335556d764bc08b8eb2c04",
+    "provider_bridge_sha256_after": "134064cb9c3d3f8a3a8eb63d1e2873b3817dd9a4437b21f72e4d8f6c2e673c58",
+    "navigation_sha256_before": "9e1d6a59b8f1bc91d7fe8b1929b1ea671d5a8aac6ce09bab16c89d2224132e5b",
+    "navigation_sha256_after": "bc91691140d42d7b09d9f3e8fc493f3f51680316485c1728b9763c23725ff48b",
+    "reload": "launchd starts a fresh interpreter each run; no restart required.",
+    "provider_fact": "Birdeye states one-second candles retained two weeks and 15-second / 30-second candles retained three months; see https://birdeye.so/data-api/blog/detail/introducing-sub-minute-intervals-in-birdeye-data-services-ohlcv-v3-apis .",
+    "result": "232 additional token subjects have returned market-cap observations: 210 at 15-second resolution and 22 at one-minute resolution only. 0 at one-second resolution. All 232 durable artifacts exist and corresponding prices verified on operation pages.",
+    "provider_requests": "234 Helius and 696 Birdeye reservations across 48 bounded runs; two individual Helius BudgetDeferred outcomes. Token-specific hold skipped; shared in-flight limit honored and retried only on other subjects after a pause. No blocked subject retried.",
+    "remaining": "0 unblocked operation tokens in retained queue; 8 operation records blocked; separately 19 eligible funder-only and 6 funder-only blocked. These counts are retained-queue coverage, not a census of all launches.",
+    "verification": "144 focused source tests passed for retention-aware changes; 55 installed-module tests plus live five-token provider pilot verified 15-second candles and labels; later stale-placeholder fix passed 86 focused source and 30 installed navigation tests and live rendered-row verification. All 232 artifacts and UI price locations checked.",
+    "storage": "At most 1000 compact artifact files, each and each transient stage under 300000 bytes; dashboard set approximately 3.5MB; no raw payload retention and no unbounded paths.",
+    "activation_state": "Scheduled wallet-first research remains enabled and automatic merges remain disabled.",
+    "next_action": "Review the 8 blocked operation records before any retry; process the separately listed funder-only queue only if requested. First scheduled network report remains an independent pending acceptance."
   }
 }

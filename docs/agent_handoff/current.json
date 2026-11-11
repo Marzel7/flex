@@ -73755,6 +73755,17 @@
     "status": "LISTENER_HANDOFF_MODULE_DEPLOYMENT_QUALIFIED",
     "throughput_and_handoff": "218 real births (10.75/min) and 14 migrations (0.69/min) during the window. Fresh bounded health was HEALTHY with eligible/durable/missing=5/5/0. Ten paired handoff cycles had maximum live-database connection/writer scope 197.716ms, zero live holds over 5s/30s, and zero cross-database write-transaction overlap. OPS connection lifetime reached 59.915s while waiting under residual shared contention, but closed before the paired live connection opened."
   },
+  "listener_helius_migration_ws_restore_20261111": {
+    "RUNTIME_DEPLOYMENT_REQUIRED": false,
+    "action": "User-authorised supervisorctl restart watchtower_listener (guarded supervisord) at 19:53 UTC; pid 26669 -> 92391.",
+    "blocker": null,
+    "cause": "Keep-alive holder (reverted 16:33) kept ops.sqlite-wal > 8 MB; listener Helius loop got TerminalHold at 10:15:38 (crash) and again at 10:19:53, which _pumpswap_failure treats as non-recoverable -> loop returned permanently. PumpPortal carried 100% alone for ~9.5 h.",
+    "follow_up": "Listener code: TerminalHold should back off and retry, not end the Helius loop (pinned file; needs manifest procedure + user approval).",
+    "next_action": "Confirm dashboard Helius WS share recovers next hour; check the 4 'not recorded' migrations.",
+    "objective": "Restore the Helius migration websocket (PUMPSWAP_MIGRATION_LOGS_WS), down since 10:19:53 UTC.",
+    "runtime_acceptance": "acquisition_availability_transitions MIGRATION AVAILABLE 'logsSubscribe confirmed' 19:53:03 (listener:92391); established Helius + PumpPortal TCP; first Helius-detected migration 19:53:55.",
+    "verdict": "PASS"
+  },
   "listener_journal_owner_compatibility_DEV": {
     "activation_evidence": "/private/tmp/flex-e3db-rollout/FINAL_SUMMARY.json",
     "checks_passed": 43,

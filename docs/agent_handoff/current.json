@@ -9399,6 +9399,80 @@
       }
     }
   },
+  "creator_upstream_durable_graph_20261111": {
+    "blocker": "The existing Helius gate returned HELIUS_OWNERSHIP_RECOVERY_HOLD on one reservation; the run stopped and did not retry or bypass it. The broader search is incomplete.",
+    "engineering_revision": "2f35b6c1e995df3394f3ff24baffefc3b952d66d",
+    "next_action": "User reviews zero qualifying merges and the nine-source collector result; do not enable recurring merging. Any later run must respect the existing gate hold and cumulative daily limit.",
+    "objective": "Durable bounded upstream graph, budgets, collector and one-off research",
+    "runtime_deployment_gate": "PASS",
+    "runtime_evidence": {
+      "blocker": "The existing Helius gate returned HELIUS_OWNERSHIP_RECOVERY_HOLD on one reservation; the run stopped and did not retry or bypass it. The broader search is incomplete.",
+      "next_action": "User reviews zero qualifying merges and the nine-source collector result; do not enable recurring merging. Any later run must respect the existing gate hold and cumulative daily limit.",
+      "objective": "Durable bounded upstream graph, budgets, collector and one-off research",
+      "pre_deployment_hashes": {
+        "graph": null,
+        "provider_bridge": "c8ab1a6c884797d62495b54a35cdd4d478b4cc3487991beb5dc7525e38d2b644",
+        "upstream": "7af0993795a670c55bd2f0e36a3dd7423bc0b1ecd0c291726781c1e85420aa0f"
+      },
+      "process_identity": "Two continuations of one manual run used installed upstream script under runner lock and one shared durable budget ledger; graph connection closed after each.",
+      "production_flags": {
+        "core_ops_database_writes": false,
+        "existing_ro_connect_preserved": true,
+        "listener_walkback_detection_changed": false,
+        "recurring_merging_enabled": false
+      },
+      "recorded_at_utc": "2026-11-11T21:01:20.954597+00:00",
+      "reload_required": false,
+      "runtime_deployment_gate": "PASS",
+      "runtime_targets": {
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_graph.py": "fe9ab056d7685697ffc4307bdff850226098b2d01f5a6c4412c84fa79fc521c8",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_upstream.py": "2caca49ee4e0da6cd868403a08f7d312a992ac7fe8c929fc4944f057bf685cd9",
+        "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/provider_bridge.py": "b4be376c6bde25246140142ac8221bc527ea8284317fbd9dcfc79c5e9e97426d"
+      },
+      "source_revision": "2f35b6c1e995df3394f3ff24baffefc3b952d66d",
+      "storage_bounds": {
+        "graph_max_file_bytes": "<100000000, SQLite max_page_count and pre-write headroom; oldest unlinked edges evicted first",
+        "legacy_request_journal_bytes": "<2000000; <=20000 hashed identities, fail closed",
+        "legacy_wallet_cache_bytes": "<6500000; <=20000 entries",
+        "raw_provider_payloads_retained": false,
+        "run_output_bytes": "<5000000 per run; proposals <300000, summary <16000, HTML <500000",
+        "single_continuation_payload_bytes": "<1500000; compact signatures and proof only",
+        "sqlite_transient_journal": "bounded by the graph cap plus SQLite journal overhead, below 101 MB; no WAL",
+        "unbounded_growth_paths": 0
+      },
+      "verdict": "PARTIAL",
+      "verification": {
+        "collector_inflows": 9,
+        "collector_out_sol": 516.142025382,
+        "collector_total_sol": 516.142030382,
+        "daily_cap": 1500,
+        "daily_reservations": 219,
+        "edges_stored": 66,
+        "family_bytes_unchanged": true,
+        "graph_bytes": 2162688,
+        "graph_closed_no_sidefiles": true,
+        "graph_test_latest_source": 14,
+        "installed_tests": 49,
+        "new_links": 0,
+        "proposed_merges": 0,
+        "provider_reservations": 179,
+        "provider_states": {
+          "RETAINED_COMPACT": 178,
+          "UNAVAILABLE": 1
+        },
+        "run_cap": 200,
+        "run_id": "run-0d49d0f4c0504e9ca2ba3115d249612a",
+        "source_tests": 110,
+        "stored_edges_imported": 24,
+        "stored_links": 0,
+        "unique_requests": 179,
+        "unqualified_shared_wallet_candidates": 19,
+        "wallets_resolved": 8,
+        "watchtower_annotation_bytes_unchanged": true
+      }
+    },
+    "verdict": "PARTIAL"
+  },
   "creator_upstream_first_run_20261111": {
     "blocker": "The supplied cached 9VFk history has 918 signatures but lacks enough qualified outgoing transactions to prove 50% pass-through. The installed conservative lookup marks histories over 12 transactions unverified; it does not satisfy the requested complete relay/broad-history acceptance. The 20-request installed policy was reached on the first run. No repeat was attempted.",
     "engineering_revision": "a1e29a4a98ab5f6b335219d71895aabda08ce416",
@@ -83405,11 +83479,11 @@
     }
   },
   "project": {
-    "branch": "codex/upstream-generic-discovery",
-    "git_head": "a170b17a15a68a2aac695d898635a059e493378b",
+    "branch": "codex/upstream-durable-graph",
+    "git_head": "2f35b6c1e995df3394f3ff24baffefc3b952d66d",
     "name": "flex",
-    "updated_at_utc": "2026-11-11T20:13:45.986399+00:00",
-    "working_tree": "/private/tmp/flex-upstream-generic"
+    "updated_at_utc": "2026-11-11T21:01:42.659025+00:00",
+    "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {

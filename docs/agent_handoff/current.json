@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "29c53e8b21029cfc6438a85d566385fea09752ac",
+    "git_head": "7b777325a3d491fb1eb941d37c6b4c8f425ceca0",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104660,5 +104660,35 @@
     "storage": "Existing graph capped at 100 MB; backfill uses restart-safe 256-row transactions and no new raw retention. Existing price artifact and publication limits unchanged.",
     "blocker": "23 local Helius gate refusals (17 busy, 6 inflight limit) prevented full price coverage; do not bypass gate or claim deferred birth lookups were fetched.",
     "next_action": "On next scheduled run retry eligible locally refused birth-time lookups under unchanged gate; inspect 13 remaining latest-launch rows and preserve two recheck flags."
+  },
+  "first_trade_fallback_20261112": {
+    "objective": "Retry birth-time gate contention and use clearly labelled bounded Birdeye first-observed-trade fallback",
+    "verdict": "PARTIAL: manual runtime acceptance passed; requested next scheduled run has not happened yet",
+    "engineering_revision": "7b777325a3d491fb1eb941d37c6b4c8f425ceca0",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "runtime_deployment_gate": "PASS: installed under runner lock and exercised by manual one-off run; next scheduled-run acceptance pending",
+    "runtime_identities": {
+      "runner.py": {
+        "before": "6ca6dab366d20e2ab52de59fdfe3badd4641894322363277e3f55a5f0abcb87b",
+        "after": "4e5b5da0a20e05abfec5d2ddb732b16ab3c6702451a671813e8f79e85f0802c9"
+      },
+      "provider_bridge.py": {
+        "before": "f5c7df381184f0bd91e20930da3a755ca190bf501e1aca57d8ff454f6c67075f",
+        "after": "9e666087fbb86f41cbe6711be467e50d1789372ed2bfddfcc2b6d0a2e7a39465"
+      },
+      "creator_operation_navigation.py": {
+        "before": "4dfcdb6589c0600bc6a8312ffc17f86077b01a926ff98033b0e730b1d44912b7",
+        "after": "1e1150c4e5772692be18ed59c3aaaca408539e24f6ecb6a3d4046ac5c79f2b5b"
+      },
+      "creator_operation_redesign.py": {
+        "before": "00c5fe33e0f3757a3965b3ec91dce1aa32febc1b112f407c4e59d333663420fc",
+        "after": "8e342aeff211dbb2223f09ca61da69d3f21389ec35b43ad79b176fe4006eb2d1"
+      }
+    },
+    "verification": "114 focused tests passed plus one new dashboard fallback regression passed in 64-test focused run. Manual run run-cfb525fcfcd34aaebc80a9677f1c014d priced 23 tokens, 69 Birdeye calls, 23 conservatively reserved birth credits; no price-pass failures. One Helius inflight refusal exercised fallback on CRhbTris4J34SXobaLFnrEv2RD3dD99ddGdiPPzgpump; published operation 10 detail labels first observed 1s trade and stores no fabricated birth. All 21 captured latest launches have candles and appear on published latest table; 7 are price-recheck flagged. Overall run PARTIAL due research and excluded backlog, not price-pass errors.",
+    "activation": "Installed without restart; one-off process loaded installed code. Schedule remains active; next due 2026-11-13 01:56 UTC. Auto merging unchanged.",
+    "storage": "Existing 300 KB artifact limit, 6000 artifacts, 1 MB response bound; compact normalized candles, no raw retention; no new unbounded growth paths.",
+    "blocker": "Scheduled-run acceptance remains pending until next scheduled execution.",
+    "next_action": "Inspect next scheduled run: latest launch coverage, price recheck flags, Birdeye calls <=150, subjects <=50, retries and deferred reasons."
   }
 }

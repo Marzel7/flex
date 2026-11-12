@@ -83482,7 +83482,7 @@
     "branch": "codex/operation-price-analysis-ui",
     "git_head": "88b7738ec06e7c8213f9ab5ff1d757eaf38dd99f",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T00:01:02.865436+00:00",
+    "updated_at_utc": "2026-11-12T00:01:49.187133+00:00",
     "working_tree": "/private/tmp/flex-upstream-graph"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -104058,8 +104058,8 @@
     "worktree": "/private/tmp/flex-hide-coarse-price-evidence",
     "runtime_deployment_required": false,
     "runtime_deployment_reason": "Read-only queue and retained-cache analysis; no executable or dashboard changes.",
-    "finding": "Among 482 operation-linked tokens with CREATE-bound cached market-cap candles: 112 have one-second candles, 210 have 15-second but no one-second candles, and 160 have one-minute but no finer cached candles. Coarse-only cache = 370/482 = 76.8%. Another 75 operation-linked tokens have no qualifying cached market-cap history; independently curated prices may exist and were not reconciled.",
+    "finding": "Among 482 operation-linked tokens with CREATE-bound cached market-cap candles: 112 have one-second candles, 210 have 15-second but no one-second candles, and 160 have one-minute but no finer cached candles. Coarse-only cache = 370/482 = 76.8%. Another 75 operation-linked tokens have no qualifying cached market-cap history; independently curated prices may exist and were not reconciled. As of 2026-11-12 00:01 UTC, all 370 coarse-only cached operation tokens (100%) had CREATE-bound birth timestamps older than 14 days: 210 at 15s and 160 at 1m only. Their ages ranged approximately 16.43–69.19 days; no coarse-only token in this subset was under 14 days.",
     "activation_state": "Four-hour research schedule remains configured; queue limit six subjects per run; a completed future scheduled acquisition is not guaranteed. Automatic upstream merges remain off.",
-    "next_action": "User asked for percentage while deciding whether to hide all price metrics for coarse-only tokens or only opening and multiple; provide the result and await their selection before changing dashboard."
+    "next_action": "Provide the measured age breakdown; await the user’s display choice before modifying price presentation."
   }
 }

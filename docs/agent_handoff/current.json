@@ -104102,5 +104102,34 @@
     "storage_bounds": "At most 6000 records; each artifact and its transient stage below 300000 bytes; cache index and transient stage below 2000000 bytes; raw retention false; no unbounded growth path. Queue population remains capped at 5000.",
     "blocker": "Shared Helius budget safety gate returns HELIUS_BUDGET_CLOCK_AMBIGUOUS for automatic price pass before reservation; no bypass or gate mutation authorized. Fourteen previously blocked records also remain excluded.",
     "next_action": "Reconcile the Helius gate clock under its approved operator procedure, then rerun the bounded agent, verify automatic price-pass requests, retained profiles and dashboard metrics; review excluded records separately."
+  },
+  "dashboard_feed_dedup_error_text_20261112": {
+    "objective": "Dashboard: show SQLite's real error on read failures; count a PumpPortal wrong-mint migration once (keyed by signature) instead of as an extra unrecorded migration.",
+    "project": {
+      "branch": "dashboard/system-status",
+      "git_head": "b4f1b9fd",
+      "worktree": "/private/tmp/flex-dashboard-status",
+      "files": {
+        "paired_reader.py": {
+          "pre": "9d0be2fb",
+          "post": "654e83f4"
+        },
+        "recovery_dashboard_system_status.py": {
+          "pre": "ee5b2999",
+          "post": "39ef6309"
+        }
+      },
+      "sources_json_updated": true
+    },
+    "backup": "/Users/kevinkeaveney/Production/backups/dashboard-pre-b4f1b9fd-20261112T002544Z",
+    "tests": "39 passed under /usr/bin/python3 (5 new). Under anaconda the 2 pre-existing _ro_connect precondition tests fail by design (Apple-SQLite precondition); new tests pass under both.",
+    "deployed_utc": "2026-11-12T00:25:45Z (user-approved); no restart, cron refresh loads files fresh",
+    "runtime_acceptance": "Manual refresh 00:25:50 PASS; migration_feed_portal map persisted. Dedup applies to migrations seen after install; window fully clean ~01:30 UTC.",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "storage": "New state map capped like existing maps (FEED_MAX_ENTRIES, 3 h keep) inside status_state.json; 0 unbounded growth paths.",
+    "finding": "Dashboard refresh failed every run 23:40-00:15 UTC (SQLITE_READ_UNAVAILABLE at query time) then recovered unaided; cause unknown because the old message dropped SQLite's text. Not the Codex price backfill (it writes files only, reads core/ops briefly read-only).",
+    "blocker": null,
+    "verdict": "PASS",
+    "next_action": "After ~01:30 UTC re-read Migration feeds: recorded % should reflect real loss; Helius 86-88% in the last hour (warn <90%) to be rechecked on a clean window. On any future refresh failure read LAST_RUN.json collector_error for the SQLite text."
   }
 }

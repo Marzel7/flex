@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-06T11:24:30.185204+00:00",
+  "updated_at_utc": "2026-11-12T18:02:25.307543+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104480,6 +104480,29 @@
     "runtime_sha256_post": "8249b974dd3ea442e86b227f90e86c968fd39c54c4f096019b7aee27244e7c05",
     "deployment": "Installed under runner lock; fresh scheduled-service publication-only process published verified dashboard at 16:06 UTC. No restart required. Recurring agent and merge policy unchanged.",
     "storage": "Existing 500 KB page and 5 MB page-set bounds remain; no new growth paths or raw retention.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
+  },
+  "ui_round_two_20261112": {
+    "verdict": "PASS",
+    "objective": "Declutter latest launches and proposal review without changing research logic",
+    "engineering_revision": "6653c81cb96e22f49a37baf9bb49c58c6a5d750c",
+    "tests": "152 directly relevant tests passed; published main and review proposal tables agree; no empty review tables; price warnings verified",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "creator_operation_review_ui.py": "185f88e7ccd0cb5346e8029a1a58d878b21630191febe0442031dc072ced153e",
+      "creator_operation_redesign.py": "84b435f650e2a9ce0076d5cfca24474a447bf23a1524ecbddc0a1d1e0df46900",
+      "creator_operation_upstream.py": "01a029b55001fd925da130d80b47458e12d74458cab1a343fb5a304ac31955ee"
+    },
+    "pre_deployment_sha256": {
+      "creator_operation_review_ui.py": "absent",
+      "creator_operation_redesign.py": "8249b974dd3ea442e86b227f90e86c968fd39c54c4f096019b7aee27244e7c05",
+      "creator_operation_upstream.py": "5009693d97463a7f988eda35c03b34f6ac98f6718a9cdab15f461a61abe2d493"
+    },
+    "activation": "Scheduled service restarted for publication; schedule ACTIVE; automatic merges remain off",
+    "publication": "Successful scheduled-service publication-only run at 2026-11-12T18:00:30Z; main sha256 8fdd59798a629ef63e2c15d4bd523af354987e77354e98691153a11429de4aa3; no provider requests. Initial attempt hit FUNDER_TOKEN_READ_DEADLINE; retry succeeded and failure diagnostics retained.",
+    "storage": "Existing staged atomic publication and size bounds retained: 500 KB per page, 5 MB page set; no raw retention or new unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
   }

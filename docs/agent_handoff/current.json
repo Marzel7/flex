@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/operation-price-complete-20261112",
-    "git_head": "03b14937cdd7ed6c6968e3e4dc5a08b5a91c9ef9",
+    "branch": "codex/agent-gate-clock-fix",
+    "git_head": "ac0a95ebeb671a5a365eb1e3e7e044b26aa6e959",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T00:24:28.429926+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operation-price-complete-20261112"
+    "updated_at_utc": "2026-11-12T08:17:49.017274+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/agent-gate-clock-fix"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104155,5 +104155,22 @@
     "blocker": null,
     "verdict": "PASS",
     "next_action": "NONE — COMPLETE. Separate open item for Codex: agent upstream research stopped HELIUS_BUDGET_CLOCK_AMBIGUOUS in both overnight runs (groups_searched 0)."
+  },
+  "creator_agent_gate_clock_20261112": {
+    "status": "PARTIAL_FIRST_LOOKS_VERIFIED_DEEP_SEARCH_PENDING",
+    "engineering_revision": "ac0a95ebeb671a5a365eb1e3e7e044b26aa6e959",
+    "root_cause": "launchd used /usr/bin/python3 3.9 with a process-relative macOS monotonic origin, while the Helius gate journal is written by the supervisor worker using algotrader Python 3.11 and system-wide monotonic clock. The agent read the same shared journal and checked it before the async upstream loop.",
+    "implementation": "Agent launcher re-execs through the supervisor-configured worker Python before running. Gate clock checks unchanged. Dashboard cache read remains bounded with a 60-second deadline. Previously cached policy-limit wallet histories with actual transactions are retained UNPROVEN and no longer stop wallet-first progress. Group reporting distinguishes first wallet lookup from deeper group search.",
+    "tests": "109 focused tests passed including actual installed _tick rejecting process-relative monotonic and accepting matching monotonic. Real previous report rendered in 4.19 seconds.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS_FOR_CLOCK_FIX",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "predeploy_runner_sha256": "8fb875574f7791f6c2d759ee17ef8582cab348024fe1fcfd7009fb6c1ca90a13",
+    "postdeploy_runner_sha256": "7de84fa421dd105ecc5d7222aed3a4c4bd8a857dd6da880dc5c79e6acc2388ef",
+    "runtime_acceptance": "launchd-triggered scheduled-local run-14f22bdd64234c919e97b34ae75acf0e ran with worker Python, searched 10 groups by first wallet lookup, 0 deep searched, traced 12 wallets; 21 upstream requests retained and 1 deferred; no HELIUS_BUDGET_CLOCK_AMBIGUOUS. Initial pass incomplete because HELIUS_GATE_BUSY.",
+    "activation": "launchd active; run triggered early for validation; auto merging remains disabled. No gate, listener, walkback or database changes.",
+    "storage": "No new storage growth path. Existing bounded graph and run-report limits unchanged.",
+    "blocker": "Last wallet-first pass stopped on transient HELIUS_GATE_BUSY; no deep group search completed. Check cached transient-failure handling before expecting deeper searches.",
+    "next_action": "Verify later wallet-first progression past HELIUS_GATE_BUSY without retrying a spent unknown request; confirm deep-group search once the first round is complete."
   }
 }

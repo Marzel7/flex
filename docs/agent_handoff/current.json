@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/upstream-depth-budget-20261112",
-    "git_head": "1e5b5b2a847622180acb299d97bd70c4b70f78ea",
+    "git_head": "ff986aa2fce844b6fcff0df03daebe95c2c90d9e",
     "name": "flex",
     "updated_at_utc": "2026-11-12T09:20:57.487780+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/upstream-depth-budget-20261112"
@@ -104355,19 +104355,29 @@
     "next_action": "NONE — COMPLETE"
   },
   "treasury_outbound_discovery_20261112": {
-    "status": "HOLD",
-    "objective": "Proposal-only treasury links and outbound discovery, isolated acceptance then scheduled run.",
-    "engineering_revision": "1e5b5b2a847622180acb299d97bd70c4b70f78ea",
+    "status": "PASS",
+    "objective": "Evidence-backed treasury links and outbound discovery as proposals only; preserve separate strategies and verify isolated and live scheduled results.",
+    "engineering_revision": "ff986aa2fce844b6fcff0df03daebe95c2c90d9e",
     "worktree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/treasury-outbound-20261112",
-    "implementation": "Draft adds per-anchor two signature pages and 50 transaction limit, 300-credit step limit inside shared reservations, protected graph edges, durable signature deduplication, proposal-only links with proof signatures, deferred classification, swap and known service filtering, unresolved shared-funder evidence, and scheduled report integration. It is not installed.",
-    "tests": "120 focused tests passed; isolated acceptance partially met. Full scheduled-path replay was limited by uncaptured legacy requests and did not establish live acceptance.",
-    "isolated_acceptance": "299 Helius credits total across five isolated bounded attempts; initial 42-credit attempt hit HTTP 429, subsequent calls slowed and reused retained successful transactions. Verified 8QhC to FeZZ direct 10 SOL signature 53t5pfgcHakviTeY3bjUQf6Y24rxDA7tSGcteoGGPp7afyiyn7uCDvLteGV8PbLneccLRo1Bj19ZcWfk4PdRBCgG and 290 SOL signature 5PCbfojETN8syUu7JKN3ayDwnX9fRbqpguCvEDDXZRJV94kmAarT42xSJ5GG5wz8YYBsqMQRCszJ78cw6fBmq5Xd. All eight overnight hubs were found as outbound discoveries; no controls promoted to operator links when unknown common funders remain unqualified. No signed FeZZ Hello-payment evidence found, so requested full acceptance did not pass.",
-    "critical_conflict": "Retained signed transactions show FeZZ and DjoDYT share funder AJZoKpE4xJvDFUj5fjCj2dUajJai9TvbgL5h2SgTiUax. Its current graph verdict is unresolved. Linking every shared funder conflicts with acceptance requiring no DjoDYT link. User was asked whether unknown common funders should be presented as unqualified evidence instead of operator links; response pending. No claim that AJZo is an exchange or service.",
+    "implementation": "Separate operation and possible-operator links; full-address matching; strong/weak/none scoring for shared funders; service, swap, dust and look-alike exclusions. Treasury scan reserves at most 300 credits per run, at most two 1000-signature pages and 50 decoded transactions per anchor. Protects compact bidirectional edges from eviction, records decoded signatures and rechecks outbound wallets on later runs. The scheduled report contains full addresses, amounts, signatures and indirect Hello routes. No operation memberships changed; no automatic merging.",
+    "tests": "146 focused tests passed; an additional rate-denial regression test passed. Isolated acceptance passed and installed-code proof check matched; full scheduled service produced the expected links and 8/8 outbound hubs.",
+    "isolated_acceptance": "Fresh isolated Hello probe: 8 credits. Revised isolated scan: 155 credits, 2 Watchtower treasuries linked by 10 and 290 SOL plus the shared Hello recipient through signed funded-wallet paths; FeZZ and DjoDYT linked as possibly same operator, different strategy through AJZo with 3000 SOL and 10+1254.3 SOL proof; 8/8 overnight hubs found and solo control had no link. Previous milestone hold used 299 credits in separate earlier isolated attempts.",
+    "live_acceptance": "Scheduled service run-1efe1ea147924d2b9c79b15b2f2ee266 started 2026-11-12T12:33:04Z and completed 12:59:28Z. Report has WITHIN_OPERATION 8QhC-FeZZ direct and Hello evidence, POSSIBLY_SAME_OPERATOR_DIFFERENT_STRATEGY DjoDYT-FeZZ through AJZo, 8/8 expected hubs, 87 displayed outbound discoveries and zero automatic merges. The overall run was PARTIAL: existing upstream 1200-second time limit stopped treasury scan after 41 credits on one anchor and wallet-first round remained incomplete. The initial report uses retained signed evidence; remaining anchors await later cycles. Total upstream reservations 1331 credits, including 1290 mint-indexed and 41 treasury.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
-    "production_flags": "Draft not installed; prior scheduled agent and 2000/run, 15000/day remain in force; no automatic merging. No production graph, listener, walkback or gate mutations. No live scheduled acceptance run.",
-    "storage": "Draft graph 100000000-byte hard cap, protected treasury edges fail closed; no raw provider payloads in graph. Explicit isolated recordings each have an 80000000-byte cap and 8388608-byte per-response limit, raw response retention enabled only for requested evidence. No unbounded growth paths.",
-    "blocker": "Shared Hello evidence for FeZZ remains unproven; the agreed combined isolated-test ceiling of 299 credits was reached. User clarification on real DjoDYT shared-funder evidence is pending.",
-    "next_action": "Resolve shared-funder interpretation with user; establish independently signed Hello-payment evidence or revise acceptance, with an explicitly agreed additional acquisition budget. Complete replay and run isolated acceptance before installing and observing a live scheduled report."
+    "runtime_deployment_gate": "PASS",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "runtime_identity": {
+      "graph_pre": "f818dd6963ada45927a68c041ffccf2a4b573a07b29c89e1030fc4e42ea31b4c",
+      "graph_post": "053209edcf67735b47d9586a981ad590f599d47bbfdf64cdde246b0d2d7a0600",
+      "upstream_pre": "b6cda04d018f94214d210ecdd896a986d5935034e703779dc8b2eb67a98bfcac",
+      "upstream_post": "6b0fd3c5557d4e19ea3aae7cf3ea410568a3916031c6b44c6525679b06e87567",
+      "treasury_pre": "absent",
+      "treasury_post": "7dbccf60fb96d8fd81defa062e9d0bb2719b9ce2ae11c40a1ae16a67c8348814"
+    },
+    "deployment": "Installed under runner lock between service runs; 175 compact qualified signed edges and 528 decoded signature markers imported, with conflicts checked and swap exclusions applied. Graph grew from 6979584 to 7213056 bytes during import; no raw responses imported. Fresh scheduled process read installed modules, exited 0, report saved.",
+    "production_flags": "2000 upstream credits/run, 15000/day and 1200-second stage limit unchanged; treasury step 300/run. Automatic merges disabled; no listener, walkback, core.sqlite, ops.sqlite, family memberships or production gate changed.",
+    "storage": "Protected signed compact edges and markers stored in existing separate graph with 100000000-byte hard cap, DELETE journal below graph cap; bounded reports <500000 bytes and individual provider responses <8388608 bytes. Explicit isolated raw-response capture is capped at 80000000 bytes per file; raw payloads not stored in graph. Zero unbounded growth paths.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE. The live scan was partial on time; later scheduled cycles resume with scan fairness. The time limit was not changed."
   }
 }

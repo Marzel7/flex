@@ -104205,11 +104205,35 @@
     "acceptance": "Replay: WT treasury found 16/16 (standard 10/16); overnight 12 Nov 8/8 (standard 2/8); exactly 7/97 results differ, all newly correct seeds incl. one mislabelled 10 Nov token (BAftaSb1 -> 8QhC 1,800 SOL). Cost: WT ~7 credits (standard ~8), persistent hubs +5, others unchanged.",
     "provider_use": "~2,400 temp-key credits for fixture recording (1-credit methods only); production gate untouched (imports block non-gate Helius calls; recorder used curl).",
     "storage": "Fixture 3.5 MB gz (test only). Shadow JSONL max 5 MB + one rotation = 10 MB; 0 unbounded growth paths.",
-    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS (shadow mode)",
     "production_flags": "none changed; detection not enabled",
-    "verdict": "PASS (offline qualification, steps 1-2)",
+    "verdict": "PASS (shadow deployed)",
     "blocker": null,
-    "next_action": "User decision on step 3: deploy branch to walkback (guard-pinned walkback_worker.py -> manifest procedure + sudo) with WALKBACK_BURST_PROBE_SHADOW=1 for a few days (~+1,100 credits/day), compare shadow log to independent top-down check daily."
+    "next_action": "Daily: compare shadow records where burst_hop2 != standard_hop2 against an independent top-down treasury check; after a few days ask user to enable WALKBACK_BURST_PROBE_ENABLED=1 (guard procedure again for supervisord.conf). Revert: restore backup files + manifest sha procedure + update walkback_worker.",
+    "deployment": {
+      "mode": "SHADOW",
+      "deployed_utc": "2026-11-12T09:13:15Z (user-approved)",
+      "runtime_path": "/Users/kevinkeaveney/Production/flex-walkback-dev002/src/core/walkback_worker.py",
+      "file_sha256": {
+        "pre": "a2a1ddd201be",
+        "post": "399eeefd5d90"
+      },
+      "supervisord_conf_sha256": {
+        "pre": "7f4e062c6f29",
+        "post": "354d3ecc0b06"
+      },
+      "manifest_sha256": {
+        "pre": "dc589925489b",
+        "post": "b75a0cd65340"
+      },
+      "guard_sudo_step": "done by user; clock-config, plist, release guard-manifest verified",
+      "process": "walkback_worker pid 40856 with WALKBACK_BURST_PROBE_SHADOW=1",
+      "shadow_file": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/guarded-startup/walkback_burst_shadow.jsonl",
+      "backup": "/Users/kevinkeaveney/Production/backups/walkback-burst-shadow-20261112T091229Z"
+    },
+    "billing_check": "Helius dashboard: 100 x getSignaturesForAddress(limit=1000) 09:01:53-09:06:48 -> credit usage +168 incl. background (gate counted 134 in window). 1,000-signature page = 1 credit.",
+    "runtime_acceptance": "Walkback RUNNING on new code; first shadow record 09:26 (standard and probe both no funder, 15 credits); no new stderr since restart; all 15 source pins + config pin match manifest.",
+    "notes": "supervisorctl reread reports watchtower_listener 'changed' (pre-existing, unexplained; file content unchanged since 8 Nov): only run 'update <program>'. A suspended 'sudo launchctl kickstart -k system/com.flex.startup.guard' (ttys000, since 9 Nov) exists — user to kill."
   },
   "creator_operation_coverage_count_fix_20261112": {
     "status": "PASS",

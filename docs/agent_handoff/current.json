@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/operation-price-layout-20261112",
-    "git_head": "159883f87426cc227ad24a7bf81f475c2e4c4450",
+    "branch": "codex/operation-coverage-counts-20261112",
+    "git_head": "f794735e2a82bd58e152beb2d9e8370b549f00a5",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T08:41:45.639406+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operation-price-layout-20261112"
+    "updated_at_utc": "2026-11-12T08:55:45.976419+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operation-coverage-counts-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104210,5 +104210,22 @@
     "verdict": "PASS (offline qualification, steps 1-2)",
     "blocker": null,
     "next_action": "User decision on step 3: deploy branch to walkback (guard-pinned walkback_worker.py -> manifest procedure + sudo) with WALKBACK_BURST_PROBE_SHADOW=1 for a few days (~+1,100 credits/day), compare shadow log to independent top-down check daily."
+  },
+  "creator_operation_coverage_count_fix_20261112": {
+    "status": "PASS",
+    "engineering_revision": "f794735e2a82bd58e152beb2d9e8370b549f00a5",
+    "objective": "Count token and price coverage over the same displayed or linked operation population.",
+    "root_cause": "Index used a local-birth or reference-token number for one column and counted price-bearing rows from a larger linked population for the other.",
+    "implementation": "Deduplicate token mints across displayed tables and linked reference pages; count price-bearing tokens within that same population. Funding amounts are excluded from price evidence. Unknown populations show unavailable.",
+    "tests": "99 focused tests passed; real render and published index contain no rows with price count greater than token count. Operation 17 shows 11/11 and Watchtower 299/302.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "predeploy_sha256": "7b2fa75712c32a81064ee19a65e33afd13b58252a4deb8bcf99235ba0603d647",
+    "postdeploy_sha256": "5fd4c8084cb6b1e70690153b7853fe2da23c60b255aaba8ccc2b6f1d71690bc0",
+    "runtime_acceptance": "Installed between runs with runner lock and regenerated dashboard; on-disk index verified. Scheduler starts fresh Python for each run; no restart required.",
+    "activation": "Scheduler and automatic-merge settings unchanged; no provider requests.",
+    "storage_bounds": "Existing generated page and temporary stage below 500000 bytes each, full generated set below 5000000 bytes; no raw provider retention, no new unbounded growth paths.",
+    "next_action": "NONE — COMPLETE"
   }
 }

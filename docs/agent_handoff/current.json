@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T19:44:19.471022+00:00",
+  "updated_at_utc": "2026-11-12T20:51:52.505021+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104570,5 +104570,27 @@
     "storage": "Treasury watermark and cursor stored in existing SQLite graph, capped at 100 MB with existing fail-closed graph guard. No raw provider payload retention or new unbounded growth paths; existing request limits 2000/run, 15000/day; treasury cap 300/run; two pages and 50 decoded transactions per anchor/run.",
     "blocker": "Production Helius gate refused attribution on second treasury anchor; no root cause proven. Continued scan depends on later-run gate attribution and single retry; investigate only if refusal recurs.",
     "next_action": "Check next scheduled run for resumed treasury checkpoint and separate bucket; if attribution refusal recurs, diagnose gate ownership without weakening checks."
+  },
+  "queue_age_and_refusal_reasons_20261112": {
+    "verdict": "PARTIAL: all requested logic installed; exact age of legacy entries cannot be recovered",
+    "objective": "Report treasury refusal category, prioritize aged pending research, and explain unclassified walkbacks",
+    "engineering_revision": "495cad851f76511be5f6239de948cf7af402080a",
+    "runtime_deployment_gate": "PASS: installed code loaded by live launchd research and presentation-only publication; live graph migration and bounded queue selection verified",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "runner.py": "2deb73e4464d42eda8d599ee886a8ba1adc3aa0b71fa43e8c7dddd877d48cb52",
+      "creator_operation_routing.py": "b77b8104310a2ec6d52c6aebc8c6fdf1c7cb9a09eef0eb4f9a26268dc6f568a9",
+      "creator_operation_treasury.py": "b3f50fbf214d4acfd0946fb9482b790f79146d302fbdaa3ef6e4d652c5df3af9",
+      "creator_operation_upstream.py": "842014975c74af368f64012959c340f05d191e42b8b5ca601e320e13009c79d9",
+      "creator_operation_mint_first.py": "020ab071096087fcd1eddd9d66b668a0be4a323cf08030c5e6ab9c290938a0dd"
+    },
+    "pre_deployment_revision": "e76c07968fc200d44afa1701b22a074096e97b17",
+    "verification": "173 relevant tests passed before final display refinements; 79 focused tests and 42 runner tests passed after. Old >24h eligible records prioritized ahead of new with retry backoff retained; test covers legacy fallback and fairness. Latest UI publishes gate busy refusal, queue age lower bound, unresolved reasons; historic run-cfc reconstruction 58 no selected creator-funder edge and 5 failed with no selected edge, explicitly marked reconstructed.",
+    "queue_age": "15295 legacy pending entries lacked enqueue timestamps. Oldest exact pending age is unknown; at 20:49 UTC oldest timestamped entry proves at least 901 seconds. New entries record pending_since; legacy entries are prioritized using launch-time fallback, not represented as an exact pending age.",
+    "activation": "Installed under runner lock; launchd presentation-only publication completed with no provider requests; schedule ACTIVE, next 2026-11-13T00:33:34Z. Automatic merging off.",
+    "incident": "A failed report annotation assertion was followed by an unconditional launchctl command, inadvertently starting research run-c5f4dc01805f4f31be3a25ca6de67b09. It completed PARTIAL, spent 411 Helius credits and 0 Birdeye calls, and moved next schedule to 00:33 UTC. Treasury stopped with HELIUS_GATE_BUSY; separately earlier run gate refusal HELIUS_UNATTRIBUTED_INVESTIGATION is categorized attribution policy; causes not asserted.",
+    "storage": "Existing 100 MB capped graph; added nullable pending timestamp and one bounded metadata key, no raw retention or unbounded growth paths. Existing page bounds unchanged.",
+    "blocker": "Exact historical pending age unavailable because original enqueue times were never recorded; backlog reports an honest lower bound.",
+    "next_action": "Allow next scheduled run to continue age tracking and monitor treasury gate refusals."
   }
 }

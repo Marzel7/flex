@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/upstream-depth-budget-20261112",
-    "git_head": "ff986aa2fce844b6fcff0df03daebe95c2c90d9e",
+    "branch": "codex/operations-ui-20261112",
+    "git_head": "320917a3d9d344a2b8c335b65049dedc89b96d4a",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T09:20:57.487780+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/upstream-depth-budget-20261112"
+    "updated_at_utc": "2026-11-12T13:41:38.587346+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operations-ui-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104379,5 +104379,23 @@
     "storage": "Protected signed compact edges and markers stored in existing separate graph with 100000000-byte hard cap, DELETE journal below graph cap; bounded reports <500000 bytes and individual provider responses <8388608 bytes. Explicit isolated raw-response capture is capped at 80000000 bytes per file; raw payloads not stored in graph. Zero unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE. The live scan was partial on time; later scheduled cycles resume with scan fairness. The time limit was not changed."
+  },
+  "creator_operation_ui_redesign_20261112": {
+    "status": "PARTIAL_SCHEDULED_RESEARCH_PUBLICATION_PENDING",
+    "engineering_revision": "320917a3",
+    "objective": "Redesign operation and funder dashboard from stored evidence; fix STAGE_FRAGMENT_SCOPE.",
+    "verification": "99 focused tests pass; installed launchd service publication-only invocation wrote validated dashboard, 444879 bytes; 67 generated pages, largest 356820 bytes; 30 latest launches sorted; 5vw price flagged; zero provider requests.",
+    "runtime_deployment_gate": "PARTIAL: installed code and publication-only acceptance verified; regular scheduled research run publication still outstanding",
+    "target_runtime": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "runner.py": "13d6e8e05a4a7a664602af3b51bd4d66cc31438e57eb2bba5c76fe49e28c4c44",
+      "creator_operation_navigation.py": "78113299b63206c651773e48224854e8c8c9533284c7c0e500265ec41262cd10",
+      "creator_operation_redesign.py": "3f7bc0809832bae5526887544beb93e49dada25302dc4f98a49c35e61f22d7b6",
+      "provider_bridge.py": "7e9491a9adeebef645013b484973d5ac4578f35e9cb81c7877d0983f84dc15d7"
+    },
+    "activation_state": "launchd scheduled research remains active; manual merging only",
+    "bounds": "500 KB per page, 5 MB page set, publication request under 4096 bytes, receipt under 16384 bytes; no raw provider payloads or unbounded growth paths added.",
+    "blocker": "Regular scheduled research run has not yet occurred since install.",
+    "next_action": "Check that the next scheduled research run publishes the redesigned dashboard; scheduled next at 2026-11-12 16:33 UTC."
   }
 }

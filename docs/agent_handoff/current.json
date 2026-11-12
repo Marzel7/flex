@@ -104325,5 +104325,33 @@
     "storage": "Separate upstream graph <=100000000 bytes, DELETE journal below 100000000 bytes; indexed-history entry <100000 bytes; temporary raw recording <=80000000 bytes and response <=8388608 bytes; compressed replay fixture 399515 bytes. Raw provider responses retained only in explicit acceptance recording and replay fixture. Zero unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE. Next scheduled run naturally exercises the installed change. STAGE_FRAGMENT_SCOPE is a separate issue."
+  },
+  "dashboard_census_tail_timeout_retry_20261112": {
+    "objective": "Stop intermittent dashboard 'Snapshot is 16 min old' (COLLECTOR_TIMEOUT at 10:55-11:00, 11:35, 11:55-12:05 UTC).",
+    "implementation": "recovery_dashboard_migration_time.py reads a tail of logs/oip_migration_census.jsonl (2 MB, doubling until its first row predates earliest job admission - 6 h; whole file if needed) instead of re-parsing all 34 MB every refresh; file may now exceed the old 64 MB cap (cap now bounds bytes read). refresh.py retries once on collector timeout (first attempt 4 s, retry uses rest of 7 s budget).",
+    "project": {
+      "branch": "dashboard/system-status",
+      "git_head": "d39c890a",
+      "files": {
+        "recovery_dashboard_migration_time.py": {
+          "pre": "52c40d88",
+          "post": "189d885d"
+        },
+        "refresh.py": {
+          "pre": "72b5daa6",
+          "post": "12f4cc80"
+        }
+      },
+      "sources_json_updated": true
+    },
+    "backup": "/Users/kevinkeaveney/Production/backups/dashboard-pre-tail-20261112T121222Z",
+    "tests": "44 passed (5 new tail tests incl. equivalence vs full read, 2 new timeout-retry tests); 2 pre-existing ro_connect failures identical without the change. Live census old vs new: identical results for 21 last-hour and 56 three-day-old jobs; 0.2 s -> 0.02 s.",
+    "deployed_utc": "2026-11-12T12:12:31Z (user-approved); cron-driven, no restart",
+    "runtime_acceptance": "Manual refresh 12:12:31 PASS; collector 0.33-0.62 s; migration_evidence observation_quality EVIDENCE_CHECKED.",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "storage": "Not applicable (reader-only change; no new files).",
+    "blocker": null,
+    "verdict": "PASS",
+    "next_action": "NONE — COMPLETE"
   }
 }

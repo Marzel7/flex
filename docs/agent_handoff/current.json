@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/operations-ui-20261112",
-    "git_head": "320917a3d00021ccad51767ad8e87b2f520541e2",
+    "branch": "codex/operations-ui-corrections-20261112",
+    "git_head": "5a4771ae357efb75028ccaacb723ec6bc05058ab",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T13:41:38.587346+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operations-ui-20261112"
+    "updated_at_utc": "2026-11-12T14:06:32.044064+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operations-ui-corrections-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104397,5 +104397,16 @@
     "bounds": "500 KB per page, 5 MB page set, publication request under 4096 bytes, receipt under 16384 bytes; no raw provider payloads or unbounded growth paths added.",
     "blocker": "Regular scheduled research run has not yet occurred since install.",
     "next_action": "Check that the next scheduled research run publishes the redesigned dashboard; scheduled next at 2026-11-12 16:33 UTC."
+  },
+  "creator_operation_ui_corrections_20261112": {
+    "status": "PARTIAL",
+    "engineering_revision": "5a4771ae357efb75028ccaacb723ec6bc05058ab",
+    "objective": "Correct latest token deduplication, Watchtower display coverage, price warnings, migration labels, proposal evidence and presentation.",
+    "verification": "101 focused tests passed; updated presentation-only launchd invocation published with zero provider requests. Published index 447172 bytes, Watchtower detail 385757 bytes, latest launches 30 distinct tokens, 8/8 overnight mints present using retained signed treasury and selected creator edges; review includes 8QhC-FeZZ evidence. Three MihaoWif selected walkback paths reach JBqu; two delayed post-birth candles flagged.",
+    "deployment": "Installed creator_operation_redesign.py to .runtime/creator-operation-agent/installed under runner lock; source and installed sha256 baddff4cf52cbce80f8fa780cd83ef5f1ef16e3d03377067467d8f87ab0c7aad. Fresh launchd service publication-only process completed at 14:05:37 UTC. Recurring research remains active, merges remain disabled.",
+    "runtime_deployment_gate": "PASS for installed UI behavior, no provider calls.",
+    "limits": "Existing 500 KB per page and 5 MB page set; no new retained files or raw provider payloads. Zero new unbounded growth paths.",
+    "blocker": "The observed zero-proposal scheduled research run scanned 100 most recent mints, excluding the eight overnight launches; 14 resolved treasury candidates had only one creator each. Dashboard graph join displays supported launches provisionally but does not change the agent discovery window or grouping. MihaoWif provider cap observations are not independent verification of executable opening.",
+    "next_action": "If agent-level recognition is required, revise and test cross-run mint coverage/grouping under existing provider limits; independently corroborate MihaoWif opening prices when appropriate."
   }
 }

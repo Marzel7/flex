@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T21:43:27.160956+00:00",
+  "updated_at_utc": "2026-11-12T21:44:53.822035+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104624,6 +104624,17 @@
     "verification": "47 focused dashboard/navigation/review tests passed including grouped sender sums, exact SOL precision, CEX label, evidence link, shared-recipient wording and empty overlap suppression. Real-data preview and published 2abws3 funder page shows five shared wallets and 204.702112 SOL; details stay under 500 KB.",
     "activation": "Installed under runner lock and published by launchd presentation-only invocation at 2026-11-12T21:42:32Z, with zero provider requests. Schedule remains ACTIVE and automatic merging unchanged.",
     "storage": "Existing atomic publication and 500 KB page / 5 MB page-set limits retained; no raw retention or unbounded growth paths.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
+  },
+  "price_subject_visibility_audit_20261112": {
+    "verdict": "PASS",
+    "objective": "Explain 20 priced subjects absent from dashboard and verify current acquisition filter",
+    "engineering_revision": "ff4c293349222975955f576793234aafe0b0d136",
+    "runtime_deployment_required": false,
+    "reason": "Read-only audit of existing artifacts, graph, installed pricing inventory and published detail pages; no executable or data changes.",
+    "verification": "Of 34 Birdeye subjects in run-075d08054bc1432cb2c7a7df457705cb, 14 have visible priced detail rows and 20 have no rendered detail page or membership in the current operation catalog, operation attachments, or displayed-funder candidate snapshot. All 34, including the 20 absent, retain candles and pass installed cached_price_rows validation. The 20 absent comprise 15 routed queue rows, 4 NULL-pending_since legacy rows, and 1 not present in the research queue. All 20 are absent from both the installed operation-price inventory and funder-candidate membership; the installed queue also requires non-NULL pending_since. Thus none currently qualifies for new scheduled acquisition; a later verified link could make a routed subject eligible.",
+    "activation": "No provider requests, production changes, or publications performed. Existing schedule and flags unchanged.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
   }

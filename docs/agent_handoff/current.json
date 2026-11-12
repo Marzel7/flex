@@ -104131,5 +104131,29 @@
     "blocker": null,
     "verdict": "PASS",
     "next_action": "After ~01:30 UTC re-read Migration feeds: recorded % should reflect real loss; Helius 86-88% in the last hour (warn <90%) to be rechecked on a clean window. On any future refresh failure read LAST_RUN.json collector_error for the SQLite text."
+  },
+  "dashboard_stale_intent_index_20261112": {
+    "objective": "Stop dashboard refresh failing with 'interrupted (ops, 3.0s)' (snapshot deadline).",
+    "implementation": "collect.py stale-INTENT checkpoint count adds observed_at IS NULL so it uses wb_checkpoint_hot_observed instead of a cold full scan of the ~300 MB wt_walkback_checkpoints table (~2 s of the 3 s budget). Invariant: INTENT rows are only created with observed_at NULL (insert, or UNSENT->INTENT; UNSENT only from INTENT); observed_at set only on COMMITTED.",
+    "project": {
+      "branch": "dashboard/system-status",
+      "git_head": "134fdfaa",
+      "files": {
+        "collect.py": {
+          "pre": "409c9b0b",
+          "post": "f881a8a5"
+        }
+      },
+      "sources_json_updated": true
+    },
+    "backup": "/Users/kevinkeaveney/Production/backups/dashboard-pre-134fdfaa-20261112T074425Z",
+    "tests": "40 passed (1 new: index used + equals full-scan answer). Live old/new counts identical at 3 cutoffs. Dry-run total read 0.05-0.25 s (was ~2.5 s).",
+    "deployed_utc": "2026-11-12T07:44:25Z (user-approved); no restart",
+    "runtime_acceptance": "Manual refresh 07:44:26 PASS.",
+    "RUNTIME_DEPLOYMENT_GATE": "PASS",
+    "storage": "Not applicable (read-only query change).",
+    "blocker": null,
+    "verdict": "PASS",
+    "next_action": "NONE — COMPLETE. Separate open item for Codex: agent upstream research stopped HELIUS_BUDGET_CLOCK_AMBIGUOUS in both overnight runs (groups_searched 0)."
   }
 }

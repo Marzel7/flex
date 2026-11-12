@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "7b777325a3d491fb1eb941d37c6b4c8f425ceca0",
+    "git_head": "9afaf331",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104690,5 +104690,18 @@
     "storage": "Existing 300 KB artifact limit, 6000 artifacts, 1 MB response bound; compact normalized candles, no raw retention; no new unbounded growth paths.",
     "blocker": "Scheduled-run acceptance remains pending until next scheduled execution.",
     "next_action": "Inspect next scheduled run: latest launch coverage, price recheck flags, Birdeye calls <=150, subjects <=50, retries and deferred reasons."
+  },
+  "latest_sources_recheck_20261112": {
+    "objective": "Explain seven latest-launch price rechecks and remove research candidates from Latest launches Source",
+    "verdict": "PASS",
+    "engineering_revision": "9afaf331",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_redesign.py",
+    "pre_sha256": "8e342aeff211dbb2223f09ca61da69d3f21389ec35b43ad79b176fe4006eb2d1",
+    "post_sha256": "62b8655e1d2f27f76b94e9666f8814f6f2187c7407466ad39f94760c9ef3d2e9",
+    "activation": "Installed under runner lock; next process loads module automatically, no restart. Presentation-only publication PUBLISHED 2026-11-12T23:12:51Z, zero provider requests. Schedule unchanged.",
+    "verification": "44 navigation/redesign tests passed; published latest table has 30 rows, zero research candidate source labels, two blank source cells, seven price-recheck flags; output 454651 bytes under 500 KB. Flag analysis: six delayed opening references (>2 s), four birth-time conflicts (overlap). Retained threshold because launches can move substantially during first seconds.",
+    "storage": "No new storage growth path; existing staged HTML size bound and atomic publication unchanged.",
+    "next_action": "NONE for this milestone; prior first-trade scheduled-run acceptance remains pending."
   }
 }

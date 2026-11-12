@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T19:08:16.164229+00:00",
+  "updated_at_utc": "2026-11-12T19:44:19.471022+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104549,5 +104549,26 @@
     "storage": "Existing page limit 500 KB; historical evidence reads at most 20 run files under 300 KB each and renders at most 100 earlier proposals; no raw payload retention or unbounded growth paths.",
     "blocker": "Treasury outbound scanning remains disabled by routing policy; several price requests deferred for missing qualified birth proof.",
     "next_action": "Resolve policy for bounded treasury outbound scanning; address deferred birth-proof price acquisition as separately scoped work."
+  },
+  "treasury_incremental_20261112": {
+    "verdict": "PARTIAL",
+    "objective": "Restore incremental treasury outbound scanning and report short-walkback carryover and unresolved sources",
+    "engineering_revision": "e76c07968fc200d44afa1701b22a074096e97b17",
+    "runtime_deployment_gate": "HOLD: scheduled treasury path reached provider and processed two anchors but stopped at HELIUS_UNATTRIBUTED_INVESTIGATION; later-run recovery is not yet verified",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "runner.py": "efca8af41f0e2fd4f8c5b463db4561125a4b0848d72cceb20c241a97ce807280",
+      "provider_bridge.py": "5bbe7727795added80b91535ed703d08606eee272b6c4ca4e48e4021005bc92d",
+      "creator_operation_routing.py": "e5605c4f19176e1c7f781c6000fded8a01e3de0f693be8bbce933504c6866d53",
+      "creator_operation_treasury.py": "437eb255f7c1a9090f2dcd014aa072aeb584183056533decbf602bba1e4104ed",
+      "creator_operation_upstream.py": "5ffa14b510a3faf11652c27dae1ca96e5e92fb3c00b88997d2b0837b9f897073",
+      "creator_operation_mint_first.py": "c528e57eeb88a4b214495b149374fdafe7d5fe1dceb88cebfb5cdb04a859a7c0"
+    },
+    "verification": "170 relevant tests passed, including capped incremental treasury scan across interrupted pages, new arrivals and queue retention. Live run-2b8884bbb7b943499ec4673b9bde13bb PARTIAL: 15 short-walkback Helius requests / 150 credits, 86 conservatively counted treasury credits across 2 anchors (85 retained, 1 denied). First anchor DECODE_LIMIT, second HELIUS_UNATTRIBUTED_INVESTIGATION; checkpoints saved. Current report 17 short walkbacks pending, 20 done, unresolved 6 new walkbacks plus 39 additional upstream subjects. Historical previous 80 unresolved split 63 plus 17; reconstruction of 94/95 prior short-walkback routes showed 76 PENDING and 18 DONE, one since changed classification.",
+    "activation": "Installed between runs under runner lock; launchd one-off research and presentation-only publication completed. Schedule ACTIVE, next 2026-11-12T23:20:47Z. Automatic merging off.",
+    "gate_safety": "One reservation associated with the denied treasury request was reconciled conservatively from RESERVED to SPENT_OUTCOME_UNKNOWN; no retry performed in that run. Code permits a single retry in a later run using the existing graph rule; no gate check weakened.",
+    "storage": "Treasury watermark and cursor stored in existing SQLite graph, capped at 100 MB with existing fail-closed graph guard. No raw provider payload retention or new unbounded growth paths; existing request limits 2000/run, 15000/day; treasury cap 300/run; two pages and 50 decoded transactions per anchor/run.",
+    "blocker": "Production Helius gate refused attribution on second treasury anchor; no root cause proven. Continued scan depends on later-run gate attribution and single retry; investigate only if refusal recurs.",
+    "next_action": "Check next scheduled run for resumed treasury checkpoint and separate bucket; if attribution refusal recurs, diagnose gate ownership without weakening checks."
   }
 }

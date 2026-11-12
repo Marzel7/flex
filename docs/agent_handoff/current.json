@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/agent-gate-clock-fix",
-    "git_head": "69125686f94e75de3e8e99b67094c6c49e9eefd5",
+    "branch": "codex/operation-price-layout-20261112",
+    "git_head": "159883f87426cc227ad24a7bf81f475c2e4c4450",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T08:19:12.650997+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/agent-gate-clock-fix"
+    "updated_at_utc": "2026-11-12T08:41:45.639406+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operation-price-layout-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104173,5 +104173,21 @@
     "blocker": "The last run did not complete its wallet-first round or perform deeper group searches; the gate-busy wallet had already supplied history and is now handled without repeating the failed request.",
     "next_action": "Observe subsequent scheduled wallet-first progression and eventual deeper group searches; recurring merges remain proposals only.",
     "postdeploy_upstream_sha256": "23f267aad66d25f63a3bba5607cb28bc16136336d25a986f46a0accaf8141669"
+  },
+  "creator_operation_price_layout_20261112": {
+    "status": "PASS",
+    "engineering_revision": "159883f87426cc227ad24a7bf81f475c2e4c4450",
+    "objective": "Use consistent price metric tables in legacy operation detail views",
+    "implementation": "Normalize nine legacy operation table shapes into the existing funder metric layout using retained price evidence. Preserve source values and measurement labels, identify unknown migration evidence honestly, and combine legacy token rows without editing canonical research articles.",
+    "tests": "97 focused tests passed. Real render returned 65 pages; installed publication showed one standard price table in operations 06, 07, 14 and 16–21, including 11 token rows in operation 17. Browser visual inspection unavailable because browser access host was unavailable.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_navigation.py",
+    "predeploy_sha256": "46a170a80fbba5ff04c16ed57ae0f8237932932a75c92b977f32382febc5f123",
+    "postdeploy_sha256": "7b2fa75712c32a81064ee19a65e33afd13b58252a4deb8bcf99235ba0603d647",
+    "runtime_acceptance": "Installed under runner lock between scheduled runs and regenerated dashboard; output confirmed on disk. Next scheduled run loads the installed module; no service restart required.",
+    "activation": "Scheduler active; no provider requests; automatic merging unchanged.",
+    "storage_bounds": "Existing page and temporary stage each below 500000 bytes; generated set below 5000000 bytes; no raw provider retention and no new unbounded growth path.",
+    "next_action": "NONE — COMPLETE"
   }
 }

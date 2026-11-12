@@ -104286,5 +104286,18 @@
     "blocker": "None for requested report milestone. Overall run dashboard publication was partial due STAGE_FRAGMENT_SCOPE. Treasury-cycle work remains separately scoped.",
     "next_action": "Observe next scheduled run with higher caps and address STAGE_FRAGMENT_SCOPE if dashboard update remains required. Treasury-cycle work is a separate milestone.",
     "storage": "Raw capture up to 80000000 bytes; compressed fixture 369647 bytes; graph cap 100000000 bytes; provider response cap 8388608 bytes; no new unbounded growth paths."
+  },
+  "watchtower_token_first_acceptance_20261112": {
+    "status": "FAIL",
+    "objective": "Blind eight-mint live acceptance with an isolated temporary-key gate; agent must propose one or two operations covering eight launches.",
+    "engineering_revision": "08b5f1af28dce34dcccee4d6b2b1c73fd03ac5a8",
+    "method": "Actual installed-equivalent agent run_with_graph on a compact isolated database containing only local walkback rows and selected edges retrieved for the eight mints, with empty graph and empty family/catalog input. No pre-supplied hubs or treasury labels. Isolated temporary key gate, 299 requests maximum, one-credit methods only; every HTTP response recorded. Real local walkback records include their funder fields, which the agent itself uses.",
+    "results": "FAIL: 3 candidate groups searched, 0 proposals, 30 credits, no time-limit stop. Four lookups ended DEFERRED_OUTGOING twice, HUB_TOO_LARGE (6000 signatures), and DEFERRED_PAGINATION (4000 signatures). Per-group ten-request limit and six-page limit prevented completion. One of eight local walkbacks is status failed and excluded by the agent completed-only query. Test did not prove creator-to-hub-to-treasury paths.",
+    "capture": ".runtime/creator-operation-agent/token-first-capture-20261112.jsonl; 3842311 bytes; raw responses retained; hard cap 80000000 bytes, response cap 8388608 bytes, zero unbounded paths.",
+    "runtime_deployment_required": false,
+    "runtime_deployment_reason": "Acceptance-only; no runtime changes, restarts or production gate modifications.",
+    "production_flags": "Scheduled agent remains 2000/run, 15000/day, 1200-second limit; automatic merges remain proposals. No time-limit change because test did not hit it.",
+    "blocker": "Existing agent begins at locally retained funders and cannot complete the requested token-first eight-mint trace under its group and page limits; it excluded one failed walkback.",
+    "next_action": "Implement and qualify a mint-first discovery path that handles the failed-status token, preserves signed creator-to-hub evidence and derives hub-to-treasury edges with appropriate bounded continuation; rerun the same blind acceptance. Treat dashboard STAGE_FRAGMENT_SCOPE separately."
   }
 }

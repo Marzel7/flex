@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/upstream-depth-budget-20261112",
-    "git_head": "421550134c304c717b0110e2be791caea39a87f2",
+    "git_head": "62fd1accea1a05ad0055b6e9095b19a04cd74ea7",
     "name": "flex",
     "updated_at_utc": "2026-11-12T09:20:57.487780+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/upstream-depth-budget-20261112"
@@ -104264,5 +104264,24 @@
     "next_action": "Implement bounded, anchor-signature-aware traversal using the fixture recorded evidence without inventing absent responses; implement cached treasury-cycle/Hello/treasury-transfer proof and graph integration; qualify request journal retention, 12-hour window cache and eight-mint replay; run full tests before any installation or higher-budget scheduled run.",
     "tests": "141 focused tests passed; exploratory replay 0/8 due to unrecorded transaction requests; no claim of eight-token acceptance.",
     "storage": "Existing graph hard cap 100000000 bytes, request journal below 2000000 bytes, continuation payload below 1500000 bytes, provider response below 8388608 bytes; raw-retention false. Expanded 15000/day journal lifetime remains unqualified; no new unbounded path accepted."
+  },
+  "creator_upstream_first_pass_20261112": {
+    "status": "HOLD",
+    "engineering_revision": "62fd1accea1a05ad0055b6e9095b19a04cd74ea7",
+    "objective": "1000-signature pages and unblock wallet-first pass; verify scheduled run. Higher caps and treasury work are later milestones.",
+    "implementation": "Installed 1000-signature requests, rejection of incompatible cached page sizes, bounded busy-gate handling, 1200-second upstream deadline, and diagnostic reporting. Shadow seed hints are unsigned and unproven; merges remain proposals. Existing clock fix and 200/1500 limits retained.",
+    "tests": "147 focused tests passed before final diagnostic-only runner change; 83 directly affected tests passed after. Temporary-key eight-token capture and replay not run.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "runtime_path": ".runtime/creator-operation-agent/installed/",
+    "runtime_identity": {
+      "runner_sha256": "6de25e4f6a6919ee8c902df22cc50f28311f59080db8da586985e53d830fcd41",
+      "upstream_sha256": "8a0bf081fd38f5e7a1584b1772a3070e0c8bccddec139eee35d4a09cb21cf908"
+    },
+    "production_flags": "Scheduled agent installed; per-run 200, per-day 1500; merges proposals only. No listener, walkback or production gate changes.",
+    "runtime_acceptance": "Three diagnostic scheduled invocations used 76, 188 and 200 upstream credits respectively. The first completed a partial report; the latter two failed assembling the upstream report with KeyError. Actual signature requests used limit 1000 and the last run enforced the 200 limit. First-pass completion remains unverified.",
+    "blocker": "Repeated KeyError at creator_operation_upstream.py line 654 during report assembly; offline compact graph reproduction did not reproduce. Automatic approval review rejected temporary-key capture through the shared production gate because a denial for the distinct credential could persistently disrupt production workers. Capture used zero credits.",
+    "next_action": "Identify and correct report KeyError using bounded offline evidence and diagnostics; verify a scheduled run finishes first pass and writes its report. Obtain approval and review for safely isolated temporary-key gate before recording/replaying eight-token acceptance. Do not raise caps or enable treasury-cycle work until milestone (a) completes.",
+    "storage": "New optional raw response capture bounded at 80000000 bytes total and 8388608 bytes per response; not created. Existing upstream graph hard cap 100000000 bytes. No new unbounded growth paths."
   }
 }

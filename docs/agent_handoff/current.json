@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T21:36:18.769759+00:00",
+  "updated_at_utc": "2026-11-12T21:43:27.160956+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104612,5 +104612,19 @@
     "storage": "Existing price-artifact bound 300 KB per record / 6000 records and graph 100 MB remain; no raw provider payload retention; no new unbounded growth paths.",
     "blocker": "No currently eligible unpriced token is both newly routed and visible under an operation/funder, so final combined acceptance cannot be proven now.",
     "next_action": "Inspect next scheduled run for Birdeye calls and visible priced routed tokens; confirm zero NULL-pending_since legacy subjects were selected."
+  },
+  "funder_evidence_ui_20261112": {
+    "verdict": "PASS",
+    "objective": "Consolidate funder operator evidence, aggregate incoming senders, and simplify labels",
+    "engineering_revision": "ff4c293349222975955f576793234aafe0b0d136",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_redesign.py",
+    "pre_sha256": "f0fab0de6418335fbb4266bfe9bb2cef94cfec1172868f3e05486094a9bb804f",
+    "post_sha256": "00c5fe33e0f3757a3965b3ec91dce1aa32febc1b112f407c4e59d333663420fc",
+    "verification": "47 focused dashboard/navigation/review tests passed including grouped sender sums, exact SOL precision, CEX label, evidence link, shared-recipient wording and empty overlap suppression. Real-data preview and published 2abws3 funder page shows five shared wallets and 204.702112 SOL; details stay under 500 KB.",
+    "activation": "Installed under runner lock and published by launchd presentation-only invocation at 2026-11-12T21:42:32Z, with zero provider requests. Schedule remains ACTIVE and automatic merging unchanged.",
+    "storage": "Existing atomic publication and 500 KB page / 5 MB page-set limits retained; no raw retention or unbounded growth paths.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
   }
 }

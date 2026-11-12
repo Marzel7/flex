@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T21:44:53.822035+00:00",
+  "updated_at_utc": "2026-11-12T22:13:41.044211+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104637,5 +104637,28 @@
     "activation": "No provider requests, production changes, or publications performed. Existing schedule and flags unchanged.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
+  },
+  "recent_migration_price_eligibility_20261112": {
+    "verdict": "PARTIAL",
+    "objective": "Use seven-day migration-time eligibility for research and pricing and price today latest launches without July subjects",
+    "engineering_revision": "b6ab6f00a4d6ebb0cd01d895ecfe7dc42956f34d",
+    "runtime_deployment_gate": "HOLD: installed and exercised in scheduled run, but requested full latest-launch price coverage remains blocked by concrete Helius gate refusals",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "runner.py": "6ca6dab366d20e2ab52de59fdfe3badd4641894322363277e3f55a5f0abcb87b",
+      "creator_operation_upstream.py": "658c7867c056b00ad8b5897535e0c97dfb7104c578da4be8315ae0e930b1b14ab",
+      "creator_operation_mint_first.py": "78a6db56d28b8d4f877165f75bf20ab0ed7d2ceb4bb07be85582119d2c2b00b1"
+    },
+    "pre_deployment_sha256": {
+      "runner.py": "fa35986797c358661bd42477d8cc526720f8813089d04bbabb78d95bad099e06",
+      "creator_operation_upstream.py": "545e618943b06f335d2adaa674d5e4edca9ebd3e3eb9a60b7d17ae653add43d7",
+      "creator_operation_mint_first.py": "c61d9b53359cc7b7fa299e293f6c463fccfbaa065b93d032846425dbf17a1eb6"
+    },
+    "verification": "205 relevant tests passed, including recent NULL timestamp eligibility, older non-NULL exclusion, batched idempotent backfill, latest-launch priority and both price-pass reasons. Under runner lock backfilled 4064 recent graph rows pending_since=migration_time; fingerprint of all older rows remained identical. Scheduled run-5901134bc1164760b4ec5ce2441030ef PARTIAL made 21 Birdeye calls and conservatively counted 30 Helius birth-time credits: 7 subjects received candles. Of 18 initially unpriced latest launches in the captured 21-token cohort, 5 received candles (3 show multiples, 2 flagged price recheck); 13 remain unpriced with local gate deferrals. Across both price passes, 17 HELIUS_GATE_BUSY and 6 HELIUS_INFLIGHT_LIMIT. All 100 upstream researched token migration dates and all non-treasury provider subjects were in November; no July token was selected or requested.",
+    "gate_safety": "Three earlier recent latest-launch artifacts were safely moved from blocked to DEFERRED only after checking durable dispatch history showed a single BudgetDeferred pre-transport refusal and no successful lookup. Current local refusals stay deferred for later run, no gate checks weakened.",
+    "activation": "Installed under runner lock, exercised in scheduled one-off, then reporting-only follow-up installed and dashboard published at 2026-11-12T22:12:18Z without provider calls. Schedule ACTIVE; next 2026-11-13T01:56:48Z. Automatic merging unchanged.",
+    "storage": "Existing graph capped at 100 MB; backfill uses restart-safe 256-row transactions and no new raw retention. Existing price artifact and publication limits unchanged.",
+    "blocker": "23 local Helius gate refusals (17 busy, 6 inflight limit) prevented full price coverage; do not bypass gate or claim deferred birth lookups were fetched.",
+    "next_action": "On next scheduled run retry eligible locally refused birth-time lookups under unchanged gate; inspect 13 remaining latest-launch rows and preserve two recheck flags."
   }
 }

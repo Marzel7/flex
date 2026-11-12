@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T18:02:25.307543+00:00",
+  "updated_at_utc": "2026-11-12T18:26:51.664441+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104505,5 +104505,26 @@
     "storage": "Existing staged atomic publication and size bounds retained: 500 KB per page, 5 MB page set; no raw retention or new unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
+  },
+  "ui_round_three_20261112": {
+    "verdict": "PASS for UI; research schedule FAILED after unintended manual launch",
+    "objective": "Declutter review, candidate, confirmed-operation and funder sections",
+    "engineering_revision": "91a9ec7ca172b1ad339a01a60efb2332c0d4619d",
+    "tests": "153 relevant tests passed; live main and evidence tables match; Watchtower anchors collapsed; Watchtower Deep median $172.3k; existing page limits passed",
+    "runtime_deployment_gate": "PASS for UI",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "pre_sha256": {
+      "creator_operation_redesign.py": "84b435f650e2a9ce0076d5cfca24474a447bf23a1524ecbddc0a1d1e0df46900",
+      "creator_operation_review_ui.py": "185f88e7ccd0cb5346e8029a1a58d878b21630191febe0442031dc072ced153e"
+    },
+    "post_sha256": {
+      "creator_operation_redesign.py": "f0fab0de6418335fbb4266bfe9bb2cef94cfec1172868f3e05486094a9bb804f",
+      "creator_operation_review_ui.py": "8061da1f1decb9da1ce9bd9002498e1dae1d5bdd91b3e8ca1aa5f6f406185594"
+    },
+    "activation": "Installed under runner lock; launchd runner loaded installed code and published; review page atomically published; automatic merging remains off.",
+    "incident": "A mistaken publication command invoked a full research run before the presentation-only marker was created. run-fe1b6b5ac0cb47fc8b0ecc18aee7f2f2 failed at local_walkback_routing with ROUTING_WALKBACK_BUDGET; diagnostics retained; schedule activation_state FAILED. Do not assume future scheduled research is active.",
+    "storage": "Existing 500 KB per page and 5 MB page-set limits retained; no raw retention or new unbounded growth paths.",
+    "blocker": "Research schedule failed after ROUTING_WALKBACK_BUDGET, separate from delivered UI.",
+    "next_action": "Diagnose routing budget failure and restore scheduling through its normal recovery procedure."
   }
 }

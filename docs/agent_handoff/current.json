@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/operation-coverage-counts-20261112",
-    "git_head": "f794735e2a82bd58e152beb2d9e8370b549f00a5",
+    "branch": "codex/upstream-depth-budget-20261112",
+    "git_head": "421550134c304c717b0110e2be791caea39a87f2",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T08:55:45.976419+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operation-coverage-counts-20261112"
+    "updated_at_utc": "2026-11-12T09:20:57.487780+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/upstream-depth-budget-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104227,5 +104227,18 @@
     "activation": "Scheduler and automatic-merge settings unchanged; no provider requests.",
     "storage_bounds": "Existing generated page and temporary stage below 500000 bytes each, full generated set below 5000000 bytes; no raw provider retention, no new unbounded growth paths.",
     "next_action": "NONE — COMPLETE"
+  },
+  "creator_upstream_depth_budget_20261112": {
+    "status": "HOLD_DRAFT_NOT_DEPLOYED",
+    "engineering_revision": "421550134c304c717b0110e2be791caea39a87f2",
+    "objective": "Implement 2000/15000 credit upstream tracing, ten pages and anchored window, treasury behaviour, and pass eight-token Watchtower replay.",
+    "completed": "Prior installed clock fix and test remain in place. Isolated draft adds bounded run/day limits, two-method-only validation, 1000-signature guard, ten-page limit, proposed 12-hour cutoff and broader collector eligibility. 141 focused tests pass. Draft is explicitly marked not qualified.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "HOLD",
+    "production_flags": "No runtime installation, no gate, listener, walkback or database modification. Existing scheduled agent retains 200/run and 1500/day upstream limits; merge remains proposals only. No external requests made.",
+    "blocker": "Required end-to-end proof and treasury behaviour are not implemented. An exploratory replay of the eight WATCHTOWER_OVERNIGHT mints hit UNRECORDED_REQUEST for all eight because the compact fixture records only selected transaction fetches and the draft generic traversal requests different transactions. The anchor-signature argument is not yet wired from scheduled work. Windowed cache currently fails closed on a changed anchor instead of resuming, and 20000-entry request-journal retention needs evaluation against 15000/day.",
+    "next_action": "Implement bounded, anchor-signature-aware traversal using the fixture recorded evidence without inventing absent responses; implement cached treasury-cycle/Hello/treasury-transfer proof and graph integration; qualify request journal retention, 12-hour window cache and eight-mint replay; run full tests before any installation or higher-budget scheduled run.",
+    "tests": "141 focused tests passed; exploratory replay 0/8 due to unrecorded transaction requests; no claim of eight-token acceptance.",
+    "storage": "Existing graph hard cap 100000000 bytes, request journal below 2000000 bytes, continuation payload below 1500000 bytes, provider response below 8388608 bytes; raw-retention false. Expanded 15000/day journal lifetime remains unqualified; no new unbounded path accepted."
   }
 }

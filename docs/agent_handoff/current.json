@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "9afaf331",
+    "git_head": "cbbf66d8d8a5f72f9900836532be93f647f3d5ad",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104715,5 +104715,35 @@
     "activation": "Scheduled invocation run via installed runner, pinned next_due for this invocation to preserve next scheduled run at 2026-11-13 01:56:48 UTC; schedule ACTIVE.",
     "blocker": "Treasury scan refused by local gate HELIUS_GATE_BUSY; first-pass wallet coverage incomplete.",
     "next_action": "Next scheduled cycle retries queued work under existing gate and budgets; inspect treasury refusal and upstream report."
+  },
+  "treasury_proposals_price_recheck_20261112": {
+    "objective": "Retry treasury contention; classify new versus seen proposals; apply CREATE-time, 30-second and source filtering price/display fixes",
+    "verdict": "PASS",
+    "engineering_revision": "cbbf66d8d8a5f72f9900836532be93f647f3d5ad",
+    "runtime_deployment_gate": "PASS: changed modules installed under runner lock; actual installed treasury retry exercised with mocked gate (one reservation, 5/15/30), persisted proposal baseline and presentation-only publication verified; no live gate refusal exercised after deployment",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "identities": {
+      "creator_operation_upstream.py": {
+        "before": "658c7867c056b00ad8b5897535e0c97dfb6bb7104c578da4be8315ae7b1b14ab",
+        "after": "d42a3e8d87b714cf1751ea47885fe68300b192cfe94599ea055ab320ce7885ba"
+      },
+      "creator_operation_navigation.py": {
+        "before": "1e1150c4e5772692be18ed59c3aaaca408539e24f6ecb6a3d4046ac5c79f2b5b",
+        "after": "30a759edf995d67dd8b996d825d62d022b97b8edf09f72c59bea2596059bf101"
+      },
+      "creator_operation_redesign.py": {
+        "before": "62b8655e1d2f27f76b94e9666f8814f6f2187c7407466ad39f94760c9ef3d2e9",
+        "after": "ad4ef1ffe67f332f07087b2eee2ce4cf1ef52c3f662d5da3358187942f8529a6"
+      },
+      "creator_operation_review_ui.py": {
+        "before": "8061da1f1decb9da1ce9bd9002498e1dae1d5bdd91b3e8ca1aa5f6f406185594",
+        "after": "3b97c634734a19ab4abb43c67f5a62b7c9b2416aedfffea770de6d21fe796766"
+      }
+    },
+    "verification": "162 focused tests passed before evidence-preservation follow-up; 54 focused tests passed after, plus CREATE 30s/31s regression. Baseline seeded from retained earlier snapshots: 24 durable identities, latest run reports 0 new and 19 previously seen. No provider calls used to publish; latest table 30 rows, 0 source-less rows, 0 recheck flags. Scan of 66 operation/funder detail files found 10 unique flagged tokens; of prior seven FATBURN alone remains flagged at +49s, two prior tokens left latest after correction of CREATE timestamp.",
+    "activation": "Schedule remains ACTIVE, next 2026-11-13 01:56:48 UTC; no restart required, future processes import installed modules; automatic merging remains off.",
+    "storage": "Proposal identities stored in existing max-100MB bounded graph with 15000 identity ceiling and no raw payload retention. Existing 300KB snapshot and 500KB staged HTML bounds remain; zero unbounded growth paths.",
+    "blocker": null,
+    "next_action": "NONE for this milestone; observe live treasury retry and new/repeated report on next scheduled run."
   }
 }

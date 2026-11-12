@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T18:26:51.664441+00:00",
+  "updated_at_utc": "2026-11-12T19:08:16.164229+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104526,5 +104526,28 @@
     "storage": "Existing 500 KB per page and 5 MB page-set limits retained; no raw retention or new unbounded growth paths.",
     "blocker": "Research schedule failed after ROUTING_WALKBACK_BUDGET, separate from delivered UI.",
     "next_action": "Diagnose routing budget failure and restore scheduling through its normal recovery procedure."
+  },
+  "routing_and_evidence_20261112": {
+    "verdict": "PARTIAL",
+    "engineering_revision": "50f644907425b23d3f8fc3aee989fa55d813ec46",
+    "objective": "Recover routing cursor, process bounded backlog and improve evidence presentation",
+    "runtime_deployment_gate": "PASS for changed routing and UI",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "runner.py": "b8c964214fd6ce86b1ae0c26d4cdabbe9a4d8f07282c04e81ddab9121588b541",
+      "creator_operation_routing.py": "2ab4f4823698e25ecb792591786bc9138881b624309f7c5a3d8a6d4f91e2df32",
+      "creator_operation_upstream.py": "9a1e7563798ba562c46ac3c08e9491bdbd66a18c0712892286ccb9298be10754"
+    },
+    "pre_sha256": {
+      "runner.py": "98a94f1b31b9566a7c8f089ca0f4587a9ada64845c4680107afcd9164c5f8f23",
+      "creator_operation_routing.py": "f406a6707952d6271ce9fd13ef86c2eecc7a57ad42dfcb462e031f03ae4a2db0",
+      "creator_operation_upstream.py": "01a029b55001fd925da130d80b47458e12d74458cab1a343fb5a304ac31955ee"
+    },
+    "verification": "155 relevant tests passed before small evidence-history refinement; 76 directly affected tests passed after refinement. Live run-cfc7795ed87f402e9f5bae30e29eb125 passed routing; first batch 159 walkbacks, zero remaining; final report 203 including added upstream subjects. 26 Helius requests, 260 credits, 0 Birdeye. Overall PARTIAL: birth-proof price deferrals remain. Earlier-run 5nTJWT evidence visible and reports four 0.112139 SOL transfers.",
+    "activation": "Installed under runner lock; launchd rerun loaded code; scheduler ACTIVE, next 2026-11-12T22:54:44Z; automatic merging off.",
+    "treasury_outbound": "NOT RESTORED: scheduled path sets STORED_EVIDENCE_ONLY_BY_ROUTING_POLICY and does not invoke the existing scan. Zero treasury credits and zero live outbound scans this run.",
+    "storage": "Existing page limit 500 KB; historical evidence reads at most 20 run files under 300 KB each and renders at most 100 earlier proposals; no raw payload retention or unbounded growth paths.",
+    "blocker": "Treasury outbound scanning remains disabled by routing policy; several price requests deferred for missing qualified birth proof.",
+    "next_action": "Resolve policy for bounded treasury outbound scanning; address deferred birth-proof price acquisition as separately scoped work."
   }
 }

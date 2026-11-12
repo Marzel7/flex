@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/agent-walkback-routing-20261112",
-    "git_head": "99f5915fedd6c1a0fd2c3d13b688253c4ac63c45",
+    "branch": "codex/latest-launch-cleanup-20261112",
+    "git_head": "29c53e8b21029cfc6438a85d566385fea09752ac",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T15:47:07.835420+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/agent-walkback-routing-20261112"
+    "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104467,5 +104467,20 @@
     "storage": "New routing cursor <4096 bytes, operation attachments and service flags <300000 bytes each, direct-infrastructure state <1500000 bytes, run routing report <150000 bytes; corresponding atomic transient files bounded to the same limits. No raw payload retention; zero unbounded growth paths.",
     "blocker": "The enforced Birdeye-only paths cannot obtain missing independently verified birth evidence via Helius. Latest local inventory had 65 such profiles deferred; 17 previously blocked profiles remain under review. Birdeye credits cannot be calculated from the current ledger, so reports give Birdeye calls, not invented credits.",
     "next_action": "Check the next scheduled run for its routing counts, Helius credits per bucket, Birdeye calls per bucket and correct direct-infrastructure counts. Decide whether a separately qualified local birth-proof source can safely unblock the 65 profiles without violating Birdeye-only routing."
+  },
+  "latest_launch_cleanup_20261112": {
+    "status": "PASS",
+    "engineering_revision": "29c53e8b21029cfc6438a85d566385fea09752ac",
+    "objective": "Remove redundant latest-launch labels, batch sources and non-link badges.",
+    "implementation": "Filter coverage-update batch operations; display source name and launch number; omit observed-birth note; show shared-funding badge only for validated links between distinct groups.",
+    "verification": "84 directly affected tests passed. Published live page is 455837 bytes; 30 unique latest rows, no coverage-update operations in index, no redundant overlap/no-link cells; 12 rows retain validated cross-group link badges. Publication-only service made zero provider requests.",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_redesign.py",
+    "runtime_sha256_pre": "935a3f37bbcce41b6f0ee4462e0ac102b5cd30a0763c5547434df3c4375b159a",
+    "runtime_sha256_post": "8249b974dd3ea442e86b227f90e86c968fd39c54c4f096019b7aee27244e7c05",
+    "deployment": "Installed under runner lock; fresh scheduled-service publication-only process published verified dashboard at 16:06 UTC. No restart required. Recurring agent and merge policy unchanged.",
+    "storage": "Existing 500 KB page and 5 MB page-set bounds remain; no new growth paths or raw retention.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
   }
 }

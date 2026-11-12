@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/operations-ui-20261112",
-    "git_head": "320917a3d9d344a2b8c335b65049dedc89b96d4a",
+    "git_head": "320917a3d00021ccad51767ad8e87b2f520541e2",
     "name": "flex",
     "updated_at_utc": "2026-11-12T13:41:38.587346+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operations-ui-20261112"
@@ -104382,7 +104382,7 @@
   },
   "creator_operation_ui_redesign_20261112": {
     "status": "PARTIAL_SCHEDULED_RESEARCH_PUBLICATION_PENDING",
-    "engineering_revision": "320917a3",
+    "engineering_revision": "320917a3d00021ccad51767ad8e87b2f520541e2",
     "objective": "Redesign operation and funder dashboard from stored evidence; fix STAGE_FRAGMENT_SCOPE.",
     "verification": "99 focused tests pass; installed launchd service publication-only invocation wrote validated dashboard, 444879 bytes; 67 generated pages, largest 356820 bytes; 30 latest launches sorted; 5vw price flagged; zero provider requests.",
     "runtime_deployment_gate": "PARTIAL: installed code and publication-only acceptance verified; regular scheduled research run publication still outstanding",

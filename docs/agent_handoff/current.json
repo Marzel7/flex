@@ -92709,7 +92709,7 @@
     "window_start_utc": "2026-11-05T15:41:42.464800Z"
   },
   "updated_at": "2026-11-06T11:24:30.185204+00:00",
-  "updated_at_utc": "2026-11-12T20:51:52.505021+00:00",
+  "updated_at_utc": "2026-11-12T21:36:18.769759+00:00",
   "updated_by": "Codex completed RPC archival DEV",
   "user_constraints_current": {
     "rpc_spending": "Extra paid RPC is acceptable, but retries/spending must be bounded; preserve accounting, attempts, unknown records and funding evidence. No new activation authority.",
@@ -104592,5 +104592,25 @@
     "storage": "Existing 100 MB capped graph; added nullable pending timestamp and one bounded metadata key, no raw retention or unbounded growth paths. Existing page bounds unchanged.",
     "blocker": "Exact historical pending age unavailable because original enqueue times were never recorded; backlog reports an honest lower bound.",
     "next_action": "Allow next scheduled run to continue age tracking and monitor treasury gate refusals."
+  },
+  "audited_birth_price_and_legacy_queue_20261112": {
+    "verdict": "PARTIAL: final compliant live run has not yet priced a newly linked subject",
+    "objective": "Use valid walkback CREATE anchors for birth times and Birdeye pricing; exclude NULL-pending_since legacy backlog from scheduled research and pricing",
+    "engineering_revision": "9bd46ee2dcf1145d55d5738a78295f6f7ff177d5",
+    "runtime_deployment_gate": "HOLD: birth-time and Birdeye path was proven live, but final combined legacy-and-dashboard-membership filter has no eligible unpriced subjects at present; a compliant run publishing a newly linked token price remains unverified",
+    "target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "runner.py": "fa35986797c358661bd42477d8cc526720f8813089d04bbabb78d95bad099e06",
+      "provider_bridge.py": "f5c7df381184f0bd91e20930da3a755ca190bf501e1aca57d8ff454f6c67075f",
+      "creator_operation_navigation.py": "4dfcdb6589c0600bc6a8312ffc17f86077b01a926ff98033b0e730b1d44912b7",
+      "creator_operation_upstream.py": "545e618943b06f335d2adaa674d5e4edca9ebd3e3eb9a60b7d17ae653add43d7",
+      "creator_operation_mint_first.py": "c61d9b53359cc7b7fa299e293f6c463fccfbaa065b93d032846425dbf17a1eb6"
+    },
+    "verification": "201 relevant tests passed; includes exact VALID signature, matching Core timestamp, one getTransaction fallback, persisted proof reuse, pre-transport gate deferral, and one routed token versus 100 NULL-timestamp legacy rows. Run-075d08054bc1432cb2c7a7df457705cb completed PARTIAL with 72 Birdeye calls, 50 birth-time Helius credits, 123 total Helius credits, 34 subjects with candles, and 14 priced subjects visibly rendered in detail pages. Gate deferred 16 birth lookups; 3 routed local pre-transport refusals safely changed to deferred for later retry.",
+    "incident": "The first live acceptance run started after research legacy exclusion but before applying it to the separate price queue. It requested Birdeye data for 18 subjects with NULL pending_since; 14 of those appear with prices on the dashboard. Fifteen other priced subjects had routed timestamps but no displayed operation/funder membership, and one subject was absent from the research queue. Queue rows were not changed. The final installed filter excludes legacy/unrouted and unlinked price subjects.",
+    "current_state": "Final dry queue has 0 eligible unpriced subjects and excludes 884 legacy or unrouted inventory entries; no paid run was started with an empty queue. The next scheduled run should verify when a new routed, displayed operation/funder token arrives. Schedule ACTIVE, next 2026-11-13T01:10:06Z.",
+    "storage": "Existing price-artifact bound 300 KB per record / 6000 records and graph 100 MB remain; no raw provider payload retention; no new unbounded growth paths.",
+    "blocker": "No currently eligible unpriced token is both newly routed and visible under an operation/funder, so final combined acceptance cannot be proven now.",
+    "next_action": "Inspect next scheduled run for Birdeye calls and visible priced routed tokens; confirm zero NULL-pending_since legacy subjects were selected."
   }
 }

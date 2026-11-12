@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/operations-ui-corrections-20261112",
-    "git_head": "5a4771ae357efb75028ccaacb723ec6bc05058ab",
+    "branch": "codex/agent-mint-queue-20261112",
+    "git_head": "75742271e353b34c0b46160787f2c520b76d23d9",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T14:06:32.044064+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operations-ui-corrections-20261112"
+    "updated_at_utc": "2026-11-12T15:04:54.324023+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/agent-mint-queue-20261112"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104408,5 +104408,27 @@
     "limits": "Existing 500 KB per page and 5 MB page set; no new retained files or raw provider payloads. Zero new unbounded growth paths.",
     "blocker": "The observed zero-proposal scheduled research run scanned 100 most recent mints, excluding the eight overnight launches; 14 resolved treasury candidates had only one creator each. Dashboard graph join displays supported launches provisionally but does not change the agent discovery window or grouping. MihaoWif provider cap observations are not independent verification of executable opening.",
     "next_action": "If agent-level recognition is required, revise and test cross-run mint coverage/grouping under existing provider limits; independently corroborate MihaoWif opening prices when appropriate."
+  },
+  "creator_agent_persistent_mint_queue_20261112": {
+    "status": "PARTIAL_LIVE_CONTROL_UNSELECTED",
+    "engineering_revision": "75742271e353b34c0b46160787f2c520b76d23d9",
+    "objective": "Durable migrated-mint queue, cross-run upstream grouping, live scheduled-service verification and stage credit reporting.",
+    "implementation": "Queue stored in existing bounded upstream graph; syncs local migrated tokens, oldest/newest fair scheduling and bounded deferred retries, incremental per-token checkpoints, 8 explicitly requested seed mints, retained non-excluded graph edge reuse, distinct-creator nearest shared hub or treasury proposals only.",
+    "offline_verification": "110 focused tests pass, including queue persistence/fairness and blind recorded eight Watchtower mints plus solo control, which remains separate.",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PARTIAL: source installed, bounded installed queue selection passes; full live control acceptance not observed.",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "installed_sha256": {
+      "creator_operation_mint_first.py": "e9385ed6c814007181ddb4dbfbe505e499fd43e7eb4f3f21dd2c5d34df00d55f",
+      "creator_operation_upstream.py": "d417dabc481443c355adc2d47c2ebee6b664e95b6da0420acae4b1f987c0ec4d",
+      "runner.py": "464367f81c00299c910f693a1686906003ae4d8e2f537a69f37e22c34d2793ca"
+    },
+    "live_run": "Early manually invoked launchd scheduled-service run-fb91c059f5104c9e84c41a3a4dce7064, trigger SCHEDULED_LOCAL. Run used revision 966c3207 before post-run retry-fairness patch; it published 8/8 expected mints, 4 under 8QhC and 4 FeZZ. Solo control did not appear in proposals but was not selected in this live batch. Overall PARTIAL WALLET_FIRST_PASS_INCOMPLETE.",
+    "credits": "Price/birth Helius 20, mint-first Helius 430, treasury Helius 192, other upstream 0; upstream 622/2000, daily 3620/15000, Birdeye 66 calls (provider credit cost not established).",
+    "queue": "15207 mints total at run, 100 attempted, 38 DONE, 15169 pending including deferred. Graph 50294784 bytes after run.",
+    "deployment": "Installed under runner lock between runs. Final retry-fairness source installed after live run; exercised installed selection against existing graph with 100 unique mints without provider requests. No restart needed; launchd starts fresh process. Automatic merging remains disabled.",
+    "storage": "Existing upstream graph hard cap <100000000 bytes; bounded DELETE journal <100000000 bytes; queue max 100000 rows, per-result <4096 bytes, report <300000 bytes. No raw payloads retained or new unbounded growth paths.",
+    "blocker": "Live scheduled-service batch did not select the historical solo control; offline blind replay validates non-link but live control acceptance is not proven. WALLET_FIRST_PASS_INCOMPLETE separately made overall run partial.",
+    "next_action": "Verify the solo control in an ordinary scheduled queue batch without injecting a mint; confirm resulting live non-link and monitor completion of wallet-first tracing."
   }
 }

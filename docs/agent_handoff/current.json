@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/upstream-depth-budget-20261112",
-    "git_head": "62fd1accea1a05ad0055b6e9095b19a04cd74ea7",
+    "git_head": "08b5f1af",
     "name": "flex",
     "updated_at_utc": "2026-11-12T09:20:57.487780+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/upstream-depth-budget-20261112"
@@ -104266,22 +104266,25 @@
     "storage": "Existing graph hard cap 100000000 bytes, request journal below 2000000 bytes, continuation payload below 1500000 bytes, provider response below 8388608 bytes; raw-retention false. Expanded 15000/day journal lifetime remains unqualified; no new unbounded path accepted."
   },
   "creator_upstream_first_pass_20261112": {
-    "status": "HOLD",
-    "engineering_revision": "62fd1accea1a05ad0055b6e9095b19a04cd74ea7",
-    "objective": "1000-signature pages and unblock wallet-first pass; verify scheduled run. Higher caps and treasury work are later milestones.",
-    "implementation": "Installed 1000-signature requests, rejection of incompatible cached page sizes, bounded busy-gate handling, 1200-second upstream deadline, and diagnostic reporting. Shadow seed hints are unsigned and unproven; merges remain proposals. Existing clock fix and 200/1500 limits retained.",
-    "tests": "147 focused tests passed before final diagnostic-only runner change; 83 directly affected tests passed after. Temporary-key eight-token capture and replay not run.",
+    "status": "PASS",
+    "engineering_revision": "08b5f1af",
+    "objective": "Install 1000-signature pages and fix first-pass/report failure; then raise credit caps only after a scheduled report.",
+    "implementation": "Report KeyError fixed by preserving first-pass results when tracing an inflow; safe missing-key names added to diagnostics. 1000-signature pages installed. Caps raised to 2000 upstream credits/run and 15000/day after qualifying report; 1-credit methods only and production gate retained. Automatic merges disabled.",
+    "tests": "110 focused tests passed, including 8-token recorded-response replay; installed graph constants and 2001st-request rejection verified offline with no provider calls.",
     "runtime_deployment_required": true,
-    "runtime_deployment_gate": "HOLD",
-    "runtime_path": ".runtime/creator-operation-agent/installed/",
+    "runtime_deployment_gate": "PASS",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/",
     "runtime_identity": {
-      "runner_sha256": "6de25e4f6a6919ee8c902df22cc50f28311f59080db8da586985e53d830fcd41",
-      "upstream_sha256": "8a0bf081fd38f5e7a1584b1772a3070e0c8bccddec139eee35d4a09cb21cf908"
+      "runner_sha256": "d2b125d2043ade4b6c98ece4f9403f49e74c966815b260671e11f03dacb389bb",
+      "upstream_sha256": "4c3629d745094c700f88fe8cfbeda23e38a247ae0895f0d55b9c130fa964d13f",
+      "graph_sha256": "f76ccd90f6045d4a0ee39e9007f3b4027df69aa4b6673678de24435abb3ddb5a",
+      "provider_bridge_sha256": "dcebad27c414afce635420bc93eefe0aa5b0748c1e8f3aeaf0ab6b4a0c07a69a"
     },
-    "production_flags": "Scheduled agent installed; per-run 200, per-day 1500; merges proposals only. No listener, walkback or production gate changes.",
-    "runtime_acceptance": "Three diagnostic scheduled invocations used 76, 188 and 200 upstream credits respectively. The first completed a partial report; the latter two failed assembling the upstream report with KeyError. Actual signature requests used limit 1000 and the last run enforced the 200 limit. First-pass completion remains unverified.",
-    "blocker": "Repeated KeyError at creator_operation_upstream.py line 654 during report assembly; offline compact graph reproduction did not reproduce. Automatic approval review rejected temporary-key capture through the shared production gate because a denial for the distinct credential could persistently disrupt production workers. Capture used zero credits.",
-    "next_action": "Identify and correct report KeyError using bounded offline evidence and diagnostics; verify a scheduled run finishes first pass and writes its report. Obtain approval and review for safely isolated temporary-key gate before recording/replaying eight-token acceptance. Do not raise caps or enable treasury-cycle work until milestone (a) completes.",
-    "storage": "New optional raw response capture bounded at 80000000 bytes total and 8388608 bytes per response; not created. Existing upstream graph hard cap 100000000 bytes. No new unbounded growth paths."
+    "runtime_acceptance": "Scheduled run run-d64957d5d26f40f6bc44dc781d6333ee wrote upstream-proposals.json, first_pass_complete true, 26 groups searched, 81 first-look wallets; 190 upstream credits. Stopped at 1200-second time limit. Overall run PARTIAL due STAGE_FRAGMENT_SCOPE in separate staged dashboard update. Earlier qualifying diagnostic hit the 200 cap. Higher caps installed between runs; next scheduled run has not yet exercised them.",
+    "capture": "Explicitly approved isolated temporary-key gate, independent denial and reservation state, <300 requests, only getSignaturesForAddress limit1000 and getTransaction. Used 16 credits, 16 successful responses recorded; 8/8 matched expected treasuries from locally retained walkback hubs and replayed. This is not a fresh mint-to-hub derivation. Raw JSONL bounded to 80000000 bytes; gzip fixture under 500000 bytes.",
+    "production_flags": "Scheduled agent enabled; 2000/run and 15000/day upstream. Higher caps not yet used live. Merges remain proposals. No listener, walkback or production gate changes.",
+    "blocker": "None for requested report milestone. Overall run dashboard publication was partial due STAGE_FRAGMENT_SCOPE. Treasury-cycle work remains separately scoped.",
+    "next_action": "Observe next scheduled run with higher caps and address STAGE_FRAGMENT_SCOPE if dashboard update remains required. Treasury-cycle work is a separate milestone.",
+    "storage": "Raw capture up to 80000000 bytes; compressed fixture 369647 bytes; graph cap 100000000 bytes; provider response cap 8388608 bytes; no new unbounded growth paths."
   }
 }

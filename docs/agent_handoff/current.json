@@ -104703,5 +104703,17 @@
     "verification": "44 navigation/redesign tests passed; published latest table has 30 rows, zero research candidate source labels, two blank source cells, seven price-recheck flags; output 454651 bytes under 500 KB. Flag analysis: six delayed opening references (>2 s), four birth-time conflicts (overlap). Retained threshold because launches can move substantially during first seconds.",
     "storage": "No new storage growth path; existing staged HTML size bound and atomic publication unchanged.",
     "next_action": "NONE for this milestone; prior first-trade scheduled-run acceptance remains pending."
+  },
+  "scheduled_path_one_off_20261112": {
+    "objective": "Run a one-off using the full scheduled research, pricing and publication path",
+    "verdict": "PARTIAL",
+    "engineering_revision": "9afaf331",
+    "runtime_deployment_required": false,
+    "reason": "Operational run; no code changes. Installed runtime executed.",
+    "run_id": "run-a0c9d913eb2a4c8598960dc662270e91",
+    "verification": "Forced scheduled-path run at 23:32–23:37 UTC; dashboard republished at 23:37. 100 queue subjects selected, 15 proposals reported (not established as new), automatic merging false; groups_searched=0 and 0 wallets traced this run by routing policy. Treasury scan stopped HELIUS_GATE_BUSY. 151 Helius credits conservatively reserved and 1 Birdeye call; price pass 1 completed, 0 failures. Routing reports 31 short-walkback carryover, 56 unresolved upstream subjects and 4011 pending. Prior ordinary manual run run-970d1c95ea9044ad8984912db0228df2 priced two tokens with 4 Birdeye calls but skipped upstream because manual mode.",
+    "activation": "Scheduled invocation run via installed runner, pinned next_due for this invocation to preserve next scheduled run at 2026-11-13 01:56:48 UTC; schedule ACTIVE.",
+    "blocker": "Treasury scan refused by local gate HELIUS_GATE_BUSY; first-pass wallet coverage incomplete.",
+    "next_action": "Next scheduled cycle retries queued work under existing gate and budgets; inspect treasury refusal and upstream report."
   }
 }

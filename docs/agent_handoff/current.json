@@ -104646,7 +104646,7 @@
     "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
     "installed_sha256": {
       "runner.py": "6ca6dab366d20e2ab52de59fdfe3badd4641894322363277e3f55a5f0abcb87b",
-      "creator_operation_upstream.py": "658c7867c056b00ad8b5897535e0c97dfb7104c578da4be8315ae0e930b1b14ab",
+      "creator_operation_upstream.py": "658c7867c056b00ad8b5897535e0c97dfb6bb7104c578da4be8315ae653add43d7",
       "creator_operation_mint_first.py": "78a6db56d28b8d4f877165f75bf20ab0ed7d2ceb4bb07be85582119d2c2b00b1"
     },
     "pre_deployment_sha256": {

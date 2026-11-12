@@ -104189,5 +104189,26 @@
     "activation": "Scheduler active; no provider requests; automatic merging unchanged.",
     "storage_bounds": "Existing page and temporary stage each below 500000 bytes; generated set below 5000000 bytes; no raw provider retention and no new unbounded growth path.",
     "next_action": "NONE — COMPLETE"
+  },
+  "walkback_burst_hub_probe_20261112": {
+    "objective": "Attribute tokens bottom-up to treasuries without a treasury list: walkback hop-2 must reach the capital seed of per-launch burst hubs (Watchtower behaviour) instead of stopping LINEAGE_GAP.",
+    "root_cause": "Hop-2 window = 3 x 100 signatures (10 x 100 only when the creator funding amount exactly matches a frozen list of 35 past amounts; 0/17 WT tokens matched). Burst hubs hold 2,200-7,200 txs before the creator funding.",
+    "implementation": "walkback_worker: _hop2_window/_collect_signature_window/_find_funder_via_rpc. Disposable handoff -> 1,000-signature pages (same credit), cap 10 pages / 12 h hub age. Whole history read -> earliest deposit >=100 SOL wins; else exactly the standard decision. Flags WALKBACK_BURST_PROBE_ENABLED / WALKBACK_BURST_PROBE_SHADOW (default off). Confirmation rules unchanged.",
+    "project": {
+      "repo": "/Users/kevinkeaveney/Production/flex-walkback-dev002",
+      "branch": "walkback-burst-hub-proto",
+      "git_head": "82291ba3",
+      "base": "711e971f",
+      "worktree": "/private/tmp/flex-burst-hub"
+    },
+    "tests": "13 new pass (window bounds, replay of 97 labelled stops from recorded Helius answers, shadow no-DB/rotation/failure). Snapshot walkback/treasury suites: identical failure sets base vs branch (35 pre-existing, live-state dependent).",
+    "acceptance": "Replay: WT treasury found 16/16 (standard 10/16); overnight 12 Nov 8/8 (standard 2/8); exactly 7/97 results differ, all newly correct seeds incl. one mislabelled 10 Nov token (BAftaSb1 -> 8QhC 1,800 SOL). Cost: WT ~7 credits (standard ~8), persistent hubs +5, others unchanged.",
+    "provider_use": "~2,400 temp-key credits for fixture recording (1-credit methods only); production gate untouched (imports block non-gate Helius calls; recorder used curl).",
+    "storage": "Fixture 3.5 MB gz (test only). Shadow JSONL max 5 MB + one rotation = 10 MB; 0 unbounded growth paths.",
+    "RUNTIME_DEPLOYMENT_GATE": "QUALIFIED_NOT_DEPLOYED",
+    "production_flags": "none changed; detection not enabled",
+    "verdict": "PASS (offline qualification, steps 1-2)",
+    "blocker": null,
+    "next_action": "User decision on step 3: deploy branch to walkback (guard-pinned walkback_worker.py -> manifest procedure + sudo) with WALKBACK_BURST_PROBE_SHADOW=1 for a few days (~+1,100 credits/day), compare shadow log to independent top-down check daily."
   }
 }

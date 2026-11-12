@@ -104167,7 +104167,7 @@
     "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
     "predeploy_runner_sha256": "8fb875574f7791f6c2d759ee17ef8582cab348024fe1fcfd7009fb6c1ca90a13",
     "postdeploy_runner_sha256": "7de84fa421dd105ecc5d7222aed3a4c4bd8a857dd6da880dc5c79e6acc2388ef",
-    "runtime_acceptance": "launchd-triggered scheduled-local run-14f22bdd64234c919e97b34ae75acf0e used worker Python, searched 10 groups by first wallet lookup, deep searched 0, traced 12 wallets, retained 21 upstream requests; no ambiguous-clock error. One gate-busy stop left first pass incomplete. Installed follow-up verified against the actual cached wallet: 534 retained historical transactions now yield UNPROVEN with the original gate-busy status preserved and no retry.",
+    "runtime_acceptance": "launchd-triggered scheduled-local run-14f22bdd64234c919e97b34ae75acf0e used worker Python, searched 10 groups by first wallet lookup, deep searched 0, traced 12 wallets, retained 21 upstream requests; no ambiguous-clock error. One gate-busy stop left first pass incomplete. Installed follow-up verified against the actual cached wallet: a fetched page of 534 transaction signatures now yield UNPROVEN with the original gate-busy status preserved and no retry.",
     "activation": "launchd active; run triggered early for validation; auto merging remains disabled. No gate, listener, walkback or database changes.",
     "storage": "No new storage growth path. Existing bounded graph and run-report limits unchanged.",
     "blocker": "The last run did not complete its wallet-first round or perform deeper group searches; the gate-busy wallet had already supplied history and is now handled without repeating the failed request.",

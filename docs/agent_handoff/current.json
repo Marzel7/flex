@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/upstream-depth-budget-20261112",
-    "git_head": "6a25f0bcaebef1bc2201e61d299200fc7f987dd3",
+    "git_head": "e0c73c922331ef46064a63dd69e6133d22415ec5",
     "name": "flex",
     "updated_at_utc": "2026-11-12T09:20:57.487780+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/upstream-depth-budget-20261112"
@@ -104302,10 +104302,10 @@
   },
   "watchtower_mint_first_20261112": {
     "status": "PASS",
-    "engineering_revision": "6a25f0bcaebef1bc2201e61d299200fc7f987dd3",
+    "engineering_revision": "e0c73c922331ef46064a63dd69e6133d22415ec5",
     "objective": "Mint-first funding research across all walkback statuses; retain partial bidirectional evidence, use 10-credit oldest-first lookup and per-wallet limits; blind test eight Watchtower and controls.",
-    "implementation": "Scheduled upstream stage queries recent walkbacks without status restriction, resolves retained selected creator-funder edges or uses indexed CREATE-event qualification and indexed creator funding when absent, then queries each hub oldest-first. Newly decoded system transfer edges are retained in both directions, including dust, with complete/partial state. Dust and swap-marked edges excluded from graph traversal; known infrastructure and service verdicts excluded from candidate grouping. Per-wallet indexed history is durably reused. Known-address links remain proposals only. 10-credit full-history requests are accounted in graph run/day reservation sums and provider ledger; 2000/run and 15000/day limits remain.",
-    "tests": "116 focused tests passed before final added ledger migration test; 7 mint-first tests passed afterward including creator fallback, recorded blind replay, swap exclusion, partial bidirectional evidence, 10-credit accounting and old-ledger migration. Full scheduled path replay from recorded responses yielded two four-token proposals with no controls; its separate legacy phase stops on REPLAY_REQUEST_MISSING because that phase was not captured.",
+    "implementation": "Scheduled upstream stage queries recent walkbacks without status restriction, resolves retained selected creator-funder edges or uses indexed CREATE-event qualification and indexed creator funding when absent, then queries each hub oldest-first. Newly decoded system transfer edges are retained in both directions, including dust, with complete/partial state. Dust and swap-marked edges excluded from graph traversal; known infrastructure and service verdicts excluded from candidate grouping. Per-wallet indexed history is durably reused. Known-address links remain proposals only. 10-credit full-history requests are accounted in graph run/day reservation sums and provider ledger; 2000/run and 15000/day limits remain. Previously oversized wallet verdicts remain eligible for oldest-first tracing.",
+    "tests": "116 focused tests passed before final added ledger migration test; 7 mint-first tests passed afterward including creator fallback, recorded blind replay, swap exclusion, partial bidirectional evidence, 10-credit accounting and old-ledger migration. Full scheduled path replay from recorded responses yielded two four-token proposals with no controls; its separate legacy phase stops on REPLAY_REQUEST_MISSING because that phase was not captured. Additional 30 graph/mint-first tests passed after the oversized-wallet fix; installed full-path replay still produced the two four-token proposals.",
     "acceptance": "Isolated temporary-key live blind test: 8/8 creators and hubs, 8/8 expected treasury matches, two proposed operations containing all eight, 0/2 controls merged. 110 Helius credits, budget below 300; 11 indexed full responses recorded. Creator and first funding hops were retrieved from local walkback records; no live missing-record creator fallback was required. Test output .runtime/creator-operation-agent/mint-first-blind-20261112.jsonl.",
     "runtime_deployment_required": true,
     "runtime_deployment_gate": "PASS",
@@ -104318,7 +104318,7 @@
     "postdeploy": {
       "upstream": "b6cda04d018f94214d210ecdd896a986d5935034e703779dc8b2eb67a98bfcac",
       "graph": "f818dd6963ada45927a68c041ffccf2a4b573a07b29c89e1030fc4e42ea31b4c",
-      "mint_first": "7b12caadd1157ae96890da39cf01fbc79463608154302617de682ce2ab41087e"
+      "mint_first": "70a29aa7e4e14558e3bf4b1c023defb4fa218916a108a5fb2ccdd43f42efcefd"
     },
     "runtime_acceptance": "Installed under runner lock between scheduled runs. The installed upstream and graph modules passed bounded full scheduled-path replay of recorded live responses with two proposals; next live scheduled run has not yet exercised the integration. Fresh Python process per scheduled run; no restart required.",
     "flags": "Scheduled agent installed; 2000/run, 15000/day, 1200-second limit unchanged. Automatic merging disabled. No changes to listener, walkback, core.sqlite, ops.sqlite, production Helius gate or credentials.",

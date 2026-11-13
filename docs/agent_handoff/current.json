@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/gtfa-shadow-enrichment",
-    "git_head": "91553f0ff06da1285fc11fbc9912bfe2e369c831",
+    "branch": "codex/creator-buyer-links",
+    "git_head": "177b754a",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T12:19:25.349085+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/gtfa-shadow-enrichment"
+    "updated_at_utc": "2026-11-13T12:28:03.472533+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-buyer-links"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104907,5 +104907,19 @@
     "storage": "Separate tables in existing bounded upstream graph (100000000 bytes max, SQLite journal also below 100000000); per-side-car cap 8192 bytes, 25 entries, null after 60 days. Permanent results and queue fail closed at graph limit; zero unbounded file-growth paths. Raw RPC responses never retained.",
     "production_flags": "Shadow only; no grouping change; no walkback files changed.",
     "next_action": "Next scheduled run resumes pending queue; inspect run-summary creator_funding_shadow for method credits, statuses, and gate deferrals."
+  },
+  "creator_buyer_wallet_links_20261113": {
+    "objective": "Record pre-CREATE buyer sends and show evidence links without merging operations",
+    "verdict": "PASS",
+    "engineering_revision": "177b754a",
+    "runtime_deployment_gate": "PASS: 4 installed module identities recorded /private/tmp/buyer-link-deploy.json; local-only installed publication succeeded and fixture replay on installed pages shows eight strong links for each of the nine tokens; no restart required",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "tests": "249 tests passed including 200 recorded inputs, bundle fixture nine launches linked to eight peers, dust and service exclusions, persistent transfer evidence, and no proposal mutation. Existing 74 group IDs unchanged.",
+    "results": "Nine fixture launches retained independently with 54 exact parsed creator-to-wallet transfers, no provider requests. Strong means three shared non-infrastructure buyer wallets; Medium means a non-service shared launch funder or retained shared-wallet funding; known service and exchange evidence remains stored but excluded from displayed links. User-visible separate shadow page has nine entries each with eight Strong links.",
+    "caveats": "Previously enriched tokens without retained pre-CREATE responses cannot retroactively gain buyer transfers without re-fetching; no extra calls made. New enrichments retain them from the already fetched window. First scheduled enrichment with installed new code not yet observed.",
+    "storage": "Existing 100000000-byte graph cap; 2000 transfers per token, 200000 query rows and pairs cap, raw retention false. SQLite journal <100000000 bytes. No unbounded file-growth paths.",
+    "production_flags": "No changes to operation membership or IDs; automatic merges remain off.",
+    "provider_requests": 0,
+    "next_action": "Normal scheduled shadow enrichment records buyer transfers for newly processed tokens."
   }
 }

@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "95ad1c0a",
+    "branch": "codex/operation-link-migration-time",
+    "git_head": "643d993e",
     "name": "flex",
-    "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
+    "updated_at_utc": "2026-11-13T11:13:14.103408+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/operation-link-migration-time"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104879,5 +104879,19 @@
       "dashboard_bytes": 210373,
       "next_scheduled_run": "2026-11-13T10:44:35Z"
     }
+  },
+  "operations_links_onchain_migration_20261113": {
+    "objective": "Deduplicate funding links and use on-chain migration time for price multiples",
+    "verdict": "PARTIAL: implemented, installed and published; 404 of the 506 original missing migration values remain unavailable for stated evidence reasons",
+    "engineering_revision": "643d993e",
+    "runtime_deployment_gate": "PASS: installed hashes in /private/tmp/flex-migration-deploy.json; 212 focused tests passed; installed presentation run published successfully with zero provider requests; Helius and Birdeye acquisitions executed with the same qualified source",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "reload": "No persistent agent restart required; next run loads installed code",
+    "results": "SF-4 link shown once; 74 existing IDs unchanged; main 212656 bytes, largest detail 298596 bytes. Caaaaaaaaat 1.39x and Jimothy 1.20x from on-chain times. Of 506 missing, 32 filled locally from on-chain time and 66 labelled processing-time fallbacks; nine Birdeye calls filled another four; 404 missing. Breakdown: 290 verified birth at/after migration; 71 no price artifact; 24 missing on-chain time; 14 blocked artifacts; five no usable result in fetched window. Two Helius attempts refused before transport by ownership-recovery hold.",
+    "provider_requests": "416 successful getBlockTime, 9 Birdeye; page publication 0. Uses existing gates and budgets. No raw provider payload retained.",
+    "storage": "Existing upstream graph cap 100 MB, slot cache capped 50000 rows; price artifacts retain existing bounded record storage. Ten bounded one-off acquisition directories, no recurring writer to those directories.",
+    "production_flags": "Recurring merges remain proposals; no listener, walkback or detection changes.",
+    "next_action": "Allow scheduled agent to process newly eligible work; investigate remaining missing evidence separately if requested.",
+    "other_usage_review": "docs/audits/creator_operation_migration_time_usage_review_20261113.md"
   }
 }

@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/repeat-funder-ids",
-    "git_head": "09579aea0feb1736d54ad0a0ba2c4852cfecb7b3",
+    "branch": "codex/shared-funding-cards",
+    "git_head": "8c2a4507ab64e68c88ab7af466d15407a8eac8d1",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T20:22:50.044875+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/repeat-funder-ids"
+    "updated_at_utc": "2026-11-13T20:39:32.900639+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/shared-funding-cards"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105116,6 +105116,24 @@
     "results": "90 one-off IDs retired, 37 repeat funders and 90 one-offs displayed, 53 nonretired SF registry records including 16 historical or infrastructure entries outside the current candidate view; OP IDs unchanged. 90 token/ID retirements available in creator_funding_changes.html and creator_funder_id_retirements_20261113.json. One-off links remain supported; existing evidence untouched. No provider calls.",
     "tests": "122 focused tests passed plus synchronous one-off→repeat new-ID test; second published registry unchanged (171 rows). Main 222864 bytes at deployment; largest detail 324092 bytes.",
     "storage": "Change log is inside existing 2 MiB SQLite registry with 1000 ID limit; report JSON capped at 300000 bytes; temporary registry rollback copy under 2 MiB; no raw retention or unbounded growth paths.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
+  },
+  "shared_funding_cards_20261113": {
+    "objective": "Render deduplicated shared-funding cards with observed funding, directional evidence diagrams and direct badge anchors",
+    "verdict": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "revision": "8c2a4507ab64e68c88ab7af466d15407a8eac8d1",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_redesign.py",
+    "sha256": "accfebf174262ffb3fe34d1c55116497a3b137a562bc985d09fb00e5dd0bb462",
+    "deployment": "Installed under runner lock; staged publication passed; no restart required.",
+    "tests": "124 passed including multi-token pair deduplication, buyer amounts and evidence, directional shared upstream and badge anchor. 79 cards verified, 72 buyer-wallet, 5 shared-upstream, 2 shared-recipient; three main badge targets verified; no duplicate card IDs. Main 222383 bytes, largest detail 335874 bytes.",
+    "provider_calls": 0,
+    "storage": "No additional persistent data; existing page size and staged set limits remain in force; no unbounded growth paths.",
+    "examples": [
+      "creator_funder_detail_eb5932b9be984e3921ff.html#link-e11092a2ef6bd36a",
+      "creator_funder_detail_a06186d6318615992d2e.html#link-648450fc3b01eaaf"
+    ],
     "blocker": null,
     "next_action": "NONE — COMPLETE"
   }

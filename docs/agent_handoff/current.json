@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "47e5d96789866a1c7a83b9324aca700f2034e2e8",
+    "git_head": "95ad1c0a",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104841,17 +104841,18 @@
   "creator_two_hour_readiness_20261113": {
     "objective": "Verify bounded dashboard and permanent IDs, enforce 1500 daily Birdeye requests, record overlaps, verify cursors and current infrastructure mapping before two-hour schedule",
     "verdict": "PARTIAL — scheduled-run classification confirmation pending",
-    "engineering_revision": "47e5d96789866a1c7a83b9324aca700f2034e2e8",
+    "engineering_revision": "95ad1c0a",
     "runtime_deployment_gate": "PASS — installed source hashes match; isolated installed-code fake cap, UTC rollover, and locked overlap receipt passed without provider calls",
     "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
     "deployment_identity_receipt": "/private/tmp/flex-2hr-deploy.json",
-    "tests": "205 focused tests passed plus additional bounded backfill-seed test. Two full local rebuilds plus a simulated new operation preserved all 74 pre-existing IDs. Two-hour screening and routing window tests passed.",
-    "page": "Existing completed page-size milestone preserved: index 232157 bytes, eight dated archive files 14777–111078 bytes, fixed 20-file maximum; no limits raised. 28 operation IDs retain fixed SHA-256 baseline mint-set keys and old lead aliases.",
+    "tests": "207 focused tests passed. Two rebuilds and a simulated new operation preserved all 74 pre-existing IDs. Two-hour routing and screening window tests passed. Installed-code fake daily cap, rollover and overlap receipt passed.",
+    "page": "Main page 206652 bytes, with 10 rows per growing directory table and a 27326-byte fixed directory archive. Eight dated launch archives range 14777–111078 bytes; fixed maximum 20 launch archive files. No size limits raised. Existing 28 OP IDs retain fixed SHA-256 baseline mint-set keys and old lead aliases.",
     "budgets": "Birdeye atomic UTC reservation cap 1500; exhausted requests defer with BIRDEYE_DAILY_BUDGET and do not fail run. Initial 2026-11-13 count 388, including retained runs and migration-backfill. Helius aggregate run ceiling 2000 and daily 15000 include price-time requests; initial price credit count 38 and upstream count 629. No external calls in this milestone.",
     "overlap": "A second process obtains no runner lock, writes bounded last-overlap.json with RUNNER_LOCK_HELD, and exits without starting another run.",
     "infrastructure": "Exact local mapping recognizes Coinbase Hot Wallet, ChangeHero (CEX), Axiom Trading (PLATFORM). Existing snapshot has 4 Coinbase and 2 ChangeHero retained tokens and no Axiom group; local selected walkback evidence has 6 Coinbase, 2 ChangeHero, 0 Axiom tokens. New scheduled code retains newly mapped candidate groups as direct-infrastructure without provider calls and reports counts. Actual next scheduled run has not yet occurred.",
     "production_flags": "Launchd schedule unchanged: four-hour interval, next due 2026-11-13T10:44:35Z. No listener, walkback, detection or automatic merge changes.",
-    "storage": "Existing 100 MB graph and bounded SQLite journal; two UTC-day counter tables retain 14 days, no raw payloads; fixed 4 KB overlap receipt and transient stage; no unbounded growth paths.",
-    "next_action": "After the normal 10:44 UTC run, verify its result, reclassified_infrastructure report, Axiom classification if any matching launches, daily accounting and absence of provider calls for direct infrastructure. User will decide whether to change schedule."
+    "storage": "Existing 100 MB graph and bounded journal; UTC-day counters retain 14 days, no raw provider payloads. Fixed 4 KB overlap receipt/stage. Main and archive HTML under 500000 bytes; up to 20 dated launch files and one fixed directory archive; old launch files pruned. No unbounded growth paths.",
+    "next_action": "After the normal 10:44 UTC run, verify its result, reclassified_infrastructure report, Axiom classification if any matching launches, daily accounting and absence of provider calls for direct infrastructure. User will decide whether to change schedule.",
+    "deployment": "Graph, provider bridge, routing, runner, navigation and links installed with byte identities matching source; presentation-only publication used zero provider requests. Launchd schedule unchanged."
   }
 }

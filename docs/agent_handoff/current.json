@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/creator-buyer-links",
-    "git_head": "177b754a",
+    "branch": "codex/production-funder-enrichment",
+    "git_head": "93d75351c7559ddc5b393d52d69b67e601de5e8f",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T12:28:03.472533+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-buyer-links"
+    "updated_at_utc": "2026-11-13T13:03:42.131127+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/production-funder-enrichment"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104921,5 +104921,21 @@
     "production_flags": "No changes to operation membership or IDs; automatic merges remain off.",
     "provider_requests": 0,
     "next_action": "Normal scheduled shadow enrichment records buyer transfers for newly processed tokens."
+  },
+  "creator_funding_production_two_hour_20261113": {
+    "objective": "Use enrichment for reversible funder grouping, protect confirmed operations, price newly attributed tokens, and switch research to two-hour schedule",
+    "verdict": "PARTIAL: implementation installed and regrouped; first two scheduled run reports remain pending",
+    "engineering_revision": "93d75351c7559ddc5b393d52d69b67e601de5e8f",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS: eight installed modules exactly match engineering revision; locked deploy, local installed attribution sync, installed family discovery on 22 real subjects and atomic installed publication passed; no persistent runner restart required",
+    "tests": "255 relevant tests passed, including creator-funder change, direct exchange exclusion, confirmed operation hold, rollback to walkback, log idempotence, research operation retirement/revival, configurable two-hour timer, and prior 200 fixture replay. Compact live-data projection and published page verified.",
+    "regroup": "22 enriched launch funders processed: 15 different from walkback, 20 group placements, 15 new permanent SF IDs, zero groups retired, zero confirmed-operation holds. All 74 existing IDs unchanged; confirmed catalog and attachment files byte-identical, with membership counts Watchtower 318, Byzantine 92, Watchtower Deep 26. funding_attribution_log stores 20 changes; all 10 available walkback funders were retained in side-car.",
+    "pricing": "15 newly attributed tokens priced using first-observed-trade reference; 45 Birdeye calls, 0 Helius calls. Five exchange/infrastructure-funded moved tokens excluded; 15/15 priced rows visible. First-trade references are not guaranteed executable openings.",
+    "schedule": "Only com.flex.creator-operation-research reloaded; launchctl shows 7200 seconds. config schedule_interval_hours=2; next nominal run 2026-11-13T14:34:35+00:00. Backup ~/Library/LaunchAgents/com.flex.creator-operation-research.plist.before-2hour. Page displays every 2 hours and 0/2 runs. Next two actual scheduled runs not yet available.",
+    "budgets": "Helius 2000/run and 30000/day, Birdeye 1500/day unchanged; observed UTC Nov 13 totals Helius 1779 credits reserved and Birdeye 446 calls. Two-run UI records start/end/status, enriched count, Helius credits reserved, Birdeye calls, overlap and daily totals.",
+    "storage": "Existing 100000000-byte upstream graph cap (journal under same bound); permanent attribution and log plus 26-item max 8192-byte side-car; no unbounded file-growth paths. Page main 220062 bytes, largest 321998 bytes, 500000-byte individual and 5000000-byte set limits retained.",
+    "rollback": "Set enrichment_grouping_enabled=false in agent config and republish/run; data retained and grouping returns to walkback. Restore saved plist and reload only that job, set schedule_interval_hours=4 to undo timer.",
+    "production_flags": "enrichment_grouping_enabled=true, schedule_interval_hours=2; no automatic operation merges; walkback/listener files unchanged.",
+    "next_action": "After the next two actual scheduled runs, inspect per-run provider_budget, creator_funding_shadow, overlap records, daily totals and report both runs; do not claim future observations."
   }
 }

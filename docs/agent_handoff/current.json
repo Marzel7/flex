@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/verified-birth-entry",
-    "git_head": "4d01ba95069f51a93b15968bded9d90b7d69788e",
+    "branch": "codex/enrichment-scheduled-job",
+    "git_head": "e5ad012d3fec900a5f215d04efbd2aba708005da",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
+    "updated_at_utc": "2026-11-13T19:25:26.117264+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/enrichment-scheduled-job"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105042,5 +105042,20 @@
     "production_flags": "Two threshold config defaults apply; provider caps and routing unchanged; no automatic merging changes.",
     "blocker": null,
     "next_action": "NONE — COMPLETE for verified/routable tokens; unresolved routes await normal classification."
+  },
+  "creator_funding_enrichment_10min_20261113": {
+    "objective": "Separate ten-minute oldest-first enrichment job and one-hour acceptance",
+    "verdict": "PARTIAL",
+    "runtime_deployment_gate": "HOLD: backlog and twenty-minute turnaround acceptance did not pass within the observation hour",
+    "engineering_revision": "e5ad012d3fec900a5f215d04efbd2aba708005da",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "launchd_label": "com.flex.creator-funding-enrichment",
+    "activation": "enabled; launchd job loaded; research enrichment fallback when enrichment_job_enabled is false",
+    "limits": "15 tokens, 240 seconds, 300 Helius reserved credits per pass, 12000 enrichment and 30000 shared per UTC day; Birdeye daily 1500; retries 5/10/20/40/60 sec; own lock; staged publication no more often than 30 minutes",
+    "qualification": "154 focused regression tests passed; additional focused checks passed after incremental fixes; calendar starts 18:20,18:30,18:40,18:50,19:00,19:10,19:20 UTC with no observed overlap",
+    "result": "Backlog 59 at activation; 78 after first ingest; 25 after 19:20 pass. Sixteen newly ingested remain pending, ten more than 20 minutes old; no new post-activation tokens yet completed, because oldest first. Walkbacks completed 20 in first observation hour vs 20,16,7 in previous hourly windows. Dashboard republished 18:51 UTC. Helius ownership-recovery policy deferred at least one wallet; remaining subjects continue. Reserved daily totals at 19:24 UTC: 1372 enrichment of 12000; 5033 shared of 30000; Birdeye 716 of 1500. Birth-time reservations are conservatively included in both shared graph and pricing ledgers.",
+    "storage": "At most 72 pass directories, provider ledgers capped under 2 MB each, a single temporary write under 2 MB and compact results under 64 KB; no raw provider payload retention; upstream graph retains 100 MB bound; no unbounded new growth paths.",
+    "blocker": "One-hour backlog and twenty-minute service targets unmet, primarily from existing backlog and four-minute pass limit; ownership-recovery gate holds at least one wallet. Do not bypass gate.",
+    "next_action": "Keep the enabled job running; assess backlog and newly arrived-token latency after older work drains, and investigate only persistent gate holds or inability to meet the requested latency without changing hard budgets or duration."
   }
 }

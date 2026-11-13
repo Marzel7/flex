@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/group-link-cleanup",
-    "git_head": "c41aeed9f0197b3bcd98e203ceb47799f52f45f4",
+    "branch": "codex/compact-migration-tooltips",
+    "git_head": "ca22561c5ed73c9781007e250d4e77da340db1d0",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T19:52:39.854916+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/group-link-cleanup"
+    "updated_at_utc": "2026-11-13T20:16:02.648321+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/compact-migration-tooltips"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105082,6 +105082,23 @@
     "tests": "113 passed; current SF-11 header and source both show 21 launches; CUBA/VENZA same-group link and badges absent; nine visible source counts checked against detail headers with zero mismatches; singular label correct",
     "results": "18 displayed token-link cards removed (8 unique pairs), five latest-launch badges removed, none added; evidence and grouping unchanged; no provider calls. Main page 222382 bytes; largest detail 309144 bytes.",
     "storage": "No new storage growth; existing page and staging limits retained.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
+  },
+  "compact_price_tooltips_20261113": {
+    "objective": "Declutter metric columns and inspect four migration timing examples from stored data",
+    "verdict": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "engineering_revision": "ca22561c5ed73c9781007e250d4e77da340db1d0",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "identities": {
+      "creator_operation_navigation.py": "e2c57481dfcb940f4f0fce651ef9e53fe36f61e7e1d83dbc36365dcd64dc1d38",
+      "creator_operation_redesign.py": "8a973944e94dd39ea313a4f77634956b28d608e864dcc6dccf53a5aa8199c672"
+    },
+    "deployment": "Installed under runner lock, bounded legacy presentation batch and staged publication; subsequent staged publication passed. No restart required.",
+    "tests": "114 passed; 4186 published metric cells inspected, all showed only multiple or dash and had tooltips. Main 227756 bytes; largest detail 324092 bytes.",
+    "findings": "att, GTA Hold, DOOROC and JSX use processing times; no on-chain block times stored for the four slots, so differences cannot be determined locally. Full OHLC candles in 120-second window saved in docs/audits/creator_migration_candle_investigation_20261113.json. Price-selection logic unchanged; zero provider calls.",
+    "storage": "No unbounded paths. Investigation JSON is 115569 bytes; temporary legacy stage and backup each capped below 5 MB; existing per-page 500 KB and publication bounds unchanged; no raw provider payloads.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
   }

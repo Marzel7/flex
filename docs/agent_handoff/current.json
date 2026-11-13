@@ -104840,7 +104840,7 @@
   },
   "creator_two_hour_readiness_20261113": {
     "objective": "Verify bounded dashboard and permanent IDs, enforce 1500 daily Birdeye requests, record overlaps, verify cursors and current infrastructure mapping before two-hour schedule",
-    "verdict": "PARTIAL — scheduled-run classification confirmation pending",
+    "verdict": "PARTIAL — manual run completed and published; upstream automatic research disabled",
     "engineering_revision": "95ad1c0a",
     "runtime_deployment_gate": "PASS — installed source hashes match; isolated installed-code fake cap, UTC rollover, and locked overlap receipt passed without provider calls",
     "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
@@ -104852,7 +104852,32 @@
     "infrastructure": "Exact local mapping recognizes Coinbase Hot Wallet, ChangeHero (CEX), Axiom Trading (PLATFORM). Existing snapshot has 4 Coinbase and 2 ChangeHero retained tokens and no Axiom group; local selected walkback evidence has 6 Coinbase, 2 ChangeHero, 0 Axiom tokens. New scheduled code retains newly mapped candidate groups as direct-infrastructure without provider calls and reports counts. Actual next scheduled run has not yet occurred.",
     "production_flags": "Launchd schedule unchanged: four-hour interval, next due 2026-11-13T10:44:35Z. No listener, walkback, detection or automatic merge changes.",
     "storage": "Existing 100 MB graph and bounded journal; UTC-day counters retain 14 days, no raw provider payloads. Fixed 4 KB overlap receipt/stage. Main and archive HTML under 500000 bytes; up to 20 dated launch files and one fixed directory archive; old launch files pruned. No unbounded growth paths.",
-    "next_action": "After the normal 10:44 UTC run, verify its result, reclassified_infrastructure report, Axiom classification if any matching launches, daily accounting and absence of provider calls for direct infrastructure. User will decide whether to change schedule.",
-    "deployment": "Graph, provider bridge, routing, runner, navigation and links installed with byte identities matching source; presentation-only publication used zero provider requests. Launchd schedule unchanged."
+    "next_action": "Review the configured upstream_auto_enabled=false state with the user if upstream network research is desired; normal schedule is unchanged. Six blocked price artifacts need separate review if requested.",
+    "deployment": "Graph, provider bridge, routing, runner, navigation and links installed with byte identities matching source; presentation-only publication used zero provider requests. Launchd schedule unchanged.",
+    "manual_run": {
+      "run_id": "run-241075e56eab4468b09ffb065d82c8de",
+      "trigger": "MANUAL_ONE_OFF",
+      "status": "PARTIAL",
+      "started_at_utc": "2026-11-13T10:22:43Z",
+      "finished_at_utc": "2026-11-13T10:28:12Z",
+      "screened_completions": 79,
+      "walkbacks_routed": 92,
+      "reclassified_infrastructure": {
+        "Coinbase Hot Wallet": 4,
+        "ChangeHero": 2
+      },
+      "direct_infrastructure_walkbacks": 5,
+      "direct_infrastructure_provider_requests": 0,
+      "priced_tokens": 1,
+      "provider_requests": {
+        "birdeye": 3,
+        "helius": 1
+      },
+      "birdeye_utc_total": 391,
+      "blocked_price_artifacts": 6,
+      "upstream_automatic_enabled": false,
+      "dashboard_bytes": 210373,
+      "next_scheduled_run": "2026-11-13T10:44:35Z"
+    }
   }
 }

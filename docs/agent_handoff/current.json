@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/verified-birth-entry",
-    "git_head": "0433dc8086e1b4481bbc0c62268c0068978dd4d9",
+    "git_head": "364c7fea55eeffafbc0828f819b93327d021b601",
     "name": "flex",
     "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
@@ -104977,5 +104977,18 @@
     "storage": "No new growing storage path; storage rule not applicable.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
+  },
+  "opening_quality_20261113": {
+    "objective": "Filter sub-$1000 candles and use highest close in first 3 seconds",
+    "verdict": "PASS",
+    "engineering_revision": "364c7fea55eeffafbc0828f819b93327d021b601",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: navigation and redesign installed under runner lock after prior identity check. Published 15:03 UTC with 0 Helius and 0 Birdeye calls, no restart.",
+    "tests": "53 navigation and redesign tests pass, including invalid candles, 3-second high close, matching price and delayed opening.",
+    "verification": "Compared 880 unique visible token rows: 214 existing numeric multiples changed, 5 hidden, 3 added. Dp8GKKcM opening delayed, 12B5GT5C 930.85x to 1.04x, Sealana 6.14x, Dingus 19.95x. Main page 223771 bytes, largest detail 306317 bytes.",
+    "migration_diagnosis": "xsLGdRe8 and gWWtD6WV have on-chain migration timestamp equal to CREATE; their first 1s candle starts in that same second and closes after it, so no completed eligible pre-migration candle. No exact-case 5Qej mint in current displayed pages, provider cache or local core token_analysis; full mint needed. Migration-reference calculation was not changed.",
+    "production_flags": "Defaults min_valid_mcap_usd=1000 and opening_window_seconds=3; existing budgets unchanged.",
+    "storage": "No new growing storage paths.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE; if requested, identify 5Qej using its full mint."
   }
 }

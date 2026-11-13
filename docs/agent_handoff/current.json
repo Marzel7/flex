@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "0b8e5c91",
+    "git_head": "b90e8c26ce4cd9e4a235ee5790c0418674a20239",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104824,5 +104824,18 @@
     "registry": "74 durable IDs: 28 operations and 46 single funders. All displayed groups have IDs; 22 operation records lack a retained anchor, not an ID. First retained snapshot used for discovery ordering with deterministic tie-breaks.",
     "storage": "Separate SQLite 2 MiB hard cap, 1000 IDs and 5000 aliases; compact fields, no provider payloads, connections close per run. Existing 500 KB per page and 5 MB page set caps; published main 499174 bytes. Zero unbounded growth paths.",
     "next_action": "NONE — COMPLETE"
+  },
+  "operations_page_cap_stable_ids_20261113": {
+    "objective": "Keep the operations index under 350 KB, archive older launches, preserve permanent IDs under reordering, and apply current exchange mappings",
+    "verdict": "PASS",
+    "engineering_revision": "b90e8c26ce4cd9e4a235ee5790c0418674a20239",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "identities": "Installed files byte-identical to qualified source; initial pre/post hashes at /private/tmp/flex-operation-cap-deploy.json; subsequent qualified redesign and runner corrections verified byte-identical. No reload required: launchd starts a new process.",
+    "verification": "145 focused tests passed. Installed scheduler-Python presentation-only publication succeeded, 0 Birdeye/Helius requests; second installed rebuild preserved 74 IDs and 32 source articles, main 226334 bytes, 8 archives (largest 111078 bytes), total generated 4898543 bytes. 38 latest launches, 24h/50 cap. 28 OP IDs migrated without renumbering to fixed SHA-256 baseline member sets; 28 legacy lead aliases saved, all 74 IDs preserved. Coinbase Hot Wallet and ChangeHero appear in infrastructure, not single funders.",
+    "production_flags": "Scheduler active; next due 2026-11-13 10:44:35 UTC. No listener, walkback, detection, provider acquisition, or automatic merge changes.",
+    "incident": "An initial presentation-only publish hit NAVIGATION_SET_BUDGET; no research run started. Diagnostics were retained, scheduler activation restored ACTIVE, archive rows compacted, and two subsequent publication/rebuild checks passed.",
+    "storage": "Main and every HTML file below 500000 bytes; up to 20 archive files, 100 rows each, older overflow remains in detail pages; obsolete archive/evidence pages pruned. Aggregate published set bounded 5 MB, main 226334 bytes. Packed retained research articles expand at most 490000 bytes; no provider payload retention. Separate bounded 2 MiB identity DB currently 167936 bytes; no unbounded growth paths.",
+    "next_action": "NONE — COMPLETE. Scheduled run has not yet occurred; its live results cannot be claimed."
   }
 }

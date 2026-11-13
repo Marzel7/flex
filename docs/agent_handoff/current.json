@@ -83669,9 +83669,9 @@
   },
   "project": {
     "branch": "codex/gtfa-shadow-enrichment",
-    "git_head": "fdad17e9",
+    "git_head": "91553f0ff06da1285fc11fbc9912bfe2e369c831",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T12:03:23.964075+00:00",
+    "updated_at_utc": "2026-11-13T12:19:25.349085+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/gtfa-shadow-enrichment"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -104895,17 +104895,17 @@
     "other_usage_review": "docs/audits/creator_operation_migration_time_usage_review_20261113.md"
   },
   "creator_funding_gtfa_shadow_20261113": {
-    "objective": "Post-walkback GTFA shadow enrichment",
-    "verdict": "PARTIAL - offline draft only, not installed or live tested",
-    "engineering_revision": "fdad17e9",
-    "tests": "29 tests passed: two synthetic GTFA cases and graph tests including bounded storage retention and 30000 daily cap",
-    "implementation": "Copies provided pure function; draft SQLite graph creator_funding table with bounded side-car and 60-day nulling; raises graph daily Helius cap in draft only. Runtime unchanged.",
-    "runtime_deployment_required": true,
-    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED: not fully qualified; no runtime modifications",
-    "provider_requests": 0,
-    "walkback_changed": false,
-    "storage": "Uses existing 100000000-byte graph hard cap, 8192-byte side-car maximum and 60-day pruning; permanent rows grow until graph fail-closed cap. No unbounded file growth paths.",
-    "blocker": "replay200_summary.json has only output summaries; no RPC transaction and owner histories or complete-history flags. The requested full historical replay equality test cannot be honestly executed using supplied fixture.",
-    "next_action": "Locate retained replay RPC inputs or obtain authorization for a separately bounded recapture; finish scheduler cursor, gated ledger transport, shadow pages, reporting, 20-token live test and runtime deployment before enabling."
+    "objective": "Post-walkback creator funding enrichment in shadow mode",
+    "verdict": "PARTIAL: installed and published; live bounded check completed 18 tokens and deferred one at HELIUS_REQUEST_COOLDOWN, next scheduled execution not yet observed",
+    "engineering_revision": "91553f0ff06da1285fc11fbc9912bfe2e369c831",
+    "tests": "245 tests passed, including replay of all 200 provided recorded fixtures and two synthetic 100-transaction oldest-first cases; local queue cursor, serial exclusion, retention, daily budget and dashboard preview verified",
+    "runtime_deployment_gate": "PASS: 8 installed source hashes recorded /private/tmp/gtfa-shadow-deploy.json; source-equivalent bounded live execution and installed-code page publication succeeded; no persistent restart required",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "live_result": "Two bounded manual segments attempted 19 tokens total; 18 completed, 13 found, 5 not found; creator types FRESH 7, TRADING 9, ACTIVE 2. One owner lookup deferred by HELIUS_REQUEST_COOLDOWN; queue retains it. 43 pending at end.",
+    "credits": "Successful 27 getTransactionsForAddress x10 = 270, 18 getMultipleAccounts x1 = 18, total 288; one gate-refused getMultipleAccounts conservatively reserved a further credit, 289 reserved. Daily cap 30000; run cap unchanged 2000.",
+    "display": "Published docs/audits/creator_funding_shadow.html with 18 entries; main page links to it, token rows show shadow evidence when part of a displayed group. Publication used zero provider requests.",
+    "storage": "Separate tables in existing bounded upstream graph (100000000 bytes max, SQLite journal also below 100000000); per-side-car cap 8192 bytes, 25 entries, null after 60 days. Permanent results and queue fail closed at graph limit; zero unbounded file-growth paths. Raw RPC responses never retained.",
+    "production_flags": "Shadow only; no grouping change; no walkback files changed.",
+    "next_action": "Next scheduled run resumes pending queue; inspect run-summary creator_funding_shadow for method credits, statuses, and gate deferrals."
   }
 }

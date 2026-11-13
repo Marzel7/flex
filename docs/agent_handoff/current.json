@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "e172f597cb9b7225d68e1765cffa2f2342fa7276",
+    "git_head": "0b8e5c91",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104810,6 +104810,19 @@
     "verification": "120 focused tests passed. Published 2026-11-13 08:28 UTC. Both rg checks found zero external link tags missing target=_blank or rel=noopener; DOM audit across 78 published index/detail/reference/evidence pages found zero external attribute violations and zero 32–44-character base58 display values outside links, plus zero unlinked abbreviated-address-like text and zero internal links opening new tabs. Latest Source has no Funder prefixes and separate Solscan/details links. Watchtower 369 tokens retained across two linked pages; preview repeat render preserved all 32 source articles and latest 30 tokens.",
     "activation": "Presentation-only publication used zero Helius and Birdeye calls. Schedule ACTIVE, next 2026-11-13 10:44 UTC; no restart required. Automatic merging unchanged.",
     "storage": "Existing 500KB per HTML file, 200KB reference-page and 5MB total presentation bounds enforced; main 492453 bytes and largest detail under 300KB. Existing retained source articles kept with redundant presentation classes compacted, and >200-token details paginated. No raw provider retention; zero new unbounded growth paths.",
+    "next_action": "NONE — COMPLETE"
+  },
+  "operations_group_ids_cards_20261113": {
+    "objective": "Permanent OP/SF IDs, token shared-funding cards, and address links",
+    "verdict": "PASS",
+    "engineering_revision": "0b8e5c91",
+    "runtime_deployment_gate": "PASS",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "deployment_identity_receipt": "/private/tmp/flex-group-id-deploy.json",
+    "runtime_acceptance": "Installed under runner lock and published via scheduled Python presentation-only path, receipt PUBLISHED with zero provider requests; no restart required. 56 focused tests pass; twice-rendered stable IDs; preview link audit zero missing target/noopener and zero visible full addresses; caaaaaaaaaat shows five shared wallets.",
+    "production_flags": "Scheduled research unchanged, automatic merging remains off. No listener, walkback or detection changes.",
+    "registry": "74 durable IDs: 28 operations and 46 single funders. All displayed groups have IDs; 22 operation records lack a retained anchor, not an ID. First retained snapshot used for discovery ordering with deterministic tie-breaks.",
+    "storage": "Separate SQLite 2 MiB hard cap, 1000 IDs and 5000 aliases; compact fields, no provider payloads, connections close per run. Existing 500 KB per page and 5 MB page set caps; published main 499174 bytes. Zero unbounded growth paths.",
     "next_action": "NONE — COMPLETE"
   }
 }

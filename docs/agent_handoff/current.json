@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/compact-busy-funders",
-    "git_head": "6826eafba4ba20006c6c29edc34bf817e08d4617",
+    "branch": "codex/uniform-detail-checklist",
+    "git_head": "df34d185b2e46ee08e045aae0dc9ff4c319a38de",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T21:15:07.423749+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/compact-busy-funders"
+    "updated_at_utc": "2026-11-13T21:23:06.282290+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/uniform-detail-checklist"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105150,5 +105150,14 @@
     "storage": "No new persistent growth; existing page and staged publication limits unchanged, no raw provider retention.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
+  },
+  "uniform_detail_and_evidence_checklist_20261113": {
+    "verdict": "PARTIAL",
+    "uniform_detail": "PASS: shared summary and link renderer installed and locally published for all 174 operation and funder detail pages; total 3551878 to 3494172 bytes; no expanded list over 10 or unlinked full-address display. No provider requests.",
+    "verification": "128 existing directly related tests passed at first change; 66 redesign/navigation tests passed after final change. Installed navigation/redesign SHA-256 match source. Runtime publication completed under runner lock; no restart required.",
+    "runtime_deployment_gate": "PASS for uniform detail renderer; installed .runtime/creator-operation-agent/installed/{creator_operation_navigation.py,creator_operation_redesign.py}.",
+    "storage": "No new unbounded growth paths; existing bounded published-page set.",
+    "checklist": "HOLD: user specification cut off at Not evidence alone: equal round am. Clarification requested; no incomplete evidence rules implemented.",
+    "next_action": "Obtain remainder of evidence checklist rules and acceptance, then implement and verify checklist from stored data only."
   }
 }

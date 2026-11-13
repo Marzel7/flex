@@ -104953,7 +104953,7 @@
   },
   "verified_birth_entry_quality_20261113": {
     "objective": "Use verified CREATE times and suppress 3x-first-candle opening multiples without Birdeye calls",
-    "verdict": "PARTIAL: functionality installed and published; Alcapone and SOL CREATE times remain unverified because version-0 requests failed, and additional displayed subjects are deferred",
+    "verdict": "PARTIAL: installed; 845 verified CREATE times; 24 earlier valid-anchor subjects deferred and 31 lacked valid local anchor. Alcapone and SOL were among earlier untyped failures, not the 34 version-related failures, and remain approximate.",
     "engineering_revision": "04a5eebc2d7e9e7e93fb77dbcecd65cd2d48c6aa",
     "runtime_deployment_gate": "PASS: seven installed modules match qualified revision, locked source-identity deployment, 264 focused tests and installed local-only publication passed; no persistent restart required",
     "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
@@ -104962,8 +104962,9 @@
     "budget": "2000 Helius credits per run, 30000 per UTC day unchanged; Birdeye cap 1500/day unchanged. As of check 1897 Helius credits reserved and 446 Birdeye calls for UTC Nov 13.",
     "storage": "Existing 100000000-byte graph cap and 50000 CREATE-time records maximum, compact mint/signature/time/status only, no raw RPC retention, response transient limit 8388608 bytes, no unbounded file growth paths.",
     "production_flags": "verified_birth_enabled=true; scheduled backfill uses stored anchors and user-specified getTransaction jsonParsed, confirmed, maxSupportedTransactionVersion 0. Grouping/listener/walkback unchanged.",
-    "blocker": "Explicit user instruction sets maxSupportedTransactionVersion=0; Solana RPC -32015 means version-1 transactions cannot be read at that ceiling. User was asynchronously asked whether failed lookups may use version 1; no answer received as of handoff. No v1 retries performed.",
+    "blocker": "None for completed version-1 retry; remaining generic failures require a later bounded retry or valid CREATE anchors.",
     "rollback": "Set verified_birth_enabled=false in agent config and republish or run; this disables both verified-time presentation and entry-quality rule while retaining cached evidence.",
-    "next_action": "If user authorizes version 1, safely retry only eligible failed version-1 subjects under gate and budget, preserving already verified times; otherwise leave approximations. Separately report the first two 2-hour scheduled runs after they occur (first due 14:34 UTC)."
+    "next_action": "Allow scheduled backfill to retry eligible uncached subjects; report first two two-hour scheduled runs after they occur.",
+    "version_1_retry": "User authorized version 1 for failed lookups. All 34 recorded -32015 subjects verified through the production gate in a bounded one-off, 34 credits reserved and 34 requests sent; no Birdeye calls. Existing verified cache entries were not queried again. Local-only publication succeeded, 0 provider requests; main page 218767 bytes, largest 322292 bytes."
   }
 }

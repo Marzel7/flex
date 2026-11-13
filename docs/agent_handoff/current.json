@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/compact-migration-tooltips",
-    "git_head": "ca22561c5ed73c9781007e250d4e77da340db1d0",
+    "branch": "codex/repeat-funder-ids",
+    "git_head": "09579aea0feb1736d54ad0a0ba2c4852cfecb7b3",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T20:16:02.648321+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/compact-migration-tooltips"
+    "updated_at_utc": "2026-11-13T20:22:50.044875+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/repeat-funder-ids"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105099,6 +105099,23 @@
     "tests": "114 passed; 4186 published metric cells inspected, all showed only multiple or dash and had tooltips. Main 227756 bytes; largest detail 324092 bytes.",
     "findings": "att, GTA Hold, DOOROC and JSX use processing times; no on-chain block times stored for the four slots, so differences cannot be determined locally. Full OHLC candles in 120-second window saved in docs/audits/creator_migration_candle_investigation_20261113.json. Price-selection logic unchanged; zero provider calls.",
     "storage": "No unbounded paths. Investigation JSON is 115569 bytes; temporary legacy stage and backup each capped below 5 MB; existing per-page 500 KB and publication bounds unchanged; no raw provider payloads.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
+  },
+  "repeat_funder_ids_20261113": {
+    "objective": "Assign SF IDs to repeat funders only; retire and log one-off IDs without reuse",
+    "verdict": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "revision": "09579aea0feb1736d54ad0a0ba2c4852cfecb7b3",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "identities": {
+      "creator_operation_ids.py": "7218b944df971a244317aee3f340e30b136f82985ab66945b8f7cc2aa93104a0",
+      "creator_operation_redesign.py": "61f4b9d46d560a645f7ff73cf44dfdbe3544afce7ab9061586aa1022cbf814ac"
+    },
+    "deployment": "Installed under publication lock, staged publish completed and a second publish preserved the entire ID registry; no restart required.",
+    "results": "90 one-off IDs retired, 37 repeat funders and 90 one-offs displayed, 53 nonretired SF registry records including 16 historical or infrastructure entries outside the current candidate view; OP IDs unchanged. 90 token/ID retirements available in creator_funding_changes.html and creator_funder_id_retirements_20261113.json. One-off links remain supported; existing evidence untouched. No provider calls.",
+    "tests": "122 focused tests passed plus synchronous one-off→repeat new-ID test; second published registry unchanged (171 rows). Main 222864 bytes at deployment; largest detail 324092 bytes.",
+    "storage": "Change log is inside existing 2 MiB SQLite registry with 1000 ID limit; report JSON capped at 300000 bytes; temporary registry rollback copy under 2 MiB; no raw retention or unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
   }

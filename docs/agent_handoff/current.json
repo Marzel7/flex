@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/shared-funding-cards",
-    "git_head": "8c2a4507ab64e68c88ab7af466d15407a8eac8d1",
+    "branch": "codex/compact-busy-funders",
+    "git_head": "6826eafba4ba20006c6c29edc34bf817e08d4617",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T20:39:32.900639+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/shared-funding-cards"
+    "updated_at_utc": "2026-11-13T21:15:07.423749+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/compact-busy-funders"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105134,6 +105134,20 @@
       "creator_funder_detail_eb5932b9be984e3921ff.html#link-e11092a2ef6bd36a",
       "creator_funder_detail_a06186d6318615992d2e.html#link-648450fc3b01eaaf"
     ],
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
+  },
+  "busy_funder_detail_20261113": {
+    "objective": "Summarize busy-funder receipts and compact linked launch cards",
+    "verdict": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "engineering_revision": "6826eafba4ba20006c6c29edc34bf817e08d4617",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_redesign.py",
+    "runtime_sha256": "716b31fe26db6ab20c6d704595e3a844e6ca296471c581c4f83b6318b6484844",
+    "deployment": "Installed under runner lock and published through staged path; no restart required.",
+    "verification": "126 tests passed including dust grouping and sortable 25-row launch controls; node syntax check passed for actual published script. SF-17 page reduced from 99505 to 66355 bytes; shows 5 senders, 27 dust transfers totalling 0.000000027 SOL, one link and collapsed 57-launch table with 25 initially visible. Main page 221503 bytes; largest detail 332562 bytes.",
+    "provider_calls": 0,
+    "storage": "No new persistent growth; existing page and staged publication limits unchanged, no raw provider retention.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
   }

@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/migration-refresh",
-    "git_head": "b850d5231e3ced0ac25f15e0ff7acd9152822a67",
+    "branch": "codex/group-link-cleanup",
+    "git_head": "c41aeed9f0197b3bcd98e203ceb47799f52f45f4",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T19:49:27.203358+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/migration-refresh"
+    "updated_at_utc": "2026-11-13T19:52:39.854916+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/group-link-cleanup"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105070,5 +105070,19 @@
     "storage": "No new growth path: sessionStorage is one bounded replacement per page; no new durable large files. Diagnostic reason list is a 36,898-byte local JSON file in docs/audits. Existing page and publication bounds unchanged.",
     "blocker": "No evidence supports overriding the user-specified floor for the three rows; timed live state-restoration test remains unobserved while Chrome is in active use.",
     "next_action": "When the dashboard can remain visible and idle, expand a disclosure and scroll, publish, then observe timed reload preserving state; review whether sub-$1000 closes represent genuine collapse before changing the validation rule."
+  },
+  "dashboard_group_links_20261113": {
+    "objective": "Use group launch counts in source links and hide same-group relationships",
+    "verdict": "PASS",
+    "runtime_deployment_gate": "PASS",
+    "revision": "c41aeed9f0197b3bcd98e203ceb47799f52f45f4",
+    "runtime_path": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed/creator_operation_redesign.py",
+    "runtime_identity_sha256": "4cce5cff7d98bc0db056099889c41d2c7e06b2a7047c98c0a99303679ca57c1b",
+    "deployment": "Installed under runner lock and published through the existing staged path; no restart needed",
+    "tests": "113 passed; current SF-11 header and source both show 21 launches; CUBA/VENZA same-group link and badges absent; nine visible source counts checked against detail headers with zero mismatches; singular label correct",
+    "results": "18 displayed token-link cards removed (8 unique pairs), five latest-launch badges removed, none added; evidence and grouping unchanged; no provider calls. Main page 222382 bytes; largest detail 309144 bytes.",
+    "storage": "No new storage growth; existing page and staging limits retained.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
   }
 }

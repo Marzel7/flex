@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "cbbf66d8d8a5f72f9900836532be93f647f3d5ad",
+    "git_head": "076fb89b97b1389f57c460c7159c73633838e885",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104745,5 +104745,30 @@
     "storage": "Proposal identities stored in existing max-100MB bounded graph with 15000 identity ceiling and no raw payload retention. Existing 300KB snapshot and 500KB staged HTML bounds remain; zero unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE for this milestone; observe live treasury retry and new/repeated report on next scheduled run."
+  },
+  "migration_price_window_20261113": {
+    "objective": "Fetch and cache one-second migration windows and backfill displayed migration-price gaps",
+    "verdict": "PASS",
+    "engineering_revision": "076fb89b97b1389f57c460c7159c73633838e885",
+    "runtime_deployment_gate": "PASS: installed under runner lock, live bounded backfill and presentation publication verified; scheduled selection tested offline",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "identities": {
+      "runner.py": {
+        "before": "4e5b5da0a20e05abfec5d2ddb732b16ab3c6702451a671813e8f79e85f0802c9",
+        "after": "89bf134f29748972523fff73c5acd7416cd5a8de9a7ea6484b9702de523d84ac"
+      },
+      "provider_bridge.py": {
+        "before": "9e666087fbb86f41cbe6711be467e50d1789372ed2bfddfcc2b6d0a2e7a39465",
+        "after": "a361e3f5a474ed3dabf0722e65b76527774263eb91d405e477cdb76b7fe9b50d"
+      },
+      "creator_operation_navigation.py": {
+        "before": "30a759edf995d67dd8b996d825d62d022b97b8edf09f72c59bea2596059bf101",
+        "after": "1cb547b5b5bd88274ff1b3318d0cdeafc0b63861e67035ef7a072da8659b4267"
+      }
+    },
+    "verification": "119 focused tests passed, including scheduled selection, 1s window, empty-result reuse and UI multiple. Before: 548 distinct displayed tokens said Migration price missing. Backfill: 262 Birdeye calls in 7 bounded batches (maximum 50 subjects and calls per batch, concurrency one, no retries), 35 windows had a qualifying +1 to +30 second candle, 224 empty and 3 nonempty without qualifying candle. Published dashboard now 513 missing: 35 filled. The provided 3A4G2Xhi token window returned no candles. Remaining: 227 backfilled windows without qualifying candle, 148 already-covered windows with no usable displayed multiple, 74 no retained artifact, 20 blocked artifacts, 42 unresolved routing, 2 direct infrastructure excluded.",
+    "activation": "Schedule remains ACTIVE and next due 2026-11-13 01:56 UTC; no restart required. Publication 2026-11-13 00:07 UTC with zero provider calls. Automatic merging unchanged.",
+    "storage": "Migration candles retained compactly inside existing max-300KB per-token artifacts, max 6000 records; response temporary read 1MB, provider dispatch ledger max 2MB, fixed seven backfill reports max 64KB each; no raw provider retention or unbounded growth paths.",
+    "next_action": "NONE for this milestone. Future scheduled runs reuse retained empty or populated windows; remaining gaps need usable one-second evidence or existing route/record review."
   }
 }

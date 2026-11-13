@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/verified-birth-entry",
-    "git_head": "55e970d0b160927a3fe5c46617c35ff11ebb5c80",
+    "git_head": "4d01ba95069f51a93b15968bded9d90b7d69788e",
     "name": "flex",
     "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
@@ -105028,5 +105028,19 @@
     "production_flags": "No provider budgets, schedule, listener, walkback or grouping configuration changed; loaded launchd runs installed script next invocation.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
+  },
+  "dormant_curve_prices_20261113": {
+    "objective": "Correct dormant-curve opening and collect late-migration two-hour price windows",
+    "verdict": "PASS for verified affected tokens; three remaining displayed apparent late migrations lack an allowed verified on-chain migration time",
+    "engineering_revision": "4d01ba95069f51a93b15968bded9d90b7d69788e",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: four runtime modules installed under runner lock after baseline identity validation. Provider-free atomic presentation published 17:55 UTC with zero additional provider calls.",
+    "implementation": "Config dormant_pre_migration_max_multiple defaults 3 and dormant_migration_jump_min_multiple defaults 100. On verified on-chain migration, use earliest valid post-migration close when observed pre-migration peak and migration jump meet thresholds. Cache one 1-minute 2-hour window after migration when birth-to-migration exceeds 2h and the full window has elapsed; scheduled price queue recognizes this profile. Last incomplete 1-minute candle excluded.",
+    "verification": "179 focused tests pass. GODF fXwcDSnh opening reference 5388397 USD, 2h observed complete-candle peak 9566412 USD, open-to-peak and migration-to-peak both 1.78x; old opening ratio 2423.39x. No other displayed token met dormant rule. Main 224538 bytes; largest detail 307961 bytes. 27 fetched post-migration profiles all reused on repeat check.",
+    "provider_accounting": "27 Birdeye requests, 26 retained candle series, one empty; 13 Helius getBlockTime credits. Authoritative BIRDEYE credential and existing gates, ledger and daily caps used. Three currently displayed additional apparent late migrations could not be verified due existing route restrictions: GKFSuSc9 direct infrastructure; 6fqq1K3C and AMpv7Jrr unresolved. One initial processing-time candidate was not actually >2h after verification.",
+    "coverage_note": "Dormant pre-migration check uses available stored candles; gaps in retained historical coverage do not prove inactivity. Seven profiles were seeded only from verified CREATE cache matching audited signature and on-chain migration, without inventing birth candles.",
+    "storage": "Existing cache count max6000, artifact max300000 bytes; post window <=121 compact candles, HTTP body <=1048576 bytes, no raw response retained, no new unbounded growth paths.",
+    "production_flags": "Two threshold config defaults apply; provider caps and routing unchanged; no automatic merging changes.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE for verified/routable tokens; unresolved routes await normal classification."
   }
 }

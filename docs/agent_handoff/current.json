@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/verified-birth-entry",
-    "git_head": "04a5eebc2d7e9e7e93fb77dbcecd65cd2d48c6aa",
+    "git_head": "0433dc8086e1b4481bbc0c62268c0068978dd4d9",
     "name": "flex",
     "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
@@ -104966,5 +104966,16 @@
     "rollback": "Set verified_birth_enabled=false in agent config and republish or run; this disables both verified-time presentation and entry-quality rule while retaining cached evidence.",
     "next_action": "Allow scheduled backfill to retry eligible uncached subjects; report first two two-hour scheduled runs after they occur.",
     "version_1_retry": "User authorized version 1 for failed lookups. All 34 recorded -32015 subjects verified through the production gate in a bounded one-off, 34 credits reserved and 34 requests sent; no Birdeye calls. Existing verified cache entries were not queried again. Local-only publication succeeded, 0 provider requests; main page 218767 bytes, largest 322292 bytes."
+  },
+  "candle_close_entry_20261113": {
+    "objective": "Remove 3x unclear entry rule and use stored first-trade candle close",
+    "verdict": "PASS",
+    "engineering_revision": "0433dc8086e1b4481bbc0c62268c0068978dd4d9",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: installed navigation and redesign under runner lock after checking prior installed identity; no restart; local-only published receipt 2026-11-13 14:54 UTC; 0 Helius and 0 Birdeye requests",
+    "verification": "52 focused tests passed. 261 to 0 distinct entry unclear rows; Sealana 6.17x, Dingus 23.15x, Jimothy 3.87x, BouncySeals 9.05x, xsLGdRe8 1.03x, VICE 1.60x. Main page 225362 bytes, largest detail 305523 bytes.",
+    "production_flags": "No changes to provider budgets or grouping; verified birth remains enabled.",
+    "storage": "No new growing storage path; storage rule not applicable.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
   }
 }

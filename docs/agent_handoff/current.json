@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/verified-birth-entry",
-    "git_head": "51bbe12b8b2b207a976c6ea80e801747520c7bb6",
+    "git_head": "55e970d0b160927a3fe5c46617c35ff11ebb5c80",
     "name": "flex",
     "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
@@ -105016,5 +105016,17 @@
     "blocker": "Automatic 16:34 timer firing not verified: launchd job was loaded but had not started by 16:35, so it was manually kickstarted. Full launchd path completed, but status PARTIAL due HELIUS_GATE_BUSY and other recorded research gaps.",
     "next_action": "Investigate launchd timer versus dashboard due-time mismatch; observe a natural timer-triggered run. Avoid asserting the 16:34 timer fired.",
     "second_run": "run-e092a7364c974deabfbde5d78b5c348c manually kickstarted through launchd, started 16:36:08 finished 17:25:51 UTC and published, status PARTIAL. Enrichment scanned 15, queued 12, completed 35, 59 pending versus 82 before; stopped HELIUS_GATE_BUSY. Reserved 903 Helius credits and 67 Birdeye calls, no overlap. 29 price updates; diagnostics none. Daily totals 3611/30000 Helius, 573/1500 Birdeye."
+  },
+  "atomic_dashboard_publication_20261113": {
+    "objective": "Keep last good dashboard visible during research and stage complete generated pages before publication",
+    "verdict": "PASS",
+    "engineering_revision": "55e970d0b160927a3fe5c46617c35ff11ebb5c80",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: five runtime modules installed atomically under runner lock after old-source identity checks, no restart required. Provider-free presentation run published successfully at 17:40 UTC with 0 Helius and 0 Birdeye calls.",
+    "implementation": "Removed initial publication and live raw proposal replacement; upstream review and reference pages remain in run folder. Final renderer reads staged proposal, references and catalog, stages complete changed pages and metadata, validates budgets and layout, then atomically replaces individual files with rollback on caught errors. Failed runs do not update live pages. Run drawer interval now derives from schedule.",
+    "verification": "145 focused tests passed, including provider-free simulated run with repeated unchanged live layout checkpoints, successful final update, forced render failure and mid-commit rollback. Installed-runtime forced render failure preserved hashes of all 165 HTML files. Published main has 50 Latest launches and Run updates · Every 2 hours. Main 224535 bytes; largest detail/evidence 335337 bytes. Current preview stages 527470 bytes against 5000000 page-set cap; 151 unchanged retained pages total 4595796 bytes.",
+    "storage": "Publication staging bounded below 7000000 bytes including metadata; HTML per file below 500000, catalog below 1500000; run folder remains below 5000000. No raw provider payloads or new unbounded growth paths; stage cleaned after commit or caught failure.",
+    "production_flags": "No provider budgets, schedule, listener, walkback or grouping configuration changed; loaded launchd runs installed script next invocation.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
   }
 }

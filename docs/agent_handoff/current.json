@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/enrichment-scheduled-job",
-    "git_head": "e5ad012d3fec900a5f215d04efbd2aba708005da",
+    "branch": "codex/migration-refresh",
+    "git_head": "b850d5231e3ced0ac25f15e0ff7acd9152822a67",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T19:25:26.117264+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/enrichment-scheduled-job"
+    "updated_at_utc": "2026-11-13T19:49:27.203358+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/migration-refresh"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105057,5 +105057,18 @@
     "storage": "At most 72 pass directories, provider ledgers capped under 2 MB each, a single temporary write under 2 MB and compact results under 64 KB; no raw provider payload retention; upstream graph retains 100 MB bound; no unbounded new growth paths.",
     "blocker": "One-hour backlog and twenty-minute service targets unmet, primarily from existing backlog and four-minute pass limit; ownership-recovery gate holds at least one wallet. Do not bypass gate.",
     "next_action": "Keep the enabled job running; assess backlog and newly arrived-token latency after older work drains, and investigate only persistent gate holds or inability to meet the requested latency without changing hard budgets or duration."
+  },
+  "dashboard_migration_refresh_20261113": {
+    "objective": "Explain migration-price gaps, add idle-safe local refresh, and fix singular launch label",
+    "verdict": "PARTIAL",
+    "runtime_deployment_gate": "HOLD: requested in-browser scroll/disclosure restoration after a timed reload was not observed; user is actively using Chrome; numerical migration multiples for three examples remain suppressed by the previously requested $1000 floor",
+    "engineering_revision": "b850d5231e3ced0ac25f15e0ff7acd9152822a67",
+    "installed_runtime": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "tests": "112 passed, including deterministic JavaScript visibility, idle, sessionStorage and restore checks; Chrome confirmed the hash-authorized script executed and displayed Page loaded time",
+    "results": "Three requested tokens have stored candles with closes below $1000 near migration; the existing filter explains omissions. UI now reports below-filter data accurately. Current published pages contain 375 unique tokens with migration price missing: 278 lack a stored reference candle in the 120 seconds before migration, 78 lack an artifact, 19 lack a usable MCAP series; another 29 distinct tokens display below-filter. No provider calls. All 149 detail/group pages contain refresh code. Main 222059 bytes; largest detail 309144 bytes.",
+    "activation": "Installed and published through existing staged publisher, 180-second default, no service restart required; current runtime files match the engineering revision. Existing CSP retains default-src none and authorizes only the exact refresh script hash.",
+    "storage": "No new growth path: sessionStorage is one bounded replacement per page; no new durable large files. Diagnostic reason list is a 36,898-byte local JSON file in docs/audits. Existing page and publication bounds unchanged.",
+    "blocker": "No evidence supports overriding the user-specified floor for the three rows; timed live state-restoration test remains unobserved while Chrome is in active use.",
+    "next_action": "When the dashboard can remain visible and idle, expand a disclosure and scroll, publish, then observe timed reload preserving state; review whether sub-$1000 closes represent genuine collapse before changing the validation rule."
   }
 }

@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/latest-launch-cleanup-20261112",
-    "git_head": "076fb89b97b1389f57c460c7159c73633838e885",
+    "git_head": "e172f597cb9b7225d68e1765cffa2f2342fa7276",
     "name": "flex",
     "updated_at_utc": "2026-11-12T16:06:54.413046+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-launch-cleanup-20261112"
@@ -104770,5 +104770,46 @@
     "activation": "Schedule remains ACTIVE and next due 2026-11-13 01:56 UTC; no restart required. Publication 2026-11-13 00:07 UTC with zero provider calls. Automatic merging unchanged.",
     "storage": "Migration candles retained compactly inside existing max-300KB per-token artifacts, max 6000 records; response temporary read 1MB, provider dispatch ledger max 2MB, fixed seven backfill reports max 64KB each; no raw provider retention or unbounded growth paths.",
     "next_action": "NONE for this milestone. Future scheduled runs reuse retained empty or populated windows; remaining gaps need usable one-second evidence or existing route/record review."
+  },
+  "operation_links_20261113": {
+    "objective": "Fix external new-tab links, Solscan address links and funder Source labels; rebuild without provider calls",
+    "verdict": "PASS",
+    "engineering_revision": "e172f597cb9b7225d68e1765cffa2f2342fa7276",
+    "runtime_deployment_gate": "PASS: installed under runner lock; presentation-only run imported installed modules and published all pages with zero provider calls",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "identities": {
+      "creator_operation_links.py": {
+        "before": null,
+        "after": "5369844b9ddde64a4b6565bbdfb17ab8acf66c9b8c045ea7099659dae37ec0cd"
+      },
+      "creator_operation_review_ui.py": {
+        "before": "3b97c634734a19ab4abb43c67f5a62b7c9b2416aedfffea770de6d21fe796766",
+        "after": "fb8650281d074a095288f12d894e31c0f7511f78a12fbf36dfd2289d8ba2e656"
+      },
+      "creator_operation_redesign.py": {
+        "before": "ad4ef1ffe67f332f07087b2eee2ce4cf1ef52c3f662d5da3358187942f8529a6",
+        "after": "ea6444f4ffcad2b8c4623d76021f9095dcc1ea383738370af6634ddd3396808c"
+      },
+      "creator_operation_navigation.py": {
+        "before": "1cb547b5b5bd88274ff1b3318d0cdeafc0b63861e67035ef7a072da8659b4267",
+        "after": "2191f0f43dd9f77f139cc9aa785568c333b104d4410387a38ed4efee54683706"
+      },
+      "creator_operation_reference_ui.py": {
+        "before": "c3d423091e65ec5cd976946434280f17b56673e771a5e1a0f23a8647ad3a4274",
+        "after": "884759476f4cd1ca691bd8b239c9bb8a03f99f84ab1a1bcb6e65cd366c8cb758"
+      },
+      "creator_operation_upstream.py": {
+        "before": "d42a3e8d87b714cf1751ea47885fe68300b192cfe94599ea055ab320ce7885ba",
+        "after": "f4495bd87f6d1bdec26cdcd4ae485ca5d156bc00dc2d8a053f0356b04ac6c6e1"
+      },
+      "runner.py": {
+        "before": "89bf134f29748972523fff73c5acd7416cd5a8de9a7ea6484b9702de523d84ac",
+        "after": "dde7b7b240a638e9d65759c8aed13203eedff86b4f19b3e6f0ca12f1750fe170"
+      }
+    },
+    "verification": "120 focused tests passed. Published 2026-11-13 08:28 UTC. Both rg checks found zero external link tags missing target=_blank or rel=noopener; DOM audit across 78 published index/detail/reference/evidence pages found zero external attribute violations and zero 32–44-character base58 display values outside links, plus zero unlinked abbreviated-address-like text and zero internal links opening new tabs. Latest Source has no Funder prefixes and separate Solscan/details links. Watchtower 369 tokens retained across two linked pages; preview repeat render preserved all 32 source articles and latest 30 tokens.",
+    "activation": "Presentation-only publication used zero Helius and Birdeye calls. Schedule ACTIVE, next 2026-11-13 10:44 UTC; no restart required. Automatic merging unchanged.",
+    "storage": "Existing 500KB per HTML file, 200KB reference-page and 5MB total presentation bounds enforced; main 492453 bytes and largest detail under 300KB. Existing retained source articles kept with redundant presentation classes compacted, and >200-token details paginated. No raw provider retention; zero new unbounded growth paths.",
+    "next_action": "NONE — COMPLETE"
   }
 }

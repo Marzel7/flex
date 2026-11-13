@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/verified-birth-entry",
-    "git_head": "364c7fea55eeffafbc0828f819b93327d021b601",
+    "git_head": "853b6092024c7aac033d5bcb8f5e4c2d6ec37e0e",
     "name": "flex",
     "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
@@ -104990,5 +104990,17 @@
     "storage": "No new growing storage paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE; if requested, identify 5Qej using its full mint."
+  },
+  "migration_at_launch_20261113": {
+    "objective": "Resolve missing launch-time migration multiples and processing-time labels in Latest launches",
+    "verdict": "PASS",
+    "engineering_revision": "853b6092024c7aac033d5bcb8f5e4c2d6ec37e0e",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS: navigation and redesign installed under runner lock after prior source identity verified; local-only publication at 15:15 UTC succeeded; no restart needed.",
+    "verification": "86 navigation, redesign and bridge tests passed. All ten named tokens show numeric migrated-at-launch multiples; 49 latest rows: missing migration 10 to 0 and processing time 7 to 0. Main 224174 bytes, largest detail 306492 bytes.",
+    "provider_accounting": "7 getBlockTime Helius credits reserved and used within existing daily and run gate budgets; all seven retained in migration_block_times. Zero Birdeye calls. Publication made zero provider requests.",
+    "production_flags": "migration_at_launch_enabled defaults true; set false to disable launch-time fallback; block-time cache retained.",
+    "storage": "Existing bounded 50,000-row migration block-time cache and 100 MB graph cap; no raw retention or new unbounded growth paths.",
+    "blocker": null,
+    "next_action": "NONE — COMPLETE"
   }
 }

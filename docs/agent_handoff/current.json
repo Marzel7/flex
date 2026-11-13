@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/funder-change-log-noops",
-    "git_head": "79018586",
+    "branch": "codex/verified-birth-entry",
+    "git_head": "04a5eebc2d7e9e7e93fb77dbcecd65cd2d48c6aa",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T13:45:12.481347+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/funder-change-log-noops"
+    "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104950,5 +104950,20 @@
     "storage": "Adds compact audit rows inside existing 100000000-byte bounded graph, with no raw payload retention and no unbounded file-growth path.",
     "production_flags": "enrichment_grouping_enabled=true, schedule_interval_hours=2; operation merge disabled; no listener/walkback files changed.",
     "next_action": "After both scheduled runs complete, report start/end, status, enrichment count, Helius reserved credits, Birdeye calls, overlap, daily totals, and backlog change; compare queued plus unscanned with stated baseline."
+  },
+  "verified_birth_entry_quality_20261113": {
+    "objective": "Use verified CREATE times and suppress 3x-first-candle opening multiples without Birdeye calls",
+    "verdict": "PARTIAL: functionality installed and published; Alcapone and SOL CREATE times remain unverified because version-0 requests failed, and additional displayed subjects are deferred",
+    "engineering_revision": "04a5eebc2d7e9e7e93fb77dbcecd65cd2d48c6aa",
+    "runtime_deployment_gate": "PASS: seven installed modules match qualified revision, locked source-identity deployment, 264 focused tests and installed local-only publication passed; no persistent restart required",
+    "runtime_target": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/creator-operation-agent/installed",
+    "backfill": "900 currently displayed tokens: 754 reused verified times from existing artifacts, 57 newly verified, 34 unavailable with RPC code -32015 under user-specified transaction version 0, 24 valid-anchor tokens deferred (17 uncategorized RPC errors, 3 provider response errors, 4 ownership holds), 31 without valid local CREATE anchor. Three compact run ledgers hold 118 Helius credits reserved, 111 requests sent, 0 Birdeye calls. Generic untyped failures were not cached permanently.",
+    "verification": "All 900 remain in details; 13 recheck flags cleared, zero new recheck flags; 261 new entry-unclear states, zero removed. Alcapone and SOL show approximate 1-second candle times; cap has verified CREATE time. xsLGdRe8 and VICE show entry unclear. Main 218822 bytes, largest 322292, generated set under 5MB. 89 group IDs, confirmed catalog, attachments, known direct groups unchanged.",
+    "budget": "2000 Helius credits per run, 30000 per UTC day unchanged; Birdeye cap 1500/day unchanged. As of check 1897 Helius credits reserved and 446 Birdeye calls for UTC Nov 13.",
+    "storage": "Existing 100000000-byte graph cap and 50000 CREATE-time records maximum, compact mint/signature/time/status only, no raw RPC retention, response transient limit 8388608 bytes, no unbounded file growth paths.",
+    "production_flags": "verified_birth_enabled=true; scheduled backfill uses stored anchors and user-specified getTransaction jsonParsed, confirmed, maxSupportedTransactionVersion 0. Grouping/listener/walkback unchanged.",
+    "blocker": "Explicit user instruction sets maxSupportedTransactionVersion=0; Solana RPC -32015 means version-1 transactions cannot be read at that ceiling. User was asynchronously asked whether failed lookups may use version 1; no answer received as of handoff. No v1 retries performed.",
+    "rollback": "Set verified_birth_enabled=false in agent config and republish or run; this disables both verified-time presentation and entry-quality rule while retaining cached evidence.",
+    "next_action": "If user authorizes version 1, safely retry only eligible failed version-1 subjects under gate and budget, preserving already verified times; otherwise leave approximations. Separately report the first two 2-hour scheduled runs after they occur (first due 14:34 UTC)."
   }
 }

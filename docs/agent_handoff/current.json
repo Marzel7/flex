@@ -83669,7 +83669,7 @@
   },
   "project": {
     "branch": "codex/verified-birth-entry",
-    "git_head": "853b6092024c7aac033d5bcb8f5e4c2d6ec37e0e",
+    "git_head": "51bbe12b8b2b207a976c6ea80e801747520c7bb6",
     "name": "flex",
     "updated_at_utc": "2026-11-13T14:12:36.718777+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/verified-birth-entry"
@@ -105002,5 +105002,18 @@
     "storage": "Existing bounded 50,000-row migration block-time cache and 100 MB graph cap; no raw retention or new unbounded growth paths.",
     "blocker": null,
     "next_action": "NONE — COMPLETE"
+  },
+  "delayed_openings_scheduled_20261113": {
+    "objective": "Fix delayed opening and migration display; repair failed scheduled page render and enrichment; verify next scheduled run",
+    "verdict": "PARTIAL: UI and scheduled fixes installed, full one-off completed PARTIAL and published; 16:34 scheduled run not yet occurred",
+    "engineering_revision": "51bbe12b8b2b207a976c6ea80e801747520c7bb6",
+    "deployment": "RUNTIME_DEPLOYMENT_GATE=PASS for installed nav, redesign, runner and creator_funding_shadow. Source identities checked; atomic installation under runner lock. Actual failed proposal tested through installed presentation renderer within limits. One-off ran full scheduled path 15:54–16:21 UTC and published.",
+    "verification": "114 tests passed. Dp8GKKcM 1.10x +39s opening, 1.10x +24s after migration; BrdnsKNd and Dx3TdN7C no valid data. No migrated-at-launch labels. Remaining >1000x are 5qaP7oKUqKffwwo5DaEqDoTtsBLMpdbQTxEkCDaTpump: 4009.85x and 4009.33x across views. Main 229946 bytes; largest detail 307978 bytes at one-off completion.",
+    "scheduled_fixes": "14:34 NAVIGATION_SET_BUDGET was caused by nonpresentation main 514267 bytes; precheck now uses actual presentation renderer. Identical previously published pages omitted from staged set but retained in full manifest and protected from cleanup; saved failed proposal emitted 468902 bytes against 5000000, retained 4359558 bytes unchanged; 500000 per-page limit unchanged. Current preview 911027 bytes staged incl main, 130 retained pages totaling 4043208 bytes. Shadow ingest resolves installed provider_bridge.py fallback; FileNotFoundError summary records missing_path.",
+    "run": "run-f4bc08e011da4929945e578c273e8bf7 PARTIAL, 14 enriched of 69 scanned, 55 newly queued, stopped HELIUS_GATE_BUSY; pending 43 before, 82 after. 714 Helius credits reserved, 47 Birdeye calls; 19 price completions. No overlap. The failed 14:34 run made zero shadow dispatches and did not advance its queue.",
+    "storage": "Existing bounded page and graph budgets; retained pages remain on disk, no new unbounded growth paths.",
+    "production_flags": "Automatic merges unchanged; scheduled launchd remains enabled, next due 16:34:37 UTC; no schedule changes.",
+    "blocker": "16:34 scheduled run has not yet occurred.",
+    "next_action": "Observe 16:34 scheduled run to completion; report its status, enrichment, provider usage, backlog, and publication. If failed, report exact diagnostics."
   }
 }

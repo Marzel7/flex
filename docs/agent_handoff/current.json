@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/production-funder-enrichment",
-    "git_head": "93d75351c7559ddc5b393d52d69b67e601de5e8f",
+    "branch": "codex/funder-change-log-noops",
+    "git_head": "79018586",
     "name": "flex",
-    "updated_at_utc": "2026-11-13T13:03:42.131127+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/production-funder-enrichment"
+    "updated_at_utc": "2026-11-13T13:45:12.481347+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/funder-change-log-noops"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -104937,5 +104937,18 @@
     "rollback": "Set enrichment_grouping_enabled=false in agent config and republish/run; data retained and grouping returns to walkback. Restore saved plist and reload only that job, set schedule_interval_hours=4 to undo timer.",
     "production_flags": "enrichment_grouping_enabled=true, schedule_interval_hours=2; no automatic operation merges; walkback/listener files unchanged.",
     "next_action": "After the next two actual scheduled runs, inspect per-run provider_budget, creator_funding_shadow, overlap records, daily totals and report both runs; do not claim future observations."
+  },
+  "creator_funding_change_log_noops_20261113": {
+    "objective": "Remove identical attribution change-log rows and report first two scheduled two-hour runs",
+    "verdict": "PARTIAL: change-log fix PASS; requested scheduled runs remain in the future",
+    "engineering_revision": "79018586",
+    "runtime_deployment_required": true,
+    "runtime_deployment_gate": "PASS: installed attribution module SHA-256 01b9c4d98c0face69d89bedfeb4842a6c108b0a6173965f28d0f5ce2590dbae1 matches source; 80 focused tests passed, installed sync produced zero no-op moves, change log has 15 real rows, and local-only dashboard publication succeeded",
+    "fix": "Normalizes equivalent funder group keys before comparing both funder and group; true same-funder moves across distinct OP groups and funder changes remain loggable. Five exact no-op records removed from visible log and retained in compact bounded graph audit table funding_attribution_log_noops. No provider requests.",
+    "schedule": "At 2026-11-13 13:44 UTC neither requested 14:34 nor 16:34 UTC run has occurred; launchctl interval 7200 seconds, next nominal start 2026-11-13 14:34:35 UTC. Do not fabricate future run outcomes.",
+    "baseline": "At 13:44 UTC creator_funding_queue had 43 PENDING and 18 DONE; 28 completed walkbacks had not yet been scanned by enrichment cursor, not all necessarily eligible or distinct from pending. Helius daily reserved 1779/30000 credits; Birdeye 446/1500 calls.",
+    "storage": "Adds compact audit rows inside existing 100000000-byte bounded graph, with no raw payload retention and no unbounded file-growth path.",
+    "production_flags": "enrichment_grouping_enabled=true, schedule_interval_hours=2; operation merge disabled; no listener/walkback files changed.",
+    "next_action": "After both scheduled runs complete, report start/end, status, enrichment count, Helius reserved credits, Birdeye calls, overlap, daily totals, and backlog change; compare queued plus unscanned with stated baseline."
   }
 }

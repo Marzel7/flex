@@ -83668,10 +83668,10 @@
     }
   },
   "project": {
-    "branch": "codex/enrichment-visible-pricing",
-    "git_head": "11cdd421",
+    "branch": "codex/birdeye-cu-budgets",
+    "git_head": "d1260288",
     "name": "flex",
-    "updated_at_utc": "2026-11-14T11:47:21.988478+00:00",
+    "updated_at_utc": "2026-11-14T12:00:44.402899+00:00",
     "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/fix-regroup-import"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
@@ -105195,5 +105195,15 @@
     "runtime_deployment_gate": "PASS; live enrichment and publication observed. Some passes report PARTIAL from ENRICHMENT_TIME_BUDGET; publication pass used its time rendering.",
     "storage": "Existing 100 MB graph, 300 KB artifact, 6000-record and bounded run logs unchanged; no new unbounded growth paths.",
     "next_action": "NONE for requested milestone. Existing operation evidence checklist remains separate."
+  },
+  "birdeye_cu_budget_20261114": {
+    "verdict": "QUALIFIED_NOT_DEPLOYED",
+    "implementation": "Shared agent Birdeye CU ledger with conservative 100-CU reservation and documented OHLCV V3 tier settlement; 60000/day, 2200000/period, unconfirmed 2026-12-02 boundary fails closed, 6-hour coverage snapshot. Uses existing credential and price ordering. Commit d1260288.",
+    "verification": "130 targeted tests passed; no provider test calls. Runtime deployment not yet performed.",
+    "production_state": "Existing installed code remains active; runner lock was held by run-f3fba47ad05040c8964b52b27e2a9d72 during price acquisition; enrichment lock also periodically held.",
+    "runtime_deployment_gate": "QUALIFIED_NOT_DEPLOYED",
+    "storage": "CU database limited to 4,997,120 bytes, bounded reservations 40000, family labels 32, daily history 90 days, one observation; rollback journal bounded by database. No unbounded growth paths.",
+    "blocker": "Need a safe deployment window with both runner.lock and enrichment.lock exclusively held. Six-hour observation can only follow installation.",
+    "next_action": "Acquire both locks without waiting; seed daily from legacy daily-call counter times 100 and period at 150000 plus conservatively counted post-2026-11-14T11:50Z dispatches times 100, install four changed runtime scripts atomically, verify identity and first bounded live pass, then record six-hour coverage. Reconcile account usage and exact period boundary against dashboard when supplied; no automatic reset."
   }
 }

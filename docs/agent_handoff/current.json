@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/cu-and-migrations-install",
-    "git_head": "0f85f295",
+    "branch": "codex/migration-lag-consistency",
+    "git_head": "95e5bdea",
     "name": "flex",
-    "updated_at_utc": "2026-11-14T12:48:08.132736+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/cu-and-migrations-install"
+    "updated_at_utc": "2026-11-14T13:06:49.661153+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/migration-lag-consistency"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105234,5 +105234,17 @@
     "runtime_deployment_gate": "PASS for changed ledger and dashboard; first bounded live pass and publication observed.",
     "storage": "New CU SQLite maximum 4,997,120 bytes with 40000 reservation and 32 family limits; daily rows 90 days; bounded rollback journal; no unbounded growth paths.",
     "next_action": "Finish separately the old-token pricing draft on codex/migration-lifetime-prices: verify finest-resolution earliest fallback beyond initial 100-candle window, full 2h refresh, boundary candles, per-token CU and 2h metrics; reconcile exact Birdeye billing-period dates and usage when user supplies them."
+  },
+  "migration_lag_consistency_20261114": {
+    "verdict": "PARTIAL",
+    "implementation": "Installed zero-provider 10-minute shared-cursor routing, direct funder grouping with bounded durable route overlay, operation and infra handling, migration-based missing-row publication trigger and 10-sample lag tracker; kept 30-minute publication throttle. Added stored-candle absolute consistency flags, suppressed both multiples with needs repricing tooltip, and visible-row repricing priority. Applied timestamp integer correction.",
+    "verification": "183 relevant tests passed, followed by additional focused timestamp and bounded lag tests. Runtime files match commit 95e5bdea. Manual locked zero-provider routing processed 23 walkbacks (9 displayable) and a subsequent installed postprocess routed 2 more; no new provider calls. Local unpublished preview has 50 rows, newest 2026-11-14T12:57:12Z, includes 5gCauyC9, 5cfBjRKK and four previously grouped examples, 18 flagged. Live page last published 12:47:17 UTC; next eligible after 13:17:17 UTC.",
+    "price_audit": "1265 retained price rows with both opening and peak analysed from 1334 cached artifacts: 430 missing usable migration/reference windows and 61 opening reference exceeds migration reference, zero wrong-peak-window failures observed. trench 8p3hdG1t opening/peak 4247 vs migration ref 1023 and post peak 2774 (fallback reference). ABIBI 88sHR7Yn opening 4386 peak 4392 and ch 2hhMe7Lw opening/peak 4255 have no usable migration-window reference/post candles. Audit does not cover static-only priced rows.",
+    "exclusions": "74KdPFTw and 4jiRJURJ resolve to Bybit Wallet 10; 8aVkNQo6 resolves to MoonPay Hot Wallet. They are direct-exchange funded and correctly excluded.",
+    "production_state": "Installed five files under runner and enrichment locks, no restart needed. UI update awaits 30-minute throttle; current live page still shows old state. Lag tracker starts 13:02:39 UTC and retains at most ten first-visible observations.",
+    "runtime_deployment_gate": "PARTIAL: installed and zero-provider route verified; live publication and ten lag samples pending.",
+    "storage": "New route-direct-unknown.json and transient stage bounded below 1.5 MB each, 5000 members; graph-backed visibility table max ten records, existing graph <100 MB. No raw provider payloads; no unbounded growth paths.",
+    "blocker": "Publication throttled until 13:17:17 UTC; repricing entries with complete old cached coverage defer REPRICE_REQUIRES_WINDOW because the safe lifetime/migration-window reacquisition draft is not qualified. The 10 future lag observations do not yet exist.",
+    "next_action": "After 13:17, confirm next scheduled enrichment publishes, inspect ten rows in migration_visibility_lag_v1 and calculate first_visible minus migration_time, report when all ten exist. Complete and qualify prior lifetime-price draft to reacquire missing or mismatched windows; extend consistency coverage to static-only rows and queue all flagged detail-page tokens, not only the visible top 50."
   }
 }

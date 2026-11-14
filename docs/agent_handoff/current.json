@@ -83668,11 +83668,11 @@
     }
   },
   "project": {
-    "branch": "codex/latest-migrations",
-    "git_head": "1ea1396f",
+    "branch": "codex/migration-lifetime-prices",
+    "git_head": "7c731bf4",
     "name": "flex",
-    "updated_at_utc": "2026-11-14T12:31:29.482064+00:00",
-    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/latest-migrations"
+    "updated_at_utc": "2026-11-14T12:38:44.769513+00:00",
+    "working_tree": "/Users/kevinkeaveney/Dev/claude/flex/.runtime/migration-lifetime-prices"
   },
   "project_git_head": "8532935102ddf454b936e49b33a6b10227e9df94",
   "protected_hot_reservation_audit_20261107": {
@@ -105215,5 +105215,15 @@
     "storage": "No new persistent storage; existing atomic publication and page size bounds apply.",
     "blocker": "Active research runner holds lock needed for safe installation and publication.",
     "next_action": "When runner.lock and enrichment.lock are free, run /private/tmp/flex_migration_deploy.py (confirm source revision and preview then); it installs three scripts under both locks and republishes using stored data. Verify published rows, pending count and page size. Independently complete the prior CU deployment, merging its enrichment script changes without overwriting this change."
+  },
+  "lifetime_price_candles_20261114": {
+    "verdict": "PARTIAL_DRAFT_NOT_DEPLOYED",
+    "implementation": "Combined pending migration dashboard and CU-ledger branches, plus draft old-token lifetime window planner, 1s opening with coarser fallback, historical and migration candle capture, ratio renderer, and visible-row priority. Commit 7c731bf4 (parent contains the other two commits).",
+    "verification": "174 tests passed before one additional priority test, which also passed independently. New tests use synthetic recorded responses and no provider calls. Draft has not passed full live acceptance.",
+    "production_state": "No files installed or activated; prior CU and migration dashboard changes likewise remain uninstalled. Existing research runner holds runner.lock.",
+    "runtime_deployment_gate": "HOLD: requested production functionality not installed or verified.",
+    "storage": "Uses existing bounded per-token 300000-byte artifacts, five historical windows max, no additional raw-retention path. Existing compact CU ledger is capped under 5 MB.",
+    "blocker": "Active research runner holds runner.lock; draft also needs correctness work and a two-hour observed report before completion.",
+    "next_action": "Finish and test oldest-token fallback so earliest available finest-resolution candle is established beyond the initial 100-candle search; ensure full 2h post-migration refresh and reporting (per-token CU, no-1s counts, both filled/blank counts). Review day/hour boundary-candle peak semantics. Once both job locks are free, safely initialize the CU ledger per prior handoff, deploy the integrated sources and verify a bounded live pass; report observations after two hours."
   }
 }
